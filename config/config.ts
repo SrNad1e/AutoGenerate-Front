@@ -25,13 +25,13 @@ export default defineConfig({
   // https://umijs.org/zh-CN/plugins/plugin-locale
   locale: {
     // default zh-CN
-    default: 'zh-CN',
+    default: 'es-ES',
     antd: true,
     // default true, when it is true, will use `navigator.language` overwrite default
     baseNavigator: true,
   },
   dynamicImport: {
-    loading: '@ant-design/pro-layout/es/PageLoading',
+    loading: '@/components/PageLoading',
   },
   targets: {
     ie: 11,
@@ -53,16 +53,11 @@ export default defineConfig({
           redirect: '/user/login',
         },
         {
-          name: 'register-result',
-          icon: 'smile',
-          path: '/user/register-result',
-          component: './user/register-result',
-        },
-        {
           name: 'register',
           icon: 'smile',
           path: '/user/register',
           component: './user/register',
+    // default true, when it is true, will use `navigator.language` overwrite default
         },
         {
           component: '404',
