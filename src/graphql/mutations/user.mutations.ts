@@ -6,7 +6,6 @@ export const LOGIN = gql`
       user {
         username
         name
-        password
         id
         _id
       }

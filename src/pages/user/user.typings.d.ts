@@ -7,4 +7,8 @@ declare namespace USER {
     username: string;
     password: string;
   };
+  type Response = {
+    user: User;
+    access_token: string;
+  };
 }

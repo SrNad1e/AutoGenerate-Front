@@ -1,13 +1,15 @@
+import React from 'react';
 import type { Settings as LayoutSettings } from '@ant-design/pro-layout';
 import type { RunTimeLayoutConfig } from 'umi';
 import { history } from 'umi';
+import { ApolloProvider } from '@apollo/client';
+
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import PageLoading from './components/PageLoading';
-import React from 'react';
-import { ApolloProvider } from '@apollo/client';
+
 import { client } from './services/apollo-client';
+import { CURRENTUSER } from './graphql/queries/user.queries';
 
 const loginPath = '/user/login';
 
@@ -17,17 +19,22 @@ export const initialStateConfig = {
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
+ *
  * */
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
   currentUser?: API.CurrentUser;
-  fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
+  fetchUserInfo?: () => Promise<USER.User | undefined>;
 }> {
   const fetchUserInfo = async () => {
     try {
-      const msg = await queryCurrentUser();
-      return msg.data;
-    } catch (error) {
+      const { data, error } = await client.query({ query: CURRENTUSER });
+      if (error) {
+        localStorage.removeItem('token');
+        history.push(loginPath);
+      }
+      return data.currentUser;
+    } catch {
       history.push(loginPath);
     }
     return undefined;
@@ -50,9 +57,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
-    waterMarkProps: {
-      content: initialState?.currentUser?.name,
-    },
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
@@ -62,7 +66,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     },
     links: [],
     menuHeaderRender: undefined,
-    // unAccessible: <div>unAccessible</div>,
     children: (children: React.FC) => <ApolloProvider client={client}>{children}</ApolloProvider>,
     ...initialState?.settings,
   };

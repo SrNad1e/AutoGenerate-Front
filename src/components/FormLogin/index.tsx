@@ -1,37 +1,43 @@
 import { Card, Col } from 'antd';
 import { useState } from 'react';
-import { parse } from 'qs';
 import { animated, useTransition } from 'react-spring';
 import { LoginForm, ProFormText } from '@ant-design/pro-form';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { useModel } from 'umi';
+import { useModel, history } from 'umi';
 
 import Logosquare from '@/assets/logosquare.png';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from './index.less';
-
-const getPageQuery = () => {
-  return parse(window.location.href.split('?')[1]);
-};
+import { useLogin } from '@/hooks/user.hooks';
 
 const FormLogin = () => {
   const [show, setShow] = useState(false);
-  const [valuesLogin, setValuesLogin] = useState<Partial<USER.LoginParams>>({});
   const [propsAlert, setPropsAlert] = useState<Partial<ALERT.AlertInformationProps>>({
     message: '',
     type: 'error',
     visible: false,
   });
-  const { setInitialState } = useModel('@@initialState');
 
-  const fetchUserInfo = async (userInfo: USER.User) => {
-    if (userInfo) {
+  const { setInitialState } = useModel('@@initialState');
+  /**
+   * se encarga de capturar los resultados de la consulta
+   * @param data datos resultantes de la consulta un usuarioy su token
+   */
+  const fetchUserInfo = async ({ user, access_token }: USER.Response) => {
+    if (access_token) {
+      localStorage.setItem('token', access_token);
+
       await setInitialState((s) => ({
         ...s,
-        currentUser: userInfo,
+        currentUser: user,
       }));
+
+      if (!history) return;
+      const { query } = history.location;
+      const { redirect } = query as { redirect: string };
+      history.push(redirect || '/');
     }
   };
 
@@ -39,15 +45,20 @@ const FormLogin = () => {
    * @description se encarga de enviar error en el login
    * @param error error de apollo
    */
-  const showError = (error: string) => {
+  const onShowError = (message: string) => {
     setPropsAlert({
-      message: error,
+      message,
       type: 'error',
       visible: true,
     });
   };
 
-  const onShowAlert = () => {
+  const { login, loading } = useLogin(fetchUserInfo, onShowError);
+
+  /**
+   * oculta
+   */
+  const onCloseAlert = () => {
     setPropsAlert({
       message: '',
       type: 'error',
@@ -57,12 +68,12 @@ const FormLogin = () => {
 
   /**
    * @description se encarga de realizar la consulta para login
-   * @param err error en el formulario
-   * @param values datos para enviar a la consulta
+   * @param formData datos para enviar a la consulta
    * @returns void
    */
-  const handleSubmit = (formData: USER.LoginParams) => {
-    setValuesLogin(formData);
+  const handleSubmit = async (formData: USER.LoginParams): Promise<boolean | void> => {
+    await login({ variables: { input: formData } });
+    return loading;
   };
 
   const transitions = useTransition(show, {
@@ -85,7 +96,7 @@ const FormLogin = () => {
                 <Card hoverable bodyStyle={{ padding: 0 }}>
                   <LoginForm
                     className={styles.form}
-                    //FonFinish={(values: any) => handleSubmit(values)}
+                    onFinish={handleSubmit}
                     submitter={{
                       searchConfig: {
                         submitText: 'Ingresar',
@@ -134,7 +145,7 @@ const FormLogin = () => {
             </animated.div>
           ),
       )}
-      <AlertInformation {...propsAlert} onCancel={onShowAlert} />
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </>
   );
 };
