@@ -4,12 +4,12 @@ import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 
-const { REACT_APP_ENV } = process.env;
+const { REACT_APP_ENV, API_URL, CDN_URL } = process.env;
 
 export default defineConfig({
   define: {
-    API_URL: 'http://api.grpahql.toulouse.com.co',
-    CDN_URL: 'http://cdn.toulouse.com.co',
+    API_URL: API_URL || 'http://localhost:8080/graphql',
+    CDN_URL: CDN_URL || 'http://cdn.toulouse.com.co',
   },
   hash: true,
   antd: {},
@@ -57,7 +57,7 @@ export default defineConfig({
           icon: 'smile',
           path: '/user/register',
           component: './user/register',
-    // default true, when it is true, will use `navigator.language` overwrite default
+          // default true, when it is true, will use `navigator.language` overwrite default
         },
         {
           component: '404',

@@ -5,6 +5,9 @@ import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import PageLoading from './components/PageLoading';
+import React from 'react';
+import { ApolloProvider } from '@apollo/client';
+import { client } from './services/apollo-client';
 
 const loginPath = '/user/login';
 
@@ -60,6 +63,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     links: [],
     menuHeaderRender: undefined,
     // unAccessible: <div>unAccessible</div>,
+    children: (children: React.FC) => <ApolloProvider client={client}>{children}</ApolloProvider>,
     ...initialState?.settings,
   };
 };
