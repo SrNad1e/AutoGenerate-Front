@@ -62,33 +62,9 @@ export default () => {
  */
 import { Button, Menu } from 'antd';
 import React from 'react';
-import HeaderSearch from '@/components/HeaderSearch';
 
 export default () => {
-  return (
-    <HeaderSearch
-      placeholder="站内搜索"
-      defaultValue="umi ui"
-      options={[
-        { label: 'Ant Design Pro', value: 'Ant Design Pro' },
-        {
-          label: 'Ant Design',
-          value: 'Ant Design',
-        },
-        {
-          label: 'Pro Table',
-          value: 'Pro Table',
-        },
-        {
-          label: 'Pro Layout',
-          value: 'Pro Layout',
-        },
-      ]}
-      onSearch={(value) => {
-        console.log('input', value);
-      }}
-    />
-  );
+  return <></>;
 };
 ```
 
@@ -114,7 +90,6 @@ export default () => {
  */
 import { message } from 'antd';
 import React from 'react';
-import NoticeIcon from '@/components/NoticeIcon/NoticeIcon';
 
 export default () => {
   const list = [
@@ -133,45 +108,7 @@ export default () => {
       type: 'notification',
     },
   ];
-  return (
-    <NoticeIcon
-      count={10}
-      onItemClick={(item) => {
-        message.info(`${item.title} 被点击了`);
-      }}
-      onClear={(title: string, key: string) => message.info('点击了清空更多')}
-      loading={false}
-      clearText="清空"
-      viewMoreText="查看更多"
-      onViewMore={() => message.info('点击了查看更多')}
-      clearClose
-    >
-      <NoticeIcon.Tab
-        tabKey="notification"
-        count={2}
-        list={list}
-        title="通知"
-        emptyText="你已查看所有通知"
-        showViewMore
-      />
-      <NoticeIcon.Tab
-        tabKey="message"
-        count={2}
-        list={list}
-        title="消息"
-        emptyText="您已读完所有消息"
-        showViewMore
-      />
-      <NoticeIcon.Tab
-        tabKey="event"
-        title="待办"
-        emptyText="你已完成所有待办"
-        count={2}
-        list={list}
-        showViewMore
-      />
-    </NoticeIcon>
-  );
+  return <></>;
 };
 ```
 
@@ -232,25 +169,6 @@ RightContent 是以上几个组件的组合，同时新增了 plugins 的 `Selec
 
 ```tsx | pure
 <Space>
-  <HeaderSearch
-    placeholder="站内搜索"
-    defaultValue="umi ui"
-    options={[
-      { label: <a href="https://umijs.org/zh/guide/umi-ui.html">umi ui</a>, value: 'umi ui' },
-      {
-        label: <a href="next.ant.design">Ant Design</a>,
-        value: 'Ant Design',
-      },
-      {
-        label: <a href="https://protable.ant.design/">Pro Table</a>,
-        value: 'Pro Table',
-      },
-      {
-        label: <a href="https://prolayout.ant.design/">Pro Layout</a>,
-        value: 'Pro Layout',
-      },
-    ]}
-  />
   <Tooltip title="使用文档">
     <span
       className={styles.action}

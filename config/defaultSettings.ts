@@ -9,12 +9,12 @@ const Settings: LayoutSettings & {
   layout: 'mix',
   contentWidth: 'Fluid',
   fixedHeader: false,
-  fixSiderbar: true,
-  colorWeak: false,
-  title: 'ERP - Toulouse',
+  fixSiderbar: false,
+  title: 'POS Toulouse',
   pwa: true,
-  logo: 'logosquare.png',
-  iconfontUrl: '',
+  logo: 'http://localhost:8000/logo.svg',
+  headerHeight: 48,
+  splitMenus: false,
 };
 
 export default Settings;
