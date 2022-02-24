@@ -49,10 +49,6 @@ export default defineConfig({
           component: './user/Login',
         },
         {
-          path: '/user',
-          redirect: '/user/login',
-        },
-        {
           component: '404',
         },
       ],
@@ -63,39 +59,31 @@ export default defineConfig({
       layout: false,
       routes: [
         {
-          path: '/dashboard',
-          name: 'dashboard',
+          path: '/inventory',
+          name: 'Inventario',
           icon: 'dashboard',
           routes: [
             {
-              path: '/dashboard',
-              redirect: '/dashboard/analysis',
+              path: '/inventory',
+              redirect: '/inventory/transfer/list',
             },
             {
-              name: 'analysis',
+              name: 'Traslados',
               icon: 'smile',
-              path: '/dashboard/analysis',
-              component: './dashboard/analysis',
-            },
-            {
-              name: 'monitor',
-              icon: 'smile',
-              path: '/dashboard/monitor',
-              component: './dashboard/monitor',
-            },
-            {
-              name: 'workplace',
-              icon: 'smile',
-              path: '/dashboard/workplace',
-              component: './dashboard/workplace',
+              path: '/inventory/transfer',
+              routes: [
+                {
+                  name: 'Lista',
+                  icon: 'smile',
+                  path: '/inventory/transfer/list',
+                  component: './inventory/transfer/list',
+                },
+              ],
             },
           ],
         },
         {
-          path: '/',
-          redirect: '/dashboard/analysis',
-        },
-        {
+          layout: false,
           component: '404',
         },
       ],
