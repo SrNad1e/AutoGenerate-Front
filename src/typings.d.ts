@@ -25,3 +25,5 @@ declare const REACT_APP_ENV: 'test' | 'dev' | 'pre' | false;
 declare const API_URL: string;
 declare const CDN_URL: string;
 declare const FORMAT_DATE: string;
+
+declare type TYPES = 'error' | 'success';

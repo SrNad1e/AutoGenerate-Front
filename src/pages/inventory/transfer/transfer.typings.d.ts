@@ -25,5 +25,9 @@ declare namespace TRANSFER {
     updateAt: Date;
   };
 
+  type Response = {
+    warehouse: WAREHOUSE.warehouse;
+  };
+
   type StatusTransfer = 'open' | 'cancel' | 'sent';
 }

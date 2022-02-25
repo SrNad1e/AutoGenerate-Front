@@ -6,4 +6,7 @@ declare namespace WAREHOUSE {
     active: boolean;
     id: number;
   };
+  type Response = {
+    warehouses: Warehouse[];
+  };
 }

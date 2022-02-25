@@ -1,3 +1,4 @@
+import SelectWarehouses from '@/components/SelectWarehouses';
 import { SearchOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Badge, Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Table } from 'antd';
@@ -56,10 +57,15 @@ const columns: ColumnsType<Partial<TRANSFER.Transfer>> = [
 
 const TransferList = () => {
   const [transfers] = useState<Partial<TRANSFER.Transfer>[]>([]);
+
+  const onFinish = (values: any) => {
+    console.log(values);
+  };
+
   return (
     <PageContainer>
       <Card>
-        <Form layout="inline" className={styles.filters}>
+        <Form layout="inline" className={styles.filters} onFinish={onFinish}>
           <Row gutter={[8, 8]} className={styles.form}>
             <Col xs={24} lg={4} xl={3} xxl={3}>
               <FormItem label="Número" name="number">
@@ -69,22 +75,23 @@ const TransferList = () => {
             <Col xs={24} lg={5} xl={3} xxl={3}>
               <FormItem label="Estado" name="status">
                 <Select className={styles.item}>
-                  <Option key="0">Prueba</Option>
+                  {Object.keys(StatusType).map((key) => (
+                    <Option key={key}>{StatusType[key].text}</Option>
+                  ))}
                 </Select>
               </FormItem>
             </Col>
             <Col xs={24} lg={5} xl={4} xxl={4}>
               <FormItem label="Tipo" name="type">
                 <Select className={styles.item}>
-                  <Option key="0">Prueba</Option>
+                  <Option key="sent">Enviado</Option>
+                  <Option key="received">Recibido</Option>
                 </Select>
               </FormItem>
             </Col>
             <Col xs={24} lg={10} xl={5} xxl={5}>
               <FormItem label="Bodega" name="warehouse">
-                <Select className={styles.item}>
-                  <Option key="0">Prueba</Option>
-                </Select>
+                <SelectWarehouses />
               </FormItem>
             </Col>
             <Col xs={24} lg={10} xl={6} xxl={6}>
