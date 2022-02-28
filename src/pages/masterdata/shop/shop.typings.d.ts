@@ -6,4 +6,9 @@ declare namespace SHOP {
     weight: number;
     volume: number;
   };
+  type Shop = {
+    _id: string;
+    name: string;
+    defaultWarehouse: WAREHOUSE.warehouse;
+  };
 }

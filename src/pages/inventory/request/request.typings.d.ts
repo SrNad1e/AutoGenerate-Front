@@ -1,22 +1,21 @@
-declare namespace TRANSFER {
-  type Transfer = {
+declare namespace REQUEST {
+  type request = {
     _id: string;
     number: number;
     status: StatusTransfer;
     warehouseOrigin: WAREHOUSE.Warehouse;
     userOrigin: USER.User;
-    detail: DetailTransfer[];
+    detail: DetailRequest[];
     observationOrigin: string;
     warehouseDestination: WAREHOUSE.Warehouse;
     userDestination: USER.User;
     observationDestination: string;
     observation: string;
-    request: REQUEST.Request[];
     createdAt: Date;
     updatedAt: Date;
   };
 
-  type DetailTransfer = {
+  type DetailRequest = {
     product: PRODUCT.Product;
     quantity: number;
     quantityConfirmed?: number;
@@ -29,9 +28,9 @@ declare namespace TRANSFER {
     warehouse: WAREHOUSE.warehouse;
   };
 
-  type CreateTransfer = {
+  type CreateRequest = {
     warehouseDestinationId: string;
   };
 
-  type StatusTransfer = 'open' | 'cancel' | 'sent';
+  type StatusRequest = 'open' | 'cancel' | 'sent';
 }

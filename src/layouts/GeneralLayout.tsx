@@ -7,9 +7,10 @@ import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 
 import logoNormal from '../assets/logo.svg';
-import styles from './styles.less';
 import { ApolloProvider } from '@apollo/client';
 import { client } from '@/services/apollo-client';
+
+import styles from './styles.less';
 
 const loginPath = '/user/login';
 
@@ -20,11 +21,9 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
   return (
     <ApolloProvider client={client}>
       <ProLayout
+        navTheme="light"
         logo={logo}
         {...props}
-        menuProps={{
-          theme: 'light',
-        }}
         rightContentRender={() => <RightContent />}
         title="TOULOUSE"
         footerRender={() => <Footer />}

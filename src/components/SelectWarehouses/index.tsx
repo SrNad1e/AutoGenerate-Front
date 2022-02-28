@@ -52,6 +52,10 @@ const SelectWarehouses = ({ onChange }: any) => {
     });
   };
 
+  const onChangeLocal = (warehouseId: string) => {
+    onChange(warehouses.find((warehouse) => warehouse._id === warehouseId));
+  };
+
   return (
     <>
       <Select
@@ -60,7 +64,7 @@ const SelectWarehouses = ({ onChange }: any) => {
         loading={loading}
         placeholder="Seleccione Bodega"
         optionFilterProp="children"
-        onChange={onChange}
+        onChange={onChangeLocal}
         onSearch={onSearch}
       >
         {warehouses.map((warehouse) => (

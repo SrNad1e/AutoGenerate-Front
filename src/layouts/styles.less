@@ -1,74 +1,8 @@
 @import '../custom.less';
 
-.container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: auto;
-  background: @layout-body-background;
-}
-
 .title {
   h1 {
     color: black;
     font-size: 20px;
-  }
-}
-
-.content {
-  flex: 1;
-  padding: 32px 0;
-}
-
-@media (min-width: @screen-md-min) {
-  .container {
-    background-image: url('https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg');
-    background-repeat: no-repeat;
-    background-position: center 110px;
-    background-size: 100%;
-  }
-
-  .content {
-    padding: 32px 0 24px;
-  }
-}
-
-.top {
-  text-align: center;
-}
-
-.header {
-  height: 44px;
-  line-height: 44px;
-
-  a {
-    text-decoration: none;
-  }
-}
-
-.logo {
-  height: 44px;
-  margin-right: 16px;
-  vertical-align: top;
-}
-
-.desc {
-  margin-top: 12px;
-  margin-bottom: 40px;
-  color: @text-color-secondary;
-  font-size: @font-size-base;
-}
-
-:global {
-  .ant-pro-sider-menu-logo h1 {
-    display: none;
-  }
-
-  .ant-pro-sider-menu-logo img {
-    max-width: 90%;
-    height: auto;
-  }
-  .ant-pro-top-nav-header-logo img {
-    height: 75px;
   }
 }

@@ -10,7 +10,7 @@ export default defineConfig({
   define: {
     API_URL: API_URL || 'http://localhost:8080/graphql',
     CDN_URL: CDN_URL || 'http://cdn.toulouse.com.co',
-    FORMAT_DATE: FORMAT_DATE || 'YYYY/MM/DD HH:mm:ss',
+    FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
   },
   hash: true,
   antd: {},
@@ -70,14 +70,21 @@ export default defineConfig({
             },
             {
               name: 'Traslados',
-              icon: 'smile',
               path: '/inventory/transfer',
               routes: [
                 {
                   name: 'Lista',
-                  icon: 'smile',
                   path: '/inventory/transfer/list',
                   component: './inventory/transfer/list',
+                },
+                {
+                  name: 'Nuevo',
+                  path: '/inventory/transfer/new',
+                  component: './inventory/transfer/form',
+                },
+                {
+                  path: '/inventory/transfer/:id',
+                  component: './inventory/transfer/form',
                 },
               ],
             },

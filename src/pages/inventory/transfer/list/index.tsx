@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { StatusType } from '../tranfer.data';
 
 import styles from './styles.less';
+import './styles.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;

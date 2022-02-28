@@ -21,7 +21,7 @@ export const initialStateConfig = {
  * */
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
-  currentUser?: API.CurrentUser;
+  currentUser?: USER.User;
   fetchUserInfo?: () => Promise<USER.User | undefined>;
 }> {
   const fetchUserInfo = async () => {
