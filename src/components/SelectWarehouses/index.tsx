@@ -31,12 +31,6 @@ const SelectWarehouses = ({ onChange }: any) => {
 
   const { getWarehouses, loading } = useGetWarehouses(resultWarehouses, showError);
 
-  useEffect(() => {
-    getWarehouses({
-      variables: { input: { active: true } },
-    });
-  }, []);
-
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
@@ -55,6 +49,12 @@ const SelectWarehouses = ({ onChange }: any) => {
   const onChangeLocal = (warehouseId: string) => {
     onChange(warehouses.find((warehouse) => warehouse._id === warehouseId));
   };
+
+  useEffect(() => {
+    getWarehouses({
+      variables: { input: { active: true } },
+    });
+  }, []);
 
   return (
     <>

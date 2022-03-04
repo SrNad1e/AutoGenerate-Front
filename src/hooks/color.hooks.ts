@@ -1,12 +1,12 @@
-import { WAREHOUSES } from '@/graphql/queries/warehouse.queries';
+import { COLORS } from '@/graphql/queries/color.queries';
 import { useLazyQuery } from '@apollo/client';
 
-export const useGetWarehouses = (
-  callback: (data: WAREHOUSE.warehouse[]) => void,
+export const useGetColors = (
+  callback: (data: COLOR.ResponsePaginate) => void,
   showError: (message: string) => void,
 ) => {
-  const [getWarehouses, { loading }] = useLazyQuery(WAREHOUSES, {
-    onCompleted: (result) => callback(result.warehouses),
+  const [getColors, { loading }] = useLazyQuery(COLORS, {
+    onCompleted: (result) => callback(result.colors),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
 
@@ -14,7 +14,7 @@ export const useGetWarehouses = (
     },
   });
   return {
-    getWarehouses,
+    getColors,
     loading,
   };
 };

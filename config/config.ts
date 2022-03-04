@@ -88,6 +88,30 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              path: '/inventory',
+              redirect: '/inventory/request/list',
+            },
+            {
+              name: 'Solicitudes',
+              path: '/inventory/request',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/request/list',
+                  component: './inventory/request/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/request/new',
+                  component: './inventory/request/form',
+                },
+                {
+                  path: '/inventory/request/:id',
+                  component: './inventory/request/form',
+                },
+              ],
+            },
           ],
         },
         {

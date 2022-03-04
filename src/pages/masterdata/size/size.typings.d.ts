@@ -3,4 +3,26 @@ declare namespace SIZE {
     _id: string;
     value: string;
   };
+
+  type ResponsePaginate = {
+    docs: Size[];
+
+    hasNextPage: boolean;
+
+    hasPrevPage: boolean;
+
+    limit: number;
+
+    nextPage: number;
+
+    page: number;
+
+    pagingCounter: number;
+
+    prevPage: number;
+
+    totalDocs: number;
+
+    totalPages: number;
+  };
 }

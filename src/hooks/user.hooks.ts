@@ -9,7 +9,11 @@ export const useLogin = (
 ) => {
   const [login, { loading }] = useMutation(LOGIN, {
     onCompleted: (result) => callback(result.login),
-    onError: ({ graphQLErrors }) => showError(graphQLErrors[0].message),
+    onError: ({ graphQLErrors }) => {
+      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+
+      showError(message ?? 'Error en la consulta');
+    },
   });
 
   return {

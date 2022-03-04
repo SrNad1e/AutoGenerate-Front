@@ -3,9 +3,9 @@ export const TypesAlert = {
     color: 'red',
   },
   warning: {
-    color: 'green',
+    color: 'orange',
   },
   success: {
-    color: 'orange',
+    color: 'green',
   },
 };

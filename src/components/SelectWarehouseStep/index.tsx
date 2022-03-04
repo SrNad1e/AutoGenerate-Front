@@ -20,7 +20,7 @@ const SelectWarehouseStep = ({ changeCurrentStep, label }: Props) => {
       }}
     >
       <Row justify="center">
-        <Col span={10}>
+        <Col span={14}>
           <FormItem
             name="warehouse"
             label={label}

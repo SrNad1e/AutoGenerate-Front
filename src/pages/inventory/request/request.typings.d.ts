@@ -1,15 +1,13 @@
 declare namespace REQUEST {
-  type request = {
+  type Request = {
     _id: string;
     number: number;
     status: StatusTransfer;
     warehouseOrigin: WAREHOUSE.Warehouse;
     userOrigin: USER.User;
-    detail: DetailRequest[];
-    observationOrigin: string;
+    details: DetailRequest[];
     warehouseDestination: WAREHOUSE.Warehouse;
     userDestination: USER.User;
-    observationDestination: string;
     observation: string;
     createdAt: Date;
     updatedAt: Date;

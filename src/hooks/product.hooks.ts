@@ -1,0 +1,39 @@
+import { useLazyQuery } from '@apollo/client';
+
+import { PRODUCT, PRODUCTS } from '@/graphql/queries/product.queries';
+
+export const useGetProducts = (
+  callback: (data: PRODUCT.ResponsePaginate) => void,
+  showError: (message: string) => void,
+) => {
+  const [getProducts, { loading }] = useLazyQuery(PRODUCTS, {
+    onCompleted: (result) => callback(result.products),
+    onError: ({ graphQLErrors }) => {
+      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+
+      showError(message ?? 'Error en la consulta');
+    },
+  });
+  return {
+    getProducts,
+    loading,
+  };
+};
+
+export const useGetProduct = (
+  callback: (data: { product: PRODUCT.Product; quantity: number }) => void,
+  showError: (message: string) => void,
+) => {
+  const [getProduct, { loading }] = useLazyQuery(PRODUCT, {
+    onCompleted: (result) => callback(result?.product),
+    onError: ({ graphQLErrors }) => {
+      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+
+      showError(message ?? 'Error en la consulta');
+    },
+  });
+  return {
+    getProduct,
+    loading,
+  };
+};
