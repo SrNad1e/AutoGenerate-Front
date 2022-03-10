@@ -5,7 +5,7 @@ export const StatusType = {
     textColor: '#fff',
     icon: 'check-circle',
   },
-  canceled: {
+  cancelled: {
     label: 'Cancelado',
     color: '#E5856F',
     textColor: '#ffffff',

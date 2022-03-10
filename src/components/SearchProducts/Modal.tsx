@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-shadow */
 import { useGetProducts } from '@/hooks/product.hooks';
 import { BarcodeOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import {
@@ -16,10 +15,10 @@ import {
   Tooltip,
   InputNumber,
   Space,
+  Badge,
 } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table/interface';
 import type { ColumnsType } from 'antd/lib/table';
-import type { FilterValue, SorterResult } from 'antd/lib/table/interface';
 import { useState } from 'react';
 
 import SelectColor from '../SelectColor';
@@ -29,26 +28,47 @@ const FormItem = Form.Item;
 const { Text } = Typography;
 
 export type Detail = {
-  product: PRODUCT.Product;
+  product: Partial<PRODUCT.Product>;
+  action?: ACTIONTYPESPRODUCT;
   quantity: number;
+  createdAt?: Date;
+  updateAt?: Date;
+  __typename?: string;
 };
 
 export type Props = {
   visible: boolean;
-  details?: Partial<Detail[]>;
-  setDetails?: (details: Partial<Detail[]>) => void;
+  details: Partial<Detail[]>;
+  createDetail: (product: PRODUCT.Product, quantity: number) => void;
+  updateDetail: (productId: string, quantity: number) => void;
+  deleteDetail: (productId: string) => void;
   onCancel: () => void;
+  warehouseId: string;
 };
 
-const ModalSearchProducts = ({ visible, details = [], setDetails, onCancel }: Props) => {
+export type FromValues = {
+  name?: string;
+  color?: Partial<COLOR.Color>;
+  size?: Partial<SIZE.Size>;
+};
+
+const ModalSearchProducts = ({
+  visible,
+  details = [],
+  onCancel,
+  warehouseId,
+  createDetail,
+  updateDetail,
+  deleteDetail,
+}: Props) => {
   const [products, setProducts] = useState<PRODUCT.Product[]>([]);
   const [filters, setFilters] = useState<Partial<PRODUCT.FiltersGetProducts>>({
-    limit: 20,
-    skip: 0,
+    limit: 10,
+    page: 0,
   });
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     total: 0,
-    pageSize: 20,
+    pageSize: 10,
     current: 1,
   });
   const [error, setError] = useState<string | undefined>();
@@ -83,14 +103,20 @@ const ModalSearchProducts = ({ visible, details = [], setDetails, onCancel }: Pr
       variables: {
         input: {
           ...params,
+          warehouseId,
+          status: 'active',
         },
       },
     });
   };
 
-  const onFinish = (values: any) => {
+  /**
+   * @description realiza la busqueda de los productos con base al filtro
+   * @param values valores del formulario
+   */
+  const onFinish = (values?: FromValues) => {
     const params: Partial<PRODUCT.FiltersGetProducts> = {
-      skip: 0,
+      page: 1,
       colorId: values?.color?._id,
       name: values?.name,
       sizeId: values?.size?._id,
@@ -102,61 +128,19 @@ const ModalSearchProducts = ({ visible, details = [], setDetails, onCancel }: Pr
 
   /**
    * @description se encarga de manejar eventos de tabla
-   * @param pagination eventos de la páginacion
+   * @param paginationLocal eventos de la páginacion
    * @param _ eventdos de los filtros
    * @param sorter evento de ordenamientos
    */
   const handleChangeTable = (
-    pagination: TablePaginationConfig,
-    _: Record<string, FilterValue | null>,
-    sorter: SorterResult<PRODUCT.Product>,
+    paginationLocal: TablePaginationConfig,
+    // filtersData: Record<string, FilterValue | null>,
+    //sorter: SorterResult<PRODUCT.Product>,
   ) => {
-    const { current } = pagination;
-    setFilters({ ...filters, skip: current });
+    const { current } = paginationLocal;
+    setFilters({ ...filters, page: current });
     setPagination({ ...pagination, current });
-    onSearch({ ...filters, skip: current });
-    console.log(sorter);
-  };
-
-  /**
-   * @description agrega un producto
-   * @param product producto a agregar
-   */
-  const addProduct = (product: PRODUCT.Product) => {
-    if (setDetails) {
-      setDetails([...details, { product, quantity: 1 }]);
-    }
-  };
-
-  /**
-   * @description elimina un producto
-   * @param _id identificador del producto a eliminar
-   */
-  const deleteProduct = (_id: string) => {
-    if (setDetails) {
-      setDetails(details.filter((detail) => detail?.product._id !== _id));
-    }
-  };
-
-  /**
-   * @description actualiza la cantidad de un producto
-   * @param _id identificador del producto a actualizar
-   * @param quantity cantidad nueva a asignar
-   */
-  const updateProduct = (_id: string, quantity: number) => {
-    if (setDetails) {
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product._id === _id) {
-            return {
-              ...detail,
-              quantity,
-            };
-          }
-          return detail;
-        }),
-      );
-    }
+    onSearch({ ...filters, page: current });
   };
 
   const columns: ColumnsType<PRODUCT.Product> = [
@@ -182,7 +166,6 @@ const ModalSearchProducts = ({ visible, details = [], setDetails, onCancel }: Pr
           <Avatar
             size="small"
             style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
-            //src={apiUrl + color.image?.imageSizes?.thumbnail}
           />
 
           <Text style={{ marginLeft: 10 }}>{color?.name_internal}</Text>
@@ -195,25 +178,44 @@ const ModalSearchProducts = ({ visible, details = [], setDetails, onCancel }: Pr
       render: (size: SIZE.Size) => size.value,
     },
     {
+      title: 'Inventario',
+      dataIndex: 'stock',
+      align: 'center',
+      render: (stock: PRODUCT.Stock[]) =>
+        stock && (
+          <Badge
+            overflowCount={99999}
+            count={stock[0]?.quantity}
+            style={{ backgroundColor: stock[0]?.quantity > 0 ? 'green' : 'red' }}
+            showZero
+          />
+        ),
+    },
+    {
       title: 'Opciones',
       dataIndex: '_id',
       align: 'center',
       render: (_id: string, product) => {
-        const detailFind = details?.find((detail) => detail?.product._id === _id);
+        const detailFind = details?.find(
+          (detail) => detail?.product._id === _id && detail.action !== 'delete',
+        );
         if (detailFind) {
           return (
             <Space>
-              <InputNumber
-                defaultValue={detailFind.quantity}
-                min={1}
-                onChange={(value) => updateProduct(_id, value)}
-              />
+              <Space>
+                <InputNumber
+                  defaultValue={detailFind.quantity}
+                  min={1}
+                  max={product.stock ? product?.stock[0]?.quantity : 0}
+                  onChange={(value) => updateDetail(_id, value)}
+                />
+              </Space>
               <Tooltip title="Eliminar">
                 <Button
                   type="primary"
                   danger
                   icon={<DeleteOutlined />}
-                  onClick={() => deleteProduct(_id)}
+                  onClick={() => deleteDetail(_id)}
                 />
               </Tooltip>
             </Space>
@@ -221,7 +223,12 @@ const ModalSearchProducts = ({ visible, details = [], setDetails, onCancel }: Pr
         }
         return (
           <Tooltip title="Agregar">
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => addProduct(product)} />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => createDetail(product, 1)}
+              disabled={product?.stock[0]?.quantity <= 0}
+            />
           </Tooltip>
         );
       },

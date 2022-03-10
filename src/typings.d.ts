@@ -27,3 +27,4 @@ declare const CDN_URL: string;
 declare const FORMAT_DATE: string;
 
 declare type TYPES = 'error' | 'success' | 'warning';
+declare type ACTIONTYPESPRODUCT = 'create' | 'update' | 'delete';

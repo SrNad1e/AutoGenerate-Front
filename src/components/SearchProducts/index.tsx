@@ -2,18 +2,29 @@ import { useGetProduct } from '@/hooks/product.hooks';
 import { SearchOutlined } from '@ant-design/icons';
 import { Alert, Button, Input } from 'antd';
 import { useState, useRef, useEffect } from 'react';
-import type { Detail } from './Modal';
+
+import type { Detail, Props as PropsModal } from './Modal';
 import ModalSearchProducts from './Modal';
 
 const { Search } = Input;
 
 export type Props = {
-  disabled: boolean;
-  details?: Partial<Detail[]>;
-  setDetails?: (details: Partial<any[]>) => void;
+  barcode?: boolean;
+  details: Partial<Detail[]>;
+  warehouseId: string;
+  createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
+  updateDetail: (productId: string, quantity: number) => void;
+  deleteDetail: (productId: string) => void;
 };
 
-const SearchProducts = ({ disabled, details = [], setDetails }: Props) => {
+const SearchProducts = ({
+  barcode,
+  details = [],
+  warehouseId,
+  createDetail,
+  updateDetail,
+  deleteDetail,
+}: Props) => {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
@@ -33,34 +44,47 @@ const SearchProducts = ({ disabled, details = [], setDetails }: Props) => {
    * @description callback ejecutado por el customHook
    * @param product producto
    */
-  const resultProduct = (detail: Detail) => {
+  const resultProduct = () => {
     searchRef?.current?.select();
-    if (setDetails) {
-      setDetails([...details, detail]);
-    }
+    //TODO: implentar agregar productos al detalle
   };
 
   const { getProduct, loading } = useGetProduct(resultProduct, showError);
-
-  useEffect(() => {
-    if (!disabled) {
-      searchRef?.current?.select();
-    }
-  }, [disabled]);
 
   const setVisibleModal = () => {
     setShowModal(!showModal);
   };
 
+  /**
+   * @description se encarga de ejecutar la busqueda del producto
+   * @param e evento del input
+   */
   const onPressEnter = (e: any) => {
     setError(undefined);
     getProduct({
       variables: {
         input: {
           barcode: e.target.value,
+          warehouseId,
         },
       },
     });
+  };
+
+  useEffect(() => {
+    if (barcode) {
+      searchRef?.current?.select();
+    }
+  }, [barcode]);
+
+  const propsModal: PropsModal = {
+    visible: showModal,
+    details,
+    createDetail,
+    updateDetail,
+    deleteDetail,
+    onCancel: setVisibleModal,
+    warehouseId,
   };
 
   return (
@@ -69,23 +93,18 @@ const SearchProducts = ({ disabled, details = [], setDetails }: Props) => {
         ref={searchRef}
         loading={loading}
         autoComplete="off"
-        disabled={disabled}
+        disabled={!barcode}
         onPressEnter={onPressEnter}
         enterButton={
           <Button
             type="primary"
-            disabled={!disabled}
+            disabled={barcode}
             icon={<SearchOutlined onClick={setVisibleModal} />}
           />
         }
         style={{ width: '100%' }}
       />
-      <ModalSearchProducts
-        visible={showModal}
-        details={details}
-        setDetails={setDetails}
-        onCancel={setVisibleModal}
-      />
+      <ModalSearchProducts {...propsModal} />
       {error && <Alert type="warning" message={error} showIcon />}
     </>
   );

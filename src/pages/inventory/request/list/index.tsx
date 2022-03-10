@@ -1,4 +1,3 @@
-import SelectWarehouses from '@/components/SelectWarehouses';
 import { SearchOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Badge, Button, Card, Col, DatePicker, Form, Input, Row, Select, Space, Table } from 'antd';
@@ -6,6 +5,7 @@ import type { ColumnsType } from 'antd/lib/table';
 import moment from 'moment';
 import { useState } from 'react';
 
+import SelectWarehouses from '@/components/SelectWarehouses';
 import { StatusType } from '../request.data';
 
 import styles from './styles.less';

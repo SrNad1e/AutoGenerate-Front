@@ -15,6 +15,7 @@ declare namespace PRODUCT {
     images: STATICFILE.Image[];
     shipping: SHOP.Shipping;
     type: string;
+    stock: Stock[];
   };
 
   type ResponsePaginate = {
@@ -44,9 +45,14 @@ declare namespace PRODUCT {
     colorId?: string;
     sizeId?: string;
     limit?: number;
-    skip?: number;
+    page?: number;
     status?: string;
     name?: string;
     sort?: Partial<SortProducts>;
+  };
+
+  type Stock = {
+    quantity: number;
+    warehouse: WAREHOUSE.warehouse;
   };
 }

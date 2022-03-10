@@ -4,10 +4,9 @@ declare namespace REQUEST {
     number: number;
     status: StatusTransfer;
     warehouseOrigin: WAREHOUSE.Warehouse;
-    userOrigin: USER.User;
+    user: USER.User;
     details: DetailRequest[];
     warehouseDestination: WAREHOUSE.Warehouse;
-    userDestination: USER.User;
     observation: string;
     createdAt: Date;
     updatedAt: Date;
@@ -16,10 +15,17 @@ declare namespace REQUEST {
   type DetailRequest = {
     product: PRODUCT.Product;
     quantity: number;
-    quantityConfirmed?: number;
-    status: string;
     createdAt: Date;
     updateAt: Date;
+  };
+
+  type DetailRequestProps = {
+    product: Partial<PRODUCT.Product>;
+    action?: StatusRequestProduct;
+    quantity: number;
+    createdAt?: Date;
+    updateAt?: Date;
+    __typename?: string;
   };
 
   type Response = {
@@ -30,5 +36,6 @@ declare namespace REQUEST {
     warehouseDestinationId: string;
   };
 
-  type StatusRequest = 'open' | 'cancel' | 'sent';
+  type StatusRequest = 'open' | 'cancelled' | 'pending' | 'used';
+  type StatusRequestProduct = 'create' | 'update' | 'delete';
 }

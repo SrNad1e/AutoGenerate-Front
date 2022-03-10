@@ -16,6 +16,12 @@ export const PRODUCTS = gql`
         size {
           value
         }
+        stock {
+          quantity
+          warehouse {
+            name
+          }
+        }
       }
       totalPages
     }

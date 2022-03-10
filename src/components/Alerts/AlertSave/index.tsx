@@ -1,18 +1,20 @@
+import { Button, Col, Modal, Row, Space, Typography } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined } from '@ant-design/icons';
-import { Button, Col, Modal, Row, Typography } from 'antd';
-import { useHistory } from 'umi';
 
 import { TypesAlert } from '../alert.data';
 import { useStyle } from '../styles';
 
+import styles from './index.less';
+
 const { Title } = Typography;
 
 export type Props = {
-  visible: boolean | undefined;
-  message: string | undefined;
+  message: string;
+  visible: boolean;
   type: TYPES;
-  onCancel?: () => void;
-  redirect?: string;
+  onOk: (status?: string) => void;
+  onCancel: () => void;
+  status?: string;
 };
 
 /**
@@ -32,51 +34,38 @@ const selectIcon = (type: TYPES, style: React.CSSProperties | undefined): JSX.El
   }
 };
 
-const AlertInformation = ({
-  visible = false,
-  type = 'error',
-  message = '',
-  onCancel,
-  redirect,
-}: Props) => {
+const AlertSave = ({ message, visible, onOk, onCancel, type, status }: Props) => {
   const color = TypesAlert[type]?.color;
   const style = useStyle(color);
   const icon = selectIcon(type, style.general);
-  const history = useHistory();
 
-  const onClick = () => {
-    if (redirect) {
-      history.push(redirect);
-    } else {
-      if (onCancel) {
-        onCancel();
-      }
-    }
+  const onFinish = () => {
+    onOk(status);
+    onCancel();
   };
 
   return (
-    <Modal
-      bodyStyle={style.bodyStyle}
-      centered={true}
-      closable={false}
-      visible={visible}
-      footer={false}
-      width={500}
-    >
-      <Row gutter={[16, 16]}>
-        <Col span={24} style={style.col}>
+    <Modal centered={true} closable={false} footer={false} visible={visible} width={500}>
+      <Row gutter={[15, 16]} justify="center" align="middle">
+        <Col span={24} className={styles.centerCol}>
           {icon}
         </Col>
-        <Col span={24} style={style.col}>
+        <Col span={24} className={styles.centerCol}>
           <Title level={3}>{message}</Title>
         </Col>
-        <Col span={24}>
-          <Button onClick={onClick} color={color} type="primary" size="large" style={style.button}>
-            Aceptar
-          </Button>
+        <Col span={24} className={styles.centerCol}>
+          <Space>
+            <Button onClick={() => onFinish()} type="primary" size="large">
+              Aceptar
+            </Button>
+
+            <Button onClick={onCancel} type="primary" size="large">
+              Cancelar
+            </Button>
+          </Space>
         </Col>
       </Row>
     </Modal>
   );
 };
-export default AlertInformation;
+export default AlertSave;
