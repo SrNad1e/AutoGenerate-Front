@@ -57,11 +57,11 @@ export const useUpdateRequest = (
 };
 
 export const useGetRequests = (
-  callback: (data: Partial<REQUEST.Request>) => void,
+  callback: (data: Partial<REQUEST.Response>) => void,
   showError: (message: string) => void,
 ) => {
   const [getRequests, { loading }] = useLazyQuery(REQUESTS, {
-    onCompleted: (result) => callback(result?.getRequests),
+    onCompleted: (result) => callback(result?.stockRequests),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
 

@@ -63,6 +63,7 @@ export const REQUESTS = gql`
         createdAt
         updatedAt
       }
+      totalDocs
     }
   }
 `;

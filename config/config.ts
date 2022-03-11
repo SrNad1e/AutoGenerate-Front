@@ -4,13 +4,14 @@ import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 
-const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE } = process.env;
+const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API } = process.env;
 
 export default defineConfig({
   define: {
     API_URL: API_URL || 'http://192.168.70.171:8080/graphql',
     CDN_URL: CDN_URL || 'http://cdn.toulouse.com.co',
     FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
+    FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD',
   },
   hash: true,
   antd: {},

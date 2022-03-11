@@ -23,7 +23,7 @@ export const PRODUCTS = gql`
           }
         }
       }
-      totalPages
+      totalDocs
     }
   }
 `;

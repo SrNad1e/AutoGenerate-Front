@@ -46,7 +46,7 @@ export type Props = {
   warehouseId: string;
 };
 
-export type FromValues = {
+export type FormValues = {
   name?: string;
   color?: Partial<COLOR.Color>;
   size?: Partial<SIZE.Size>;
@@ -80,7 +80,7 @@ const ModalSearchProducts = ({
   const resultProducts = (productsData: PRODUCT.ResponsePaginate) => {
     if (productsData) {
       setProducts(productsData.docs);
-      setPagination({ ...pagination, total: productsData.totalPages });
+      setPagination({ ...pagination, total: productsData.totalDocs });
     }
   };
 
@@ -114,15 +114,16 @@ const ModalSearchProducts = ({
    * @description realiza la busqueda de los productos con base al filtro
    * @param values valores del formulario
    */
-  const onFinish = (values?: FromValues) => {
+  const onFinish = ({ color, name, size }: FormValues) => {
     const params: Partial<PRODUCT.FiltersGetProducts> = {
       page: 1,
-      colorId: values?.color?._id,
-      name: values?.name,
-      sizeId: values?.size?._id,
+      colorId: color?._id,
+      name: name,
+      sizeId: size?._id,
     };
     setFilters({ ...filters, ...params });
     setError(undefined);
+    setPagination({ ...pagination, current: 1 });
     onSearch({ ...filters, ...params });
   };
 

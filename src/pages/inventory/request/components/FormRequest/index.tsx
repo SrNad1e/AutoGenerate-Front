@@ -360,7 +360,7 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
           max={product?.stock ? product?.stock[0]?.quantity : 0}
           onChange={(value) => updateDetail(product?._id || '', value)}
           disabled={!allowEdit}
-          style={{ color: '#dc9575', backgroundColor: 'white' }}
+          style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
     },

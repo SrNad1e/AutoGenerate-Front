@@ -29,7 +29,28 @@ declare namespace REQUEST {
   };
 
   type Response = {
-    warehouse: WAREHOUSE.warehouse;
+    docs: Request[];
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    limit: number;
+    page: number;
+    nextPage: number;
+    paging: number;
+    pagingCounter: number;
+    prevPage: number;
+    totalDocs: number;
+    totalPages: number;
+  };
+
+  type FiltersGetRequests = {
+    number?: number;
+    status?: string;
+    warehouseOriginId?: string;
+    warehouseDestinationId?: string;
+    limit: number;
+    page: number;
+    dateInitial?: string;
+    dateFinal?: string;
   };
 
   type CreateRequest = {
