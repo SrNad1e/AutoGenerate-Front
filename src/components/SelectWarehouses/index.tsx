@@ -7,7 +7,7 @@ import styles from './styles.less';
 
 const { Option } = Select;
 
-const SelectWarehouses = ({ onChange }: any) => {
+const SelectWarehouses = ({ onChange, value }: any) => {
   const [warehouses, setWarehouses] = useState<Partial<WAREHOUSE.warehouse>[]>([]);
   const [error, setError] = useState<string | undefined>();
 
@@ -15,9 +15,9 @@ const SelectWarehouses = ({ onChange }: any) => {
    * @description callback ejecutado por el customHook
    * @param warehousesData array de datos
    */
-  const resultWarehouses = (warehousesData: WAREHOUSE.warehouse[]) => {
+  const resultWarehouses = (warehousesData: WAREHOUSE.Response) => {
     if (warehousesData) {
-      setWarehouses(warehousesData);
+      setWarehouses(warehousesData.docs);
     }
   };
 
@@ -56,6 +56,8 @@ const SelectWarehouses = ({ onChange }: any) => {
     });
   }, []);
 
+  // console.log("bodega", value);
+
   return (
     <>
       <Select
@@ -66,6 +68,7 @@ const SelectWarehouses = ({ onChange }: any) => {
         optionFilterProp="children"
         onChange={onChangeLocal}
         onSearch={onSearch}
+        defaultValue={value}
       >
         {warehouses.map((warehouse) => (
           <Option key={warehouse._id}>{warehouse.name}</Option>

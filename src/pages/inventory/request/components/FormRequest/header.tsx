@@ -1,4 +1,4 @@
-import { Badge, Card, Col, Descriptions, Input, Row } from 'antd';
+import { Badge, Card, Col, Descriptions, Divider, Input, Row } from 'antd';
 import moment from 'moment';
 import { useModel } from 'umi';
 import { StatusType } from '../../request.data';
@@ -19,6 +19,7 @@ const Header = ({ request, setObservation, observation }: Props) => {
 
   return (
     <Card>
+      <Divider />
       <Row gutter={[10, 10]}>
         <Col lg={12} xs={24}>
           <Descriptions bordered size="small" column={1}>

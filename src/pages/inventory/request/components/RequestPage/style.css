@@ -1,0 +1,32 @@
+.header {
+    border-collapse: collapse;
+    border: 0px solid black;
+    position: relative;
+    bottom: 40px;
+    margin-left: 214px;
+    margin: auto;
+  }
+  .footer {
+    border-collapse: collapse;
+    border: 0px solid black;
+    position: relative;
+    bottom: 50px;
+    margin: auto;
+  }
+  .observacion {
+    border-collapse: collapse;
+    border: 1px solid black;
+    position: relative;
+    bottom: 40px;
+    margin-left: 61px;
+    margin: auto;
+  }
+  .total {
+    display: block;
+    border-collapse: collapse;
+    border: 0px solid black;
+    position: relative;
+    bottom: 30px;
+    margin: auto;
+    margin-left: 80%;
+  }

@@ -7,6 +7,6 @@ declare namespace WAREHOUSE {
     id: number;
   };
   type Response = {
-    warehouses: Warehouse[];
+    docs: Warehouse[];
   };
 }

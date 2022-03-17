@@ -8,7 +8,8 @@ const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API } = proces
 
 export default defineConfig({
   define: {
-    API_URL: API_URL || 'http://192.168.70.171:8080/graphql',
+    API_URL:
+      API_URL || 'https://api-graphql.t0n53eq7nj176.us-east-1.cs.amazonlightsail.com/graphql',
     CDN_URL: CDN_URL || 'http://cdn.toulouse.com.co',
     FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD',
@@ -66,10 +67,6 @@ export default defineConfig({
           icon: 'dashboard',
           routes: [
             {
-              path: '/inventory',
-              redirect: '/inventory/transfer/list',
-            },
-            {
               name: 'Traslados',
               path: '/inventory/transfer',
               routes: [
@@ -90,10 +87,6 @@ export default defineConfig({
               ],
             },
             {
-              path: '/inventory',
-              redirect: '/inventory/request/list',
-            },
-            {
               name: 'Solicitudes',
               path: '/inventory/request',
               routes: [
@@ -110,6 +103,26 @@ export default defineConfig({
                 {
                   path: '/inventory/request/:id',
                   component: './inventory/request/form',
+                },
+              ],
+            },
+            {
+              name: 'Entradas',
+              path: '/inventory/input',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/input/list',
+                  component: './inventory/input/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/input/new',
+                  component: './inventory/input/form',
+                },
+                {
+                  path: '/inventory/input/:id',
+                  component: './inventory/input/form',
                 },
               ],
             },

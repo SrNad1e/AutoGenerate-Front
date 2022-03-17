@@ -79,6 +79,7 @@
     "react-helmet-async": "^1.0.4",
     "react-router": "^4.3.1",
     "react-spring": "^9.4.3",
+    "react-to-print": "^2.14.4",
     "umi": "^3.5.0",
     "umi-serve": "^1.9.10"
   },

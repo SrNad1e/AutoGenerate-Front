@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { DropboxOutlined, FileTextOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, DropboxOutlined, FileTextOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Card, Steps } from 'antd';
-import { useParams } from 'umi';
+import { Button, Card, Space, Steps } from 'antd';
+import { useParams, useHistory } from 'umi';
 
 import FormRequest from '../components/FormRequest';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
@@ -15,7 +15,7 @@ import './styles.less';
 
 const { Step } = Steps;
 
-const Form = () => {
+const RequestForm = () => {
   const [currentStep, setCurretStep] = useState(0);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
@@ -27,6 +27,7 @@ const Form = () => {
   });
 
   const { id } = useParams<Partial<{ id: string }>>();
+  const history = useHistory();
 
   const isNew = !id;
 
@@ -117,7 +118,20 @@ const Form = () => {
 
   return (
     <PageContainer
-      title={isNew ? 'Nueva Solicitud' : `Solicitud No. ${request?.number}`}
+      title={
+        <Space align="center">
+          {' '}
+          <Button
+            size="small"
+            type="primary"
+            style={{ display: 'flex', padding: '5px' }}
+            ghost
+            icon={<ArrowLeftOutlined />}
+            onClick={() => history.goBack()}
+          />
+          {isNew ? 'Nueva Solicitud' : `Solicitud No. ${request?.number}`}
+        </Space>
+      }
       loading={loading}
     >
       {isNew ? (
@@ -144,4 +158,4 @@ const Form = () => {
   );
 };
 
-export default Form;
+export default RequestForm;

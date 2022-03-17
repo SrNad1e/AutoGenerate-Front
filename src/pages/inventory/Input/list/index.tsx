@@ -1,4 +1,4 @@
-import { SearchOutlined, EyeOutlined, PrinterOutlined } from '@ant-design/icons';
+import Table, { ColumnsType } from 'antd/lib/table';
 import { useHistory, useLocation } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -13,28 +13,25 @@ import {
   Select,
   Space,
   Statistic,
-  Table,
+  TablePaginationConfig,
   Tooltip,
 } from 'antd';
-import type { ColumnsType } from 'antd/lib/table';
-import { TablePaginationConfig } from 'antd/es/table/interface';
+import { EyeOutlined, PrinterOutlined, SearchOutlined } from '@ant-design/icons';
 import type { Moment } from 'moment';
+import FormItem from 'antd/lib/form/FormItem';
 import moment from 'moment';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
+import { useState } from 'react';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import SelectWarehouses from '@/components/SelectWarehouses';
-import { StatusType } from '../request.data';
-import { useReactToPrint } from 'react-to-print';
-
-import styles from './styles.less';
-import './styles.less';
 import { useGetRequests } from '@/hooks/request.hooks';
+import { StatusType } from '../../request/request.data';
+import SelectWarehouses from '@/components/SelectWarehouses';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
-const FormItem = Form.Item;
-const { Option } = Select;
+import styles from './styles.less';
 
+const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 export type FormValues = {
@@ -45,7 +42,7 @@ export type FormValues = {
   type?: string;
 };
 
-const RequestList = () => {
+const InputList = () => {
   const [requests, setRequests] = useState<Partial<REQUEST.Request[]>>([]);
   const [filters, setFilters] = useState<Partial<FormValues>>({
     type: 'received',
@@ -63,10 +60,8 @@ const RequestList = () => {
 
   const history = useHistory();
   const location = useLocation();
-  const componentRef = useRef(null);
-  const handlePrint = useReactToPrint({ content: () => componentRef.current });
 
-  const resultRequests = (data: Partial<REQUEST.Response>) => {
+  const resultRequest = (data: Partial<REQUEST.Response>) => {
     if (data) {
       setRequests(data.docs || []);
 
@@ -74,9 +69,9 @@ const RequestList = () => {
     }
   };
 
-  const messageError = (message: string) => {
+  const messageError = () => {
     setError({
-      message,
+      message: '',
       type: 'error',
       visible: true,
     });
@@ -90,7 +85,7 @@ const RequestList = () => {
     });
   };
 
-  const { getRequests, loading } = useGetRequests(resultRequests, messageError);
+  const { getRequests, loading } = useGetRequests(resultRequest, messageError);
 
   const onSearch = (params?: Partial<REQUEST.FiltersGetRequests>) => {
     getRequests({
@@ -108,21 +103,18 @@ const RequestList = () => {
   /**
    * @description se encarga de manejar eventos de tabla
    * @param paginationLocal eventos de la páginacion
-   * @param _ eventdos de los filtros
-   * @param sorter evento de ordenamientos
-   */
-  const handleChangeTable = (
-    paginationLocal: TablePaginationConfig,
-    // filtersData: Record<string, FilterValue | null>,
-    //sorter: SorterResult<PRODUCT.Product>,
-  ) => {
+   * */
+  const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
     const { current } = paginationLocal;
     setFilters({ ...filters });
     setPagination({ ...pagination, current });
     onSearch({ ...filters, page: current });
   };
 
-  const onClear = () => {
+  /**
+   * @description se encarga de eliminar los filtros y devolver a la pagina inicial
+   * */
+  const OnClear = () => {
     setFilters({});
     history.push(location.pathname);
     setPagination({
@@ -137,6 +129,9 @@ const RequestList = () => {
     });
   };
 
+  /**
+   * @description se encarga de finalizar la busqueda con los filtros
+   * */
   const onFinish = (props: FormValues) => {
     const { status, number, warehouse, dates } = props;
     try {
@@ -145,7 +140,6 @@ const RequestList = () => {
         status,
         number,
       };
-
       if (dates) {
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
@@ -168,7 +162,7 @@ const RequestList = () => {
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
 
-      history.push(`/inventory/request/list?${datos}`);
+      history.push(`/inventory/input/list?${datos}`);
     } catch (e) {
       console.log(e);
     }
@@ -260,7 +254,6 @@ const RequestList = () => {
                   type="dashed"
                   style={{ backgroundColor: 'white' }}
                   icon={<PrinterOutlined />}
-                  onClick={handlePrint}
                 />
               </Tooltip>
             </Space>
@@ -269,6 +262,11 @@ const RequestList = () => {
       },
     },
   ];
+  const autoGenerateRequest = () => {
+    if (onclick) {
+      <Button className="hola" loading={true} />;
+    }
+  };
 
   return (
     <PageContainer>
@@ -325,7 +323,7 @@ const RequestList = () => {
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="reset" onClick={onClear} loading={loading}>
+                  <Button htmlType="reset" onClick={OnClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>
@@ -347,13 +345,21 @@ const RequestList = () => {
             style={{ marginRight: '25px', marginBottom: '20px' }}
           />
         </Space>
-        <Button
-          shape="round"
-          type="primary"
-          style={{ bottom: '70px', display: 'flex', margin: 'auto' }}
-        >
-          Auto Generar Solicitud
-        </Button>
+        <Space style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+          <Button
+            onClick={() => autoGenerateRequest()}
+            shape="round"
+            type="primary"
+            style={{
+              bottom: '70px',
+              display: 'flex',
+              justifyContent: 'flex-start',
+              marginLeft: '25px',
+            }}
+          >
+            Auto Generar Solicitud
+          </Button>
+        </Space>
       </Card>
       <Card>
         <Table
@@ -369,4 +375,4 @@ const RequestList = () => {
   );
 };
 
-export default RequestList;
+export default InputList;

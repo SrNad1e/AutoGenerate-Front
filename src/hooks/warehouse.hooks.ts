@@ -2,7 +2,7 @@ import { WAREHOUSES } from '@/graphql/queries/warehouse.queries';
 import { useLazyQuery } from '@apollo/client';
 
 export const useGetWarehouses = (
-  callback: (data: WAREHOUSE.warehouse[]) => void,
+  callback: (data: WAREHOUSE.Response) => void,
   showError: (message: string) => void,
 ) => {
   const [getWarehouses, { loading }] = useLazyQuery(WAREHOUSES, {
