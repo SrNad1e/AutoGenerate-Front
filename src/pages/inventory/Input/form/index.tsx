@@ -1,18 +1,19 @@
+import { useEffect, useState } from 'react';
 import { ArrowLeftOutlined, DropboxOutlined, FileTextOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Space, Steps } from 'antd';
-import { useEffect, useState } from 'react';
+import { useParams, useHistory } from 'umi';
+
 import FormRequest from '../../request/components/FormRequest';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import { useHistory, useParams } from 'umi/node_modules/@types/react-router';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
-import { useGetRequest } from '@/hooks/request.hooks';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import { useGetRequest } from '@/hooks/request.hooks';
 
 const { Step } = Steps;
 
 const InputForm = () => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurretStep] = useState(0);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -24,6 +25,7 @@ const InputForm = () => {
 
   const { id } = useParams<Partial<{ id: string }>>();
   const history = useHistory();
+
   const isNew = !id;
 
   const onShowError = (message: string) => {
@@ -36,32 +38,32 @@ const InputForm = () => {
 
   const onCloseAlert = () => {
     setPropsAlert({
-      message: ' ',
+      message: '',
       type: 'error',
       visible: false,
     });
-  };
-
-  const showError = (message: string) => {
-    onShowError(message);
   };
 
   const currentRequest = (data: Partial<REQUEST.Request>) => {
     setRequest(data);
   };
 
+  const showError = (message: string) => {
+    onShowError(message);
+  };
+
   const { getRequest, loading } = useGetRequest(currentRequest, showError);
 
   const changeCurrentStep = (warehouseOrigin?: WAREHOUSE.warehouse) => {
     if (warehouseOrigin) {
-      setCurrentStep(1);
+      setCurretStep(1);
 
       setRequest({
         ...request,
         warehouseOrigin,
       });
     } else {
-      setCurrentStep(0);
+      setCurretStep(0);
     }
   };
 
@@ -81,7 +83,7 @@ const InputForm = () => {
         return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega Origen" />;
       case 1:
         return (
-          <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurrentStep} />
+          <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurretStep} />
         );
       default:
         return <></>;
@@ -123,7 +125,7 @@ const InputForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurrentStep} />
+        <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurretStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </PageContainer>
