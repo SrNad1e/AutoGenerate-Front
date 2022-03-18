@@ -114,7 +114,7 @@ const InputList = () => {
   /**
    * @description se encarga de eliminar los filtros y devolver a la pagina inicial
    * */
-  const OnClear = () => {
+  const onClear = () => {
     setFilters({});
     history.push(location.pathname);
     setPagination({
@@ -162,7 +162,7 @@ const InputList = () => {
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
 
-      history.push(`/inventory/input/list?${datos}`);
+      history.push(`/inventory/output/list?${datos}`);
     } catch (e) {
       console.log(e);
     }
@@ -318,7 +318,7 @@ const InputList = () => {
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="reset" onClick={OnClear} loading={loading}>
+                  <Button htmlType="reset" onClick={onClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>

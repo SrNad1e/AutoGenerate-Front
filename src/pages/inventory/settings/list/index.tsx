@@ -42,7 +42,7 @@ export type FormValues = {
   type?: string;
 };
 
-const InputList = () => {
+function SettingsList() {
   const [requests, setRequests] = useState<Partial<REQUEST.Request[]>>([]);
   const [filters, setFilters] = useState<Partial<FormValues>>({
     type: 'received',
@@ -92,7 +92,7 @@ const InputList = () => {
       variables: {
         input: {
           sort: {
-            createdAt: -1,
+            createAt: -1,
           },
           ...params,
         },
@@ -100,10 +100,6 @@ const InputList = () => {
     });
   };
 
-  /**
-   * @description se encarga de manejar eventos de tabla
-   * @param paginationLocal eventos de la páginacion
-   * */
   const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
     const { current } = paginationLocal;
     setFilters({ ...filters });
@@ -111,10 +107,7 @@ const InputList = () => {
     onSearch({ ...filters, page: current });
   };
 
-  /**
-   * @description se encarga de eliminar los filtros y devolver a la pagina inicial
-   * */
-  const OnClear = () => {
+  const onClear = () => {
     setFilters({});
     history.push(location.pathname);
     setPagination({
@@ -129,9 +122,6 @@ const InputList = () => {
     });
   };
 
-  /**
-   * @description se encarga de finalizar la busqueda con los filtros
-   * */
   const onFinish = (props: FormValues) => {
     const { status, number, warehouse, dates } = props;
     try {
@@ -145,24 +135,24 @@ const InputList = () => {
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
         params['dateFinal'] = dateFinal;
         params['dateInitial'] = dateInitial;
-      }
-      if (warehouse) {
-        if (status === 'send') {
-          params['warehouseDestinationId'] = warehouse?._id;
-        } else {
-          params['warehouseOriginId'] = warehouse?._id;
+        if (warehouse) {
+          if (status === 'send') {
+            params['warehouseDestinationId'] = warehouse?._id;
+          } else {
+            params['warehouseOriginId'] = warehouse?._id;
+          }
         }
+        setPagination({ ...pagination, current: 1 });
+
+        setFilters({ ...filters, ...props });
+        onSearch(params);
+
+        const datos = Object.keys(props)
+          .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
+          .slice(1);
+
+        history.push(`/inventory/output/list?${datos}`);
       }
-      setPagination({ ...pagination, current: 1 });
-
-      setFilters({ ...filters, ...props });
-      onSearch(params);
-
-      const datos = Object.keys(props)
-        .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
-        .slice(1);
-
-      history.push(`/inventory/input/list?${datos}`);
     } catch (e) {
       console.log(e);
     }
@@ -291,7 +281,7 @@ const InputList = () => {
             </Col>
             <Col xs={24} lg={5} xl={4} xxl={4}>
               <FormItem label="Tipo" name="type">
-                <Select className={styles.item} disabled={loading}>
+                <Select>
                   <Option key="sent">Enviado</Option>
                   <Option key="received">Recibido</Option>
                 </Select>
@@ -318,7 +308,7 @@ const InputList = () => {
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="reset" onClick={OnClear} loading={loading}>
+                  <Button htmlType="reset" onClick={onClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>
@@ -351,6 +341,5 @@ const InputList = () => {
       <AlertInformation {...error} onCancel={closeMessageError} />
     </PageContainer>
   );
-};
-
-export default InputList;
+}
+export default SettingsList;

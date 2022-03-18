@@ -126,6 +126,46 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Salidas',
+              path: '/inventory/output',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/output/list',
+                  component: './inventory/output/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/output/new',
+                  component: './inventory/output/form',
+                },
+                {
+                  path: '/inventory/output/:id',
+                  component: './inventory/output/form',
+                },
+              ],
+            },
+            {
+              name: 'Ajustes',
+              path: '/inventory/settings',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/settings/list',
+                  component: './inventory/settings/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/settings/new',
+                  component: './inventory/settings/form',
+                },
+                {
+                  path: '/inventory/settings/:id',
+                  component: './inventory/settings/form',
+                },
+              ],
+            },
           ],
         },
         {
