@@ -1,4 +1,4 @@
-import { SearchOutlined, EyeOutlined, PrinterOutlined } from '@ant-design/icons';
+import { SearchOutlined, EyeOutlined, ContainerOutlined, PrinterFilled } from '@ant-design/icons';
 import { useHistory, useLocation } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -21,11 +21,10 @@ import { TablePaginationConfig } from 'antd/es/table/interface';
 import type { Moment } from 'moment';
 import moment from 'moment';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import { StatusType } from '../request.data';
-import { useReactToPrint } from 'react-to-print';
 
 import styles from './styles.less';
 import './styles.less';
@@ -63,8 +62,6 @@ const RequestList = () => {
 
   const history = useHistory();
   const location = useLocation();
-  const componentRef = useRef(null);
-  const handlePrint = useReactToPrint({ content: () => componentRef.current });
 
   const resultRequests = (data: Partial<REQUEST.Response>) => {
     if (data) {
@@ -185,26 +182,30 @@ const RequestList = () => {
     onFinish(newFilters);
   }, []);
 
+  const autoRequest = () => {};
+
   const columns: ColumnsType<Partial<REQUEST.Request>> = [
     {
       title: 'Número',
       dataIndex: 'number',
       align: 'center',
-      sorter: true,
+      sorter: {
+        compare: (a: any, b: any) => a.number - b.number,
+      },
       showSorterTooltip: false,
     },
     {
       title: 'Origen',
-      align: 'center',
       dataIndex: 'warehouseOrigin',
+      align: 'center',
       sorter: true,
       showSorterTooltip: false,
       render: (warehouseOrigin: WAREHOUSE.warehouse) => warehouseOrigin?.name,
     },
     {
       title: 'Destino',
-      align: 'center',
       dataIndex: 'warehouseDestination',
+      align: 'center',
       sorter: true,
       showSorterTooltip: false,
       render: (warehouseDestination: WAREHOUSE.warehouse) => warehouseDestination?.name,
@@ -257,10 +258,9 @@ const RequestList = () => {
             <Space>
               <Tooltip title="Imprimir">
                 <Button
-                  type="dashed"
+                  type="ghost"
                   style={{ backgroundColor: 'white' }}
-                  icon={<PrinterOutlined />}
-                  onClick={handlePrint}
+                  icon={<PrinterFilled />}
                 />
               </Tooltip>
             </Space>
@@ -338,12 +338,14 @@ const RequestList = () => {
         <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Statistic
             title="Total Encontrados:"
-            value="1"
+            value={pagination.total}
+            prefix={<ContainerOutlined />}
             style={{ marginRight: '25px', marginBottom: '20px' }}
           />
           <Statistic
             title="Página:"
-            value="1/1"
+            value={pagination.current}
+            suffix="/2"
             style={{ marginRight: '25px', marginBottom: '20px' }}
           />
         </Space>
@@ -351,6 +353,7 @@ const RequestList = () => {
           shape="round"
           type="primary"
           style={{ bottom: '70px', display: 'flex', margin: 'auto' }}
+          onClick={() => autoRequest}
         >
           Auto Generar Solicitud
         </Button>

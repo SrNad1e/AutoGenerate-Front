@@ -1,4 +1,4 @@
-import './App.css';
+import './style.css';
 
 const styleClasses = {
   p: {
@@ -165,3 +165,5 @@ const RequestPage = () => {
     </>
   );
 };
+
+export default RequestPage;

@@ -16,7 +16,7 @@ import {
   TablePaginationConfig,
   Tooltip,
 } from 'antd';
-import { EyeOutlined, PrinterOutlined, SearchOutlined } from '@ant-design/icons';
+import { ContainerOutlined, EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
 import type { Moment } from 'moment';
 import FormItem from 'antd/lib/form/FormItem';
 import moment from 'moment';
@@ -251,9 +251,9 @@ const InputList = () => {
             <Space>
               <Tooltip title="Imprimir">
                 <Button
-                  type="dashed"
+                  type="ghost"
                   style={{ backgroundColor: 'white' }}
-                  icon={<PrinterOutlined />}
+                  icon={<PrinterFilled />}
                 />
               </Tooltip>
             </Space>
@@ -331,12 +331,14 @@ const InputList = () => {
         <Space style={{ display: 'flex', justifyContent: 'center' }}>
           <Statistic
             title="Total Encontrados:"
-            value="1"
+            value={pagination.total}
+            prefix={<ContainerOutlined />}
             style={{ marginRight: '25px', marginBottom: '20px' }}
           />
           <Statistic
             title="Página:"
-            value="1/1"
+            value={pagination.current}
+            suffix="/2"
             style={{ marginRight: '25px', marginBottom: '20px' }}
           />
         </Space>
