@@ -114,9 +114,10 @@ const RequestList = () => {
     //sorter: SorterResult<PRODUCT.Product>,
   ) => {
     const { current } = paginationLocal;
-    setFilters({ ...filters });
     setPagination({ ...pagination, current });
-    onSearch({ ...filters, page: current });
+    const params = { ...filters };
+    delete params.type;
+    onSearch({ ...params, page: current });
   };
 
   const onClear = () => {
@@ -127,8 +128,10 @@ const RequestList = () => {
       pageSize: 10,
       current: 1,
     });
+    const params = { ...filters };
+    delete params.type;
     onSearch({
-      ...filters,
+      ...params,
       limit: 10,
       page: 1,
     });

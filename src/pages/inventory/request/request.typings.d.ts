@@ -2,7 +2,7 @@ declare namespace REQUEST {
   type Request = {
     _id: string;
     number: number;
-    status: StatusTransfer;
+    status: StatusRequest;
     warehouseOrigin: WAREHOUSE.Warehouse;
     user: USER.User;
     details: DetailRequest[];
@@ -51,6 +51,7 @@ declare namespace REQUEST {
     page: number;
     dateInitial?: string;
     dateFinal?: string;
+    sort: any;
   };
 
   type CreateRequest = {

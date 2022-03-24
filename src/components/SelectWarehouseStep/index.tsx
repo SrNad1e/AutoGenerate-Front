@@ -1,18 +1,16 @@
 import { Button, Col, Form, Row } from 'antd';
 
 import SelectWarehouses from '@/components/SelectWarehouses';
-import { useModel } from 'umi';
 
 export type Props = {
   changeCurrentStep: (value: WAREHOUSE.warehouse) => void;
   label: string;
+  warehouseId?: string;
 };
 
 const FormItem = Form.Item;
 
-const SelectWarehouseStep = ({ changeCurrentStep, label }: Props) => {
-  const { initialState } = useModel('@@initialState');
-
+const SelectWarehouseStep = ({ changeCurrentStep, label, warehouseId }: Props) => {
   return (
     <Form
       onFinish={(values) => {
@@ -28,8 +26,10 @@ const SelectWarehouseStep = ({ changeCurrentStep, label }: Props) => {
               { required: true, message: 'Se debe seleccionar una bodega' },
               {
                 validator: (_, data: any) => {
-                  if (data?._id === initialState?.currentUser?.shop?.defaultWarehouse?._id) {
-                    return Promise.reject(new Error('No puedes seleccionar tu bodega'));
+                  if (warehouseId) {
+                    if (data?._id === warehouseId) {
+                      return Promise.reject(new Error('No puedes seleccionar tu bodega'));
+                    }
                   }
                   return Promise.resolve();
                 },

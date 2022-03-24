@@ -67,26 +67,6 @@ export default defineConfig({
           icon: 'dashboard',
           routes: [
             {
-              name: 'Traslados',
-              path: '/inventory/transfer',
-              routes: [
-                {
-                  name: 'Lista',
-                  path: '/inventory/transfer/list',
-                  component: './inventory/transfer/list',
-                },
-                {
-                  name: 'Nuevo',
-                  path: '/inventory/transfer/new',
-                  component: './inventory/transfer/form',
-                },
-                {
-                  path: '/inventory/transfer/:id',
-                  component: './inventory/transfer/form',
-                },
-              ],
-            },
-            {
               name: 'Solicitudes',
               path: '/inventory/request',
               routes: [
@@ -103,66 +83,6 @@ export default defineConfig({
                 {
                   path: '/inventory/request/:id',
                   component: './inventory/request/form',
-                },
-              ],
-            },
-            {
-              name: 'Entradas',
-              path: '/inventory/input',
-              routes: [
-                {
-                  name: 'Lista',
-                  path: '/inventory/input/list',
-                  component: './inventory/input/list',
-                },
-                {
-                  name: 'Nueva',
-                  path: '/inventory/input/new',
-                  component: './inventory/input/form',
-                },
-                {
-                  path: '/inventory/input/:id',
-                  component: './inventory/input/form',
-                },
-              ],
-            },
-            {
-              name: 'Salidas',
-              path: '/inventory/output',
-              routes: [
-                {
-                  name: 'Lista',
-                  path: '/inventory/output/list',
-                  component: './inventory/output/list',
-                },
-                {
-                  name: 'Nueva',
-                  path: '/inventory/output/new',
-                  component: './inventory/output/form',
-                },
-                {
-                  path: '/inventory/output/:id',
-                  component: './inventory/output/form',
-                },
-              ],
-            },
-            {
-              name: 'Ajustes',
-              path: '/inventory/settings',
-              routes: [
-                {
-                  name: 'Lista',
-                  path: '/inventory/settings/list',
-                  component: './inventory/settings/list',
-                },
-                {
-                  name: 'Nueva',
-                  path: '/inventory/settings/new',
-                  component: './inventory/settings/form',
-                },
-                {
-                  path: '/inventory/settings/:id',
-                  component: './inventory/settings/form',
                 },
               ],
             },

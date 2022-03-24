@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeftOutlined, DropboxOutlined, FileTextOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Space, Steps } from 'antd';
-import { useParams, useHistory } from 'umi';
+import { useParams, useHistory, useModel } from 'umi';
 
 import FormRequest from '../components/FormRequest';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
@@ -25,6 +25,8 @@ const RequestForm = () => {
   const [request, setRequest] = useState<Partial<REQUEST.Request & REQUEST.CreateRequest>>({
     status: 'open',
   });
+
+  const { initialState } = useModel('@@initialState');
 
   const { id } = useParams<Partial<{ id: string }>>();
   const history = useHistory();
@@ -106,7 +108,13 @@ const RequestForm = () => {
   const renderSteps = (step: number) => {
     switch (step) {
       case 0:
-        return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega Origen" />;
+        return (
+          <SelectWarehouseStep
+            warehouseId={initialState?.currentUser?.shop?.defaultWarehouse._id}
+            changeCurrentStep={changeCurrentStep}
+            label="Bodega Origen"
+          />
+        );
       case 1:
         return (
           <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurretStep} />
