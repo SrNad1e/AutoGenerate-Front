@@ -11,6 +11,7 @@ export const useLogin = (
     onCompleted: (result) => callback(result.login),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+      console.log('algo pása', graphQLErrors);
 
       showError(message ?? 'Error en la consulta');
     },

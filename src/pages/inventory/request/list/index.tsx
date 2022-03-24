@@ -1,4 +1,6 @@
-import { SearchOutlined, EyeOutlined, ContainerOutlined, PrinterFilled } from '@ant-design/icons';
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/dot-notation */
+import { SearchOutlined, EyeOutlined, PrinterFilled } from '@ant-design/icons';
 import { useHistory, useLocation } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -7,17 +9,18 @@ import {
   Card,
   Col,
   DatePicker,
+  Divider,
   Form,
   InputNumber,
   Row,
   Select,
   Space,
-  Statistic,
   Table,
   Tooltip,
+  Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
-import { TablePaginationConfig } from 'antd/es/table/interface';
+import type { TablePaginationConfig } from 'antd/es/table/interface';
 import type { Moment } from 'moment';
 import moment from 'moment';
 
@@ -33,6 +36,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const FormItem = Form.Item;
 const { Option } = Select;
+const { Title } = Typography;
 
 const { RangePicker } = DatePicker;
 
@@ -120,17 +124,16 @@ const RequestList = () => {
     onSearch({ ...params, page: current });
   };
 
-  const onClear = () => {
+  const onClear = async () => {
     setFilters({});
     history.push(location.pathname);
     setPagination({
-      total: 0,
       pageSize: 10,
       current: 1,
     });
     const params = { ...filters };
     delete params.type;
-    onSearch({
+    await onSearch({
       ...params,
       limit: 10,
       page: 1,
@@ -274,7 +277,19 @@ const RequestList = () => {
   ];
 
   return (
-    <PageContainer>
+    <PageContainer
+      title={
+        <Space>
+          <Title level={4} style={{ margin: 0 }}>
+            Lista de solicitudes
+          </Title>
+          <Divider type="vertical" />
+          <Button shape="round" type="primary" onClick={() => autoRequest}>
+            AutoGenerar
+          </Button>
+        </Space>
+      }
+    >
       <Card>
         <Form
           layout="inline"
@@ -288,7 +303,7 @@ const RequestList = () => {
                 <InputNumber className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={3} xxl={3}>
+            <Col xs={24} lg={5} xl={4} xxl={3}>
               <FormItem label="Estado" name="status">
                 <Select className={styles.item} allowClear disabled={loading}>
                   {Object.keys(StatusType).map((key) => (
@@ -299,7 +314,7 @@ const RequestList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={4} xxl={4}>
+            <Col xs={24} lg={5} xl={3} xxl={4}>
               <FormItem label="Tipo" name="type">
                 <Select className={styles.item} disabled={loading}>
                   <Option key="sent">Enviado</Option>
@@ -312,12 +327,12 @@ const RequestList = () => {
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={6} xxl={6}>
+            <Col xs={24} lg={10} xl={7} xxl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={3} xxl={3}>
+            <Col xs={24} lg={14} xl={4} xxl={3}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -328,7 +343,7 @@ const RequestList = () => {
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="reset" onClick={onClear} loading={loading}>
+                  <Button onClick={onClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>
@@ -336,30 +351,6 @@ const RequestList = () => {
             </Col>
           </Row>
         </Form>
-      </Card>
-      <Card size="small" style={{ height: '80px' }}>
-        <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Statistic
-            title="Total Encontrados:"
-            value={pagination.total}
-            prefix={<ContainerOutlined />}
-            style={{ marginRight: '25px', marginBottom: '20px' }}
-          />
-          <Statistic
-            title="Página:"
-            value={pagination.current}
-            suffix="/2"
-            style={{ marginRight: '25px', marginBottom: '20px' }}
-          />
-        </Space>
-        <Button
-          shape="round"
-          type="primary"
-          style={{ bottom: '70px', display: 'flex', margin: 'auto' }}
-          onClick={() => autoRequest}
-        >
-          Auto Generar Solicitud
-        </Button>
       </Card>
       <Card>
         <Table
