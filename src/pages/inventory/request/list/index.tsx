@@ -67,6 +67,8 @@ const RequestList = () => {
   const history = useHistory();
   const location = useLocation();
 
+  const [form] = Form.useForm();
+
   const resultRequests = (data: Partial<REQUEST.Response>) => {
     if (data) {
       setRequests(data.docs || []);
@@ -124,24 +126,22 @@ const RequestList = () => {
     onSearch({ ...params, page: current });
   };
 
-  const onClear = async () => {
-    setFilters({});
+  const onClear = () => {
     history.push(location.pathname);
+    setFilters({});
     setPagination({
       pageSize: 10,
       current: 1,
     });
-    const params = { ...filters };
-    delete params.type;
-    await onSearch({
-      ...params,
+    onSearch({
       limit: 10,
       page: 1,
     });
+    form.resetFields();
   };
 
   const onFinish = (props: FormValues) => {
-    const { status, number, warehouse, dates } = props;
+    const { status, number, warehouse, dates, type = 'received' } = props;
     try {
       const params: Partial<REQUEST.FiltersGetRequests> = {
         page: 1,
@@ -156,28 +156,31 @@ const RequestList = () => {
         params['dateInitial'] = dateInitial;
       }
       if (warehouse) {
-        if (status === 'send') {
-          params['warehouseDestinationId'] = warehouse?._id;
-        } else {
+        console.log(type);
+
+        if (type === 'sent') {
           params['warehouseOriginId'] = warehouse?._id;
+        } else {
+          params['warehouseDestinationId'] = warehouse?._id;
         }
       }
       setPagination({ ...pagination, current: 1 });
 
       setFilters({ ...filters, ...props });
+
       onSearch(params);
 
       const datos = Object.keys(props)
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
-
+      form.setFieldsValue(props);
       history.push(`/inventory/request/list?${datos}`);
     } catch (e) {
       console.log(e);
     }
   };
 
-  useEffect(() => {
+  const loadingData = () => {
     const queryParams = location['query'];
 
     const newFilters = {};
@@ -186,6 +189,10 @@ const RequestList = () => {
       newFilters[item] = JSON.parse(queryParams[item]);
     });
     onFinish(newFilters);
+  };
+
+  useEffect(() => {
+    loadingData();
   }, []);
 
   const autoRequest = () => {};
@@ -292,6 +299,7 @@ const RequestList = () => {
     >
       <Card>
         <Form
+          form={form}
           layout="inline"
           className={styles.filters}
           onFinish={onFinish}
@@ -332,7 +340,7 @@ const RequestList = () => {
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={4} xxl={3}>
+            <Col xs={24} lg={14} xl={24} xxl={3}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -343,7 +351,7 @@ const RequestList = () => {
                   >
                     Buscar
                   </Button>
-                  <Button onClick={onClear} loading={loading}>
+                  <Button htmlType="button" onClick={onClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>

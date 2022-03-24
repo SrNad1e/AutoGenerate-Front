@@ -25,8 +25,6 @@ const GlobalHeaderRight: React.FC = () => {
     className = `${styles.right}  ${styles.dark}`;
   }
 
-  console.log(initialState.currentUser);
-
   return (
     <Space className={className}>
       <span
