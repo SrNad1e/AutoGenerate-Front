@@ -121,6 +121,49 @@ const RequestList = () => {
   };
 
   /**
+   * @description se encarga de realizar el proceso de busqueda con los filtros
+   * @param props filtros seleccionados en el formulario
+   */
+  const onFinish = (props: FormValues, sort?: any, pageCurrent?: number) => {
+    const { status, number, warehouse, dates, type = 'received' } = props;
+    try {
+      const params: REQUEST.FiltersGetRequests = {
+        page: pageCurrent || 1,
+        limit: pagination.pageSize,
+        status,
+        number,
+        sort: sort || { createdAt: -1 },
+      };
+
+      if (dates) {
+        const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
+        const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
+        params['dateFinal'] = dateFinal;
+        params['dateInitial'] = dateInitial;
+      }
+      if (warehouse) {
+        if (type === 'sent') {
+          params['warehouseOriginId'] = warehouse?._id;
+        } else {
+          params['warehouseDestinationId'] = warehouse?._id;
+        }
+      }
+      setPagination({ ...pagination, current: pageCurrent || 1 });
+
+      onSearch(params);
+
+      const datos = Object.keys(props)
+        .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
+        .slice(1);
+
+      form.setFieldsValue(props);
+      history.replace(`${location.pathname}?${datos}`);
+    } catch (e) {
+      messageError(e as string);
+    }
+  };
+
+  /**
    * @description se encarga de manejar eventos de tabla
    * @param paginationLocal eventos de la páginacion
    */
@@ -140,20 +183,13 @@ const RequestList = () => {
       };
     } else {
       sort = {
-        createdAt: 1,
+        createdAt: -1,
       };
     }
 
     setPagination({ ...pagination, current });
 
-    delete params.type;
-
-    onSearch({
-      ...params,
-      sort,
-      page: current,
-      limit: pagination.pageSize,
-    });
+    onFinish(params, sort, current);
   };
 
   /**
@@ -173,58 +209,14 @@ const RequestList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
+    onSearch();
     setPagination({
       pageSize: 10,
       current: 1,
     });
-    onSearch({
-      limit: 10,
-      page: 1,
-    });
     form.setFieldsValue({
       type: 'received',
     });
-  };
-
-  /**
-   * @description se encarga de realizar el proceso de busqueda con los filtros
-   * @param props filtros seleccionados en el formulario
-   */
-  const onFinish = (props: FormValues) => {
-    const { status, number, warehouse, dates, type = 'received' } = props;
-    try {
-      const params: REQUEST.FiltersGetRequests = {
-        page: 1,
-        status,
-        number,
-      };
-
-      if (dates) {
-        const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
-        const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
-        params['dateFinal'] = dateFinal;
-        params['dateInitial'] = dateInitial;
-      }
-      if (warehouse) {
-        if (type === 'sent') {
-          params['warehouseOriginId'] = warehouse?._id;
-        } else {
-          params['warehouseDestinationId'] = warehouse?._id;
-        }
-      }
-      setPagination({ ...pagination, current: 1 });
-
-      onSearch(params);
-
-      const datos = Object.keys(props)
-        .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
-        .slice(1);
-
-      form.setFieldsValue(props);
-      history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      messageError(e as string);
-    }
   };
 
   /**
@@ -236,11 +228,20 @@ const RequestList = () => {
     const newFilters = {};
 
     Object.keys(queryParams).forEach((item) => {
-      newFilters[item] = JSON.parse(queryParams[item]);
+      if (item === 'dates') {
+        const data = JSON.parse(queryParams[item]);
+        newFilters[item] = [moment(data[0]), moment(data[1])];
+      } else {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      }
     });
+
     form.setFieldsValue({
       type: 'received',
     });
+
+    console.log(newFilters);
+
     onFinish(newFilters);
   };
 
