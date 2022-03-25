@@ -8,11 +8,10 @@ const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API } = proces
 
 export default defineConfig({
   define: {
-    API_URL:
-      API_URL || 'https://api-graphql.t0n53eq7nj176.us-east-1.cs.amazonlightsail.com/graphql',
-    CDN_URL: CDN_URL || 'http://cdn.toulouse.com.co',
-    FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
-    FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD',
+    API_URL,
+    CDN_URL,
+    FORMAT_DATE,
+    FORMAT_DATE_API,
   },
   hash: true,
   antd: {},
