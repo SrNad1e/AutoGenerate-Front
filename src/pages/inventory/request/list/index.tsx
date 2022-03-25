@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/dot-notation */
 import { SearchOutlined, EyeOutlined, PrinterFilled } from '@ant-design/icons';
-import { useHistory, useLocation } from 'umi';
+import { useHistory, useLocation, useModel } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -20,7 +21,7 @@ import {
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
-import type { TablePaginationConfig } from 'antd/es/table/interface';
+import type { SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import type { Moment } from 'moment';
 import moment from 'moment';
 
@@ -31,13 +32,13 @@ import { StatusType } from '../request.data';
 
 import styles from './styles.less';
 import './styles.less';
-import { useGetRequests } from '@/hooks/request.hooks';
+import { useGenerateRequest, useGetRequests } from '@/hooks/request.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import AlertLoading from '@/components/Alerts/AlertLoading';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { Title } = Typography;
-
 const { RangePicker } = DatePicker;
 
 export type FormValues = {
@@ -50,19 +51,18 @@ export type FormValues = {
 
 const RequestList = () => {
   const [requests, setRequests] = useState<Partial<REQUEST.Request[]>>([]);
-  const [filters, setFilters] = useState<Partial<FormValues>>({
-    type: 'received',
-  });
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     total: 0,
     pageSize: 10,
     current: 1,
   });
-  const [error, setError] = useState<PropsAlertInformation>({
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
+
+  const { initialState } = useModel('@@initialState');
 
   const history = useHistory();
   const location = useLocation();
@@ -77,23 +77,35 @@ const RequestList = () => {
     }
   };
 
+  const resultGenerate = ({ _id, number }: Partial<REQUEST.Request>) => {
+    if (_id) {
+      setPropsAlertInformation({
+        message: `Se ha creado la solicitud No. ${number}`,
+        type: 'success',
+        redirect: `/inventory/request/${_id}`,
+        visible: true,
+      });
+    }
+  };
+
   const messageError = (message: string) => {
-    setError({
+    setPropsAlertInformation({
       message,
       type: 'error',
       visible: true,
     });
   };
 
-  const closeMessageError = () => {
-    setError({
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
       message: '',
       type: 'error',
       visible: false,
     });
   };
 
-  const { getRequests, loading } = useGetRequests(resultRequests, messageError);
+  const { getRequests, loadingGetAll } = useGetRequests(resultRequests, messageError);
+  const { generateRequest, loadingGenerate } = useGenerateRequest(resultGenerate, messageError);
 
   const onSearch = (params?: Partial<REQUEST.FiltersGetRequests>) => {
     getRequests({
@@ -111,24 +123,56 @@ const RequestList = () => {
   /**
    * @description se encarga de manejar eventos de tabla
    * @param paginationLocal eventos de la páginacion
-   * @param _ eventdos de los filtros
-   * @param sorter evento de ordenamientos
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    // filtersData: Record<string, FilterValue | null>,
-    //sorter: SorterResult<PRODUCT.Product>,
+    _: any,
+    sorter: SorterResult<Partial<REQUEST.Request>>,
   ) => {
     const { current } = paginationLocal;
+    const params = form.getFieldsValue();
+
+    let sort = {};
+
+    if (sorter.field) {
+      sort = {
+        [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+      };
+    } else {
+      sort = {
+        createdAt: 1,
+      };
+    }
+
     setPagination({ ...pagination, current });
-    const params = { ...filters };
+
     delete params.type;
-    onSearch({ ...params, page: current });
+
+    onSearch({
+      ...params,
+      sort,
+      page: current,
+      limit: pagination.pageSize,
+    });
   };
 
+  /**
+   * @description se encarga de hacer la consulta para generar la solicitud
+   */
+  const autoRequest = () => {
+    generateRequest({
+      variables: {
+        shopId: initialState?.currentUser?.shop?._id,
+      },
+    });
+  };
+
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
   const onClear = () => {
-    history.push(location.pathname);
-    setFilters({});
+    history.replace(location.pathname);
+    form.resetFields();
     setPagination({
       pageSize: 10,
       current: 1,
@@ -137,13 +181,19 @@ const RequestList = () => {
       limit: 10,
       page: 1,
     });
-    form.resetFields();
+    form.setFieldsValue({
+      type: 'received',
+    });
   };
 
+  /**
+   * @description se encarga de realizar el proceso de busqueda con los filtros
+   * @param props filtros seleccionados en el formulario
+   */
   const onFinish = (props: FormValues) => {
     const { status, number, warehouse, dates, type = 'received' } = props;
     try {
-      const params: Partial<REQUEST.FiltersGetRequests> = {
+      const params: REQUEST.FiltersGetRequests = {
         page: 1,
         status,
         number,
@@ -156,8 +206,6 @@ const RequestList = () => {
         params['dateInitial'] = dateInitial;
       }
       if (warehouse) {
-        console.log(type);
-
         if (type === 'sent') {
           params['warehouseOriginId'] = warehouse?._id;
         } else {
@@ -166,20 +214,22 @@ const RequestList = () => {
       }
       setPagination({ ...pagination, current: 1 });
 
-      setFilters({ ...filters, ...props });
-
       onSearch(params);
 
       const datos = Object.keys(props)
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
+
       form.setFieldsValue(props);
-      history.push(`/inventory/request/list?${datos}`);
+      history.replace(`${location.pathname}?${datos}`);
     } catch (e) {
-      console.log(e);
+      messageError(e as string);
     }
   };
 
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
   const loadingData = () => {
     const queryParams = location['query'];
 
@@ -188,6 +238,9 @@ const RequestList = () => {
     Object.keys(queryParams).forEach((item) => {
       newFilters[item] = JSON.parse(queryParams[item]);
     });
+    form.setFieldsValue({
+      type: 'received',
+    });
     onFinish(newFilters);
   };
 
@@ -195,16 +248,12 @@ const RequestList = () => {
     loadingData();
   }, []);
 
-  const autoRequest = () => {};
-
   const columns: ColumnsType<Partial<REQUEST.Request>> = [
     {
       title: 'Número',
       dataIndex: 'number',
       align: 'center',
-      sorter: {
-        compare: (a: any, b: any) => a.number - b.number,
-      },
+      sorter: true,
       showSorterTooltip: false,
     },
     {
@@ -291,29 +340,23 @@ const RequestList = () => {
             Lista de solicitudes
           </Title>
           <Divider type="vertical" />
-          <Button shape="round" type="primary" onClick={() => autoRequest}>
+          <Button shape="round" type="primary" onClick={autoRequest}>
             AutoGenerar
           </Button>
         </Space>
       }
     >
       <Card>
-        <Form
-          form={form}
-          layout="inline"
-          className={styles.filters}
-          onFinish={onFinish}
-          initialValues={filters}
-        >
+        <Form form={form} layout="inline" className={styles.filters} onFinish={onFinish}>
           <Row gutter={[8, 8]} className={styles.form}>
             <Col xs={24} lg={4} xl={3} xxl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber className={styles.item} disabled={loading} />
+                <InputNumber min={1} className={styles.item} disabled={loadingGetAll} />
               </FormItem>
             </Col>
             <Col xs={24} lg={5} xl={4} xxl={3}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item} allowClear disabled={loading}>
+                <Select className={styles.item} allowClear disabled={loadingGetAll}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
                       <Badge text={StatusType[key].label} color={StatusType[key].color} />
@@ -324,7 +367,7 @@ const RequestList = () => {
             </Col>
             <Col xs={24} lg={5} xl={3} xxl={4}>
               <FormItem label="Tipo" name="type">
-                <Select className={styles.item} disabled={loading}>
+                <Select className={styles.item} disabled={loadingGetAll}>
                   <Option key="sent">Enviado</Option>
                   <Option key="received">Recibido</Option>
                 </Select>
@@ -337,7 +380,7 @@ const RequestList = () => {
             </Col>
             <Col xs={24} lg={10} xl={7} xxl={6}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker className={styles.item} disabled={loading} />
+                <RangePicker className={styles.item} disabled={loadingGetAll} />
               </FormItem>
             </Col>
             <Col xs={24} lg={14} xl={24} xxl={3}>
@@ -347,11 +390,11 @@ const RequestList = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
-                    loading={loading}
+                    loading={loadingGetAll}
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button htmlType="button" onClick={onClear} loading={loadingGetAll}>
                     Limpiar
                   </Button>
                 </Space>
@@ -366,10 +409,11 @@ const RequestList = () => {
           dataSource={requests}
           pagination={pagination}
           onChange={handleChangeTable}
-          loading={loading}
+          loading={loadingGetAll}
         />
       </Card>
-      <AlertInformation {...error} onCancel={closeMessageError} />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
+      <AlertLoading message="Generando solicitud" visible={loadingGenerate} />
     </PageContainer>
   );
 };
