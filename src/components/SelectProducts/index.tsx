@@ -3,19 +3,28 @@ import { Card, Col, Form, Row } from 'antd';
 import { useState } from 'react';
 
 import SearchProducts from '../SearchProducts';
+import type { Detail } from '../SearchProducts/Modal';
 import WithCode from '../WithCode';
 
 const FormItem = Form.Item;
 
 export type Props = {
-  onChange?: (products: PRODUCT.Product[]) => void;
-  value?: PRODUCT.Product[];
+  barcode?: boolean;
+  details: Partial<Detail[]>;
+  warehouseId: string | undefined;
+  createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
+  updateDetail: (productId: string, quantity: number) => void;
+  deleteDetail: (productId: string) => void;
 };
 
-const SelectProducts = (/*{ onChange, value }: Props*/) => {
+type FormValues = {
+  withCode: string;
+};
+
+const SelectProducts = (props: Props) => {
   const [withCode, setWithCode] = useState(true);
 
-  const onValuesChange = (values: any) => {
+  const onValuesChange = (values: FormValues) => {
     if (values.withCode) {
       setWithCode(values.withCode === 'true');
     }
@@ -36,8 +45,8 @@ const SelectProducts = (/*{ onChange, value }: Props*/) => {
             </FormItem>
           </Col>
           <Col xs={24} lg={19}>
-            <FormItem name="products" label="Productos">
-              <SearchProducts disabled={!withCode} />
+            <FormItem label="Productos">
+              <SearchProducts {...props} />
             </FormItem>
           </Col>
         </Row>

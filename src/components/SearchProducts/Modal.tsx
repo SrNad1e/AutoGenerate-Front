@@ -43,7 +43,7 @@ export type Props = {
   updateDetail: (productId: string, quantity: number) => void;
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
-  warehouseId: string;
+  warehouseId: string | undefined;
 };
 
 export type FormValues = {

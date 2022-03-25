@@ -11,7 +11,7 @@ const { Search } = Input;
 export type Props = {
   barcode?: boolean;
   details: Partial<Detail[]>;
-  warehouseId: string;
+  warehouseId: string | undefined;
   createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
   updateDetail: (productId: string, quantity: number) => void;
   deleteDetail: (productId: string) => void;

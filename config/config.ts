@@ -85,8 +85,29 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Entradas',
+              path: '/inventory/input',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/input/list',
+                  component: './inventory/input/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/input/new',
+                  component: './inventory/input/form',
+                },
+                {
+                  path: '/inventory/input/:id',
+                  component: './inventory/input/form',
+                },
+              ],
+            },
           ],
         },
+
         {
           layout: false,
           component: '404',
