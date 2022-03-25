@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import { ArrowLeftOutlined, DropboxOutlined, FileTextOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -71,7 +72,7 @@ const RequestForm = () => {
     onShowError(message);
   };
 
-  const { getRequest, loading } = useGetRequest(currentRequest, showError);
+  const { getRequest, loadingGetOne } = useGetRequest(currentRequest, showError);
 
   /**
    * @description se encarga de cambiar el paso y asignar la bodega
@@ -140,7 +141,7 @@ const RequestForm = () => {
           {isNew ? 'Nueva Solicitud' : `Solicitud No. ${request?.number}`}
         </Space>
       }
-      loading={loading}
+      loading={loadingGetOne}
     >
       {isNew ? (
         <Card>
