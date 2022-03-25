@@ -21,20 +21,20 @@ import {
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
-import type { SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
+import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import type { Moment } from 'moment';
 import moment from 'moment';
-
 import { useEffect, useState } from 'react';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import { StatusType } from '../request.data';
-
-import styles from './styles.less';
-import './styles.less';
 import { useGenerateRequest, useGetRequests } from '@/hooks/request.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
+
+import styles from './styles.less';
+import './styles.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -69,6 +69,12 @@ const RequestList = () => {
 
   const [form] = Form.useForm();
 
+  /** Funciones ejecutadas por los hooks */
+
+  /**
+   * @description se encarga de almacenar los datos de la consulta
+   * @param data respuesta de la consulta
+   */
   const resultRequests = (data: Partial<REQUEST.Response>) => {
     if (data) {
       setRequests(data.docs || []);
@@ -77,6 +83,10 @@ const RequestList = () => {
     }
   };
 
+  /**
+   * @description funcion que se encarga de enviar al usuario al detalle de la solicitud creada
+   * @param params resultado de la solicitud
+   */
   const resultGenerate = ({ _id, number }: Partial<REQUEST.Request>) => {
     if (_id) {
       setPropsAlertInformation({
@@ -88,6 +98,10 @@ const RequestList = () => {
     }
   };
 
+  /**
+   * @description funcion usada por los hook para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
   const messageError = (message: string) => {
     setPropsAlertInformation({
       message,
@@ -96,6 +110,18 @@ const RequestList = () => {
     });
   };
 
+  /** FIn de Funciones ejecutadas por los hooks */
+
+  /** Hooks para manejo de consultas */
+
+  const { getRequests, loadingGetAll } = useGetRequests(resultRequests, messageError);
+  const { generateRequest, loadingGenerate } = useGenerateRequest(resultGenerate, messageError);
+
+  /** Fin de Hooks para manejo de consultas */
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
   const closeAlertInformation = () => {
     setPropsAlertInformation({
       message: '',
@@ -104,9 +130,10 @@ const RequestList = () => {
     });
   };
 
-  const { getRequests, loadingGetAll } = useGetRequests(resultRequests, messageError);
-  const { generateRequest, loadingGenerate } = useGenerateRequest(resultGenerate, messageError);
-
+  /**
+   * @description se encarga de ejecutar la funcion para obtener las solicitudes
+   * @param params filtros necesarios para la busqueda
+   */
   const onSearch = (params?: Partial<REQUEST.FiltersGetRequests>) => {
     getRequests({
       variables: {
@@ -124,7 +151,7 @@ const RequestList = () => {
    * @description se encarga de realizar el proceso de busqueda con los filtros
    * @param props filtros seleccionados en el formulario
    */
-  const onFinish = (props: FormValues, sort?: any, pageCurrent?: number) => {
+  const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
     const { status, number, warehouse, dates, type = 'received' } = props;
     try {
       const params: REQUEST.FiltersGetRequests = {
@@ -166,10 +193,11 @@ const RequestList = () => {
   /**
    * @description se encarga de manejar eventos de tabla
    * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: any,
+    _: Record<string, FilterValue | null>,
     sorter: SorterResult<Partial<REQUEST.Request>>,
   ) => {
     const { current } = paginationLocal;
