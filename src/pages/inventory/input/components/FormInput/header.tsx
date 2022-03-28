@@ -27,6 +27,13 @@ const Header = ({ input, setObservation, observation }: Props) => {
             </DescriptionsItem>
           </Descriptions>
         </Col>
+        <Col lg={12} xs={24}>
+          <Descriptions bordered size="small" column={1}>
+            <DescriptionsItem label="Usuario">
+              {input?.user?.name || initialState?.currentUser?.name}
+            </DescriptionsItem>
+          </Descriptions>
+        </Col>
         <Col span={24}>
           <Descriptions bordered size="small" column={4}>
             <DescriptionsItem label="Número" span={1}>
@@ -44,9 +51,7 @@ const Header = ({ input, setObservation, observation }: Props) => {
             <DescriptionsItem label="Actualizado" span={1}>
               {moment(input?.updatedAt).format(FORMAT_DATE)}
             </DescriptionsItem>
-            <DescriptionsItem label="Usuario">
-              {input?.user?.name || initialState?.currentUser?.name}
-            </DescriptionsItem>
+
             <DescriptionsItem label="Observación de general">
               {allowEdit ? (
                 <TextArea value={observation} onChange={(e) => setObservation(e?.target?.value)} />

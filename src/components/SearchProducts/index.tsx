@@ -10,6 +10,7 @@ const { Search } = Input;
 
 export type Props = {
   barcode?: boolean;
+  quantity?: number;
   details: Partial<Detail[]>;
   warehouseId: string | undefined;
   createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
@@ -19,6 +20,7 @@ export type Props = {
 
 const SearchProducts = ({
   barcode,
+  quantity,
   details = [],
   warehouseId,
   createDetail,
@@ -44,9 +46,16 @@ const SearchProducts = ({
    * @description callback ejecutado por el customHook
    * @param product producto
    */
-  const resultProduct = () => {
+  const resultProduct = (product: PRODUCT.Product) => {
+    if (product) {
+      const exist = details.find((item) => item?.product?._id === product._id);
+      if (exist) {
+        updateDetail(product._id, exist.quantity + (quantity || 1));
+      } else {
+        createDetail(product, quantity || 1);
+      }
+    }
     searchRef?.current?.select();
-    //TODO: implentar agregar productos al detalle
   };
 
   const { getProduct, loading } = useGetProduct(resultProduct, showError);

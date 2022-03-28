@@ -22,7 +22,7 @@ import { SorterResult } from 'antd/lib/table/interface';
 
 import { useHistory, useLocation } from 'umi';
 import { useGetInputs } from '@/hooks/input.hooks';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { StatusTypeInput } from '../input.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -32,6 +32,8 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import TotalFound from '@/components/TotalFound';
 
 import styles from './styles.less';
+import { useReactToPrint } from 'react-to-print';
+import ReportInput from '../reports/input';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -47,7 +49,9 @@ export type FormValues = {
 
 const InputList = () => {
   const [inputs, setInputs] = useState<Partial<INPUT.Input[]>>([]);
+  const [inputData, setInputData] = useState<Partial<INPUT.Input>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
+  const [totalPages, setTotalPages] = useState(0);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     total: 0,
     pageSize: 10,
@@ -65,6 +69,12 @@ const InputList = () => {
 
   const location = useLocation();
 
+  const reportRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
+
   /** Funciones ejecutadas por los hooks */
 
   /**
@@ -74,7 +84,7 @@ const InputList = () => {
   const resultInputs = (data: Partial<INPUT.Response>) => {
     if (data) {
       setInputs(data.docs || []);
-
+      setTotalPages(data?.totalPages || 0);
       setPagination({ ...pagination, total: data.totalDocs });
     }
   };
@@ -109,6 +119,11 @@ const InputList = () => {
   const { getInputs, loading } = useGetInputs(resultInputs, messageError);
 
   /** Fin de Hooks para manejo de consultas */
+
+  const printPage = async (record: Partial<INPUT.Input>) => {
+    await setInputData(record);
+    handlePrint();
+  };
 
   /**
    * @description se encarga de ejecutar la funcion para obtener las entradas
@@ -282,7 +297,7 @@ const InputList = () => {
       title: 'Opciones',
       dataIndex: '_id',
       align: 'center',
-      render: (_id: string) => {
+      render: (_id: string, record) => {
         return (
           <Space>
             <Tooltip title="Ver">
@@ -297,6 +312,7 @@ const InputList = () => {
                 <Button
                   type="ghost"
                   style={{ backgroundColor: 'white' }}
+                  onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
                 />
               </Tooltip>
@@ -376,7 +392,11 @@ const InputList = () => {
           </Row>
         </Form>
       </Card>
-      <TotalFound current={pagination.current} total={pagination.total} />
+      <TotalFound
+        current={pagination.current || 0}
+        totalPages={totalPages}
+        total={pagination.total || 0}
+      />
       <Card>
         <Table
           columns={columns}
@@ -387,6 +407,9 @@ const InputList = () => {
         />
       </Card>
       <AlertInformation {...error} onCancel={closeMessageError} />
+      <div style={{ display: 'none' }}>
+        <ReportInput ref={reportRef} data={inputData} />
+      </div>
     </PageContainer>
   );
 };

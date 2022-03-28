@@ -183,7 +183,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
         }));
         const props = {
           details: newDetails,
-          warehouse:
+          warehouseId:
             input?.warehouse?._id || initialState?.currentUser?.shop?.defaultWarehouse?._id,
           observation,
           status,

@@ -3,10 +3,11 @@ import { Card, Space, Statistic } from 'antd';
 
 export type Props = {
   total: number;
+  totalPages: number;
   current: number;
 };
 
-const TotalFound = ({ total, current }: Props) => {
+const TotalFound = ({ total, current, totalPages }: Props) => {
   return (
     <Card size="small" style={{ height: '80px' }}>
       <Space style={{ display: 'flex', justifyContent: 'flex-end', paddingRight: '100px' }}>
@@ -14,13 +15,13 @@ const TotalFound = ({ total, current }: Props) => {
           title="Total Encontrados:"
           value={total}
           prefix={<ContainerOutlined />}
-          style={{ marginRight: '25px', marginBottom: '20px' }}
+          style={{ marginRight: '25px' }}
         />
         <Statistic
           title="Página:"
           value={current}
-          suffix="/1"
-          style={{ marginRight: '25px', marginBottom: '20px' }}
+          suffix={`/ ${totalPages}`}
+          style={{ marginRight: '25px' }}
         />
       </Space>
     </Card>

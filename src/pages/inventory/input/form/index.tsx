@@ -1,14 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useHistory, useModel, useParams } from 'umi';
 import { useGetInput } from '@/hooks/input.hooks';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Button, Card, Space, Steps } from 'antd';
-import { ArrowLeftOutlined, DropboxOutlined, FileTextOutlined } from '@ant-design/icons';
+import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
+import {
+  ArrowLeftOutlined,
+  DropboxOutlined,
+  FileTextOutlined,
+  PrinterOutlined,
+} from '@ant-design/icons';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import styles from './styles.less';
 import FormInput from '../components/FormInput';
+import { useReactToPrint } from 'react-to-print';
 
 const { Step } = Steps;
 
@@ -30,6 +36,12 @@ const InputForm = () => {
   const history = useHistory();
 
   const isNew = !id;
+
+  const reportRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
 
   /** Funciones ejecutadas por los hooks */
 
@@ -129,15 +141,26 @@ const InputForm = () => {
       title={
         <Space align="center">
           {' '}
-          <Button
-            size="small"
-            type="primary"
-            style={{ display: 'flex', padding: '5px' }}
-            ghost
-            icon={<ArrowLeftOutlined />}
-            onClick={() => history.goBack()}
-          />
-          {isNew ? 'Nueva Entrada' : `Entrada No. ${input?.number}`}
+          <Tooltip title="Atrás">
+            <Button
+              type="primary"
+              ghost
+              icon={<ArrowLeftOutlined />}
+              onClick={() => history.goBack()}
+            />
+          </Tooltip>
+          <Divider type="vertical" />
+          {isNew ? (
+            'Nueva Entrada'
+          ) : (
+            <>
+              {' '}
+              Entrada No. {input?.number} <Divider type="vertical" />
+              <Tooltip title="Imprimir">
+                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+              </Tooltip>{' '}
+            </>
+          )}
         </Space>
       }
       loading={loading}

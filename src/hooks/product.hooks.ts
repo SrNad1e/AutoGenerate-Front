@@ -21,7 +21,7 @@ export const useGetProducts = (
 };
 
 export const useGetProduct = (
-  callback: (data: { product: PRODUCT.Product; quantity: number }) => void,
+  callback: (product: PRODUCT.Product) => void,
   showError: (message: string) => void,
 ) => {
   const [getProduct, { loading }] = useLazyQuery(PRODUCT, {

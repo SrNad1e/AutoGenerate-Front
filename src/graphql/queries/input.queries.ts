@@ -49,12 +49,28 @@ export const INPUTS = gql`
         warehouse {
           name
         }
+        user {
+          name
+        }
         status
         total
         createdAt
         updatedAt
         details {
           quantity
+          product {
+            reference
+            barcode
+            description
+            price
+            cost
+            color {
+              name
+            }
+            size {
+              value
+            }
+          }
         }
       }
       totalDocs
