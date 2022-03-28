@@ -56,9 +56,23 @@ export const REQUESTS = gql`
         warehouseDestination {
           name
         }
+        user {
+          name
+        }
         status
         details {
           quantity
+          product {
+            reference
+            barcode
+            description
+            color {
+              name
+            }
+            size {
+              value
+            }
+          }
         }
         createdAt
         updatedAt

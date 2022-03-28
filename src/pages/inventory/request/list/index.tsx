@@ -24,7 +24,8 @@ import type { ColumnsType } from 'antd/lib/table';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
@@ -32,6 +33,7 @@ import { StatusType } from '../request.data';
 import { useGenerateRequest, useGetRequests } from '@/hooks/request.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
+import ReportRequest from '../reports/request';
 
 import styles from './styles.less';
 import './styles.less';
@@ -51,6 +53,7 @@ export type FormValues = {
 
 const RequestList = () => {
   const [requests, setRequests] = useState<Partial<REQUEST.Request[]>>([]);
+  const [requestData, setRequestData] = useState<Partial<REQUEST.Request>>({});
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     total: 0,
     pageSize: 10,
@@ -68,6 +71,12 @@ const RequestList = () => {
   const location = useLocation();
 
   const [form] = Form.useForm();
+
+  const reportRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
 
   /** Funciones ejecutadas por los hooks */
 
@@ -118,6 +127,11 @@ const RequestList = () => {
   const { generateRequest, loadingGenerate } = useGenerateRequest(resultGenerate, messageError);
 
   /** Fin de Hooks para manejo de consultas */
+
+  const printPage = async (record: Partial<REQUEST.Request>) => {
+    await setRequestData(record);
+    handlePrint();
+  };
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -336,7 +350,7 @@ const RequestList = () => {
       title: 'Opciones',
       dataIndex: '_id',
       align: 'center',
-      render: (_id: string) => {
+      render: (_id: string, record) => {
         return (
           <Space>
             <Tooltip title="Ver">
@@ -351,6 +365,7 @@ const RequestList = () => {
                 <Button
                   type="ghost"
                   style={{ backgroundColor: 'white' }}
+                  onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
                 />
               </Tooltip>
@@ -443,6 +458,9 @@ const RequestList = () => {
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <AlertLoading message="Generando solicitud" visible={loadingGenerate} />
+      <div style={{ display: 'none' }}>
+        <ReportRequest ref={reportRef} data={requestData} />
+      </div>
     </PageContainer>
   );
 };
