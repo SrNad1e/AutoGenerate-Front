@@ -105,6 +105,26 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Salidas',
+              path: '/inventory/output',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/output/list',
+                  component: './inventory/output/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/output/new',
+                  component: './inventory/output/form',
+                },
+                {
+                  path: '/inventory/output/:id',
+                  component: './inventory/output/form',
+                },
+              ],
+            },
           ],
         },
 

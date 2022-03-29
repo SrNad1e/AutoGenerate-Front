@@ -268,7 +268,7 @@ export default class ReportRequest extends React.PureComponent {
                     width: '15%',
                   }}
                 >
-                  {detail?.product?.color?.name}
+                  {detail?.product?.color?.name_internal}
                 </div>
                 <div
                   style={{
