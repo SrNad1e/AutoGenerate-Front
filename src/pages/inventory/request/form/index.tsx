@@ -151,11 +151,17 @@ const RequestForm = () => {
             />
           </Tooltip>
           <Divider type="vertical" />
-          {isNew ? 'Nueva Solicitud' : `Solicitud No. ${request?.number}`}
-          <Divider type="vertical" />
-          <Tooltip title="Imprimir">
-            <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
-          </Tooltip>
+          {isNew ? (
+            'Nueva Solicitud'
+          ) : (
+            <>
+              Solicitud No. {request?.number}
+              <Divider type="vertical" />
+              <Tooltip title="Imprimir">
+                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+              </Tooltip>
+            </>
+          )}
         </Space>
       }
       loading={loadingGetOne}

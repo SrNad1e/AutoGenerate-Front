@@ -16,6 +16,7 @@ export const REQUEST = gql`
             html
             image
             name_internal
+            name
           }
           description
           reference
@@ -67,6 +68,9 @@ export const REQUESTS = gql`
             barcode
             description
             color {
+              image
+              html
+              name_internal
               name
             }
             size {
