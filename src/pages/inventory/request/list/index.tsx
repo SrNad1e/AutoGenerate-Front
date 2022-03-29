@@ -34,10 +34,10 @@ import { useGenerateRequest, useGetRequests } from '@/hooks/request.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import ReportRequest from '../reports/request';
+import TotalFound from '@/components/TotalFound';
 
 import styles from './styles.less';
 import './styles.less';
-import TotalFound from '@/components/TotalFound';
 
 const FormItem = Form.Item;
 const { Option } = Select;

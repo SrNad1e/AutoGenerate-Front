@@ -246,6 +246,11 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
     }
   };
 
+  /**
+   * @description crea un producto
+   * @param product identificador del producto a crear
+   * @param quantity cantidad  a asignar
+   */
   const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
       setDetails([...details, { product, quantity, action: 'create' }]);

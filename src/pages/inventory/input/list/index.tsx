@@ -30,10 +30,10 @@ import numeral from 'numeral';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import TotalFound from '@/components/TotalFound';
+import ReportInput from '../reports/input';
+import { useReactToPrint } from 'react-to-print';
 
 import styles from './styles.less';
-import { useReactToPrint } from 'react-to-print';
-import ReportInput from '../reports/input';
 
 const FormItem = Form.Item;
 const { Option } = Select;

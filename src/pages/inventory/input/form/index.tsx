@@ -1,8 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useHistory, useModel, useParams } from 'umi';
-import { useGetInput } from '@/hooks/input.hooks';
-import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
 import {
@@ -11,11 +7,17 @@ import {
   FileTextOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
+
+import { useEffect, useRef, useState } from 'react';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import { useGetInput } from '@/hooks/input.hooks';
+import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import styles from './styles.less';
 import FormInput from '../components/FormInput';
 import { useReactToPrint } from 'react-to-print';
 import ReportInput from '../reports/input';
+
+import styles from './styles.less';
 
 const { Step } = Steps;
 
@@ -41,6 +43,7 @@ const InputForm = () => {
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
+
   const isNew = !id;
 
   /** Funciones ejecutadas por los hooks */
