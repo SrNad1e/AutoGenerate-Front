@@ -1,6 +1,7 @@
 import moment from 'moment';
-
 import React from 'react';
+import numeral from 'numeral';
+
 import { StatusTypeInput } from '../input.data';
 import './style.css';
 
@@ -292,7 +293,7 @@ export default class ReportInput extends React.PureComponent {
                     width: '13%',
                   }}
                 >
-                  ${detail?.product?.cost * detail?.quantity}
+                  {numeral(detail?.product?.cost * detail?.quantity).format('$ 0,0')}
                 </div>
               </div>
             ))}
@@ -368,7 +369,9 @@ export default class ReportInput extends React.PureComponent {
                 paddingRight: 10,
               }}
             >
-              {'mil'}
+              {numeral(
+                data?.details?.reduce((sum, item) => sum + item?.product?.cost * item?.quantity, 0),
+              ).format('$ 0,0')}
             </div>
           </div>
           <div style={{ fontSize: 12, marginTop: 10 }}>Creado por: {data?.user?.name}</div>
