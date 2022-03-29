@@ -34,6 +34,7 @@ export const INPUT = gql`
         name
       }
       warehouse {
+        _id
         name
       }
     }

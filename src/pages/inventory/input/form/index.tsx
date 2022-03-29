@@ -15,6 +15,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import styles from './styles.less';
 import FormInput from '../components/FormInput';
 import { useReactToPrint } from 'react-to-print';
+import ReportInput from '../reports/input';
 
 const { Step } = Steps;
 
@@ -35,13 +36,12 @@ const InputForm = () => {
 
   const history = useHistory();
 
-  const isNew = !id;
-
   const reportRef = useRef(null);
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
+  const isNew = !id;
 
   /** Funciones ejecutadas por los hooks */
 
@@ -185,6 +185,10 @@ const InputForm = () => {
         <FormInput setInput={setInput} input={input} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
+      <div style={{ display: 'none' }}>
+        <ReportInput ref={reportRef} data={input} />
+      </div>
     </PageContainer>
   );
 };

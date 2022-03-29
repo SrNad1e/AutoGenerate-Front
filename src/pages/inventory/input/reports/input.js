@@ -135,7 +135,7 @@ export default class ReportInput extends React.PureComponent {
     return (
       <div style={classes.content}>
         <div style={classes.header}>
-          <div style={classes.title}>SOLICITUD DE MERCANCIA</div>
+          <div style={classes.title}>ENTRADA DE MERCANCIA</div>
           <div style={classes.title}>No. {data?.number}</div>
           <div style={classes.body}>
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>

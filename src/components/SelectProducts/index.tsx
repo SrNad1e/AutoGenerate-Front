@@ -9,6 +9,7 @@ import WithCode from '../WithCode';
 const FormItem = Form.Item;
 
 export type Props = {
+  validateStock?: boolean;
   details: Partial<Detail[]>;
   warehouseId: string | undefined;
   createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;

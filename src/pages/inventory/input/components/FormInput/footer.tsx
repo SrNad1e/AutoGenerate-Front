@@ -38,7 +38,6 @@ const Footer = ({ input, saveInput, details }: Props) => {
               danger={!!input?._id}
               onClick={() => saveInput('cancelled')}
             >
-              {' '}
               Cancelar
             </Button>
           </Col>
@@ -48,7 +47,7 @@ const Footer = ({ input, saveInput, details }: Props) => {
               <Button disabled={!allowEdit} onClick={() => saveInput()}>
                 Guardar
               </Button>
-              <Button type="primary" disabled={!allowEdit} onClick={() => saveInput('pending')}>
+              <Button type="primary" disabled={!allowEdit} onClick={() => saveInput('confirmed')}>
                 Enviar
               </Button>
             </Space>

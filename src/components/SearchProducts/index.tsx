@@ -10,6 +10,7 @@ const { Search } = Input;
 
 export type Props = {
   barcode?: boolean;
+  validateStock?: boolean;
   quantity?: number;
   details: Partial<Detail[]>;
   warehouseId: string | undefined;
@@ -20,6 +21,7 @@ export type Props = {
 
 const SearchProducts = ({
   barcode,
+  validateStock = true,
   quantity,
   details = [],
   warehouseId,
@@ -88,6 +90,7 @@ const SearchProducts = ({
 
   const propsModal: PropsModal = {
     visible: showModal,
+    validateStock,
     details,
     createDetail,
     updateDetail,

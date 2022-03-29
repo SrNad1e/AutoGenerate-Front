@@ -43,6 +43,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
     type: 'error',
     visible: false,
   });
+
   const [propsAlertSave, setPropsAlertSave] = useState<{
     type: TYPES;
     visible: boolean;
@@ -286,7 +287,8 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
   };
 
   const propsSelectProduct: PropsSelectProducts = {
-    details,
+    details: details.filter((item) => item?.action !== 'delete'),
+    validateStock: false,
     warehouseId: input?.warehouse?._id,
     createDetail,
     updateDetail,
@@ -351,7 +353,6 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
         <InputNumber
           value={quantity || 0}
           min={1}
-          max={product?.stock ? product?.stock[0]?.quantity : 0}
           onChange={(value) => updateDetail(product?._id || '', value)}
           disabled={!allowEdit}
           style={{ color: 'black', backgroundColor: 'white' }}
