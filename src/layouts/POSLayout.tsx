@@ -22,6 +22,11 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
     <ApolloProvider client={client}>
       <ProLayout
         navTheme="light"
+        layout="top"
+        contentWidth="Fixed"
+        fixedHeader={false}
+        fixSiderbar={true}
+        splitMenus={false}
         logo={logo}
         {...props}
         rightContentRender={() => <RightContent />}
