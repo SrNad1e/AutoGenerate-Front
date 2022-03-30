@@ -1,4 +1,4 @@
-import { Space } from 'antd';
+import { Space, Typography } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import React from 'react';
 import { useModel } from 'umi';
@@ -8,6 +8,8 @@ import Avatar from './AvatarDropdown';
 import styles from './index.less';
 
 export type SiderTheme = 'light' | 'dark';
+
+const { Text } = Typography;
 
 const GlobalHeaderRight: React.FC = () => {
   const { initialState } = useModel('@@initialState');
@@ -33,6 +35,9 @@ const GlobalHeaderRight: React.FC = () => {
       >
         <QuestionCircleOutlined />
       </span>
+      <Text>
+        {initialState?.currentUser?.role.name} / {initialState?.currentUser?.shop.name}{' '}
+      </Text>
       <Avatar />
     </Space>
   );

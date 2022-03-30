@@ -2,7 +2,7 @@ declare namespace USER {
   type User = {
     id: number;
     name: string;
-    permissions: Permission[];
+    role: Role;
     shop: SHOP.shop;
   };
   type LoginParams = {
@@ -13,6 +13,11 @@ declare namespace USER {
     user: User;
     access_token: string;
   };
+  type Role = {
+    name: string;
+    permissions: Permission[];
+  };
+
   type Permission = {
     name: string;
   };

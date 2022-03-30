@@ -1,14 +1,22 @@
-import { useEffect, useState } from 'react';
-import { ArrowLeftOutlined, DropboxOutlined, FileTextOutlined } from '@ant-design/icons';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useRef, useState } from 'react';
+import {
+  ArrowLeftOutlined,
+  DropboxOutlined,
+  FileTextOutlined,
+  PrinterOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Button, Card, Space, Steps } from 'antd';
+import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
 import { useParams, useHistory, useModel } from 'umi';
+import { useReactToPrint } from 'react-to-print';
 
 import FormRequest from '../components/FormRequest';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetRequest } from '@/hooks/request.hooks';
+import ReportRequest from '../reports/request';
 
 import styles from './styles.less';
 import './styles.less';
@@ -30,6 +38,12 @@ const RequestForm = () => {
 
   const { id } = useParams<Partial<{ id: string }>>();
   const history = useHistory();
+
+  const reportRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
 
   const isNew = !id;
 
@@ -71,7 +85,7 @@ const RequestForm = () => {
     onShowError(message);
   };
 
-  const { getRequest, loading } = useGetRequest(currentRequest, showError);
+  const { getRequest, loadingGetOne } = useGetRequest(currentRequest, showError);
 
   /**
    * @description se encarga de cambiar el paso y asignar la bodega
@@ -128,19 +142,23 @@ const RequestForm = () => {
     <PageContainer
       title={
         <Space align="center">
-          {' '}
-          <Button
-            size="small"
-            type="primary"
-            style={{ display: 'flex', padding: '5px' }}
-            ghost
-            icon={<ArrowLeftOutlined />}
-            onClick={() => history.goBack()}
-          />
+          <Tooltip title="Atrás">
+            <Button
+              type="primary"
+              ghost
+              icon={<ArrowLeftOutlined />}
+              onClick={() => history.goBack()}
+            />
+          </Tooltip>
+          <Divider type="vertical" />
           {isNew ? 'Nueva Solicitud' : `Solicitud No. ${request?.number}`}
+          <Divider type="vertical" />
+          <Tooltip title="Imprimir">
+            <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+          </Tooltip>
         </Space>
       }
-      loading={loading}
+      loading={loadingGetOne}
     >
       {isNew ? (
         <Card>
@@ -162,6 +180,9 @@ const RequestForm = () => {
         <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurretStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
+      <div style={{ display: 'none' }}>
+        <ReportRequest ref={reportRef} data={request} />
+      </div>
     </PageContainer>
   );
 };

@@ -56,8 +56,6 @@ const SelectWarehouses = ({ onChange, value }: any) => {
     });
   }, []);
 
-  // console.log("bodega", value);
-
   return (
     <>
       <Select
@@ -68,10 +66,11 @@ const SelectWarehouses = ({ onChange, value }: any) => {
         optionFilterProp="children"
         onChange={onChangeLocal}
         onSearch={onSearch}
-        defaultValue={value}
+        allowClear
+        value={value?._id.toString()}
       >
         {warehouses.map((warehouse) => (
-          <Option key={warehouse._id}>{warehouse.name}</Option>
+          <Option key={warehouse._id?.toString()}>{warehouse.name}</Option>
         ))}
       </Select>
       {error && <Alert type="error" message={error} />}

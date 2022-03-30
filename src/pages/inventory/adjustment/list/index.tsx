@@ -1,4 +1,4 @@
-/*import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
+import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
 import Table, { ColumnsType } from 'antd/lib/table';
 import {
   Badge,
@@ -21,20 +21,19 @@ import moment from 'moment';
 import { SorterResult } from 'antd/lib/table/interface';
 
 import { useHistory, useLocation } from 'umi';
-//import { useGetOutputs } from '@/hooks/output.hooks';
+import { useGetAdjustments } from '@/hooks/adjustment.hooks';
 import { useEffect, useRef, useState } from 'react';
 
-//import { StatusTypeOutput } from '../output.data';
+import { StatusTypeAdjustment } from '../adjustment.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import numeral from 'numeral';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-//import TotalFound from '@/components/TotalFound';
-import ReportOutput from '../reports/adjustment';
+import TotalFound from '@/components/TotalFound';
+import ReportAdjustment from '../reports/adjustment';
 import { useReactToPrint } from 'react-to-print';
 
 import styles from './styles.less';
-import { StatusTypeAdjustment } from '../adjustment.data';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -48,9 +47,9 @@ export type FormValues = {
   dates?: Moment[];
 };
 
-/*const OutputList = () => {
-  const [outputs, setOutputs] = useState<Partial<ADJUSTMENT.Adjustment[]>>([]);
-  const [outputData, setOutputData] = useState<Partial<ADJUSTMENT.Adjustment>>({});
+const AdjustmentList = () => {
+  const [adjustments, setAdjustments] = useState<Partial<ADJUSTMENT.Adjustment[]>>([]);
+  const [adjustmentData, setAdjustmentData] = useState<Partial<ADJUSTMENT.Adjustment>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
   const [totalPages, setTotalPages] = useState(0);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
@@ -78,13 +77,13 @@ export type FormValues = {
 
   /** Funciones ejecutadas por los hooks */
 
-/**
- * @description se encarga de almacenar los datos de la consulta
- * @param data respuesta de la consulta
- */
-/*const resultOutputs = (data: Partial<ADJUSTMENT.Response>) => {
+  /**
+   * @description se encarga de almacenar los datos de la consulta
+   * @param data respuesta de la consulta
+   */
+  const resultAdjustments = (data: Partial<ADJUSTMENT.Response>) => {
     if (data) {
-      setOutputs(data.docs || []);
+      setAdjustments(data.docs || []);
       setTotalPages(data?.totalPages || 0);
       setPagination({ ...pagination, total: data.totalDocs });
     }
@@ -94,7 +93,7 @@ export type FormValues = {
    * @description funcion usada por los hook para mostrar los errores
    * @param message mensaje de error a mostrar
    */
-/*const messageError = (message: string) => {
+  const messageError = (message: string) => {
     setError({
       message,
       type: 'error',
@@ -105,7 +104,7 @@ export type FormValues = {
   /**
    * @description se encarga de cerrar la alerta informativa
    */
-/*const closeMessageError = () => {
+  const closeMessageError = () => {
     setError({
       message: '',
       type: 'error',
@@ -115,14 +114,14 @@ export type FormValues = {
 
   /** FIn de Funciones ejecutadas por los hooks */
 
-/** Hooks para manejo de consultas */
+  /** Hooks para manejo de consultas */
 
-/*const { getOutputs, loading } = useGetOutputs(resultOutputs, messageError);
+  const { getAdjustments, loading } = useGetAdjustments(resultAdjustments, messageError);
 
   /** Fin de Hooks para manejo de consultas */
 
-/*const printPage = async (record: Partial<ADJUSTMENT.Adjustment>) => {
-    await setOutputData(record);
+  const printPage = async (record: Partial<ADJUSTMENT.Adjustment>) => {
+    await setAdjustmentData(record);
     handlePrint();
   };
 
@@ -130,8 +129,8 @@ export type FormValues = {
    * @description se encarga de ejecutar la funcion para obtener las entradas
    * @param params filtros necesarios para la busqueda
    */
-/*const onSearch = (params?: Partial<ADJUSTMENT.FiltersGetAdjustment>) => {
-    getOutputs({
+  const onSearch = (params?: Partial<ADJUSTMENT.FiltersGetAdjustment>) => {
+    getAdjustments({
       variables: {
         input: {
           sort: {
@@ -147,7 +146,7 @@ export type FormValues = {
    * @description se encarga de realizar el proceso de busqueda con los filtros
    * @param props filtros seleccionados en el formulario
    */
-/*const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
+  const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
     const { status, number, warehouse, dates } = props;
     try {
       const params: Partial<ADJUSTMENT.FiltersGetAdjustment> = {
@@ -186,7 +185,7 @@ export type FormValues = {
    * @param paginationLocal eventos de la páginacion
    * @param sorter ordenamiento de la tabla
    */
-/*const handleChangeTable = (
+  const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     _: any,
     sorter: SorterResult<Partial<ADJUSTMENT.Adjustment>>,
@@ -213,7 +212,7 @@ export type FormValues = {
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
-/*const onClear = () => {
+  const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
     setPagination({
@@ -305,7 +304,7 @@ export type FormValues = {
               <Button
                 type="primary"
                 icon={<EyeOutlined />}
-                onClick={() => history.push(`/inventory/output/${_id}`)}
+                onClick={() => history.push(`/inventory/adjustment/${_id}`)}
               />
             </Tooltip>
             <Space>
@@ -328,7 +327,7 @@ export type FormValues = {
       title={
         <Space>
           <Title level={4} style={{ margin: 0 }}>
-            Lista de Salidas
+            Lista de Ajustes
           </Title>
         </Space>
       }
@@ -396,11 +395,15 @@ export type FormValues = {
           </Row>
         </Form>
       </Card>
-
+      <TotalFound
+        current={pagination.current || 0}
+        totalPages={totalPages}
+        total={pagination.total || 0}
+      />
       <Card>
         <Table
           columns={columns}
-          dataSource={outputs}
+          dataSource={adjustments}
           pagination={pagination}
           onChange={handleChangeTable}
           loading={loading}
@@ -408,10 +411,10 @@ export type FormValues = {
       </Card>
       <AlertInformation {...error} onCancel={closeMessageError} />
       <div style={{ display: 'none' }}>
-        <ReportOutput ref={reportRef} data={outputData} />
+        <ReportAdjustment ref={reportRef} data={adjustmentData} />
       </div>
     </PageContainer>
   );
 };
 
-export default OutputList;*/
+export default AdjustmentList;

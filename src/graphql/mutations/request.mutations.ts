@@ -51,3 +51,12 @@ export const UPDATEREQUEST = gql`
     }
   }
 `;
+
+export const GENERATEREQUEST = gql`
+  mutation generateStockRequest($shopId: String!) {
+    generateStockRequest(shopId: $shopId) {
+      _id
+      number
+    }
+  }
+`;

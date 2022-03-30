@@ -4,13 +4,13 @@ import styles from '../styles.less';
 const { Title } = Typography;
 
 export type Props = {
-  output: Partial<ADJUSTMENT.Adjustment> | undefined;
-  saveOutput: (status?: string) => void;
+  adjustment: Partial<ADJUSTMENT.Adjustment> | undefined;
+  saveAdjustment: (status?: string) => void;
   details: Partial<ADJUSTMENT.DetailAdjustmentProps[]>;
 };
 
-const Footer = ({ output, saveOutput, details }: Props) => {
-  const allowEdit = output?.status === 'open';
+const Footer = ({ adjustment, saveAdjustment, details }: Props) => {
+  const allowEdit = adjustment?.status === 'open';
 
   const renderResumen = () => {
     return (
@@ -34,9 +34,9 @@ const Footer = ({ output, saveOutput, details }: Props) => {
           <Col span={4}>
             <Button
               disabled={!allowEdit}
-              type={output?._id ? 'primary' : 'default'}
-              danger={!!output?._id}
-              onClick={() => saveOutput('cancelled')}
+              type={adjustment?._id ? 'primary' : 'default'}
+              danger={!!adjustment?._id}
+              onClick={() => saveAdjustment('cancelled')}
             >
               Cancelar
             </Button>
@@ -44,10 +44,14 @@ const Footer = ({ output, saveOutput, details }: Props) => {
           <Col span={16}>{renderResumen()}</Col>
           <Col span={4}>
             <Space align="end" className={styles.alignRigth}>
-              <Button disabled={!allowEdit} onClick={() => saveOutput()}>
+              <Button disabled={!allowEdit} onClick={() => saveAdjustment()}>
                 Guardar
               </Button>
-              <Button type="primary" disabled={!allowEdit} onClick={() => saveOutput('confirmed')}>
+              <Button
+                type="primary"
+                disabled={!allowEdit}
+                onClick={() => saveAdjustment('confirmed')}
+              >
                 Enviar
               </Button>
             </Space>

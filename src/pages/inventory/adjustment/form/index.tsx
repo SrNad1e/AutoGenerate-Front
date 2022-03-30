@@ -1,4 +1,4 @@
-/*import { useHistory, useModel, useParams } from 'umi';
+import { useHistory, useModel, useParams } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
 import {
@@ -10,25 +10,27 @@ import {
 
 import { useEffect, useRef, useState } from 'react';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-//import { useGetOutput } from '@/hooks/output.hooks';
+import { useGetAdjustment } from '@/hooks/adjustment.hooks';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-//import FormOutput from '../components/FormAdjustment';
 import { useReactToPrint } from 'react-to-print';
-import ReportOutput from '../reports/adjustment';
+import ReportAdjustment from '../reports/adjustment';
+import FormAdjustment from '../components/FormAdjustment';
 
 import styles from './styles.less';
 
 const { Step } = Steps;
 
-const OutputForm = () => {
+const AdjustmentForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
-  const [output, setOutput] = useState<Partial<ADJUSTMENT.Adjustment & ADJUSTMENT.CreateAdjustment>>({
+  const [adjustment, setAdjustment] = useState<
+    Partial<ADJUSTMENT.Adjustment & ADJUSTMENT.CreateAdjustment>
+  >({
     status: 'open',
   });
 
@@ -48,11 +50,11 @@ const OutputForm = () => {
 
   /** Funciones ejecutadas por los hooks */
 
-/**
- * @description se encarga de abrir aviso de información
- * @param error error de apollo
- */
-/*const onShowError = (message: string) => {
+  /**
+   * @description se encarga de abrir aviso de información
+   * @param error error de apollo
+   */
+  const onShowError = (message: string) => {
     setPropsAlert({
       message,
       type: 'error',
@@ -63,7 +65,7 @@ const OutputForm = () => {
   /**
    * @description se encarga de cerrar la alerta
    */
-/*const onCloseAlert = () => {
+  const onCloseAlert = () => {
     setPropsAlert({
       message: '',
       type: 'error',
@@ -75,36 +77,36 @@ const OutputForm = () => {
    * @description se encarga de cargar la entrada actual
    * @param data datos de la entrada
    */
-/*const currentOutput = (data: Partial<ADJUSTMENT.Adjustment>) => {
-    setOutput(data);
+  const currentAdjustment = (data: Partial<ADJUSTMENT.Adjustment>) => {
+    setAdjustment(data);
   };
 
   /**
    * @description se encarga de administrar el error
    * @param message mensaje de error
    */
-/*const showError = (message: string) => {
+  const showError = (message: string) => {
     onShowError(message);
   };
 
   /** FIn de Funciones ejecutadas por los hooks */
 
-/** Hooks para manejo de consultas */
+  /** Hooks para manejo de consultas */
 
-//const { getOutput, loading } = useGetOutput(currentOutput, showError);
+  const { getAdjustment, loading } = useGetAdjustment(currentAdjustment, showError);
 
-/** Fin de Hooks para manejo de consultas */
+  /** Fin de Hooks para manejo de consultas */
 
-/**
- * @description se encarga de cambiar el paso y asignar la bodega
- * @param warehouse bodega seleccionada
- */
-/*const changeCurrentStep = (warehouse: WAREHOUSE.warehouse) => {
+  /**
+   * @description se encarga de cambiar el paso y asignar la bodega
+   * @param warehouse bodega seleccionada
+   */
+  const changeCurrentStep = (warehouse: WAREHOUSE.warehouse) => {
     if (warehouse) {
       setCurrentStep(1);
 
-      setOutput({
-        ...output,
+      setAdjustment({
+        ...adjustment,
         warehouse,
       });
     } else {
@@ -112,9 +114,9 @@ const OutputForm = () => {
     }
   };
 
-  /*useEffect(() => {
+  useEffect(() => {
     if (!isNew) {
-      getOutput({
+      getAdjustment({
         variables: {
           id,
         },
@@ -133,7 +135,13 @@ const OutputForm = () => {
           />
         );
       case 1:
-        return <FormOutput setOutput={setOutput} output={output} setCurrentStep={setCurrentStep} />;
+        return (
+          <FormAdjustment
+            setAdjustment={setAdjustment}
+            adjustment={adjustment}
+            setCurrentStep={setCurrentStep}
+          />
+        );
       default:
         return <></>;
     }
@@ -154,11 +162,11 @@ const OutputForm = () => {
           </Tooltip>
           <Divider type="vertical" />
           {isNew ? (
-            'Nueva Salida'
+            'Nuevo Ajuste'
           ) : (
             <>
               {' '}
-              Salida No. {output?.number} <Divider type="vertical" />
+              Ajuste No. {adjustment?.number} <Divider type="vertical" />
               <Tooltip title="Imprimir">
                 <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
               </Tooltip>{' '}
@@ -185,15 +193,19 @@ const OutputForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormOutput setOutput={setOutput} output={output} setCurrentStep={setCurrentStep} />
+        <FormAdjustment
+          setAdjustment={setAdjustment}
+          adjustment={adjustment}
+          setCurrentStep={setCurrentStep}
+        />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <div style={{ display: 'none' }}>
-        <ReportOutput ref={reportRef} data={output} />
+        <ReportAdjustment ref={reportRef} data={adjustment} />
       </div>
     </PageContainer>
   );
 };
 
-export default OutputForm;*/
+export default AdjustmentForm;

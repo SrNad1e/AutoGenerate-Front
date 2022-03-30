@@ -8,11 +8,10 @@ const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API } = proces
 
 export default defineConfig({
   define: {
-    API_URL:
-      API_URL || 'https://api-graphql.t0n53eq7nj176.us-east-1.cs.amazonlightsail.com/graphql',
-    CDN_URL: CDN_URL || 'http://cdn.toulouse.com.co',
-    FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
-    FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD',
+    API_URL,
+    CDN_URL,
+    FORMAT_DATE,
+    FORMAT_DATE_API,
   },
   hash: true,
   antd: {},
@@ -106,8 +105,49 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Entradas',
+              path: '/inventory/input',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/input/list',
+                  component: './inventory/input/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/input/new',
+                  component: './inventory/input/form',
+                },
+                {
+                  path: '/inventory/input/:id',
+                  component: './inventory/input/form',
+                },
+              ],
+            },
+            {
+              name: 'Salidas',
+              path: '/inventory/output',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/output/list',
+                  component: './inventory/output/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/output/new',
+                  component: './inventory/output/form',
+                },
+                {
+                  path: '/inventory/output/:id',
+                  component: './inventory/output/form',
+                },
+              ],
+            },
           ],
         },
+
         {
           layout: false,
           component: '404',

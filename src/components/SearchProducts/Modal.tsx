@@ -38,12 +38,13 @@ export type Detail = {
 
 export type Props = {
   visible: boolean;
+  validateStock?: boolean;
   details: Partial<Detail[]>;
   createDetail: (product: PRODUCT.Product, quantity: number) => void;
   updateDetail: (productId: string, quantity: number) => void;
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
-  warehouseId: string;
+  warehouseId: string | undefined;
 };
 
 export type FormValues = {
@@ -54,6 +55,7 @@ export type FormValues = {
 
 const ModalSearchProducts = ({
   visible,
+  validateStock,
   details = [],
   onCancel,
   warehouseId,
@@ -207,7 +209,9 @@ const ModalSearchProducts = ({
                 <InputNumber
                   defaultValue={detailFind.quantity}
                   min={1}
-                  max={product.stock ? product?.stock[0]?.quantity : 0}
+                  max={
+                    validateStock ? (product.stock ? product?.stock[0]?.quantity : 0) : undefined
+                  }
                   onChange={(value) => updateDetail(_id, value)}
                 />
               </Space>

@@ -129,7 +129,7 @@ const columnsHeader = [
   </div>,
 ];
 
-export default class ReportOutput extends React.PureComponent {
+export default class ReportAdjustment extends React.PureComponent {
   render() {
     const { data } = this.props;
     return (
@@ -176,7 +176,7 @@ export default class ReportOutput extends React.PureComponent {
                   width: '15%',
                 }}
               >
-                {StatusTypeOutput[data?.status || '']?.label}
+                {StatusTypeAdjustment[data?.status || '']?.label}
               </div>
               <div
                 style={{

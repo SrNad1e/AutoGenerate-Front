@@ -7,6 +7,9 @@ declare namespace ADJUSTMENT {
     observation: string;
     details: DetailAdjustment[];
     status: StatusOutput;
+    createdAt: Date;
+    updatedAt: Date;
+    user: USER.User;
   };
 
   type DetailAdjustment = {
