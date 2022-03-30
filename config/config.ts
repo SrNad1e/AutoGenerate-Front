@@ -86,6 +86,26 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Ajustes',
+              path: '/inventory/adjustment',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/adjustment/list',
+                  component: './inventory/adjustment/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/adjustment/new',
+                  component: './inventory/adjustment/form',
+                },
+                {
+                  path: '/inventory/adjustment/:id',
+                  component: './inventory/adjustment/form',
+                },
+              ],
+            },
           ],
         },
         {
