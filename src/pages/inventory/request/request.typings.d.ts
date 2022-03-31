@@ -47,11 +47,11 @@ declare namespace REQUEST {
     status?: string;
     warehouseOriginId?: string;
     warehouseDestinationId?: string;
-    limit: number;
-    page: number;
+    limit?: number;
+    page?: number;
     dateInitial?: string;
     dateFinal?: string;
-    sort: any;
+    sort?: any;
   };
 
   type CreateRequest = {

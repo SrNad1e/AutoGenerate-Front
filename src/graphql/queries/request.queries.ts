@@ -16,6 +16,7 @@ export const REQUEST = gql`
             html
             image
             name_internal
+            name
           }
           description
           reference
@@ -56,9 +57,26 @@ export const REQUESTS = gql`
         warehouseDestination {
           name
         }
+        user {
+          name
+        }
         status
         details {
           quantity
+          product {
+            reference
+            barcode
+            description
+            color {
+              image
+              html
+              name_internal
+              name
+            }
+            size {
+              value
+            }
+          }
         }
         createdAt
         updatedAt
