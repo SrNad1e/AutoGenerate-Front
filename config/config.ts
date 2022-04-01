@@ -66,6 +66,10 @@ export default defineConfig({
           icon: 'shop',
           component: './pos/list',
         },
+        {
+          path: '/pos/123456',
+          component: './pos/new',
+        },
       ],
     },
     {

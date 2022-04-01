@@ -1,4 +1,4 @@
-import { Button, Card, Row, Tooltip, Typography } from 'antd';
+import { Button, Card, Row, Tooltip } from 'antd';
 import Col from 'antd/es/grid/col';
 //import { apiUrl } from '@/../config/defaultSettings';
 //import { useState, useEffect } from 'react';
@@ -11,17 +11,19 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
+import { useHistory } from 'umi';
 
-const { Text } = Typography;
+//const { Text } = Typography;
 
 export type PropsOrderSave = {
   newOrder: () => void;
 };
 
 const OrderSave = ({ newOrder }: PropsOrderSave) => {
-  //const [OrdersOpen, setOrdersOpen] = useState([]);
-  //const [OrdersReserved, setOrdersReserved] = useState([]);
+  /*const [OrdersOpen, setOrdersOpen] = useState([]);
+  const [OrdersReserved, setOrdersReserved] = useState([]);*/
 
+  const history = useHistory();
   /**
    * obtiene los carritos
    */
@@ -65,7 +67,12 @@ const OrderSave = ({ newOrder }: PropsOrderSave) => {
                   <ShoppingCartOutlined style={{ fontSize: 50, color: '#dc9575' }} />
                 </Col>
                 <Col span={15}>
-                  <Button shape="round" style={{ width: '100%', height: 50 }} type="primary">
+                  <Button
+                    shape="round"
+                    style={{ width: '100%', height: 50 }}
+                    type="primary"
+                    onClick={() => history.push('/pos/123456')}
+                  >
                     Nuevo Pedido
                   </Button>
                 </Col>
@@ -75,33 +82,33 @@ const OrderSave = ({ newOrder }: PropsOrderSave) => {
               <Row style={{ display: 'flex', alignItems: 'center' }}>
                 <Col span={3}>
                   <Tooltip title={'Fecha de creacion'}>
-                    <ShoppingCartOutlined style={{ fontSize: 25 }} />
+                    <ShoppingCartOutlined style={{ fontSize: 25, color: '#dc9575' }} />
                   </Tooltip>
                 </Col>
                 <Col span={9}>
-                  <Text>31/03/2022</Text>
+                  <Title level={5}>31/03/2022</Title>
                 </Col>
                 <Col span={3}>
                   <Tooltip title={'Cliente'}>
-                    <UserOutlined style={{ fontSize: 25 }} />
+                    <UserOutlined style={{ fontSize: 25, color: '#dc9575' }} />
                   </Tooltip>
                 </Col>
                 <Col span={9}>
-                  <Text>Jose Luis - CC. 1007512311</Text>
+                  <Title level={5}>Jose Luis - CC. 1007512311</Title>
                 </Col>
               </Row>
               <Row style={{ display: 'flex' }}>
                 <Col span={3}>
                   <Tooltip title={'Numero de pedido'}>
-                    <BorderlessTableOutlined style={{ fontSize: '25px' }} />
+                    <BorderlessTableOutlined style={{ fontSize: '25px', color: '#dc9575' }} />
                   </Tooltip>
                 </Col>
                 <Col span={9}>
-                  <Text>Pedido No.1</Text>
+                  <Title level={5}>Pedido No.1</Title>
                 </Col>
                 <Col span={3}>
                   <Tooltip title={'Valor del pedido'}>
-                    <DollarOutlined style={{ fontSize: '25px' }} />
+                    <DollarOutlined style={{ fontSize: '25px', color: '#dc9575' }} />
                   </Tooltip>
                 </Col>
                 <Col span={9} style={{}}>
