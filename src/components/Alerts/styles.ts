@@ -14,7 +14,7 @@ export const useStyle = (
     col: {
       textAlign: 'center',
     },
-    bodyStyle: { padding: '30px 0', height: 250 },
+    bodyStyle: { padding: '30px 0', height: 'auto' },
 
     button: {
       backgroundColor: color,
