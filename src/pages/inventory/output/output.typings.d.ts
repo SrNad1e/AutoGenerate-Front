@@ -20,7 +20,7 @@ declare namespace OUTPUT {
   };
 
   type DetailOutputProps = {
-    product: Partial<PRODUCT.Product>;
+    product?: Partial<PRODUCT.Product>;
     action?: StatusInputProduct;
     quantity: number;
     createdAt?: Date;

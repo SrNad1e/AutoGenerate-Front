@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useModel, useParams } from 'umi';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
-import { useCreateOutput, useUpdateOutput } from '@/hooks/output.hooks';
+import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import Table, { ColumnsType } from 'antd/lib/table';
 import {
   Avatar,
@@ -18,14 +16,18 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
-import Header from './header';
-import Footer from './footer';
+
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
 import SelectProducts from '@/components/SelectProducts';
+import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
+import { useCreateOutput, useUpdateOutput } from '@/hooks/output.hooks';
+
+import Header from './header';
+import Footer from './footer';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -124,7 +126,11 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    * @param status estado actual de la entrada
    */
   const showAlertSave = (status?: string) => {
-    if (details.length > 0 || status === 'cancelled' || observation !== output?.observation) {
+    if (
+      details.length > 0 ||
+      status === 'cancelled' ||
+      observation !== (output?.observation || '')
+    ) {
       if (status === 'cancelled') {
         setPropsAlertSave({
           status,
@@ -132,16 +138,18 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
           message: '¿Está seguro que desea cancelar la salida?',
           type: 'error',
         });
-      } else {
+      } else if (details.length > 0) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar la salida?',
           type: 'warning',
         });
+      } else {
+        onShowInformation('La salida no tiene productos');
       }
     } else {
-      onShowInformation('La salida no tiene productos');
+      onShowInformation('No se encontraron cambios en la entrada');
     }
   };
 
@@ -154,7 +162,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
       const detailsFilter = details.filter((detail) => detail?.action);
 
       const newDetails = detailsFilter.map((detail) => ({
-        productId: detail?.product._id,
+        productId: detail?.product?._id,
         quantity: detail?.quantity,
         action: detail?.action,
       }));
@@ -179,7 +187,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
         setCurrentStep(0);
       } else {
         const newDetails = details.map((detail) => ({
-          productId: detail?.product._id,
+          productId: detail?.product?._id,
           quantity: detail?.quantity,
         }));
         const props = {
@@ -204,14 +212,14 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    */
   const deleteDetail = (_id: string) => {
     if (setDetails) {
-      const productFind = details.find((detail) => detail?.product._id);
+      const productFind = details.find((detail) => detail?.product?._id);
 
       if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product._id !== _id));
+        setDetails(details.filter((detail) => detail?.product?._id !== _id));
       } else {
         setDetails(
           details.map((detail) => {
-            if (detail?.product._id === _id) {
+            if (detail?.product?._id === _id) {
               return {
                 ...detail,
                 action: 'delete',
@@ -229,19 +237,20 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    * @param _id identificador del producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
-  const updateDetail = (_id: string, quantity: number) => {
+  const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
+      //validar inventario
       setDetails(
         details.map((detail) => {
-          if (detail?.product._id === _id) {
+          if (detail?.product?._id === product?._id) {
             return {
               ...detail,
               quantity: quantity || 0,
-              action: detail.action ?? 'update',
+              action: detail?.action ?? 'update',
             };
           }
           return detail;
-        }),
+        }) || [],
       );
     }
   };
@@ -253,6 +262,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    */
   const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
+      //validar inventario
       setDetails([...details, { product, quantity, action: 'create' }]);
     }
   };
@@ -359,7 +369,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
           value={quantity || 0}
           min={1}
           max={product?.stock ? product?.stock[0]?.quantity : 0}
-          onChange={(value) => updateDetail(product?._id || '', value)}
+          onChange={(value) => updateDetail(product || {}, value)}
           disabled={!allowEdit}
           style={{ color: 'black', backgroundColor: 'white' }}
         />
