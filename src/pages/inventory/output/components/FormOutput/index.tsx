@@ -239,19 +239,26 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    */
   const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
-      //validar inventario
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product?._id) {
-            return {
-              ...detail,
-              quantity: quantity || 0,
-              action: detail?.action ?? 'update',
-            };
-          }
-          return detail;
-        }) || [],
-      );
+      if (product?.stock) {
+        if (product?.stock[0].quantity >= quantity) {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === product?._id) {
+                return {
+                  ...detail,
+                  quantity: quantity || 0,
+                  action: detail?.action ?? 'update',
+                };
+              }
+              return detail;
+            }) || [],
+          );
+        } else {
+          onShowInformation(
+            `El producto ${product?.barcode} / ${product?.reference} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
+          );
+        }
+      }
     }
   };
 
@@ -262,8 +269,15 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    */
   const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
-      //validar inventario
-      setDetails([...details, { product, quantity, action: 'create' }]);
+      if (product?.stock) {
+        if (product?.stock[0].quantity >= quantity) {
+          setDetails([...details, { product, quantity, action: 'create' }]);
+        } else {
+          onShowInformation(
+            `El producto ${product?.barcode} / ${product?.reference} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
+          );
+        }
+      }
     }
   };
 
