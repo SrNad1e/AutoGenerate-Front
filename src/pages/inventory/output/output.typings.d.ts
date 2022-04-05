@@ -1,5 +1,5 @@
-declare namespace INPUT {
-  type Input = {
+declare namespace OUTPUT {
+  type Output = {
     _id: string;
     number: number;
     total: number;
@@ -9,17 +9,17 @@ declare namespace INPUT {
     user: USER.User;
     observation: string;
     details: DetailInput[];
-    status: StatusInput;
+    status: StatusOutput;
   };
 
-  type DetailInput = {
+  type DetailOutput = {
     product: PRODUCT.Product;
     quantity: number;
     createdAt: Date;
     updatedAt: Date;
   };
 
-  type DetailInputProps = {
+  type DetailOutputProps = {
     product?: Partial<PRODUCT.Product>;
     action?: StatusInputProduct;
     quantity: number;
@@ -29,7 +29,7 @@ declare namespace INPUT {
   };
 
   type Response = {
-    docs: Input[];
+    docs: Output[];
     hasNextPage: boolean;
     hasPrevPage: boolean;
     limit: number;
@@ -41,21 +41,22 @@ declare namespace INPUT {
     totalPages: number;
   };
 
-  type FiltersGetInputs = {
+  type FiltersGetOutputs = {
     dateFinal: string;
     dateInitial: string;
-    number?: number;
-    status?: string;
     limit: number;
-    warehouseId: string;
+    number?: number;
     page: number;
     sort: any;
-  };
-
-  type CreateInput = {
+    status?: string;
+    total: number;
     warehouseId: string;
   };
 
-  type StatusInput = 'open' | 'confirmed' | 'cancelled';
-  type StatusInputProduct = 'create' | 'update' | 'delete';
+  type CreateOutput = {
+    warehouseId: string;
+  };
+
+  type StatusOutput = 'open' | 'confirmed' | 'cancelled';
+  type StatusOutputProduct = 'create' | 'update' | 'delete';
 }

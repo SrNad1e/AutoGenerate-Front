@@ -28,7 +28,7 @@ const FormItem = Form.Item;
 const { Text } = Typography;
 
 export type Detail = {
-  product: Partial<PRODUCT.Product>;
+  product?: Partial<PRODUCT.Product>;
   action?: ACTIONTYPESPRODUCT;
   quantity: number;
   createdAt?: Date;
@@ -200,7 +200,7 @@ const ModalSearchProducts = ({
       align: 'center',
       render: (_id: string, product) => {
         const detailFind = details?.find(
-          (detail) => detail?.product._id === _id && detail.action !== 'delete',
+          (detail) => detail?.product?._id === _id && detail.action !== 'delete',
         );
         if (detailFind) {
           return (

@@ -2,8 +2,8 @@ import moment from 'moment';
 import React from 'react';
 import numeral from 'numeral';
 
-import { StatusTypeInput } from '../input.data';
-import './style.css';
+import { StatusTypeAdjustment } from '../adjustment.data';
+import './styles.css';
 
 const classes = {
   content: {
@@ -129,13 +129,13 @@ const columnsHeader = [
   </div>,
 ];
 
-export default class ReportInput extends React.PureComponent {
+export default class ReportAdjustment extends React.PureComponent {
   render() {
     const { data } = this.props;
     return (
       <div style={classes.content}>
         <div style={classes.header}>
-          <div style={classes.title}>ENTRADA DE MERCANCIA</div>
+          <div style={classes.title}>Ajuste DE MERCANCIA</div>
           <div style={classes.title}>No. {data?.number}</div>
           <div style={classes.body}>
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
@@ -176,7 +176,7 @@ export default class ReportInput extends React.PureComponent {
                   width: '15%',
                 }}
               >
-                {StatusTypeInput[data?.status || '']?.label}
+                {StatusTypeAdjustment[data?.status || '']?.label}
               </div>
               <div
                 style={{
