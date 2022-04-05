@@ -133,18 +133,18 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
         setPropsAlertSave({
           status,
           visible: true,
-          message: '¿Está seguro que desea cancelar la salida?',
+          message: '¿Está seguro que desea cancelar la entrada?',
           type: 'error',
         });
       } else if (details.length > 0) {
         setPropsAlertSave({
           status,
           visible: true,
-          message: '¿Está seguro que desea guardar la salida?',
+          message: '¿Está seguro que desea guardar la entrada?',
           type: 'warning',
         });
       } else {
-        onShowInformation('La salida no tiene productos');
+        onShowInformation('La entrada no tiene productos');
       }
     } else {
       onShowInformation('No se encontraron cambios en la entrada');
@@ -237,26 +237,18 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
    */
   const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
-      if (product?.stock) {
-        if (product?.stock[0].quantity >= quantity) {
-          setDetails(
-            details.map((detail) => {
-              if (detail?.product?._id === product?._id) {
-                return {
-                  ...detail,
-                  quantity: quantity || 0,
-                  action: detail?.action ?? 'update',
-                };
-              }
-              return detail;
-            }) || [],
-          );
-        } else {
-          onShowInformation(
-            `El producto ${product?.barcode} / ${product?.reference} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
-          );
-        }
-      }
+      setDetails(
+        details.map((detail) => {
+          if (detail?.product?._id === product?._id) {
+            return {
+              ...detail,
+              quantity: quantity || 0,
+              action: detail?.action ?? 'update',
+            };
+          }
+          return detail;
+        }) || [],
+      );
     }
   };
 
@@ -267,15 +259,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
    */
   const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
-      if (product?.stock) {
-        if (product.stock[0].quantity >= quantity) {
-          setDetails([...details, { product, quantity, action: 'create' }]);
-        } else {
-          onShowInformation(
-            `El producto ${product?.barcode} / ${product?.reference} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
-          );
-        }
-      }
+      setDetails([...details, { product, quantity, action: 'create' }]);
     }
   };
 
