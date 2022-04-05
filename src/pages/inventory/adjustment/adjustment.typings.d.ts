@@ -1,25 +1,25 @@
-declare namespace OUTPUT {
-  type Output = {
+declare namespace ADJUSTMENT {
+  type Adjustment = {
     _id: string;
     number: number;
     total: number;
+    warehouse: WAREHOUSE.warehouse;
+    observation: string;
+    details: DetailAdjustment[];
+    status: StatusOutput;
     createdAt: Date;
     updatedAt: Date;
-    warehouse: WAREHOUSE.warehouse;
     user: USER.User;
-    observation: string;
-    details: DetailInput[];
-    status: StatusOutput;
   };
 
-  type DetailOutput = {
+  type DetailAdjustment = {
     product: PRODUCT.Product;
     quantity: number;
     createdAt: Date;
     updatedAt: Date;
   };
 
-  type DetailOutputProps = {
+  type DetailAdjustmentProps = {
     product?: Partial<PRODUCT.Product>;
     action?: StatusInputProduct;
     quantity: number;
@@ -29,7 +29,7 @@ declare namespace OUTPUT {
   };
 
   type Response = {
-    docs: Output[];
+    docs: Adjustment[];
     hasNextPage: boolean;
     hasPrevPage: boolean;
     limit: number;
@@ -41,7 +41,7 @@ declare namespace OUTPUT {
     totalPages: number;
   };
 
-  type FiltersGetOutputs = {
+  type FiltersGetAdjustment = {
     dateFinal: string;
     dateInitial: string;
     limit: number;
@@ -53,10 +53,10 @@ declare namespace OUTPUT {
     warehouseId: string;
   };
 
-  type CreateOutput = {
+  type CreateAdjustment = {
     warehouseId: string;
   };
 
-  type StatusOutput = 'open' | 'confirmed' | 'cancelled';
-  type StatusOutputProduct = 'create' | 'update' | 'delete';
+  type StatusAdjustment = 'open' | 'confirmed' | 'cancelled';
+  type StatusAdjustmentProduct = 'create' | 'update' | 'delete';
 }

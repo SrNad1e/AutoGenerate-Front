@@ -20,7 +20,7 @@ declare namespace INPUT {
   };
 
   type DetailInputProps = {
-    product: Partial<PRODUCT.Product>;
+    product?: Partial<PRODUCT.Product>;
     action?: StatusInputProduct;
     quantity: number;
     createdAt?: Date;
