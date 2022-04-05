@@ -20,7 +20,7 @@ declare namespace REQUEST {
   };
 
   type DetailRequestProps = {
-    product: Partial<PRODUCT.Product>;
+    product?: Partial<PRODUCT.Product>;
     action?: StatusRequestProduct;
     quantity: number;
     createdAt?: Date;

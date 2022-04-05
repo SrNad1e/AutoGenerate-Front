@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useModel, useParams } from 'umi';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
-import { useCreateInput, useUpdateInput } from '@/hooks/input.hooks';
+import { useCreateOutput, useUpdateOutput } from '@/hooks/output.hooks';
 import Table, { ColumnsType } from 'antd/lib/table';
 import {
   Avatar,
@@ -31,13 +31,13 @@ const FormItem = Form.Item;
 const { Text } = Typography;
 
 export type Props = {
-  input?: Partial<INPUT.Input>;
+  output?: Partial<OUTPUT.Output>;
   setCurrentStep: (step: number) => void;
-  setInput: (data: Partial<INPUT.Input>) => void;
+  setOutput: (data: Partial<OUTPUT.Output>) => void;
 };
 
-const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
-  const [details, setDetails] = useState<Partial<INPUT.DetailInputProps[]>>([]);
+const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
+  const [details, setDetails] = useState<Partial<OUTPUT.DetailOutputProps[]>>([]);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -58,7 +58,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
 
   const { id } = useParams<Partial<{ id: string }>>();
 
-  const allowEdit = input?.status === 'open';
+  const allowEdit = output?.status === 'open';
 
   const { initialState } = useModel('@@initialState');
 
@@ -80,22 +80,22 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
    * @description abre la alerta de confirmacion de creacion
    * @param data entrada creada
    */
-  const resultSave = (data: Partial<INPUT.Input>) => {
+  const resultSave = (data: Partial<OUTPUT.Output>) => {
     setPropsAlert({
-      message: `Entrada creada correctamente No. ${data.number}`,
+      message: `Salida creada correctamente No. ${data.number}`,
       type: 'success',
       visible: true,
-      redirect: `/inventory/input/${data._id}`,
+      redirect: `/inventory/output/${data._id}`,
     });
   };
 
-  const resultUpdate = (data: Partial<INPUT.Input>) => {
+  const resultUpdate = (data: Partial<OUTPUT.Output>) => {
     setPropsAlert({
-      message: `Entrada creada correctamente No. ${data.number}`,
+      message: `Salida creada correctamente No. ${data.number}`,
       type: 'success',
       visible: true,
     });
-    setInput(data);
+    setOutput(data);
   };
 
   /**
@@ -114,8 +114,8 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
 
   /** Hooks para manejo de consultas */
 
-  const { createInput, loadingCreate } = useCreateInput(resultSave, showError);
-  const { updateInput, loadingUpdate } = useUpdateInput(resultUpdate, showError);
+  const { createOutput, loadingCreate } = useCreateOutput(resultSave, showError);
+  const { updateOutput, loadingUpdate } = useUpdateOutput(resultUpdate, showError);
 
   /** Fin de Hooks para manejo de consultas */
 
@@ -124,11 +124,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
    * @param status estado actual de la entrada
    */
   const showAlertSave = (status?: string) => {
-    if (
-      details.length > 0 ||
-      status === 'cancelled' ||
-      observation !== (input?.observation || '')
-    ) {
+    if (details.length > 0 || status === 'cancelled' || observation !== output?.observation) {
       if (status === 'cancelled') {
         setPropsAlertSave({
           status,
@@ -136,18 +132,16 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
           message: '¿Está seguro que desea cancelar la salida?',
           type: 'error',
         });
-      } else if (details.length > 0) {
+      } else {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar la salida?',
           type: 'warning',
         });
-      } else {
-        onShowInformation('La salida no tiene productos');
       }
     } else {
-      onShowInformation('No se encontraron cambios en la entrada');
+      onShowInformation('La salida no tiene productos');
     }
   };
 
@@ -155,7 +149,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
    * @description se encarga de guardar el traslado
    * @param status se usa para definir el estado de la entrada
    */
-  const saveInput = (status?: string) => {
+  const saveOutput = (status?: string) => {
     if (id) {
       const detailsFilter = details.filter((detail) => detail?.action);
 
@@ -164,21 +158,21 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
         quantity: detail?.quantity,
         action: detail?.action,
       }));
-      if (newDetails.length > 0 || status || observation !== input?.observation) {
+      if (newDetails.length > 0 || status || observation !== output?.observation) {
         const props = {
           details: newDetails,
           observation,
           status,
         };
 
-        updateInput({
+        updateOutput({
           variables: {
             input: props,
             id,
           },
         });
       } else {
-        onShowInformation('La entrada no tiene cambios a realizar');
+        onShowInformation('La salida no tiene cambios a realizar');
       }
     } else {
       if (status === 'cancelled') {
@@ -191,11 +185,11 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
         const props = {
           details: newDetails,
           warehouseId:
-            input?.warehouse?._id || initialState?.currentUser?.shop?.defaultWarehouse?._id,
+            output?.warehouse?._id || initialState?.currentUser?.shop?.defaultWarehouse?._id,
           observation,
           status,
         };
-        createInput({
+        createOutput({
           variables: {
             input: props,
           },
@@ -239,7 +233,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
     if (setDetails) {
       setDetails(
         details.map((detail) => {
-          if (detail?.product?._id === product?._id) {
+          if (detail?.product?._id === product._id) {
             return {
               ...detail,
               quantity: quantity || 0,
@@ -286,27 +280,27 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(input?.details || []);
-      setObservation(input?.observation || '');
+      setDetails(output?.details || []);
+      setObservation(output?.observation || '');
     }
-  }, [input, id]);
+  }, [output, id]);
 
   const propsAlertSaveFinal: PropsAlertSave = {
     ...propsAlertSave,
-    onOk: saveInput,
+    onOk: saveOutput,
     onCancel: onCancelAlert,
   };
 
   const propsSelectProduct: PropsSelectProducts = {
     details: details.filter((item) => item?.action !== 'delete'),
-    validateStock: false,
-    warehouseId: input?.warehouse?._id,
+    validateStock: true,
+    warehouseId: output?.warehouse?._id,
     createDetail,
     updateDetail,
     deleteDetail,
   };
 
-  const columns: ColumnsType<Partial<INPUT.DetailInput>> = [
+  const columns: ColumnsType<Partial<OUTPUT.DetailOutput>> = [
     {
       title: 'Referencia',
       dataIndex: 'product',
@@ -364,6 +358,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
         <InputNumber
           value={quantity || 0}
           min={1}
+          max={product?.stock ? product?.stock[0]?.quantity : 0}
           onChange={(value) => updateDetail(product || {}, value)}
           disabled={!allowEdit}
           style={{ color: 'black', backgroundColor: 'white' }}
@@ -390,7 +385,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
 
   return (
     <>
-      <Header input={input} setObservation={setObservation} observation={observation} />
+      <Header output={output} setObservation={setObservation} observation={observation} />
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
@@ -408,7 +403,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
           pagination={{ size: 'small' }}
         />
       </Card>
-      <Footer input={input} saveInput={showAlertSave} details={details} />
+      <Footer output={output} saveOutput={showAlertSave} details={details} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading visible={loadingCreate || loadingUpdate} message="Guardando Solicitud" />
       <AlertSave {...propsAlertSaveFinal} />
@@ -416,4 +411,4 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
   );
 };
 
-export default FormInput;
+export default FormOutput;

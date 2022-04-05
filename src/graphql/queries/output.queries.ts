@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-export const INPUT = gql`
-  query stockInput($id: String!) {
-    stockInputId(id: $id) {
+export const OUTPUT = gql`
+  query stockOutput($id: String!) {
+    stockOutputId(id: $id) {
       _id
       createdAt
       updatedAt
@@ -42,22 +42,25 @@ export const INPUT = gql`
   }
 `;
 
-export const INPUTS = gql`
-  query stockInputs($input: FiltersStockInputInput) {
-    stockInputs(filtersStockInputInput: $input) {
+export const OUTPUTS = gql`
+  query stockOutputs($input: FiltersStockOutputInput) {
+    stockOutputs(filtersStockOutputInput: $input) {
+      totalDocs
+      totalPages
       docs {
         _id
+        createdAt
         number
-        warehouse {
-          name
-        }
+        updatedAt
+        status
+        total
         user {
           name
         }
-        status
-        total
-        createdAt
-        updatedAt
+        warehouse {
+          name
+          _id
+        }
         details {
           quantity
           product {
@@ -76,8 +79,6 @@ export const INPUTS = gql`
           }
         }
       }
-      totalDocs
-      totalPages
     }
   }
 `;
