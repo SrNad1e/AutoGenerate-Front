@@ -13,7 +13,7 @@ export type Props = {
   details: Partial<Detail[]>;
   warehouseId: string | undefined;
   createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
-  updateDetail: (productId: string, quantity: number) => void;
+  updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
   deleteDetail: (productId: string) => void;
 };
 

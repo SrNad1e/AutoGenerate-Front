@@ -41,7 +41,7 @@ export type Props = {
   validateStock?: boolean;
   details: Partial<Detail[]>;
   createDetail: (product: PRODUCT.Product, quantity: number) => void;
-  updateDetail: (productId: string, quantity: number) => void;
+  updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
   warehouseId: string | undefined;
@@ -212,7 +212,7 @@ const ModalSearchProducts = ({
                   max={
                     validateStock ? (product.stock ? product?.stock[0]?.quantity : 0) : undefined
                   }
-                  onChange={(value) => updateDetail(_id, value)}
+                  onChange={(value) => updateDetail(product, value)}
                 />
               </Space>
               <Tooltip title="Eliminar">
