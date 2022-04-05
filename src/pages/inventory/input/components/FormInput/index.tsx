@@ -1,54 +1,49 @@
-import type { ColumnsType } from 'antd/lib/table';
-import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useModel, useParams } from 'umi';
 import { useEffect, useState } from 'react';
+import { useModel, useParams } from 'umi';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
+import { useCreateInput, useUpdateInput } from '@/hooks/input.hooks';
+import Table, { ColumnsType } from 'antd/lib/table';
 import {
+  Avatar,
   Badge,
   Button,
   Card,
   Col,
+  Form,
   InputNumber,
   Row,
   Space,
-  Table,
   Tag,
-  Form,
-  Avatar,
-  Typography,
   Tooltip,
+  Typography,
 } from 'antd';
-
-import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
-import SearchProducts from '@/components/SearchProducts';
-import { useCreateRequest, useUpdateRequest } from '@/hooks/request.hooks';
-import AlertSave from '@/components/Alerts/AlertSave';
-import AlertLoading from '@/components/Alerts/AlertLoading';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
-import Footer from './footer';
+import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import Header from './header';
-
-import '../styles.less';
+import Footer from './footer';
+import AlertLoading from '@/components/Alerts/AlertLoading';
+import AlertSave from '@/components/Alerts/AlertSave';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
+import SelectProducts from '@/components/SelectProducts';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
 
 export type Props = {
-  request?: Partial<REQUEST.Request>;
+  input?: Partial<INPUT.Input>;
   setCurrentStep: (step: number) => void;
-  setRequest: (data: Partial<REQUEST.Request>) => void;
+  setInput: (data: Partial<INPUT.Input>) => void;
 };
 
-const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
-  const { initialState } = useModel('@@initialState');
-
-  const [details, setDetails] = useState<Partial<REQUEST.DetailRequestProps[]>>([]);
+const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
+  const [details, setDetails] = useState<Partial<INPUT.DetailInputProps[]>>([]);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
+
   const [propsAlertSave, setPropsAlertSave] = useState<{
     type: TYPES;
     visible: boolean;
@@ -63,7 +58,11 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
 
   const { id } = useParams<Partial<{ id: string }>>();
 
-  const allowEdit = request?.status === 'open';
+  const allowEdit = input?.status === 'open';
+
+  const { initialState } = useModel('@@initialState');
+
+  /** Funciones ejecutadas por los hooks */
 
   /**
    * @description se encarga de abrir aviso de información
@@ -79,28 +78,24 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
 
   /**
    * @description abre la alerta de confirmacion de creacion
-   * @param data solicitud creada
+   * @param data entrada creada
    */
-  const resultSave = (data: Partial<REQUEST.Request>) => {
+  const resultSave = (data: Partial<INPUT.Input>) => {
     setPropsAlert({
-      message: `Solicitud creada correctamente No. ${data.number}`,
+      message: `Entrada creada correctamente No. ${data.number}`,
       type: 'success',
       visible: true,
-      redirect: `/inventory/request/${data._id}`,
+      redirect: `/inventory/input/${data._id}`,
     });
   };
 
-  /**
-   * @description abre la alerta de confirmacion de creacion
-   * @param data solicitud creada
-   */
-  const resultUpdate = (data: Partial<REQUEST.Request>) => {
+  const resultUpdate = (data: Partial<INPUT.Input>) => {
     setPropsAlert({
-      message: `Solicitud creada correctamente No. ${data.number}`,
+      message: `Entrada creada correctamente No. ${data.number}`,
       type: 'success',
       visible: true,
     });
-    setRequest(data);
+    setInput(data);
   };
 
   /**
@@ -114,40 +109,47 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
       visible: true,
     });
   };
-  const { createRequest, loadingCreate } = useCreateRequest(resultSave, showError);
-  const { updateRequest, loadingUpdate } = useUpdateRequest(resultUpdate, showError);
+
+  /** FIn de Funciones ejecutadas por los hooks */
+
+  /** Hooks para manejo de consultas */
+
+  const { createInput, loadingCreate } = useCreateInput(resultSave, showError);
+  const { updateInput, loadingUpdate } = useUpdateInput(resultUpdate, showError);
+
+  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description se encarga de mostrar la alerta de guardado y cancelar
-   * @param status estado actual de la solicitud
+   * @param status estado actual de la entrada
    */
   const showAlertSave = (status?: string) => {
-    if (details.length > 0 || status === 'cancelled' || observation !== request?.observation) {
+    if (details.length > 0 || status === 'cancelled' || observation !== input?.observation) {
       if (status === 'cancelled') {
         setPropsAlertSave({
           status,
           visible: true,
-          message: '¿Está seguro que desea cancelar la solicitud?',
+          message: '¿Está seguro que desea cancelar la entrada?',
           type: 'error',
         });
       } else {
         setPropsAlertSave({
           status,
           visible: true,
-          message: '¿Está seguro que desea guardar la solicitud?',
+          message: '¿Está seguro que desea guardar la entrada?',
           type: 'warning',
         });
       }
     } else {
-      onShowInformation('La solicitud no tiene productos');
+      onShowInformation('La entrada no tiene productos');
     }
   };
 
   /**
    * @description se encarga de guardar el traslado
-   * @param status se usa para definir el estado de la solicitud
+   * @param status se usa para definir el estado de la entrada
    */
-  const saveRequest = (status?: string) => {
+  const saveInput = (status?: string) => {
     if (id) {
       const detailsFilter = details.filter((detail) => detail?.action);
 
@@ -156,21 +158,21 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
         quantity: detail?.quantity,
         action: detail?.action,
       }));
-      if (newDetails.length > 0 || status || observation !== request?.observation) {
+      if (newDetails.length > 0 || status || observation !== input?.observation) {
         const props = {
           details: newDetails,
           observation,
           status,
         };
 
-        updateRequest({
+        updateInput({
           variables: {
             input: props,
             id,
           },
         });
       } else {
-        onShowInformation('La solicitud no tiene cambios a realizar');
+        onShowInformation('La entrada no tiene cambios a realizar');
       }
     } else {
       if (status === 'cancelled') {
@@ -182,14 +184,12 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
         }));
         const props = {
           details: newDetails,
-          warehouseDestinationId:
-            request?.warehouseDestination?._id ||
-            initialState?.currentUser?.shop?.defaultWarehouse?._id,
-          warehouseOriginId: request?.warehouseOrigin?._id,
+          warehouseId:
+            input?.warehouse?._id || initialState?.currentUser?.shop?.defaultWarehouse?._id,
           observation,
           status,
         };
-        createRequest({
+        createInput({
           variables: {
             input: props,
           },
@@ -233,7 +233,7 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
     if (setDetails) {
       setDetails(
         details.map((detail) => {
-          if (detail?.product?._id === product._id) {
+          if (detail?.product?._id === product?._id) {
             return {
               ...detail,
               quantity: quantity || 0,
@@ -247,9 +247,9 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
   };
 
   /**
-   * @description se agrega un detalle de solicitud a los detalle
-   * @param product producto del detalle
-   * @param quantity cantidad del producto
+   * @description crea un producto
+   * @param product identificador del producto a crear
+   * @param quantity cantidad  a asignar
    */
   const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
@@ -280,26 +280,27 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(request?.details || []);
-      setObservation(request?.observation || '');
+      setDetails(input?.details || []);
+      setObservation(input?.observation || '');
     }
-  }, [request, id]);
+  }, [input, id]);
 
   const propsAlertSaveFinal: PropsAlertSave = {
     ...propsAlertSave,
-    onOk: saveRequest,
+    onOk: saveInput,
     onCancel: onCancelAlert,
   };
 
-  const propsSearchProduct: PropsSearchProduct = {
-    details,
-    warehouseId: request?.warehouseOrigin?._id,
+  const propsSelectProduct: PropsSelectProducts = {
+    details: details.filter((item) => item?.action !== 'delete'),
+    validateStock: false,
+    warehouseId: input?.warehouse?._id,
     createDetail,
     updateDetail,
     deleteDetail,
   };
 
-  const columns: ColumnsType<Partial<REQUEST.DetailRequest>> = [
+  const columns: ColumnsType<Partial<INPUT.DetailInput>> = [
     {
       title: 'Referencia',
       dataIndex: 'product',
@@ -357,7 +358,6 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
         <InputNumber
           value={quantity || 0}
           min={1}
-          max={product?.stock ? product?.stock[0]?.quantity : 0}
           onChange={(value) => updateDetail(product || {}, value)}
           disabled={!allowEdit}
           style={{ color: 'black', backgroundColor: 'white' }}
@@ -384,12 +384,12 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
 
   return (
     <>
-      <Header request={request} setObservation={setObservation} observation={observation} />
+      <Header input={input} setObservation={setObservation} observation={observation} />
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
             <FormItem label="Código de barras">
-              <SearchProducts {...propsSearchProduct} />
+              <SelectProducts {...propsSelectProduct} />
             </FormItem>
           </Form>
         </Card>
@@ -402,11 +402,12 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
           pagination={{ size: 'small' }}
         />
       </Card>
-      <Footer request={request} saveRequest={showAlertSave} details={details} />
+      <Footer input={input} saveInput={showAlertSave} details={details} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading visible={loadingCreate || loadingUpdate} message="Guardando Solicitud" />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );
 };
-export default FormRequest;
+
+export default FormInput;

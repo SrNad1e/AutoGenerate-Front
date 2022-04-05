@@ -1,78 +1,73 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/dot-notation */
-import { SearchOutlined, EyeOutlined, PrinterFilled } from '@ant-design/icons';
-import { useHistory, useLocation, useModel } from 'umi';
-import { PageContainer } from '@ant-design/pro-layout';
+import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
+import Table, { ColumnsType } from 'antd/lib/table';
 import {
   Badge,
   Button,
   Card,
   Col,
   DatePicker,
-  Divider,
   Form,
   InputNumber,
   Row,
   Select,
   Space,
-  Table,
   Tooltip,
   Typography,
 } from 'antd';
-import type { ColumnsType } from 'antd/lib/table';
-import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
+import { TablePaginationConfig } from 'antd/es/table/interface';
+import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
+import { SorterResult } from 'antd/lib/table/interface';
+
+import { useHistory, useLocation } from 'umi';
+import { useGetInputs } from '@/hooks/input.hooks';
 import { useEffect, useRef, useState } from 'react';
+
+import { StatusTypeInput } from '../input.data';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import numeral from 'numeral';
+import SelectWarehouses from '@/components/SelectWarehouses';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import TotalFound from '@/components/TotalFound';
+import ReportInput from '../reports/input';
 import { useReactToPrint } from 'react-to-print';
 
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import SelectWarehouses from '@/components/SelectWarehouses';
-import { StatusType } from '../request.data';
-import { useGenerateRequest, useGetRequests } from '@/hooks/request.hooks';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import AlertLoading from '@/components/Alerts/AlertLoading';
-import ReportRequest from '../reports/request';
-import TotalFound from '@/components/TotalFound';
-
 import styles from './styles.less';
-import './styles.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const { Title } = Typography;
 const { RangePicker } = DatePicker;
+const { Title } = Typography;
 
 export type FormValues = {
   status?: string;
   number?: number;
   warehouse?: WAREHOUSE.warehouse;
   dates?: Moment[];
-  type?: string;
 };
 
-const RequestList = () => {
-  const [requests, setRequests] = useState<Partial<REQUEST.Request[]>>([]);
-  const [requestData, setRequestData] = useState<Partial<REQUEST.Request>>({});
+const InputList = () => {
+  const [inputs, setInputs] = useState<Partial<INPUT.Input[]>>([]);
+  const [inputData, setInputData] = useState<Partial<INPUT.Input>>({});
+  const [filters, setFilters] = useState<Partial<FormValues>>();
   const [totalPages, setTotalPages] = useState(0);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     total: 0,
     pageSize: 10,
     current: 1,
   });
-  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+  const [error, setError] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
 
-  const { initialState } = useModel('@@initialState');
+  const [form] = Form.useForm();
 
   const history = useHistory();
-  const location = useLocation();
 
-  const [form] = Form.useForm();
+  const location = useLocation();
 
   const reportRef = useRef(null);
 
@@ -86,26 +81,11 @@ const RequestList = () => {
    * @description se encarga de almacenar los datos de la consulta
    * @param data respuesta de la consulta
    */
-  const resultRequests = (data: Partial<REQUEST.Response>) => {
+  const resultInputs = (data: Partial<INPUT.Response>) => {
     if (data) {
-      setRequests(data.docs || []);
+      setInputs(data.docs || []);
       setTotalPages(data?.totalPages || 0);
       setPagination({ ...pagination, total: data.totalDocs });
-    }
-  };
-
-  /**
-   * @description funcion que se encarga de enviar al usuario al detalle de la solicitud creada
-   * @param params resultado de la solicitud
-   */
-  const resultGenerate = ({ _id, number }: Partial<REQUEST.Request>) => {
-    if (_id) {
-      setPropsAlertInformation({
-        message: `Se ha creado la solicitud No. ${number}`,
-        type: 'success',
-        redirect: `/inventory/request/${_id}`,
-        visible: true,
-      });
     }
   };
 
@@ -114,10 +94,21 @@ const RequestList = () => {
    * @param message mensaje de error a mostrar
    */
   const messageError = (message: string) => {
-    setPropsAlertInformation({
+    setError({
       message,
       type: 'error',
       visible: true,
+    });
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
+  const closeMessageError = () => {
+    setError({
+      message: '',
+      type: 'error',
+      visible: false,
     });
   };
 
@@ -125,33 +116,21 @@ const RequestList = () => {
 
   /** Hooks para manejo de consultas */
 
-  const { getRequests, loadingGetAll } = useGetRequests(resultRequests, messageError);
-  const { generateRequest, loadingGenerate } = useGenerateRequest(resultGenerate, messageError);
+  const { getInputs, loading } = useGetInputs(resultInputs, messageError);
 
   /** Fin de Hooks para manejo de consultas */
 
-  const printPage = async (record: Partial<REQUEST.Request>) => {
-    await setRequestData(record);
+  const printPage = async (record: Partial<INPUT.Input>) => {
+    await setInputData(record);
     handlePrint();
   };
 
   /**
-   * @description se encarga de cerrar la alerta informativa
-   */
-  const closeAlertInformation = () => {
-    setPropsAlertInformation({
-      message: '',
-      type: 'error',
-      visible: false,
-    });
-  };
-
-  /**
-   * @description se encarga de ejecutar la funcion para obtener las solicitudes
+   * @description se encarga de ejecutar la funcion para obtener las entradas
    * @param params filtros necesarios para la busqueda
    */
-  const onSearch = (params?: Partial<REQUEST.FiltersGetRequests>) => {
-    getRequests({
+  const onSearch = (params?: Partial<INPUT.FiltersGetInputs>) => {
+    getInputs({
       variables: {
         input: {
           sort: {
@@ -168,9 +147,9 @@ const RequestList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouse, dates, type = 'received' } = props;
+    const { status, number, warehouse, dates } = props;
     try {
-      const params: REQUEST.FiltersGetRequests = {
+      const params: Partial<INPUT.FiltersGetInputs> = {
         page: pageCurrent || 1,
         limit: pagination.pageSize,
         status,
@@ -185,14 +164,9 @@ const RequestList = () => {
         params['dateInitial'] = dateInitial;
       }
       if (warehouse) {
-        if (type === 'sent') {
-          params['warehouseOriginId'] = warehouse?._id;
-        } else {
-          params['warehouseDestinationId'] = warehouse?._id;
-        }
+        params['warehouseId'] = warehouse?._id;
       }
       setPagination({ ...pagination, current: pageCurrent || 1 });
-
       onSearch(params);
 
       const datos = Object.keys(props)
@@ -202,7 +176,7 @@ const RequestList = () => {
       form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
     } catch (e) {
-      messageError(e as string);
+      console.log(e);
     }
   };
 
@@ -213,8 +187,8 @@ const RequestList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: Record<string, FilterValue | null>,
-    sorter: SorterResult<Partial<REQUEST.Request>>,
+    _: any,
+    sorter: SorterResult<Partial<INPUT.Input>>,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -232,19 +206,7 @@ const RequestList = () => {
     }
 
     setPagination({ ...pagination, current });
-
     onFinish(params, sort, current);
-  };
-
-  /**
-   * @description se encarga de hacer la consulta para generar la solicitud
-   */
-  const autoRequest = () => {
-    generateRequest({
-      variables: {
-        shopId: initialState?.currentUser?.shop?._id,
-      },
-    });
   };
 
   /**
@@ -253,47 +215,30 @@ const RequestList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
-    onSearch();
     setPagination({
+      total: 0,
       pageSize: 10,
       current: 1,
     });
-    form.setFieldsValue({
-      type: 'received',
+    onSearch({
+      limit: 10,
+      page: 1,
     });
+    setFilters({});
   };
 
-  /**
-   * @description se encarga de cargar los datos con base a la query
-   */
-  const loadingData = () => {
+  useEffect(() => {
     const queryParams = location['query'];
 
     const newFilters = {};
 
     Object.keys(queryParams).forEach((item) => {
-      if (item === 'dates') {
-        const data = JSON.parse(queryParams[item]);
-        newFilters[item] = [moment(data[0]), moment(data[1])];
-      } else {
-        newFilters[item] = JSON.parse(queryParams[item]);
-      }
+      newFilters[item] = JSON.parse(queryParams[item]);
     });
-
-    form.setFieldsValue({
-      type: 'received',
-    });
-
-    console.log(newFilters);
-
     onFinish(newFilters);
-  };
-
-  useEffect(() => {
-    loadingData();
   }, []);
 
-  const columns: ColumnsType<Partial<REQUEST.Request>> = [
+  const columns: ColumnsType<Partial<INPUT.Input>> = [
     {
       title: 'Número',
       dataIndex: 'number',
@@ -302,35 +247,35 @@ const RequestList = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Origen',
-      dataIndex: 'warehouseOrigin',
+      title: 'Bodega',
+      dataIndex: 'warehouse',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouseOrigin: WAREHOUSE.warehouse) => warehouseOrigin?.name,
-    },
-    {
-      title: 'Destino',
-      dataIndex: 'warehouseDestination',
-      align: 'center',
-      sorter: true,
-      showSorterTooltip: false,
-      render: (warehouseDestination: WAREHOUSE.warehouse) => warehouseDestination?.name,
+      render: (warehouse: WAREHOUSE.warehouse) => warehouse?.name,
     },
     {
       title: 'Referencia',
       dataIndex: 'details',
       align: 'center',
-      render: (details: REQUEST.DetailRequest[]) => details?.length,
+      render: (details: INPUT.DetailInput[]) => details?.length,
     },
     {
       title: 'Estado',
       dataIndex: 'status',
       align: 'center',
       render: (status: string) => {
-        const { color, label } = StatusType[status || ''];
+        const { color, label } = StatusTypeInput[status || ''];
         return <Badge text={label} color={color} />;
       },
+    },
+    {
+      title: 'Total',
+      dataIndex: 'total',
+      align: 'center',
+      sorter: true,
+      showSorterTooltip: false,
+      render: (total: number) => numeral(total).format('$ 0,0'),
     },
     {
       title: 'Creado',
@@ -359,7 +304,7 @@ const RequestList = () => {
               <Button
                 type="primary"
                 icon={<EyeOutlined />}
-                onClick={() => history.push(`/inventory/request/${_id}`)}
+                onClick={() => history.push(`/inventory/input/${_id}`)}
               />
             </Tooltip>
             <Space>
@@ -377,45 +322,43 @@ const RequestList = () => {
       },
     },
   ];
-
   return (
     <PageContainer
       title={
         <Space>
           <Title level={4} style={{ margin: 0 }}>
-            Lista de solicitudes
+            Lista de Entradas
           </Title>
-          <Divider type="vertical" />
-          <Button shape="round" type="primary" onClick={autoRequest}>
-            AutoGenerar
-          </Button>
         </Space>
       }
     >
       <Card>
-        <Form form={form} layout="inline" className={styles.filters} onFinish={onFinish}>
+        <Form
+          form={form}
+          layout="inline"
+          className={styles.filters}
+          onFinish={onFinish}
+          initialValues={filters}
+        >
           <Row gutter={[8, 8]} className={styles.form}>
             <Col xs={24} lg={4} xl={3} xxl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber min={1} className={styles.item} disabled={loadingGetAll} />
+                <InputNumber
+                  className={styles.item}
+                  disabled={loading}
+                  min={1}
+                  max={pagination.total}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={4} xxl={3}>
+            <Col xs={24} lg={5} xl={3} xxl={3}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item} allowClear disabled={loadingGetAll}>
-                  {Object.keys(StatusType).map((key) => (
+                <Select className={styles.item} allowClear disabled={loading}>
+                  {Object.keys(StatusTypeInput).map((key) => (
                     <Option key={key}>
-                      <Badge text={StatusType[key].label} color={StatusType[key].color} />
+                      <Badge text={StatusTypeInput[key].label} color={StatusTypeInput[key].color} />
                     </Option>
                   ))}
-                </Select>
-              </FormItem>
-            </Col>
-            <Col xs={24} lg={5} xl={3} xxl={4}>
-              <FormItem label="Tipo" name="type">
-                <Select className={styles.item} disabled={loadingGetAll}>
-                  <Option key="sent">Enviado</Option>
-                  <Option key="received">Recibido</Option>
                 </Select>
               </FormItem>
             </Col>
@@ -424,23 +367,23 @@ const RequestList = () => {
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={7} xxl={6}>
+            <Col xs={24} lg={10} xl={6} xxl={6}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker className={styles.item} disabled={loadingGetAll} />
+                <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={24} xxl={3}>
+            <Col xs={24} lg={14} xl={3} xxl={3}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
-                    loading={loadingGetAll}
+                    loading={loading}
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loadingGetAll}>
+                  <Button htmlType="button" onClick={onClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>
@@ -457,19 +400,18 @@ const RequestList = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={requests}
+          dataSource={inputs}
           pagination={pagination}
           onChange={handleChangeTable}
-          loading={loadingGetAll}
+          loading={loading}
         />
       </Card>
-      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
-      <AlertLoading message="Generando solicitud" visible={loadingGenerate} />
+      <AlertInformation {...error} onCancel={closeMessageError} />
       <div style={{ display: 'none' }}>
-        <ReportRequest ref={reportRef} data={requestData} />
+        <ReportInput ref={reportRef} data={inputData} />
       </div>
     </PageContainer>
   );
 };
 
-export default RequestList;
+export default InputList;

@@ -28,7 +28,7 @@ const FormItem = Form.Item;
 const { Text } = Typography;
 
 export type Detail = {
-  product: Partial<PRODUCT.Product>;
+  product?: Partial<PRODUCT.Product>;
   action?: ACTIONTYPESPRODUCT;
   quantity: number;
   createdAt?: Date;
@@ -38,12 +38,13 @@ export type Detail = {
 
 export type Props = {
   visible: boolean;
+  validateStock?: boolean;
   details: Partial<Detail[]>;
   createDetail: (product: PRODUCT.Product, quantity: number) => void;
-  updateDetail: (productId: string, quantity: number) => void;
+  updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
-  warehouseId: string;
+  warehouseId: string | undefined;
 };
 
 export type FormValues = {
@@ -54,6 +55,7 @@ export type FormValues = {
 
 const ModalSearchProducts = ({
   visible,
+  validateStock,
   details = [],
   onCancel,
   warehouseId,
@@ -198,7 +200,7 @@ const ModalSearchProducts = ({
       align: 'center',
       render: (_id: string, product) => {
         const detailFind = details?.find(
-          (detail) => detail?.product._id === _id && detail.action !== 'delete',
+          (detail) => detail?.product?._id === _id && detail.action !== 'delete',
         );
         if (detailFind) {
           return (
@@ -207,8 +209,10 @@ const ModalSearchProducts = ({
                 <InputNumber
                   defaultValue={detailFind.quantity}
                   min={1}
-                  max={product.stock ? product?.stock[0]?.quantity : 0}
-                  onChange={(value) => updateDetail(_id, value)}
+                  max={
+                    validateStock ? (product.stock ? product?.stock[0]?.quantity : 0) : undefined
+                  }
+                  onChange={(value) => updateDetail(product, value)}
                 />
               </Space>
               <Tooltip title="Eliminar">

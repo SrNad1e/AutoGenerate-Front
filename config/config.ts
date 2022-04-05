@@ -85,8 +85,69 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Ajustes',
+              path: '/inventory/adjustment',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/adjustment/list',
+                  component: './inventory/adjustment/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/adjustment/new',
+                  component: './inventory/adjustment/form',
+                },
+                {
+                  path: '/inventory/adjustment/:id',
+                  component: './inventory/adjustment/form',
+                },
+              ],
+            },
+            {
+              name: 'Entradas',
+              path: '/inventory/input',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/input/list',
+                  component: './inventory/input/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/input/new',
+                  component: './inventory/input/form',
+                },
+                {
+                  path: '/inventory/input/:id',
+                  component: './inventory/input/form',
+                },
+              ],
+            },
+            {
+              name: 'Salidas',
+              path: '/inventory/output',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/output/list',
+                  component: './inventory/output/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/output/new',
+                  component: './inventory/output/form',
+                },
+                {
+                  path: '/inventory/output/:id',
+                  component: './inventory/output/form',
+                },
+              ],
+            },
           ],
         },
+
         {
           layout: false,
           component: '404',
