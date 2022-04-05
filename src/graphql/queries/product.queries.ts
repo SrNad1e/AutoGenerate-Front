@@ -40,6 +40,9 @@ export const PRODUCT = gql`
       }
       description
       reference
+      stock {
+        quantity
+      }
       size {
         value
       }
