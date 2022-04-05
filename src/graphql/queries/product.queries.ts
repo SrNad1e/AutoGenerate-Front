@@ -33,6 +33,9 @@ export const PRODUCT = gql`
     product(filtersProductInput: $input) {
       _id
       barcode
+      stock {
+        quantity
+      }
       color {
         name_internal
         html

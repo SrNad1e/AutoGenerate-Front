@@ -341,7 +341,7 @@ const InputList = () => {
           initialValues={filters}
         >
           <Row gutter={[8, 8]} className={styles.form}>
-            <Col xs={24} lg={4} xl={3} xxl={3}>
+            <Col xs={24} lg={4} xl={4} xxl={2}>
               <FormItem label="Número" name="number">
                 <InputNumber
                   className={styles.item}
@@ -351,7 +351,7 @@ const InputList = () => {
                 />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={3} xxl={3}>
+            <Col xs={24} lg={5} xl={5} xxl={4}>
               <FormItem label="Estado" name="status">
                 <Select className={styles.item} allowClear disabled={loading}>
                   {Object.keys(StatusTypeInput).map((key) => (
@@ -362,17 +362,17 @@ const InputList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={7} xxl={7}>
+            <Col xs={24} lg={10} xl={6} xxl={6}>
               <FormItem label="Bodega" name="warehouse">
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={7} xxl={7}>
+            <Col xs={24} lg={10} xl={6} xxl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={4} xxl={4}>
+            <Col xs={24} lg={14} xl={3} xxl={4}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
