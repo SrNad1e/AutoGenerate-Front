@@ -41,7 +41,7 @@ export type Props = {
   validateStock?: boolean;
   details: Partial<Detail[]>;
   createDetail: (product: PRODUCT.Product, quantity: number) => void;
-  updateDetail: (product: PRODUCT.Product, quantity: number) => void;
+  updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
   warehouseId: string | undefined;

@@ -1,25 +1,25 @@
-declare namespace INPUT {
-  type Input = {
+declare namespace ADJUSTMENT {
+  type Adjustment = {
     _id: string;
     number: number;
     total: number;
+    warehouse: WAREHOUSE.warehouse;
+    observation: string;
+    details: DetailAdjustment[];
+    status: StatusOutput;
     createdAt: Date;
     updatedAt: Date;
-    warehouse: WAREHOUSE.warehouse;
     user: USER.User;
-    observation: string;
-    details: DetailInput[];
-    status: StatusInput;
   };
 
-  type DetailInput = {
+  type DetailAdjustment = {
     product: PRODUCT.Product;
     quantity: number;
     createdAt: Date;
     updatedAt: Date;
   };
 
-  type DetailInputProps = {
+  type DetailAdjustmentProps = {
     product?: Partial<PRODUCT.Product>;
     action?: StatusInputProduct;
     quantity: number;
@@ -29,7 +29,7 @@ declare namespace INPUT {
   };
 
   type Response = {
-    docs: Input[];
+    docs: Adjustment[];
     hasNextPage: boolean;
     hasPrevPage: boolean;
     limit: number;
@@ -41,21 +41,22 @@ declare namespace INPUT {
     totalPages: number;
   };
 
-  type FiltersGetInputs = {
+  type FiltersGetAdjustment = {
     dateFinal: string;
     dateInitial: string;
-    number?: number;
-    status?: string;
     limit: number;
-    warehouseId: string;
+    number?: number;
     page: number;
     sort: any;
-  };
-
-  type CreateInput = {
+    status?: string;
+    total: number;
     warehouseId: string;
   };
 
-  type StatusInput = 'open' | 'confirmed' | 'cancelled';
-  type StatusInputProduct = 'create' | 'update' | 'delete';
+  type CreateAdjustment = {
+    warehouseId: string;
+  };
+
+  type StatusAdjustment = 'open' | 'confirmed' | 'cancelled';
+  type StatusAdjustmentProduct = 'create' | 'update' | 'delete';
 }
