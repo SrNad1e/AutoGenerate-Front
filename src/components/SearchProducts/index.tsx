@@ -12,7 +12,7 @@ export type Props = {
   barcode?: boolean;
   validateStock?: boolean;
   quantity?: number;
-  details: Partial<Detail[]>;
+  details?: Partial<Detail[]>;
   warehouseId: string | undefined;
   createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
   updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;

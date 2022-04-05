@@ -1,42 +1,44 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from 'react';
+import { useHistory, useModel, useParams } from 'umi';
+import { PageContainer } from '@ant-design/pro-layout';
+import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
 import {
   ArrowLeftOutlined,
   DropboxOutlined,
   FileTextOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-import { PageContainer } from '@ant-design/pro-layout';
-import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
-import { useParams, useHistory, useModel } from 'umi';
-import { useReactToPrint } from 'react-to-print';
 
-import FormRequest from '../components/FormRequest';
-import SelectWarehouseStep from '@/components/SelectWarehouseStep';
+import { useEffect, useRef, useState } from 'react';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import { useGetAdjustment } from '@/hooks/adjustment.hooks';
+import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { useGetRequest } from '@/hooks/request.hooks';
-import ReportRequest from '../reports/request';
+import { useReactToPrint } from 'react-to-print';
+import ReportAdjustment from '../reports/adjustment';
+import FormAdjustment from '../components/FormAdjustment';
 
 import styles from './styles.less';
-import './styles.less';
 
 const { Step } = Steps;
 
-const RequestForm = () => {
-  const [currentStep, setCurretStep] = useState(0);
+const AdjustmentForm = () => {
+  const [currentStep, setCurrentStep] = useState(0);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
-  const [request, setRequest] = useState<Partial<REQUEST.Request & REQUEST.CreateRequest>>({
+  const [adjustment, setAdjustment] = useState<
+    Partial<ADJUSTMENT.Adjustment & ADJUSTMENT.CreateAdjustment>
+  >({
     status: 'open',
   });
 
   const { initialState } = useModel('@@initialState');
 
   const { id } = useParams<Partial<{ id: string }>>();
+
   const history = useHistory();
 
   const reportRef = useRef(null);
@@ -46,6 +48,8 @@ const RequestForm = () => {
   });
 
   const isNew = !id;
+
+  /** Funciones ejecutadas por los hooks */
 
   /**
    * @description se encarga de abrir aviso de información
@@ -69,12 +73,13 @@ const RequestForm = () => {
       visible: false,
     });
   };
+
   /**
-   * @description se encarga de cargar la solicitud actual
-   * @param data datos de la solicitud
+   * @description se encarga de cargar la entrada actual
+   * @param data datos de la entrada
    */
-  const currentRequest = (data: Partial<REQUEST.Request>) => {
-    setRequest(data);
+  const currentAdjustment = (data: Partial<ADJUSTMENT.Adjustment>) => {
+    setAdjustment(data);
   };
 
   /**
@@ -85,28 +90,34 @@ const RequestForm = () => {
     onShowError(message);
   };
 
-  const { getRequest, loadingGetOne } = useGetRequest(currentRequest, showError);
+  /** FIn de Funciones ejecutadas por los hooks */
+
+  /** Hooks para manejo de consultas */
+
+  const { getAdjustment, loading } = useGetAdjustment(currentAdjustment, showError);
+
+  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description se encarga de cambiar el paso y asignar la bodega
-   * @param warehouseDestinationId bodega seleccionada
+   * @param warehouse bodega seleccionada
    */
-  const changeCurrentStep = (warehouseOrigin?: WAREHOUSE.warehouse) => {
-    if (warehouseOrigin) {
-      setCurretStep(1);
+  const changeCurrentStep = (warehouse: WAREHOUSE.warehouse) => {
+    if (warehouse) {
+      setCurrentStep(1);
 
-      setRequest({
-        ...request,
-        warehouseOrigin,
+      setAdjustment({
+        ...adjustment,
+        warehouse,
       });
     } else {
-      setCurretStep(0);
+      setCurrentStep(0);
     }
   };
 
   useEffect(() => {
     if (!isNew) {
-      getRequest({
+      getAdjustment({
         variables: {
           id,
         },
@@ -114,11 +125,6 @@ const RequestForm = () => {
     }
   }, [isNew]);
 
-  /**
-   * @description se encarga de renderizar los componentes con base al step
-   * @param step paso en el cual se encuentra
-   * @returns componente
-   */
   const renderSteps = (step: number) => {
     switch (step) {
       case 0:
@@ -126,12 +132,16 @@ const RequestForm = () => {
           <SelectWarehouseStep
             warehouseId={initialState?.currentUser?.shop?.defaultWarehouse._id}
             changeCurrentStep={changeCurrentStep}
-            label="Bodega Origen"
+            label="Bodega"
           />
         );
       case 1:
         return (
-          <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurretStep} />
+          <FormAdjustment
+            setAdjustment={setAdjustment}
+            adjustment={adjustment}
+            setCurrentStep={setCurrentStep}
+          />
         );
       default:
         return <></>;
@@ -152,11 +162,10 @@ const RequestForm = () => {
           </Tooltip>
           <Divider type="vertical" />
           {isNew ? (
-            'Nueva Solicitud'
+            'Nuevo Ajuste'
           ) : (
             <>
-              Solicitud No. {request?.number}
-              <Divider type="vertical" />
+              Ajuste No. {adjustment?.number} <Divider type="vertical" />
               <Tooltip title="Imprimir">
                 <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
               </Tooltip>
@@ -164,7 +173,7 @@ const RequestForm = () => {
           )}
         </Space>
       }
-      loading={loadingGetOne}
+      loading={loading}
     >
       {isNew ? (
         <Card>
@@ -183,14 +192,19 @@ const RequestForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurretStep} />
+        <FormAdjustment
+          setAdjustment={setAdjustment}
+          adjustment={adjustment}
+          setCurrentStep={setCurrentStep}
+        />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <div style={{ display: 'none' }}>
-        <ReportRequest ref={reportRef} data={request} />
+        <ReportAdjustment ref={reportRef} data={adjustment} />
       </div>
     </PageContainer>
   );
 };
 
-export default RequestForm;
+export default AdjustmentForm;

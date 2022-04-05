@@ -21,16 +21,16 @@ import moment from 'moment';
 import { SorterResult } from 'antd/lib/table/interface';
 
 import { useHistory, useLocation } from 'umi';
-import { useGetInputs } from '@/hooks/input.hooks';
+import { useGetAdjustments } from '@/hooks/adjustment.hooks';
 import { useEffect, useRef, useState } from 'react';
 
-import { StatusTypeInput } from '../input.data';
+import { StatusTypeAdjustment } from '../adjustment.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import numeral from 'numeral';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import TotalFound from '@/components/TotalFound';
-import ReportInput from '../reports/input';
+import ReportAdjustment from '../reports/adjustment';
 import { useReactToPrint } from 'react-to-print';
 
 import styles from './styles.less';
@@ -47,9 +47,9 @@ export type FormValues = {
   dates?: Moment[];
 };
 
-const InputList = () => {
-  const [inputs, setInputs] = useState<Partial<INPUT.Input[]>>([]);
-  const [inputData, setInputData] = useState<Partial<INPUT.Input>>({});
+const AdjustmentList = () => {
+  const [adjustments, setAdjustments] = useState<Partial<ADJUSTMENT.Adjustment[]>>([]);
+  const [adjustmentData, setAdjustmentData] = useState<Partial<ADJUSTMENT.Adjustment>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
   const [totalPages, setTotalPages] = useState(0);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
@@ -81,9 +81,9 @@ const InputList = () => {
    * @description se encarga de almacenar los datos de la consulta
    * @param data respuesta de la consulta
    */
-  const resultInputs = (data: Partial<INPUT.Response>) => {
+  const resultAdjustments = (data: Partial<ADJUSTMENT.Response>) => {
     if (data) {
-      setInputs(data.docs || []);
+      setAdjustments(data.docs || []);
       setTotalPages(data?.totalPages || 0);
       setPagination({ ...pagination, total: data.totalDocs });
     }
@@ -116,12 +116,12 @@ const InputList = () => {
 
   /** Hooks para manejo de consultas */
 
-  const { getInputs, loading } = useGetInputs(resultInputs, messageError);
+  const { getAdjustments, loading } = useGetAdjustments(resultAdjustments, messageError);
 
   /** Fin de Hooks para manejo de consultas */
 
-  const printPage = async (record: Partial<INPUT.Input>) => {
-    await setInputData(record);
+  const printPage = async (record: Partial<ADJUSTMENT.Adjustment>) => {
+    await setAdjustmentData(record);
     handlePrint();
   };
 
@@ -129,8 +129,8 @@ const InputList = () => {
    * @description se encarga de ejecutar la funcion para obtener las entradas
    * @param params filtros necesarios para la busqueda
    */
-  const onSearch = (params?: Partial<INPUT.FiltersGetInputs>) => {
-    getInputs({
+  const onSearch = (params?: Partial<ADJUSTMENT.FiltersGetAdjustment>) => {
+    getAdjustments({
       variables: {
         input: {
           sort: {
@@ -149,7 +149,7 @@ const InputList = () => {
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
     const { status, number, warehouse, dates } = props;
     try {
-      const params: Partial<INPUT.FiltersGetInputs> = {
+      const params: Partial<ADJUSTMENT.FiltersGetAdjustment> = {
         page: pageCurrent || 1,
         limit: pagination.pageSize,
         status,
@@ -188,7 +188,7 @@ const InputList = () => {
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     _: any,
-    sorter: SorterResult<Partial<INPUT.Input>>,
+    sorter: SorterResult<Partial<ADJUSTMENT.Adjustment>>,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -238,7 +238,7 @@ const InputList = () => {
     onFinish(newFilters);
   }, []);
 
-  const columns: ColumnsType<Partial<INPUT.Input>> = [
+  const columns: ColumnsType<Partial<ADJUSTMENT.Adjustment>> = [
     {
       title: 'Número',
       dataIndex: 'number',
@@ -258,14 +258,14 @@ const InputList = () => {
       title: 'Referencia',
       dataIndex: 'details',
       align: 'center',
-      render: (details: INPUT.DetailInput[]) => details?.length,
+      render: (details: ADJUSTMENT.DetailAdjustment[]) => details?.length,
     },
     {
       title: 'Estado',
       dataIndex: 'status',
       align: 'center',
       render: (status: string) => {
-        const { color, label } = StatusTypeInput[status || ''];
+        const { color, label } = StatusTypeAdjustment[status || ''];
         return <Badge text={label} color={color} />;
       },
     },
@@ -304,7 +304,7 @@ const InputList = () => {
               <Button
                 type="primary"
                 icon={<EyeOutlined />}
-                onClick={() => history.push(`/inventory/input/${_id}`)}
+                onClick={() => history.push(`/inventory/adjustment/${_id}`)}
               />
             </Tooltip>
             <Space>
@@ -327,7 +327,7 @@ const InputList = () => {
       title={
         <Space>
           <Title level={4} style={{ margin: 0 }}>
-            Lista de Entradas
+            Lista de Ajustes
           </Title>
         </Space>
       }
@@ -341,7 +341,7 @@ const InputList = () => {
           initialValues={filters}
         >
           <Row gutter={[8, 8]} className={styles.form}>
-            <Col xs={24} lg={4} xl={4} xxl={2}>
+            <Col xs={24} lg={4} xl={3} xxl={3}>
               <FormItem label="Número" name="number">
                 <InputNumber
                   className={styles.item}
@@ -351,18 +351,21 @@ const InputList = () => {
                 />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={5} xxl={4}>
+            <Col xs={24} lg={5} xl={3} xxl={3}>
               <FormItem label="Estado" name="status">
                 <Select className={styles.item} allowClear disabled={loading}>
-                  {Object.keys(StatusTypeInput).map((key) => (
+                  {Object.keys(StatusTypeAdjustment).map((key) => (
                     <Option key={key}>
-                      <Badge text={StatusTypeInput[key].label} color={StatusTypeInput[key].color} />
+                      <Badge
+                        text={StatusTypeAdjustment[key].label}
+                        color={StatusTypeAdjustment[key].color}
+                      />
                     </Option>
                   ))}
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={6} xxl={6}>
+            <Col xs={24} lg={10} xl={5} xxl={5}>
               <FormItem label="Bodega" name="warehouse">
                 <SelectWarehouses />
               </FormItem>
@@ -372,7 +375,7 @@ const InputList = () => {
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={3} xxl={4}>
+            <Col xs={24} lg={14} xl={3} xxl={3}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -400,7 +403,7 @@ const InputList = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={inputs}
+          dataSource={adjustments}
           pagination={pagination}
           onChange={handleChangeTable}
           loading={loading}
@@ -408,10 +411,10 @@ const InputList = () => {
       </Card>
       <AlertInformation {...error} onCancel={closeMessageError} />
       <div style={{ display: 'none' }}>
-        <ReportInput ref={reportRef} data={inputData} />
+        <ReportAdjustment ref={reportRef} data={adjustmentData} />
       </div>
     </PageContainer>
   );
 };
 
-export default InputList;
+export default AdjustmentList;

@@ -25,7 +25,6 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectProducts from '@/components/SelectProducts';
 import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
 import { useCreateOutput, useUpdateOutput } from '@/hooks/output.hooks';
-
 import Header from './header';
 import Footer from './footer';
 

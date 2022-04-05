@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Card, Col, Form, InputNumber, Row } from 'antd';
 import { useState } from 'react';
 
@@ -10,7 +9,7 @@ const FormItem = Form.Item;
 
 export type Props = {
   validateStock?: boolean;
-  details: Partial<Detail[]>;
+  details?: Partial<Detail[]>;
   warehouseId: string | undefined;
   createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
   updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;

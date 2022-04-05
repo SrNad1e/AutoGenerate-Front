@@ -56,6 +56,19 @@ export default defineConfig({
       ],
     },
     {
+      path: '/pos',
+      component: '../layouts/POSLayout',
+      layout: false,
+      routes: [
+        {
+          path: '/pos',
+          name: 'POS',
+          icon: 'shop',
+          component: './pos/list',
+        },
+      ],
+    },
+    {
       path: '/',
       component: '../layouts/GeneralLayout',
       layout: false,
@@ -82,6 +95,26 @@ export default defineConfig({
                 {
                   path: '/inventory/request/:id',
                   component: './inventory/request/form',
+                },
+              ],
+            },
+            {
+              name: 'Ajustes',
+              path: '/inventory/adjustment',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/adjustment/list',
+                  component: './inventory/adjustment/list',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/inventory/adjustment/new',
+                  component: './inventory/adjustment/form',
+                },
+                {
+                  path: '/inventory/adjustment/:id',
+                  component: './inventory/adjustment/form',
                 },
               ],
             },
