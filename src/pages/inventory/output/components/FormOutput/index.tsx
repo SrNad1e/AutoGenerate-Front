@@ -25,7 +25,6 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectProducts from '@/components/SelectProducts';
 import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
 import { useCreateOutput, useUpdateOutput } from '@/hooks/output.hooks';
-
 import Header from './header';
 import Footer from './footer';
 
@@ -157,7 +156,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    * @description se encarga de guardar el traslado
    * @param status se usa para definir el estado de la entrada
    */
-  const saveOutput = (status?: string) => {
+  const saveInput = (status?: string) => {
     if (id) {
       const detailsFilter = details.filter((detail) => detail?.action);
 
@@ -234,23 +233,31 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
 
   /**
    * @description actualiza la cantidad de un producto
-   * @param product producto a actualizar
+   * @param _id identificador del producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product._id) {
-            return {
-              ...detail,
-              quantity: quantity || 0,
-              action: detail?.action ?? 'update',
-            };
-          }
-          return detail;
-        }),
-      );
+      if (product?.stock) {
+        if (product?.stock[0].quantity >= quantity) {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === product?._id) {
+                return {
+                  ...detail,
+                  quantity: quantity || 0,
+                  action: detail?.action ?? 'update',
+                };
+              }
+              return detail;
+            }) || [],
+          );
+        } else {
+          onShowInformation(
+            `El producto ${product?.barcode} / ${product?.reference} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
+          );
+        }
+      }
     }
   };
 
@@ -303,7 +310,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
 
   const propsAlertSaveFinal: PropsAlertSave = {
     ...propsAlertSave,
-    onOk: saveOutput,
+    onOk: saveInput,
     onCancel: onCancelAlert,
   };
 
