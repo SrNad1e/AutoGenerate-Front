@@ -3,7 +3,8 @@ import { useModel, useParams } from 'umi';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import { useCreateAdjustment, useUpdateAdjustment } from '@/hooks/adjustment.hooks';
-import Table, { ColumnsType } from 'antd/lib/table';
+import type { ColumnsType } from 'antd/lib/table';
+import Table from 'antd/lib/table';
 import {
   Avatar,
   Badge,
@@ -154,7 +155,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
       const detailsFilter = details.filter((detail) => detail?.action);
 
       const newDetails = detailsFilter.map((detail) => ({
-        productId: detail?.product._id,
+        productId: detail?.product?._id,
         quantity: detail?.quantity,
         action: detail?.action,
       }));
@@ -179,7 +180,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
         setCurrentStep(0);
       } else {
         const newDetails = details.map((detail) => ({
-          productId: detail?.product._id,
+          productId: detail?.product?._id,
           quantity: detail?.quantity,
         }));
         const props = {
@@ -204,14 +205,14 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
    */
   const deleteDetail = (_id: string) => {
     if (setDetails) {
-      const productFind = details.find((detail) => detail?.product._id);
+      const productFind = details.find((detail) => detail?.product?._id);
 
       if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product._id !== _id));
+        setDetails(details.filter((detail) => detail?.product?._id !== _id));
       } else {
         setDetails(
           details.map((detail) => {
-            if (detail?.product._id === _id) {
+            if (detail?.product?._id === _id) {
               return {
                 ...detail,
                 action: 'delete',
@@ -226,18 +227,18 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
 
   /**
    * @description actualiza la cantidad de un producto
-   * @param _id identificador del producto a actualizar
+   * @param product producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
-  const updateDetail = (_id: string, quantity: number) => {
+  const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
       setDetails(
         details.map((detail) => {
-          if (detail?.product._id === _id) {
+          if (detail?.product?._id === product?._id) {
             return {
               ...detail,
               quantity: quantity || 0,
-              action: detail.action ?? 'update',
+              action: detail?.action ?? 'update',
             };
           }
           return detail;
@@ -359,7 +360,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
         <InputNumber
           value={quantity || 0}
           min={0}
-          onChange={(value) => updateDetail(product?._id || '', value)}
+          onChange={(value) => updateDetail(product || {}, value)}
           disabled={!allowEdit}
           style={{ color: 'black', backgroundColor: 'white' }}
         />

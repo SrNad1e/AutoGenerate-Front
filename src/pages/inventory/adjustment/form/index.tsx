@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useHistory, useModel, useParams } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
@@ -151,7 +152,6 @@ const AdjustmentForm = () => {
     <PageContainer
       title={
         <Space align="center">
-          {' '}
           <Tooltip title="Atrás">
             <Button
               type="primary"
@@ -165,11 +165,10 @@ const AdjustmentForm = () => {
             'Nuevo Ajuste'
           ) : (
             <>
-              {' '}
               Ajuste No. {adjustment?.number} <Divider type="vertical" />
               <Tooltip title="Imprimir">
                 <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
-              </Tooltip>{' '}
+              </Tooltip>
             </>
           )}
         </Space>

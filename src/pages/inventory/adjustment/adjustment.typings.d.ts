@@ -20,7 +20,7 @@ declare namespace ADJUSTMENT {
   };
 
   type DetailAdjustmentProps = {
-    product: Partial<PRODUCT.Product>;
+    product?: Partial<PRODUCT.Product>;
     action?: StatusInputProduct;
     quantity: number;
     createdAt?: Date;
