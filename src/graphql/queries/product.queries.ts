@@ -36,6 +36,9 @@ export const PRODUCT = gql`
       }
       _id
       barcode
+      stock {
+        quantity
+      }
       color {
         name_internal
         html

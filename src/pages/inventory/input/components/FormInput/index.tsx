@@ -124,24 +124,30 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
    * @param status estado actual de la entrada
    */
   const showAlertSave = (status?: string) => {
-    if (details.length > 0 || status === 'cancelled' || observation !== input?.observation) {
+    if (
+      details.length > 0 ||
+      status === 'cancelled' ||
+      observation !== (input?.observation || '')
+    ) {
       if (status === 'cancelled') {
         setPropsAlertSave({
           status,
           visible: true,
-          message: '¿Está seguro que desea cancelar la entrada?',
+          message: '¿Está seguro que desea cancelar la salida?',
           type: 'error',
         });
-      } else {
+      } else if (details.length > 0) {
         setPropsAlertSave({
           status,
           visible: true,
-          message: '¿Está seguro que desea guardar la entrada?',
+          message: '¿Está seguro que desea guardar la salida?',
           type: 'warning',
         });
+      } else {
+        onShowInformation('La salida no tiene productos');
       }
     } else {
-      onShowInformation('La entrada no tiene productos');
+      onShowInformation('No se encontraron cambios en la entrada');
     }
   };
 
