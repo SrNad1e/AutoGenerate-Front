@@ -1,8 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useModel, useParams } from 'umi';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
-import { useCreateAdjustment, useUpdateAdjustment } from '@/hooks/adjustment.hooks';
 import type { ColumnsType } from 'antd/lib/table';
 import Table from 'antd/lib/table';
 import {
@@ -20,13 +15,20 @@ import {
   Typography,
 } from 'antd';
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
-import Header from './header';
-import Footer from './footer';
+
+import { useEffect, useState } from 'react';
+import { useModel, useParams } from 'umi';
+import { useCreateAdjustment, useUpdateAdjustment } from '@/hooks/adjustment.hooks';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
 import SelectProducts from '@/components/SelectProducts';
+import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
+
+import Footer from './footer';
+import Header from './header';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -232,18 +234,26 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
    */
   const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product?._id) {
-            return {
-              ...detail,
-              quantity: quantity || 0,
-              action: detail?.action ?? 'update',
-            };
-          }
-          return detail;
-        }),
-      );
+      if (product?.stock) {
+        if (product?.stock[0].quantity >= quantity) {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === product?._id) {
+                return {
+                  ...detail,
+                  quantity: quantity || 0,
+                  action: detail?.action ?? 'update',
+                };
+              }
+              return detail;
+            }),
+          );
+        } else {
+          onShowInformation(
+            `El producto ${product?.barcode} / ${product?.reference} no tiene suficientes unidades, inventario: ${product?.stock[0].quantity}`,
+          );
+        }
+      }
     }
   };
 
@@ -254,7 +264,15 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
    */
   const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
-      setDetails([...details, { product, quantity, action: 'create' }]);
+      if (product?.stock) {
+        if (product?.stock[0].quantity >= quantity) {
+          setDetails([...details, { product, quantity, action: 'create' }]);
+        } else {
+          onShowInformation(
+            `El producto ${product?.barcode} / ${product?.reference} no tiene suficientes unidades, inventario: ${product?.stock[0].quantity}`,
+          );
+        }
+      }
     }
   };
 
