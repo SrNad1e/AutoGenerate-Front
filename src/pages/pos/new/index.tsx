@@ -2,7 +2,7 @@ import {
   CheckCircleOutlined,
   DollarOutlined,
   PlusOutlined,
-  //PrinterOutlined,
+  PrinterOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Button, Card, Col, Popconfirm, Row, Tag, Tooltip, Typography } from 'antd';
@@ -12,8 +12,8 @@ const { Title, Text } = Typography;
 const PosList = () => {
   return (
     <Card
-      style={{ height: '95vh', border: 'solid 2px black', width: '25%', borderRadius: '1%' }}
-      bodyStyle={{ padding: 0, paddingTop: 5 }}
+      style={{ border: 'solid 2px black', width: '25%', borderRadius: '1%' }}
+      bodyStyle={{ padding: 0, paddingTop: 5, height: '100vh' }}
     >
       <Row
         style={{
@@ -165,7 +165,7 @@ const PosList = () => {
           }}
         >
           <Row style={{ display: 'flex', alignItems: 'center' }}>
-            <Col span={12} style={{ display: 'flex', alignItems: 'center', paddingTop: 19 }}>
+            <Col span={12} style={{ display: 'flex', alignItems: 'center', padding: 10 }}>
               <Button
                 shape="round"
                 icon={<DollarOutlined />}
@@ -178,22 +178,22 @@ const PosList = () => {
             </Col>
             <Col
               span={12}
-              style={{ display: 'flex', justifyContent: 'right', alignItems: 'center' }}
+              style={{
+                display: 'flex',
+                justifyContent: 'right',
+                alignItems: 'center',
+                paddingRight: 10,
+              }}
             >
-              <Text style={{ fontSize: 18, paddingRight: 5 }}>{'$ 2000'}</Text>
-            </Col>
-          </Row>
-          <Row style={{ display: 'flex', alignItems: 'center' }}>
-            <Col span={12} style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-              <Title level={5} style={{ fontSize: 18, paddingLeft: 5 }}>
-                Subtotal:
-              </Title>
-            </Col>
-            <Col
-              span={12}
-              style={{ display: 'flex', justifyContent: 'right', alignItems: 'center' }}
-            >
-              <Text style={{ fontSize: 18, paddingRight: 5 }}>{'$ 2000'}</Text>
+              <Button
+                shape="round"
+                icon={<PrinterOutlined />}
+                size="small"
+                type="primary"
+                style={{ backgroundColor: 'white', color: '#dc9575', width: 'auto' }}
+              >
+                Imprimir
+              </Button>
             </Col>
           </Row>
         </Col>
