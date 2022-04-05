@@ -127,7 +127,11 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
    * @param status estado actual de la entrada
    */
   const showAlertSave = (status?: string) => {
-    if (details.length > 0 || status === 'cancelled' || observation !== adjustment?.observation) {
+    if (
+      details.length > 0 ||
+      status === 'cancelled' ||
+      observation !== (adjustment?.observation || '')
+    ) {
       if (status === 'cancelled') {
         setPropsAlertSave({
           status,
@@ -135,16 +139,18 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
           message: '¿Está seguro que desea cancelar el ajuste?',
           type: 'error',
         });
-      } else {
+      } else if (details.length > 0) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar el ajuste?',
           type: 'warning',
         });
+      } else {
+        onShowInformation('El ajuste no tiene productos');
       }
     } else {
-      onShowInformation('El ajuste no tiene productos');
+      onShowInformation('No se encontraron cambios en el ajuste');
     }
   };
 
