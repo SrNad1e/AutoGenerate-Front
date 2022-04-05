@@ -367,12 +367,12 @@ const InputList = () => {
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={6} xxl={6}>
+            <Col xs={24} lg={10} xl={8} xxl={7}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={3} xxl={4}>
+            <Col xs={24} lg={14} xl={5} xxl={4}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
