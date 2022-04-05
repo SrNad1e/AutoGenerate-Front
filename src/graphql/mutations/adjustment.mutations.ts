@@ -22,8 +22,6 @@ export const UPDATEADJUSTMENT = gql`
         _id
       }
       details {
-        createdAt
-        updateAt
         product {
           _id
           barcode
