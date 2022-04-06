@@ -10,6 +10,7 @@ const PosList = () => {
     type: 'error',
     visible: false,
   });
+  //const [orders, setOrders] = useState<Partial<ORDER.Order[]>>([])
 
   const onCloseAlert = () => {
     setPropsAlert({
@@ -21,7 +22,7 @@ const PosList = () => {
 
   return (
     <>
-      <Row style={{ height: '93vh' }}>
+      <Row style={{ height: '95vh' }}>
         <Col span={24}>
           <OrderSave newOrder={() => {}} />
         </Col>

@@ -5,6 +5,9 @@ export const CURRENTUSER = gql`
     currentUser {
       username
       name
+      pointOfSale {
+        _id
+      }
       shop {
         _id
         name

@@ -45,4 +45,13 @@ declare namespace CUSTOMER {
     name: string;
     user: USER.User;
   };
+
+  type DocumentType = {
+    _id: string;
+    abbreviation: string;
+    createdAt: Date;
+    updatedAt: Date;
+    name: string;
+    user: USER.User;
+  };
 }

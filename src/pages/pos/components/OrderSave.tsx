@@ -1,17 +1,12 @@
-import { Button, Card, Row, Tooltip } from 'antd';
+import { Button, Card, Row } from 'antd';
 import Col from 'antd/es/grid/col';
 //import { apiUrl } from '@/../config/defaultSettings';
 //import { useState, useEffect } from 'react';
 //import request from '@/utils/request';
 //import { stringify } from 'qs';
-import {
-  BorderlessTableOutlined,
-  DollarOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import Title from 'antd/lib/typography/Title';
+import { ShoppingCartOutlined } from '@ant-design/icons';
 import { useHistory } from 'umi';
+import CardSave from './CardSave';
 
 //const { Text } = Typography;
 
@@ -78,46 +73,7 @@ const OrderSave = ({ newOrder }: PropsOrderSave) => {
                 </Col>
               </Row>
             </Card>
-            <Card hoverable style={{ borderRadius: '10px', borderColor: '#dc9575', marginTop: 30 }}>
-              <Row style={{ display: 'flex', alignItems: 'center' }}>
-                <Col span={3}>
-                  <Tooltip title={'Fecha de creacion'}>
-                    <ShoppingCartOutlined style={{ fontSize: 25, color: '#dc9575' }} />
-                  </Tooltip>
-                </Col>
-                <Col span={9}>
-                  <Title level={5}>31/03/2022</Title>
-                </Col>
-                <Col span={3}>
-                  <Tooltip title={'Cliente'}>
-                    <UserOutlined style={{ fontSize: 25, color: '#dc9575' }} />
-                  </Tooltip>
-                </Col>
-                <Col span={9}>
-                  <Title level={5}>Jose Luis - CC. 1007512311</Title>
-                </Col>
-              </Row>
-              <Row style={{ display: 'flex' }}>
-                <Col span={3}>
-                  <Tooltip title={'Numero de pedido'}>
-                    <BorderlessTableOutlined style={{ fontSize: '25px', color: '#dc9575' }} />
-                  </Tooltip>
-                </Col>
-                <Col span={9}>
-                  <Title level={5}>Pedido No.1</Title>
-                </Col>
-                <Col span={3}>
-                  <Tooltip title={'Valor del pedido'}>
-                    <DollarOutlined style={{ fontSize: '25px', color: '#dc9575' }} />
-                  </Tooltip>
-                </Col>
-                <Col span={9} style={{}}>
-                  <Title level={5} style={{}}>
-                    $50.000
-                  </Title>
-                </Col>
-              </Row>
-            </Card>
+            <CardSave />
           </Col>
         </Row>
       </Col>

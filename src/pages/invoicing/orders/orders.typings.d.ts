@@ -8,7 +8,7 @@ declare namespace ORDER {
     invoice: INVOICE.Invoice;
     number: number;
     payments: PaymentOrder[];
-    pointOfSale: PointOfSale;
+    pointOfSale: POS.PointOfSale;
     shop: SHOP.Shop;
     status: string;
     summary: SummaryOrder;
@@ -30,5 +30,14 @@ declare namespace ORDER {
     updatedAt: Date;
     payment: PAYMENT.Payment;
     total: number;
+  };
+
+  type SummaryOrder = {
+    change: number;
+    discount: number;
+    subtotal: number;
+    tax: number;
+    total: number;
+    totalPaid: number;
   };
 }

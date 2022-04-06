@@ -1,205 +1,54 @@
-import {
-  CheckCircleOutlined,
-  DollarOutlined,
-  PlusOutlined,
-  PrinterOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import { Button, Card, Col, Popconfirm, Row, Tag, Tooltip, Typography } from 'antd';
+import { Col, Row } from 'antd';
+import { useState } from 'react';
+import Resumen from '../components/Resumen';
+//import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+//import { useGetOrder } from "@/hooks/order.hooks";
+import SearchProduct from '../components/SearchProduct';
 
-const { Title, Text } = Typography;
+const PosNew = () => {
+  const [order, setOrder] = useState<Partial<ORDER.Order>>();
+  /*const [, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });*/
 
-const PosList = () => {
+  /*const onShowError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };*/
+
+  /* const onCloseAlert = () => {
+    setPropsAlert({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };*/
+
+  /*const currentOrder = (data: Partial<ORDER.Order>) => {
+    setOrder(data);
+  };
+
+  const showError = (message: string) => {
+    onShowError(message)
+  }*/
+
+  //const {getOrder, loadingGetOne} = useGetOrder(currentOrder, showError);
+
   return (
-    <Card
-      style={{ border: 'solid 2px black', width: '25%', borderRadius: '1%' }}
-      bodyStyle={{ padding: 0, paddingTop: 5, height: '100vh' }}
-    >
-      <Row
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          width: '100%',
-        }}
-      >
-        <Col span={18} style={{ paddingLeft: 20 }}>
-          <Title level={4}>Productos:</Title>
-        </Col>
-        <Col span={6}>
-          <Title level={4}>Total: {'2 Mil'}</Title>
-        </Col>
-      </Row>
-      <Row style={{ height: '35vh', paddingTop: 500 }}>
-        <Col
-          span={24}
-          style={{
-            borderBottom: 'solid 1px black',
-            borderTop: 'solid 1px black',
-            padding: 5,
-            backgroundColor: 'floralwhite',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Title level={5}>Cliente:</Title>
-            <Popconfirm
-              title={'Estas seguro?'}
-              onConfirm={() => {}}
-              okText="Cambiar"
-              cancelText="Cancelar"
-            >
-              <Button
-                icon={<UserOutlined />}
-                shape="round"
-                size="small"
-                type="primary"
-                style={{ backgroundColor: 'white', color: '#dc9575' }}
-              >
-                Cambiar
-              </Button>
-            </Popconfirm>
-          </div>
-          <Row>
-            <Col span={24} style={{ marginTop: 5 }}>
-              <div
-                style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
-              >
-                <Text>
-                  {'Camilo'} {'Nobody'}
-                </Text>
-                <div>
-                  <Tooltip title={'Activo'}>
-                    {' '}
-                    <Tag color={'#87d068'}>
-                      <CheckCircleOutlined />
-                    </Tag>
-                  </Tooltip>
-                </div>
-              </div>
-            </Col>
-            <Col span={24}>
-              <Text>{'CC. 10075233104'}</Text>
-            </Col>
-          </Row>
-        </Col>
-        <Col
-          span={24}
-          style={{
-            backgroundColor: 'floralwhite',
-            borderBottom: 'solid 1px black',
-            height: '19vh',
-          }}
-        >
-          <Row style={{ display: 'flex', alignItems: 'center', marginTop: 10 }}>
-            <Col span={12} style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-              <Title level={5} style={{ fontSize: 18, paddingLeft: 5 }}>
-                Total:
-              </Title>
-            </Col>
-            <Col
-              span={12}
-              style={{ display: 'flex', justifyContent: 'right', alignItems: 'center' }}
-            >
-              <Text style={{ fontSize: 18, paddingRight: 5 }}>{'$ 2000'}</Text>
-            </Col>
-          </Row>
-          <Row style={{ display: 'flex', alignItems: 'center' }}>
-            <Col span={12} style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-              <Title level={5} style={{ fontSize: 18, paddingLeft: 5 }}>
-                Subtotal:
-              </Title>
-            </Col>
-            <Col
-              span={12}
-              style={{ display: 'flex', justifyContent: 'right', alignItems: 'center' }}
-            >
-              <Text style={{ fontSize: 18, paddingRight: 5 }}>{'$ 2000'}</Text>
-            </Col>
-          </Row>
-          <Row style={{ display: 'flex', alignItems: 'center' }}>
-            <Col span={12} style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-              <Title level={5} style={{ fontSize: 18, paddingLeft: 5 }}>
-                Descuento:
-              </Title>
-            </Col>
-            <Col
-              span={12}
-              style={{ display: 'flex', justifyContent: 'right', alignItems: 'center' }}
-            >
-              <Text style={{ fontSize: 18, paddingRight: 5 }}>{'$ 0'}</Text>
-            </Col>
-          </Row>
-          <Row style={{ display: 'flex', alignItems: 'center' }}>
-            <Col
-              span={12}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <Title level={5} style={{ fontSize: 18, paddingLeft: 5 }}>
-                Envío:
-              </Title>
-            </Col>
-            <Col span={12} style={{ display: 'flex', justifyContent: 'right' }}>
-              <Text style={{ fontSize: 18, paddingRight: 5 }}>{'N/A'}</Text>
-            </Col>
-            <Col span={12} style={{ marginBottom: 10, display: 'flex', justifyContent: 'right' }}>
-              <Button
-                shape="round"
-                icon={<PlusOutlined />}
-                size="small"
-                type="primary"
-                style={{ backgroundColor: 'white', color: '#dc9575' }}
-              >
-                Agregar Envio
-              </Button>
-            </Col>
-          </Row>
-        </Col>
-        <Col
-          span={24}
-          style={{
-            height: '9vh',
-            marginBottom: 20,
-            backgroundColor: 'floralwhite',
-          }}
-        >
-          <Row style={{ display: 'flex', alignItems: 'center' }}>
-            <Col span={12} style={{ display: 'flex', alignItems: 'center', padding: 10 }}>
-              <Button
-                shape="round"
-                icon={<DollarOutlined />}
-                type="primary"
-                style={{ fontSize: 25, padding: 15, width: 'auto', height: 'auto' }}
-                onClick={() => {}}
-              >
-                PAGAR
-              </Button>
-            </Col>
-            <Col
-              span={12}
-              style={{
-                display: 'flex',
-                justifyContent: 'right',
-                alignItems: 'center',
-                paddingRight: 10,
-              }}
-            >
-              <Button
-                shape="round"
-                icon={<PrinterOutlined />}
-                size="small"
-                type="primary"
-                style={{ backgroundColor: 'white', color: '#dc9575', width: 'auto' }}
-              >
-                Imprimir
-              </Button>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
-    </Card>
+    <Row style={{ height: '90vh' }}>
+      <Col xxl={6} lg={8}>
+        <Resumen order={order} setOrder={setOrder} />
+      </Col>
+      <Col xxl={18} lg={16}>
+        <SearchProduct />
+      </Col>
+    </Row>
   );
 };
 
-export default PosList;
+export default PosNew;

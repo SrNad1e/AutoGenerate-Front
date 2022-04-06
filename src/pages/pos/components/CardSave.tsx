@@ -1,61 +1,63 @@
 import {
-  DollarCircleFilled,
+  BorderlessTableOutlined,
+  DollarOutlined,
   ShoppingCartOutlined,
-  TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Button, Card, Row, Typography, Col } from 'antd';
-import moment from 'moment';
-import numeral from 'numeral';
+import { Card, Row, Typography, Col, Tooltip } from 'antd';
 //import { Link } from 'umi'
 
 export type PropsCardSave = {
   order: ORDER.Order;
 };
 
-const { Text, Title } = Typography;
+const { Title } = Typography;
 
-const CardSave = ({ order }: PropsCardSave) => {
+const CardSave = () => {
   return (
-    <Card
-      hoverable
-      style={{ borderRadius: '10px', borderColor: '#dc9575' }}
-      bodyStyle={{ margin: 0, padding: 10 }}
-    >
-      <Row style={{ display: 'flex', alignItems: 'center' }}>
-        <Col span={3}>
-          <ShoppingCartOutlined style={{ fontSize: 30 }} />
+    <Card hoverable style={{ borderRadius: '10px', borderColor: '#dc9575', marginTop: 30 }}>
+      <Row gutter={[12, 0]}>
+        <Col>
+          <Tooltip title={'Cliente'}>
+            <UserOutlined style={{ fontSize: 25, color: '#dc9575' }} />
+          </Tooltip>
         </Col>
-        <Col span={9}>
-          <Text>{moment(order?.createdAt).format('YYYY/MM/DD')}</Text>
-        </Col>
-        <Col span={3}>
-          <DollarCircleFilled style={{ fontSize: 30, display: 'flex', justifyContent: 'right' }} />
-        </Col>
-        <Col span={9} style={{ display: 'flex', justifyContent: 'right' }}>
-          <Title level={4} style={{ marginBottom: 0 }}>
-            {numeral(order?.summary?.total).format('$ 0,0')}
+        <Col>
+          <Title level={5} style={{ margin: 0 }}>
+            Jose Luis Rodriguez
+          </Title>
+          <Title level={5} style={{ margin: 0 }}>
+            {' '}
+            CC. 1007512204
           </Title>
         </Col>
       </Row>
-      <Row style={{ display: 'flex', alignItems: 'center' }}>
+      <Row>
         <Col span={3}>
-          <UserOutlined style={{ fontSize: 30 }} />
+          <Tooltip title={'Fecha de creacion'}>
+            <ShoppingCartOutlined style={{ fontSize: 25, color: '#dc9575' }} />
+          </Tooltip>
         </Col>
         <Col span={9}>
-          <Text>{order?.user?.name}</Text>
+          <Title level={5}>31/03/2022</Title>
+        </Col>
+        <Col span={3}>
+          <Tooltip title={'Valor del pedido'}>
+            <DollarOutlined style={{ fontSize: '25px', color: '#dc9575' }} />
+          </Tooltip>
+        </Col>
+        <Col span={9}>
+          <Title level={5}>$50.000</Title>
         </Col>
       </Row>
-      <Row style={{ display: 'flex', alignItems: 'center' }}>
+      <Row style={{ display: 'flex' }}>
         <Col span={3}>
-          <TeamOutlined style={{ fontSize: 30 }} />
+          <Tooltip title={'Numero de pedido'}>
+            <BorderlessTableOutlined style={{ fontSize: '25px', color: '#dc9575' }} />
+          </Tooltip>
         </Col>
-        <Col span={21}>
-          <Button
-            style={{ width: '100%', textAlign: 'left' }}
-            type="primary"
-            size="small"
-          >{`${order?.customer?.firstName} ${order?.customer?.lastName} / ${order?.customer?.document} `}</Button>
+        <Col span={9}>
+          <Title level={5}>Pedido No.1</Title>
         </Col>
       </Row>
     </Card>

@@ -4,7 +4,7 @@ import { history, Link, useModel } from 'umi';
 import ProLayout from '@ant-design/pro-layout';
 
 import RightContent from '@/components/RightContent';
-import Footer from '@/components/Footer';
+//import Footer from '@/components/Footer';
 
 import logoNormal from '../assets/logo.svg';
 import { ApolloProvider } from '@apollo/client';
@@ -31,7 +31,6 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
         {...props}
         rightContentRender={() => <RightContent />}
         title="TOULOUSE"
-        footerRender={() => <Footer />}
         onPageChange={() => {
           const { location } = history;
           if (!initialState?.currentUser && location.pathname !== loginPath) {
