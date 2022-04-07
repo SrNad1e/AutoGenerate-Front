@@ -6,7 +6,7 @@ import proxy from './proxy';
 
 const {
   REACT_APP_ENV,
-  API_URL = 'http://localhost:8080/graphql',
+  API_URL = 'http://192.168.70.254:8080/graphql',
   CDN_URL = 'http://cdn.toulouse.com.co',
   FORMAT_DATE = 'DD/MM/YYYY HH:mm:ss',
   FORMAT_DATE_API = 'YYYY/MM/DD',
