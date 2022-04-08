@@ -1,7 +1,7 @@
 declare namespace SIZE {
   type Size = {
-    _id: string;
-    value: string;
+    _id?: string;
+    value?: string;
   };
 
   type ResponsePaginate = {

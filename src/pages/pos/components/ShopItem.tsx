@@ -1,14 +1,9 @@
-import Icon from '@ant-design/icons';
+import { BarcodeOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Input, Row } from 'antd';
 import Text from 'antd/lib/typography/Text';
-import React from 'react';
 import numeral from 'numeral';
 
-export type Props = {
-  product: Partial<PRODUCT.Product>;
-};
-
-const ShopItems = ({ product }: Props) => {
+const ShopItem = (product: PRODUCT.Product) => {
   return (
     <Card
       style={{ borderRadius: 5, minHeight: 380, margin: 10 }}
@@ -68,7 +63,7 @@ const ShopItems = ({ product }: Props) => {
           </Row>
           <Row>
             <Col span={4}>
-              <Icon type="barcode" />
+              <BarcodeOutlined />
             </Col>
             <Col span={20} style={{ display: 'flex', justifyContent: 'right' }}>
               <Text style={{ fontSize: 14 }}>{product?.barcode}</Text>
@@ -78,46 +73,52 @@ const ShopItems = ({ product }: Props) => {
           <Row
             style={{ fontSize: 20, display: 'flex', justifyContent: 'center', marginBottom: 10 }}
           >
-            {product.stock ? (
-              product?.stock[0].quantity > 0 ? (
-                <Row>
-                  <Col span={10}>
-                    <Text style={{ fontWeight: 'bold' }}>Unidades Disponibles</Text>
-                  </Col>
-                  <Col span={14} style={{ fontSize: 30, display: 'flex', justifyContent: 'right' }}>
-                    <Text>{product.stock[0].quantity}</Text>
-                  </Col>
-                  <Input
-                    min={1}
-                    value={product.stock[0].quantity}
-                    onChange={(e: any) => e.target.value}
-                    style={{
-                      width: 60,
-                      fontSize: 30,
-                      marginTop: 20,
-                      height: 'auto',
-                      textAlign: 'center',
-                    }}
-                  />
-                </Row>
-              ) : (
-                <Text
+            {((product?.stock && product?.stock[0]?.quantity) || 0) > 0 ? (
+              <Row>
+                <Col span={14}>
+                  <Text style={{ fontWeight: 'bold' }}>Unidades Disponibles</Text>
+                </Col>
+                <Col span={10} style={{ fontSize: 30, display: 'flex', justifyContent: 'right' }}>
+                  <Text>{product?.stock && product?.stock[0].quantity}</Text>
+                </Col>
+                <Input
+                  min={1}
+                  value={product?.stock && product?.stock[0].quantity}
+                  onChange={(e: any) => e.target.value}
                   style={{
-                    width: 70,
+                    display: 'flex',
+                    width: 60,
                     fontSize: 30,
-                    marginTop: 25,
-                    marginBottom: 25,
-                    lineHeight: 1.4,
+                    marginTop: 20,
+                    textAlign: 'center',
+                    left: 70,
                   }}
-                >
-                  SIN STOCK
-                </Text>
-              )
-            ) : undefined}
+                />
+              </Row>
+            ) : (
+              <Text
+                style={{
+                  fontSize: 30,
+                  marginTop: 25,
+                  marginBottom: 25,
+                  lineHeight: 1.4,
+                  paddingTop: 20,
+                }}
+              >
+                SIN STOCK
+              </Text>
+            )}
           </Row>
-          <Row style={{ fontSize: 20, display: 'flex', justifyContent: 'center' }}>
+          <Row
+            style={{
+              fontSize: 20,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
             <Button
-              disabled={product.stock ? !(product.stock[0].quantity > 0) : undefined}
+              disabled={!(((product?.stock && product?.stock[0]?.quantity) || 0) > 0)}
               style={{ width: '80%' }}
               type="primary"
               onClick={() => {}}
@@ -131,4 +132,4 @@ const ShopItems = ({ product }: Props) => {
   );
 };
 
-export default ShopItems;
+export default ShopItem;

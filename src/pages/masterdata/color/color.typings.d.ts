@@ -1,9 +1,9 @@
 declare namespace COLOR {
   type Color = {
-    _id: string;
-    name: string;
-    html: string;
-    name_internal: string;
+    _id?: string;
+    name?: string;
+    html?: string;
+    name_internal?: string;
   };
 
   type ResponsePaginate = {

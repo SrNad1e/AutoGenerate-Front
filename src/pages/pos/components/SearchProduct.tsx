@@ -1,16 +1,35 @@
 import { BarcodeOutlined, DeleteFilled } from '@ant-design/icons';
 import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Popconfirm, Row } from 'antd';
-import { useState } from 'react';
-import ShopItems from './ShopItems';
+import ShopItem from './ShopItem';
 
 const FormItem = Form.Item;
 
 const SearchProduct = () => {
-  const [product] = useState<Partial<PRODUCT.Product>>({});
+  const product: PRODUCT.Product = {
+    description: 'Cachetero esmeralda',
+    stock: [
+      {
+        quantity: 3,
+        warehouse: {
+          name: 'Bodega 1',
+        },
+      },
+    ],
+    price: 8000,
+    barcode: '7700000471390',
+    color: {
+      name: 'Estampado',
+    },
+    size: {
+      value: 'XL',
+    },
+    reference: '2020',
+  };
+
   return (
     <div style={{ height: '95vh' }}>
       <Card bordered size="small">
-        <Row>
+        <Row style={{ height: 30 }}>
           <Form layout="vertical">
             <Col span={24} style={{ display: 'flex', height: 30 }}>
               <BarcodeOutlined style={{ fontSize: 25, paddingTop: 2 }} />
@@ -24,38 +43,46 @@ const SearchProduct = () => {
               </FormItem>
               <Col span={4} style={{ display: 'flex', marginTop: 5, marginLeft: 10 }}>
                 <Checkbox>Sin Stock</Checkbox>
+                <Col span={2} style={{ marginLeft: 10, bottom: 5 }}>
+                  <FormItem>
+                    <InputNumber min={1} size="small" style={{ width: 50 }} />
+                  </FormItem>
+                </Col>
               </Col>
-              <Col span={2} style={{ display: 'flex' }}>
-                <FormItem>
-                  <InputNumber min={1} size="small" style={{ width: 50 }} />
-                </FormItem>
-              </Col>
-              <Col span={2} style={{ height: 30, marginRight: 20 }}>
+              <Col span={4} style={{ marginLeft: 25 }}>
                 <FormItem>
                   <Button size="small" htmlType="submit" type="primary">
                     Agregar
                   </Button>
                 </FormItem>
               </Col>
-              <Col span={2} style={{ display: 'flex' }}>
-                <Popconfirm
-                  title="¿Estás seguro que deseas cancelar el carrito?"
-                  onConfirm={() => history.back()}
-                  okText="Si, cancelar"
-                  cancelText="No"
-                >
-                  <Button danger type="primary" icon={<DeleteFilled />}>
-                    Cancelar
-                  </Button>
-                </Popconfirm>
-              </Col>
             </Col>
           </Form>
+          <Col
+            span={24}
+            style={{
+              display: 'flex',
+              position: 'relative',
+              justifyContent: 'flex-end',
+              bottom: 30,
+            }}
+          >
+            <Popconfirm
+              title="¿Estás seguro que deseas cancelar el carrito?"
+              onConfirm={() => history.back()}
+              okText="Si, cancelar"
+              cancelText="No"
+            >
+              <Button danger type="primary" style={{ borderRadius: 10 }} icon={<DeleteFilled />}>
+                Cancelar
+              </Button>
+            </Popconfirm>
+          </Col>
         </Row>
       </Card>
       <Row>
         <Col xxl={8} lg={12}>
-          <ShopItems product={product} />
+          <ShopItem {...product} />
         </Col>
       </Row>
     </div>
