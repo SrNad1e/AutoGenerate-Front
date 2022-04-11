@@ -7,7 +7,7 @@ import {
 import { Card, Row, Typography, Col, Tooltip } from 'antd';
 //import { Link } from 'umi'
 
-import style from './styles.less';
+//import style from './styles.less';
 
 export type PropsCardSave = {
   order: ORDER.Order;
@@ -60,7 +60,7 @@ const CardSave = () => {
       <Row style={{ marginTop: 10 }}>
         <Col span={3}>
           <Tooltip title={'Fecha de creacion'}>
-            <IconCalendar className={style.icon} type="icon-Calendar_dates" />
+            <IconCalendar style={{ fontSize: 25 }} type="icon-Calendar_dates" />
           </Tooltip>
         </Col>
         <Col span={9}>

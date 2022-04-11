@@ -23,6 +23,7 @@ import numeral from 'numeral';
 import { useState } from 'react';
 //import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import ModalChangeClient from './ModalChangeClient';
+import ModalPayment from './ModalPayment';
 
 const { Title, Text } = Typography;
 
@@ -40,6 +41,7 @@ const Resumen = ({ order }: Props) => {
     visible: false
   });*/
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalPaymentVisible, setModalPaymentVisible] = useState(false);
 
   /* const onChangeQuantity = (product: Partial<ORDER.DetailOrder>) => {
     if (product?.quantity) {
@@ -53,6 +55,9 @@ const Resumen = ({ order }: Props) => {
     setModalVisible(false);
   };
 
+  const onCloseModalPayment = () => {
+    setModalPaymentVisible(false);
+  };
   //const deleteProduct
 
   return (
@@ -246,8 +251,8 @@ const Resumen = ({ order }: Props) => {
             </Col>
             <Col span={24} style={{ bottom: 10 }}>
               <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <Title level={5}>{order?.customer?.documentType?.abbreviation}</Title>
-                <Text>{order?.customer?.document}</Text>
+                <Title level={5}>{order?.customer?.documentType?.abbreviation} </Title>
+                <Text strong>{order?.customer?.document}</Text>
               </div>
             </Col>
           </Row>
@@ -317,48 +322,38 @@ const Resumen = ({ order }: Props) => {
         </Col>
         <Col span={24}>
           <Row>
-            <Col span={8} style={{ display: 'flex', alignItems: 'center', padding: 15 }}>
+            <Col span={8} style={{ display: 'flex', padding: 15 }}>
               <Button
                 icon={<DollarOutlined />}
                 type="primary"
                 style={{ fontSize: 25, width: 'auto', height: 60, top: 20 }}
-                onClick={() => {}}
+                onClick={() => setModalPaymentVisible(true)}
               >
                 PAGAR
               </Button>
             </Col>
-          </Row>
-          <Col span={12} style={{ display: 'flex', justifyContent: 'right', bottom: 50 }}>
             <Button
               shape="round"
               icon={<PlusOutlined />}
               size="small"
               type="primary"
-              style={{ backgroundColor: 'white', color: '#dc9575', width: 200, left: 170 }}
+              style={{ backgroundColor: 'white', color: '#dc9575', left: 50, top: 35, width: 150 }}
             >
               Agregar Envio
             </Button>
-          </Col>
-          <Col
-            span={12}
-            style={{
-              display: 'flex',
-              justifyContent: 'right',
-              bottom: 40,
-            }}
-          >
             <Button
               shape="round"
               icon={<PrinterOutlined />}
               size="small"
               type="primary"
-              style={{ backgroundColor: 'white', color: '#dc9575', width: 200, left: 170 }}
+              style={{ backgroundColor: 'white', color: '#dc9575', right: 80, top: 70, width: 100 }}
             >
               Imprimir
             </Button>
-          </Col>
+          </Row>
         </Col>
       </Row>
+      <ModalPayment visible={modalPaymentVisible} order={order} onCancel={onCloseModalPayment} />
       <ModalChangeClient visible={modalVisible} onCancel={closeModal} />
     </Card>
   );
