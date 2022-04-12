@@ -82,8 +82,8 @@ export const ORDER = gql`
   }
 `;
 
-export const ORDERS = gql`
-  query Orders($id: String!) {
+export const ORDERSBYPOS = gql`
+  query OrdersByPos($id: String!) {
     ordersByPointOfSale(idPointOfSale: $id) {
       _id
       createdAt

@@ -1,12 +1,8 @@
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { Card, Col, Layout, Row } from 'antd';
+import { Card, Col, Row } from 'antd';
 import { useState } from 'react';
 import OrderSave from '../components/OrderSave';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-//import { CloseCircleOutlined } from "@ant-design/icons";
-//import { Content } from "antd/lib/layout/layout";
-
-//const { Title } = Typography;
 
 const PosList = () => {
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
@@ -14,6 +10,7 @@ const PosList = () => {
     type: 'error',
     visible: false,
   });
+  //const [orders, setOrders] = useState<Partial<ORDER.Order[]>>([])
 
   const onCloseAlert = () => {
     setPropsAlert({
@@ -23,21 +20,17 @@ const PosList = () => {
     });
   };
 
-  /*const newOrder = () => {
-
-  }*/
-
   return (
     <>
-      <Layout style={{ width: '100%', position: 'relative', alignItems: 'end' }}>
-        <Card style={{ width: '70%' }}></Card>
-      </Layout>
-      <Row style={{ height: '93vh' }}>
+      <Row style={{ height: '95vh' }}>
         <Col span={24}>
-          <OrderSave newOrder={() => {}} />
+          <OrderSave />
         </Col>
-        <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
+        <Col span={24} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Card style={{ height: '80%', width: '100%', marginBottom: 200 }}>Estadisticas</Card>
+        </Col>
       </Row>
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </>
   );
 };

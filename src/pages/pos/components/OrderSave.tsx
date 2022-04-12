@@ -1,53 +1,55 @@
-import { Button, Card, Row, Tooltip, Typography } from 'antd';
+import { Button, Card, Row } from 'antd';
 import Col from 'antd/es/grid/col';
-//import { apiUrl } from '@/../config/defaultSettings';
-//import { useState, useEffect } from 'react';
-//import request from '@/utils/request';
-//import { stringify } from 'qs';
-import {
-  BorderlessTableOutlined,
-  DollarOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import Title from 'antd/lib/typography/Title';
+import { useState } from 'react';
+import { ShoppingCartOutlined } from '@ant-design/icons';
+import { useHistory } from 'umi';
+import CardSave from './CardSave';
+import { useCreateOrder } from '@/hooks/order.hooks';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import AlertLoading from '@/components/Alerts/AlertLoading';
+//import { PropsCardSave as Props } from './CardSave';
 
-const { Text } = Typography;
+const OrderSave = () => {
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    visible: false,
+    type: 'error',
+  });
 
-export type PropsOrderSave = {
-  newOrder: () => void;
-};
+  const history = useHistory();
 
-const OrderSave = ({ newOrder }: PropsOrderSave) => {
-  //const [OrdersOpen, setOrdersOpen] = useState([]);
-  //const [OrdersReserved, setOrdersReserved] = useState([]);
-
-  /**
-   * obtiene los carritos
-   */
-  /*const getCarts = async () => {
-    const paramsOpen = {
-      status: 'open',
-      $limit: 50,
-    };
-    const responseOpen = (paramsOpen);
-    if (!responseOpen) {
-      setOrdersOpen(responseOpen);
-    }
-
-    const paramsReserved = {
-      status: 'reserved',
-      $limit: 50,
-    };
-    const responseReserved = (paramsReserved);
-    if (!responseReserved) {
-      setOrdersReserved(responseReserved);
-    }
+  const resultGetOrder = (data: Partial<ORDER.Order>) => {
+    history.push(`/pos/${data._id}`);
   };
 
-  useEffect(() => {
-    getCarts();
-  }, []);*/
+  const closeAlert = () => {
+    setPropsAlert({
+      message: '',
+      visible: false,
+      type: 'error',
+    });
+  };
+
+  const showError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  const { createOrder, loading } = useCreateOrder(resultGetOrder, showError);
+
+  const newOrder = () => {
+    createOrder({
+      variables: {
+        input: {
+          status: 'open',
+        },
+      },
+    });
+  };
 
   return (
     <Row style={{ padding: 50 }}>
@@ -71,49 +73,12 @@ const OrderSave = ({ newOrder }: PropsOrderSave) => {
                 </Col>
               </Row>
             </Card>
-            <Card hoverable style={{ borderRadius: '10px', borderColor: '#dc9575', marginTop: 30 }}>
-              <Row style={{ display: 'flex', alignItems: 'center' }}>
-                <Col span={3}>
-                  <Tooltip title={'Fecha de creacion'}>
-                    <ShoppingCartOutlined style={{ fontSize: 25 }} />
-                  </Tooltip>
-                </Col>
-                <Col span={9}>
-                  <Text>31/03/2022</Text>
-                </Col>
-                <Col span={3}>
-                  <Tooltip title={'Cliente'}>
-                    <UserOutlined style={{ fontSize: 25 }} />
-                  </Tooltip>
-                </Col>
-                <Col span={9}>
-                  <Text>Jose Luis - CC. 1007512311</Text>
-                </Col>
-              </Row>
-              <Row style={{ display: 'flex' }}>
-                <Col span={3}>
-                  <Tooltip title={'Numero de pedido'}>
-                    <BorderlessTableOutlined style={{ fontSize: '25px' }} />
-                  </Tooltip>
-                </Col>
-                <Col span={9}>
-                  <Text>Pedido No.1</Text>
-                </Col>
-                <Col span={3}>
-                  <Tooltip title={'Valor del pedido'}>
-                    <DollarOutlined style={{ fontSize: '25px' }} />
-                  </Tooltip>
-                </Col>
-                <Col span={9} style={{}}>
-                  <Title level={5} style={{}}>
-                    $50.000
-                  </Title>
-                </Col>
-              </Row>
-            </Card>
+            <CardSave />
           </Col>
         </Row>
       </Col>
+      <AlertInformation {...propsAlert} onCancel={closeAlert} />
+      <AlertLoading message="Cargando pedido" visible={loading} />
     </Row>
   );
 };

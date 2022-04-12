@@ -2,7 +2,7 @@ declare namespace INVOICE {
   type Invoice = {
     id: string;
     active: boolean;
-    authorization: AuthorizationDian;
+    authorization: AUTHORIZATION.AuthorizationDian;
     createdAt: Date;
     updatedAt: Date;
     customer: CUSTOMER.Customer;
@@ -12,11 +12,6 @@ declare namespace INVOICE {
     shop: SHOP.Shop;
     summary: SummaryInvoice;
     user: USER.User;
-  };
-
-  type AuthorizationDian = {
-    id: string;
-    prefix: string;
   };
 
   type DetailInvoice = {
