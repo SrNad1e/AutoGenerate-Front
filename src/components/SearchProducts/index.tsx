@@ -12,10 +12,10 @@ export type Props = {
   barcode?: boolean;
   validateStock?: boolean;
   quantity?: number;
-  details: Partial<Detail[]>;
+  details?: Partial<Detail[]>;
   warehouseId: string | undefined;
   createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
-  updateDetail: (productId: string, quantity: number) => void;
+  updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
   deleteDetail: (productId: string) => void;
 };
 
@@ -52,7 +52,7 @@ const SearchProducts = ({
     if (product) {
       const exist = details.find((item) => item?.product?._id === product._id);
       if (exist) {
-        updateDetail(product._id, exist.quantity + (quantity || 1));
+        updateDetail(product, exist.quantity + (quantity || 1));
       } else {
         createDetail(product, quantity || 1);
       }
