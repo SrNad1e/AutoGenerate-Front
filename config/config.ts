@@ -4,13 +4,13 @@ import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 
-const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API, COMPANY } = process.env;
+const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API, COMPANY_ID } = process.env;
 
 export default defineConfig({
   define: {
     API_URL,
     CDN_URL,
-    COMPANY,
+    COMPANY_ID,
     FORMAT_DATE,
     FORMAT_DATE_API,
   },

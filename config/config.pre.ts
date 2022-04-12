@@ -9,7 +9,7 @@ export default defineConfig({
   define: {
     API_URL: 'http://localhost:8080/graphql',
     CDN_URL: 'http://cdn.toulouse.com.co',
-    COMPANY: 'Cirotex',
+    COMPANY_ID: '62503250f035862fa3925f70',
     FORMAT_DATE: 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: 'YYYY/MM/DD',
   },
