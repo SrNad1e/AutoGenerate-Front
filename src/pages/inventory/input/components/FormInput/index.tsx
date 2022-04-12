@@ -133,18 +133,18 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
         setPropsAlertSave({
           status,
           visible: true,
-          message: '¿Está seguro que desea cancelar la salida?',
+          message: '¿Está seguro que desea cancelar la entrada?',
           type: 'error',
         });
       } else if (details.length > 0) {
         setPropsAlertSave({
           status,
           visible: true,
-          message: '¿Está seguro que desea guardar la salida?',
+          message: '¿Está seguro que desea guardar la entrada?',
           type: 'warning',
         });
       } else {
-        onShowInformation('La salida no tiene productos');
+        onShowInformation('La entrada no tiene productos');
       }
     } else {
       onShowInformation('No se encontraron cambios en la entrada');
@@ -247,7 +247,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
             };
           }
           return detail;
-        }),
+        }) || [],
       );
     }
   };
