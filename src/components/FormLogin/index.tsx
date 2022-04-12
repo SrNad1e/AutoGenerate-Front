@@ -72,7 +72,7 @@ const FormLogin = () => {
    * @returns void
    */
   const handleSubmit = async (formData: USER.LoginParams): Promise<boolean | void> => {
-    await login({ variables: { input: formData } });
+    await login({ variables: { input: { ...formData, companyId: COMPANY_ID } } });
     return loading;
   };
 
