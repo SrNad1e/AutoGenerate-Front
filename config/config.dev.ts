@@ -7,7 +7,7 @@ export default defineConfig({
     'react-dev-inspector/plugins/umi/react-inspector',
   ],
   define: {
-    API_URL: 'https://api-graphql.t0n53eq7nj176.us-east-1.cs.amazonlightsail.com/graphql',
+    API_URL: 'http://localhost:8080/graphql',
     CDN_URL: 'http://cdn.toulouse.com.co',
     FORMAT_DATE: 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: 'YYYY/MM/DD',
