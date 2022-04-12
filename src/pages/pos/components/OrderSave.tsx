@@ -1,50 +1,55 @@
 import { Button, Card, Row } from 'antd';
 import Col from 'antd/es/grid/col';
-//import { apiUrl } from '@/../config/defaultSettings';
-//import { useState, useEffect } from 'react';
-//import request from '@/utils/request';
-//import { stringify } from 'qs';
+import { useState } from 'react';
 import { ShoppingCartOutlined } from '@ant-design/icons';
 import { useHistory } from 'umi';
 import CardSave from './CardSave';
+import { useCreateOrder } from '@/hooks/order.hooks';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import AlertLoading from '@/components/Alerts/AlertLoading';
+//import { PropsCardSave as Props } from './CardSave';
 
-//const { Text } = Typography;
-
-export type PropsOrderSave = {
-  newOrder: () => void;
-};
-
-const OrderSave = ({ newOrder }: PropsOrderSave) => {
-  /*const [OrdersOpen, setOrdersOpen] = useState([]);
-  const [OrdersReserved, setOrdersReserved] = useState([]);*/
+const OrderSave = () => {
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    visible: false,
+    type: 'error',
+  });
 
   const history = useHistory();
-  /**
-   * obtiene los carritos
-   */
-  /*const getCarts = async () => {
-    const paramsOpen = {
-      status: 'open',
-      $limit: 50,
-    };
-    const responseOpen = (paramsOpen);
-    if (!responseOpen) {
-      setOrdersOpen(responseOpen);
-    }
 
-    const paramsReserved = {
-      status: 'reserved',
-      $limit: 50,
-    };
-    const responseReserved = (paramsReserved);
-    if (!responseReserved) {
-      setOrdersReserved(responseReserved);
-    }
+  const resultGetOrder = (data: Partial<ORDER.Order>) => {
+    history.push(`/pos/${data._id}`);
   };
 
-  useEffect(() => {
-    getCarts();
-  }, []);*/
+  const closeAlert = () => {
+    setPropsAlert({
+      message: '',
+      visible: false,
+      type: 'error',
+    });
+  };
+
+  const showError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  const { createOrder, loading } = useCreateOrder(resultGetOrder, showError);
+
+  const newOrder = () => {
+    createOrder({
+      variables: {
+        input: {
+          status: 'open',
+        },
+      },
+    });
+  };
 
   return (
     <Row style={{ padding: 50 }}>
@@ -62,12 +67,7 @@ const OrderSave = ({ newOrder }: PropsOrderSave) => {
                   <ShoppingCartOutlined style={{ fontSize: 50, color: '#dc9575' }} />
                 </Col>
                 <Col span={15}>
-                  <Button
-                    shape="round"
-                    style={{ width: '100%', height: 50 }}
-                    type="primary"
-                    onClick={() => history.push('/pos/123456')}
-                  >
+                  <Button shape="round" style={{ width: '100%', height: 50 }} type="primary">
                     Nuevo Pedido
                   </Button>
                 </Col>
@@ -77,6 +77,8 @@ const OrderSave = ({ newOrder }: PropsOrderSave) => {
           </Col>
         </Row>
       </Col>
+      <AlertInformation {...propsAlert} onCancel={closeAlert} />
+      <AlertLoading message="Cargando pedido" visible={loading} />
     </Row>
   );
 };

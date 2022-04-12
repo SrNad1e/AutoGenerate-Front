@@ -4,6 +4,7 @@ import Resumen from '../components/Resumen';
 //import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 //import { useGetOrder } from "@/hooks/order.hooks";
 import SearchProduct from '../components/SearchProduct';
+//import { useParams } from 'umi';
 
 const PosNew = () => {
   const [order, setOrder] = useState<Partial<ORDER.Order>>({
@@ -19,21 +20,22 @@ const PosNew = () => {
       },
     },
   });
-  /* const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+  /*const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
-*/
-  /* const onShowError = (message: string) => {
+
+
+  const onShowError = (message: string) => {
     setPropsAlert({
       message,
       type: 'error',
       visible: true,
     });
-  };*/
+  };
 
-  /*const onCloseAlert = () => {
+ /* const onCloseAlert = () => {
     setPropsAlert({
       message: '',
       type: 'error',
@@ -48,9 +50,9 @@ const PosNew = () => {
 
   const showError = (message: string) => {
     onShowError(message)
-  };
+  };*/
 
-  const { getOrder, loadingGetOne } = useGetOrder(currentOrder, showError);*/
+  //const { getOrder, loadingGetOne } = useGetOrder(currentOrder, showError);
 
   return (
     <Row style={{ height: '90vh' }}>

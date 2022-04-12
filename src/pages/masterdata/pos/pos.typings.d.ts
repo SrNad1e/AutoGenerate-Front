@@ -1,6 +1,6 @@
 declare namespace POS {
   type PointOfSale = {
-    id: string;
+    _id: string;
     authorization: AUTHORIZATION.AuthorizationDian;
     createdAt: Date;
     updatedAt: Date;

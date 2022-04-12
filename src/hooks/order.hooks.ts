@@ -1,9 +1,14 @@
-import { CREATEORDER, UPDATEORDER } from '@/graphql/mutations/order.mutations';
+import {
+  ADDPAYMENTSORDER,
+  APPPRODUCTSORDER,
+  CREATEORDER,
+  UPDATEORDER,
+} from '@/graphql/mutations/order.mutations';
 import { ORDER, ORDERSBYPOS } from '@/graphql/queries/order.queries';
 import { useLazyQuery, useMutation } from '@apollo/client';
 
 export const useGetOrder = (
-  callback: (data: Partial<ORDER.Order>) => void,
+  callback: (data: Partial<ORDER.Order[]>) => void,
   showError: (message: string) => void,
 ) => {
   const [getOrder, { loading }] = useLazyQuery(ORDER, {
@@ -70,6 +75,42 @@ export const useUpdateOrder = (
   });
   return {
     updateOrder,
+    loading,
+  };
+};
+
+export const useAddPaymentsOrder = (
+  callback: (data: Partial<ORDER.Order>) => void,
+  showError: (message: string) => void,
+) => {
+  const [addPaymentsOrder, { loading }] = useMutation(ADDPAYMENTSORDER, {
+    onCompleted: (result) => callback(result?.addPaymentsOrder),
+    onError: ({ graphQLErrors }) => {
+      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+
+      showError(message ?? 'Error en la consulta');
+    },
+  });
+  return {
+    addPaymentsOrder,
+    loading,
+  };
+};
+
+export const useAddProductsOrder = (
+  callback: (data: Partial<ORDER.Order>) => void,
+  showError: (message: string) => void,
+) => {
+  const [addProductsOrder, { loading }] = useMutation(APPPRODUCTSORDER, {
+    onCompleted: (result) => callback(result?.addProductsOrder),
+    onError: ({ graphQLErrors }) => {
+      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+
+      showError(message ?? 'Error en la consulta');
+    },
+  });
+  return {
+    addProductsOrder,
     loading,
   };
 };

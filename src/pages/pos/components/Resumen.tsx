@@ -35,7 +35,7 @@ export type Props = {
 };
 
 const Resumen = ({ order }: Props) => {
-  /*const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+  /* const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'warning',
     visible: false
@@ -43,7 +43,7 @@ const Resumen = ({ order }: Props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false);
 
-  /* const onChangeQuantity = (product: Partial<ORDER.DetailOrder>) => {
+  /*const onChangeQuantity = (product: Partial<ORDER.DetailOrder>) => {
     if (product?.quantity) {
       if (product?.quantity > 0) {
         addProduct(product, true)
@@ -153,8 +153,8 @@ const Resumen = ({ order }: Props) => {
               >
                 <InputNumber
                   /*onChange={(e: any) =>
-                    onChangeQuantity({ ...item, _id: item.product._id,  stock: e })
-                  }*/
+                      onChangeQuantity({ ...product, _id:product.product._id , stock: e })
+                    }*/
                   min={1}
                   style={{ width: 50 }}
                   value={10}

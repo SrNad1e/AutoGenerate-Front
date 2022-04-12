@@ -24,7 +24,7 @@ const PosList = () => {
     <>
       <Row style={{ height: '95vh' }}>
         <Col span={24}>
-          <OrderSave newOrder={() => {}} />
+          <OrderSave />
         </Col>
         <Col span={24} style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Card style={{ height: '80%', width: '100%', marginBottom: 200 }}>Estadisticas</Card>

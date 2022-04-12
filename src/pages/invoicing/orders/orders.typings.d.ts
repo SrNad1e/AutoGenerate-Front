@@ -1,18 +1,18 @@
 declare namespace ORDER {
   type Order = {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    customer: CUSTOMER.Customer;
-    details: DetailOrder[];
-    invoice: INVOICE.Invoice;
-    number: number;
-    payments: PaymentOrder[];
-    pointOfSale: POS.PointOfSale;
-    shop: SHOP.Shop;
-    status: string;
-    summary: SummaryOrder;
-    user: USER.User;
+    _id?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    customer?: CUSTOMER.Customer;
+    details?: DetailOrder[];
+    invoice?: INVOICE.Invoice;
+    number?: number;
+    payments?: PaymentOrder[];
+    pointOfSale?: POS.PointOfSale;
+    shop?: SHOP.Shop;
+    status?: string;
+    summary?: SummaryOrder;
+    user?: USER.User;
   };
 
   type DetailOrder = {

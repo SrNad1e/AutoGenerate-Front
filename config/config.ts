@@ -4,12 +4,13 @@ import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 
-const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API } = process.env;
+const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API, COMPANY } = process.env;
 
 export default defineConfig({
   define: {
     API_URL,
     CDN_URL,
+    COMPANY,
     FORMAT_DATE,
     FORMAT_DATE_API,
   },
@@ -67,7 +68,7 @@ export default defineConfig({
           component: './pos/list',
         },
         {
-          path: '/pos/123456',
+          path: '/pos/:id',
           component: './pos/new',
         },
       ],
