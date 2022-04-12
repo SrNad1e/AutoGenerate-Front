@@ -56,6 +56,19 @@ export default defineConfig({
       ],
     },
     {
+      path: '/pos',
+      component: '../layouts/POSLayout',
+      layout: false,
+      routes: [
+        {
+          path: '/pos',
+          name: 'POS',
+          icon: 'shop',
+          component: './pos/list',
+        },
+      ],
+    },
+    {
       path: '/',
       component: '../layouts/GeneralLayout',
       layout: false,

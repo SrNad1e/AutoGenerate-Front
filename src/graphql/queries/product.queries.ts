@@ -31,8 +31,14 @@ export const PRODUCTS = gql`
 export const PRODUCT = gql`
   query product($input: FiltersProductInput!) {
     product(filtersProductInput: $input) {
+      stock {
+        quantity
+      }
       _id
       barcode
+      stock {
+        quantity
+      }
       color {
         name_internal
         html
