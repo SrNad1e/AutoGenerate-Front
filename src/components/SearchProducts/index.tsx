@@ -5,6 +5,8 @@ import { useState, useRef, useEffect } from 'react';
 
 import type { Detail, Props as PropsModal } from './Modal';
 import ModalSearchProducts from './Modal';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const { Search } = Input;
 
@@ -31,16 +33,37 @@ const SearchProducts = ({
 }: Props) => {
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState<string | undefined>();
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
 
   const searchRef = useRef(null);
 
+  const onShowModalError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  const onCloseAlert = () => {
+    setPropsAlert({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
   /**
-   * @description maneja el error de la consulta
+   * @description manejap el error de la consulta
    * @param message error que genera al consulta
    */
   const showError = (message: string) => {
     if (message) {
-      setError('Producto no existe');
+      onShowModalError(message);
     }
   };
 
@@ -56,6 +79,8 @@ const SearchProducts = ({
       } else {
         createDetail(product, quantity || 1);
       }
+    } else {
+      setError('Producto no existe');
     }
     searchRef?.current?.select();
   };
@@ -116,6 +141,7 @@ const SearchProducts = ({
         }
         style={{ width: '100%' }}
       />
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <ModalSearchProducts {...propsModal} />
       {error && <Alert type="warning" message={error} showIcon />}
     </>
