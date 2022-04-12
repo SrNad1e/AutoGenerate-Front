@@ -56,6 +56,7 @@ const AlertInformation = ({
 
   return (
     <Modal
+      style={{ justifyContent: 'center' }}
       bodyStyle={style.bodyStyle}
       centered={true}
       closable={false}
@@ -68,7 +69,9 @@ const AlertInformation = ({
           {icon}
         </Col>
         <Col span={24} style={style.col}>
-          <Title level={3}>{message}</Title>
+          <Title level={3} style={{ padding: 20 }}>
+            {message}
+          </Title>
         </Col>
         <Col span={24}>
           <Button onClick={onClick} color={color} type="primary" size="large" style={style.button}>

@@ -1,6 +1,6 @@
 import { Modal, Space, Typography } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import styles from './index.less';
+import styles from './styles.less';
 
 const { Title } = Typography;
 
@@ -17,8 +17,6 @@ const AlertLoading = ({ message, visible }: Props) => {
       closable={false}
       footer={false}
       visible={visible}
-      width={500}
-      bodyStyle={{ height: 250 }}
     >
       <Space direction="vertical" className={styles.content}>
         <LoadingOutlined className={styles.icon} />

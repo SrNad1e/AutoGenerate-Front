@@ -45,7 +45,7 @@ const AlertSave = ({ message, visible, onOk, onCancel, type, status }: Props) =>
   };
 
   return (
-    <Modal centered={true} closable={false} footer={false} visible={visible} width={500}>
+    <Modal centered={true} closable={false} footer={false} visible={visible}>
       <Row gutter={[15, 16]} justify="center" align="middle">
         <Col span={24} className={styles.centerCol}>
           {icon}
