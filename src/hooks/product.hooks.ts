@@ -21,10 +21,12 @@ export const useGetProducts = (
 };
 
 export const useGetProduct = (
-  callback: (data: { product: PRODUCT.Product; quantity: number }) => void,
+  callback: (product: PRODUCT.Product) => void,
   showError: (message: string) => void,
 ) => {
-  const [getProduct, { loading }] = useLazyQuery(PRODUCT, {
+  const [getProduct, { loading, refetch }] = useLazyQuery(PRODUCT, {
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
     onCompleted: (result) => callback(result?.product),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
@@ -35,5 +37,6 @@ export const useGetProduct = (
   return {
     getProduct,
     loading,
+    refetch,
   };
 };

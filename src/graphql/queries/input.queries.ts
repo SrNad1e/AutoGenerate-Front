@@ -1,44 +1,40 @@
 import { gql } from '@apollo/client';
 
-export const REQUEST = gql`
-  query stockRequest($id: String!) {
-    stockRequestId(id: $id) {
+export const INPUT = gql`
+  query stockInput($id: String!) {
+    stockInputId(id: $id) {
       _id
       createdAt
+      updatedAt
+      total
+      status
+      observation
+      number
       details {
+        quantity
         product {
           _id
           barcode
+          description
+          reference
           cost
+          color {
+            image
+            html
+            name_internal
+          }
           stock {
             quantity
           }
-          color {
-            html
-            image
-            name_internal
-            name
-          }
-          description
-          reference
           size {
             value
           }
         }
-        quantity
       }
-      number
-      observation
-      status
-      updatedAt
       user {
         name
       }
-      observation
-      warehouseDestination {
-        name
-      }
-      warehouseOrigin {
+      warehouse {
         _id
         name
       }
@@ -46,33 +42,31 @@ export const REQUEST = gql`
   }
 `;
 
-export const REQUESTS = gql`
-  query stockRequests($input: FiltersStockRequestInput!) {
-    stockRequests(filtersStockRequestInput: $input) {
+export const INPUTS = gql`
+  query stockInputs($input: FiltersStockInputInput) {
+    stockInputs(filtersStockInputInput: $input) {
       docs {
         _id
         number
-        warehouseOrigin {
-          name
-        }
-        warehouseDestination {
+        warehouse {
           name
         }
         user {
           name
         }
         status
+        total
+        createdAt
+        updatedAt
         details {
           quantity
           product {
             reference
-            cost
             barcode
             description
+            price
+            cost
             color {
-              image
-              html
-              name_internal
               name
               name_internal
             }
@@ -81,8 +75,6 @@ export const REQUESTS = gql`
             }
           }
         }
-        createdAt
-        updatedAt
       }
       totalDocs
       totalPages

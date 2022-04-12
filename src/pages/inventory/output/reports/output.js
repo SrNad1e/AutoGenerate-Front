@@ -1,10 +1,9 @@
-/* eslint-disable react/jsx-key */
-import React from 'react';
 import moment from 'moment';
+import React from 'react';
+import numeral from 'numeral';
 
-import { StatusType } from '../request.data';
-
-import './style.css';
+import { StatusTypeOutput } from '../output.data';
+import './styles.css';
 
 const classes = {
   content: {
@@ -76,7 +75,7 @@ const columnsHeader = [
   <div
     style={{
       ...styleBorders,
-      width: '43%',
+      width: '30%',
       borderBottom: 'none',
       borderLeft: 'none',
       fontWeight: 'bold',
@@ -117,49 +116,45 @@ const columnsHeader = [
   >
     Cantidad
   </div>,
+  <div
+    style={{
+      ...styleBorders,
+      borderLeft: 'none',
+      borderBottom: 'none',
+      width: '13%',
+      fontWeight: 'bold',
+    }}
+  >
+    Total
+  </div>,
 ];
 
-export default class ReportRequest extends React.PureComponent {
+export default class ReportOutput extends React.PureComponent {
   render() {
     const { data } = this.props;
     return (
       <div style={classes.content}>
         <div style={classes.header}>
-          <div style={classes.title}>SOLICITUD DE MERCANCIA</div>
+          <div style={classes.title}>SALIDA DE MERCANCIA</div>
           <div style={classes.title}>No. {data?.number}</div>
           <div style={classes.body}>
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
               <div
-                style={{ ...styleBorders, width: '25%', borderRight: 'none', fontWeight: 'bold' }}
-              >
-                Bodega que solicita
-              </div>
-              <div
                 style={{
                   ...styleBorders,
-                  width: '25%',
-                }}
-              >
-                {data?.warehouseDestination?.name}
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  width: '25%',
-                  borderRight: 'none',
-                  borderLeft: 'none',
+                  width: '50%',
                   fontWeight: 'bold',
                 }}
               >
-                Bodega de despacho
+                Bodega
               </div>
               <div
                 style={{
                   ...styleBorders,
-                  width: '25%',
+                  width: '50%',
                 }}
               >
-                {data?.warehouseOrigin?.name}
+                {data?.warehouse?.name}
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
@@ -181,7 +176,7 @@ export default class ReportRequest extends React.PureComponent {
                   width: '15%',
                 }}
               >
-                {StatusType[data?.status || '']?.label}
+                {StatusTypeOutput[data?.status || '']?.label}
               </div>
               <div
                 style={{
@@ -253,7 +248,7 @@ export default class ReportRequest extends React.PureComponent {
                 <div
                   style={{
                     ...styleBorders,
-                    width: '43%',
+                    width: '30%',
                     borderLeft: 'none',
                     borderBottom: 'none',
                   }}
@@ -289,6 +284,16 @@ export default class ReportRequest extends React.PureComponent {
                   }}
                 >
                   {detail?.quantity}
+                </div>
+                <div
+                  style={{
+                    ...styleBorders,
+                    borderLeft: 'none',
+                    borderBottom: 'none',
+                    width: '13%',
+                  }}
+                >
+                  {numeral(detail?.product?.cost * detail?.quantity).format('$ 0,0')}
                 </div>
               </div>
             ))}
@@ -340,6 +345,33 @@ export default class ReportRequest extends React.PureComponent {
               }}
             >
               {data?.details?.reduce((sum, detail) => sum + detail?.quantity, 0)}
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width: '100%',
+            }}
+          >
+            <div style={{ width: '75%' }} />
+            <div style={{ ...styleBorders, width: '18%', fontWeight: 'bold', borderTop: 'none' }}>
+              Total:
+            </div>
+            <div
+              style={{
+                ...styleBorders,
+                width: '14%',
+                borderLeft: 'none',
+                borderTop: 'none',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                paddingRight: 10,
+              }}
+            >
+              {numeral(
+                data?.details?.reduce((sum, item) => sum + item?.product?.cost * item?.quantity, 0),
+              ).format('$ 0,0')}
             </div>
           </div>
           <div style={{ fontSize: 12, marginTop: 10 }}>Creado por: {data?.user?.name}</div>
