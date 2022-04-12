@@ -232,7 +232,7 @@ const ModalSearchProducts = ({
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => createDetail(product, 1)}
-              disabled={product?.stock[0]?.quantity <= 0}
+              disabled={validateStock ? product?.stock[0]?.quantity === 0 : false}
             />
           </Tooltip>
         );
