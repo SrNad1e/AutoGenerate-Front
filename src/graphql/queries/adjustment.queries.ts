@@ -18,8 +18,6 @@ export const ADJUSTMENT = gql`
         _id
       }
       details {
-        createdAt
-        updateAt
         quantity
         product {
           _id

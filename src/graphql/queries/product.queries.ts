@@ -53,6 +53,9 @@ export const PRODUCT = gql`
         value
       }
       status
+      stock {
+        quantity
+      }
     }
   }
 `;

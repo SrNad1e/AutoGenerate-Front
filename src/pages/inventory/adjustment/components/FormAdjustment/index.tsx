@@ -1,8 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useModel, useParams } from 'umi';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
-import { useCreateAdjustment, useUpdateAdjustment } from '@/hooks/adjustment.hooks';
 import type { ColumnsType } from 'antd/lib/table';
 import Table from 'antd/lib/table';
 import {
@@ -20,13 +15,20 @@ import {
   Typography,
 } from 'antd';
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
-import Header from './header';
-import Footer from './footer';
+
+import { useEffect, useState } from 'react';
+import { useModel, useParams } from 'umi';
+import { useCreateAdjustment, useUpdateAdjustment } from '@/hooks/adjustment.hooks';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
 import SelectProducts from '@/components/SelectProducts';
+import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
+
+import Footer from './footer';
+import Header from './header';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -125,7 +127,11 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
    * @param status estado actual de la entrada
    */
   const showAlertSave = (status?: string) => {
-    if (details.length > 0 || status === 'cancelled' || observation !== adjustment?.observation) {
+    if (
+      details.length > 0 ||
+      status === 'cancelled' ||
+      observation !== (adjustment?.observation || '')
+    ) {
       if (status === 'cancelled') {
         setPropsAlertSave({
           status,
@@ -133,16 +139,18 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
           message: '¿Está seguro que desea cancelar el ajuste?',
           type: 'error',
         });
-      } else {
+      } else if (details.length > 0) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar el ajuste?',
           type: 'warning',
         });
+      } else {
+        onShowInformation('El ajuste no tiene productos');
       }
     } else {
-      onShowInformation('El ajuste no tiene productos');
+      onShowInformation('No se encontraron cambios en el ajuste');
     }
   };
 

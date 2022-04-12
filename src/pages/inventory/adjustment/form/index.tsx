@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useHistory, useModel, useParams } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
 import {
@@ -9,6 +8,7 @@ import {
   PrinterOutlined,
 } from '@ant-design/icons';
 
+import { useHistory, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useGetAdjustment } from '@/hooks/adjustment.hooks';
@@ -35,7 +35,7 @@ const AdjustmentForm = () => {
     status: 'open',
   });
 
-  const { initialState } = useModel('@@initialState');
+  //const { initialState } = useModel('@@initialState');
 
   const { id } = useParams<Partial<{ id: string }>>();
 
@@ -128,13 +128,7 @@ const AdjustmentForm = () => {
   const renderSteps = (step: number) => {
     switch (step) {
       case 0:
-        return (
-          <SelectWarehouseStep
-            warehouseId={initialState?.currentUser?.shop?.defaultWarehouse._id}
-            changeCurrentStep={changeCurrentStep}
-            label="Bodega"
-          />
-        );
+        return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
       case 1:
         return (
           <FormAdjustment
