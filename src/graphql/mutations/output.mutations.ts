@@ -28,8 +28,9 @@ export const UPDATEOUTPUT = gql`
             html
             name_internal
           }
-          description
-          reference
+          reference {
+            description
+          }
           size {
             value
           }

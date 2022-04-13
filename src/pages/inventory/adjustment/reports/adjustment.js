@@ -253,7 +253,7 @@ export default class ReportAdjustment extends React.PureComponent {
                     borderBottom: 'none',
                   }}
                 >
-                  {detail?.product?.reference} / {detail?.product?.description}
+                  {detail?.product?.reference?.name} / {detail?.product?.reference?.description}
                 </div>
                 <div
                   style={{
@@ -293,7 +293,7 @@ export default class ReportAdjustment extends React.PureComponent {
                     width: '13%',
                   }}
                 >
-                  {numeral(detail?.product?.cost * detail?.quantity).format('$ 0,0')}
+                  {numeral(detail?.product?.reference?.cost * detail?.quantity).format('$ 0,0')}
                 </div>
               </div>
             ))}
@@ -370,7 +370,10 @@ export default class ReportAdjustment extends React.PureComponent {
               }}
             >
               {numeral(
-                data?.details?.reduce((sum, item) => sum + item?.product?.cost * item?.quantity, 0),
+                data?.details?.reduce(
+                  (sum, item) => sum + item?.product?.reference?.cost * item?.quantity,
+                  0,
+                ),
               ).format('$ 0,0')}
             </div>
           </div>

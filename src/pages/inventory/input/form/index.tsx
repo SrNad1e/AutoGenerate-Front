@@ -32,8 +32,6 @@ const InputForm = () => {
     status: 'open',
   });
 
-  //const { initialState } = useModel('@@initialState');
-
   const { id } = useParams<Partial<{ id: string }>>();
 
   const history = useHistory();
@@ -99,7 +97,7 @@ const InputForm = () => {
    * @description se encarga de cambiar el paso y asignar la bodega
    * @param warehouse bodega seleccionada
    */
-  const changeCurrentStep = (warehouse: WAREHOUSE.warehouse) => {
+  const changeCurrentStep = (warehouse: WAREHOUSE.Warehouse) => {
     if (warehouse) {
       setCurrentStep(1);
 

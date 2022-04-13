@@ -35,8 +35,6 @@ const AdjustmentForm = () => {
     status: 'open',
   });
 
-  //const { initialState } = useModel('@@initialState');
-
   const { id } = useParams<Partial<{ id: string }>>();
 
   const history = useHistory();
@@ -102,7 +100,7 @@ const AdjustmentForm = () => {
    * @description se encarga de cambiar el paso y asignar la bodega
    * @param warehouse bodega seleccionada
    */
-  const changeCurrentStep = (warehouse: WAREHOUSE.warehouse) => {
+  const changeCurrentStep = (warehouse: WAREHOUSE.Warehouse) => {
     if (warehouse) {
       setCurrentStep(1);
 
@@ -195,7 +193,7 @@ const AdjustmentForm = () => {
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <div style={{ display: 'none' }}>
-        <ReportAdjustment ref={reportRef} data={adjustment} />
+        {<ReportAdjustment ref={reportRef} data={adjustment} />}
       </div>
     </PageContainer>
   );

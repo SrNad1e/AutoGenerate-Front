@@ -150,13 +150,13 @@ const ModalSearchProducts = ({
     {
       title: 'Producto',
       dataIndex: 'reference',
-      render: (reference: string, product) => (
+      render: ({ name, description }: PRODUCT.Reference, { barcode }) => (
         <Row>
           <Col span={24}>
-            {reference} / {product.description}
+            {name} / {description}
           </Col>
           <Col span={24}>
-            <Tag icon={<BarcodeOutlined />}>{product.barcode}</Tag>
+            <Tag icon={<BarcodeOutlined />}>{barcode}</Tag>
           </Col>
         </Row>
       ),
@@ -189,7 +189,7 @@ const ModalSearchProducts = ({
           <Badge
             overflowCount={99999}
             count={stock[0]?.quantity}
-            style={{ backgroundColor: stock[0]?.quantity > 0 ? 'green' : 'red' }}
+            style={{ backgroundColor: (stock[0]?.quantity || 0) > 0 ? 'green' : 'red' }}
             showZero
           />
         ),
@@ -232,7 +232,7 @@ const ModalSearchProducts = ({
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => createDetail(product, 1)}
-              disabled={validateStock ? product?.stock[0]?.quantity === 0 : false}
+              disabled={validateStock ? product.stock && product?.stock[0]?.quantity === 0 : false}
             />
           </Tooltip>
         );

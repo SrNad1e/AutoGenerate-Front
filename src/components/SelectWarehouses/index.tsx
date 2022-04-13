@@ -8,7 +8,7 @@ import styles from './styles.less';
 const { Option } = Select;
 
 const SelectWarehouses = ({ onChange, value }: any) => {
-  const [warehouses, setWarehouses] = useState<Partial<WAREHOUSE.warehouse>[]>([]);
+  const [warehouses, setWarehouses] = useState<Partial<WAREHOUSE.Warehouse>[]>([]);
   const [error, setError] = useState<string | undefined>();
 
   /**

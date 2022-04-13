@@ -1,8 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useModel, useParams } from 'umi';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
-import { useCreateInput, useUpdateInput } from '@/hooks/input.hooks';
 import Table, { ColumnsType } from 'antd/lib/table';
 import {
   Avatar,
@@ -19,13 +14,20 @@ import {
   Typography,
 } from 'antd';
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
-import Header from './header';
-import Footer from './footer';
+
+import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import { useModel, useParams } from 'umi';
+import { useEffect, useState } from 'react';
+import { useCreateInput, useUpdateInput } from '@/hooks/input.hooks';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
 import SelectProducts from '@/components/SelectProducts';
+
+import Footer from './footer';
+import Header from './header';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -310,10 +312,10 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
     {
       title: 'Referencia',
       dataIndex: 'product',
-      render: ({ reference, description, barcode }: PRODUCT.Product) => (
+      render: ({ reference, barcode }: PRODUCT.Product) => (
         <Row>
           <Col span={24}>
-            {reference} / {description}
+            {reference?.name} / {reference?.description}
           </Col>
           <Col span={24}>
             <Tag icon={<BarcodeOutlined />}>{barcode}</Tag>
@@ -351,7 +353,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
           <Badge
             overflowCount={99999}
             count={stock[0]?.quantity}
-            style={{ backgroundColor: stock[0]?.quantity > 0 ? '#dc9575' : 'red' }}
+            style={{ backgroundColor: (stock[0]?.quantity || 0) > 0 ? '#dc9575' : 'red' }}
             showZero
           />
         ),
@@ -374,7 +376,7 @@ const FormInput = ({ input, setCurrentStep, setInput }: Props) => {
       title: 'Opciones',
       dataIndex: 'product',
       align: 'center',
-      render: ({ _id }: PRODUCT.Product) => (
+      render: ({ _id = '' }: PRODUCT.Product) => (
         <Tooltip title="Eliminar">
           <Button
             icon={<DeleteOutlined />}

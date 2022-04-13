@@ -1,21 +1,15 @@
 declare namespace PRODUCT {
   type Product = {
     _id?: string;
-    reference?: string;
-    description?: string;
+    reference?: Reference;
     barcode?: string;
-    changeable?: boolean;
     color?: COLOR.Color;
-    size?: SIZE.Size;
-    provider?: PROVIDER.Provider;
-    categories?: CATEGORY.Category;
-    price?: number;
-    cost?: number;
-    state?: string;
+    size: SIZE.Size;
+    status?: string;
     images?: STATICFILE.Image[];
-    shipping?: SHOP.Shipping;
-    type?: string;
     stock?: Stock[];
+    createdAt?: Date;
+    updatedAt?: Date;
   };
 
   type ResponsePaginate = {
@@ -54,5 +48,32 @@ declare namespace PRODUCT {
   type Stock = {
     quantity?: number;
     warehouse?: WAREHOUSE.Warehouse;
+  };
+
+  type Shipping = {
+    width: number;
+    height: number;
+    long: number;
+    weight: number;
+    volume: number;
+  };
+
+  type Reference = {
+    _id?: string;
+    brand?: BRAND.Brand;
+    changeable?: boolean;
+    companies?: COMPANIES.Company;
+    cost?: number;
+    description?: string;
+    name?: string;
+    price?: number;
+    shipping?: Shipping;
+    user?: USER.User;
+    createdAt?: Date;
+    updatedAt?: Date;
+    attribs?: ATTRIBS.Attribs;
+    categoryLevel1?: CATEGORY.CategoryLevel1;
+    categoryLevel2?: CATEGORY.CategoryLevel2;
+    categoryLevel3?: CATEGORY.CategoryLevel3;
   };
 }
