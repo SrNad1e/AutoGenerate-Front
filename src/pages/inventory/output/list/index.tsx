@@ -16,14 +16,13 @@ import {
 } from 'antd';
 import { TablePaginationConfig } from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
-import type { Moment } from 'moment';
-import moment from 'moment';
 import { SorterResult } from 'antd/lib/table/interface';
 
+import type { Moment } from 'moment';
+import moment from 'moment';
 import { useHistory, useLocation } from 'umi';
 import { useGetOutputs } from '@/hooks/output.hooks';
 import { useEffect, useRef, useState } from 'react';
-
 import { StatusTypeOutput } from '../output.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import numeral from 'numeral';
@@ -43,7 +42,7 @@ const { Title } = Typography;
 export type FormValues = {
   status?: string;
   number?: number;
-  warehouse?: WAREHOUSE.warehouse;
+  warehouse?: WAREHOUSE.Warehouse;
   dates?: Moment[];
 };
 
@@ -126,7 +125,7 @@ const OutputList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener las entradas
+   * @description se encarga de ejecutar la funcion para obtener las salidas
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: Partial<OUTPUT.FiltersGetOutputs>) => {
@@ -252,7 +251,7 @@ const OutputList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouse: WAREHOUSE.warehouse) => warehouse?.name,
+      render: (warehouse: WAREHOUSE.Warehouse) => warehouse?.name,
     },
     {
       title: 'Referencia',

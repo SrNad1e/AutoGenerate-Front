@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useModel, useParams } from 'umi';
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import Table, { ColumnsType } from 'antd/lib/table';
 import {
@@ -17,6 +15,8 @@ import {
   Typography,
 } from 'antd';
 
+import { useModel, useParams } from 'umi';
+import { useEffect, useState } from 'react';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import AlertLoading from '@/components/Alerts/AlertLoading';
@@ -25,6 +25,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectProducts from '@/components/SelectProducts';
 import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
 import { useCreateOutput, useUpdateOutput } from '@/hooks/output.hooks';
+
 import Header from './header';
 import Footer from './footer';
 
@@ -79,7 +80,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
 
   /**
    * @description abre la alerta de confirmacion de creacion
-   * @param data entrada creada
+   * @param data salida creada
    */
   const resultSave = (data: Partial<OUTPUT.Output>) => {
     setPropsAlert({
@@ -122,7 +123,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
 
   /**
    * @description se encarga de mostrar la alerta de guardado y cancelar
-   * @param status estado actual de la entrada
+   * @param status estado actual de la salida
    */
   const showAlertSave = (status?: string) => {
     if (
@@ -148,15 +149,15 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
         onShowInformation('La salida no tiene productos');
       }
     } else {
-      onShowInformation('No se encontraron cambios en la entrada');
+      onShowInformation('No se encontraron cambios en la salida');
     }
   };
 
   /**
    * @description se encarga de guardar el traslado
-   * @param status se usa para definir el estado de la entrada
+   * @param status se usa para definir el estado de la salida
    */
-  const saveInput = (status?: string) => {
+  const saveOutput = (status?: string) => {
     if (id) {
       const detailsFilter = details.filter((detail) => detail?.action);
 
@@ -238,7 +239,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    */
   const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
-      if (product?.stock) {
+      if (product.stock && product?.stock[0].quantity) {
         if (product?.stock[0].quantity >= quantity) {
           setDetails(
             details.map((detail) => {
@@ -254,7 +255,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
           );
         } else {
           onShowInformation(
-            `El producto ${product?.barcode} / ${product?.reference} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
+            `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
           );
         }
       }
@@ -268,12 +269,12 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    */
   const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
     if (setDetails) {
-      if (product?.stock) {
+      if (product?.stock && product.stock[0].quantity) {
         if (product?.stock[0].quantity >= quantity) {
           setDetails([...details, { product, quantity, action: 'create' }]);
         } else {
           onShowInformation(
-            `El producto ${product?.barcode} / ${product?.reference} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
+            `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
           );
         }
       }
@@ -310,7 +311,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
 
   const propsAlertSaveFinal: PropsAlertSave = {
     ...propsAlertSave,
-    onOk: saveInput,
+    onOk: saveOutput,
     onCancel: onCancelAlert,
   };
 
@@ -327,10 +328,10 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
     {
       title: 'Referencia',
       dataIndex: 'product',
-      render: ({ reference, description, barcode }: PRODUCT.Product) => (
+      render: ({ reference, barcode }: PRODUCT.Product) => (
         <Row>
           <Col span={24}>
-            {reference} / {description}
+            {reference?.name} / {reference?.description}
           </Col>
           <Col span={24}>
             <Tag icon={<BarcodeOutlined />}>{barcode}</Tag>
@@ -368,7 +369,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
           <Badge
             overflowCount={99999}
             count={stock[0]?.quantity}
-            style={{ backgroundColor: stock[0]?.quantity > 0 ? '#dc9575' : 'red' }}
+            style={{ backgroundColor: (stock[0]?.quantity || 0) > 0 ? '#dc9575' : 'red' }}
             showZero
           />
         ),
@@ -392,7 +393,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
       title: 'Opciones',
       dataIndex: 'product',
       align: 'center',
-      render: ({ _id }: PRODUCT.Product) => (
+      render: ({ _id = '' }: PRODUCT.Product) => (
         <Tooltip title="Eliminar">
           <Button
             icon={<DeleteOutlined />}

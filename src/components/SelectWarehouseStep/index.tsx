@@ -3,7 +3,7 @@ import { Button, Col, Form, Row } from 'antd';
 import SelectWarehouses from '@/components/SelectWarehouses';
 
 export type Props = {
-  changeCurrentStep: (value: WAREHOUSE.warehouse) => void;
+  changeCurrentStep: (value: WAREHOUSE.Warehouse) => void;
   label: string;
   warehouseId?: string;
 };

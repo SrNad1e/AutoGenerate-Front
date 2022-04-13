@@ -7,7 +7,7 @@ export const useGetProducts = (
   showError: (message: string) => void,
 ) => {
   const [getProducts, { loading }] = useLazyQuery(PRODUCTS, {
-    onCompleted: (result) => callback(result.products),
+    onCompleted: (result) => callback(result?.products),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
 

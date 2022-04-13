@@ -15,9 +15,11 @@ export const INPUT = gql`
         product {
           _id
           barcode
-          description
-          reference
-          cost
+          reference {
+            description
+            cost
+            name
+          }
           color {
             image
             html
@@ -61,11 +63,13 @@ export const INPUTS = gql`
         details {
           quantity
           product {
-            reference
+            reference {
+              description
+              cost
+              price
+              name
+            }
             barcode
-            description
-            price
-            cost
             color {
               name
               name_internal

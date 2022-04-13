@@ -1,7 +1,5 @@
 import type { ColumnsType } from 'antd/lib/table';
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useModel, useParams } from 'umi';
-import { useEffect, useState } from 'react';
 import {
   Badge,
   Button,
@@ -18,6 +16,8 @@ import {
   Tooltip,
 } from 'antd';
 
+import { useModel, useParams } from 'umi';
+import { useEffect, useState } from 'react';
 import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
 import SearchProducts from '@/components/SearchProducts';
 import { useCreateRequest, useUpdateRequest } from '@/hooks/request.hooks';
@@ -26,9 +26,9 @@ import AlertLoading from '@/components/Alerts/AlertLoading';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
+
 import Footer from './footer';
 import Header from './header';
-
 import '../styles.less';
 
 const FormItem = Form.Item;
@@ -247,7 +247,7 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
   };
 
   /**
-   * @description se agrega un detalle de solicitud a los detalle
+   * @description se agrega un detalle de solicitud a los detalles
    * @param product producto del detalle
    * @param quantity cantidad del producto
    */
@@ -303,10 +303,10 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
     {
       title: 'Referencia',
       dataIndex: 'product',
-      render: ({ reference, description, barcode }: PRODUCT.Product) => (
+      render: ({ reference, barcode }: PRODUCT.Product) => (
         <Row>
           <Col span={24}>
-            {reference} / {description}
+            {reference?.name} / {reference?.description}
           </Col>
           <Col span={24}>
             <Tag icon={<BarcodeOutlined />}>{barcode}</Tag>
@@ -339,12 +339,12 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
-      render: ({ stock }: PRODUCT.Product) =>
-        stock && (
+      render: ({ stock = [] }: PRODUCT.Product) =>
+        stock?.length > 0 && (
           <Badge
             overflowCount={99999}
             count={stock[0]?.quantity}
-            style={{ backgroundColor: stock[0]?.quantity > 0 ? '#dc9575' : 'red' }}
+            style={{ backgroundColor: (stock[0]?.quantity || 0) > 0 ? '#dc9575' : 'red' }}
             showZero
           />
         ),
@@ -353,12 +353,12 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
       title: 'Cantidad',
       dataIndex: 'quantity',
       align: 'center',
-      render: (quantity: number, { product }) => (
+      render: (quantity: number, { product = {} }) => (
         <InputNumber
           value={quantity || 0}
           min={1}
           max={product?.stock ? product?.stock[0]?.quantity : 0}
-          onChange={(value) => updateDetail(product || {}, value)}
+          onChange={(value) => updateDetail(product, value)}
           disabled={!allowEdit}
           style={{ color: 'black', backgroundColor: 'white' }}
         />
@@ -368,7 +368,7 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
       title: 'Opciones',
       dataIndex: 'product',
       align: 'center',
-      render: ({ _id }: PRODUCT.Product) => (
+      render: ({ _id = '' }: PRODUCT.Product) => (
         <Tooltip title="Eliminar">
           <Button
             icon={<DeleteOutlined />}

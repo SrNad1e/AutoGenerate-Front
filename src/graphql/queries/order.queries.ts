@@ -34,12 +34,13 @@ export const ORDER = gql`
         product {
           _id
           barcode
-          cost
-          reference
+          reference {
+            cost
+            description
+          }
           size {
             value
           }
-          description
           status
           color {
             html
@@ -112,9 +113,10 @@ export const ORDERSBYPOS = gql`
         product {
           _id
           barcode
-          description
-          cost
-          reference
+          reference {
+            cost
+            description
+          }
           status
           color {
             html

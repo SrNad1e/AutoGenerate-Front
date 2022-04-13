@@ -23,9 +23,11 @@ const ShopItem = (product: PRODUCT.Product) => {
         >
           <Text style={{ fontSize: 11, fontWeight: 'bold', lineHeight: 1.4 }}>Referencia</Text>
           <Text style={{ fontSize: 20, fontWeight: 'bold', lineHeight: 1 }}>
-            {product?.reference}
+            {product?.reference?.name}
           </Text>
-          <Text style={{ fontSize: 14, fontStyle: 'italic' }}>{product?.description}</Text>
+          <Text style={{ fontSize: 14, fontStyle: 'italic' }}>
+            {product?.reference?.description}
+          </Text>
           <Row>
             <Col span={9}>
               <Text>
@@ -58,7 +60,7 @@ const ShopItem = (product: PRODUCT.Product) => {
               <Text style={{ fontWeight: 'bold' }}>Precio</Text>
             </Col>
             <Col span={14} style={{ fontSize: 20, display: 'flex', justifyContent: 'right' }}>
-              <Text>{numeral(product?.price).format('$ 0,0')}</Text>
+              <Text>{numeral(product?.reference?.price).format('$ 0,0')}</Text>
             </Col>
           </Row>
           <Row>

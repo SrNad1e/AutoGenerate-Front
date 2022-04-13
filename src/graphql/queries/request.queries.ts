@@ -9,7 +9,6 @@ export const REQUEST = gql`
         product {
           _id
           barcode
-          cost
           stock {
             quantity
           }
@@ -19,8 +18,11 @@ export const REQUEST = gql`
             name_internal
             name
           }
-          description
-          reference
+          reference {
+            cost
+            description
+            name
+          }
           size {
             value
           }
@@ -65,10 +67,12 @@ export const REQUESTS = gql`
         details {
           quantity
           product {
-            reference
-            cost
+            reference {
+              cost
+              description
+              name
+            }
             barcode
-            description
             color {
               image
               html

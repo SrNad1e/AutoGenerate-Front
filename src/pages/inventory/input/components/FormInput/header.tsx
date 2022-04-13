@@ -1,6 +1,8 @@
 import { Badge, Card, Col, Descriptions, Input, Row } from 'antd';
-import moment from 'moment';
+
 import { useModel } from 'umi';
+import moment from 'moment';
+
 import { StatusTypeInput } from '../../input.data';
 
 const DescriptionsItem = Descriptions.Item;

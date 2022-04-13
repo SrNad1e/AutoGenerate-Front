@@ -2,7 +2,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/dot-notation */
 import { SearchOutlined, EyeOutlined, PrinterFilled } from '@ant-design/icons';
-import { useHistory, useLocation, useModel } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -22,11 +21,12 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
+
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
-
+import { useHistory, useLocation, useModel } from 'umi';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import { StatusType } from '../request.data';
@@ -47,7 +47,7 @@ const { RangePicker } = DatePicker;
 export type FormValues = {
   status?: string;
   number?: number;
-  warehouse?: WAREHOUSE.warehouse;
+  warehouse?: WAREHOUSE.Warehouse;
   dates?: Moment[];
   type?: string;
 };
@@ -307,7 +307,7 @@ const RequestList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouseOrigin: WAREHOUSE.warehouse) => warehouseOrigin?.name,
+      render: (warehouseOrigin: WAREHOUSE.Warehouse) => warehouseOrigin?.name,
     },
     {
       title: 'Destino',
@@ -315,7 +315,7 @@ const RequestList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouseDestination: WAREHOUSE.warehouse) => warehouseDestination?.name,
+      render: (warehouseDestination: WAREHOUSE.Warehouse) => warehouseDestination?.name,
     },
     {
       title: 'Referencia',

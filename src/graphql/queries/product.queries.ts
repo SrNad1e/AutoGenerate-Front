@@ -6,8 +6,10 @@ export const PRODUCTS = gql`
       docs {
         _id
         barcode
-        description
-        reference
+        reference {
+          description
+          name
+        }
         color {
           name_internal
           html
@@ -18,9 +20,6 @@ export const PRODUCTS = gql`
         }
         stock {
           quantity
-          warehouse {
-            name
-          }
         }
       }
       totalDocs
@@ -44,8 +43,10 @@ export const PRODUCT = gql`
         html
         image
       }
-      description
-      reference
+      reference {
+        description
+        name
+      }
       stock {
         quantity
       }
@@ -53,9 +54,6 @@ export const PRODUCT = gql`
         value
       }
       status
-      stock {
-        quantity
-      }
     }
   }
 `;
