@@ -1,4 +1,3 @@
-import { useGetColors } from '@/hooks/color.hooks';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -14,16 +13,20 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
+//import { SorterResult } from 'antd/lib/table/interface'
 import FormItem from 'antd/lib/form/FormItem';
 import Table, { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import Title from 'antd/lib/typography/Title';
+
+import { useGetColors } from '@/hooks/color.hooks';
 import { useEffect, useState } from 'react';
-import styles from './styles.less';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import moment from 'moment';
 import { history, useLocation } from 'umi';
-//import { SorterResult } from 'antd/lib/table/interface'
+import CreateColors from '@/components/CreateColors';
+
+import styles from './styles.less';
 
 type FormData = {
   name?: string;
@@ -39,6 +42,7 @@ type InputRequest = {
 
 const ColorsList = () => {
   const [colors, setColors] = useState<Partial<COLOR.Color[]>>([]);
+  const [color, setColor] = useState<Partial<COLOR.Color>>({});
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     showSizeChanger: false,
     total: 0,
@@ -50,16 +54,27 @@ const ColorsList = () => {
     type: 'error',
     visible: false,
   });
+  const [visible, setVisible] = useState(false);
 
   const { Text } = Typography;
   const [form] = Form.useForm();
   const location = useLocation();
 
+  /** Funciones ejecutadas por los hooks */
+
+  /**
+   * @description se encarga de almacenar los datos de la consulta
+   * @param data respuesta de la consulta
+   */
   const resultColors = (data: Partial<COLOR.ResponsePaginate>) => {
     setColors(data.docs || []);
     setPagination({ ...pagination, total: data.totalDocs });
   };
 
+  /**
+   * @description funcion usada por los hooks para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
   const showError = (message: string) => {
     setAlertInformation({
       message,
@@ -68,8 +83,17 @@ const ColorsList = () => {
     });
   };
 
+  /** Fin de Funciones ejecutadas por los hooks */
+
+  /** Hooks para manejo de consultas */
+
   const { getColors, loading } = useGetColors(resultColors, showError);
 
+  /** Fin de Hooks para manejo de consultas */
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
   const closeAlertInformation = () => {
     setAlertInformation({
       message: '',
@@ -78,12 +102,34 @@ const ColorsList = () => {
     });
   };
 
+  /**
+   * @description se encarga de ejecutar la funcion para obtener los colores
+   */
   const onSearch = (values?: InputRequest) => {
     getColors({
       variables: {
         input: values,
       },
     });
+  };
+
+  /**
+   * @description se encarga de abrir el modal de actualizacion o creacion del color
+   */
+  const visibleModal = (id?: COLOR.Color) => {
+    setVisible(true);
+    setColor({ _id: id?._id });
+  };
+
+  /**
+   * @description se encarga de cerrar el modal de actualizacion o creacion del color
+   */
+  const closeModal = () => {
+    setVisible(false);
+  };
+
+  const editColor = () => {
+    setVisible(false);
   };
 
   /**
@@ -100,28 +146,37 @@ const ColorsList = () => {
     history.replace(`${location.pathname}?${datos}`);
   };
 
-  const handleChangeTable = (
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
+   */
+  /*const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    /*_: any,
-        sorter: SorterResult<Partial<COLOR.Color>>,*/
+    _: any,
+    sorter: SorterResult<Partial<COLOR.Color>>,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
-    /*
-        let sort = {};
-        if (sorter.field) {
-            sort = {
-                [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-            };
-        } else {
-            sort = {
-                createdAt: -1,
-            };
-        }*/
+
+    let sort = {};
+
+    if (sorter.field) {
+      sort = {
+        [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+      };
+    } else {
+      sort = {
+        createdAt: -1,
+      };
+    }
     setPagination({ ...pagination, current });
     onSearch({ ...prop, page: current });
-  };
+  };*/
 
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
@@ -129,10 +184,14 @@ const ColorsList = () => {
       total: 0,
       pageSize: 10,
       current: 1,
+      showSizeChanger: false,
     });
     onSearch({});
   };
 
+  /**
+   * @description se encarga de renderizar la interfaz de busqueda
+   */
   const renderFormSearch = () => (
     <Form layout="inline" onFinish={onFinish} form={form}>
       <Row gutter={[8, 8]}>
@@ -155,7 +214,10 @@ const ColorsList = () => {
     </Form>
   );
 
-  useEffect(() => {
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const data = () => {
     const queryParams = location['query'];
 
     const params = {};
@@ -165,6 +227,10 @@ const ColorsList = () => {
     });
     form.setFieldsValue(params);
     onSearch(params);
+  };
+
+  useEffect(() => {
+    data();
   }, []);
 
   const columns: ColumnsType<Partial<COLOR.Color>> = [
@@ -221,9 +287,10 @@ const ColorsList = () => {
     },
     {
       title: 'Acción',
-      render: () => (
+      render: (_id: COLOR.Color) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            onClick={() => visibleModal(_id)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
           />
@@ -233,7 +300,6 @@ const ColorsList = () => {
   ];
 
   const totalPages = Math.ceil((pagination.total || 0) / (pagination.pageSize || 0));
-  // crear variable para contener el total de colores encontrados
 
   return (
     <PageContainer
@@ -250,13 +316,18 @@ const ColorsList = () => {
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
           <Row>
             <Col span={12} style={{ marginBottom: 10 }}>
-              <Button icon={<PlusOutlined />} type="primary" shape="round">
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                shape="round"
+                onClick={() => visibleModal()}
+              >
                 Nuevo
               </Button>
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
-              <Text strong>Total Encontrados:</Text> {1} <Text strong>Páginas: </Text>
-              {totalPages}
+              <Text strong>Total Encontrados:</Text> {pagination?.total}{' '}
+              <Text strong>Páginas: </Text> {pagination.current} / {totalPages}
             </Col>
           </Row>
           <Table
@@ -269,6 +340,7 @@ const ColorsList = () => {
         </div>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <CreateColors modalVisible={visible} onCancel={closeModal} current={color} onOk={editColor} />
     </PageContainer>
   );
 };
