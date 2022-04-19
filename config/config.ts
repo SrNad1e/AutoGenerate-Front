@@ -163,6 +163,17 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Configuraciones',
+              path: '/inventory/configurations',
+              routes: [
+                {
+                  name: 'Tallas',
+                  path: '/inventory/configurations/size',
+                  component: './inventory/configurations/size',
+                },
+              ],
+            },
           ],
         },
 
