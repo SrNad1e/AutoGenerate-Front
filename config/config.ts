@@ -170,7 +170,7 @@ export default defineConfig({
                 {
                   name: 'Tallas',
                   path: '/inventory/configurations/size',
-                  component: './inventory/configurations/size',
+                  component: './inventory/configurations/size/list',
                 },
               ],
             },
