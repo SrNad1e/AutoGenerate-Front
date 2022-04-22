@@ -1,8 +1,8 @@
-import { PictureOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Divider, Form, Input, Modal, Row } from 'antd';
+/*import { PictureOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Divider, Form, Input, Modal, Pagination, Row } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
-//import Title from 'antd/lib/typography/Title';
-import { useState } from 'react';
+import Title from 'antd/lib/typography/Title';
+import { useState } from 'react';*/
 
 export type Props = {
   name: string;
@@ -11,16 +11,16 @@ export type Props = {
 };
 
 const SearchImage = (/*props: Props*/) => {
-  const [visible, setVisible] = useState(false);
-  /* const [images, setImages] = useState<{ total?: number, limit?: number, skip?: number, data?: [] }>({});
-    const [currentPage, setCurrentPage] = useState(1)
+  /* const [visible, setVisible] = useState(false);
+  const [images, setImages] = useState<{ total?: number, limit?: number, skip?: number, data?: [] }>({});
+  const [currentPage, setCurrentPage] = useState(1)
 
-    const { name, handleSelectImage, type } = props;*/
+  const { name } = props;
 
   return (
     <>
       <Button icon={<PictureOutlined />} onClick={() => setVisible(true)}>
-        {/*name*/}
+        {name}
       </Button>
       <Modal visible={visible} width={1230} footer={false} onCancel={() => setVisible(false)}>
         <Form layout="inline">
@@ -34,16 +34,16 @@ const SearchImage = (/*props: Props*/) => {
           </FormItem>
         </Form>
         <Divider>Imagenes</Divider>
-        {/*images.total === 0 && (
-                    <Title level={3} style={{ textAlign: 'center' }}>
-                        No hay imagenes para la busqueda
-                    </Title>
-                )*/}
+        {images.total === 0 && (
+          <Title level={3} style={{ textAlign: 'center' }}>
+            No hay imagenes para la busqueda
+          </Title>
+        )}
         <Row gutter={[16, 16]}></Row>
-        {/*<Pagination pageSize={12} onChange={() => { }} current={currentPage} total={images.total} />*/}
+        <Pagination pageSize={12} onChange={() => { }} current={currentPage} total={images.total} />
       </Modal>
     </>
   );
+  */
 };
-
 export default SearchImage;

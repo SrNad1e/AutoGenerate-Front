@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-//import { SorterResult } from 'antd/lib/table/interface'
+import { SorterResult } from 'antd/lib/table/interface';
 import FormItem from 'antd/lib/form/FormItem';
 import Table, { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import Title from 'antd/lib/typography/Title';
@@ -30,6 +30,7 @@ import styles from './styles.less';
 
 type FormData = {
   name?: string;
+  active: boolean;
 };
 
 type InputRequest = {
@@ -55,6 +56,8 @@ const ColorsList = () => {
     visible: false,
   });
   const [visible, setVisible] = useState(false);
+  const [sorterTable, setSorterTable] = useState<SorterResult<InputRequest>>({});
+  const [filterTable, setFilterTable] = useState<Partial<FormData>>({});
 
   const { Text } = Typography;
   const [form] = Form.useForm();
@@ -108,7 +111,9 @@ const ColorsList = () => {
   const onSearch = (values?: InputRequest) => {
     getColors({
       variables: {
-        input: values,
+        input: {
+          ...values,
+        },
       },
     });
   };
@@ -116,19 +121,16 @@ const ColorsList = () => {
   /**
    * @description se encarga de abrir el modal de actualizacion o creacion del color
    */
-  const visibleModal = (id?: COLOR.Color) => {
+  const visibleModal = (colorData: Partial<COLOR.Color>) => {
+    setColor(colorData || {});
     setVisible(true);
-    setColor({ _id: id?._id });
   };
 
   /**
    * @description se encarga de cerrar el modal de actualizacion o creacion del color
    */
   const closeModal = () => {
-    setVisible(false);
-  };
-
-  const editColor = () => {
+    setColor({});
     setVisible(false);
   };
 
@@ -144,6 +146,7 @@ const ColorsList = () => {
     onSearch(values);
     form.setFieldsValue(values);
     history.replace(`${location.pathname}?${datos}`);
+    //console.log(datos);
   };
 
   /**
@@ -151,28 +154,39 @@ const ColorsList = () => {
    * @param paginationLocal eventos de la páginacion
    * @param sorter ordenamiento de la tabla
    */
-  /*const handleChangeTable = (
+  const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: any,
+    filterArg: FormData,
     sorter: SorterResult<Partial<COLOR.Color>>,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
 
+    const filters = { ...filterArg };
+
+    Object.keys(filters).forEach((i) => {
+      if (filters[i] === null) {
+        delete filters[i];
+      } else {
+        filters[i] = filters[i][0];
+      }
+    });
+
     let sort = {};
 
     if (sorter.field) {
-      sort = {
-        [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-      };
-    } else {
-      sort = {
-        createdAt: -1,
-      };
+      if (['ascend', 'descend'].includes(sorter?.order || '')) {
+        sort = {
+          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+        };
+      }
     }
+
     setPagination({ ...pagination, current });
-    onSearch({ ...prop, page: current });
-  };*/
+    onSearch({ ...prop, sort, page: current, ...filters });
+    setSorterTable(sorter);
+    setFilterTable(filterArg);
+  };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
@@ -187,6 +201,8 @@ const ColorsList = () => {
       showSizeChanger: false,
     });
     onSearch({});
+    setSorterTable({});
+    setFilterTable({});
   };
 
   /**
@@ -238,8 +254,9 @@ const ColorsList = () => {
       title: 'Color',
       dataIndex: 'name',
       sorter: true,
+      sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
       showSorterTooltip: false,
-      render: (text, values) => (
+      render: (name: string, values) => (
         <>
           <Avatar
             style={{
@@ -253,7 +270,7 @@ const ColorsList = () => {
             shape="square"
           />
 
-          <Text style={{ marginLeft: 10 }}>{text}</Text>
+          <Text style={{ marginLeft: 10 }}>{name}</Text>
         </>
       ),
     },
@@ -264,6 +281,11 @@ const ColorsList = () => {
     {
       title: 'Active',
       dataIndex: 'active',
+      render: (active: boolean) => {
+        return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
+      },
+      filterMultiple: false,
+      filteredValue: filterTable.active || null,
       filters: [
         {
           text: 'Si',
@@ -274,23 +296,24 @@ const ColorsList = () => {
           value: false,
         },
       ],
-      render: (active: boolean) => {
-        return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
-      },
     },
     {
       title: 'Fecha registro',
-      dataIndex: 'Created_at',
+      dataIndex: 'createdAt',
+      align: 'center',
       sorter: true,
+      sortOrder: sorterTable?.field === 'createdAt' ? sorterTable.order : undefined,
       showSorterTooltip: false,
-      render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: 'Acción',
-      render: (_id: COLOR.Color) => (
+      dataIndex: '_id',
+      align: 'center',
+      render: (_: string, colorID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
-            onClick={() => visibleModal(_id)}
+            onClick={() => visibleModal(colorID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
           />
@@ -340,7 +363,8 @@ const ColorsList = () => {
         </div>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      <CreateColors modalVisible={visible} onCancel={closeModal} current={color} onOk={editColor} />
+      <CreateColors modalVisible={visible} onCancel={closeModal} current={color} />
+      {console.log(color)}
     </PageContainer>
   );
 };
