@@ -16,18 +16,21 @@ import {
 import FormItem from 'antd/lib/form/FormItem';
 import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import Title from 'antd/lib/typography/Title';
+import { SorterResult } from 'antd/lib/table/interface';
+
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { useLocation, history } from 'umi';
-import styles from './style.less';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useGetSizes } from '@/hooks/size.hooks';
-//import { SorterResult } from "antd/lib/table/interface";
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import CreateSize from '../components/CreateSize';
+import CreateSize from '@/components/CreateSize';
+
+import styles from './style.less';
 
 type FormData = {
   name?: string;
+  active?: boolean;
 };
 
 type InputVars = {
@@ -38,7 +41,7 @@ type InputVars = {
   page?: number;
 };
 
-const SizeList = () => {
+const SizesList = () => {
   const [sizes, setSizes] = useState<Partial<SIZE.Size[]>>([]);
   const [size, setSize] = useState<Partial<SIZE.Size>>({});
   const [pagination, setPagination] = useState<TablePaginationConfig>({
@@ -53,16 +56,28 @@ const SizeList = () => {
     visible: false,
   });
   const [visible, setVisible] = useState(false);
+  const [sorterTable, setSorterTable] = useState<SorterResult<InputVars>>({});
+  const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
 
   const { Text } = Typography;
   const [form] = Form.useForm();
   const location = useLocation();
 
+  /** Funciones ejecutadas por los hooks */
+
+  /**
+   * @description se encarga de almacenar los datos de la consulta
+   * @param data respuesta de la consulta
+   */
   const resultSizes = (data: Partial<SIZE.ResponsePaginate>) => {
     setSizes(data.docs || []);
     setPagination({ ...pagination, total: data.totalDocs });
   };
 
+  /**
+   * @description funcion usada por los hooks para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
   const showError = (message: string) => {
     setAlertInformation({
       message,
@@ -71,8 +86,17 @@ const SizeList = () => {
     });
   };
 
+  /** Fin de Funciones ejecutadas por los hooks */
+
+  /** Hooks para manejo de consultas */
+
   const { getSizes, loading } = useGetSizes(resultSizes, showError);
 
+  /** Fin de Hooks para manejo de consultas */
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
   const closeAlertInformation = () => {
     setAlertInformation({
       message: '',
@@ -81,60 +105,125 @@ const SizeList = () => {
     });
   };
 
+  /**
+   * @description se encarga de ejecutar la funcion para obtener las tallas
+   * @param values Variables para ejecutar la consulta
+   */
   const onSearch = (values?: InputVars) => {
     getSizes({
       variables: {
-        input: values,
+        input: {
+          ...values,
+        },
       },
     });
   };
 
-  const visibleModal = (id?: SIZE.Size) => {
+  /**
+   * @description se encarga de abrir el modal de actualizacion o creacion de la talla
+   * @param sizeData propiedades del objeto para setear
+   */
+  const visibleModal = (sizeData: Partial<SIZE.Size>) => {
+    setSize(sizeData || {});
     setVisible(true);
-    setSize({ _id: id?._id });
   };
 
-  const closeModal = () => {
+  /**
+   * @description se encarga de cerrar el modal de actualizacion o creacion de la talla
+   */
+  const closeModal = async () => {
+    await setSize({});
     setVisible(false);
   };
 
-  const editColor = () => {
-    setVisible(false);
+  const setQueryParams = (values?: any) => {
+    try {
+      const valuesForm = form.getFieldsValue();
+
+      const valuesNew = {
+        ...values,
+        ...valuesForm,
+      };
+      const datos = Object.keys(valuesNew)
+        .reduce(
+          (a, key) =>
+            valuesNew[key] !== undefined ? `${a}&${key}=${JSON.stringify(valuesNew[key])}` : a,
+          '',
+        )
+        .slice(1);
+
+      history.replace(`${location.pathname}?${datos}`);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
+  /**
+   * @description esta funcion evalua los paramametros del formulario y ejecuta la busqueda
+   * @param values valores del formulario
+   */
   const onFinish = (values: FormData) => {
-    const datos = Object.keys(values)
-      .reduce((a, key) => (values[key] ? `${a}&${key}=${JSON.stringify(values[key])}` : a), '')
-      .slice(1);
+    const filters = { ...filterTable };
 
-    onSearch(values);
-    form.setFieldsValue(values);
-    history.replace(`${location.pathname}?${datos}`);
+    Object.keys(filters).forEach((i) => {
+      if (filters[i] === null) {
+        delete filters[i];
+      } else {
+        filters[i] = filters[i][0];
+      }
+    });
+
+    onSearch({ ...filters, ...values });
+    setQueryParams({
+      ...values,
+      ...filters,
+    });
   };
 
-  /*const handleChangeTable = (
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
+   * @param filterArg filtros de la tabla
+   */
+  const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: any,
+    filterArg: Record<string, any>,
     sorter: SorterResult<Partial<SIZE.Size>>,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
 
+    const filters = { ...filterArg };
+
+    Object.keys(filters).forEach((i) => {
+      if (filters[i] === null) {
+        delete filters[i];
+      } else {
+        filters[i] = filters[i][0];
+      }
+    });
+
     let sort = {};
 
     if (sorter.field) {
-      sort = {
-        [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-      };
-    } else {
-      sort = {
-        createdAt: -1,
-      };
+      if (['ascend', 'descend'].includes(sorter?.order || '')) {
+        sort = {
+          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+        };
+      }
     }
-    setPagination({ ...pagination, current });
-    onSearch({ ...prop, page: current });
-  };*/
 
+    setQueryParams(filters);
+    setPagination({ ...pagination, current });
+    onSearch({ ...prop, sort, page: current, ...filters });
+    setSorterTable(sorter);
+    setFilterTable(filterArg);
+  };
+
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
@@ -145,42 +234,78 @@ const SizeList = () => {
       showSizeChanger: false,
     });
     onSearch({});
+    setSorterTable({});
+    setFilterTable({});
   };
 
-  const renderFormSearch = () => {
-    return (
-      <Form layout="inline" onFinish={onFinish} form={form}>
-        <Row gutter={[8, 8]}>
-          <Col span={12}>
-            <FormItem label="Talla" name="name">
-              {<Input placeholder="Talla" autoComplete="off" />}
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <span className={styles.submitButtons}>
-              <Button type="primary" htmlType="submit">
-                Buscar
-              </Button>
-              <Button style={{ marginLeft: 8 }} onClick={onClear}>
-                Limpiar
-              </Button>
-            </span>
-          </Col>
-        </Row>
-      </Form>
-    );
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const getFiltersQuery = () => {
+    const queryParams = location['query'];
+    const params = {};
+    const tableFilters = {
+      active: queryParams['active'] ? [queryParams['active'] === 'true'] : null,
+    };
+    Object.keys(queryParams).forEach((item) => {
+      if (item === 'active') {
+        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+      } else {
+        params[item] = JSON.parse(queryParams[item]);
+      }
+    });
+    form.setFieldsValue(params);
+    setFilterTable(tableFilters);
+    onSearch(params);
   };
+
+  useEffect(() => {
+    getFiltersQuery();
+  }, []);
+
+  /**
+   * @description se encarga de renderizar la interfaz de busqueda
+   */
+  const renderFormSearch = () => (
+    <Form layout="inline" onFinish={onFinish} form={form}>
+      <Row gutter={[8, 8]}>
+        <Col span={12}>
+          <FormItem label="Nombre" name="name" style={{ width: 300 }}>
+            <Input placeholder="Talla" autoComplete="off" />
+          </FormItem>
+        </Col>
+      </Row>
+      <Col span={12}>
+        <span className={styles.submitButtons}>
+          <Button type="primary" htmlType="submit">
+            Buscar
+          </Button>
+          <Button style={{ marginLeft: 8 }} onClick={onClear}>
+            Limpiar
+          </Button>
+        </span>
+      </Col>
+    </Form>
+  );
 
   const columns: ColumnsType<Partial<SIZE.Size>> = [
     {
       title: 'Talla',
       dataIndex: 'value',
+      align: 'center',
       sorter: true,
       showSorterTooltip: false,
+      sortOrder: sorterTable.field === 'value' ? sorterTable.order : undefined,
     },
     {
       title: 'Active',
       dataIndex: 'active',
+      align: 'center',
+      render: (active: boolean) => {
+        return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
+      },
+      filterMultiple: false,
+      filteredValue: filterTable?.active || null,
       filters: [
         {
           text: 'Si',
@@ -191,23 +316,24 @@ const SizeList = () => {
           value: false,
         },
       ],
-      render: (active: boolean) => {
-        return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
-      },
     },
     {
       title: 'Fecha registro',
-      dataIndex: 'Created_at',
+      dataIndex: 'createdAt',
+      align: 'center',
       sorter: true,
+      sortOrder: sorterTable?.field === 'createdAt' ? sorterTable.order : undefined,
       showSorterTooltip: false,
-      render: (val: string) => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: 'Acción',
-      render: (_id: SIZE.Size) => (
+      dataIndex: '_id',
+      align: 'center',
+      render: (_: string, SizeID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
-            onClick={() => visibleModal(_id)}
+            onClick={() => visibleModal(SizeID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
           />
@@ -217,22 +343,6 @@ const SizeList = () => {
   ];
 
   const totalPages = Math.ceil((pagination.total || 0) / (pagination.pageSize || 0));
-
-  const data = () => {
-    const queryParams = location['query'];
-
-    const params = {};
-
-    Object.keys(queryParams).forEach((item) => {
-      params[item] = JSON.parse(queryParams[item]);
-    });
-    form.setFieldsValue(params);
-    onSearch(params);
-  };
-
-  useEffect(() => {
-    data();
-  }, []);
 
   return (
     <PageContainer
@@ -253,7 +363,7 @@ const SizeList = () => {
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
-                onClick={() => visibleModal()}
+                onClick={() => visibleModal(size)}
               >
                 Nuevo
               </Button>
@@ -273,9 +383,9 @@ const SizeList = () => {
         </div>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      <CreateSize modalVisible={visible} onCancel={closeModal} current={size} onOk={editColor} />
+      <CreateSize modalVisible={visible} onCancel={closeModal} current={size} />
     </PageContainer>
   );
 };
 
-export default SizeList;
+export default SizesList;

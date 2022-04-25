@@ -3,6 +3,9 @@ declare namespace SIZE {
     _id?: string;
     value?: string;
     active?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+    user?: USER.User;
   };
 
   type ResponsePaginate = {

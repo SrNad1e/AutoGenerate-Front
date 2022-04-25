@@ -8,6 +8,8 @@ export const SIZES = gql`
       page
       limit
       docs {
+        createdAt
+        updatedAt
         _id
         value
         active
