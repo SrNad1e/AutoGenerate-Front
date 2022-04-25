@@ -30,7 +30,7 @@ import styles from './styles.less';
 
 type FormData = {
   name?: string;
-  active: boolean;
+  active?: boolean;
 };
 
 type InputRequest = {
@@ -57,7 +57,7 @@ const ColorsList = () => {
   });
   const [visible, setVisible] = useState(false);
   const [sorterTable, setSorterTable] = useState<SorterResult<InputRequest>>({});
-  const [filterTable, setFilterTable] = useState<Partial<FormData>>({});
+  const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
 
   const { Text } = Typography;
   const [form] = Form.useForm();
@@ -107,6 +107,7 @@ const ColorsList = () => {
 
   /**
    * @description se encarga de ejecutar la funcion para obtener los colores
+   * @param values Variables para ejecutar la consulta
    */
   const onSearch = (values?: InputRequest) => {
     getColors({
@@ -120,6 +121,7 @@ const ColorsList = () => {
 
   /**
    * @description se encarga de abrir el modal de actualizacion o creacion del color
+   * @param colorData propiedades del objeto para setear
    */
   const visibleModal = (colorData: Partial<COLOR.Color>) => {
     setColor(colorData || {});
@@ -129,9 +131,31 @@ const ColorsList = () => {
   /**
    * @description se encarga de cerrar el modal de actualizacion o creacion del color
    */
-  const closeModal = () => {
-    setColor({});
+  const closeModal = async () => {
+    await setColor({});
     setVisible(false);
+  };
+
+  const setQueryParams = (values?: any) => {
+    try {
+      const valuesForm = form.getFieldsValue();
+
+      const valuesNew = {
+        ...values,
+        ...valuesForm,
+      };
+      const datos = Object.keys(valuesNew)
+        .reduce(
+          (a, key) =>
+            valuesNew[key] !== undefined ? `${a}&${key}=${JSON.stringify(valuesNew[key])}` : a,
+          '',
+        )
+        .slice(1);
+
+      history.replace(`${location.pathname}?${datos}`);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   /**
@@ -139,24 +163,32 @@ const ColorsList = () => {
    * @param values valores del formulario
    */
   const onFinish = (values: FormData) => {
-    const datos = Object.keys(values)
-      .reduce((a, key) => (values[key] ? `${a}&${key}=${JSON.stringify(values[key])}` : a), '')
-      .slice(1);
+    const filters = { ...filterTable };
 
-    onSearch(values);
-    form.setFieldsValue(values);
-    history.replace(`${location.pathname}?${datos}`);
-    //console.log(datos);
+    Object.keys(filters).forEach((i) => {
+      if (filters[i] === null) {
+        delete filters[i];
+      } else {
+        filters[i] = filters[i][0];
+      }
+    });
+
+    onSearch({ ...filters, ...values });
+    setQueryParams({
+      ...values,
+      ...filters,
+    });
   };
 
   /**
    * @description se encarga de manejar eventos de tabla
    * @param paginationLocal eventos de la páginacion
    * @param sorter ordenamiento de la tabla
+   * @param filterArg filtros de la tabla
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    filterArg: FormData,
+    filterArg: Record<string, any>,
     sorter: SorterResult<Partial<COLOR.Color>>,
   ) => {
     const { current } = paginationLocal;
@@ -182,6 +214,7 @@ const ColorsList = () => {
       }
     }
 
+    setQueryParams(filters);
     setPagination({ ...pagination, current });
     onSearch({ ...prop, sort, page: current, ...filters });
     setSorterTable(sorter);
@@ -204,6 +237,31 @@ const ColorsList = () => {
     setSorterTable({});
     setFilterTable({});
   };
+
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const getFiltersQuery = () => {
+    const queryParams = location['query'];
+    const params = {};
+    const tableFilters = {
+      active: queryParams['active'] ? [queryParams['active'] === 'true'] : null,
+    };
+    Object.keys(queryParams).forEach((item) => {
+      if (item === 'active') {
+        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+      } else {
+        params[item] = JSON.parse(queryParams[item]);
+      }
+    });
+    form.setFieldsValue(params);
+    setFilterTable(tableFilters);
+    onSearch(params);
+  };
+
+  useEffect(() => {
+    getFiltersQuery();
+  }, []);
 
   /**
    * @description se encarga de renderizar la interfaz de busqueda
@@ -230,25 +288,6 @@ const ColorsList = () => {
     </Form>
   );
 
-  /**
-   * @description se encarga de cargar los datos con base a la query
-   */
-  const data = () => {
-    const queryParams = location['query'];
-
-    const params = {};
-
-    Object.keys(queryParams).forEach((item) => {
-      params[item] = JSON.parse(queryParams[item]);
-    });
-    form.setFieldsValue(params);
-    onSearch(params);
-  };
-
-  useEffect(() => {
-    data();
-  }, []);
-
   const columns: ColumnsType<Partial<COLOR.Color>> = [
     {
       title: 'Color',
@@ -264,12 +303,10 @@ const ColorsList = () => {
               backgroundColor: 'white',
             }}
           />
-
           <Avatar
             style={{ backgroundColor: values.html, border: 'solid 1px black', marginLeft: 10 }}
             shape="square"
           />
-
           <Text style={{ marginLeft: 10 }}>{name}</Text>
         </>
       ),
@@ -285,7 +322,7 @@ const ColorsList = () => {
         return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
       },
       filterMultiple: false,
-      filteredValue: filterTable.active || null,
+      filteredValue: filterTable?.active || null,
       filters: [
         {
           text: 'Si',
@@ -343,7 +380,7 @@ const ColorsList = () => {
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
-                onClick={() => visibleModal()}
+                onClick={() => visibleModal(color)}
               >
                 Nuevo
               </Button>
@@ -364,7 +401,6 @@ const ColorsList = () => {
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       <CreateColors modalVisible={visible} onCancel={closeModal} current={color} />
-      {console.log(color)}
     </PageContainer>
   );
 };

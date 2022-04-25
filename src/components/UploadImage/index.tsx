@@ -1,7 +1,7 @@
 import Icon, { UploadOutlined } from '@ant-design/icons';
 import { Button, Col, message, Modal, Popconfirm, Row, Tooltip, Upload } from 'antd';
 
-import SearchImage from '../SearchImage';
+//import SearchImage from '../SearchImage';
 import QueueAnim from 'rc-queue-anim';
 import { useEffect, useState } from 'react';
 import Picture from '../Picture';
@@ -130,9 +130,7 @@ const UploadImage = (props: Props) => {
                 <Button icon={<UploadOutlined />}>Subir</Button>
               </Upload>
             </Col>
-            <Col md={8}>
-              <SearchImage name="Buscar" handleSelectImage={onUpload} />
-            </Col>
+            <Col md={8}>{/*<SearchImage name="Buscar" handleSelectImage={onUpload} />*/}</Col>
           </Row>
         )}
       </Col>

@@ -11,8 +11,8 @@ export type Props = {
 };
 
 const SearchImage = (/*props: Props*/) => {
-  /* const [visible, setVisible] = useState(false);
-  const [images, setImages] = useState<{ total?: number, limit?: number, skip?: number, data?: [] }>({});
+  /* const [images, setImages] = useState<{ total?: number, limit?: number, skip?: number, data?: [] }>({});
+  const [visible, setVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1)
 
   const { name } = props;
@@ -43,7 +43,6 @@ const SearchImage = (/*props: Props*/) => {
         <Pagination pageSize={12} onChange={() => { }} current={currentPage} total={images.total} />
       </Modal>
     </>
-  );
-  */
+  );*/
 };
 export default SearchImage;
