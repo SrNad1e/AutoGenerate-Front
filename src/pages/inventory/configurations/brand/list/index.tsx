@@ -298,7 +298,7 @@ const BrandsList = () => {
       sortOrder: sorterTable.field === 'name' ? sorterTable.order : undefined,
     },
     {
-      title: 'Active',
+      title: 'Activo',
       dataIndex: 'active',
       align: 'center',
       render: (active: boolean) => {
