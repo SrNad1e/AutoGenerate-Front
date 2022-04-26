@@ -316,7 +316,7 @@ const ColorsList = () => {
       dataIndex: 'name_internal',
     },
     {
-      title: 'Active',
+      title: 'Activo',
       dataIndex: 'active',
       render: (active: boolean) => {
         return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
