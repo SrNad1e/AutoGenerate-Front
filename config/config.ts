@@ -163,6 +163,17 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Configuraciones',
+              path: '/inventory/configurations',
+              routes: [
+                {
+                  name: 'Marcas',
+                  path: '/inventory/configurations/brand',
+                  component: './inventory/configurations/brand/list',
+                },
+              ],
+            },
           ],
         },
 
