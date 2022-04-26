@@ -258,7 +258,7 @@ export default class ReportRequest extends React.PureComponent {
                     borderBottom: 'none',
                   }}
                 >
-                  {detail?.product?.reference} / {detail?.product?.description}
+                  {detail?.product?.reference?.name} / {detail?.product?.reference?.description}
                 </div>
                 <div
                   style={{

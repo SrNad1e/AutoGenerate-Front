@@ -10,6 +10,7 @@ declare namespace USER {
     type: CUSTOMER.CustomerType;
     username: string;
     pointOfSale: POS.PointOfSale;
+    company: COMPANY.Company;
   };
   type LoginParams = {
     username: string;

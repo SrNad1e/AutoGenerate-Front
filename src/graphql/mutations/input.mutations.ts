@@ -28,8 +28,10 @@ export const UPDATEINPUT = gql`
             html
             name_internal
           }
-          description
-          reference
+          reference {
+            description
+            name
+          }
           size {
             value
           }

@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeftOutlined,
   DropboxOutlined,
@@ -8,15 +7,16 @@ import {
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
+
 import { useParams, useHistory, useModel } from 'umi';
 import { useReactToPrint } from 'react-to-print';
-
 import FormRequest from '../components/FormRequest';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetRequest } from '@/hooks/request.hooks';
 import ReportRequest from '../reports/request';
+import { useEffect, useRef, useState } from 'react';
 
 import styles from './styles.less';
 import './styles.less';
@@ -30,7 +30,7 @@ const RequestForm = () => {
     type: 'error',
     visible: false,
   });
-  const [request, setRequest] = useState<Partial<REQUEST.Request & REQUEST.CreateRequest>>({
+  const [request, setRequest] = useState<Partial<REQUEST.Request>>({
     status: 'open',
   });
 
@@ -74,6 +74,8 @@ const RequestForm = () => {
    * @param data datos de la solicitud
    */
   const currentRequest = (data: Partial<REQUEST.Request>) => {
+    console.log(data);
+
     setRequest(data);
   };
 
@@ -91,7 +93,7 @@ const RequestForm = () => {
    * @description se encarga de cambiar el paso y asignar la bodega
    * @param warehouseDestinationId bodega seleccionada
    */
-  const changeCurrentStep = (warehouseOrigin?: WAREHOUSE.warehouse) => {
+  const changeCurrentStep = (warehouseOrigin?: WAREHOUSE.Warehouse) => {
     if (warehouseOrigin) {
       setCurretStep(1);
 

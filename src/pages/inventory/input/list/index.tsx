@@ -23,7 +23,6 @@ import { SorterResult } from 'antd/lib/table/interface';
 import { useHistory, useLocation } from 'umi';
 import { useGetInputs } from '@/hooks/input.hooks';
 import { useEffect, useRef, useState } from 'react';
-
 import { StatusTypeInput } from '../input.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import numeral from 'numeral';
@@ -43,7 +42,7 @@ const { Title } = Typography;
 export type FormValues = {
   status?: string;
   number?: number;
-  warehouse?: WAREHOUSE.warehouse;
+  warehouse?: WAREHOUSE.Warehouse;
   dates?: Moment[];
 };
 
@@ -252,7 +251,7 @@ const InputList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouse: WAREHOUSE.warehouse) => warehouse?.name,
+      render: (warehouse: WAREHOUSE.Warehouse) => warehouse?.name,
     },
     {
       title: 'Referencia',

@@ -22,9 +22,11 @@ export const ADJUSTMENT = gql`
         product {
           _id
           barcode
-          cost
-          description
-          reference
+          reference {
+            cost
+            description
+            name
+          }
           status
           size {
             value
@@ -69,9 +71,11 @@ export const ADJUSTMENTS = gql`
           product {
             _id
             barcode
-            description
-            cost
-            reference
+            reference {
+              description
+              cost
+              name
+            }
             size {
               value
             }

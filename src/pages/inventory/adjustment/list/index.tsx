@@ -23,7 +23,6 @@ import { SorterResult } from 'antd/lib/table/interface';
 import { useHistory, useLocation } from 'umi';
 import { useGetAdjustments } from '@/hooks/adjustment.hooks';
 import { useEffect, useRef, useState } from 'react';
-
 import { StatusTypeAdjustment } from '../adjustment.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import numeral from 'numeral';
@@ -43,7 +42,7 @@ const { Title } = Typography;
 export type FormValues = {
   status?: string;
   number?: number;
-  warehouse?: WAREHOUSE.warehouse;
+  warehouse?: WAREHOUSE.Warehouse;
   dates?: Moment[];
 };
 
@@ -126,7 +125,7 @@ const AdjustmentList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener las entradas
+   * @description se encarga de ejecutar la funcion para obtener los ajustes
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: Partial<ADJUSTMENT.FiltersGetAdjustment>) => {
@@ -252,7 +251,7 @@ const AdjustmentList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouse: WAREHOUSE.warehouse) => warehouse?.name,
+      render: (warehouse: WAREHOUSE.Warehouse) => warehouse?.name,
     },
     {
       title: 'Referencia',

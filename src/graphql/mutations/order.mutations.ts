@@ -36,12 +36,13 @@ export const UPDATEORDER = gql`
             image
             name_internal
           }
-          description
           status
           size {
             value
           }
-          reference
+          reference {
+            description
+          }
           stock {
             quantity
           }
@@ -101,10 +102,11 @@ export const ADDPAYMENTSORDER = gql`
         product {
           _id
           barcode
-          reference
+          reference {
+            description
+            price
+          }
           status
-          description
-          price
           color {
             html
             image

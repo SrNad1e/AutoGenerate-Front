@@ -6,7 +6,6 @@ const FormItem = Form.Item;
 
 const SearchProduct = () => {
   const product: PRODUCT.Product = {
-    description: 'Cachetero esmeralda',
     stock: [
       {
         quantity: 3,
@@ -15,7 +14,6 @@ const SearchProduct = () => {
         },
       },
     ],
-    price: 8000,
     barcode: '7700000471390',
     color: {
       name: 'Estampado',
@@ -23,7 +21,11 @@ const SearchProduct = () => {
     size: {
       value: 'XL',
     },
-    reference: '2020',
+    reference: {
+      name: '2020',
+      description: 'Cachetero esmeralda',
+      price: 8000,
+    },
   };
 
   return (

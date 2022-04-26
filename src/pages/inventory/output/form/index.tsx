@@ -1,4 +1,3 @@
-import { useHistory, useParams } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
 import {
@@ -8,6 +7,7 @@ import {
   PrinterOutlined,
 } from '@ant-design/icons';
 
+import { useHistory, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useGetOutput } from '@/hooks/output.hooks';
@@ -31,8 +31,6 @@ const OutputForm = () => {
   const [output, setOutput] = useState<Partial<OUTPUT.Output & OUTPUT.CreateOutput>>({
     status: 'open',
   });
-
-  //const { initialState } = useModel('@@initialState');
 
   const { id } = useParams<Partial<{ id: string }>>();
 
@@ -72,7 +70,7 @@ const OutputForm = () => {
   };
 
   /**
-   * @description se encarga de cargar la entrada actual
+   * @description se encarga de cargar la salida actual
    * @param data datos de la entrada
    */
   const currentOutput = (data: Partial<OUTPUT.Output>) => {
@@ -99,7 +97,7 @@ const OutputForm = () => {
    * @description se encarga de cambiar el paso y asignar la bodega
    * @param warehouse bodega seleccionada
    */
-  const changeCurrentStep = (warehouse: WAREHOUSE.warehouse) => {
+  const changeCurrentStep = (warehouse: WAREHOUSE.Warehouse) => {
     if (warehouse) {
       setCurrentStep(1);
 

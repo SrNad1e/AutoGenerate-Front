@@ -17,6 +17,9 @@ export const UPDATEADJUSTMENT = gql`
       observation
       status
       total
+      company {
+        _id
+      }
       warehouse {
         name
         _id
@@ -28,8 +31,9 @@ export const UPDATEADJUSTMENT = gql`
           stock {
             quantity
           }
-          description
-          reference
+          reference {
+            description
+          }
           size {
             value
           }
