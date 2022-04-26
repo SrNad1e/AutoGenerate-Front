@@ -25,7 +25,7 @@ export const useCreateBrand = (
   showError: (message: string) => void,
 ) => {
   const [createBrands, { loading }] = useMutation(CREATEBRAND, {
-    onCompleted: (result) => callback(result.createBrands),
+    onCompleted: (result) => callback(result.createBrand),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0].message : 'Error sin identificar';
 
@@ -43,7 +43,7 @@ export const useUpdateBrand = (
   showError: (message: string) => void,
 ) => {
   const [updateBrands, { loading }] = useMutation(UPDATEBRAND, {
-    onCompleted: (result) => callback(result.updateBrands),
+    onCompleted: (result) => callback(result.updateBrand),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0].message : 'Error sin identificar';
 
