@@ -163,6 +163,17 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Configuraciones',
+              path: '/inventory/configurations',
+              routes: [
+                {
+                  name: 'Atributos',
+                  path: '/inventory/configurations/attribs',
+                  component: './inventory/configurations/attribs/list',
+                },
+              ],
+            },
           ],
         },
 
