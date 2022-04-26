@@ -298,7 +298,7 @@ const SizesList = () => {
       sortOrder: sorterTable.field === 'value' ? sorterTable.order : undefined,
     },
     {
-      title: 'Active',
+      title: 'Activo',
       dataIndex: 'active',
       align: 'center',
       render: (active: boolean) => {
