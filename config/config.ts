@@ -177,6 +177,11 @@ export default defineConfig({
                   path: '/inventory/configurations/color',
                   component: './inventory/configurations/color/list',
                 },
+                {
+                  name: 'Marcas',
+                  path: '/inventory/configurations/brand',
+                  component: './inventory/configurations/brand/list',
+                },
               ],
             },
           ],
