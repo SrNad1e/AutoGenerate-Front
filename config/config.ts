@@ -163,6 +163,17 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Configuraciones',
+              path: '/inventory/configurations',
+              routes: [
+                {
+                  name: 'Referencias',
+                  path: '/inventory/configurations/reference',
+                  component: './inventory/configurations/reference/list',
+                },
+              ],
+            },
           ],
         },
 
