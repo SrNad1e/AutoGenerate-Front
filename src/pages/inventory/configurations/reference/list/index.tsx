@@ -25,6 +25,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import styles from './styles.less';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useLocation, history } from 'umi';
+import numeral from 'numeral';
 
 type FormData = {
   name?: string;
@@ -171,6 +172,20 @@ const ReferenceList = () => {
     setFilterTable(filterArg);
   };
 
+  const onClear = () => {
+    history.replace(location.pathname);
+    form.resetFields();
+    setPagination({
+      total: 0,
+      pageSize: 10,
+      current: 1,
+      showSizeChanger: false,
+    });
+    onSearch({});
+    setSorterTable({});
+    setFilterTable({});
+  };
+
   const getFiltersQuery = () => {
     const queryParams = location['query'];
     const params = {};
@@ -214,6 +229,7 @@ const ReferenceList = () => {
       sorter: true,
       sortOrder: sorterTable?.field === 'cost' ? sorterTable.order : undefined,
       showSorterTooltip: false,
+      render: (cost: number) => <span>{numeral(cost).format('$ 0,0')}</span>,
     },
     {
       title: 'Precio',
@@ -221,6 +237,7 @@ const ReferenceList = () => {
       sorter: true,
       sortOrder: sorterTable?.field === 'price' ? sorterTable.order : undefined,
       showSorterTooltip: false,
+      render: (price: number) => <span>{numeral(price).format('$ 0,0')}</span>,
     },
     {
       title: 'Activo',
@@ -282,48 +299,47 @@ const ReferenceList = () => {
           <Input placeholder="Referencia, Descripción" autoComplete="off" />
         </FormItem>
       </Col>
-      <Col span={8} style={{ paddingLeft: 20 }}>
-        Marca:
-        <Select
-          style={{ width: '80%', paddingLeft: 10 }}
-          placeholder="Seleccionar Marca"
-          optionLabelProp="label"
-        >
-          <Option value="toulouse" label="Toulouse">
-            <div className="demo-option-label-item">Toulouse</div>
-          </Option>
-          <Option value="lucky" label="Lucky">
-            <div className="demo-option-label-item">Lucky Woman</div>
-          </Option>
-          <Option value="externos" label="Externos">
-            <div className="demo-option-label-item">Externos</div>
-          </Option>
-          <Option value="lv" label="LV">
-            <div className="demo-option-label-item">Louis Vuitton</div>
-          </Option>
-        </Select>
+      <Col span={6} style={{ paddingLeft: 20 }}>
+        <FormItem label="Marca" name="brand">
+          <Select style={{ width: '80%' }} placeholder="Seleccionar Marca" optionLabelProp="label">
+            <Option value="toulouse" label="Toulouse">
+              <div className="demo-option-label-item">Toulouse</div>
+            </Option>
+            <Option value="lucky" label="Lucky">
+              <div className="demo-option-label-item">Lucky Woman</div>
+            </Option>
+            <Option value="externos" label="Externos">
+              <div className="demo-option-label-item">Externos</div>
+            </Option>
+            <Option value="lv" label="LV">
+              <div className="demo-option-label-item">Louis Vuitton</div>
+            </Option>
+          </Select>
+        </FormItem>
+      </Col>
+      <Col span={6}>
+        <FormItem label="Categoria" name="category">
+          <TreeSelect
+            showSearch
+            style={{ width: '100%' }}
+            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+            placeholder="Seleccionar Categoria"
+            allowClear
+          >
+            <TreeNode value="parent 1" title="Categoria Nivel 1">
+              <TreeNode value="parent 1-0" title="Categoria Nivel 2">
+                <TreeNode value="leaf1" title="Categoria Nivel 3"></TreeNode>
+              </TreeNode>
+            </TreeNode>
+          </TreeSelect>
+        </FormItem>
       </Col>
       <Col span={6} style={{ paddingLeft: 20 }}>
-        <TreeSelect
-          showSearch
-          style={{ width: '100%' }}
-          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-          placeholder="Seleccionar Categoria"
-          allowClear
-        >
-          <TreeNode value="parent 1" title="Categoria Nivel 1">
-            <TreeNode value="parent 1-0" title="Categoria Nivel 2">
-              <TreeNode value="leaf1" title="Categoria Nivel 3"></TreeNode>
-            </TreeNode>
-          </TreeNode>
-        </TreeSelect>
-      </Col>
-      <Col span={4} style={{ paddingLeft: 20 }}>
         <span className={styles.submitButtons}>
           <Button type="primary" htmlType="submit">
             Buscar
           </Button>
-          <Button style={{ marginLeft: 8 }} onClick={() => {}}>
+          <Button style={{ marginLeft: 8 }} onClick={onClear}>
             Limpiar
           </Button>
         </span>

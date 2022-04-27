@@ -11,7 +11,11 @@ export const COLORS = gql`
         _id
         name
         name_internal
-        image
+        image {
+          urls {
+            original
+          }
+        }
         html
         active
       }

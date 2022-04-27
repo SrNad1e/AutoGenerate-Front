@@ -86,6 +86,10 @@ export const REFERENCES = gql`
         createdAt
         updatedAt
         description
+        brand {
+          name
+          _id
+        }
       }
     }
   }
