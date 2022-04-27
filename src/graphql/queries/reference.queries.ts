@@ -79,76 +79,13 @@ export const REFERENCES = gql`
       totalPages
       limit
       docs {
-        _id
+        name
         active
-        changeable
         cost
-        description
         price
         createdAt
         updatedAt
-        discountPrice
-        name
-        attribs {
-          _id
-          active
-          name
-        }
-        brand {
-          _id
-          active
-          name
-        }
-        products {
-          _id
-          barcode
-          status
-          color {
-            html
-            image
-            name
-            name_internal
-          }
-          size {
-            value
-          }
-          stock {
-            quantity
-          }
-          reference {
-            _id
-            active
-            changeable
-            cost
-            description
-            price
-            name
-            attribs {
-              _id
-              active
-              name
-            }
-            brand {
-              _id
-              active
-              name
-            }
-            shipping {
-              height
-              long
-              volume
-              width
-              weight
-            }
-          }
-        }
-        shipping {
-          height
-          long
-          volume
-          width
-          weight
-        }
+        description
       }
     }
   }

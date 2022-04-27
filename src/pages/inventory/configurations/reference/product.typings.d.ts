@@ -13,7 +13,7 @@ declare namespace PRODUCT {
   };
 
   type ResponsePaginate = {
-    docs: Product[];
+    docs: Reference[];
     hasNextPage: boolean;
     hasPrevPage: boolean;
     limit: number;
