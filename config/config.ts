@@ -163,6 +163,17 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Configuraciones',
+              path: '/inventory/configurations',
+              routes: [
+                {
+                  name: 'Colores',
+                  path: '/inventory/configurations/color',
+                  component: './inventory/configurations/color/list',
+                },
+              ],
+            },
           ],
         },
 
