@@ -16,7 +16,7 @@ export const useGetBrands = (
   });
   return {
     getBrands,
-    loading,
+    loadingGet: loading,
   };
 };
 

@@ -182,6 +182,10 @@ export default defineConfig({
                   path: '/inventory/configurations/brand',
                   component: './inventory/configurations/brand/list',
                 },
+                {
+                  path: '/inventory/configurations/reference/modifyReference',
+                  component: './inventory/configurations/reference/modifyReference',
+                },
               ],
             },
           ],

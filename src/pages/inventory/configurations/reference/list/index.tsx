@@ -1,19 +1,7 @@
 import { useGetReferences } from '@/hooks/reference.hooks';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  Row,
-  Select,
-  Space,
-  Tooltip,
-  TreeSelect,
-} from 'antd';
+import { Badge, Button, Card, Col, Form, Input, Row, Space, Tooltip, TreeSelect } from 'antd';
 import { Typography } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 import Table, { ColumnsType } from 'antd/lib/table';
@@ -26,10 +14,11 @@ import styles from './styles.less';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useLocation, history } from 'umi';
 import numeral from 'numeral';
+import SelectBrand from '@/components/SelectBrand';
 
 type FormData = {
   name?: string;
-  brand?: BRAND.Brand;
+  brandId?: string;
   category?: string;
   active?: boolean;
 };
@@ -60,7 +49,6 @@ const ReferenceList = () => {
   });
 
   const { Title, Text } = Typography;
-  const { Option } = Select;
   const [form] = Form.useForm();
   const location = useLocation();
 
@@ -99,12 +87,13 @@ const ReferenceList = () => {
 
   const setQueryParams = (values?: any) => {
     try {
-      const valuesForm = form.getFieldsValue();
+      const valuesForm = form.getFieldsValue(['name']);
 
       const valuesNew = {
         ...values,
         ...valuesForm,
       };
+
       const datos = Object.keys(valuesNew)
         .reduce(
           (a, key) =>
@@ -119,7 +108,7 @@ const ReferenceList = () => {
     }
   };
 
-  const onFinish = (values: FormData) => {
+  const onFinish = (values: Partial<FormData>) => {
     const filters = { ...filterTable };
 
     Object.keys(filters).forEach((i) => {
@@ -129,7 +118,6 @@ const ReferenceList = () => {
         filters[i] = filters[i][0];
       }
     });
-
     onSearch({ ...filters, ...values });
     setQueryParams({
       ...values,
@@ -300,21 +288,8 @@ const ReferenceList = () => {
         </FormItem>
       </Col>
       <Col span={6} style={{ paddingLeft: 20 }}>
-        <FormItem label="Marca" name="brand">
-          <Select style={{ width: '80%' }} placeholder="Seleccionar Marca" optionLabelProp="label">
-            <Option value="toulouse" label="Toulouse">
-              <div className="demo-option-label-item">Toulouse</div>
-            </Option>
-            <Option value="lucky" label="Lucky">
-              <div className="demo-option-label-item">Lucky Woman</div>
-            </Option>
-            <Option value="externos" label="Externos">
-              <div className="demo-option-label-item">Externos</div>
-            </Option>
-            <Option value="lv" label="LV">
-              <div className="demo-option-label-item">Louis Vuitton</div>
-            </Option>
-          </Select>
+        <FormItem label="Marca" name="brandId">
+          <SelectBrand />
         </FormItem>
       </Col>
       <Col span={6}>
@@ -364,7 +339,12 @@ const ReferenceList = () => {
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
           <Row>
             <Col span={12} style={{ marginBottom: 10 }}>
-              <Button icon={<PlusOutlined />} type="primary" shape="round" onClick={() => {}}>
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                shape="round"
+                onClick={() => history.push('/inventory/configurations/reference/modifyReference')}
+              >
                 Nueva Referencia
               </Button>
             </Col>
