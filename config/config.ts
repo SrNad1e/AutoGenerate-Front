@@ -177,6 +177,11 @@ export default defineConfig({
                   path: '/inventory/configurations/size',
                   component: './inventory/configurations/size/list',
                 },
+                {
+                  name: 'Atributos',
+                  path: '/inventory/configurations/attribs',
+                  component: './inventory/configurations/attribs/list',
+                },
               ],
             },
           ],
