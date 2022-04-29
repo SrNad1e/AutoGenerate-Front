@@ -182,6 +182,11 @@ export default defineConfig({
                   path: '/inventory/configurations/attribs',
                   component: './inventory/configurations/attribs/list',
                 },
+                {
+                  name: 'Marcas',
+                  path: '/inventory/configurations/brand',
+                  component: './inventory/configurations/brand/list',
+                },
               ],
             },
           ],
