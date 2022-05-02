@@ -58,10 +58,6 @@ const CreateCategory = ({ current, modalVisible, onCancel }: Props) => {
     closeAndClear();
   };
 
-  /**
-   * @description ejecuta la mutation para actualizar una talla
-   */
-
   return (
     <Modal
       okText="Aceptar"

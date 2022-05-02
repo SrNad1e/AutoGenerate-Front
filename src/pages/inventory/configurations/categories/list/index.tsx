@@ -18,7 +18,7 @@ import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import Title from 'antd/lib/typography/Title';
 import { SorterResult } from 'antd/lib/table/interface';
 
-//import moment from 'moment';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { useLocation, history } from 'umi';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -26,6 +26,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from './styles.less';
 import CreateCategory from '../components/createCategories';
+import { useGetCategories } from '@/hooks/category.hooks';
 
 type FormData = {
   name?: string;
@@ -41,26 +42,7 @@ type InputVars = {
 };
 
 const CategoryList = () => {
-  /*const [categories, setCategories] = useState<Partial<CATEGORY.CategoryLevel1[]>>([
-        {
-             key: 1,
-             name: 'Panty',
-             createdAt: '2022-04-26 00:00:00',
-             updatedAt: '2022-05-26 00:00:00'
-         },
-         {
-             key: 2,
-             name: 'Bra',
-             createdAt: '2022-04-26 00:00:00',
-             updatedAt: '2022-05-26 00:00:00'
-         },
-         {
-             key: 3,
-             name: 'Body',
-             createdAt: '2022-04-26 00:00:00',
-             updatedAt: '2022-05-26 00:00:00'
-         }
-    ]);*/
+  const [categories, setCategories] = useState<Partial<CATEGORY.CategoryLevel1[]>>([]);
   const [category, setCategory] = useState<Partial<CATEGORY.CategoryLevel1>>({});
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     showSizeChanger: false,
@@ -87,27 +69,27 @@ const CategoryList = () => {
    * @description se encarga de almacenar los datos de la consulta
    * @param data respuesta de la consulta
    */
-  /*const resultSizes = (data: Partial<CATEGORY.ResponsePaginate>) => {
-        setCategories(data.docs || []);
-        setPagination({ ...pagination, total: data.totalDocs });
-    };
+  const resultCategories = (data: Partial<CATEGORY.ResponsePaginate>) => {
+    setCategories(data.docs || []);
+    setPagination({ ...pagination, total: data.totalDocs });
+  };
 
-    /**
-     * @description funcion usada por los hooks para mostrar los errores
-     * @param message mensaje de error a mostrar
-     */
-  /* const showError = (message: string) => {
-         setAlertInformation({
-             message,
-             type: 'error',
-             visible: true,
-         });
-     };
- 
-     /** Fin de Funciones ejecutadas por los hooks */
+  /**
+   * @description funcion usada por los hooks para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showError = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /** Fin de Funciones ejecutadas por los hooks */
 
   /** Hooks para manejo de consultas */
-
+  const { getCategories, loading } = useGetCategories(resultCategories, showError);
   /** Fin de Hooks para manejo de consultas */
 
   /**
@@ -125,14 +107,20 @@ const CategoryList = () => {
    * @description se encarga de ejecutar la funcion para obtener las tallas
    * @param values Variables para ejecutar la consulta
    */
-  /*const onSearch = (values?: InputVars) => {
+  const onSearch = (values?: InputVars) => {
+    getCategories({
+      variables: {
+        input: {
+          ...values,
+        },
+      },
+    });
+  };
 
-    };
-
-    /**
-     * @description se encarga de abrir el modal de actualizacion o creacion de la talla
-     * @param sizeData propiedades del objeto para setear
-     */
+  /**
+   * @description se encarga de abrir el modal de actualizacion o creacion de la talla
+   * @param categoryData propiedades del objeto para setear
+   */
   const visibleModal = (categoryData: Partial<CATEGORY.CategoryLevel1>) => {
     setCategory(categoryData || {});
     setVisible(true);
@@ -202,7 +190,7 @@ const CategoryList = () => {
     sorter: SorterResult<Partial<CATEGORY.CategoryLevel1>>,
   ) => {
     const { current } = paginationLocal;
-    /*const prop = form.getFieldsValue();*/
+    const prop = form.getFieldsValue();
 
     const filters = { ...filterArg };
 
@@ -214,19 +202,19 @@ const CategoryList = () => {
       }
     });
 
-    /*let sort = {};
+    let sort = {};
 
-        if (sorter.field) {
-            if (['ascend', 'descend'].includes(sorter?.order || '')) {
-                sort = {
-                    [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-                };
-            }
-        }*/
+    if (sorter.field) {
+      if (['ascend', 'descend'].includes(sorter?.order || '')) {
+        sort = {
+          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+        };
+      }
+    }
 
     setQueryParams(filters);
     setPagination({ ...pagination, current });
-    /*onSearch({ ...prop, sort, page: current, ...filters });*/
+    onSearch({ ...prop, sort, page: current, ...filters });
     setSorterTable(sorter);
     setFilterTable(filterArg);
   };
@@ -243,7 +231,7 @@ const CategoryList = () => {
       current: 1,
       showSizeChanger: false,
     });
-    /*onSearch({});*/
+    onSearch({});
     setSorterTable({});
     setFilterTable({});
   };
@@ -266,7 +254,7 @@ const CategoryList = () => {
     });
     form.setFieldsValue(params);
     setFilterTable(tableFilters);
-    /*onSearch(params);*/
+    onSearch(params);
   };
 
   useEffect(() => {
@@ -302,7 +290,6 @@ const CategoryList = () => {
     {
       title: 'Categoria',
       dataIndex: 'name',
-      key: 'name',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
@@ -311,26 +298,25 @@ const CategoryList = () => {
     {
       title: 'Fecha de creacion',
       dataIndex: 'createdAt',
-      key: 'createdAt',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
       sortOrder: sorterTable.field === 'createdAt' ? sorterTable.order : undefined,
+      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
     },
     {
       title: 'Fecha de actualizacion',
       dataIndex: 'updatedAt',
-      key: 'updatedAt',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
       sortOrder: sorterTable.field === 'updatedAt' ? sorterTable.order : undefined,
+      render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
       title: 'Accion',
       align: 'center',
       dataIndex: '_id',
-      key: '_id',
       render: (_: string, CategoryID) => (
         <>
           <Tooltip title="Editar" placement="topLeft">
@@ -353,13 +339,36 @@ const CategoryList = () => {
     },
   ];
 
-  const data = [
-    {
+  const data: any = [];
+  categories.map(() => {
+    const datanew = {
       key: 1,
-      name: 'Panty',
-      createdAt: '2022-04-26 00:00:00',
-      updatedAt: '2022-04-26 00:00:00',
-      description: 'Hola',
+      name: 'Hola',
+      createdAt: category.createdAt,
+      updatedAt: category.updatedAt,
+      children: [
+        {
+          key: 5,
+          name: 'PantyMedias',
+          createdAt: '2022-04-26 00:00:00',
+          updatedAt: '2022-04-26 00:00:00',
+          children: [
+            {
+              key: 6,
+              name: 'Tanga',
+              createdAt: '2022-04-26 00:00:00',
+              updatedAt: '2022-04-26 00:00:00',
+            },
+          ],
+        },
+      ],
+    };
+    data.push(datanew);
+  }); /*{
+      key: 1,
+      name: categories.find(e => e?.name === 'Otros'),
+      createdAt: category.createdAt,
+      updatedAt: category.updatedAt,
       children: [
         {
           key: 5,
@@ -399,74 +408,7 @@ const CategoryList = () => {
           ],
         },
       ],
-    },
-    {
-      key: 3,
-      name: 'Top',
-      createdAt: '2022-04-26 00:00:00',
-      updatedAt: '2022-04-26 00:00:00',
-      description: 'Cruel',
-      children: [
-        {
-          key: 9,
-          name: 'El superior',
-          createdAt: '2022-04-26 00:00:00',
-          updatedAt: '2022-04-26 00:00:00',
-          children: [
-            {
-              key: 10,
-              name: 'El carry',
-              createdAt: '2022-04-26 00:00:00',
-              updatedAt: '2022-04-26 00:00:00',
-            },
-          ],
-        },
-      ],
-    },
-  ];
-  /*{
-        title: 'Fecha de Creacion',
-        dataIndex: 'createdAt',
-        align: 'center',
-        sorter: true,
-        sortOrder: sorterTable?.field === 'createdAt' ? sorterTable.order : undefined,
-        showSorterTooltip: false,
-        render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-        title: 'Fecha de Actualizacion',
-        dataIndex: 'updatedAt',
-        align: 'center',
-        sorter: true,
-        sortOrder: sorterTable?.field === 'updatedAt' ? sorterTable.order : undefined,
-        showSorterTooltip: false,
-        render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-        title: 'Acción',
-        dataIndex: '_id',
-        align: 'center',
-        render: (_: string, CategoryID) => (
-            <>
-                <Tooltip title="Editar" placement="topLeft">
-                    <Button
-                        onClick={() => visibleModal(CategoryID)}
-                        style={{ backgroundColor: '#dc9575' }}
-                        icon={<EditOutlined style={{ color: 'white' }} />}
-                    />
-                </Tooltip>
-                <Divider type='vertical' />
-                <Tooltip title="Crear Subcategoria" placement="topLeft">
-                    <Button
-                        onClick={() => visibleModal(category)}
-                        style={{ backgroundColor: '#dc9575' }}
-                        icon={<PlusSquareOutlined style={{ color: 'white' }} />}
-                    />
-                </Tooltip>
-            </>
-        ),
-    },
-];*/
+    },*/
 
   const totalPages = Math.ceil((pagination.total || 0) / (pagination.pageSize || 0));
 
@@ -502,29 +444,41 @@ const CategoryList = () => {
           <Table
             columns={columns}
             expandable={{
-              /*expandedRowRender: record => <Row>
-                                <Col style={{ paddingLeft: 120 }} span={4}>{record.name}</Col>
-                                <Col style={{ paddingLeft: 145 }} span={8}>{'2022-04-26 00:00:00'}</Col>
-                                <Col style={{ paddingLeft: 110 }} span={8}>{'2022-03-26 00:00:00'}</Col>
-                                <Col style={{ paddingLeft: 50 }} span={4}><Tooltip title="Editar" placement="topLeft">
-                                    <Button
-                                        onClick={() => { }}
-                                        style={{ backgroundColor: '#dc9575' }}
-                                        icon={<EditOutlined style={{ color: 'white' }} />}
-                                    />
-                                </Tooltip>
-                                    <Divider type='vertical' />
-                                    <Tooltip title="Crear Subcategoria" placement="topLeft">
-                                        <Button
-                                            onClick={() => { }}
-                                            style={{ backgroundColor: '#dc9575' }}
-                                            icon={<PlusSquareOutlined style={{ color: 'white' }} />}
-                                        />
-                                    </Tooltip>
-                                </Col>
-                            </Row>,*/
-              rowExpandable: (record) => (record.name ? true : false),
+              expandedRowRender: (record) => {
+                return (
+                  <Row>
+                    <Col style={{ paddingLeft: 120 }} span={4}>
+                      {record?.childs?.name}
+                    </Col>
+                    <Col style={{ paddingLeft: 145 }} span={8}>
+                      {moment(record?.childs?.createdAt).format(FORMAT_DATE)}
+                    </Col>
+                    <Col style={{ paddingLeft: 110 }} span={8}>
+                      {moment(record?.childs?.updatedAt).format(FORMAT_DATE)}
+                    </Col>
+                    <Col style={{ paddingLeft: 50 }} span={4}>
+                      <Tooltip title="Editar" placement="topLeft">
+                        <Button
+                          onClick={() => {}}
+                          style={{ backgroundColor: '#dc9575' }}
+                          icon={<EditOutlined style={{ color: 'white' }} />}
+                        />
+                      </Tooltip>
+                      <Divider type="vertical" />
+                      <Tooltip title="Crear Subcategoria" placement="topLeft">
+                        <Button
+                          onClick={() => {}}
+                          style={{ backgroundColor: '#dc9575' }}
+                          icon={<PlusSquareOutlined style={{ color: 'white' }} />}
+                        />
+                      </Tooltip>
+                    </Col>
+                  </Row>
+                );
+              },
+              rowExpandable: (record) => record.name !== 'hola',
             }}
+            loading={loading}
             dataSource={data}
             pagination={pagination}
             onChange={handleChangeTable}

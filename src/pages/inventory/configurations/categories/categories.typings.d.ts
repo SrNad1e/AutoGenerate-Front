@@ -5,7 +5,7 @@ declare namespace CATEGORY {
     user?: USER.User;
     updatedAt?: string;
     createdAt?: string;
-    key?: number;
+    childs?: CategoryLevel2;
   };
 
   type CategoryLevel2 = {
@@ -15,6 +15,7 @@ declare namespace CATEGORY {
     user: USER.User;
     updatedAt: Date;
     createdAt: Date;
+    childs?: CategoryLevel3;
   };
 
   type CategoryLevel3 = {
