@@ -7,6 +7,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import UploadImage from '../UploadImage';
 import { useCreateColor, useUpdateColor } from '@/hooks/color.hooks';
 import AlertLoading from '../Alerts/AlertLoading';
+import SearchImage from '../SearchImage';
 
 export type Props = {
   modalVisible: boolean;
@@ -185,6 +186,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
         </FormItem>
         <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} label="Imagen" name="image">
           <UploadImage current={image} onUpload={upload} />
+          <SearchImage />
         </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>

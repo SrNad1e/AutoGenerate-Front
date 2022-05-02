@@ -271,7 +271,7 @@ const ColorsList = () => {
       <Row gutter={[8, 8]}>
         <Col span={12}>
           <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Color" autoComplete="off" />
+            <Input placeholder="Nombre del color" autoComplete="off" />
           </FormItem>
         </Col>
       </Row>
@@ -290,7 +290,7 @@ const ColorsList = () => {
 
   const columns: ColumnsType<Partial<COLOR.Color>> = [
     {
-      title: 'Color',
+      title: 'Nombre',
       dataIndex: 'name',
       sorter: true,
       sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
@@ -335,13 +335,22 @@ const ColorsList = () => {
       ],
     },
     {
-      title: 'Fecha registro',
+      title: 'Fecha Creación',
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
       sortOrder: sorterTable?.field === 'createdAt' ? sorterTable.order : undefined,
       showSorterTooltip: false,
       render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
+    },
+    {
+      title: 'Fecha Actualización',
+      dataIndex: 'updatedAt',
+      align: 'center',
+      sorter: true,
+      sortOrder: sorterTable?.field === 'updatedAt' ? sorterTable.order : undefined,
+      showSorterTooltip: false,
+      render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: 'Acción',

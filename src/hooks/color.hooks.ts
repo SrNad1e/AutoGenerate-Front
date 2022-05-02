@@ -7,7 +7,7 @@ export const useGetColors = (
   showError: (message: string) => void,
 ) => {
   const [getColors, { loading }] = useLazyQuery(COLORS, {
-    onCompleted: (result) => callback(result.colors),
+    onCompleted: (result) => callback(result?.colors),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
 
@@ -25,7 +25,7 @@ export const useCreateColor = (
   showError: (message: string) => void,
 ) => {
   const [createColor, { loading }] = useMutation(CREATECOLOR, {
-    onCompleted: (result) => callback(result.createColor),
+    onCompleted: (result) => callback(result?.createColor),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
 
@@ -43,7 +43,7 @@ export const useUpdateColor = (
   showError: (message: string) => void,
 ) => {
   const [updateColor, { loading }] = useMutation(UPDATECOLOR, {
-    onCompleted: (result) => callback(result.updateColor),
+    onCompleted: (result) => callback(result?.updateColor),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
 

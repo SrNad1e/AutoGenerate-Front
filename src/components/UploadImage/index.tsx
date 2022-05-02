@@ -2,7 +2,6 @@ import Icon, { UploadOutlined } from '@ant-design/icons';
 import { Button, Col, message, Modal, Popconfirm, Row, Tooltip, Upload } from 'antd';
 
 //import SearchImage from '../SearchImage';
-import QueueAnim from 'rc-queue-anim';
 import { useEffect, useState } from 'react';
 import Picture from '../Picture';
 
@@ -90,39 +89,37 @@ const UploadImage = (props: Props) => {
     <Row gutter={8}>
       <Col xs={24} sm={24} md={24} style={{ marginTop: 10 }}>
         {image !== undefined && image !== null ? (
-          <QueueAnim component="div" type={['left', 'right']} className={styles.imglist}>
-            <div className={styles.item}>
-              <div className={styles.actions}>
-                <Tooltip title="Vista previa">
-                  <Button type="link" onClick={() => handlePreview(image)}>
-                    <Icon type="eye" />
+          <div className={styles.item}>
+            <div className={styles.actions}>
+              <Tooltip title="Vista previa">
+                <Button type="link" onClick={() => handlePreview(image)}>
+                  <Icon type="eye" />
+                </Button>
+              </Tooltip>
+              <Tooltip title="Borrar imagen">
+                <Popconfirm
+                  title="Seguro de borrar esta imagen"
+                  onConfirm={() => {
+                    setImage(undefined);
+                    onUpload(null);
+                  }}
+                  okText="Si"
+                  cancelText="No"
+                >
+                  <Button ghost danger>
+                    <Icon type="delete" />
                   </Button>
-                </Tooltip>
-                <Tooltip title="Borrar imagen">
-                  <Popconfirm
-                    title="Seguro de borrar esta imagen"
-                    onConfirm={() => {
-                      setImage(undefined);
-                      onUpload(null);
-                    }}
-                    okText="Si"
-                    cancelText="No"
-                  >
-                    <Button ghost danger>
-                      <Icon type="delete" />
-                    </Button>
-                  </Popconfirm>
-                </Tooltip>
-              </div>
-              {image?.imageSizes && (
-                <Picture
-                  baseUrl={API_URL}
-                  imgwebp={image?.imageSizes?.imgwebp}
-                  imgjpg={image?.imageSizes?.imgjpg}
-                />
-              )}
+                </Popconfirm>
+              </Tooltip>
             </div>
-          </QueueAnim>
+            {image?.imageSizes && (
+              <Picture
+                baseUrl={API_URL}
+                imgwebp={image?.imageSizes?.imgwebp}
+                imgjpg={image?.imageSizes?.imgjpg}
+              />
+            )}
+          </div>
         ) : (
           <Row gutter={2}>
             <Col md={8}>

@@ -8,10 +8,18 @@ export const COLORS = gql`
       limit
       page
       docs {
+        createdAt
+        updatedAt
         _id
         name
         name_internal
-        image
+        image {
+          urls {
+            webp {
+              medium
+            }
+          }
+        }
         html
         active
       }
