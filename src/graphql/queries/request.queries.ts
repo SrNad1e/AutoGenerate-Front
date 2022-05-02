@@ -14,7 +14,13 @@ export const REQUEST = gql`
           }
           color {
             html
-            image
+            image {
+              urls {
+                webp {
+                  small
+                }
+              }
+            }
             name_internal
             name
           }
@@ -49,8 +55,8 @@ export const REQUEST = gql`
 `;
 
 export const REQUESTS = gql`
-  query stockRequests($input: FiltersStockRequestInput!) {
-    stockRequests(filtersStockRequestInput: $input) {
+  query stockRequests($input: FiltersStockRequestsInput!) {
+    stockRequests(filtersStockRequestsInput: $input) {
       docs {
         _id
         number
@@ -67,17 +73,12 @@ export const REQUESTS = gql`
         details {
           quantity
           product {
-            reference {
-              cost
-              description
-              name
-            }
             barcode
-            color {
-              image
-              html
-              name_internal
+            reference {
               name
+              description
+            }
+            color {
               name_internal
             }
             size {

@@ -23,7 +23,13 @@ export const UPDATEREQUEST = gql`
           _id
           barcode
           color {
-            image
+            image {
+              urls {
+                webp {
+                  small
+                }
+              }
+            }
             html
             name_internal
           }

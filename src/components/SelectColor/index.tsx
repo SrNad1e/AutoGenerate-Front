@@ -91,7 +91,7 @@ const SelectColor = ({ onChange }: Props) => {
               <Avatar
                 size="small"
                 style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
-                //src={apiUrl + color.image?.imageSizes?.thumbnail}
+                src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
               />
 
               <Text style={{ marginLeft: 10 }}>

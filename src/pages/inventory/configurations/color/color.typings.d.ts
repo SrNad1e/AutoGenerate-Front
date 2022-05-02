@@ -5,7 +5,7 @@ declare namespace COLOR {
     html?: string;
     active?: boolean;
     name_internal?: string;
-    image?: string;
+    image?: any;
   };
 
   type ResponsePaginate = {

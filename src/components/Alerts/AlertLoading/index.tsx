@@ -20,10 +20,10 @@ const AlertLoading = ({ message, visible }: Props) => {
     >
       <Space direction="vertical" className={styles.content}>
         <LoadingOutlined className={styles.icon} />
+        <Title level={3} className={styles.texto}>
+          {message}
+        </Title>
       </Space>
-      <Title level={3} className={styles.texto}>
-        {message}
-      </Title>
     </Modal>
   );
 };

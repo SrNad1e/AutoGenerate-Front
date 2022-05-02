@@ -13,7 +13,13 @@ export const PRODUCTS = gql`
         color {
           name_internal
           html
-          image
+          image {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
         }
         size {
           value

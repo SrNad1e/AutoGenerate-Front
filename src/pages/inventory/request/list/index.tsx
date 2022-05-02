@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { SearchOutlined, EyeOutlined, PrinterFilled } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -20,28 +19,34 @@ import {
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
-import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
-
+import type {
+  FilterValue,
+  SorterResult,
+  TableCurrentDataSource,
+  TablePaginationConfig,
+} from 'antd/es/table/interface';
+import { useLazyQuery } from '@apollo/client';
+import { useReactToPrint } from 'react-to-print';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
-import { useReactToPrint } from 'react-to-print';
 import { useHistory, useLocation, useModel } from 'umi';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import { StatusType } from '../request.data';
-import { useGenerateRequest, useGetRequests } from '@/hooks/request.hooks';
+import { useGenerateRequest } from '@/hooks/request.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import ReportRequest from '../reports/request';
-import TotalFound from '@/components/TotalFound';
+import { REQUESTS } from '@/graphql/queries/request.queries';
 
 import styles from './styles.less';
 import './styles.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
 export type FormValues = {
@@ -53,9 +58,8 @@ export type FormValues = {
 };
 
 const RequestList = () => {
-  const [requests, setRequests] = useState<Partial<REQUEST.Request[]>>([]);
+  //const [requests, setRequests] = useState<RcTableProps<REQUEST.Request[]>['data']>();
   const [requestData, setRequestData] = useState<Partial<REQUEST.Request>>({});
-  const [totalPages, setTotalPages] = useState(0);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     total: 0,
     pageSize: 10,
@@ -69,6 +73,8 @@ const RequestList = () => {
 
   const { initialState } = useModel('@@initialState');
 
+  const [getRequests, { data, loading, error }] = useLazyQuery(REQUESTS);
+
   const history = useHistory();
   const location = useLocation();
 
@@ -81,18 +87,6 @@ const RequestList = () => {
   });
 
   /** Funciones ejecutadas por los hooks */
-
-  /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
-   */
-  const resultRequests = (data: Partial<REQUEST.Response>) => {
-    if (data) {
-      setRequests(data.docs || []);
-      setTotalPages(data?.totalPages || 0);
-      setPagination({ ...pagination, total: data.totalDocs });
-    }
-  };
 
   /**
    * @description funcion que se encarga de enviar al usuario al detalle de la solicitud creada
@@ -124,12 +118,14 @@ const RequestList = () => {
   /** FIn de Funciones ejecutadas por los hooks */
 
   /** Hooks para manejo de consultas */
-
-  const { getRequests, loadingGetAll } = useGetRequests(resultRequests, messageError);
   const { generateRequest, loadingGenerate } = useGenerateRequest(resultGenerate, messageError);
 
   /** Fin de Hooks para manejo de consultas */
 
+  /**
+   * @description Se encarga de imprimir una solicitud
+   * @param record
+   */
   const printPage = async (record: Partial<REQUEST.Request>) => {
     await setRequestData(record);
     handlePrint();
@@ -181,14 +177,14 @@ const RequestList = () => {
       if (dates) {
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
-        params['dateFinal'] = dateFinal;
-        params['dateInitial'] = dateInitial;
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
       }
       if (warehouse) {
         if (type === 'sent') {
-          params['warehouseOriginId'] = warehouse?._id;
+          params.warehouseOriginId = warehouse?._id;
         } else {
-          params['warehouseDestinationId'] = warehouse?._id;
+          params.warehouseDestinationId = warehouse?._id;
         }
       }
       setPagination({ ...pagination, current: pageCurrent || 1 });
@@ -213,17 +209,18 @@ const RequestList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: Record<string, FilterValue | null>,
-    sorter: SorterResult<Partial<REQUEST.Request>>,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<REQUEST.Request> | SorterResult<REQUEST.Request>[],
+    _: TableCurrentDataSource<REQUEST.Request>,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
 
     let sort = {};
 
-    if (sorter.field) {
+    if (sorter?.field) {
       sort = {
-        [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+        [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
       };
     } else {
       sort = {
@@ -267,14 +264,14 @@ const RequestList = () => {
    * @description se encarga de cargar los datos con base a la query
    */
   const loadingData = () => {
-    const queryParams = location['query'];
+    const queryParams = location?.query;
 
     const newFilters = {};
 
     Object.keys(queryParams).forEach((item) => {
       if (item === 'dates') {
-        const data = JSON.parse(queryParams[item]);
-        newFilters[item] = [moment(data[0]), moment(data[1])];
+        const dataItem = JSON.parse(queryParams[item]);
+        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
       } else {
         newFilters[item] = JSON.parse(queryParams[item]);
       }
@@ -284,8 +281,6 @@ const RequestList = () => {
       type: 'received',
     });
 
-    console.log(newFilters);
-
     onFinish(newFilters);
   };
 
@@ -293,7 +288,7 @@ const RequestList = () => {
     loadingData();
   }, []);
 
-  const columns: ColumnsType<Partial<REQUEST.Request>> = [
+  const columns: ColumnsType<REQUEST.Request> = [
     {
       title: 'Número',
       dataIndex: 'number',
@@ -397,12 +392,12 @@ const RequestList = () => {
           <Row gutter={[8, 8]} className={styles.form}>
             <Col xs={24} lg={4} xl={3} xxl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber min={1} className={styles.item} disabled={loadingGetAll} />
+                <InputNumber min={1} className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} lg={5} xl={4} xxl={3}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item} allowClear disabled={loadingGetAll}>
+                <Select className={styles.item} allowClear disabled={loading}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
                       <Badge text={StatusType[key].label} color={StatusType[key].color} />
@@ -413,7 +408,7 @@ const RequestList = () => {
             </Col>
             <Col xs={24} lg={5} xl={3} xxl={4}>
               <FormItem label="Tipo" name="type">
-                <Select className={styles.item} disabled={loadingGetAll}>
+                <Select className={styles.item} disabled={loading}>
                   <Option key="sent">Enviado</Option>
                   <Option key="received">Recibido</Option>
                 </Select>
@@ -426,7 +421,7 @@ const RequestList = () => {
             </Col>
             <Col xs={24} lg={10} xl={7} xxl={6}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker className={styles.item} disabled={loadingGetAll} />
+                <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} lg={14} xl={24} xxl={3}>
@@ -436,11 +431,11 @@ const RequestList = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
-                    loading={loadingGetAll}
+                    loading={loading}
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loadingGetAll}>
+                  <Button htmlType="button" onClick={onClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>
@@ -449,18 +444,17 @@ const RequestList = () => {
           </Row>
         </Form>
       </Card>
-      <TotalFound
-        current={pagination.current || 0}
-        totalPages={totalPages}
-        total={pagination.total || 0}
-      />
       <Card>
+        <Col span={24} style={{ textAlign: 'right' }}>
+          <Text strong>Total Encontrados:</Text> {pagination?.total} <Text strong>Páginas: </Text>{' '}
+          {pagination.current} / {data?.stockRequests?.totalPages || 0}
+        </Col>
         <Table
           columns={columns}
-          dataSource={requests}
+          dataSource={data?.stockRequests?.docs}
           pagination={pagination}
           onChange={handleChangeTable}
-          loading={loadingGetAll}
+          loading={loading}
         />
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
