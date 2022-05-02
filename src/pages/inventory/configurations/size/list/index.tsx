@@ -271,7 +271,7 @@ const SizesList = () => {
       <Row gutter={[8, 8]}>
         <Col span={12}>
           <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Talla" autoComplete="off" />
+            <Input placeholder="Valor de la talla" autoComplete="off" />
           </FormItem>
         </Col>
       </Row>
@@ -290,7 +290,7 @@ const SizesList = () => {
 
   const columns: ColumnsType<Partial<SIZE.Size>> = [
     {
-      title: 'Talla',
+      title: 'Valor',
       dataIndex: 'value',
       align: 'center',
       sorter: true,
@@ -318,13 +318,22 @@ const SizesList = () => {
       ],
     },
     {
-      title: 'Fecha registro',
+      title: 'Fecha Creación',
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
       sortOrder: sorterTable?.field === 'createdAt' ? sorterTable.order : undefined,
       showSorterTooltip: false,
       render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
+    },
+    {
+      title: 'Fecha Actualización',
+      dataIndex: 'updatedAt',
+      align: 'center',
+      sorter: true,
+      sortOrder: sorterTable?.field === 'updatedAt' ? sorterTable.order : undefined,
+      showSorterTooltip: false,
+      render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: 'Acción',
