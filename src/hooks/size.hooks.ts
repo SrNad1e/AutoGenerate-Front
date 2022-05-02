@@ -7,7 +7,7 @@ export const useGetSizes = (
   showError: (message: string) => void,
 ) => {
   const [getSizes, { loading }] = useLazyQuery(SIZES, {
-    onCompleted: (result) => callback(result.sizes),
+    onCompleted: (result) => callback(result?.sizes),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
 
@@ -25,7 +25,7 @@ export const useUpdateSizes = (
   showError: (message: string) => void,
 ) => {
   const [updateSizes, { loading }] = useMutation(UPDATESIZE, {
-    onCompleted: (result) => callback(result.updateSize),
+    onCompleted: (result) => callback(result?.updateSize),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
 
@@ -43,7 +43,7 @@ export const useCreateSizes = (
   showError: (message: string) => void,
 ) => {
   const [createSizes, { loading }] = useMutation(CREATESIZE, {
-    onCompleted: (result) => callback(result.createSize),
+    onCompleted: (result) => callback(result?.createSize),
     onError: ({ graphQLErrors }) => {
       const message = graphQLErrors ? graphQLErrors[0].message : 'Error sin identificar';
 
