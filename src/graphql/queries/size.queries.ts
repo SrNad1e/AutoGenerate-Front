@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const SIZES = gql`
-  query sizes($input: FiltersSizeInput!) {
-    sizes(filtersSizeInput: $input) {
+  query sizes($input: FiltersSizesInput!) {
+    sizes(filtersSizesInput: $input) {
       totalDocs
       totalPages
       page
