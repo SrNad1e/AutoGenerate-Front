@@ -150,9 +150,9 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
         <FormItem
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 12 }}
-          label="Talla"
+          label="Nombre"
           name="value"
-          rules={[{ required: true, message: 'Talla obligatoria', min: 1 }]}
+          rules={[{ required: true, message: 'Nombre obligatorio', min: 1 }]}
         >
           <Input placeholder="" autoFocus maxLength={45} />
         </FormItem>
