@@ -6,6 +6,11 @@
 /src/utils/request-temp.js
 _roadhog-api-doc
 
+#graphql autogenerate
+**/src/graphql/graphql.ts
+src/graphql/graphql.ts
+/src/graphql/graphql.ts
+
 # production
 /dist
 /.vscode

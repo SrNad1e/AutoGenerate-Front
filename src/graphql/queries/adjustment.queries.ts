@@ -50,8 +50,8 @@ export const ADJUSTMENT = gql`
 `;
 
 export const ADJUSTMENTS = gql`
-  query stockAdjustments($input: FiltersStockAdjustmentInput) {
-    stockAdjustments(filtersStockAdjustmentInput: $input) {
+  query stockAdjustments($input: FiltersStockAdjustmentsInput) {
+    stockAdjustments(filtersStockAdjustmentsInput: $input) {
       totalDocs
       totalPages
       docs {
@@ -63,7 +63,6 @@ export const ADJUSTMENTS = gql`
         createdAt
         updatedAt
         warehouse {
-          _id
           name
         }
         details {
@@ -84,7 +83,13 @@ export const ADJUSTMENTS = gql`
             }
             color {
               html
-              image
+              image {
+                urls {
+                  webp {
+                    small
+                  }
+                }
+              }
               name
               name_internal
             }

@@ -333,7 +333,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
             <Avatar
               size="small"
               style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
-              //src={apiUrl + color.image?.imageSizes?.thumbnail}
+              src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
             />
             <Text style={{ marginLeft: 10 }}>{color?.name_internal}</Text>
           </Space>

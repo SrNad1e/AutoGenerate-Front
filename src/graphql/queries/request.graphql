@@ -1,0 +1,85 @@
+query stockRequest($id: String!) {
+  stockRequestId(id: $id) {
+    _id
+    createdAt
+    details {
+      product {
+        _id
+        barcode
+        stock {
+          quantity
+        }
+        color {
+          html
+          image {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+          name_internal
+        }
+        reference {
+          cost
+          description
+          name
+        }
+        size {
+          value
+        }
+      }
+      quantity
+    }
+    number
+    observation
+    status
+    updatedAt
+    user {
+      name
+    }
+    observation
+    warehouseDestination {
+      name
+    }
+    warehouseOrigin {
+      name
+    }
+  }
+}
+
+query stockRequests($input: FiltersStockRequestsInput!) {
+  stockRequests(filtersStockRequestsInput: $input) {
+    docs {
+      _id
+      number
+      warehouseOrigin {
+        name
+      }
+      warehouseDestination {
+        name
+      }
+      status
+      details {
+        quantity
+        product {
+          barcode
+          reference {
+            name
+            description
+          }
+          color {
+            name_internal
+          }
+          size {
+            value
+          }
+        }
+      }
+      createdAt
+      updatedAt
+    }
+    totalDocs
+    totalPages
+  }
+}

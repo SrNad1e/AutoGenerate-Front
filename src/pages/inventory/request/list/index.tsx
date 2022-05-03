@@ -25,21 +25,21 @@ import type {
   TableCurrentDataSource,
   TablePaginationConfig,
 } from 'antd/es/table/interface';
-import { useLazyQuery } from '@apollo/client';
 import { useReactToPrint } from 'react-to-print';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
+import type { Location } from 'umi';
 import { useHistory, useLocation, useModel } from 'umi';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import { StatusType } from '../request.data';
-import { useGenerateRequest } from '@/hooks/request.hooks';
+import { useGenerateRequest, useGetRequests } from '@/hooks/request.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import ReportRequest from '../reports/request';
-import { REQUESTS } from '@/graphql/queries/request.queries';
+import type { DetailRequest, FiltersStockRequestsInput, StockRequest } from '@/graphql/graphql';
 
 import styles from './styles.less';
 import './styles.less';
@@ -58,8 +58,7 @@ export type FormValues = {
 };
 
 const RequestList = () => {
-  //const [requests, setRequests] = useState<RcTableProps<REQUEST.Request[]>['data']>();
-  const [requestData, setRequestData] = useState<Partial<REQUEST.Request>>({});
+  const [requestData, setRequestData] = useState<Partial<StockRequest>>({});
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     total: 0,
     pageSize: 10,
@@ -73,10 +72,8 @@ const RequestList = () => {
 
   const { initialState } = useModel('@@initialState');
 
-  const [getRequests, { data, loading, error }] = useLazyQuery(REQUESTS);
-
   const history = useHistory();
-  const location = useLocation();
+  const location: Location = useLocation();
 
   const [form] = Form.useForm();
 
@@ -86,22 +83,8 @@ const RequestList = () => {
     content: () => reportRef?.current,
   });
 
-  /** Funciones ejecutadas por los hooks */
-
-  /**
-   * @description funcion que se encarga de enviar al usuario al detalle de la solicitud creada
-   * @param params resultado de la solicitud
-   */
-  const resultGenerate = ({ _id, number }: Partial<REQUEST.Request>) => {
-    if (_id) {
-      setPropsAlertInformation({
-        message: `Se ha creado la solicitud No. ${number}`,
-        type: 'success',
-        redirect: `/inventory/request/${_id}`,
-        visible: true,
-      });
-    }
-  };
+  const [getRequests, { data, loading }] = useGetRequests();
+  const [generateRequest, propsGenerate] = useGenerateRequest();
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -115,18 +98,11 @@ const RequestList = () => {
     });
   };
 
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-  const { generateRequest, loadingGenerate } = useGenerateRequest(resultGenerate, messageError);
-
-  /** Fin de Hooks para manejo de consultas */
-
   /**
    * @description Se encarga de imprimir una solicitud
    * @param record
    */
-  const printPage = async (record: Partial<REQUEST.Request>) => {
+  const printPage = async (record: Partial<StockRequest>) => {
     await setRequestData(record);
     handlePrint();
   };
@@ -146,7 +122,7 @@ const RequestList = () => {
    * @description se encarga de ejecutar la funcion para obtener las solicitudes
    * @param params filtros necesarios para la busqueda
    */
-  const onSearch = (params?: Partial<REQUEST.FiltersGetRequests>) => {
+  const onSearch = (params?: FiltersStockRequestsInput) => {
     getRequests({
       variables: {
         input: {
@@ -166,7 +142,7 @@ const RequestList = () => {
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
     const { status, number, warehouse, dates, type = 'received' } = props;
     try {
-      const params: REQUEST.FiltersGetRequests = {
+      const params: FiltersStockRequestsInput = {
         page: pageCurrent || 1,
         limit: pagination.pageSize,
         status,
@@ -197,8 +173,8 @@ const RequestList = () => {
 
       form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      messageError(e as string);
+    } catch (e: any) {
+      messageError(e?.message);
     }
   };
 
@@ -210,8 +186,8 @@ const RequestList = () => {
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filters: Record<string, FilterValue | null>,
-    sorter: SorterResult<REQUEST.Request> | SorterResult<REQUEST.Request>[],
-    _: TableCurrentDataSource<REQUEST.Request>,
+    sorter: SorterResult<StockRequest> | SorterResult<StockRequest>[] | any,
+    _: TableCurrentDataSource<StockRequest>,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -236,12 +212,24 @@ const RequestList = () => {
   /**
    * @description se encarga de hacer la consulta para generar la solicitud
    */
-  const autoRequest = () => {
-    generateRequest({
-      variables: {
-        shopId: initialState?.currentUser?.shop?._id,
-      },
-    });
+  const autoRequest = async () => {
+    try {
+      const response = await generateRequest({
+        variables: {
+          shopId: initialState?.currentUser?.shop?._id || '',
+        },
+      });
+      if (response?.data?.generateStockRequest) {
+        setPropsAlertInformation({
+          message: `Se ha creado la solicitud No. ${response?.data?.generateStockRequest?.number}`,
+          type: 'success',
+          redirect: `/inventory/request/${response?.data?.generateStockRequest?._id}`,
+          visible: true,
+        });
+      }
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -264,7 +252,7 @@ const RequestList = () => {
    * @description se encarga de cargar los datos con base a la query
    */
   const loadingData = () => {
-    const queryParams = location?.query;
+    const queryParams: any = location?.query;
 
     const newFilters = {};
 
@@ -288,7 +276,7 @@ const RequestList = () => {
     loadingData();
   }, []);
 
-  const columns: ColumnsType<REQUEST.Request> = [
+  const columns: ColumnsType<StockRequest> = [
     {
       title: 'Número',
       dataIndex: 'number',
@@ -316,7 +304,7 @@ const RequestList = () => {
       title: 'Referencia',
       dataIndex: 'details',
       align: 'center',
-      render: (details: REQUEST.DetailRequest[]) => details?.length,
+      render: (details: DetailRequest[]) => details?.length,
     },
     {
       title: 'Estado',
@@ -451,14 +439,14 @@ const RequestList = () => {
         </Col>
         <Table
           columns={columns}
-          dataSource={data?.stockRequests?.docs}
+          dataSource={data?.stockRequests?.docs as any}
           pagination={pagination}
           onChange={handleChangeTable}
           loading={loading}
         />
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
-      <AlertLoading message="Generando solicitud" visible={loadingGenerate} />
+      <AlertLoading message="Generando solicitud" visible={propsGenerate?.loading} />
       <div style={{ display: 'none' }}>
         <ReportRequest ref={reportRef} data={requestData} />
       </div>

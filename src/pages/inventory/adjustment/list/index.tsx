@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
-import Table, { ColumnsType } from 'antd/lib/table';
+import type { ColumnsType } from 'antd/lib/table';
+import Table from 'antd/lib/table';
 import {
   Badge,
   Button,
@@ -14,30 +17,34 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import { TablePaginationConfig } from 'antd/es/table/interface';
+import type {
+  FilterValue,
+  TableCurrentDataSource,
+  TablePaginationConfig,
+} from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import { SorterResult } from 'antd/lib/table/interface';
-
+import type { SorterResult } from 'antd/lib/table/interface';
+import { useReactToPrint } from 'react-to-print';
 import { useHistory, useLocation } from 'umi';
-import { useGetAdjustments } from '@/hooks/adjustment.hooks';
 import { useEffect, useRef, useState } from 'react';
+import numeral from 'numeral';
+
 import { StatusTypeAdjustment } from '../adjustment.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import numeral from 'numeral';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import TotalFound from '@/components/TotalFound';
 import ReportAdjustment from '../reports/adjustment';
-import { useReactToPrint } from 'react-to-print';
 
 import styles from './styles.less';
+import { useLazyQuery } from '@apollo/client';
+import { ADJUSTMENTS } from '@/graphql/queries/adjustment.queries';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export type FormValues = {
   status?: string;
@@ -47,10 +54,8 @@ export type FormValues = {
 };
 
 const AdjustmentList = () => {
-  const [adjustments, setAdjustments] = useState<Partial<ADJUSTMENT.Adjustment[]>>([]);
   const [adjustmentData, setAdjustmentData] = useState<Partial<ADJUSTMENT.Adjustment>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
-  const [totalPages, setTotalPages] = useState(0);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     total: 0,
     pageSize: 10,
@@ -61,6 +66,8 @@ const AdjustmentList = () => {
     type: 'error',
     visible: false,
   });
+
+  const [getAdjustments, { data, loading }] = useLazyQuery(ADJUSTMENTS);
 
   const [form] = Form.useForm();
 
@@ -77,30 +84,6 @@ const AdjustmentList = () => {
   /** Funciones ejecutadas por los hooks */
 
   /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
-   */
-  const resultAdjustments = (data: Partial<ADJUSTMENT.Response>) => {
-    if (data) {
-      setAdjustments(data.docs || []);
-      setTotalPages(data?.totalPages || 0);
-      setPagination({ ...pagination, total: data.totalDocs });
-    }
-  };
-
-  /**
-   * @description funcion usada por los hook para mostrar los errores
-   * @param message mensaje de error a mostrar
-   */
-  const messageError = (message: string) => {
-    setError({
-      message,
-      type: 'error',
-      visible: true,
-    });
-  };
-
-  /**
    * @description se encarga de cerrar la alerta informativa
    */
   const closeMessageError = () => {
@@ -114,8 +97,6 @@ const AdjustmentList = () => {
   /** FIn de Funciones ejecutadas por los hooks */
 
   /** Hooks para manejo de consultas */
-
-  const { getAdjustments, loading } = useGetAdjustments(resultAdjustments, messageError);
 
   /** Fin de Hooks para manejo de consultas */
 
@@ -159,11 +140,11 @@ const AdjustmentList = () => {
       if (dates) {
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
-        params['dateFinal'] = dateFinal;
-        params['dateInitial'] = dateInitial;
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
       }
       if (warehouse) {
-        params['warehouseId'] = warehouse?._id;
+        params.warehouseId = warehouse?._id;
       }
       setPagination({ ...pagination, current: pageCurrent || 1 });
       onSearch(params);
@@ -186,8 +167,9 @@ const AdjustmentList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: any,
-    sorter: SorterResult<Partial<ADJUSTMENT.Adjustment>>,
+    _: Record<string, FilterValue | null>,
+    sorter: SorterResult<ADJUSTMENT.Adjustment> | SorterResult<ADJUSTMENT.Adjustment>[],
+    extra: TableCurrentDataSource<ADJUSTMENT.Adjustment>,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -227,7 +209,7 @@ const AdjustmentList = () => {
   };
 
   useEffect(() => {
-    const queryParams = location['query'];
+    const queryParams = location?.query;
 
     const newFilters = {};
 
@@ -237,7 +219,7 @@ const AdjustmentList = () => {
     onFinish(newFilters);
   }, []);
 
-  const columns: ColumnsType<Partial<ADJUSTMENT.Adjustment>> = [
+  const columns: ColumnsType<ADJUSTMENT.Adjustment> = [
     {
       title: 'Número',
       dataIndex: 'number',
@@ -394,15 +376,14 @@ const AdjustmentList = () => {
           </Row>
         </Form>
       </Card>
-      <TotalFound
-        current={pagination.current || 0}
-        totalPages={totalPages}
-        total={pagination.total || 0}
-      />
       <Card>
+        <Col span={24} style={{ textAlign: 'right' }}>
+          <Text strong>Total Encontrados:</Text> {pagination?.total} <Text strong>Páginas: </Text>{' '}
+          {pagination.current} / {data?.stockAdjustments?.totalPages || 0}
+        </Col>
         <Table
           columns={columns}
-          dataSource={adjustments}
+          dataSource={data?.stockAdjustments?.docs}
           pagination={pagination}
           onChange={handleChangeTable}
           loading={loading}
