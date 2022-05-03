@@ -25,9 +25,9 @@ const SelectWarehouseStep = ({ changeCurrentStep, label, warehouseId }: Props) =
             rules={[
               { required: true, message: 'Se debe seleccionar una bodega' },
               {
-                validator: (_, data: any) => {
+                validator: (_, _id: string) => {
                   if (warehouseId) {
-                    if (data?._id === warehouseId) {
+                    if (_id === warehouseId) {
                       return Promise.reject(new Error('No puedes seleccionar tu bodega'));
                     }
                   }
