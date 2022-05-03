@@ -1,4 +1,3 @@
-import { useGetProducts } from '@/hooks/product.hooks';
 import { BarcodeOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   Modal,
@@ -17,31 +16,23 @@ import {
   Space,
   Badge,
 } from 'antd';
-import type { TablePaginationConfig } from 'antd/es/table/interface';
-import type { ColumnsType } from 'antd/lib/table';
+import type { TablePaginationConfig, ColumnsType } from 'antd/es/table/interface';
 import { useState } from 'react';
 
+import { useGetProducts } from '@/hooks/product.hooks';
+import type { DetailRequest, FiltersProductsInput, Product } from '@/graphql/graphql';
 import SelectColor from '../SelectColor';
 import SelectSize from '../SelectSize';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
 
-export type Detail = {
-  product?: Partial<PRODUCT.Product>;
-  action?: ACTIONTYPESPRODUCT;
-  quantity: number;
-  createdAt?: Date;
-  updateAt?: Date;
-  __typename?: string;
-};
-
 export type Props = {
   visible: boolean;
   validateStock?: boolean;
-  details: Partial<Detail[]>;
-  createDetail: (product: PRODUCT.Product, quantity: number) => void;
-  updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
+  details: Partial<DetailRequest & { action: string }>[];
+  createDetail: (product: Product, quantity: number) => void;
+  updateDetail: (product: Product, quantity: number) => void;
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
   warehouseId: string | undefined;
@@ -63,7 +54,6 @@ const ModalSearchProducts = ({
   updateDetail,
   deleteDetail,
 }: Props) => {
-  const [products, setProducts] = useState<PRODUCT.Product[]>([]);
   const [filters, setFilters] = useState<Partial<PRODUCT.FiltersGetProducts>>({
     limit: 10,
     page: 0,
@@ -73,34 +63,14 @@ const ModalSearchProducts = ({
     pageSize: 10,
     current: 1,
   });
-  const [error, setError] = useState<string | undefined>();
 
-  /**
-   * @description callback ejecutado por el customHook
-   * @param productsData array de los productos
-   */
-  const resultProducts = (productsData: PRODUCT.ResponsePaginate) => {
-    if (productsData) {
-      setProducts(productsData.docs);
-      setPagination({ ...pagination, total: productsData.totalDocs });
-    }
-  };
-
-  /**
-   * @description maneja el error de la consulta
-   * @param message error que genera al consulta
-   */
-  const showError = (message: string) => {
-    setError(message);
-  };
-
-  const { getProducts, loading } = useGetProducts(resultProducts, showError);
+  const [getProducts, { data, loading, error }] = useGetProducts();
 
   /**
    * @description se encarga de consultar los productos con los filtros
    * @param params filtros para buscar productos
    */
-  const onSearch = (params: Partial<PRODUCT.FiltersGetProducts>) => {
+  const onSearch = (params: Partial<FiltersProductsInput>) => {
     getProducts({
       variables: {
         input: {
@@ -124,7 +94,6 @@ const ModalSearchProducts = ({
       sizeId: size?._id,
     };
     setFilters({ ...filters, ...params });
-    setError(undefined);
     setPagination({ ...pagination, current: 1 });
     onSearch({ ...filters, ...params });
   };
@@ -135,18 +104,14 @@ const ModalSearchProducts = ({
    * @param _ eventdos de los filtros
    * @param sorter evento de ordenamientos
    */
-  const handleChangeTable = (
-    paginationLocal: TablePaginationConfig,
-    // filtersData: Record<string, FilterValue | null>,
-    //sorter: SorterResult<PRODUCT.Product>,
-  ) => {
+  const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
     const { current } = paginationLocal;
     setFilters({ ...filters, page: current });
     setPagination({ ...pagination, current });
     onSearch({ ...filters, page: current });
   };
 
-  const columns: ColumnsType<PRODUCT.Product> = [
+  const columns: ColumnsType<Product> = [
     {
       title: 'Producto',
       dataIndex: 'reference',
@@ -277,7 +242,7 @@ const ModalSearchProducts = ({
             <Table
               scroll={{ x: 1000 }}
               columns={columns}
-              dataSource={products}
+              dataSource={data?.products?.docs}
               pagination={pagination}
               onChange={handleChangeTable}
               loading={loading}

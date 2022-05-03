@@ -21,7 +21,18 @@ export const useGetRequests = () => {
 };
 
 export const useCreateRequest = () => {
-  return useMutation(CreateStockRequestDocument);
+  return useMutation(CreateStockRequestDocument, {
+    update: (store, response) => {
+      const dataInStore = store.readQuery({ query: StockRequestDocument });
+      store.writeQuery({
+        query: StockRequestDocument,
+        data: {
+          ...dataInStore,
+          stockRequestId: { ...dataInStore?.stockRequestId, ...response.data?.createStockRequest },
+        },
+      });
+    },
+  });
 };
 
 export const useGenerateRequest = () => {
@@ -29,5 +40,16 @@ export const useGenerateRequest = () => {
 };
 
 export const useUpdateRequest = () => {
-  return useMutation(UpdateStockDocument);
+  return useMutation(UpdateStockDocument, {
+    update: (store, response) => {
+      const dataInStore = store.readQuery({ query: StockRequestDocument });
+      store.writeQuery({
+        query: StockRequestDocument,
+        data: {
+          ...dataInStore,
+          stockRequestId: { ...dataInStore?.stockRequestId, ...response.data?.updateStockRequest },
+        },
+      });
+    },
+  });
 };

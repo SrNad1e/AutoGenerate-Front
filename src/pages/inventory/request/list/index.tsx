@@ -52,7 +52,7 @@ const { RangePicker } = DatePicker;
 export type FormValues = {
   status?: string;
   number?: number;
-  warehouse?: WAREHOUSE.Warehouse;
+  warehouseId?: string;
   dates?: Moment[];
   type?: string;
 };
@@ -140,7 +140,7 @@ const RequestList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouse, dates, type = 'received' } = props;
+    const { status, number, warehouseId, dates, type = 'received' } = props;
     try {
       const params: FiltersStockRequestsInput = {
         page: pageCurrent || 1,
@@ -156,11 +156,11 @@ const RequestList = () => {
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
-      if (warehouse) {
+      if (warehouseId) {
         if (type === 'sent') {
-          params.warehouseOriginId = warehouse?._id;
+          params.warehouseOriginId = warehouseId;
         } else {
-          params.warehouseDestinationId = warehouse?._id;
+          params.warehouseDestinationId = warehouseId;
         }
       }
       setPagination({ ...pagination, current: pageCurrent || 1 });
@@ -403,7 +403,7 @@ const RequestList = () => {
               </FormItem>
             </Col>
             <Col xs={24} lg={10} xl={5} xxl={5}>
-              <FormItem label="Bodega" name="warehouse">
+              <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
             </Col>

@@ -1434,6 +1434,8 @@ export type Query = {
   stockTransfers: ResponseStockTransfers;
   /** Consulta todos los usuarios con base a los filtros */
   users: User[];
+  /** Se encarga de traer bodega por identificador */
+  warehouseId: Warehouse;
   /** Se encarga de listar las bodegas */
   warehouses: ResponseWarehouses;
 };
@@ -1539,8 +1541,12 @@ export type QueryUsersArgs = {
   filtersUsersInput: FiltersUsersInput;
 };
 
+export type QueryWarehouseIdArgs = {
+  warehouseId: Scalars['String'];
+};
+
 export type QueryWarehousesArgs = {
-  filtersWarehouseInput?: InputMaybe<FiltersWarehousesInput>;
+  filtersWarehousesInput?: InputMaybe<FiltersWarehousesInput>;
 };
 
 /** Referencia de los productos */
@@ -2947,7 +2953,7 @@ export type StockRequestsQuery = {
   };
 };
 
-export type CurrentUserQueryVariables = Exact<{ [key: string]: never }>;
+export type CurrentUserQueryVariables = Exact<Record<string, never>>;
 
 export type CurrentUserQuery = {
   __typename?: 'Query';
@@ -2968,6 +2974,27 @@ export type CurrentUserQuery = {
       permissions: { __typename?: 'Permission'; name: string }[];
     };
   };
+};
+
+export type WarehousesQueryVariables = Exact<{
+  input: FiltersWarehousesInput;
+}>;
+
+export type WarehousesQuery = {
+  __typename?: 'Query';
+  warehouses: {
+    __typename?: 'ResponseWarehouses';
+    docs: { __typename?: 'Warehouse'; _id: string; name: string }[];
+  };
+};
+
+export type WarehouseIdQueryVariables = Exact<{
+  warehouseId: Scalars['String'];
+}>;
+
+export type WarehouseIdQuery = {
+  __typename?: 'Query';
+  warehouseId: { __typename?: 'Warehouse'; _id: string; name: string };
 };
 
 export const CreateStockRequestDocument = {
@@ -3950,3 +3977,98 @@ export const CurrentUserDocument = {
     },
   ],
 } as unknown as DocumentNode<CurrentUserQuery, CurrentUserQueryVariables>;
+export const WarehousesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'warehouses' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersWarehousesInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'warehouses' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersWarehousesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WarehousesQuery, WarehousesQueryVariables>;
+export const WarehouseIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'warehouseId' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'warehouseId' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'warehouseId' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'warehouseId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'warehouseId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WarehouseIdQuery, WarehouseIdQueryVariables>;

@@ -2,12 +2,12 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Alert, Button, Input } from 'antd';
 import { useState, useRef, useEffect } from 'react';
 
-import type { Detail, Props as PropsModal } from './Modal';
+import type { Props as PropsModal } from './Modal';
 import ModalSearchProducts from './Modal';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetProduct } from '@/hooks/product.hooks';
-import type { Product } from '@/graphql/graphql';
+import type { DetailRequest, Product } from '@/graphql/graphql';
 
 const { Search } = Input;
 
@@ -15,10 +15,10 @@ export type Props = {
   barcode?: boolean;
   validateStock?: boolean;
   quantity?: number;
-  details?: Partial<Detail[]>;
+  details?: Partial<DetailRequest & { action: string }>[];
   warehouseId: string | undefined;
-  createDetail: (product: Partial<Product>, quantity: number) => void;
-  updateDetail: (product: Partial<Product>, quantity: number) => void;
+  createDetail: (product: Product, quantity: number) => void;
+  updateDetail: (product: Product, quantity: number) => void;
   deleteDetail: (productId: string) => void;
 };
 
@@ -74,9 +74,9 @@ const SearchProducts = ({
     if (response?.data?.product) {
       const exist = details.find((item) => item?.product?._id === response?.data?.product?._id);
       if (exist) {
-        updateDetail(response?.data?.product, exist.quantity + (quantity || 1));
+        updateDetail(response?.data?.product as Product, (exist?.quantity || 0) + (quantity || 1));
       } else {
-        createDetail(response?.data?.product, quantity || 1);
+        createDetail(response?.data?.product as Product, quantity || 1);
       }
     } else {
       setError('Producto no existe');

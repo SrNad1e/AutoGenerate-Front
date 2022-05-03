@@ -15,9 +15,9 @@ import {
   Typography,
   Tooltip,
 } from 'antd';
-
 import { useModel, useParams } from 'umi';
 import { useEffect, useState } from 'react';
+
 import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
 import SearchProducts from '@/components/SearchProducts';
 import { useCreateRequest, useUpdateRequest } from '@/hooks/request.hooks';
@@ -26,24 +26,24 @@ import AlertLoading from '@/components/Alerts/AlertLoading';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
-
+import type { DetailRequest, Product, StockRequest } from '@/graphql/graphql';
 import Footer from './footer';
 import Header from './header';
+
 import '../styles.less';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
 
 export type Props = {
-  request?: Partial<REQUEST.Request>;
+  request?: Partial<StockRequest>;
   setCurrentStep: (step: number) => void;
-  setRequest: (data: Partial<REQUEST.Request>) => void;
 };
 
-const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
+const FormRequest = ({ request, setCurrentStep }: Props) => {
   const { initialState } = useModel('@@initialState');
 
-  const [details, setDetails] = useState<Partial<REQUEST.DetailRequestProps[]>>([]);
+  const [details, setDetails] = useState<Partial<DetailRequest & { action: string }>[]>([]);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -63,6 +63,9 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
 
   const { id } = useParams<Partial<{ id: string }>>();
 
+  const [createRequest, paramsCreate] = useCreateRequest();
+  const [updateRequest, paramsUpdate] = useUpdateRequest();
+
   const allowEdit = request?.status === 'open';
 
   /**
@@ -78,32 +81,6 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
   };
 
   /**
-   * @description abre la alerta de confirmacion de creacion
-   * @param data solicitud creada
-   */
-  const resultSave = (data: Partial<REQUEST.Request>) => {
-    setPropsAlert({
-      message: `Solicitud creada correctamente No. ${data.number}`,
-      type: 'success',
-      visible: true,
-      redirect: `/inventory/request/${data._id}`,
-    });
-  };
-
-  /**
-   * @description abre la alerta de confirmacion de creacion
-   * @param data solicitud creada
-   */
-  const resultUpdate = (data: Partial<REQUEST.Request>) => {
-    setPropsAlert({
-      message: `Solicitud creada correctamente No. ${data.number}`,
-      type: 'success',
-      visible: true,
-    });
-    setRequest(data);
-  };
-
-  /**
    * @description maneja el error de la consulta
    * @param message error que genera al consulta
    */
@@ -114,8 +91,6 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
       visible: true,
     });
   };
-  const { createRequest, loadingCreate } = useCreateRequest(resultSave, showError);
-  const { updateRequest, loadingUpdate } = useUpdateRequest(resultUpdate, showError);
 
   /**
    * @description se encarga de mostrar la alerta de guardado y cancelar
@@ -147,54 +122,75 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
    * @description se encarga de guardar el traslado
    * @param status se usa para definir el estado de la solicitud
    */
-  const saveRequest = (status?: string) => {
-    if (id) {
-      const detailsFilter = details.filter((detail) => detail?.action);
+  const saveRequest = async (status?: string) => {
+    try {
+      if (id) {
+        const detailsFilter = details.filter((detail) => detail?.action);
 
-      const newDetails = detailsFilter.map((detail) => ({
-        productId: detail?.product?._id,
-        quantity: detail?.quantity,
-        action: detail?.action,
-      }));
-      if (newDetails.length > 0 || status || observation !== request?.observation) {
-        const props = {
-          details: newDetails,
-          observation,
-          status,
-        };
-
-        updateRequest({
-          variables: {
-            input: props,
-            id,
-          },
-        });
-      } else {
-        onShowInformation('La solicitud no tiene cambios a realizar');
-      }
-    } else {
-      if (status === 'cancelled') {
-        setCurrentStep(0);
-      } else {
-        const newDetails = details.map((detail) => ({
-          productId: detail?.product?._id,
-          quantity: detail?.quantity,
+        const newDetails = detailsFilter.map((detail) => ({
+          productId: detail?.product?._id || '',
+          quantity: detail?.quantity || 1,
+          action: detail?.action || '',
         }));
-        const props = {
-          details: newDetails,
-          warehouseDestinationId:
-            request?.warehouseDestination?._id ||
-            initialState?.currentUser?.shop?.defaultWarehouse?._id,
-          warehouseOriginId: request?.warehouseOrigin?._id,
-          observation,
-          status,
-        };
-        createRequest({
-          variables: {
-            input: props,
-          },
-        });
+        if (newDetails.length > 0 || status || observation !== request?.observation) {
+          const props = {
+            details: newDetails,
+            observation,
+            status,
+          };
+
+          const response = await updateRequest({
+            variables: {
+              input: props,
+              id,
+            },
+          });
+          if (response?.data?.updateStockRequest) {
+            setPropsAlert({
+              message: `Solicitud creada correctamente No. ${response?.data?.updateStockRequest?.number}`,
+              type: 'success',
+              visible: true,
+            });
+          }
+        } else {
+          onShowInformation('La solicitud no tiene cambios a realizar');
+        }
+      } else {
+        if (status === 'cancelled') {
+          setCurrentStep(0);
+        } else {
+          const newDetails = details.map((detail) => ({
+            productId: detail?.product?._id || '',
+            quantity: detail?.quantity || 1,
+          }));
+          const props = {
+            details: newDetails,
+            warehouseDestinationId:
+              request?.warehouseDestination?._id ||
+              initialState?.currentUser?.shop?.defaultWarehouse?._id ||
+              '',
+            warehouseOriginId: request?.warehouseOrigin?._id || '',
+            observation,
+            status,
+          };
+          const response = await createRequest({
+            variables: {
+              input: props,
+            },
+          });
+
+          if (response?.data?.createStockRequest) {
+            setPropsAlert({
+              message: `Solicitud creada correctamente No. ${response?.data?.createStockRequest?.number}`,
+              type: 'success',
+              visible: true,
+              redirect: `/inventory/request/${response?.data?.createStockRequest?._id}`,
+            });
+          }
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -229,7 +225,7 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
    * @param product producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
-  const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
+  const updateDetail = (product: Product, quantity: number) => {
     if (setDetails) {
       setDetails(
         details.map((detail) => {
@@ -251,7 +247,7 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
    * @param product producto del detalle
    * @param quantity cantidad del producto
    */
-  const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
+  const createDetail = (product: Product, quantity: number) => {
     if (setDetails) {
       setDetails([...details, { product, quantity, action: 'create' }]);
     }
@@ -299,7 +295,7 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
     deleteDetail,
   };
 
-  const columns: ColumnsType<Partial<REQUEST.DetailRequest>> = [
+  const columns: ColumnsType<Partial<DetailRequest>> = [
     {
       title: 'Referencia',
       dataIndex: 'product',
@@ -358,7 +354,7 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
           value={quantity || 0}
           min={1}
           max={product?.stock ? product?.stock[0]?.quantity : 0}
-          onChange={(value) => updateDetail(product, value)}
+          onChange={(value) => updateDetail(product as Product, value)}
           disabled={!allowEdit}
           style={{ color: 'black', backgroundColor: 'white' }}
         />
@@ -404,7 +400,10 @@ const FormRequest = ({ request, setCurrentStep, setRequest }: Props) => {
       </Card>
       <Footer request={request} saveRequest={showAlertSave} details={details} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <AlertLoading visible={loadingCreate || loadingUpdate} message="Guardando Solicitud" />
+      <AlertLoading
+        visible={paramsCreate?.loading || paramsUpdate?.loading}
+        message="Guardando Solicitud"
+      />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );

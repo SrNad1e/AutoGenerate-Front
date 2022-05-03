@@ -10,6 +10,7 @@ _roadhog-api-doc
 **/src/graphql/graphql.ts
 src/graphql/graphql.ts
 /src/graphql/graphql.ts
+*graphql.ts
 
 # production
 /dist
