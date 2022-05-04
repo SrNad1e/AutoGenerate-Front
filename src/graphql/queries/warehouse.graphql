@@ -1,5 +1,8 @@
 query warehouses($input: FiltersWarehousesInput!) {
   warehouses(filtersWarehousesInput: $input) {
+    page
+    totalDocs
+    totalPages
     docs {
       _id
       name

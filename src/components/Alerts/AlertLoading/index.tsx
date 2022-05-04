@@ -1,5 +1,6 @@
 import { Modal, Space, Typography } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
+
 import styles from './styles.less';
 
 const { Title } = Typography;

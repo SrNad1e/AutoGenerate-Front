@@ -50,6 +50,7 @@ query stockOutputs($input: FiltersStockOutputsInput) {
     stockOutputs(filtersStockOutputsInput: $input) {
       totalDocs
       totalPages
+      page
       docs {
         _id
         createdAt

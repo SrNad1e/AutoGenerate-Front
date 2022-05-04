@@ -2,6 +2,7 @@ query brands($input: FiltersBrandsInput) {
   brands(filtersBrandsInput: $input) {
     totalDocs
     totalPages
+    page
     docs {
       _id
       active

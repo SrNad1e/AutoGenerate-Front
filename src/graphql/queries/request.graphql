@@ -81,5 +81,6 @@ query stockRequests($input: FiltersStockRequestsInput!) {
     }
     totalDocs
     totalPages
+    page
   }
 }

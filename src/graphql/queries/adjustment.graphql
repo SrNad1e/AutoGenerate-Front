@@ -54,6 +54,7 @@ query stockAdjustments($input: FiltersStockAdjustmentsInput) {
   stockAdjustments(filtersStockAdjustmentsInput: $input) {
     totalDocs
     totalPages
+    page
     docs {
       _id
       number

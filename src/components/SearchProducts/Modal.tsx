@@ -20,7 +20,15 @@ import type { TablePaginationConfig, ColumnsType } from 'antd/es/table/interface
 import { useState } from 'react';
 
 import { useGetProducts } from '@/hooks/product.hooks';
-import type { DetailRequest, FiltersProductsInput, Product } from '@/graphql/graphql';
+import type {
+  Color,
+  DetailRequest,
+  FiltersProductsInput,
+  Product,
+  Reference,
+  Size,
+  Stock,
+} from '@/graphql/graphql';
 import SelectColor from '../SelectColor';
 import SelectSize from '../SelectSize';
 
@@ -40,8 +48,8 @@ export type Props = {
 
 export type FormValues = {
   name?: string;
-  color?: Partial<COLOR.Color>;
-  size?: Partial<SIZE.Size>;
+  color?: Partial<Color>;
+  size?: Partial<Size>;
 };
 
 const ModalSearchProducts = ({
@@ -54,14 +62,9 @@ const ModalSearchProducts = ({
   updateDetail,
   deleteDetail,
 }: Props) => {
-  const [filters, setFilters] = useState<Partial<PRODUCT.FiltersGetProducts>>({
+  const [filters, setFilters] = useState<Partial<FiltersProductsInput>>({
     limit: 10,
     page: 0,
-  });
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    total: 0,
-    pageSize: 10,
-    current: 1,
   });
 
   const [getProducts, { data, loading, error }] = useGetProducts();
@@ -87,14 +90,13 @@ const ModalSearchProducts = ({
    * @param values valores del formulario
    */
   const onFinish = ({ color, name, size }: FormValues) => {
-    const params: Partial<PRODUCT.FiltersGetProducts> = {
+    const params: Partial<FiltersProductsInput> = {
       page: 1,
       colorId: color?._id,
       name: name,
       sizeId: size?._id,
     };
     setFilters({ ...filters, ...params });
-    setPagination({ ...pagination, current: 1 });
     onSearch({ ...filters, ...params });
   };
 
@@ -107,7 +109,6 @@ const ModalSearchProducts = ({
   const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
     const { current } = paginationLocal;
     setFilters({ ...filters, page: current });
-    setPagination({ ...pagination, current });
     onSearch({ ...filters, page: current });
   };
 
@@ -115,7 +116,7 @@ const ModalSearchProducts = ({
     {
       title: 'Producto',
       dataIndex: 'reference',
-      render: ({ name, description }: PRODUCT.Reference, { barcode }) => (
+      render: ({ name, description }: Reference, { barcode }) => (
         <Row>
           <Col span={24}>
             {name} / {description}
@@ -129,7 +130,7 @@ const ModalSearchProducts = ({
     {
       title: 'Color',
       dataIndex: 'color',
-      render: (color: COLOR.Color) => (
+      render: (color: Color) => (
         <>
           <Avatar
             size="small"
@@ -143,13 +144,13 @@ const ModalSearchProducts = ({
     {
       title: 'Talla',
       dataIndex: 'size',
-      render: (size: SIZE.Size) => size.value,
+      render: (size: Size) => size.value,
     },
     {
       title: 'Inventario',
       dataIndex: 'stock',
       align: 'center',
-      render: (stock: PRODUCT.Stock[]) =>
+      render: (stock: Stock[]) =>
         stock && (
           <Badge
             overflowCount={99999}
@@ -242,8 +243,11 @@ const ModalSearchProducts = ({
             <Table
               scroll={{ x: 1000 }}
               columns={columns}
-              dataSource={data?.products?.docs}
-              pagination={pagination}
+              dataSource={data?.products?.docs as any}
+              pagination={{
+                current: data?.products?.page,
+                total: data?.products?.totalDocs,
+              }}
               onChange={handleChangeTable}
               loading={loading}
             />

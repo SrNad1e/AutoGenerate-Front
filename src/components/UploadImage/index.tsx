@@ -15,7 +15,7 @@ export type Image = {
   updatedAt: string;
   __v: number;
   path: string;
-  imageSizes: { [key: string]: string };
+  imageSizes: Record<string, string>;
 };
 
 export type Props = {

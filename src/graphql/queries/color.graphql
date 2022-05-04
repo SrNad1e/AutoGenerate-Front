@@ -2,6 +2,7 @@ query colors($input: FiltersColorsInput!) {
   colors(filtersColorsInput: $input) {
     totalDocs
     totalPages
+    page
     docs {
       _id
       name

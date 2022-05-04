@@ -37,12 +37,6 @@ type FormData = {
 
 const AttribsList = () => {
   const [attrib, setAttrib] = useState<Partial<Attrib>>({});
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    showSizeChanger: false,
-    total: 0,
-    pageSize: 10,
-    current: 1,
-  });
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -202,7 +196,6 @@ const AttribsList = () => {
     }
 
     setQueryParams(filters);
-    setPagination({ ...pagination, current });
     onSearch({ ...prop, sort, page: current, ...filters });
     setSorterTable(sorter);
     setFilterTable(filterArg);
@@ -214,12 +207,6 @@ const AttribsList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
-    setPagination({
-      total: 0,
-      pageSize: 10,
-      current: 1,
-      showSizeChanger: false,
-    });
     onSearch({});
     setSorterTable({});
     setFilterTable({});
@@ -354,14 +341,17 @@ const AttribsList = () => {
               </Button>
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
-              <Text strong>Total Encontrados:</Text> {pagination?.total}{' '}
-              <Text strong>Páginas: </Text> {pagination.current} / {data?.attribs?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.attribs?.totalDocs}{' '}
+              <Text strong>Páginas: </Text> {data?.attribs?.page} / {data?.attribs?.totalPages || 0}
             </Col>
           </Row>
           <Table
             columns={columns}
             dataSource={data?.attribs?.docs}
-            pagination={pagination}
+            pagination={{
+              current: data?.attribs?.page,
+              total: data?.attribs?.totalDocs,
+            }}
             loading={loading}
             onChange={handleChangeTable}
           />

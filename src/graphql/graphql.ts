@@ -3392,6 +3392,7 @@ export type StockAdjustmentsQuery = {
     __typename?: 'ResponseStockAdjustments';
     totalDocs: number;
     totalPages: number;
+    page: number;
     docs: {
       __typename?: 'StockAdjustment';
       _id: string;
@@ -3437,6 +3438,7 @@ export type AttribsQuery = {
     __typename?: 'ResponseAttribs';
     totalDocs: number;
     totalPages: number;
+    page: number;
     docs: {
       __typename?: 'Attrib';
       _id: string;
@@ -3458,6 +3460,7 @@ export type BrandsQuery = {
     __typename?: 'ResponseBrands';
     totalDocs: number;
     totalPages: number;
+    page: number;
     docs: {
       __typename?: 'Brand';
       _id: string;
@@ -3479,6 +3482,7 @@ export type ColorsQuery = {
     __typename?: 'ResponseColors';
     totalDocs: number;
     totalPages: number;
+    page: number;
     docs: {
       __typename?: 'Color';
       _id: string;
@@ -3545,6 +3549,7 @@ export type StockInputsQuery = {
     __typename?: 'ResponseStockInputs';
     totalDocs: number;
     totalPages: number;
+    page: number;
     docs: {
       __typename?: 'StockInput';
       _id: string;
@@ -3773,6 +3778,7 @@ export type StockOutputsQuery = {
     __typename?: 'ResponseStockOutputs';
     totalDocs: number;
     totalPages: number;
+    page: number;
     docs: {
       __typename?: 'StockOutput';
       _id: string;
@@ -3813,6 +3819,8 @@ export type ProductsQuery = {
   products: {
     __typename?: 'ResponseProducts';
     totalDocs: number;
+    totalPages: number;
+    page: number;
     docs: {
       __typename?: 'Product';
       _id: string;
@@ -3910,6 +3918,7 @@ export type StockRequestsQuery = {
     __typename?: 'ResponseStockRequests';
     totalDocs: number;
     totalPages: number;
+    page: number;
     docs: {
       __typename?: 'StockRequest';
       _id: string;
@@ -3988,6 +3997,9 @@ export type WarehousesQuery = {
   __typename?: 'Query';
   warehouses: {
     __typename?: 'ResponseWarehouses';
+    page: number;
+    totalDocs: number;
+    totalPages: number;
     docs: { __typename?: 'Warehouse'; _id: string; name: string }[];
   };
 };
@@ -6432,6 +6444,7 @@ export const StockAdjustmentsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -6600,6 +6613,7 @@ export const AttribsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -6654,6 +6668,7 @@ export const BrandsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -6711,6 +6726,7 @@ export const ColorsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -7045,6 +7061,7 @@ export const StockInputsDocument = {
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
               ],
             },
           },
@@ -7734,6 +7751,7 @@ export const StockOutputsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -7952,6 +7970,8 @@ export const ProductsDocument = {
                   },
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
               ],
             },
           },
@@ -8375,6 +8395,7 @@ export const StockRequestsDocument = {
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
               ],
             },
           },
@@ -8549,6 +8570,9 @@ export const WarehousesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },

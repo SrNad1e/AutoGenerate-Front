@@ -26,6 +26,8 @@ query products($input: FiltersProductsInput!) {
       }
     }
     totalDocs
+    totalPages
+    page
   }
 }
 

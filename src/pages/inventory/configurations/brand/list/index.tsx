@@ -38,12 +38,6 @@ type FormData = {
 
 const BrandsList = () => {
   const [brand, setBrand] = useState<Partial<Brand>>({});
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    showSizeChanger: false,
-    total: 0,
-    pageSize: 10,
-    current: 1,
-  });
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -199,7 +193,6 @@ const BrandsList = () => {
     }
 
     setQueryParams(filters);
-    setPagination({ ...pagination, current });
     onSearch({ ...prop, sort, page: current, ...filters });
     setSorterTable(sorter);
     setFilterTable(filterArg);
@@ -211,12 +204,6 @@ const BrandsList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
-    setPagination({
-      total: 0,
-      pageSize: 10,
-      current: 1,
-      showSizeChanger: false,
-    });
     onSearch({});
     setSorterTable({});
     setFilterTable({});
@@ -351,14 +338,17 @@ const BrandsList = () => {
               </Button>
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
-              <Text strong>Total Encontrados:</Text> {pagination?.total}{' '}
-              <Text strong>Páginas: </Text> {pagination.current} / {data?.brands?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.brands?.totalDocs}{' '}
+              <Text strong>Páginas: </Text> {data?.brands?.page} / {data?.brands?.totalPages || 0}
             </Col>
           </Row>
           <Table
             columns={columns}
             dataSource={data?.brands?.docs}
-            pagination={pagination}
+            pagination={{
+              current: data?.brands?.page,
+              total: data?.brands?.totalDocs,
+            }}
             loading={loading}
             onChange={handleChangeTable}
           />

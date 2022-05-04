@@ -61,11 +61,6 @@ export type FormValues = {
 const AdjustmentList = () => {
   const [adjustmentData, setAdjustmentData] = useState<Partial<StockAdjustment>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    total: 0,
-    pageSize: 10,
-    current: 1,
-  });
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -143,7 +138,7 @@ const AdjustmentList = () => {
     try {
       const params: Partial<FiltersStockAdjustmentsInput> = {
         page: pageCurrent || 1,
-        limit: pagination.pageSize,
+        limit: 10,
         status,
         number,
         sort: sort || { createdAt: -1 },
@@ -158,7 +153,6 @@ const AdjustmentList = () => {
       if (warehouseId) {
         params.warehouseId = warehouseId;
       }
-      setPagination({ ...pagination, current: pageCurrent || 1 });
       onSearch(params);
 
       const datos = Object.keys(props)
@@ -197,7 +191,6 @@ const AdjustmentList = () => {
       };
     }
 
-    setPagination({ ...pagination, current });
     onFinish(params, sort, current);
   };
 
@@ -207,11 +200,6 @@ const AdjustmentList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
-    setPagination({
-      total: 0,
-      pageSize: 10,
-      current: 1,
-    });
     onSearch({
       limit: 10,
       page: 1,
@@ -335,12 +323,7 @@ const AdjustmentList = () => {
           <Row gutter={[8, 8]} className={styles.form}>
             <Col xs={24} lg={4} xl={4} xxl={2}>
               <FormItem label="Número" name="number">
-                <InputNumber
-                  className={styles.item}
-                  disabled={loading}
-                  min={1}
-                  max={pagination.total}
-                />
+                <InputNumber className={styles.item} disabled={loading} min={1} />
               </FormItem>
             </Col>
             <Col xs={24} lg={5} xl={5} xxl={4}>
@@ -389,13 +372,17 @@ const AdjustmentList = () => {
       </Card>
       <Card>
         <Col span={24} style={{ textAlign: 'right' }}>
-          <Text strong>Total Encontrados:</Text> {pagination?.total} <Text strong>Páginas: </Text>{' '}
-          {pagination.current} / {data?.stockAdjustments?.totalPages || 0}
+          <Text strong>Total Encontrados:</Text> {data?.stockAdjustments?.totalDocs}{' '}
+          <Text strong>Páginas: </Text> {data?.stockAdjustments?.page} /{' '}
+          {data?.stockAdjustments?.totalPages || 0}
         </Col>
         <Table
           columns={columns}
           dataSource={data?.stockAdjustments?.docs as any}
-          pagination={pagination}
+          pagination={{
+            current: data?.stockAdjustments?.page,
+            total: data?.stockAdjustments?.totalDocs,
+          }}
           onChange={handleChangeTable}
           loading={loading}
         />

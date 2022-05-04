@@ -39,7 +39,12 @@ import { useGenerateRequest, useGetRequests } from '@/hooks/request.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import ReportRequest from '../reports/request';
-import type { DetailRequest, FiltersStockRequestsInput, StockRequest } from '@/graphql/graphql';
+import type {
+  DetailRequest,
+  FiltersStockRequestsInput,
+  StockRequest,
+  Warehouse,
+} from '@/graphql/graphql';
 
 import styles from './styles.less';
 import './styles.less';
@@ -59,11 +64,6 @@ export type FormValues = {
 
 const RequestList = () => {
   const [requestData, setRequestData] = useState<Partial<StockRequest>>({});
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    total: 0,
-    pageSize: 10,
-    current: 1,
-  });
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -144,7 +144,7 @@ const RequestList = () => {
     try {
       const params: FiltersStockRequestsInput = {
         page: pageCurrent || 1,
-        limit: pagination.pageSize,
+        limit: 10,
         status,
         number,
         sort: sort || { createdAt: -1 },
@@ -163,7 +163,6 @@ const RequestList = () => {
           params.warehouseDestinationId = warehouseId;
         }
       }
-      setPagination({ ...pagination, current: pageCurrent || 1 });
 
       onSearch(params);
 
@@ -204,8 +203,6 @@ const RequestList = () => {
       };
     }
 
-    setPagination({ ...pagination, current });
-
     onFinish(params, sort, current);
   };
 
@@ -216,10 +213,6 @@ const RequestList = () => {
     history.replace(location.pathname);
     form.resetFields();
     onSearch();
-    setPagination({
-      pageSize: 10,
-      current: 1,
-    });
     form.setFieldsValue({
       type: 'received',
     });
@@ -291,7 +284,7 @@ const RequestList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouseOrigin: WAREHOUSE.Warehouse) => warehouseOrigin?.name,
+      render: (warehouseOrigin: Warehouse) => warehouseOrigin?.name,
     },
     {
       title: 'Destino',
@@ -299,7 +292,7 @@ const RequestList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouseDestination: WAREHOUSE.Warehouse) => warehouseDestination?.name,
+      render: (warehouseDestination: Warehouse) => warehouseDestination?.name,
     },
     {
       title: 'Referencia',
@@ -435,13 +428,17 @@ const RequestList = () => {
       </Card>
       <Card>
         <Col span={24} style={{ textAlign: 'right' }}>
-          <Text strong>Total Encontrados:</Text> {pagination?.total} <Text strong>Páginas: </Text>{' '}
-          {pagination.current} / {data?.stockRequests?.totalPages || 0}
+          <Text strong>Total Encontrados:</Text> {data?.stockRequests?.totalDocs}{' '}
+          <Text strong>Páginas: </Text> {data?.stockRequests?.page} /{' '}
+          {data?.stockRequests?.totalPages || 0}
         </Col>
         <Table
           columns={columns}
           dataSource={data?.stockRequests?.docs as any}
-          pagination={pagination}
+          pagination={{
+            current: data?.stockRequests?.page,
+            total: data?.stockRequests?.totalDocs,
+          }}
           onChange={handleChangeTable}
           loading={loading}
         />

@@ -82,5 +82,6 @@ query stockInputs($input: FiltersStockInputsInput) {
     }
     totalDocs
     totalPages
+    page
   }
 }
