@@ -245,7 +245,7 @@ const AttribsList = () => {
       <Row gutter={[8, 8]}>
         <Col span={12}>
           <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Atributo" autoComplete="off" />
+            <Input placeholder="Nombre" autoComplete="off" />
           </FormItem>
         </Col>
       </Row>
@@ -264,7 +264,7 @@ const AttribsList = () => {
 
   const columns: ColumnsType<Partial<Attrib>> = [
     {
-      title: 'Atributo',
+      title: 'Nombre',
       dataIndex: 'name',
       align: 'center',
       sorter: true,

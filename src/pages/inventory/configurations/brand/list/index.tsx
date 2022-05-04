@@ -242,7 +242,7 @@ const BrandsList = () => {
       <Row gutter={[8, 8]}>
         <Col span={12}>
           <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Marca" autoComplete="off" />
+            <Input placeholder="Nombre" autoComplete="off" />
           </FormItem>
         </Col>
       </Row>
@@ -261,7 +261,7 @@ const BrandsList = () => {
 
   const columns: ColumnsType<Partial<Brand>> = [
     {
-      title: 'Marca',
+      title: 'Nombre',
       dataIndex: 'name',
       align: 'center',
       sorter: true,
