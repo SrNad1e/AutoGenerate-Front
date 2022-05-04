@@ -6,7 +6,23 @@ export const CREATECOLOR = gql`
       _id
       active
       html
-      image
+      image {
+        _id
+        name
+        urls {
+          original
+          jpeg {
+            big
+            medium
+            small
+          }
+          webp {
+            big
+            medium
+            small
+          }
+        }
+      }
       name
       name_internal
       createdAt
@@ -20,7 +36,23 @@ export const UPDATECOLOR = gql`
       _id
       active
       html
-      image
+      image {
+        _id
+        name
+        urls {
+          original
+          jpeg {
+            big
+            medium
+            small
+          }
+          webp {
+            big
+            medium
+            small
+          }
+        }
+      }
       name
       name_internal
     }

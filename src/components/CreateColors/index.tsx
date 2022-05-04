@@ -4,10 +4,9 @@ import FormItem from 'antd/lib/form/FormItem';
 import { useState } from 'react';
 import AlertInformation from '../Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import UploadImage from '../UploadImage';
 import { useCreateColor, useUpdateColor } from '@/hooks/color.hooks';
 import AlertLoading from '../Alerts/AlertLoading';
-import SearchImage from '../SearchImage';
+import ImageAdmin from '../ImageAdmin';
 
 export type Props = {
   modalVisible: boolean;
@@ -18,7 +17,6 @@ export type Props = {
 };
 
 const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
-  const [image, setImage]: any = useState();
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -73,10 +71,6 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
   const { updateColor, loadingUpdate } = useUpdateColor(resultUpdate, showError);
 
   /** Fin de Hooks para manejo de consultas */
-
-  const upload = (e: any) => {
-    setImage(e);
-  };
 
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
@@ -185,8 +179,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           <Input type="Color" />
         </FormItem>
         <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} label="Imagen" name="image">
-          <UploadImage current={image} onUpload={upload} />
-          <SearchImage />
+          <ImageAdmin />
         </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
