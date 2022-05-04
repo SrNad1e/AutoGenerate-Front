@@ -168,11 +168,6 @@ export default defineConfig({
               path: '/inventory/configurations',
               routes: [
                 {
-                  name: 'Colores',
-                  path: '/inventory/configurations/color',
-                  component: './inventory/configurations/color/list',
-                },
-                {
                   name: 'Tallas',
                   path: '/inventory/configurations/size',
                   component: './inventory/configurations/size/list',
