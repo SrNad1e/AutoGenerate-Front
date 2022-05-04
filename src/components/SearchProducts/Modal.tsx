@@ -135,6 +135,7 @@ const ModalSearchProducts = ({
           <Avatar
             size="small"
             style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
+            src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
           />
 
           <Text style={{ marginLeft: 10 }}>{color?.name_internal}</Text>
