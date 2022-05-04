@@ -1,0 +1,13 @@
+query brands($input: FiltersBrandsInput) {
+  brands(filtersBrandsInput: $input) {
+    totalDocs
+    totalPages
+    docs {
+      _id
+      active
+      createdAt
+      updatedAt
+      name
+    }
+  }
+}

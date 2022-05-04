@@ -1,0 +1,86 @@
+query stockInput($id: String!) {
+  stockInputId(id: $id) {
+    _id
+    createdAt
+    updatedAt
+    total
+    status
+    observation
+    number
+    details {
+      quantity
+      product {
+        _id
+        barcode
+        reference {
+          description
+          cost
+          name
+        }
+        color {
+          image {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+          html
+          name_internal
+        }
+        stock {
+          quantity
+        }
+        size {
+          value
+        }
+      }
+    }
+    user {
+      name
+    }
+    warehouse {
+      _id
+      name
+    }
+  }
+}
+
+query stockInputs($input: FiltersStockInputsInput) {
+  stockInputs(filtersStockInputsInput: $input) {
+    docs {
+      _id
+      number
+      warehouse {
+        name
+      }
+      user {
+        name
+      }
+      status
+      total
+      createdAt
+      updatedAt
+      details {
+        quantity
+        product {
+          reference {
+            description
+            cost
+            price
+            name
+          }
+          barcode
+          color {
+            name_internal
+          }
+          size {
+            value
+          }
+        }
+      }
+    }
+    totalDocs
+    totalPages
+  }
+}

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -13,37 +14,29 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
-import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
-import Title from 'antd/lib/typography/Title';
-import { SorterResult } from 'antd/lib/table/interface';
-
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { useLocation, history } from 'umi';
+import type { Location } from 'umi';
+import { useLocation, useHistory } from 'umi';
+import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useGetSizes } from '@/hooks/size.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import CreateSize from '@/components/CreateSize';
+import type { FiltersSizesInput, Size } from '@/graphql/graphql';
 
 import styles from './style.less';
+
+const FormItem = Form.Item;
 
 type FormData = {
   name?: string;
   active?: boolean;
 };
 
-type InputVars = {
-  name?: string;
-  active?: boolean;
-  limit?: number;
-  sort?: Record<string, number>;
-  page?: number;
-};
-
 const SizesList = () => {
-  const [sizes, setSizes] = useState<Partial<SIZE.Size[]>>([]);
-  const [size, setSize] = useState<Partial<SIZE.Size>>({});
+  const [size, setSize] = useState<Partial<Size>>({});
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     showSizeChanger: false,
     total: 0,
@@ -56,23 +49,17 @@ const SizesList = () => {
     visible: false,
   });
   const [visible, setVisible] = useState(false);
-  const [sorterTable, setSorterTable] = useState<SorterResult<InputVars>>({});
+  const [sorterTable, setSorterTable] = useState<SorterResult<FiltersSizesInput>>({});
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
 
-  const { Text } = Typography;
+  const { Text, Title } = Typography;
+
   const [form] = Form.useForm();
-  const location = useLocation();
 
-  /** Funciones ejecutadas por los hooks */
+  const location: Location = useLocation();
+  const history = useHistory();
 
-  /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
-   */
-  const resultSizes = (data: Partial<SIZE.ResponsePaginate>) => {
-    setSizes(data.docs || []);
-    setPagination({ ...pagination, total: data.totalDocs });
-  };
+  const [getSizes, { data, loading }] = useGetSizes();
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -85,14 +72,6 @@ const SizesList = () => {
       visible: true,
     });
   };
-
-  /** Fin de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getSizes, loading } = useGetSizes(resultSizes, showError);
-
-  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -109,21 +88,25 @@ const SizesList = () => {
    * @description se encarga de ejecutar la funcion para obtener las tallas
    * @param values Variables para ejecutar la consulta
    */
-  const onSearch = (values?: InputVars) => {
-    getSizes({
-      variables: {
-        input: {
-          ...values,
+  const onSearch = (values?: FiltersSizesInput) => {
+    try {
+      getSizes({
+        variables: {
+          input: {
+            ...values,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de abrir el modal de actualizacion o creacion de la talla
    * @param sizeData propiedades del objeto para setear
    */
-  const visibleModal = (sizeData: Partial<SIZE.Size>) => {
+  const visibleModal = (sizeData: Partial<Size>) => {
     setSize(sizeData || {});
     setVisible(true);
   };
@@ -136,7 +119,7 @@ const SizesList = () => {
     setVisible(false);
   };
 
-  const setQueryParams = (values?: any) => {
+  const setQueryParams = (values?: FiltersSizesInput) => {
     try {
       const valuesForm = form.getFieldsValue();
 
@@ -153,8 +136,8 @@ const SizesList = () => {
         .slice(1);
 
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -189,7 +172,7 @@ const SizesList = () => {
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filterArg: Record<string, any>,
-    sorter: SorterResult<Partial<SIZE.Size>>,
+    sorter: SorterResult<Partial<Size>> | any,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
@@ -242,10 +225,10 @@ const SizesList = () => {
    * @description se encarga de cargar los datos con base a la query
    */
   const getFiltersQuery = () => {
-    const queryParams = location['query'];
+    const queryParams: any = location.query;
     const params = {};
     const tableFilters = {
-      active: queryParams['active'] ? [queryParams['active'] === 'true'] : null,
+      active: queryParams.active ? [queryParams.active === 'true'] : null,
     };
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
@@ -288,7 +271,7 @@ const SizesList = () => {
     </Form>
   );
 
-  const columns: ColumnsType<Partial<SIZE.Size>> = [
+  const columns: ColumnsType<Partial<Size>> = [
     {
       title: 'Valor',
       dataIndex: 'value',
@@ -351,8 +334,6 @@ const SizesList = () => {
     },
   ];
 
-  const totalPages = Math.ceil((pagination.total || 0) / (pagination.pageSize || 0));
-
   return (
     <PageContainer
       title={
@@ -379,20 +360,20 @@ const SizesList = () => {
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
               <Text strong>Total Encontrados:</Text> {pagination?.total}{' '}
-              <Text strong>Páginas: </Text> {pagination.current} / {totalPages}
+              <Text strong>Páginas: </Text> {pagination.current} / {data?.sizes?.totalPages || 0}
             </Col>
           </Row>
           <Table
             columns={columns}
-            dataSource={sizes}
+            dataSource={data?.sizes?.docs}
             pagination={pagination}
             loading={loading}
             onChange={handleChangeTable}
           />
         </div>
       </Card>
-      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       <CreateSize modalVisible={visible} onCancel={closeModal} current={size} />
+      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );
 };

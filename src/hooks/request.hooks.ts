@@ -5,7 +5,7 @@ import {
   StockRequestsDocument,
   CreateStockRequestDocument,
   GenerateStockRequestDocument,
-  UpdateStockDocument,
+  UpdateStockRequestDocument,
 } from '@/graphql/graphql';
 
 export const useGetRequest = () => {
@@ -21,18 +21,7 @@ export const useGetRequests = () => {
 };
 
 export const useCreateRequest = () => {
-  return useMutation(CreateStockRequestDocument, {
-    update: (store, response) => {
-      const dataInStore = store.readQuery({ query: StockRequestDocument });
-      store.writeQuery({
-        query: StockRequestDocument,
-        data: {
-          ...dataInStore,
-          stockRequestId: { ...dataInStore?.stockRequestId, ...response.data?.createStockRequest },
-        },
-      });
-    },
-  });
+  return useMutation(CreateStockRequestDocument);
 };
 
 export const useGenerateRequest = () => {
@@ -40,7 +29,7 @@ export const useGenerateRequest = () => {
 };
 
 export const useUpdateRequest = () => {
-  return useMutation(UpdateStockDocument, {
+  return useMutation(UpdateStockRequestDocument, {
     update: (store, response) => {
       const dataInStore = store.readQuery({ query: StockRequestDocument });
       store.writeQuery({

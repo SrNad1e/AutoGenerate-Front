@@ -15,9 +15,9 @@ import {
   Typography,
 } from 'antd';
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
-
 import { useEffect, useState } from 'react';
 import { useModel, useParams } from 'umi';
+
 import { useCreateAdjustment, useUpdateAdjustment } from '@/hooks/adjustment.hooks';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
@@ -26,7 +26,7 @@ import SelectProducts from '@/components/SelectProducts';
 import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
-
+import type { DetailAdjustment, Product, StockAdjustment } from '@/graphql/graphql';
 import Footer from './footer';
 import Header from './header';
 
@@ -34,13 +34,12 @@ const FormItem = Form.Item;
 const { Text } = Typography;
 
 export type Props = {
-  adjustment?: Partial<ADJUSTMENT.Adjustment>;
+  adjustment?: Partial<StockAdjustment>;
   setCurrentStep: (step: number) => void;
-  setAdjustment: (data: Partial<ADJUSTMENT.Adjustment>) => void;
 };
 
-const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) => {
-  const [details, setDetails] = useState<Partial<ADJUSTMENT.DetailAdjustmentProps[]>>([]);
+const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
+  const [details, setDetails] = useState<Partial<DetailAdjustment & { action: string }>[]>([]);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -61,11 +60,12 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
 
   const { id } = useParams<Partial<{ id: string }>>();
 
-  const allowEdit = adjustment?.status === 'open';
-
   const { initialState } = useModel('@@initialState');
 
-  /** Funciones ejecutadas por los hooks */
+  const [createAdjustment, paramsCreate] = useCreateAdjustment();
+  const [updateAdjustment, paramsUpdate] = useUpdateAdjustment();
+
+  const allowEdit = adjustment?.status === 'open';
 
   /**
    * @description se encarga de abrir aviso de información
@@ -80,28 +80,6 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
   };
 
   /**
-   * @description abre la alerta de confirmacion de creacion
-   * @param data ajuste creado
-   */
-  const resultSave = (data: Partial<ADJUSTMENT.Adjustment>) => {
-    setPropsAlert({
-      message: `Ajuste creado correctamente No. ${data.number}`,
-      type: 'success',
-      visible: true,
-      redirect: `/inventory/adjustment/${data._id}`,
-    });
-  };
-
-  const resultUpdate = (data: Partial<ADJUSTMENT.Adjustment>) => {
-    setPropsAlert({
-      message: `Ajuste creado correctamente No. ${data.number}`,
-      type: 'success',
-      visible: true,
-    });
-    setAdjustment(data);
-  };
-
-  /**
    * @description maneja el error de la consulta
    * @param message error que genera al consulta
    */
@@ -112,15 +90,6 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
       visible: true,
     });
   };
-
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { createAdjustment, loadingCreate } = useCreateAdjustment(resultSave, showError);
-  const { updateAdjustment, loadingUpdate } = useUpdateAdjustment(resultUpdate, showError);
-
-  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description se encarga de mostrar la alerta de guardado y cancelar
@@ -158,52 +127,74 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
    * @description se encarga de guardar el traslado
    * @param status se usa para definir el estado del ajuste
    */
-  const saveAdjustment = (status?: string) => {
-    if (id) {
-      const detailsFilter = details.filter((detail) => detail?.action);
+  const saveAdjustment = async (status?: string) => {
+    try {
+      if (id) {
+        const detailsFilter = details.filter((detail) => detail?.action);
 
-      const newDetails = detailsFilter.map((detail) => ({
-        productId: detail?.product?._id,
-        quantity: detail?.quantity,
-        action: detail?.action,
-      }));
-      if (newDetails.length > 0 || status || observation !== adjustment?.observation) {
-        const props = {
-          details: newDetails,
-          observation,
-          status,
-        };
-
-        updateAdjustment({
-          variables: {
-            input: props,
-            id,
-          },
-        });
-      } else {
-        onShowInformation('El ajuste no tiene cambios a realizar');
-      }
-    } else {
-      if (status === 'cancelled') {
-        setCurrentStep(0);
-      } else {
-        const newDetails = details.map((detail) => ({
-          productId: detail?.product?._id,
-          quantity: detail?.quantity,
+        const newDetails = detailsFilter.map((detail) => ({
+          productId: detail?.product?._id || '',
+          quantity: detail?.quantity || 1,
+          action: detail?.action || '',
         }));
-        const props = {
-          details: newDetails,
-          warehouseId:
-            adjustment?.warehouse?._id || initialState?.currentUser?.shop?.defaultWarehouse?._id,
-          observation,
-          status,
-        };
-        createAdjustment({
-          variables: {
-            input: props,
-          },
-        });
+        if (newDetails.length > 0 || status || observation !== adjustment?.observation) {
+          const props = {
+            details: newDetails,
+            observation,
+            status,
+          };
+
+          const response = await updateAdjustment({
+            variables: {
+              input: props,
+              id,
+            },
+          });
+          if (response?.data?.updateStockAdjustment) {
+            setPropsAlert({
+              message: `Ajuste actualizado correctamente No. ${response?.data?.updateStockAdjustment?.number}`,
+              type: 'success',
+              visible: true,
+            });
+          }
+        } else {
+          onShowInformation('El ajuste no tiene cambios a realizar');
+        }
+      } else {
+        if (status === 'cancelled') {
+          setCurrentStep(0);
+        } else {
+          const newDetails = details.map((detail) => ({
+            productId: detail?.product?._id || '',
+            quantity: detail?.quantity || 1,
+          }));
+          const props = {
+            details: newDetails,
+            warehouseId:
+              adjustment?.warehouse?._id ||
+              initialState?.currentUser?.shop?.defaultWarehouse?._id ||
+              '',
+            observation,
+            status,
+          };
+          const response = await createAdjustment({
+            variables: {
+              input: props,
+            },
+          });
+
+          if (response?.data?.createStockAdjustment) {
+            setPropsAlert({
+              message: `Ajuste creado correctamente No. ${response?.data?.createStockAdjustment?.number}`,
+              type: 'success',
+              visible: true,
+              redirect: `/inventory/adjustment/${response?.data?.createStockAdjustment?._id}`,
+            });
+          }
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -238,7 +229,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
    * @param product producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
-  const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
+  const updateDetail = (product: Product, quantity: number) => {
     if (setDetails) {
       setDetails(
         details.map((detail) => {
@@ -260,7 +251,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
    * @param product identificador del producto a crear
    * @param quantity cantidad  a asignar
    */
-  const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
+  const createDetail = (product: Product, quantity: number) => {
     if (setDetails) {
       setDetails([...details, { product, quantity, action: 'create' }]);
     }
@@ -309,11 +300,11 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
     deleteDetail,
   };
 
-  const columns: ColumnsType<Partial<ADJUSTMENT.DetailAdjustment>> = [
+  const columns: ColumnsType<Partial<DetailAdjustment>> = [
     {
       title: 'Referencia',
       dataIndex: 'product',
-      render: ({ reference, barcode }: PRODUCT.Product) => (
+      render: ({ reference, barcode }: Product) => (
         <Row>
           <Col span={24}>
             {reference?.name} / {reference?.description}
@@ -327,7 +318,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
     {
       title: 'Color',
       dataIndex: 'product',
-      render: ({ color }: PRODUCT.Product) => {
+      render: ({ color }: Product) => {
         return (
           <Space>
             <Avatar
@@ -343,13 +334,13 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
     {
       title: 'Talla',
       dataIndex: 'product',
-      render: ({ size }: PRODUCT.Product) => size.value,
+      render: ({ size }: Product) => size.value,
     },
     {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
-      render: ({ stock }: PRODUCT.Product) =>
+      render: ({ stock }: Product) =>
         stock && (
           <Badge
             overflowCount={99999}
@@ -368,7 +359,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
         <InputNumber
           value={quantity || 0}
           min={0}
-          onChange={(value) => updateDetail(product || {}, value)}
+          onChange={(value) => updateDetail(product as Product, value)}
           disabled={!allowEdit}
           style={{ color: 'black', backgroundColor: 'white' }}
         />
@@ -378,7 +369,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
       title: 'Opciones',
       dataIndex: 'product',
       align: 'center',
-      render: ({ _id = '' }: PRODUCT.Product) => (
+      render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
           <Button
             icon={<DeleteOutlined />}
@@ -414,7 +405,8 @@ const FormAdjustment = ({ adjustment, setCurrentStep, setAdjustment }: Props) =>
       </Card>
       <Footer adjustment={adjustment} saveAdjustment={showAlertSave} details={details} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <AlertLoading visible={loadingCreate || loadingUpdate} message="Guardando Solicitud" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Guardando Ajuste" />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Ajuste" />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );

@@ -299,7 +299,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
     {
       title: 'Referencia',
       dataIndex: 'product',
-      render: ({ reference, barcode }: PRODUCT.Product) => (
+      render: ({ reference, barcode }: Product) => (
         <Row>
           <Col span={24}>
             {reference?.name} / {reference?.description}
@@ -313,7 +313,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
     {
       title: 'Color',
       dataIndex: 'product',
-      render: ({ color }: PRODUCT.Product) => {
+      render: ({ color }: Product) => {
         return (
           <Space>
             <Avatar
@@ -329,13 +329,13 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
     {
       title: 'Talla',
       dataIndex: 'product',
-      render: ({ size }: PRODUCT.Product) => size.value,
+      render: ({ size }: Product) => size.value,
     },
     {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
-      render: ({ stock = [] }: PRODUCT.Product) =>
+      render: ({ stock = [] }: Product) =>
         stock?.length > 0 && (
           <Badge
             overflowCount={99999}
@@ -364,7 +364,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
       title: 'Opciones',
       dataIndex: 'product',
       align: 'center',
-      render: ({ _id = '' }: PRODUCT.Product) => (
+      render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
           <Button
             icon={<DeleteOutlined />}

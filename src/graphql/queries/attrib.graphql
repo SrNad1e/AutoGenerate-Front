@@ -1,0 +1,13 @@
+query attribs($input: FiltersAttribsInput) {
+  attribs(filtersAttribsInput: $input) {
+    totalDocs
+    totalPages
+    docs {
+      _id
+      active
+      createdAt
+      name
+      updatedAt
+    }
+  }
+}

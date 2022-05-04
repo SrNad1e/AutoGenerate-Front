@@ -26,7 +26,7 @@ import './styles.less';
 const { Step } = Steps;
 
 const RequestForm = () => {
-  const [currentStep, setCurretStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -101,7 +101,7 @@ const RequestForm = () => {
   const changeCurrentStep = async (warehouseOriginId?: string) => {
     try {
       if (warehouseOriginId) {
-        setCurretStep(1);
+        setCurrentStep(1);
         const response = await getWarehouseId({
           variables: {
             warehouseId: warehouseOriginId,
@@ -113,7 +113,7 @@ const RequestForm = () => {
           warehouseOrigin: response?.data?.warehouseId as Warehouse,
         });
       } else {
-        setCurretStep(0);
+        setCurrentStep(0);
       }
     } catch (error: any) {
       onShowError(error?.message);
@@ -148,7 +148,7 @@ const RequestForm = () => {
           />
         );
       case 1:
-        return <FormRequest request={request} setCurrentStep={setCurretStep} />;
+        return <FormRequest request={request} setCurrentStep={setCurrentStep} />;
       default:
         return <></>;
     }
@@ -199,7 +199,7 @@ const RequestForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormRequest request={request} setCurrentStep={setCurretStep} />
+        <FormRequest request={request} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <div style={{ display: 'none' }}>

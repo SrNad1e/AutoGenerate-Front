@@ -1,57 +1,15 @@
-import { CREATEBRAND, UPDATEBRAND } from '@/graphql/mutations/brands.mutations';
-import { BRANDS } from '@/graphql/queries/brand.queries';
 import { useLazyQuery, useMutation } from '@apollo/client';
 
-export const useGetBrands = (
-  callback: (data: BRAND.ResponseBrands) => void,
-  showError: (message: string) => void,
-) => {
-  const [getBrands, { loading }] = useLazyQuery(BRANDS, {
-    onCompleted: (result) => callback(result.brands),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+import { BrandsDocument, CreateBrandDocument, UpdateBrandDocument } from '@/graphql/graphql';
 
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    getBrands,
-    loading,
-  };
+export const useGetBrands = () => {
+  return useLazyQuery(BrandsDocument);
 };
 
-export const useCreateBrand = (
-  callback: (data: BRAND.Brand) => void,
-  showError: (message: string) => void,
-) => {
-  const [createBrands, { loading }] = useMutation(CREATEBRAND, {
-    onCompleted: (result) => callback(result.createBrand),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0].message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    createBrands,
-    loadingCreate: loading,
-  };
+export const useCreateBrand = () => {
+  return useMutation(CreateBrandDocument);
 };
 
-export const useUpdateBrand = (
-  callback: (data: BRAND.Brand) => void,
-  showError: (message: string) => void,
-) => {
-  const [updateBrands, { loading }] = useMutation(UPDATEBRAND, {
-    onCompleted: (result) => callback(result.updateBrand),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0].message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    updateBrands,
-    loadingUpdate: loading,
-  };
+export const useUpdateBrand = () => {
+  return useMutation(UpdateBrandDocument);
 };

@@ -1,18 +1,19 @@
-mutation createStockRequest($input: CreateStockRequestInput!) {
-  createStockRequest(createStockRequestInput: $input) {
+mutation createStockOutput($input: CreateStockOutputInput!) {
+  createStockOutput(createStockOutputInput: $input) {
     _id
     number
   }
 }
 
-mutation updateStockRequest($id: String!, $input: UpdateStockRequestInput!) {
-  updateStockRequest(id: $id, updateStockRequestInput: $input) {
+mutation updateStockOutput($id: String!, $input: UpdateStockOutputInput!) {
+  updateStockOutput(id: $id, updateStockOutputInput: $input) {
     _id
-    number
-    status
     createdAt
     updatedAt
+    number
     observation
+    status
+    total
     details {
       product {
         _id
@@ -38,23 +39,13 @@ mutation updateStockRequest($id: String!, $input: UpdateStockRequestInput!) {
           quantity
         }
       }
-      quantity
     }
     user {
       name
     }
-    warehouseDestination {
+    warehouse {
       name
+      _id
     }
-    warehouseOrigin {
-      name
-    }
-  }
-}
-
-mutation generateStockRequest($shopId: String!) {
-  generateStockRequest(shopId: $shopId) {
-    _id
-    number
   }
 }

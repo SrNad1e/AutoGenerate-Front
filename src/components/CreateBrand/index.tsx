@@ -1,15 +1,17 @@
-import { Alert, Form, Input, Modal, Switch } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
-
 import { useState } from 'react';
+import { Alert, Form, Input, Modal, Switch } from 'antd';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '../Alerts/AlertLoading';
 import { useCreateBrand, useUpdateBrand } from '@/hooks/brand.hooks';
+import type { Brand } from '@/graphql/graphql';
+
+const FormItem = Form.Item;
 
 export type Props = {
   modalVisible: boolean;
-  current?: Partial<BRAND.Brand>;
+  current?: Partial<Brand>;
   onCancel: () => void;
   error?: string | null;
   onOk?: () => void;
@@ -24,31 +26,11 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
   const [error, setError] = useState('');
 
   const [form] = Form.useForm();
+
+  const [createBrands, paramsCreate] = useCreateBrand();
+  const [updateBrands, paramsUpdate] = useUpdateBrand();
+
   const isNew = !current?._id;
-
-  /** Funciones ejecutadas por los hooks */
-
-  /**
-   * @description funcion usada por los hooks para mostrar la alerta de creacion
-   */
-  const resultCreate = () => {
-    setAlertInformation({
-      message: 'Marca creada correctamente',
-      type: 'success',
-      visible: true,
-    });
-  };
-
-  /**
-   * @description funcion usada por los hooks para mostrar la alerta de actualizacion
-   */
-  const resultUpdate = (dataBrand: Partial<BRAND.Brand>) => {
-    setAlertInformation({
-      message: `Marca ${dataBrand.name} actualizada correctamente`,
-      type: 'success',
-      visible: true,
-    });
-  };
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -61,15 +43,6 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
       visible: true,
     });
   };
-
-  /** Fin de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { createBrands, loadingCreate } = useCreateBrand(resultCreate, showError);
-  const { updateBrands, loadingUpdate } = useUpdateBrand(resultUpdate, showError);
-
-  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
@@ -95,27 +68,36 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
   /**
    * @description ejecuta la mutation para actualizar una marca
    */
-  const editBrand = () => {
-    const values = form.getFieldsValue();
-    let errorLocal = 'No hay cambios para aplicar';
+  const editBrand = async () => {
+    try {
+      const values = form.getFieldsValue();
+      let errorLocal = 'No hay cambios para aplicar';
 
-    Object.keys(values).forEach((i) => {
-      if (values[i] !== (current && current[i])) {
-        errorLocal = '';
-        return;
-      }
-    });
-    if (errorLocal) {
-      setError(errorLocal);
-    } else {
-      if (!isNew) {
-        updateBrands({
+      Object.keys(values).forEach((i) => {
+        if (values[i] !== (current && current[i])) {
+          errorLocal = '';
+          return;
+        }
+      });
+      if (errorLocal) {
+        setError(errorLocal);
+      } else {
+        const response = await updateBrands({
           variables: {
             input: values,
-            id: current?._id,
+            id: current?._id || '',
           },
         });
+        if (response?.data?.updateBrand) {
+          setAlertInformation({
+            message: `Marca ${response?.data?.updateBrand?.name} actualizada correctamente`,
+            type: 'success',
+            visible: true,
+          });
+        }
       }
+    } catch (e: any) {
+      showError(e?.message);
     }
   };
 
@@ -126,14 +108,21 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
     try {
       const values = await form.validateFields();
       delete values.active;
-      if (isNew) {
-        createBrands({
-          variables: {
-            input: values,
-          },
+      const response = await createBrands({
+        variables: {
+          input: values,
+        },
+      });
+      if (response?.data?.createBrand) {
+        setAlertInformation({
+          message: `Marca ${response?.data?.createBrand?.name} creada correctamente`,
+          type: 'success',
+          visible: true,
         });
       }
-    } catch (e) {}
+    } catch (e: any) {
+      showError(e?.message);
+    }
   };
 
   return (
@@ -168,7 +157,8 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      <AlertLoading visible={loadingCreate || loadingUpdate} message="Guardando Marca" />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Marca" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Actualizando Marca" />
     </Modal>
   );
 };

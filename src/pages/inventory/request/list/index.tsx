@@ -210,6 +210,22 @@ const RequestList = () => {
   };
 
   /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
+  const onClear = () => {
+    history.replace(location.pathname);
+    form.resetFields();
+    onSearch();
+    setPagination({
+      pageSize: 10,
+      current: 1,
+    });
+    form.setFieldsValue({
+      type: 'received',
+    });
+  };
+
+  /**
    * @description se encarga de hacer la consulta para generar la solicitud
    */
   const autoRequest = async () => {
@@ -226,26 +242,11 @@ const RequestList = () => {
           redirect: `/inventory/request/${response?.data?.generateStockRequest?._id}`,
           visible: true,
         });
+        onClear();
       }
     } catch (error: any) {
       messageError(error?.message);
     }
-  };
-
-  /**
-   * @description se encarga de limpiar los estados e inicializarlos
-   */
-  const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch();
-    setPagination({
-      pageSize: 10,
-      current: 1,
-    });
-    form.setFieldsValue({
-      type: 'received',
-    });
   };
 
   /**

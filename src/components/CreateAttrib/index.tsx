@@ -1,15 +1,17 @@
-import FormItem from 'antd/lib/form/FormItem';
-
 import { useState } from 'react';
+import { Alert, Form, Input, Modal, Switch } from 'antd';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '../Alerts/AlertLoading';
-import { Alert, Form, Input, Modal, Switch } from 'antd';
 import { useCreateAttrib, useUpdateAttrib } from '@/hooks/attrib.hooks';
+import type { Attrib } from '@/graphql/graphql';
+
+const FormItem = Form.Item;
 
 export type Props = {
   modalVisible: boolean;
-  current?: Partial<ATTRIBS.Attribs>;
+  current?: Partial<Attrib>;
   onCancel: () => void;
   error?: string | null;
   onOk?: () => void;
@@ -21,34 +23,14 @@ const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {
     type: 'error',
     visible: false,
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const [form] = Form.useForm();
+
+  const [createAttrib, paramsCreate] = useCreateAttrib();
+  const [updateAttrib, paramsUpdate] = useUpdateAttrib();
+
   const isNew = !current?._id;
-
-  /** Funciones ejecutadas por los hooks */
-
-  /**
-   * @description funcion usada por los hooks para mostrar la alerta de creacion
-   */
-  const resultCreate = () => {
-    setAlertInformation({
-      message: 'Atributo creado correctamente',
-      type: 'success',
-      visible: true,
-    });
-  };
-
-  /**
-   * @description funcion usada por los hooks para mostrar la alerta de actualizacion
-   */
-  const resultUpdate = (dataAttrib: Partial<ATTRIBS.Attribs>) => {
-    setAlertInformation({
-      message: `Atributo ${dataAttrib.name} actualizado correctamente`,
-      type: 'success',
-      visible: true,
-    });
-  };
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -62,21 +44,11 @@ const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {
     });
   };
 
-  /** Fin de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { createAttrib, loadingCreate } = useCreateAttrib(resultCreate, showError);
-  const { updateAttrib, loadingUpdate } = useUpdateAttrib(resultUpdate, showError);
-
-  /** Fin de Hooks para manejo de consultas */
-
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
    */
   const closeAndClear = async () => {
     await onCancel();
-    setError('');
     form.resetFields();
   };
 
@@ -95,27 +67,37 @@ const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {
   /**
    * @description ejecuta la mutation para actualizar un atributo
    */
-  const editAttrib = () => {
-    const values = form.getFieldsValue();
-    let errorLocal = 'No hay cambios para aplicar';
+  const editAttrib = async () => {
+    try {
+      const values = form.getFieldsValue();
+      let errorLocal = 'No hay cambios para aplicar';
 
-    Object.keys(values).forEach((i) => {
-      if (values[i] !== (current && current[i])) {
-        errorLocal = '';
-        return;
-      }
-    });
-    if (errorLocal) {
-      setError(errorLocal);
-    } else {
-      if (!isNew) {
-        updateAttrib({
+      Object.keys(values).forEach((i) => {
+        if (values[i] !== (current && current[i])) {
+          errorLocal = '';
+          return;
+        }
+      });
+      if (errorLocal) {
+        setError(errorLocal);
+      } else {
+        const response = await updateAttrib({
           variables: {
             input: values,
-            id: current?._id,
+            id: current?._id || '',
           },
         });
+
+        if (response?.data?.updateAttrib) {
+          setAlertInformation({
+            message: `Atributo ${response?.data?.updateAttrib?.name} actualizado correctamente`,
+            type: 'success',
+            visible: true,
+          });
+        }
       }
+    } catch (e: any) {
+      showError(e?.message);
     }
   };
 
@@ -126,14 +108,21 @@ const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {
     try {
       const values = await form.validateFields();
       delete values.active;
-      if (isNew) {
-        createAttrib({
-          variables: {
-            input: values,
-          },
+      const response = await createAttrib({
+        variables: {
+          input: values,
+        },
+      });
+      if (response?.data?.createAttrib) {
+        setAlertInformation({
+          message: `Atributo ${response?.data?.createAttrib?.name} creado correctamente`,
+          type: 'success',
+          visible: true,
         });
       }
-    } catch (e) {}
+    } catch (e: any) {
+      showError(e?.message);
+    }
   };
 
   return (
@@ -168,7 +157,8 @@ const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      <AlertLoading visible={loadingCreate || loadingUpdate} message="Guardando Atributo" />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Atributo" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Actualizando Atributo" />
     </Modal>
   );
 };

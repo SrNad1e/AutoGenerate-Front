@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
 import {
@@ -6,16 +7,18 @@ import {
   FileTextOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-
 import { useHistory, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useGetOutput } from '@/hooks/output.hooks';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import FormOutput from '../components/FormOutput';
-import { useReactToPrint } from 'react-to-print';
 import ReportOutput from '../reports/output';
+import type { StockOutput, Warehouse } from '@/graphql/graphql';
+import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
 
@@ -28,7 +31,7 @@ const OutputForm = () => {
     type: 'error',
     visible: false,
   });
-  const [output, setOutput] = useState<Partial<OUTPUT.Output & OUTPUT.CreateOutput>>({
+  const [output, setOutput] = useState<Partial<StockOutput>>({
     status: 'open',
   });
 
@@ -42,9 +45,10 @@ const OutputForm = () => {
     content: () => reportRef?.current,
   });
 
-  const isNew = !id;
+  const [getOutput, { loading, data }] = useGetOutput();
+  const [getWarehouseId] = useGetWarehouseId();
 
-  /** Funciones ejecutadas por los hooks */
+  const isNew = !id;
 
   /**
    * @description se encarga de abrir aviso de información
@@ -70,62 +74,68 @@ const OutputForm = () => {
   };
 
   /**
-   * @description se encarga de cargar la salida actual
-   * @param data datos de la entrada
+   * @description consulta la salida y almacena en memoria
    */
-  const currentOutput = (data: Partial<OUTPUT.Output>) => {
-    setOutput(data);
+  const getOutputId = async () => {
+    try {
+      const response = await getOutput({
+        variables: {
+          id: id || '',
+        },
+      });
+
+      if (response?.data?.stockOutputId) {
+        setOutput(response?.data?.stockOutputId as StockOutput);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
+    }
   };
-
-  /**
-   * @description se encarga de administrar el error
-   * @param message mensaje de error
-   */
-  const showError = (message: string) => {
-    onShowError(message);
-  };
-
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getOutput, loading } = useGetOutput(currentOutput, showError);
-
-  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description se encarga de cambiar el paso y asignar la bodega
-   * @param warehouse bodega seleccionada
+   * @param warehouseId identificador bodega seleccionada
    */
-  const changeCurrentStep = (warehouse: WAREHOUSE.Warehouse) => {
-    if (warehouse) {
-      setCurrentStep(1);
+  const changeCurrentStep = async (warehouseId: string) => {
+    try {
+      if (warehouseId) {
+        setCurrentStep(1);
+        const response = await getWarehouseId({
+          variables: {
+            warehouseId: warehouseId,
+          },
+        });
 
-      setOutput({
-        ...output,
-        warehouse,
-      });
-    } else {
-      setCurrentStep(0);
+        setOutput({
+          ...output,
+          warehouse: response?.data?.warehouseId as Warehouse,
+        });
+      } else {
+        setCurrentStep(0);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
   };
 
   useEffect(() => {
     if (!isNew) {
-      getOutput({
-        variables: {
-          id,
-        },
-      });
+      getOutputId();
     }
   }, [isNew]);
+
+  useEffect(() => {
+    if (data?.stockOutputId) {
+      setOutput(data?.stockOutputId as StockOutput);
+    }
+  }, [data]);
 
   const renderSteps = (step: number) => {
     switch (step) {
       case 0:
         return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
       case 1:
-        return <FormOutput setOutput={setOutput} output={output} setCurrentStep={setCurrentStep} />;
+        return <FormOutput output={output} setCurrentStep={setCurrentStep} />;
       default:
         return <></>;
     }
@@ -177,7 +187,7 @@ const OutputForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormOutput setOutput={setOutput} output={output} setCurrentStep={setCurrentStep} />
+        <FormOutput output={output} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />

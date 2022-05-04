@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
+import type { TablePaginationConfig } from 'antd';
 import {
-  Avatar,
   Badge,
   Button,
   Card,
@@ -10,40 +11,34 @@ import {
   Input,
   Row,
   Space,
+  Table,
   Tooltip,
   Typography,
+  Avatar,
 } from 'antd';
-import { SorterResult } from 'antd/lib/table/interface';
-import FormItem from 'antd/lib/form/FormItem';
-import Table, { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
-import Title from 'antd/lib/typography/Title';
-
-import { useGetColors } from '@/hooks/color.hooks';
-import { useEffect, useState } from 'react';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import moment from 'moment';
-import { history, useLocation } from 'umi';
+import { useEffect, useState } from 'react';
+import type { Location } from 'umi';
+import { useHistory, useLocation } from 'umi';
+import type { ColumnsType, SorterResult } from 'antd/es/table/interface';
+
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import { useGetColors } from '@/hooks/color.hooks';
 import CreateColors from '@/components/CreateColors';
+import type { Color, FiltersColorsInput } from '@/graphql/graphql';
 
 import styles from './styles.less';
+
+const FormItem = Form.Item;
 
 type FormData = {
   name?: string;
   active?: boolean;
 };
 
-type InputRequest = {
-  name?: string;
-  active?: boolean;
-  limit?: number;
-  sort?: Record<string, number>;
-  page?: number;
-};
-
 const ColorsList = () => {
-  const [colors, setColors] = useState<Partial<COLOR.Color[]>>([]);
-  const [color, setColor] = useState<Partial<COLOR.Color>>({});
+  const [color, setColor] = useState<Partial<Color>>({});
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     showSizeChanger: false,
     total: 0,
@@ -56,23 +51,17 @@ const ColorsList = () => {
     visible: false,
   });
   const [visible, setVisible] = useState(false);
-  const [sorterTable, setSorterTable] = useState<SorterResult<InputRequest>>({});
+  const [sorterTable, setSorterTable] = useState<SorterResult<FiltersColorsInput>>({});
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
 
-  const { Text } = Typography;
+  const { Text, Title } = Typography;
+
   const [form] = Form.useForm();
-  const location = useLocation();
 
-  /** Funciones ejecutadas por los hooks */
+  const location: Location = useLocation();
+  const history = useHistory();
 
-  /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
-   */
-  const resultColors = (data: Partial<COLOR.ResponsePaginate>) => {
-    setColors(data.docs || []);
-    setPagination({ ...pagination, total: data.totalDocs });
-  };
+  const [getColors, { data, loading }] = useGetColors();
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -85,14 +74,6 @@ const ColorsList = () => {
       visible: true,
     });
   };
-
-  /** Fin de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getColors, loading } = useGetColors(resultColors, showError);
-
-  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -109,21 +90,25 @@ const ColorsList = () => {
    * @description se encarga de ejecutar la funcion para obtener los colores
    * @param values Variables para ejecutar la consulta
    */
-  const onSearch = (values?: InputRequest) => {
-    getColors({
-      variables: {
-        input: {
-          ...values,
+  const onSearch = (values?: FiltersColorsInput) => {
+    try {
+      getColors({
+        variables: {
+          input: {
+            ...values,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de abrir el modal de actualizacion o creacion del color
    * @param colorData propiedades del objeto para setear
    */
-  const visibleModal = (colorData: Partial<COLOR.Color>) => {
+  const visibleModal = (colorData: Partial<Color>) => {
     setColor(colorData || {});
     setVisible(true);
   };
@@ -153,8 +138,8 @@ const ColorsList = () => {
         .slice(1);
 
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -189,7 +174,7 @@ const ColorsList = () => {
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filterArg: Record<string, any>,
-    sorter: SorterResult<Partial<COLOR.Color>>,
+    sorter: SorterResult<Partial<Color>> | any,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
@@ -242,10 +227,10 @@ const ColorsList = () => {
    * @description se encarga de cargar los datos con base a la query
    */
   const getFiltersQuery = () => {
-    const queryParams = location['query'];
+    const queryParams: any = location.query;
     const params = {};
     const tableFilters = {
-      active: queryParams['active'] ? [queryParams['active'] === 'true'] : null,
+      active: queryParams.active ? [queryParams.active === 'true'] : null,
     };
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
@@ -288,7 +273,7 @@ const ColorsList = () => {
     </Form>
   );
 
-  const columns: ColumnsType<Partial<COLOR.Color>> = [
+  const columns: ColumnsType<Partial<Color>> = [
     {
       title: 'Color',
       dataIndex: 'name',
@@ -359,8 +344,6 @@ const ColorsList = () => {
     },
   ];
 
-  const totalPages = Math.ceil((pagination.total || 0) / (pagination.pageSize || 0));
-
   return (
     <PageContainer
       title={
@@ -387,12 +370,12 @@ const ColorsList = () => {
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
               <Text strong>Total Encontrados:</Text> {pagination?.total}{' '}
-              <Text strong>Páginas: </Text> {pagination.current} / {totalPages}
+              <Text strong>Páginas: </Text> {pagination.current} / {data?.colors?.totalPages || 0}
             </Col>
           </Row>
           <Table
             columns={columns}
-            dataSource={colors}
+            dataSource={data?.colors?.docs as any}
             pagination={pagination}
             loading={loading}
             onChange={handleChangeTable}

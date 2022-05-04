@@ -1,14 +1,15 @@
 import { Badge, Card, Col, Descriptions, Input, Row } from 'antd';
-
 import moment from 'moment';
 import { useModel } from 'umi';
+
+import type { StockOutput } from '@/graphql/graphql';
 import { StatusTypeOutput } from '../../output.data';
 
 const DescriptionsItem = Descriptions.Item;
 const { TextArea } = Input;
 
 export type Props = {
-  output: Partial<OUTPUT.Output> | undefined;
+  output: Partial<StockOutput> | undefined;
   setObservation: (value: string) => void;
   observation: string;
 };

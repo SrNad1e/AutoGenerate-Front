@@ -1,0 +1,34 @@
+mutation createColor($input: CreateColorInput!) {
+  createColor(createColorInput: $input) {
+    _id
+    active
+    html
+    image {
+      urls {
+        webp {
+          small
+        }
+      }
+    }
+    name
+    name_internal
+    createdAt
+  }
+}
+
+mutation updateColor($id: String!, $input: UpdateColorInput!) {
+  updateColor(id: $id, updateColorInput: $input) {
+    _id
+    active
+    html
+    image {
+      urls {
+        webp {
+          small
+        }
+      }
+    }
+    name
+    name_internal
+  }
+}

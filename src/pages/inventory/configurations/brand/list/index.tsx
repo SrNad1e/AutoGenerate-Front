@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
+import type { TablePaginationConfig } from 'antd';
 import {
   Badge,
   Button,
@@ -13,37 +15,29 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
-import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
-import Title from 'antd/lib/typography/Title';
-import { SorterResult } from 'antd/lib/table/interface';
-
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { useLocation, history } from 'umi';
+import type { Location } from 'umi';
+import { useHistory, useLocation } from 'umi';
+import type { ColumnsType, SorterResult } from 'antd/es/table/interface';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetBrands } from '@/hooks/brand.hooks';
 import CreateBrands from '@/components/CreateBrand';
+import type { Brand, FiltersBrandsInput } from '@/graphql/graphql';
 
 import styles from './styles.less';
+
+const FormItem = Form.Item;
 
 type FormData = {
   name?: string;
   active?: boolean;
 };
 
-type InputVars = {
-  name?: string;
-  active?: boolean;
-  limit?: number;
-  sort?: Record<string, number>;
-  page?: number;
-};
-
 const BrandsList = () => {
-  const [brands, setBrands] = useState<Partial<BRAND.Brand[]>>([]);
-  const [brand, setBrand] = useState<Partial<BRAND.Brand>>({});
+  const [brand, setBrand] = useState<Partial<Brand>>({});
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     showSizeChanger: false,
     total: 0,
@@ -56,23 +50,17 @@ const BrandsList = () => {
     visible: false,
   });
   const [visible, setVisible] = useState(false);
-  const [sorterTable, setSorterTable] = useState<SorterResult<InputVars>>({});
+  const [sorterTable, setSorterTable] = useState<SorterResult<FiltersBrandsInput>>({});
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
 
-  const { Text } = Typography;
+  const { Text, Title } = Typography;
+
   const [form] = Form.useForm();
-  const location = useLocation();
 
-  /** Funciones ejecutadas por los hooks */
+  const location: Location = useLocation();
+  const history = useHistory();
 
-  /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
-   */
-  const resultBrands = (data: Partial<BRAND.ResponseBrands>) => {
-    setBrands(data.docs || []);
-    setPagination({ ...pagination, total: data.totalDocs });
-  };
+  const [getBrands, { data, loading }] = useGetBrands();
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -85,14 +73,6 @@ const BrandsList = () => {
       visible: true,
     });
   };
-
-  /** Fin de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getBrands, loading } = useGetBrands(resultBrands, showError);
-
-  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -109,21 +89,25 @@ const BrandsList = () => {
    * @description se encarga de ejecutar la funcion para obtener las marcas
    * @param values Variables para ejecutar la consulta
    */
-  const onSearch = (values?: InputVars) => {
-    getBrands({
-      variables: {
-        input: {
-          ...values,
+  const onSearch = (values?: FiltersBrandsInput) => {
+    try {
+      getBrands({
+        variables: {
+          input: {
+            ...values,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de abrir el modal de actualizacion o creacion de la marca
    * @param brandData propiedades del objeto para setear
    */
-  const visibleModal = (brandData: Partial<BRAND.Brand>) => {
+  const visibleModal = (brandData: Partial<Brand>) => {
     setBrand(brandData || {});
     setVisible(true);
   };
@@ -136,7 +120,7 @@ const BrandsList = () => {
     setVisible(false);
   };
 
-  const setQueryParams = (values?: any) => {
+  const setQueryParams = (values?: FiltersBrandsInput) => {
     try {
       const valuesForm = form.getFieldsValue();
 
@@ -153,8 +137,8 @@ const BrandsList = () => {
         .slice(1);
 
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -189,7 +173,7 @@ const BrandsList = () => {
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filterArg: Record<string, any>,
-    sorter: SorterResult<Partial<BRAND.Brand>>,
+    sorter: SorterResult<Partial<Brand>> | any,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
@@ -242,10 +226,10 @@ const BrandsList = () => {
    * @description se encarga de cargar los datos con base a la query
    */
   const getFiltersQuery = () => {
-    const queryParams = location['query'];
+    const queryParams: any = location.query;
     const params = {};
     const tableFilters = {
-      active: queryParams['active'] ? [queryParams['active'] === 'true'] : null,
+      active: queryParams.active ? [queryParams.active === 'true'] : null,
     };
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
@@ -288,7 +272,7 @@ const BrandsList = () => {
     </Form>
   );
 
-  const columns: ColumnsType<Partial<BRAND.Brand>> = [
+  const columns: ColumnsType<Partial<Brand>> = [
     {
       title: 'Marca',
       dataIndex: 'name',
@@ -342,8 +326,6 @@ const BrandsList = () => {
     },
   ];
 
-  const totalPages = Math.ceil((pagination.total || 0) / (pagination.pageSize || 0));
-
   return (
     <PageContainer
       title={
@@ -370,12 +352,12 @@ const BrandsList = () => {
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
               <Text strong>Total Encontrados:</Text> {pagination?.total}{' '}
-              <Text strong>Páginas: </Text> {pagination.current} / {totalPages}
+              <Text strong>Páginas: </Text> {pagination.current} / {data?.brands?.totalPages || 0}
             </Col>
           </Row>
           <Table
             columns={columns}
-            dataSource={brands}
+            dataSource={data?.brands?.docs}
             pagination={pagination}
             loading={loading}
             onChange={handleChangeTable}
@@ -383,7 +365,7 @@ const BrandsList = () => {
         </div>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      {<CreateBrands modalVisible={visible} onCancel={closeModal} current={brand} />}
+      <CreateBrands modalVisible={visible} onCancel={closeModal} current={brand} />
     </PageContainer>
   );
 };

@@ -1,5 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
-import Table, { ColumnsType } from 'antd/lib/table';
 import {
   Badge,
   Button,
@@ -12,51 +12,60 @@ import {
   Select,
   Space,
   Tooltip,
+  Table,
   Typography,
 } from 'antd';
-import { TablePaginationConfig } from 'antd/es/table/interface';
+import type {
+  ColumnsType,
+  FilterValue,
+  TablePaginationConfig,
+  SorterResult,
+} from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
-import { SorterResult } from 'antd/lib/table/interface';
-
 import type { Moment } from 'moment';
 import moment from 'moment';
+import type { Location } from 'umi';
 import { useHistory, useLocation } from 'umi';
-import { useGetOutputs } from '@/hooks/output.hooks';
 import { useEffect, useRef, useState } from 'react';
+import numeral from 'numeral';
+import { useReactToPrint } from 'react-to-print';
+
+import { useGetOutputs } from '@/hooks/output.hooks';
 import { StatusTypeOutput } from '../output.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import numeral from 'numeral';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import TotalFound from '@/components/TotalFound';
 import ReportOutput from '../reports/output';
-import { useReactToPrint } from 'react-to-print';
+import type {
+  DetailOutput,
+  FiltersStockOutputsInput,
+  StockOutput,
+  Warehouse,
+} from '@/graphql/graphql';
 
 import styles from './styles.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export type FormValues = {
   status?: string;
   number?: number;
-  warehouse?: WAREHOUSE.Warehouse;
+  warehouseId?: string;
   dates?: Moment[];
 };
 
 const OutputList = () => {
-  const [outputs, setOutputs] = useState<Partial<OUTPUT.Output[]>>([]);
-  const [outputData, setOutputData] = useState<Partial<OUTPUT.Output>>({});
+  const [outputData, setOutputData] = useState<Partial<StockOutput>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
-  const [totalPages, setTotalPages] = useState(0);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     total: 0,
     pageSize: 10,
     current: 1,
   });
-  const [error, setError] = useState<PropsAlertInformation>({
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
@@ -66,34 +75,22 @@ const OutputList = () => {
 
   const history = useHistory();
 
-  const location = useLocation();
+  const location: Location = useLocation();
 
   const reportRef = useRef(null);
+
+  const [getOutputs, { data, loading }] = useGetOutputs();
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
-
-  /** Funciones ejecutadas por los hooks */
-
-  /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
-   */
-  const resultOutputs = (data: Partial<OUTPUT.Response>) => {
-    if (data) {
-      setOutputs(data.docs || []);
-      setTotalPages(data?.totalPages || 0);
-      setPagination({ ...pagination, total: data.totalDocs });
-    }
-  };
 
   /**
    * @description funcion usada por los hook para mostrar los errores
    * @param message mensaje de error a mostrar
    */
   const messageError = (message: string) => {
-    setError({
+    setPropsAlertInformation({
       message,
       type: 'error',
       visible: true,
@@ -103,23 +100,19 @@ const OutputList = () => {
   /**
    * @description se encarga de cerrar la alerta informativa
    */
-  const closeMessageError = () => {
-    setError({
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
       message: '',
       type: 'error',
       visible: false,
     });
   };
 
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getOutputs, loading } = useGetOutputs(resultOutputs, messageError);
-
-  /** Fin de Hooks para manejo de consultas */
-
-  const printPage = async (record: Partial<OUTPUT.Output>) => {
+  /**
+   * @description se encarga de seleccionar la salida e imprime
+   * @param record salida
+   */
+  const printPage = async (record: Partial<StockOutput>) => {
     await setOutputData(record);
     handlePrint();
   };
@@ -128,7 +121,7 @@ const OutputList = () => {
    * @description se encarga de ejecutar la funcion para obtener las salidas
    * @param params filtros necesarios para la busqueda
    */
-  const onSearch = (params?: Partial<OUTPUT.FiltersGetOutputs>) => {
+  const onSearch = (params?: FiltersStockOutputsInput) => {
     getOutputs({
       variables: {
         input: {
@@ -146,9 +139,9 @@ const OutputList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouse, dates } = props;
+    const { status, number, warehouseId, dates } = props;
     try {
-      const params: Partial<OUTPUT.FiltersGetOutputs> = {
+      const params: Partial<FiltersStockOutputsInput> = {
         page: pageCurrent || 1,
         limit: pagination.pageSize,
         status,
@@ -159,11 +152,11 @@ const OutputList = () => {
       if (dates) {
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
-        params['dateFinal'] = dateFinal;
-        params['dateInitial'] = dateInitial;
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
       }
-      if (warehouse) {
-        params['warehouseId'] = warehouse?._id;
+      if (warehouseId) {
+        params.warehouseId = warehouseId;
       }
       setPagination({ ...pagination, current: pageCurrent || 1 });
       onSearch(params);
@@ -174,8 +167,8 @@ const OutputList = () => {
 
       form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error: any) {
+      messageError(error?.message);
     }
   };
 
@@ -186,8 +179,8 @@ const OutputList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: any,
-    sorter: SorterResult<Partial<OUTPUT.Output>>,
+    _: Record<string, FilterValue | null>,
+    sorter: SorterResult<StockOutput> | SorterResult<StockOutput>[] | any,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -227,7 +220,7 @@ const OutputList = () => {
   };
 
   useEffect(() => {
-    const queryParams = location['query'];
+    const queryParams: any = location.query;
 
     const newFilters = {};
 
@@ -237,7 +230,7 @@ const OutputList = () => {
     onFinish(newFilters);
   }, []);
 
-  const columns: ColumnsType<Partial<OUTPUT.Output>> = [
+  const columns: ColumnsType<Partial<StockOutput>> = [
     {
       title: 'Número',
       dataIndex: 'number',
@@ -251,13 +244,13 @@ const OutputList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouse: WAREHOUSE.Warehouse) => warehouse?.name,
+      render: (warehouse: Warehouse) => warehouse?.name,
     },
     {
       title: 'Referencia',
       dataIndex: 'details',
       align: 'center',
-      render: (details: OUTPUT.DetailOutput[]) => details?.length,
+      render: (details: DetailOutput[]) => details?.length,
     },
     {
       title: 'Estado',
@@ -394,21 +387,20 @@ const OutputList = () => {
           </Row>
         </Form>
       </Card>
-      <TotalFound
-        current={pagination.current || 0}
-        totalPages={totalPages}
-        total={pagination.total || 0}
-      />
       <Card>
+        <Col span={24} style={{ textAlign: 'right' }}>
+          <Text strong>Total Encontrados:</Text> {pagination?.total} <Text strong>Páginas: </Text>{' '}
+          {pagination.current} / {data?.stockOutputs?.totalPages || 0}
+        </Col>
         <Table
           columns={columns}
-          dataSource={outputs}
+          dataSource={data?.stockOutputs?.docs as any}
           pagination={pagination}
           onChange={handleChangeTable}
           loading={loading}
         />
       </Card>
-      <AlertInformation {...error} onCancel={closeMessageError} />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>
         <ReportOutput ref={reportRef} data={outputData} />
       </div>

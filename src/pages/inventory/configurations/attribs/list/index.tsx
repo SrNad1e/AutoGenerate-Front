@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -13,37 +14,29 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
-import { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
-import Title from 'antd/lib/typography/Title';
-import { SorterResult } from 'antd/lib/table/interface';
-
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { useLocation, history } from 'umi';
+import type { Location } from 'umi';
+import { useLocation, useHistory } from 'umi';
+import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetAttribs } from '@/hooks/attrib.hooks';
 import CreateAttrib from '@/components/CreateAttrib';
+import type { Attrib, FiltersAttribsInput } from '@/graphql/graphql';
 
 import styles from './styles.less';
+
+const FormItem = Form.Item;
 
 type FormData = {
   name?: string;
   active?: boolean;
 };
 
-type InputVars = {
-  name?: string;
-  active?: boolean;
-  limit?: number;
-  sort?: Record<string, number>;
-  page?: number;
-};
-
 const AttribsList = () => {
-  const [attribs, setAttribs] = useState<Partial<ATTRIBS.Attribs[]>>([]);
-  const [attrib, setAttrib] = useState<Partial<ATTRIBS.Attribs>>({});
+  const [attrib, setAttrib] = useState<Partial<Attrib>>({});
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     showSizeChanger: false,
     total: 0,
@@ -56,23 +49,17 @@ const AttribsList = () => {
     visible: false,
   });
   const [visible, setVisible] = useState(false);
-  const [sorterTable, setSorterTable] = useState<SorterResult<InputVars>>({});
+  const [sorterTable, setSorterTable] = useState<SorterResult<FiltersAttribsInput>>({});
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
 
-  const { Text } = Typography;
+  const { Text, Title } = Typography;
+
   const [form] = Form.useForm();
-  const location = useLocation();
 
-  /** Funciones ejecutadas por los hooks */
+  const location: Location = useLocation();
+  const history = useHistory();
 
-  /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
-   */
-  const resultAttribs = (data: Partial<ATTRIBS.ResponseAttribs>) => {
-    setAttribs(data.docs || []);
-    setPagination({ ...pagination, total: data.totalDocs });
-  };
+  const [getAttribs, { data, loading }] = useGetAttribs();
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -85,14 +72,6 @@ const AttribsList = () => {
       visible: true,
     });
   };
-
-  /** Fin de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getAttribs, loading } = useGetAttribs(resultAttribs, showError);
-
-  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -109,21 +88,25 @@ const AttribsList = () => {
    * @description se encarga de ejecutar la funcion para obtener los atributos
    * @param values Variables para ejecutar la consulta
    */
-  const onSearch = (values?: InputVars) => {
-    getAttribs({
-      variables: {
-        input: {
-          ...values,
+  const onSearch = (values?: FiltersAttribsInput) => {
+    try {
+      getAttribs({
+        variables: {
+          input: {
+            ...values,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de abrir el modal de actualizacion o creacion de los atributos
    * @param attribData propiedades del objeto para setear
    */
-  const visibleModal = (attribData: Partial<ATTRIBS.Attribs>) => {
+  const visibleModal = (attribData: Partial<Attrib>) => {
     setAttrib(attribData || {});
     setVisible(true);
   };
@@ -136,7 +119,11 @@ const AttribsList = () => {
     setVisible(false);
   };
 
-  const setQueryParams = (values?: any) => {
+  /**
+   * @description se encarga de crear los parámetros para la url
+   * @param values
+   */
+  const setQueryParams = (values?: FiltersAttribsInput) => {
     try {
       const valuesForm = form.getFieldsValue();
 
@@ -153,8 +140,8 @@ const AttribsList = () => {
         .slice(1);
 
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -189,7 +176,7 @@ const AttribsList = () => {
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filterArg: Record<string, any>,
-    sorter: SorterResult<Partial<ATTRIBS.Attribs>>,
+    sorter: SorterResult<Partial<Attrib>> | any,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
@@ -242,10 +229,10 @@ const AttribsList = () => {
    * @description se encarga de cargar los datos con base a la query
    */
   const getFiltersQuery = () => {
-    const queryParams = location['query'];
+    const queryParams: any = location.query;
     const params = {};
     const tableFilters = {
-      active: queryParams['active'] ? [queryParams['active'] === 'true'] : null,
+      active: queryParams.active ? [queryParams.active === 'true'] : null,
     };
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
@@ -288,7 +275,7 @@ const AttribsList = () => {
     </Form>
   );
 
-  const columns: ColumnsType<Partial<ATTRIBS.Attribs>> = [
+  const columns: ColumnsType<Partial<Attrib>> = [
     {
       title: 'Atributo',
       dataIndex: 'name',
@@ -342,8 +329,6 @@ const AttribsList = () => {
     },
   ];
 
-  const totalPages = Math.ceil((pagination.total || 0) / (pagination.pageSize || 0));
-
   return (
     <PageContainer
       title={
@@ -370,20 +355,20 @@ const AttribsList = () => {
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
               <Text strong>Total Encontrados:</Text> {pagination?.total}{' '}
-              <Text strong>Páginas: </Text> {pagination.current} / {totalPages}
+              <Text strong>Páginas: </Text> {pagination.current} / {data?.attribs?.totalPages || 0}
             </Col>
           </Row>
           <Table
             columns={columns}
-            dataSource={attribs}
+            dataSource={data?.attribs?.docs}
             pagination={pagination}
             loading={loading}
             onChange={handleChangeTable}
           />
         </div>
       </Card>
-      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       <CreateAttrib modalVisible={visible} onCancel={closeModal} current={attrib} />
+      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );
 };

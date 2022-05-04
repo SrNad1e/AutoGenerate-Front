@@ -1,15 +1,17 @@
-import { Alert, Form, Input, Modal, Switch } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
-
 import { useState } from 'react';
+import { Alert, Form, Input, Modal, Switch } from 'antd';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '../Alerts/AlertLoading';
-import { useCreateSizes, useUpdateSizes } from '@/hooks/size.hooks';
+import { useCreateSize, useUpdateSize } from '@/hooks/size.hooks';
+import type { Size } from '@/graphql/graphql';
+
+const FormItem = Form.Item;
 
 export type Props = {
   modalVisible: boolean;
-  current?: Partial<SIZE.Size>;
+  current?: Partial<Size>;
   onCancel: () => void;
   error?: string | null;
   onOk?: () => void;
@@ -21,34 +23,14 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
     type: 'error',
     visible: false,
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const [form] = Form.useForm();
+
+  const [createSize, paramsCreate] = useCreateSize();
+  const [updateSize, paramsUpdate] = useUpdateSize();
+
   const isNew = !current?._id;
-
-  /** Funciones ejecutadas por los hooks */
-
-  /**
-   * @description funcion usada por los hooks para mostrar la alerta de creacion
-   */
-  const resultCreate = () => {
-    setAlertInformation({
-      message: 'Talla creada correctamente',
-      type: 'success',
-      visible: true,
-    });
-  };
-
-  /**
-   * @description funcion usada por los hooks para mostrar la alerta de actualizacion
-   */
-  const resultUpdate = (dataSize: Partial<SIZE.Size>) => {
-    setAlertInformation({
-      message: `Talla ${dataSize.value} actualizada correctamente`,
-      type: 'success',
-      visible: true,
-    });
-  };
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -61,15 +43,6 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
       visible: true,
     });
   };
-
-  /** Fin de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { createSizes, loadingCreate } = useCreateSizes(resultCreate, showError);
-  const { updateSizes, loadingUpdate } = useUpdateSizes(resultUpdate, showError);
-
-  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
@@ -95,27 +68,36 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
   /**
    * @description ejecuta la mutation para actualizar una talla
    */
-  const editSize = () => {
-    const values = form.getFieldsValue();
-    let errorLocal = 'No hay cambios para aplicar';
+  const editSize = async () => {
+    try {
+      const values = form.getFieldsValue();
+      let errorLocal = 'No hay cambios para aplicar';
 
-    Object.keys(values).forEach((i) => {
-      if (values[i] !== (current && current[i])) {
-        errorLocal = '';
-        return;
-      }
-    });
-    if (errorLocal) {
-      setError(errorLocal);
-    } else {
-      if (!isNew) {
-        updateSizes({
+      Object.keys(values).forEach((i) => {
+        if (values[i] !== (current && current[i])) {
+          errorLocal = '';
+          return;
+        }
+      });
+      if (errorLocal) {
+        setError(errorLocal);
+      } else {
+        const response = await updateSize({
           variables: {
             input: values,
-            id: current?._id,
+            id: current?._id || '',
           },
         });
+        if (response?.data?.updateSize) {
+          setAlertInformation({
+            message: `Talla ${response?.data?.updateSize?.value} actualizada correctamente`,
+            type: 'success',
+            visible: true,
+          });
+        }
       }
+    } catch (e: any) {
+      showError(e?.message);
     }
   };
 
@@ -126,14 +108,21 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
     try {
       const values = await form.validateFields();
       delete values.active;
-      if (isNew) {
-        createSizes({
-          variables: {
-            input: values,
-          },
+      const response = await createSize({
+        variables: {
+          input: values,
+        },
+      });
+      if (response?.data?.createSize) {
+        setAlertInformation({
+          message: `Talla ${response?.data?.createSize?.value} creada correctamente`,
+          type: 'success',
+          visible: true,
         });
       }
-    } catch (e) {}
+    } catch (e: any) {
+      showError(e?.message);
+    }
   };
 
   return (
@@ -168,7 +157,8 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      <AlertLoading visible={loadingCreate || loadingUpdate} message="Guardando Talla" />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Talla" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Actualizando Talla" />
     </Modal>
   );
 };
