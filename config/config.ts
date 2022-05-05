@@ -8,9 +8,9 @@ const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API, COMPANY_I
 
 export default defineConfig({
   define: {
-    API_URL: API_URL || 'http://192.168.70.254:8080/graphql',
-    CDN_URL: CDN_URL || 'http://192.168.70.254:8080',
-    COMPANY_ID: COMPANY_ID || '62503250f035862fa3925f70',
+    API_URL: API_URL || 'http://192.168.70.254:8080',
+    CDN_URL: CDN_URL || 'https://toulouse-storage.s3.amazonaws.com',
+    COMPANY_ID: COMPANY_ID || '6272be07347a97305f806f35',
     FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD',
   },
