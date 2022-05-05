@@ -3,7 +3,7 @@ import { Button, Col, Form, Row } from 'antd';
 import SelectWarehouses from '@/components/SelectWarehouses';
 
 export type Props = {
-  changeCurrentStep: (value: WAREHOUSE.Warehouse) => void;
+  changeCurrentStep: (value: string) => void;
   label: string;
   warehouseId?: string;
 };
@@ -25,9 +25,9 @@ const SelectWarehouseStep = ({ changeCurrentStep, label, warehouseId }: Props) =
             rules={[
               { required: true, message: 'Se debe seleccionar una bodega' },
               {
-                validator: (_, data: any) => {
+                validator: (_, _id: string) => {
                   if (warehouseId) {
-                    if (data?._id === warehouseId) {
+                    if (_id === warehouseId) {
                       return Promise.reject(new Error('No puedes seleccionar tu bodega'));
                     }
                   }

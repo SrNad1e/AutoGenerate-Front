@@ -1,0 +1,51 @@
+mutation createStockOutput($input: CreateStockOutputInput!) {
+  createStockOutput(createStockOutputInput: $input) {
+    _id
+    number
+  }
+}
+
+mutation updateStockOutput($id: String!, $input: UpdateStockOutputInput!) {
+  updateStockOutput(id: $id, updateStockOutputInput: $input) {
+    _id
+    createdAt
+    updatedAt
+    number
+    observation
+    status
+    total
+    details {
+      product {
+        _id
+        barcode
+        color {
+          image {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+          html
+          name_internal
+        }
+        reference {
+          description
+        }
+        size {
+          value
+        }
+        stock {
+          quantity
+        }
+      }
+    }
+    user {
+      name
+    }
+    warehouse {
+      name
+      _id
+    }
+  }
+}

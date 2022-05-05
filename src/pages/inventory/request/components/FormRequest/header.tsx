@@ -1,14 +1,15 @@
 import { Badge, Card, Col, Descriptions, Divider, Input, Row } from 'antd';
-
 import moment from 'moment';
 import { useModel } from 'umi';
+
+import type { StockRequest } from '@/graphql/graphql';
 import { StatusType } from '../../request.data';
 
 const DescriptionsItem = Descriptions.Item;
 const { TextArea } = Input;
 
 export type Props = {
-  request: Partial<REQUEST.Request> | undefined;
+  request: Partial<StockRequest> | undefined;
   setObservation: (value: string) => void;
   observation: string;
 };

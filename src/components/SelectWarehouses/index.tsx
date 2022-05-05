@@ -1,35 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useGetWarehouses } from '@/hooks/warehouse.hooks';
 import { Alert, Select } from 'antd';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+
+import { useGetWarehouses } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
 
 const { Option } = Select;
 
-const SelectWarehouses = ({ onChange, value }: any) => {
-  const [warehouses, setWarehouses] = useState<Partial<WAREHOUSE.Warehouse>[]>([]);
-  const [error, setError] = useState<string | undefined>();
+export type Props = {
+  onChange?: (warehouseId: string) => void;
+  value?: string;
+};
 
-  /**
-   * @description callback ejecutado por el customHook
-   * @param warehousesData array de datos
-   */
-  const resultWarehouses = (warehousesData: WAREHOUSE.Response) => {
-    if (warehousesData) {
-      setWarehouses(warehousesData.docs);
-    }
-  };
-
-  /**
-   * @description maneja el error de la consulta
-   * @param message error que genera al consulta
-   */
-  const showError = (message: string) => {
-    setError(message);
-  };
-
-  const { getWarehouses, loading } = useGetWarehouses(resultWarehouses, showError);
+const SelectWarehouses = ({ onChange, value }: Props) => {
+  const [getWarehouses, { data, error, loading }] = useGetWarehouses();
 
   /**
    * @description se encarga de consultar con base a un comodín
@@ -46,10 +31,6 @@ const SelectWarehouses = ({ onChange, value }: any) => {
     });
   };
 
-  const onChangeLocal = (warehouseId: string) => {
-    onChange(warehouses.find((warehouse) => warehouse._id === warehouseId));
-  };
-
   useEffect(() => {
     getWarehouses({
       variables: { input: { active: true } },
@@ -64,12 +45,12 @@ const SelectWarehouses = ({ onChange, value }: any) => {
         loading={loading}
         placeholder="Seleccione Bodega"
         optionFilterProp="children"
-        onChange={onChangeLocal}
+        onChange={onChange}
         onSearch={onSearch}
         allowClear
-        value={value?._id.toString()}
+        value={value}
       >
-        {warehouses.map((warehouse) => (
+        {data?.warehouses?.docs.map((warehouse) => (
           <Option key={warehouse._id?.toString()}>{warehouse.name}</Option>
         ))}
       </Select>

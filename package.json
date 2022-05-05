@@ -32,7 +32,8 @@
     "test": "umi test",
     "test:all": "node ./tests/run-tests.js",
     "test:component": "umi test ./src/components",
-    "tsc": "tsc --noEmit"
+    "tsc": "tsc --noEmit",
+    "generate": "graphql-codegen -r dotenv/config --config codegen.yml"
   },
   "lint-staged": {
     "**/*.less": "stylelint --syntax less",
@@ -72,7 +73,6 @@
     "numeral": "^2.0.6",
     "nzh": "^1.0.3",
     "omit.js": "^2.0.2",
-    "rc-queue-anim": "^2.0.0",
     "react": "^17.0.0",
     "react-dev-inspector": "^1.1.1",
     "react-dom": "^17.0.0",
@@ -86,6 +86,11 @@
   },
   "devDependencies": {
     "@ant-design/pro-cli": "^2.0.2",
+    "@graphql-codegen/cli": "2.6.2",
+    "@graphql-codegen/typed-document-node": "^2.2.8",
+    "@graphql-codegen/typescript": "2.4.8",
+    "@graphql-codegen/typescript-operations": "2.3.5",
+    "@graphql-codegen/typescript-react-apollo": "3.2.11",
     "@types/express": "^4.17.0",
     "@types/graphql": "^14.5.0",
     "@types/history": "^4.7.2",
