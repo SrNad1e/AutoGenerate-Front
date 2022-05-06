@@ -5,6 +5,10 @@ export type Props = {
   setVisible: () => void;
 };
 
+/**
+ * @description se encarga de pintar la interfaz para buscar imagenes
+ * @param setVisible  funcion que recibe un estado para controlar el visible del modal para buscar imagenes
+ */
 const AddImages = ({ setVisible }: Props) => {
   return (
     <Space>

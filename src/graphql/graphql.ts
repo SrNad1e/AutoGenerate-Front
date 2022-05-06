@@ -240,8 +240,8 @@ export type CreateCategoryInput = {
 export type CreateColorInput = {
   /** Url asignado al color */
   html: Scalars['String'];
-  /** Imagen asignada al color */
-  image?: InputMaybe<Scalars['String']>;
+  /** Identificador de la imagen asignada al color */
+  imageId?: InputMaybe<Scalars['String']>;
   /** Nombre asignado al color */
   name: Scalars['String'];
   /** Nombre interno asignado al color */
@@ -962,7 +962,7 @@ export type Image = {
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Direcciones de la imagen */
-  urls: Urls;
+  urls?: Maybe<Urls>;
   /** Usuario que creó o editó la imagen */
   user: User;
 };
@@ -1367,7 +1367,7 @@ export type Product = {
   /** Imagenes del producto */
   images: Image[];
   /** Referencia del producto */
-  reference: Reference;
+  reference?: Maybe<Reference>;
   /** Talla del producto */
   size: Size;
   /** Estado del producto (active, inactive) */
@@ -2038,7 +2038,7 @@ export type Shop = {
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Dirección de la tienda */
-  address: Scalars['String'];
+  address?: Maybe<Scalars['String']>;
   /** Empresa que usa la tienda */
   company: Warehouse;
   /** Fecha de creación */
@@ -2517,8 +2517,8 @@ export type UpdateColorInput = {
   active?: InputMaybe<Scalars['Boolean']>;
   /** Url asignado al color */
   html?: InputMaybe<Scalars['String']>;
-  /** Imagen asignada al color */
-  image?: InputMaybe<Scalars['String']>;
+  /** Identificador de la imagen del color */
+  imageId?: InputMaybe<Scalars['String']>;
   /** Nombre asignado al color */
   name?: InputMaybe<Scalars['String']>;
   /** Nombre interno asignado al color */
@@ -2673,11 +2673,11 @@ export type UpdateUserInput = {
 export type Urls = {
   __typename?: 'Urls';
   /** Enlaces de tipo jpeg */
-  jpeg: ImageTypes;
+  jpeg?: Maybe<ImageTypes>;
   /** Enlaces de tipo webp */
-  original: Scalars['String'];
+  original?: Maybe<Scalars['String']>;
   /** Enlaces de tipo webp */
-  webp: ImageTypes;
+  webp?: Maybe<ImageTypes>;
 };
 
 /** Usuario que manipula los datos de la aplicación */
@@ -2700,7 +2700,7 @@ export type User = {
   /** Rol que ocupa el usuario */
   role: Role;
   /** Tienda a la que se encuentra asiganado el usuario */
-  shop: Shop;
+  shop?: Maybe<Shop>;
   /** Estado del usuario (active, inactive, suspend) */
   status: Scalars['String'];
   /** Nombre de usuario */
@@ -2766,7 +2766,7 @@ export type UpdateStockAdjustmentMutation = {
         _id: string;
         barcode: string;
         stock: { __typename?: 'Stock'; quantity: number }[];
-        reference: { __typename?: 'Reference'; description: string };
+        reference?: { __typename?: 'Reference'; description: string } | null;
         size: { __typename?: 'Size'; value: string };
         color: {
           __typename?: 'Color';
@@ -2774,7 +2774,10 @@ export type UpdateStockAdjustmentMutation = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
       };
@@ -2864,7 +2867,10 @@ export type CreateColorMutation = {
     createdAt: any;
     image?: {
       __typename?: 'Image';
-      urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+      urls?: {
+        __typename?: 'Urls';
+        webp?: { __typename?: 'ImageTypes'; small: string } | null;
+      } | null;
     } | null;
   };
 };
@@ -2885,7 +2891,10 @@ export type UpdateColorMutation = {
     name_internal: string;
     image?: {
       __typename?: 'Image';
-      urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+      urls?: {
+        __typename?: 'Urls';
+        webp?: { __typename?: 'ImageTypes'; small: string } | null;
+      } | null;
     } | null;
   };
 };
@@ -2927,10 +2936,13 @@ export type UpdateStockInputMutation = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
-        reference: { __typename?: 'Reference'; description: string; name: string };
+        reference?: { __typename?: 'Reference'; description: string; name: string } | null;
         size: { __typename?: 'Size'; value: string };
         stock: { __typename?: 'Stock'; quantity: number }[];
       };
@@ -2989,11 +3001,14 @@ export type UpdateOrderMutation = {
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             size: { __typename?: 'Size'; value: string };
-            reference: { __typename?: 'Reference'; description: string };
+            reference?: { __typename?: 'Reference'; description: string } | null;
             stock: { __typename?: 'Stock'; quantity: number }[];
           };
         }[]
@@ -3053,7 +3068,7 @@ export type AddPaymentsOrderMutation = {
             _id: string;
             barcode: string;
             status: string;
-            reference: { __typename?: 'Reference'; description: string; price: number };
+            reference?: { __typename?: 'Reference'; description: string; price: number } | null;
             color: {
               __typename?: 'Color';
               html: string;
@@ -3061,7 +3076,10 @@ export type AddPaymentsOrderMutation = {
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             size: { __typename?: 'Size'; value: string };
@@ -3123,13 +3141,13 @@ export type AddProductsOrderMutation = {
             __typename?: 'Product';
             _id: string;
             barcode: string;
-            reference: {
+            reference?: {
               __typename?: 'Reference';
               changeable: boolean;
               name: string;
               description: string;
               price: number;
-            };
+            } | null;
             size: { __typename?: 'Size'; value: string };
             color: {
               __typename?: 'Color';
@@ -3138,7 +3156,10 @@ export type AddProductsOrderMutation = {
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3204,10 +3225,13 @@ export type UpdateStockOutputMutation = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
-        reference: { __typename?: 'Reference'; description: string };
+        reference?: { __typename?: 'Reference'; description: string } | null;
         size: { __typename?: 'Size'; value: string };
         stock: { __typename?: 'Stock'; quantity: number }[];
       };
@@ -3254,10 +3278,13 @@ export type UpdateStockRequestMutation = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
-        reference: { __typename?: 'Reference'; description: string };
+        reference?: { __typename?: 'Reference'; description: string } | null;
         size: { __typename?: 'Size'; value: string };
         stock: { __typename?: 'Stock'; quantity: number }[];
       };
@@ -3324,12 +3351,12 @@ export type LoginMutation = {
       username: string;
       name: string;
       _id: string;
-      shop: {
+      shop?: {
         __typename?: 'Shop';
         _id: string;
         name: string;
         defaultWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
-      };
+      } | null;
       role: {
         __typename?: 'Role';
         name: string;
@@ -3364,7 +3391,12 @@ export type StockAdjustmentQuery = {
         _id: string;
         barcode: string;
         status: string;
-        reference: { __typename?: 'Reference'; cost: number; description: string; name: string };
+        reference?: {
+          __typename?: 'Reference';
+          cost: number;
+          description: string;
+          name: string;
+        } | null;
         size: { __typename?: 'Size'; value: string };
         color: {
           __typename?: 'Color';
@@ -3372,7 +3404,10 @@ export type StockAdjustmentQuery = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
         stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3410,7 +3445,12 @@ export type StockAdjustmentsQuery = {
           __typename?: 'Product';
           _id: string;
           barcode: string;
-          reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
+          reference?: {
+            __typename?: 'Reference';
+            description: string;
+            cost: number;
+            name: string;
+          } | null;
           size: { __typename?: 'Size'; value: string };
           stock: { __typename?: 'Stock'; quantity: number }[];
           color: {
@@ -3419,7 +3459,10 @@ export type StockAdjustmentsQuery = {
             name_internal: string;
             image?: {
               __typename?: 'Image';
-              urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+              urls?: {
+                __typename?: 'Urls';
+                webp?: { __typename?: 'ImageTypes'; small: string } | null;
+              } | null;
             } | null;
           };
         };
@@ -3488,11 +3531,41 @@ export type ColorsQuery = {
       _id: string;
       name: string;
       name_internal: string;
+      createdAt: any;
+      updatedAt: any;
       html: string;
       active: boolean;
       image?: {
         __typename?: 'Image';
-        urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+        _id: string;
+        urls?: {
+          __typename?: 'Urls';
+          webp?: { __typename?: 'ImageTypes'; small: string } | null;
+        } | null;
+      } | null;
+    }[];
+  };
+};
+
+export type ImagesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersImagesInput>;
+}>;
+
+export type ImagesQuery = {
+  __typename?: 'Query';
+  images: {
+    __typename?: 'ResponseImages';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    limit: number;
+    docs: {
+      __typename?: 'Image';
+      name: string;
+      _id: string;
+      urls?: {
+        __typename?: 'Urls';
+        webp?: { __typename?: 'ImageTypes'; small: string } | null;
       } | null;
     }[];
   };
@@ -3520,14 +3593,22 @@ export type StockInputQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
+        reference?: {
+          __typename?: 'Reference';
+          description: string;
+          cost: number;
+          name: string;
+        } | null;
         color: {
           __typename?: 'Color';
           html: string;
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
         stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3566,13 +3647,13 @@ export type StockInputsQuery = {
         product: {
           __typename?: 'Product';
           barcode: string;
-          reference: {
+          reference?: {
             __typename?: 'Reference';
             description: string;
             cost: number;
             price: number;
             name: string;
-          };
+          } | null;
           color: { __typename?: 'Color'; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
@@ -3616,7 +3697,7 @@ export type OrderIdQuery = {
             _id: string;
             barcode: string;
             status: string;
-            reference: { __typename?: 'Reference'; cost: number; description: string };
+            reference?: { __typename?: 'Reference'; cost: number; description: string } | null;
             size: { __typename?: 'Size'; value: string };
             color: {
               __typename?: 'Color';
@@ -3624,7 +3705,10 @@ export type OrderIdQuery = {
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3690,14 +3774,17 @@ export type OrdersByPosQuery = {
             _id: string;
             barcode: string;
             status: string;
-            reference: { __typename?: 'Reference'; cost: number; description: string };
+            reference?: { __typename?: 'Reference'; cost: number; description: string } | null;
             color: {
               __typename?: 'Color';
               html: string;
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             size: { __typename?: 'Size'; value: string };
@@ -3749,14 +3836,22 @@ export type StockOutputQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
+        reference?: {
+          __typename?: 'Reference';
+          description: string;
+          cost: number;
+          name: string;
+        } | null;
         color: {
           __typename?: 'Color';
           html: string;
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
         stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3795,13 +3890,13 @@ export type StockOutputsQuery = {
         product: {
           __typename?: 'Product';
           barcode: string;
-          reference: {
+          reference?: {
             __typename?: 'Reference';
             description: string;
             price: number;
             cost: number;
             name: string;
-          };
+          } | null;
           color: { __typename?: 'Color'; name: string; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
@@ -3825,14 +3920,17 @@ export type ProductsQuery = {
       __typename?: 'Product';
       _id: string;
       barcode: string;
-      reference: { __typename?: 'Reference'; description: string; name: string };
+      reference?: { __typename?: 'Reference'; description: string; name: string } | null;
       color: {
         __typename?: 'Color';
         name_internal: string;
         html: string;
         image?: {
           __typename?: 'Image';
-          urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+          urls?: {
+            __typename?: 'Urls';
+            webp?: { __typename?: 'ImageTypes'; small: string } | null;
+          } | null;
         } | null;
       };
       size: { __typename?: 'Size'; value: string };
@@ -3859,10 +3957,13 @@ export type ProductQuery = {
       html: string;
       image?: {
         __typename?: 'Image';
-        urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+        urls?: {
+          __typename?: 'Urls';
+          webp?: { __typename?: 'ImageTypes'; small: string } | null;
+        } | null;
       } | null;
     };
-    reference: { __typename?: 'Reference'; description: string; name: string };
+    reference?: { __typename?: 'Reference'; description: string; name: string } | null;
     size: { __typename?: 'Size'; value: string };
   };
 };
@@ -3895,10 +3996,18 @@ export type StockRequestQuery = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
-        reference: { __typename?: 'Reference'; cost: number; description: string; name: string };
+        reference?: {
+          __typename?: 'Reference';
+          cost: number;
+          description: string;
+          name: string;
+        } | null;
         size: { __typename?: 'Size'; value: string };
       };
     }[];
@@ -3934,7 +4043,7 @@ export type StockRequestsQuery = {
         product: {
           __typename?: 'Product';
           barcode: string;
-          reference: { __typename?: 'Reference'; name: string; description: string };
+          reference?: { __typename?: 'Reference'; name: string; description: string } | null;
           color: { __typename?: 'Color'; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
@@ -3975,12 +4084,12 @@ export type CurrentUserQuery = {
     username: string;
     name: string;
     pointOfSale?: { __typename?: 'PointOfSale'; _id: string } | null;
-    shop: {
+    shop?: {
       __typename?: 'Shop';
       _id: string;
       name: string;
       defaultWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
-    };
+    } | null;
     role: {
       __typename?: 'Role';
       name: string;
@@ -6736,12 +6845,15 @@ export const ColorsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'image' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'urls' },
@@ -6777,6 +6889,78 @@ export const ColorsDocument = {
     },
   ],
 } as unknown as DocumentNode<ColorsQuery, ColorsQueryVariables>;
+export const ImagesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'images' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersImagesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'images' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersImagesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'limit' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'urls' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'webp' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'small' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ImagesQuery, ImagesQueryVariables>;
 export const StockInputDocument = {
   kind: 'Document',
   definitions: [

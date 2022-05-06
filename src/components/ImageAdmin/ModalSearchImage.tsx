@@ -1,6 +1,5 @@
-import { useGetImages } from '@/hooks/image.hooks';
-import { ClearOutlined, SearchOutlined, SelectOutlined } from '@ant-design/icons';
-import DefaultImage from '@/assets/default.webp';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { ClearOutlined, DeleteOutlined, SearchOutlined, SelectOutlined } from '@ant-design/icons';
 import {
   Button,
   Divider,
@@ -13,7 +12,11 @@ import {
   Card,
   Pagination,
 } from 'antd';
+
+import DefaultImage from '@/assets/default.webp';
+import { useGetImages } from '@/hooks/image.hooks';
 import { useEffect } from 'react';
+import type { Image as ImageModel, FiltersImagesInput } from '@/graphql/graphql';
 
 const FormItem = Form.Item;
 const { Title } = Typography;
@@ -21,15 +24,24 @@ const { Title } = Typography;
 export type Props = {
   visible: boolean;
   onClose: () => void;
-  selectImage: (image: /*IMAGE.Image*/ any) => void;
+  selectImage: (image: ImageModel) => void;
+  value: ImageModel[];
+  limit?: number;
+  deleteImage: (id: string) => void;
 };
 
-const ModalSearchImage = ({ visible, onClose, selectImage }: Props) => {
+const ModalSearchImage = ({ visible, onClose, selectImage, value, limit, deleteImage }: Props) => {
   const [form] = Form.useForm();
 
   const [getImages, { loading, data }] = useGetImages();
 
-  const onSearch = (values?: any) => {
+  const canAddImage = limit ? value?.length < limit : true;
+
+  /**
+   * se encarga de ejecutar la consulta para obtener las imagenes
+   * @param values variables de entrada para realizar la consulta
+   */
+  const onSearch = (values?: FiltersImagesInput) => {
     getImages({
       variables: {
         input: {
@@ -39,20 +51,31 @@ const ModalSearchImage = ({ visible, onClose, selectImage }: Props) => {
     });
   };
 
+  /**
+   * Se encarga de limpiar los filtros y resetear los campos
+   */
   const onClear = () => {
     form.resetFields();
     onSearch({});
   };
 
-  const onFinish = (value: FormData) => {
+  /**
+   * ejecuta la busqueda con base a los filtros
+   * @param currentValue valores obtenidos del formulario para aplicar filtros
+   */
+  const onFinish = (currentValue: FormData) => {
     const newValue = form.getFieldsValue();
     const actualValue = {
       ...newValue,
-      ...value,
+      ...currentValue,
     };
     onSearch({ ...actualValue });
   };
 
+  /**
+   * se encarga de controlar los eventos de la paginacion
+   * @param paginationLocal paginacion
+   */
   const onChangePagination = (paginationLocal: number /*_: number*/) => {
     const current = paginationLocal;
 
@@ -88,26 +111,48 @@ const ModalSearchImage = ({ visible, onClose, selectImage }: Props) => {
       )}
       <Row gutter={[16, 16]}>
         <Image.PreviewGroup>
-          {data?.images?.docs?.map((image: any /*IMAGE.Image*/) => (
-            <Card
-              title={image?.name}
-              size="small"
-              loading={loading}
-              style={{ width: 220, height: 250, margin: 5 }}
-              actions={[
-                <Button type="link" icon={<SelectOutlined />} onClick={() => selectImage(image)}>
-                  Seleccionar
-                </Button>,
-              ]}
-              bodyStyle={{ display: 'flex', justifyContent: 'center' }}
-            >
-              <Image
-                style={{ maxWidth: 200, maxHeight: 125 }}
-                src={`${CDN_URL}/${image?.urls?.webp?.small}`}
-                fallback={DefaultImage}
-              />
-            </Card>
-          ))}
+          {data?.images?.docs?.map((image) => {
+            const canSelect = !value?.find((item) => item?._id === image?._id);
+            const title = !canSelect ? 'Eliminar' : 'Seleccionar';
+            return (
+              <Card
+                key={image._id}
+                title={image?.name}
+                size="small"
+                loading={loading}
+                style={{ width: 220, margin: 5 }}
+                actions={[
+                  <Button
+                    disabled={!canAddImage && title !== 'Eliminar'}
+                    key={0}
+                    type="link"
+                    icon={!canSelect ? <DeleteOutlined /> : <SelectOutlined />}
+                    onClick={
+                      canSelect
+                        ? () => selectImage(image as ImageModel)
+                        : () => deleteImage(image._id)
+                    }
+                  >
+                    {title}
+                  </Button>,
+                ]}
+                bodyStyle={{
+                  height: 200,
+                  padding: 5,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: canSelect ? '1px solid white' : '1px solid #dc9575',
+                }}
+              >
+                <Image
+                  style={{ maxWidth: 200, maxHeight: 125 }}
+                  src={`${CDN_URL}/${image?.urls?.webp?.small}`}
+                  fallback={DefaultImage}
+                />
+              </Card>
+            );
+          })}
         </Image.PreviewGroup>
       </Row>
       <Pagination
