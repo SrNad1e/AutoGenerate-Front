@@ -1,13 +1,15 @@
 import { Affix, Button, Card, Col, Divider, Row, Space, Typography } from 'antd';
 
+import type { DetailInput, StockInput } from '@/graphql/graphql';
+
 import styles from '../styles.less';
 
 const { Title } = Typography;
 
 export type Props = {
-  input: Partial<INPUT.Input> | undefined;
+  input: Partial<StockInput> | undefined;
   saveInput: (status?: string) => void;
-  details: Partial<INPUT.DetailInputProps[]>;
+  details: Partial<DetailInput & { action: string }>[];
 };
 
 const Footer = ({ input, saveInput, details }: Props) => {

@@ -1,12 +1,13 @@
-import { useGetProduct } from '@/hooks/product.hooks';
 import { SearchOutlined } from '@ant-design/icons';
 import { Alert, Button, Input } from 'antd';
 import { useState, useRef, useEffect } from 'react';
 
-import type { Detail, Props as PropsModal } from './Modal';
+import type { Props as PropsModal } from './Modal';
 import ModalSearchProducts from './Modal';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import { useGetProduct } from '@/hooks/product.hooks';
+import type { DetailRequest, Product } from '@/graphql/graphql';
 
 const { Search } = Input;
 
@@ -14,10 +15,10 @@ export type Props = {
   barcode?: boolean;
   validateStock?: boolean;
   quantity?: number;
-  details?: Partial<Detail[]>;
+  details?: Partial<DetailRequest & { action: string }>[];
   warehouseId: string | undefined;
-  createDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
-  updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
+  createDetail: (product: Product, quantity: number) => void;
+  updateDetail: (product: Product, quantity: number) => void;
   deleteDetail: (productId: string) => void;
 };
 
@@ -39,15 +40,9 @@ const SearchProducts = ({
     visible: false,
   });
 
-  const searchRef = useRef(null);
+  const [getProduct, { loading }] = useGetProduct();
 
-  const onShowModalError = (message: string) => {
-    setPropsAlert({
-      message,
-      type: 'error',
-      visible: true,
-    });
-  };
+  const searchRef = useRef(null);
 
   const onCloseAlert = () => {
     setPropsAlert({
@@ -57,36 +52,6 @@ const SearchProducts = ({
     });
   };
 
-  /**
-   * @description manejap el error de la consulta
-   * @param message error que genera al consulta
-   */
-  const showError = (message: string) => {
-    if (message) {
-      onShowModalError(message);
-    }
-  };
-
-  /**
-   * @description callback ejecutado por el customHook
-   * @param product producto
-   */
-  const resultProduct = (product: PRODUCT.Product) => {
-    if (product) {
-      const exist = details.find((item) => item?.product?._id === product._id);
-      if (exist) {
-        updateDetail(product, exist.quantity + (quantity || 1));
-      } else {
-        createDetail(product, quantity || 1);
-      }
-    } else {
-      setError('Producto no existe');
-    }
-    searchRef?.current?.select();
-  };
-
-  const { getProduct, loading } = useGetProduct(resultProduct, showError);
-
   const setVisibleModal = () => {
     setShowModal(!showModal);
   };
@@ -95,9 +60,9 @@ const SearchProducts = ({
    * @description se encarga de ejecutar la busqueda del producto
    * @param e evento del input
    */
-  const onPressEnter = (e: any) => {
+  const onPressEnter = async (e: any) => {
     setError(undefined);
-    getProduct({
+    const response = await getProduct({
       variables: {
         input: {
           barcode: e.target.value,
@@ -105,6 +70,18 @@ const SearchProducts = ({
         },
       },
     });
+
+    if (response?.data?.product) {
+      const exist = details.find((item) => item?.product?._id === response?.data?.product?._id);
+      if (exist) {
+        updateDetail(response?.data?.product as Product, (exist?.quantity || 0) + (quantity || 1));
+      } else {
+        createDetail(response?.data?.product as Product, quantity || 1);
+      }
+    } else {
+      setError('Producto no existe');
+    }
+    searchRef?.current?.select();
   };
 
   useEffect(() => {

@@ -1,14 +1,15 @@
 import { Badge, Card, Col, Descriptions, Input, Row } from 'antd';
-
 import moment from 'moment';
 import { useModel } from 'umi';
+
+import type { StockAdjustment } from '@/graphql/graphql';
 import { StatusTypeAdjustment } from '../../adjustment.data';
 
 const DescriptionsItem = Descriptions.Item;
 const { TextArea } = Input;
 
 export type Props = {
-  adjustment: Partial<ADJUSTMENT.Adjustment> | undefined;
+  adjustment: Partial<StockAdjustment> | undefined;
   setObservation: (value: string) => void;
   observation: string;
 };
