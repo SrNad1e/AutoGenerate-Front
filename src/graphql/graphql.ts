@@ -36,20 +36,24 @@ export type Address = {
   __typename?: 'Address';
   /** Ciudad a la que pertenece */
   city: City;
+  /** Contacto para el envío */
+  contact: Scalars['String'];
   /** Datos extra de la dirección */
   extra?: Maybe<Scalars['String']>;
   /** Tipo de ubicación (Calle, Avenida, Manzana, Etc) */
   field1: Scalars['String'];
-  /** Tipo de ubicación (Calle, Avenida, Manzana, Etc) */
-  field2: Scalars['String'];
   /** Define si la dirección es la principal */
   isMain?: Maybe<Scalars['Boolean']>;
   /** Número de la casa */
   loteNumber: Scalars['Float'];
+  /** Barrio */
+  neighborhood: Scalars['String'];
   /** Número del field1 */
-  number1: Scalars['Float'];
+  number1: Scalars['String'];
   /** Número del field2 */
-  number2: Scalars['Float'];
+  number2: Scalars['String'];
+  /** Teléfono del contacto */
+  phone: Scalars['String'];
 };
 
 /** Atributo del producto */
@@ -100,8 +104,8 @@ export type CategoryLevel1 = {
   __typename?: 'CategoryLevel1';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Categorías inferiores */
-  childs?: Maybe<CategoryLevel2[]>;
+  /** Nombre de la categoría */
+  childs: CategoryLevel2[];
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -123,6 +127,8 @@ export type CategoryLevel2 = {
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
   name: Scalars['String'];
+  /** Identificador de la categoría padre */
+  parentId?: Maybe<Scalars['String']>;
   /** Fecha de actualización de la categoría */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la categoría */
@@ -138,6 +144,8 @@ export type CategoryLevel3 = {
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
   name: Scalars['String'];
+  /** Identificador de la categoría padre */
+  parentId?: Maybe<Scalars['String']>;
   /** Fecha de actualización de la categoría */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la categoría */
@@ -149,10 +157,14 @@ export type City = {
   __typename?: 'City';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** País */
+  country: Scalars['String'];
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Nombre de la ciudad */
   name: Scalars['String'];
+  /** Departamento */
+  state: Scalars['String'];
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la ciudad */
@@ -229,7 +241,7 @@ export type CreateBrandInput = {
 /** Datos para la creación de una categoría */
 export type CreateCategoryInput = {
   /** Nivel de la categoría */
-  level?: InputMaybe<Scalars['Float']>;
+  level: Scalars['Float'];
   /** Nombre de la categoría */
   name: Scalars['String'];
   /** Identificador de la categoría padre */
@@ -240,8 +252,8 @@ export type CreateCategoryInput = {
 export type CreateColorInput = {
   /** Url asignado al color */
   html: Scalars['String'];
-  /** Imagen asignada al color */
-  image?: InputMaybe<Scalars['String']>;
+  /** Identificador de la imagen asignada al color */
+  imageId?: InputMaybe<Scalars['String']>;
   /** Nombre asignado al color */
   name: Scalars['String'];
   /** Nombre interno asignado al color */
@@ -679,6 +691,22 @@ export type FiltersCategoriesInput = {
   sort?: InputMaybe<SortCategories>;
 };
 
+/** Filtros para obtener las ciudades */
+export type FiltersCitiesInput = {
+  /** Nombre del país */
+  country?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Nombre de la ciudad */
+  name?: InputMaybe<Scalars['String']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortCity>;
+  /** Nombre del departamento */
+  state?: InputMaybe<Scalars['String']>;
+};
+
 /** Filtros para la lista de colores */
 export type FiltersColorsInput = {
   /** Estado de la bodega */
@@ -962,7 +990,7 @@ export type Image = {
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Direcciones de la imagen */
-  urls: Urls;
+  urls?: Maybe<Urls>;
   /** Usuario que creó o editó la imagen */
   user: User;
 };
@@ -1240,6 +1268,10 @@ export type Order = {
   __typename?: 'Order';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Usuario que creó o editó el pedido */
+  address?: Maybe<Address>;
+  /** Empresa a la que perteneces el pedido */
+  company: Company;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Cliente que solicita el pedido */
@@ -1367,7 +1399,7 @@ export type Product = {
   /** Imagenes del producto */
   images: Image[];
   /** Referencia del producto */
-  reference: Reference;
+  reference?: Maybe<Reference>;
   /** Talla del producto */
   size: Size;
   /** Estado del producto (active, inactive) */
@@ -1388,6 +1420,8 @@ export type Query = {
   brands: ResponseBrands;
   /** Lista las categorías */
   categories: ResponseCategories;
+  /** Listado de ciudades */
+  cities: ResponseCities;
   /** Lista los colores */
   colors: ResponseColors;
   /** Se encarga de obtener el usuario dependiendo del token enviado */
@@ -1450,6 +1484,10 @@ export type QueryBrandsArgs = {
 
 export type QueryCategoriesArgs = {
   filtersCategoriesInput?: InputMaybe<FiltersCategoriesInput>;
+};
+
+export type QueryCitiesArgs = {
+  filtersCitiesInput?: InputMaybe<FiltersCitiesInput>;
 };
 
 export type QueryColorsArgs = {
@@ -1703,6 +1741,30 @@ export type ResponseCategories = {
   totalPages: Scalars['Float'];
 };
 
+/** Respuesta del listado de ciudades */
+export type ResponseCities = {
+  __typename?: 'ResponseCities';
+  /** Lista de ciudades */
+  docs: City[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta al listado de los colores */
 export type ResponseColors = {
   __typename?: 'ResponseColors';
@@ -1736,7 +1798,7 @@ export type ResponseCustomers = {
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
   hasPrevPage: Scalars['Boolean'];
-  /** Total de docuementos solicitados */
+  /** Total de documentos solicitados */
   limit: Scalars['Float'];
   /** Página siguente */
   nextPage: Scalars['Float'];
@@ -2038,7 +2100,7 @@ export type Shop = {
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Dirección de la tienda */
-  address: Scalars['String'];
+  address?: Maybe<Scalars['String']>;
   /** Empresa que usa la tienda */
   company: Warehouse;
   /** Fecha de creación */
@@ -2132,6 +2194,20 @@ export type SortCategories = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de la ciudad */
+export type SortCity = {
+  /** ordernamiento por país */
+  country?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por documento */
+  name?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por estado */
+  state?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento para el listado de colores */
 export type SortColor = {
   active?: InputMaybe<Scalars['Float']>;
@@ -2143,21 +2219,21 @@ export type SortColor = {
 
 /** Ordenamiento del cliente */
 export type SortCustomer = {
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por estado del cliente */
   active: Scalars['Float'];
   /** ordernamiento por documento */
   document: Scalars['Float'];
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por correo */
   email: Scalars['Float'];
   /** ordernamiento por nombre */
   firstName: Scalars['Float'];
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por si es por defecto */
   isDefault: Scalars['Float'];
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por si tiene whatsapp */
   isWhatsapp: Scalars['Float'];
   /** ordernamiento por apellido */
   lastName: Scalars['Float'];
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por teléfono */
   phone: Scalars['Float'];
 };
 
@@ -2517,8 +2593,8 @@ export type UpdateColorInput = {
   active?: InputMaybe<Scalars['Boolean']>;
   /** Url asignado al color */
   html?: InputMaybe<Scalars['String']>;
-  /** Imagen asignada al color */
-  image?: InputMaybe<Scalars['String']>;
+  /** Identificador de la imagen del color */
+  imageId?: InputMaybe<Scalars['String']>;
   /** Nombre asignado al color */
   name?: InputMaybe<Scalars['String']>;
   /** Nombre interno asignado al color */
@@ -2673,11 +2749,11 @@ export type UpdateUserInput = {
 export type Urls = {
   __typename?: 'Urls';
   /** Enlaces de tipo jpeg */
-  jpeg: ImageTypes;
+  jpeg?: Maybe<ImageTypes>;
   /** Enlaces de tipo webp */
-  original: Scalars['String'];
+  original?: Maybe<Scalars['String']>;
   /** Enlaces de tipo webp */
-  webp: ImageTypes;
+  webp?: Maybe<ImageTypes>;
 };
 
 /** Usuario que manipula los datos de la aplicación */
@@ -2700,7 +2776,7 @@ export type User = {
   /** Rol que ocupa el usuario */
   role: Role;
   /** Tienda a la que se encuentra asiganado el usuario */
-  shop: Shop;
+  shop?: Maybe<Shop>;
   /** Estado del usuario (active, inactive, suspend) */
   status: Scalars['String'];
   /** Nombre de usuario */
@@ -2766,7 +2842,7 @@ export type UpdateStockAdjustmentMutation = {
         _id: string;
         barcode: string;
         stock: { __typename?: 'Stock'; quantity: number }[];
-        reference: { __typename?: 'Reference'; description: string };
+        reference?: { __typename?: 'Reference'; description: string } | null;
         size: { __typename?: 'Size'; value: string };
         color: {
           __typename?: 'Color';
@@ -2774,7 +2850,10 @@ export type UpdateStockAdjustmentMutation = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
       };
@@ -2848,6 +2927,69 @@ export type UpdateBrandMutation = {
   };
 };
 
+export type CreateCategoryMutationVariables = Exact<{
+  input: CreateCategoryInput;
+}>;
+
+export type CreateCategoryMutation = {
+  __typename?: 'Mutation';
+  createCategory: {
+    __typename?: 'CategoryLevel1';
+    _id: string;
+    createdAt: any;
+    updatedAt: any;
+    name: string;
+    childs: {
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel3';
+            _id: string;
+            name: string;
+            createdAt: any;
+            updatedAt: any;
+          }[]
+        | null;
+    }[];
+  };
+};
+
+export type UpdateCategoryMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateCategoryInput;
+}>;
+
+export type UpdateCategoryMutation = {
+  __typename?: 'Mutation';
+  updateCategory: {
+    __typename?: 'CategoryLevel1';
+    _id: string;
+    createdAt: any;
+    updatedAt: any;
+    name: string;
+    childs: {
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel3';
+            _id: string;
+            name: string;
+            createdAt: any;
+            updatedAt: any;
+          }[]
+        | null;
+    }[];
+  };
+};
+
 export type CreateColorMutationVariables = Exact<{
   input: CreateColorInput;
 }>;
@@ -2864,7 +3006,10 @@ export type CreateColorMutation = {
     createdAt: any;
     image?: {
       __typename?: 'Image';
-      urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+      urls?: {
+        __typename?: 'Urls';
+        webp?: { __typename?: 'ImageTypes'; small: string } | null;
+      } | null;
     } | null;
   };
 };
@@ -2885,7 +3030,10 @@ export type UpdateColorMutation = {
     name_internal: string;
     image?: {
       __typename?: 'Image';
-      urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+      urls?: {
+        __typename?: 'Urls';
+        webp?: { __typename?: 'ImageTypes'; small: string } | null;
+      } | null;
     } | null;
   };
 };
@@ -2927,10 +3075,13 @@ export type UpdateStockInputMutation = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
-        reference: { __typename?: 'Reference'; description: string; name: string };
+        reference?: { __typename?: 'Reference'; description: string; name: string } | null;
         size: { __typename?: 'Size'; value: string };
         stock: { __typename?: 'Stock'; quantity: number }[];
       };
@@ -2989,11 +3140,14 @@ export type UpdateOrderMutation = {
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             size: { __typename?: 'Size'; value: string };
-            reference: { __typename?: 'Reference'; description: string };
+            reference?: { __typename?: 'Reference'; description: string } | null;
             stock: { __typename?: 'Stock'; quantity: number }[];
           };
         }[]
@@ -3053,7 +3207,7 @@ export type AddPaymentsOrderMutation = {
             _id: string;
             barcode: string;
             status: string;
-            reference: { __typename?: 'Reference'; description: string; price: number };
+            reference?: { __typename?: 'Reference'; description: string; price: number } | null;
             color: {
               __typename?: 'Color';
               html: string;
@@ -3061,7 +3215,10 @@ export type AddPaymentsOrderMutation = {
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             size: { __typename?: 'Size'; value: string };
@@ -3123,13 +3280,13 @@ export type AddProductsOrderMutation = {
             __typename?: 'Product';
             _id: string;
             barcode: string;
-            reference: {
+            reference?: {
               __typename?: 'Reference';
               changeable: boolean;
               name: string;
               description: string;
               price: number;
-            };
+            } | null;
             size: { __typename?: 'Size'; value: string };
             color: {
               __typename?: 'Color';
@@ -3138,7 +3295,10 @@ export type AddProductsOrderMutation = {
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3204,10 +3364,13 @@ export type UpdateStockOutputMutation = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
-        reference: { __typename?: 'Reference'; description: string };
+        reference?: { __typename?: 'Reference'; description: string } | null;
         size: { __typename?: 'Size'; value: string };
         stock: { __typename?: 'Stock'; quantity: number }[];
       };
@@ -3254,10 +3417,13 @@ export type UpdateStockRequestMutation = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
-        reference: { __typename?: 'Reference'; description: string };
+        reference?: { __typename?: 'Reference'; description: string } | null;
         size: { __typename?: 'Size'; value: string };
         stock: { __typename?: 'Stock'; quantity: number }[];
       };
@@ -3324,12 +3490,12 @@ export type LoginMutation = {
       username: string;
       name: string;
       _id: string;
-      shop: {
+      shop?: {
         __typename?: 'Shop';
         _id: string;
         name: string;
         defaultWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
-      };
+      } | null;
       role: {
         __typename?: 'Role';
         name: string;
@@ -3364,7 +3530,12 @@ export type StockAdjustmentQuery = {
         _id: string;
         barcode: string;
         status: string;
-        reference: { __typename?: 'Reference'; cost: number; description: string; name: string };
+        reference?: {
+          __typename?: 'Reference';
+          cost: number;
+          description: string;
+          name: string;
+        } | null;
         size: { __typename?: 'Size'; value: string };
         color: {
           __typename?: 'Color';
@@ -3372,7 +3543,10 @@ export type StockAdjustmentQuery = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
         stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3410,7 +3584,12 @@ export type StockAdjustmentsQuery = {
           __typename?: 'Product';
           _id: string;
           barcode: string;
-          reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
+          reference?: {
+            __typename?: 'Reference';
+            description: string;
+            cost: number;
+            name: string;
+          } | null;
           size: { __typename?: 'Size'; value: string };
           stock: { __typename?: 'Stock'; quantity: number }[];
           color: {
@@ -3419,7 +3598,10 @@ export type StockAdjustmentsQuery = {
             name_internal: string;
             image?: {
               __typename?: 'Image';
-              urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+              urls?: {
+                __typename?: 'Urls';
+                webp?: { __typename?: 'ImageTypes'; small: string } | null;
+              } | null;
             } | null;
           };
         };
@@ -3472,6 +3654,46 @@ export type BrandsQuery = {
   };
 };
 
+export type CategoriesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersCategoriesInput>;
+}>;
+
+export type CategoriesQuery = {
+  __typename?: 'Query';
+  categories: {
+    __typename?: 'ResponseCategories';
+    totalDocs: number;
+    limit: number;
+    page: number;
+    totalPages: number;
+    docs: {
+      __typename?: 'CategoryLevel1';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+      childs: {
+        __typename?: 'CategoryLevel2';
+        _id: string;
+        parentId?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        name: string;
+        childs?:
+          | {
+              __typename?: 'CategoryLevel3';
+              _id: string;
+              parentId?: string | null;
+              createdAt: any;
+              updatedAt: any;
+              name: string;
+            }[]
+          | null;
+      }[];
+    }[];
+  };
+};
+
 export type ColorsQueryVariables = Exact<{
   input: FiltersColorsInput;
 }>;
@@ -3488,11 +3710,41 @@ export type ColorsQuery = {
       _id: string;
       name: string;
       name_internal: string;
+      createdAt: any;
+      updatedAt: any;
       html: string;
       active: boolean;
       image?: {
         __typename?: 'Image';
-        urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+        _id: string;
+        urls?: {
+          __typename?: 'Urls';
+          webp?: { __typename?: 'ImageTypes'; small: string } | null;
+        } | null;
+      } | null;
+    }[];
+  };
+};
+
+export type ImagesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersImagesInput>;
+}>;
+
+export type ImagesQuery = {
+  __typename?: 'Query';
+  images: {
+    __typename?: 'ResponseImages';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    limit: number;
+    docs: {
+      __typename?: 'Image';
+      name: string;
+      _id: string;
+      urls?: {
+        __typename?: 'Urls';
+        webp?: { __typename?: 'ImageTypes'; small: string } | null;
       } | null;
     }[];
   };
@@ -3520,14 +3772,22 @@ export type StockInputQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
+        reference?: {
+          __typename?: 'Reference';
+          description: string;
+          cost: number;
+          name: string;
+        } | null;
         color: {
           __typename?: 'Color';
           html: string;
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
         stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3566,13 +3826,13 @@ export type StockInputsQuery = {
         product: {
           __typename?: 'Product';
           barcode: string;
-          reference: {
+          reference?: {
             __typename?: 'Reference';
             description: string;
             cost: number;
             price: number;
             name: string;
-          };
+          } | null;
           color: { __typename?: 'Color'; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
@@ -3616,7 +3876,7 @@ export type OrderIdQuery = {
             _id: string;
             barcode: string;
             status: string;
-            reference: { __typename?: 'Reference'; cost: number; description: string };
+            reference?: { __typename?: 'Reference'; cost: number; description: string } | null;
             size: { __typename?: 'Size'; value: string };
             color: {
               __typename?: 'Color';
@@ -3624,7 +3884,10 @@ export type OrderIdQuery = {
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3690,14 +3953,17 @@ export type OrdersByPosQuery = {
             _id: string;
             barcode: string;
             status: string;
-            reference: { __typename?: 'Reference'; cost: number; description: string };
+            reference?: { __typename?: 'Reference'; cost: number; description: string } | null;
             color: {
               __typename?: 'Color';
               html: string;
               name_internal: string;
               image?: {
                 __typename?: 'Image';
-                urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+                urls?: {
+                  __typename?: 'Urls';
+                  webp?: { __typename?: 'ImageTypes'; small: string } | null;
+                } | null;
               } | null;
             };
             size: { __typename?: 'Size'; value: string };
@@ -3749,14 +4015,22 @@ export type StockOutputQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
+        reference?: {
+          __typename?: 'Reference';
+          description: string;
+          cost: number;
+          name: string;
+        } | null;
         color: {
           __typename?: 'Color';
           html: string;
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
         stock: { __typename?: 'Stock'; quantity: number }[];
@@ -3795,13 +4069,13 @@ export type StockOutputsQuery = {
         product: {
           __typename?: 'Product';
           barcode: string;
-          reference: {
+          reference?: {
             __typename?: 'Reference';
             description: string;
             price: number;
             cost: number;
             name: string;
-          };
+          } | null;
           color: { __typename?: 'Color'; name: string; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
@@ -3825,14 +4099,17 @@ export type ProductsQuery = {
       __typename?: 'Product';
       _id: string;
       barcode: string;
-      reference: { __typename?: 'Reference'; description: string; name: string };
+      reference?: { __typename?: 'Reference'; description: string; name: string } | null;
       color: {
         __typename?: 'Color';
         name_internal: string;
         html: string;
         image?: {
           __typename?: 'Image';
-          urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+          urls?: {
+            __typename?: 'Urls';
+            webp?: { __typename?: 'ImageTypes'; small: string } | null;
+          } | null;
         } | null;
       };
       size: { __typename?: 'Size'; value: string };
@@ -3859,10 +4136,13 @@ export type ProductQuery = {
       html: string;
       image?: {
         __typename?: 'Image';
-        urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+        urls?: {
+          __typename?: 'Urls';
+          webp?: { __typename?: 'ImageTypes'; small: string } | null;
+        } | null;
       } | null;
     };
-    reference: { __typename?: 'Reference'; description: string; name: string };
+    reference?: { __typename?: 'Reference'; description: string; name: string } | null;
     size: { __typename?: 'Size'; value: string };
   };
 };
@@ -3895,10 +4175,18 @@ export type StockRequestQuery = {
           name_internal: string;
           image?: {
             __typename?: 'Image';
-            urls: { __typename?: 'Urls'; webp: { __typename?: 'ImageTypes'; small: string } };
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
           } | null;
         };
-        reference: { __typename?: 'Reference'; cost: number; description: string; name: string };
+        reference?: {
+          __typename?: 'Reference';
+          cost: number;
+          description: string;
+          name: string;
+        } | null;
         size: { __typename?: 'Size'; value: string };
       };
     }[];
@@ -3934,7 +4222,7 @@ export type StockRequestsQuery = {
         product: {
           __typename?: 'Product';
           barcode: string;
-          reference: { __typename?: 'Reference'; name: string; description: string };
+          reference?: { __typename?: 'Reference'; name: string; description: string } | null;
           color: { __typename?: 'Color'; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
@@ -3975,12 +4263,12 @@ export type CurrentUserQuery = {
     username: string;
     name: string;
     pointOfSale?: { __typename?: 'PointOfSale'; _id: string } | null;
-    shop: {
+    shop?: {
       __typename?: 'Shop';
       _id: string;
       name: string;
       defaultWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
-    };
+    } | null;
     role: {
       __typename?: 'Role';
       name: string;
@@ -4442,6 +4730,161 @@ export const UpdateBrandDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateBrandMutation, UpdateBrandMutationVariables>;
+export const CreateCategoryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createCategory' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateCategoryInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createCategory' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createCategoryInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'childs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateCategoryMutation, CreateCategoryMutationVariables>;
+export const UpdateCategoryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateCategory' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateCategoryInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateCategory' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateCategoryInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'childs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateCategoryMutation, UpdateCategoryMutationVariables>;
 export const CreateColorDocument = {
   kind: 'Document',
   definitions: [
@@ -6691,6 +7134,89 @@ export const BrandsDocument = {
     },
   ],
 } as unknown as DocumentNode<BrandsQuery, BrandsQueryVariables>;
+export const CategoriesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'categories' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCategoriesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'categories' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCategoriesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'limit' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'childs' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CategoriesQuery, CategoriesQueryVariables>;
 export const ColorsDocument = {
   kind: 'Document',
   definitions: [
@@ -6736,12 +7262,15 @@ export const ColorsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'image' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'urls' },
@@ -6777,6 +7306,78 @@ export const ColorsDocument = {
     },
   ],
 } as unknown as DocumentNode<ColorsQuery, ColorsQueryVariables>;
+export const ImagesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'images' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersImagesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'images' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersImagesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'limit' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'urls' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'webp' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'small' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ImagesQuery, ImagesQueryVariables>;
 export const StockInputDocument = {
   kind: 'Document',
   definitions: [

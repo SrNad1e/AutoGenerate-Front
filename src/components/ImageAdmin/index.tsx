@@ -1,26 +1,43 @@
-import { CopyOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Row, Image, Tooltip, Popconfirm, Upload } from 'antd';
+import { CopyOutlined, DeleteOutlined, InboxOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Row, Image, Tooltip, Popconfirm, Upload, Typography } from 'antd';
+
+import DefaultImage from '@/assets/default.webp';
 import { useState } from 'react';
 import AddImages from './AddImages';
 import ModalSearchImage from './ModalSearchImage';
+import type { Image as ImageModel } from '@/graphql/graphql';
+
 import styles from './styles.less';
-import DefaultImage from '@/assets/default.webp';
 
 const { Dragger } = Upload;
+const { Text } = Typography;
 
 export type Props = {
   limit?: number;
-  value?: /*IMAGE.Image[] | []*/ any;
-  onChange?: (images: any /*IMAGE.Image[] | []*/) => void;
+  value?: ImageModel[] | [];
+  onChange?: (images: ImageModel[] | []) => void;
   onCopyImage?: () => void;
 };
 
-const ImageAdmin = ({ limit = 1, value = [], onChange, onCopyImage }: Props) => {
+/**
+ * @description se encarga de gestionar las imagenes
+ * @param limit limita el numero de imagenes que pueden agregarse
+ * @param value array donde se almacena las imagenes que se seleccionen
+ * @param onChange funcion que se encarga de almacenar las imagenes en el value
+ * @param  onCopyImage funcion que se encarga de copiar la imagen que se seleccione
+ * @returns Componente que muestra las imagenes
+ */
+const ImageAdmin = ({ limit = 5, value = [], onChange, onCopyImage }: Props) => {
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const canUploadImage = limit ? (value?.length > limit ? false : true) : true;
+  const canUploadImage = limit ? value?.length < limit : true;
 
-  const selectImage = (image: any /*IMAGE.Image*/) => {
+  /**
+   * selecciona una imagen y ejecuta onchange para guardar la imagen en value
+   * @param image imagen a seleccionar
+   */
+  const selectImage = (image: ImageModel) => {
     if (value) {
       if (onChange) onChange([...value, image]);
     } else {
@@ -28,81 +45,110 @@ const ImageAdmin = ({ limit = 1, value = [], onChange, onCopyImage }: Props) => 
     }
   };
 
+  /**
+   * se encarga de eliminar una imagen de value
+   * @param id el id de la imagen que se va a eliminar
+   */
   const deleteImage = (id: string) => {
     if (onChange) onChange(value.filter((e: any) => e._id !== id));
   };
 
-  return (
-    <Row gutter={2}>
-      {
-        <div
-          style={{
-            height: 'auto',
-            width: 'auto',
-            overflowY: 'hidden',
-            overflowX: 'auto',
-            padding: 10,
-            whiteSpace: 'nowrap',
-            border: '1px solid rgba(140, 140, 140, 0.35)',
-            margin: 10,
-          }}
-        >
-          <Dragger listType="picture-card" multiple style={{ width: 200, height: 20 }}>
-            <div>
-              <PlusOutlined />
-              <div style={{ marginTop: 8 }}>Subir</div>
-            </div>
-          </Dragger>
-          <Image.PreviewGroup>
-            <div className={styles.imglist}>
-              {value.map((image: any) => (
-                <div className={styles.item}>
-                  <Card
-                    bordered={false}
-                    style={{ height: 200, width: 148 }}
-                    actions={[
-                      <Tooltip title={'Borrar imagen'}>
-                        <Popconfirm
-                          title="Seguro de borrar esta imagen"
-                          onConfirm={() => deleteImage(image._id || '')}
-                          okText="Si"
-                          cancelText="No"
-                        >
-                          <Button ghost danger style={{ margin: 0 }}>
-                            <DeleteOutlined />
-                          </Button>
-                        </Popconfirm>
-                      </Tooltip>,
-                    ]}
-                  >
-                    <Image
-                      src={`${CDN_URL}/${image?.urls?.webp?.small}`}
-                      style={{ maxWidth: 150, maxHeight: 110 }}
-                      fallback={DefaultImage}
-                    />
-                    {/*<Divider />
-                    <div className={styles.actions}>
-                      <Tooltip title={'Borrar imagen'}>
-                        <Popconfirm
-                          title="Seguro de borrar esta imagen"
-                          onConfirm={() => deleteImage(image._id || '')}
-                          okText="Si"
-                          cancelText="No"
-                        >
-                          <Button ghost danger>
-                            <DeleteOutlined />
-                          </Button>
-                        </Popconfirm>
-                      </Tooltip>
-                    </div>*/}
-                  </Card>
-                </div>
-              ))}
-            </div>
-          </Image.PreviewGroup>
-        </div>
+  /**
+   * se encarga de poner en value la imagen que se sube en el dragger
+   */
+  const setPic = async ({ file }: any) => {
+    console.log(file.status);
+
+    if (file?.status === 'uploading') {
+      setLoading(true);
+    }
+
+    if (file?.status === 'done') {
+      setLoading(false);
+      if (value) {
+        if (onChange) {
+          onChange([...value, file?.response]);
+        }
       }
-      {canUploadImage ? <AddImages setVisible={() => setVisible(true)} /> : console.log('error')}
+    }
+  };
+
+  /**
+   * Propiedades del dragger
+   */
+  const draggerProps = {
+    accept: '.png,.jpg,.jpeg,.webp',
+    showUploadList: false,
+    headers: {
+      authorization: `bearer ${localStorage.getItem('token')}`,
+    },
+    action: `${API_URL}/upload/image`,
+    onChange: setPic,
+    name: 'image',
+    multiple: false,
+    style: { width: 148, margin: '0 10px' },
+  };
+
+  return (
+    <Row>
+      <Col className={styles.imgContainer}>
+        <Image.PreviewGroup>
+          <Row>
+            <Col className={styles.imglist}>
+              {value?.length >= limit == false && (
+                <Dragger listType="picture-card" height="100%" {...draggerProps}>
+                  {loading ? (
+                    <LoadingOutlined style={{ color: '#dc9575' }} />
+                  ) : (
+                    <InboxOutlined style={{ fontSize: 30, color: '#dc9575' }} />
+                  )}
+                  <Text style={{ display: 'flex', fontSize: 12, justifyContent: 'center' }}>
+                    {loading ? 'Subiendo Imagen' : 'Arrastre una imagen'}
+                  </Text>
+                </Dragger>
+              )}
+              {value?.map((image) => (
+                <Row key={image?._id}>
+                  <Col className={styles.item}>
+                    <Card
+                      bordered={false}
+                      style={{ width: 148 }}
+                      bodyStyle={{
+                        height: 130,
+                        padding: 10,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                      actions={[
+                        <Tooltip title={'Borrar imagen'} key={0}>
+                          <Popconfirm
+                            title="Seguro de borrar esta imagen"
+                            onConfirm={() => deleteImage(image._id || '')}
+                            okText="Si"
+                            cancelText="No"
+                          >
+                            <Button ghost danger style={{ margin: 0 }}>
+                              <DeleteOutlined />
+                            </Button>
+                          </Popconfirm>
+                        </Tooltip>,
+                      ]}
+                    >
+                      <Image
+                        src={`${CDN_URL}/${image?.urls?.webp?.small}`}
+                        style={{ maxWidth: 150, maxHeight: 110 }}
+                        fallback={DefaultImage}
+                      />
+                    </Card>
+                  </Col>
+                </Row>
+              ))}
+            </Col>
+          </Row>
+        </Image.PreviewGroup>
+      </Col>
+      {canUploadImage ? <AddImages setVisible={() => setVisible(true)} /> : null}
       {onCopyImage ? (
         <Col>
           <Button icon={<CopyOutlined />} onClick={() => onCopyImage()}>
@@ -111,9 +157,12 @@ const ImageAdmin = ({ limit = 1, value = [], onChange, onCopyImage }: Props) => 
         </Col>
       ) : undefined}
       <ModalSearchImage
+        value={value}
+        limit={limit}
         visible={visible}
         onClose={() => setVisible(false)}
         selectImage={selectImage}
+        deleteImage={deleteImage}
       />
     </Row>
   );
