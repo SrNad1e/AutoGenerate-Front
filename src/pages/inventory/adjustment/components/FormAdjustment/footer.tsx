@@ -1,13 +1,15 @@
 import { Affix, Button, Card, Col, Divider, Row, Space, Typography } from 'antd';
 
+import type { DetailAdjustment, StockAdjustment } from '@/graphql/graphql';
+
 import styles from '../styles.less';
 
 const { Title } = Typography;
 
 export type Props = {
-  adjustment: Partial<ADJUSTMENT.Adjustment> | undefined;
+  adjustment: Partial<StockAdjustment> | undefined;
   saveAdjustment: (status?: string) => void;
-  details: Partial<ADJUSTMENT.DetailAdjustmentProps[]>;
+  details: Partial<DetailAdjustment & { action: string }>[];
 };
 
 const Footer = ({ adjustment, saveAdjustment, details }: Props) => {

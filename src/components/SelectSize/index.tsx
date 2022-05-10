@@ -1,40 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useGetSizes } from '@/hooks/size.hooks';
 import { Select, Alert } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+
+import { useGetSizes } from '@/hooks/size.hooks';
+import type { Size } from '@/graphql/graphql';
 
 import styles from './styles.less';
 
 const { Option } = Select;
 
 export type Props = {
-  onChange?: (value: SIZE.Size | undefined) => void;
+  onChange?: (value: Size | undefined) => void;
   value?: string;
 };
 
 const SelectSize = ({ onChange }: Props) => {
-  const [sizes, setSizes] = useState<Partial<SIZE.Size[]>>([]);
-  const [error, setError] = useState<string | undefined>();
-
-  /**
-   * @description callback ejecutado por el customHook
-   * @param sizesData array de tallas
-   */
-  const resultSizes = (sizesData: SIZE.ResponsePaginate) => {
-    if (sizesData) {
-      setSizes(sizesData.docs);
-    }
-  };
-
-  /**
-   * @description maneja el error de la consulta
-   * @param message error que genera al consulta
-   */
-  const showError = (message: string) => {
-    setError(message);
-  };
-
-  const { getSizes, loading } = useGetSizes(resultSizes, showError);
+  const [getSizes, { loading, data, error }] = useGetSizes();
 
   /**
    * @description se encarga de consultar con base a un comodín
@@ -56,7 +37,7 @@ const SelectSize = ({ onChange }: Props) => {
 
   const onChangeLocal = (sizeId: string) => {
     if (onChange) {
-      onChange(sizes.find((size) => size?._id === sizeId));
+      onChange(data?.sizes?.docs?.find((size) => size?._id === sizeId) as Size);
     }
   };
 
@@ -84,7 +65,7 @@ const SelectSize = ({ onChange }: Props) => {
         onChange={onChangeLocal}
         onSearch={onSearch}
       >
-        {sizes.map((size) => (
+        {data?.sizes?.docs?.map((size) => (
           <Option key={size?._id}>{size?.value}</Option>
         ))}
       </Select>

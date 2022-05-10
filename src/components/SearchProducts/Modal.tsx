@@ -1,4 +1,3 @@
-import { useGetProducts } from '@/hooks/product.hooks';
 import { BarcodeOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   Modal,
@@ -17,31 +16,31 @@ import {
   Space,
   Badge,
 } from 'antd';
-import type { TablePaginationConfig } from 'antd/es/table/interface';
-import type { ColumnsType } from 'antd/lib/table';
+import type { TablePaginationConfig, ColumnsType } from 'antd/es/table/interface';
 import { useState } from 'react';
 
+import { useGetProducts } from '@/hooks/product.hooks';
+import type {
+  Color,
+  DetailRequest,
+  FiltersProductsInput,
+  Product,
+  Reference,
+  Size,
+  Stock,
+} from '@/graphql/graphql';
 import SelectColor from '../SelectColor';
 import SelectSize from '../SelectSize';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
 
-export type Detail = {
-  product?: Partial<PRODUCT.Product>;
-  action?: ACTIONTYPESPRODUCT;
-  quantity: number;
-  createdAt?: Date;
-  updateAt?: Date;
-  __typename?: string;
-};
-
 export type Props = {
   visible: boolean;
   validateStock?: boolean;
-  details: Partial<Detail[]>;
-  createDetail: (product: PRODUCT.Product, quantity: number) => void;
-  updateDetail: (product: Partial<PRODUCT.Product>, quantity: number) => void;
+  details: Partial<DetailRequest & { action: string }>[];
+  createDetail: (product: Product, quantity: number) => void;
+  updateDetail: (product: Product, quantity: number) => void;
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
   warehouseId: string | undefined;
@@ -49,8 +48,8 @@ export type Props = {
 
 export type FormValues = {
   name?: string;
-  color?: Partial<COLOR.Color>;
-  size?: Partial<SIZE.Size>;
+  color?: Partial<Color>;
+  size?: Partial<Size>;
 };
 
 const ModalSearchProducts = ({
@@ -63,44 +62,18 @@ const ModalSearchProducts = ({
   updateDetail,
   deleteDetail,
 }: Props) => {
-  const [products, setProducts] = useState<PRODUCT.Product[]>([]);
-  const [filters, setFilters] = useState<Partial<PRODUCT.FiltersGetProducts>>({
+  const [filters, setFilters] = useState<Partial<FiltersProductsInput>>({
     limit: 10,
     page: 0,
   });
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    total: 0,
-    pageSize: 10,
-    current: 1,
-  });
-  const [error, setError] = useState<string | undefined>();
 
-  /**
-   * @description callback ejecutado por el customHook
-   * @param productsData array de los productos
-   */
-  const resultProducts = (productsData: PRODUCT.ResponsePaginate) => {
-    if (productsData) {
-      setProducts(productsData.docs);
-      setPagination({ ...pagination, total: productsData.totalDocs });
-    }
-  };
-
-  /**
-   * @description maneja el error de la consulta
-   * @param message error que genera al consulta
-   */
-  const showError = (message: string) => {
-    setError(message);
-  };
-
-  const { getProducts, loading } = useGetProducts(resultProducts, showError);
+  const [getProducts, { data, loading, error }] = useGetProducts();
 
   /**
    * @description se encarga de consultar los productos con los filtros
    * @param params filtros para buscar productos
    */
-  const onSearch = (params: Partial<PRODUCT.FiltersGetProducts>) => {
+  const onSearch = (params: Partial<FiltersProductsInput>) => {
     getProducts({
       variables: {
         input: {
@@ -117,15 +90,13 @@ const ModalSearchProducts = ({
    * @param values valores del formulario
    */
   const onFinish = ({ color, name, size }: FormValues) => {
-    const params: Partial<PRODUCT.FiltersGetProducts> = {
+    const params: Partial<FiltersProductsInput> = {
       page: 1,
       colorId: color?._id,
       name: name,
       sizeId: size?._id,
     };
     setFilters({ ...filters, ...params });
-    setError(undefined);
-    setPagination({ ...pagination, current: 1 });
     onSearch({ ...filters, ...params });
   };
 
@@ -135,22 +106,17 @@ const ModalSearchProducts = ({
    * @param _ eventdos de los filtros
    * @param sorter evento de ordenamientos
    */
-  const handleChangeTable = (
-    paginationLocal: TablePaginationConfig,
-    // filtersData: Record<string, FilterValue | null>,
-    //sorter: SorterResult<PRODUCT.Product>,
-  ) => {
+  const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
     const { current } = paginationLocal;
     setFilters({ ...filters, page: current });
-    setPagination({ ...pagination, current });
     onSearch({ ...filters, page: current });
   };
 
-  const columns: ColumnsType<PRODUCT.Product> = [
+  const columns: ColumnsType<Product> = [
     {
       title: 'Producto',
       dataIndex: 'reference',
-      render: ({ name, description }: PRODUCT.Reference, { barcode }) => (
+      render: ({ name, description }: Reference, { barcode }) => (
         <Row>
           <Col span={24}>
             {name} / {description}
@@ -164,11 +130,12 @@ const ModalSearchProducts = ({
     {
       title: 'Color',
       dataIndex: 'color',
-      render: (color: COLOR.Color) => (
+      render: (color: Color) => (
         <>
           <Avatar
             size="small"
             style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
+            src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
           />
 
           <Text style={{ marginLeft: 10 }}>{color?.name_internal}</Text>
@@ -178,13 +145,13 @@ const ModalSearchProducts = ({
     {
       title: 'Talla',
       dataIndex: 'size',
-      render: (size: SIZE.Size) => size.value,
+      render: (size: Size) => size.value,
     },
     {
       title: 'Inventario',
       dataIndex: 'stock',
       align: 'center',
-      render: (stock: PRODUCT.Stock[]) =>
+      render: (stock: Stock[]) =>
         stock && (
           <Badge
             overflowCount={99999}
@@ -277,8 +244,11 @@ const ModalSearchProducts = ({
             <Table
               scroll={{ x: 1000 }}
               columns={columns}
-              dataSource={products}
-              pagination={pagination}
+              dataSource={data?.products?.docs as any}
+              pagination={{
+                current: data?.products?.page,
+                total: data?.products?.totalDocs,
+              }}
               onChange={handleChangeTable}
               loading={loading}
             />

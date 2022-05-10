@@ -1,75 +1,39 @@
-import { CREATEOUTPUT, UPDATEOUTPUT } from '@/graphql/mutations/output.mutations';
-import { OUTPUT, OUTPUTS } from '@/graphql/queries/output.queries';
 import { useLazyQuery, useMutation } from '@apollo/client';
 
-export const useCreateOutput = (
-  callback: (data: Partial<OUTPUT.Output>) => void,
-  showError: (message: string) => void,
-) => {
-  const [createOutput, { loading }] = useMutation(CREATEOUTPUT, {
-    onCompleted: (result) => callback(result.createStockOutput),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+import type { StockOutput } from '@/graphql/graphql';
+import {
+  CreateStockOutputDocument,
+  StockOutputDocument,
+  StockOutputsDocument,
+  UpdateStockOutputDocument,
+} from '@/graphql/graphql';
 
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    createOutput,
-    loadingCreate: loading,
-  };
+export const useGetOutput = () => {
+  return useLazyQuery(StockOutputDocument);
 };
 
-export const useGetOutput = (
-  callback: (data: Partial<OUTPUT.Output>) => void,
-  showError: (message: string) => void,
-) => {
-  const [getOutput, { loading }] = useLazyQuery(OUTPUT, {
-    onCompleted: (result) => callback(result?.stockOutputId),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    getOutput,
-    loading,
-  };
+export const useGetOutputs = () => {
+  return useLazyQuery(StockOutputsDocument);
 };
 
-export const useGetOutputs = (
-  callback: (data: Partial<OUTPUT.Response>) => void,
-  showError: (message: string) => void,
-) => {
-  const [getOutputs, { loading }] = useLazyQuery(OUTPUTS, {
-    onCompleted: (result) => callback(result?.stockOutputs),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    getOutputs,
-    loading,
-  };
+export const useCreateOutput = () => {
+  return useMutation(CreateStockOutputDocument);
 };
 
-export const useUpdateOutput = (
-  callback: (data: Partial<OUTPUT.Output>) => void,
-  showError: (message: string) => void,
-) => {
-  const [updateOutput, { loading }] = useMutation(UPDATEOUTPUT, {
-    onCompleted: (result) => callback(result.updateStockOutput),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
+export const useUpdateOutput = () => {
+  return useMutation(UpdateStockOutputDocument, {
+    update: (store, response) => {
+      const dataInStore = store.readQuery({ query: StockOutputDocument });
+      store.writeQuery({
+        query: StockOutputDocument,
+        data: {
+          ...dataInStore,
+          stockOutputId: {
+            ...dataInStore?.stockOutputId,
+            ...(response?.data?.updateStockOutput as StockOutput),
+          },
+        },
+      });
     },
   });
-  return {
-    updateOutput,
-    loadingUpdate: loading,
-  };
 };

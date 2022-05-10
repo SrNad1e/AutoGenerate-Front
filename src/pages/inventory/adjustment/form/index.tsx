@@ -7,16 +7,18 @@ import {
   FileTextOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-
 import { useHistory, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useGetAdjustment } from '@/hooks/adjustment.hooks';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { useReactToPrint } from 'react-to-print';
 import ReportAdjustment from '../reports/adjustment';
 import FormAdjustment from '../components/FormAdjustment';
+import type { StockAdjustment, Warehouse } from '@/graphql/graphql';
+import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
 
@@ -29,9 +31,7 @@ const AdjustmentForm = () => {
     type: 'error',
     visible: false,
   });
-  const [adjustment, setAdjustment] = useState<
-    Partial<ADJUSTMENT.Adjustment & ADJUSTMENT.CreateAdjustment>
-  >({
+  const [adjustment, setAdjustment] = useState<Partial<StockAdjustment>>({
     status: 'open',
   });
 
@@ -47,7 +47,8 @@ const AdjustmentForm = () => {
 
   const isNew = !id;
 
-  /** Funciones ejecutadas por los hooks */
+  const [getAdjustment, { loading, data }] = useGetAdjustment();
+  const [getWarehouseId] = useGetWarehouseId();
 
   /**
    * @description se encarga de abrir aviso de información
@@ -73,68 +74,68 @@ const AdjustmentForm = () => {
   };
 
   /**
-   * @description se encarga de cargar la entrada actual
-   * @param data datos de la entrada
+   * @description consulta la solicitud y almacena en memoria
    */
-  const currentAdjustment = (data: Partial<ADJUSTMENT.Adjustment>) => {
-    setAdjustment(data);
-  };
-
-  /**
-   * @description se encarga de administrar el error
-   * @param message mensaje de error
-   */
-  const showError = (message: string) => {
-    onShowError(message);
-  };
-
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getAdjustment, loading } = useGetAdjustment(currentAdjustment, showError);
-
-  /** Fin de Hooks para manejo de consultas */
-
-  /**
-   * @description se encarga de cambiar el paso y asignar la bodega
-   * @param warehouse bodega seleccionada
-   */
-  const changeCurrentStep = (warehouse: WAREHOUSE.Warehouse) => {
-    if (warehouse) {
-      setCurrentStep(1);
-
-      setAdjustment({
-        ...adjustment,
-        warehouse,
+  const getAdjustmentId = async () => {
+    try {
+      const response = await getAdjustment({
+        variables: {
+          id: id || '',
+        },
       });
-    } else {
-      setCurrentStep(0);
+
+      if (response?.data?.stockAdjustmentId) {
+        setAdjustment(response?.data?.stockAdjustmentId as StockAdjustment);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de cambiar el paso, consultar y asignar la bodega
+   * @param warehouseId identificador bodega seleccionada
+   */
+  const changeCurrentStep = async (warehouseId?: string) => {
+    try {
+      if (warehouseId) {
+        setCurrentStep(1);
+        const response = await getWarehouseId({
+          variables: {
+            warehouseId,
+          },
+        });
+
+        setAdjustment({
+          ...adjustment,
+          warehouse: response?.data?.warehouseId as Warehouse,
+        });
+      } else {
+        setCurrentStep(0);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
   };
 
   useEffect(() => {
     if (!isNew) {
-      getAdjustment({
-        variables: {
-          id,
-        },
-      });
+      getAdjustmentId();
     }
   }, [isNew]);
+
+  useEffect(() => {
+    if (data?.stockAdjustmentId) {
+      setAdjustment(data?.stockAdjustmentId as StockAdjustment);
+    }
+  }, [data]);
 
   const renderSteps = (step: number) => {
     switch (step) {
       case 0:
         return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
       case 1:
-        return (
-          <FormAdjustment
-            setAdjustment={setAdjustment}
-            adjustment={adjustment}
-            setCurrentStep={setCurrentStep}
-          />
-        );
+        return <FormAdjustment adjustment={adjustment} setCurrentStep={setCurrentStep} />;
       default:
         return <></>;
     }
@@ -184,11 +185,7 @@ const AdjustmentForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormAdjustment
-          setAdjustment={setAdjustment}
-          adjustment={adjustment}
-          setCurrentStep={setCurrentStep}
-        />
+        <FormAdjustment adjustment={adjustment} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />

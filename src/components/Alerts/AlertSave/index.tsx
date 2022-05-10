@@ -2,8 +2,8 @@ import { Button, Col, Modal, Row, Space, Typography } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined } from '@ant-design/icons';
 
 import { TypesAlert } from '../alert.data';
-import { useStyle } from '../styles';
 
+import { useStyle } from '../styles';
 import styles from './index.less';
 
 const { Title } = Typography;

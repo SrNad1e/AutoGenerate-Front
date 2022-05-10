@@ -1,13 +1,15 @@
 import { Affix, Card, Col, Row, Space, Button, Typography, Divider } from 'antd';
 
+import type { DetailRequest, StockRequest } from '@/graphql/graphql';
+
 import styles from '../styles.less';
 
 const { Title } = Typography;
 
 export type Props = {
-  request: Partial<REQUEST.Request> | undefined;
+  request: Partial<StockRequest> | undefined;
   saveRequest: (status?: string) => void;
-  details: Partial<REQUEST.DetailRequestProps[]>;
+  details: Partial<DetailRequest & { action: string }>[];
 };
 
 const Footer = ({ request, saveRequest, details }: Props) => {
@@ -43,7 +45,6 @@ const Footer = ({ request, saveRequest, details }: Props) => {
               danger={!!request?._id}
               onClick={() => saveRequest('cancelled')}
             >
-              {' '}
               Cancelar
             </Button>
           </Col>

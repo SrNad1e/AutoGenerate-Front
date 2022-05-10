@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
-import Table, { ColumnsType } from 'antd/lib/table';
+import Table from 'antd/lib/table';
 import {
   Badge,
   Button,
@@ -14,49 +16,52 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import { TablePaginationConfig } from 'antd/es/table/interface';
+import type {
+  ColumnsType,
+  FilterValue,
+  TablePaginationConfig,
+  SorterResult,
+} from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import { SorterResult } from 'antd/lib/table/interface';
-
+import { useReactToPrint } from 'react-to-print';
 import { useHistory, useLocation } from 'umi';
-import { useGetAdjustments } from '@/hooks/adjustment.hooks';
 import { useEffect, useRef, useState } from 'react';
+import numeral from 'numeral';
+import type { Location } from 'umi';
+
 import { StatusTypeAdjustment } from '../adjustment.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import numeral from 'numeral';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import TotalFound from '@/components/TotalFound';
 import ReportAdjustment from '../reports/adjustment';
-import { useReactToPrint } from 'react-to-print';
+import type {
+  DetailAdjustment,
+  FiltersStockAdjustmentsInput,
+  StockAdjustment,
+  Warehouse,
+} from '@/graphql/graphql';
+import { useGetAdjustments } from '@/hooks/adjustment.hooks';
 
 import styles from './styles.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export type FormValues = {
   status?: string;
   number?: number;
-  warehouse?: WAREHOUSE.Warehouse;
+  warehouseId?: string;
   dates?: Moment[];
 };
 
 const AdjustmentList = () => {
-  const [adjustments, setAdjustments] = useState<Partial<ADJUSTMENT.Adjustment[]>>([]);
-  const [adjustmentData, setAdjustmentData] = useState<Partial<ADJUSTMENT.Adjustment>>({});
+  const [adjustmentData, setAdjustmentData] = useState<Partial<StockAdjustment>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
-  const [totalPages, setTotalPages] = useState(0);
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    total: 0,
-    pageSize: 10,
-    current: 1,
-  });
-  const [error, setError] = useState<PropsAlertInformation>({
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
@@ -65,27 +70,25 @@ const AdjustmentList = () => {
   const [form] = Form.useForm();
 
   const history = useHistory();
-
-  const location = useLocation();
+  const location: Location = useLocation();
 
   const reportRef = useRef(null);
+
+  const [getAdjustments, { data, loading }] = useGetAdjustments();
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
 
-  /** Funciones ejecutadas por los hooks */
-
   /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
+   * @description se encarga de cerrar la alerta informativa
    */
-  const resultAdjustments = (data: Partial<ADJUSTMENT.Response>) => {
-    if (data) {
-      setAdjustments(data.docs || []);
-      setTotalPages(data?.totalPages || 0);
-      setPagination({ ...pagination, total: data.totalDocs });
-    }
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
   };
 
   /**
@@ -93,7 +96,7 @@ const AdjustmentList = () => {
    * @param message mensaje de error a mostrar
    */
   const messageError = (message: string) => {
-    setError({
+    setPropsAlertInformation({
       message,
       type: 'error',
       visible: true,
@@ -101,25 +104,10 @@ const AdjustmentList = () => {
   };
 
   /**
-   * @description se encarga de cerrar la alerta informativa
+   * @description se encarga de seleccionar el ajuste e imprime
+   * @param record ajuste
    */
-  const closeMessageError = () => {
-    setError({
-      message: '',
-      type: 'error',
-      visible: false,
-    });
-  };
-
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getAdjustments, loading } = useGetAdjustments(resultAdjustments, messageError);
-
-  /** Fin de Hooks para manejo de consultas */
-
-  const printPage = async (record: Partial<ADJUSTMENT.Adjustment>) => {
+  const printPage = async (record: Partial<StockAdjustment>) => {
     await setAdjustmentData(record);
     handlePrint();
   };
@@ -128,7 +116,7 @@ const AdjustmentList = () => {
    * @description se encarga de ejecutar la funcion para obtener los ajustes
    * @param params filtros necesarios para la busqueda
    */
-  const onSearch = (params?: Partial<ADJUSTMENT.FiltersGetAdjustment>) => {
+  const onSearch = (params?: FiltersStockAdjustmentsInput) => {
     getAdjustments({
       variables: {
         input: {
@@ -146,11 +134,11 @@ const AdjustmentList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouse, dates } = props;
+    const { status, number, warehouseId, dates } = props;
     try {
-      const params: Partial<ADJUSTMENT.FiltersGetAdjustment> = {
+      const params: Partial<FiltersStockAdjustmentsInput> = {
         page: pageCurrent || 1,
-        limit: pagination.pageSize,
+        limit: 10,
         status,
         number,
         sort: sort || { createdAt: -1 },
@@ -159,13 +147,12 @@ const AdjustmentList = () => {
       if (dates) {
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
-        params['dateFinal'] = dateFinal;
-        params['dateInitial'] = dateInitial;
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
       }
-      if (warehouse) {
-        params['warehouseId'] = warehouse?._id;
+      if (warehouseId) {
+        params.warehouseId = warehouseId;
       }
-      setPagination({ ...pagination, current: pageCurrent || 1 });
       onSearch(params);
 
       const datos = Object.keys(props)
@@ -174,8 +161,8 @@ const AdjustmentList = () => {
 
       form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error: any) {
+      messageError(error?.message);
     }
   };
 
@@ -186,8 +173,8 @@ const AdjustmentList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: any,
-    sorter: SorterResult<Partial<ADJUSTMENT.Adjustment>>,
+    _: Record<string, FilterValue | null>,
+    sorter: SorterResult<StockAdjustment> | SorterResult<StockAdjustment>[] | any,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -204,7 +191,6 @@ const AdjustmentList = () => {
       };
     }
 
-    setPagination({ ...pagination, current });
     onFinish(params, sort, current);
   };
 
@@ -214,11 +200,6 @@ const AdjustmentList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
-    setPagination({
-      total: 0,
-      pageSize: 10,
-      current: 1,
-    });
     onSearch({
       limit: 10,
       page: 1,
@@ -227,7 +208,7 @@ const AdjustmentList = () => {
   };
 
   useEffect(() => {
-    const queryParams = location['query'];
+    const queryParams: any = location?.query;
 
     const newFilters = {};
 
@@ -237,7 +218,7 @@ const AdjustmentList = () => {
     onFinish(newFilters);
   }, []);
 
-  const columns: ColumnsType<Partial<ADJUSTMENT.Adjustment>> = [
+  const columns: ColumnsType<StockAdjustment> = [
     {
       title: 'Número',
       dataIndex: 'number',
@@ -251,13 +232,13 @@ const AdjustmentList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouse: WAREHOUSE.Warehouse) => warehouse?.name,
+      render: (warehouse: Warehouse) => warehouse?.name,
     },
     {
       title: 'Referencia',
       dataIndex: 'details',
       align: 'center',
-      render: (details: ADJUSTMENT.DetailAdjustment[]) => details?.length,
+      render: (details: DetailAdjustment[]) => details?.length,
     },
     {
       title: 'Estado',
@@ -342,12 +323,7 @@ const AdjustmentList = () => {
           <Row gutter={[8, 8]} className={styles.form}>
             <Col xs={24} lg={4} xl={4} xxl={2}>
               <FormItem label="Número" name="number">
-                <InputNumber
-                  className={styles.item}
-                  disabled={loading}
-                  min={1}
-                  max={pagination.total}
-                />
+                <InputNumber className={styles.item} disabled={loading} min={1} />
               </FormItem>
             </Col>
             <Col xs={24} lg={5} xl={5} xxl={4}>
@@ -394,21 +370,24 @@ const AdjustmentList = () => {
           </Row>
         </Form>
       </Card>
-      <TotalFound
-        current={pagination.current || 0}
-        totalPages={totalPages}
-        total={pagination.total || 0}
-      />
       <Card>
+        <Col span={24} style={{ textAlign: 'right' }}>
+          <Text strong>Total Encontrados:</Text> {data?.stockAdjustments?.totalDocs}{' '}
+          <Text strong>Páginas: </Text> {data?.stockAdjustments?.page} /{' '}
+          {data?.stockAdjustments?.totalPages || 0}
+        </Col>
         <Table
           columns={columns}
-          dataSource={adjustments}
-          pagination={pagination}
+          dataSource={data?.stockAdjustments?.docs as any}
+          pagination={{
+            current: data?.stockAdjustments?.page,
+            total: data?.stockAdjustments?.totalDocs,
+          }}
           onChange={handleChangeTable}
           loading={loading}
         />
       </Card>
-      <AlertInformation {...error} onCancel={closeMessageError} />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>
         <ReportAdjustment ref={reportRef} data={adjustmentData} />
       </div>
