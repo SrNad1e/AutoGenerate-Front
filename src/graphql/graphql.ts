@@ -36,20 +36,24 @@ export type Address = {
   __typename?: 'Address';
   /** Ciudad a la que pertenece */
   city: City;
+  /** Contacto para el envío */
+  contact: Scalars['String'];
   /** Datos extra de la dirección */
   extra?: Maybe<Scalars['String']>;
   /** Tipo de ubicación (Calle, Avenida, Manzana, Etc) */
   field1: Scalars['String'];
-  /** Tipo de ubicación (Calle, Avenida, Manzana, Etc) */
-  field2: Scalars['String'];
   /** Define si la dirección es la principal */
   isMain?: Maybe<Scalars['Boolean']>;
   /** Número de la casa */
   loteNumber: Scalars['Float'];
+  /** Barrio */
+  neighborhood: Scalars['String'];
   /** Número del field1 */
-  number1: Scalars['Float'];
+  number1: Scalars['String'];
   /** Número del field2 */
-  number2: Scalars['Float'];
+  number2: Scalars['String'];
+  /** Teléfono del contacto */
+  phone: Scalars['String'];
 };
 
 /** Atributo del producto */
@@ -100,8 +104,8 @@ export type CategoryLevel1 = {
   __typename?: 'CategoryLevel1';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Categorías inferiores */
-  childs?: Maybe<CategoryLevel2[]>;
+  /** Nombre de la categoría */
+  childs: CategoryLevel2[];
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -123,6 +127,8 @@ export type CategoryLevel2 = {
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
   name: Scalars['String'];
+  /** Identificador de la categoría padre */
+  parentId?: Maybe<Scalars['String']>;
   /** Fecha de actualización de la categoría */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la categoría */
@@ -138,6 +144,8 @@ export type CategoryLevel3 = {
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
   name: Scalars['String'];
+  /** Identificador de la categoría padre */
+  parentId?: Maybe<Scalars['String']>;
   /** Fecha de actualización de la categoría */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la categoría */
@@ -149,10 +157,14 @@ export type City = {
   __typename?: 'City';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** País */
+  country: Scalars['String'];
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Nombre de la ciudad */
   name: Scalars['String'];
+  /** Departamento */
+  state: Scalars['String'];
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la ciudad */
@@ -229,7 +241,7 @@ export type CreateBrandInput = {
 /** Datos para la creación de una categoría */
 export type CreateCategoryInput = {
   /** Nivel de la categoría */
-  level?: InputMaybe<Scalars['Float']>;
+  level: Scalars['Float'];
   /** Nombre de la categoría */
   name: Scalars['String'];
   /** Identificador de la categoría padre */
@@ -677,6 +689,22 @@ export type FiltersCategoriesInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortCategories>;
+};
+
+/** Filtros para obtener las ciudades */
+export type FiltersCitiesInput = {
+  /** Nombre del país */
+  country?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Nombre de la ciudad */
+  name?: InputMaybe<Scalars['String']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortCity>;
+  /** Nombre del departamento */
+  state?: InputMaybe<Scalars['String']>;
 };
 
 /** Filtros para la lista de colores */
@@ -1240,6 +1268,10 @@ export type Order = {
   __typename?: 'Order';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Usuario que creó o editó el pedido */
+  address?: Maybe<Address>;
+  /** Empresa a la que perteneces el pedido */
+  company: Company;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Cliente que solicita el pedido */
@@ -1388,6 +1420,8 @@ export type Query = {
   brands: ResponseBrands;
   /** Lista las categorías */
   categories: ResponseCategories;
+  /** Listado de ciudades */
+  cities: ResponseCities;
   /** Lista los colores */
   colors: ResponseColors;
   /** Se encarga de obtener el usuario dependiendo del token enviado */
@@ -1450,6 +1484,10 @@ export type QueryBrandsArgs = {
 
 export type QueryCategoriesArgs = {
   filtersCategoriesInput?: InputMaybe<FiltersCategoriesInput>;
+};
+
+export type QueryCitiesArgs = {
+  filtersCitiesInput?: InputMaybe<FiltersCitiesInput>;
 };
 
 export type QueryColorsArgs = {
@@ -1703,6 +1741,30 @@ export type ResponseCategories = {
   totalPages: Scalars['Float'];
 };
 
+/** Respuesta del listado de ciudades */
+export type ResponseCities = {
+  __typename?: 'ResponseCities';
+  /** Lista de ciudades */
+  docs: City[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta al listado de los colores */
 export type ResponseColors = {
   __typename?: 'ResponseColors';
@@ -1736,7 +1798,7 @@ export type ResponseCustomers = {
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
   hasPrevPage: Scalars['Boolean'];
-  /** Total de docuementos solicitados */
+  /** Total de documentos solicitados */
   limit: Scalars['Float'];
   /** Página siguente */
   nextPage: Scalars['Float'];
@@ -2132,6 +2194,20 @@ export type SortCategories = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de la ciudad */
+export type SortCity = {
+  /** ordernamiento por país */
+  country?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por documento */
+  name?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por estado */
+  state?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento para el listado de colores */
 export type SortColor = {
   active?: InputMaybe<Scalars['Float']>;
@@ -2143,21 +2219,21 @@ export type SortColor = {
 
 /** Ordenamiento del cliente */
 export type SortCustomer = {
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por estado del cliente */
   active: Scalars['Float'];
   /** ordernamiento por documento */
   document: Scalars['Float'];
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por correo */
   email: Scalars['Float'];
   /** ordernamiento por nombre */
   firstName: Scalars['Float'];
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por si es por defecto */
   isDefault: Scalars['Float'];
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por si tiene whatsapp */
   isWhatsapp: Scalars['Float'];
   /** ordernamiento por apellido */
   lastName: Scalars['Float'];
-  /** ordernamiento por docuemnto */
+  /** ordernamiento por teléfono */
   phone: Scalars['Float'];
 };
 
@@ -2851,6 +2927,69 @@ export type UpdateBrandMutation = {
   };
 };
 
+export type CreateCategoryMutationVariables = Exact<{
+  input: CreateCategoryInput;
+}>;
+
+export type CreateCategoryMutation = {
+  __typename?: 'Mutation';
+  createCategory: {
+    __typename?: 'CategoryLevel1';
+    _id: string;
+    createdAt: any;
+    updatedAt: any;
+    name: string;
+    childs: {
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel3';
+            _id: string;
+            name: string;
+            createdAt: any;
+            updatedAt: any;
+          }[]
+        | null;
+    }[];
+  };
+};
+
+export type UpdateCategoryMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateCategoryInput;
+}>;
+
+export type UpdateCategoryMutation = {
+  __typename?: 'Mutation';
+  updateCategory: {
+    __typename?: 'CategoryLevel1';
+    _id: string;
+    createdAt: any;
+    updatedAt: any;
+    name: string;
+    childs: {
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel3';
+            _id: string;
+            name: string;
+            createdAt: any;
+            updatedAt: any;
+          }[]
+        | null;
+    }[];
+  };
+};
+
 export type CreateColorMutationVariables = Exact<{
   input: CreateColorInput;
 }>;
@@ -3511,6 +3650,46 @@ export type BrandsQuery = {
       createdAt: any;
       updatedAt: any;
       name: string;
+    }[];
+  };
+};
+
+export type CategoriesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersCategoriesInput>;
+}>;
+
+export type CategoriesQuery = {
+  __typename?: 'Query';
+  categories: {
+    __typename?: 'ResponseCategories';
+    totalDocs: number;
+    limit: number;
+    page: number;
+    totalPages: number;
+    docs: {
+      __typename?: 'CategoryLevel1';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+      childs: {
+        __typename?: 'CategoryLevel2';
+        _id: string;
+        parentId?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        name: string;
+        childs?:
+          | {
+              __typename?: 'CategoryLevel3';
+              _id: string;
+              parentId?: string | null;
+              createdAt: any;
+              updatedAt: any;
+              name: string;
+            }[]
+          | null;
+      }[];
     }[];
   };
 };
@@ -4551,6 +4730,161 @@ export const UpdateBrandDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateBrandMutation, UpdateBrandMutationVariables>;
+export const CreateCategoryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createCategory' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateCategoryInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createCategory' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createCategoryInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'childs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateCategoryMutation, CreateCategoryMutationVariables>;
+export const UpdateCategoryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateCategory' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateCategoryInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateCategory' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateCategoryInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'childs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateCategoryMutation, UpdateCategoryMutationVariables>;
 export const CreateColorDocument = {
   kind: 'Document',
   definitions: [
@@ -6800,6 +7134,89 @@ export const BrandsDocument = {
     },
   ],
 } as unknown as DocumentNode<BrandsQuery, BrandsQueryVariables>;
+export const CategoriesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'categories' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCategoriesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'categories' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCategoriesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'limit' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'childs' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CategoriesQuery, CategoriesQueryVariables>;
 export const ColorsDocument = {
   kind: 'Document',
   definitions: [

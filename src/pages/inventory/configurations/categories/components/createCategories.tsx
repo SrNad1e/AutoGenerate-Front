@@ -1,20 +1,25 @@
-import { Alert, Form, Input, Modal } from 'antd';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Alert, Form, Input, InputNumber, Modal } from 'antd';
 import FormItem from 'antd/lib/form/FormItem';
 
 import { useState } from 'react';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import type { CategoryLevel1, CategoryLevel2, CategoryLevel3 } from '@/graphql/graphql';
+import { useCreateCategory, useUpdateCategory } from '@/hooks/category.hooks';
+import SelectCategory from '@/components/SelectCategory';
 //import AlertLoading from '@/components/Alerts/AlertLoading';
 
 export type Props = {
   modalVisible: boolean;
-  current?: Partial<CATEGORY.CategoryLevel1>;
+  level: number;
+  current?: Partial<CategoryLevel1 | CategoryLevel2 | CategoryLevel3>;
   onCancel: () => void;
   error?: string | null;
   onOk?: () => void;
 };
 
-const CreateCategory = ({ current, modalVisible, onCancel }: Props) => {
+const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => {
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -25,17 +30,8 @@ const CreateCategory = ({ current, modalVisible, onCancel }: Props) => {
   const [form] = Form.useForm();
   const isNew = !current?._id;
 
-  /** Funciones ejecutadas por los hooks */
-
-  /**
-     * @description funcion usada por los hooks para mostrar la alerta de creacion
-  
-  
-    /** Fin de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  /** Fin de Hooks para manejo de consultas */
+  const [CreateCategory /* propsCreate*/] = useCreateCategory();
+  const [UpdateCategory /*propsUpdate*/] = useUpdateCategory();
 
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
@@ -44,6 +40,14 @@ const CreateCategory = ({ current, modalVisible, onCancel }: Props) => {
     await onCancel();
     setError('');
     form.resetFields();
+  };
+
+  const showError = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'warning',
+      visible: true,
+    });
   };
 
   /**
@@ -55,7 +59,69 @@ const CreateCategory = ({ current, modalVisible, onCancel }: Props) => {
       type: 'error',
       visible: false,
     });
-    closeAndClear();
+    if (alertInformation.message !== 'Complete los campos') {
+      closeAndClear();
+    }
+  };
+
+  const editCategory = async () => {
+    try {
+      const values = form.getFieldsValue();
+      let errorLocal = 'No hay cambios para aplicar';
+
+      Object.keys(values).forEach((i) => {
+        if (values[i] !== (current && current[i])) {
+          errorLocal = '';
+          return;
+        }
+      });
+      if (errorLocal) {
+        setError(errorLocal);
+      } else {
+        const response = await UpdateCategory({
+          variables: {
+            input: values,
+            id: current?._id || '',
+          },
+        });
+        if (response?.data?.updateCategory) {
+          setAlertInformation({
+            message: `Categoria ${response?.data?.updateCategory?.name} actualizada correctamente`,
+            type: 'success',
+            visible: true,
+          });
+        }
+      }
+    } catch (e: any) {
+      showError(e?.message);
+    }
+  };
+
+  const createNewCategory = async () => {
+    try {
+      form.getFieldsValue();
+      const values = await form.validateFields();
+
+      console.log(values);
+
+      const response = await CreateCategory({
+        variables: {
+          input: values,
+        },
+      });
+      if (response?.data?.createCategory) {
+        setAlertInformation({
+          message: `Categoria ${response?.data?.createCategory?.name} creada correctamente`,
+          type: 'success',
+          visible: true,
+        });
+      }
+    } catch (e: any) {
+      showError(e.message);
+      if (e.message === undefined) {
+        showError('Complete los campos');
+      }
+    }
   };
 
   return (
@@ -66,17 +132,30 @@ const CreateCategory = ({ current, modalVisible, onCancel }: Props) => {
       title={isNew ? 'Nuevo' : 'Editar'}
       visible={modalVisible}
       onCancel={() => closeAndClear()}
-      onOk={() => {}}
+      onOk={() => (isNew ? createNewCategory() : editCategory())}
     >
       <Form form={form} initialValues={current}>
+        {level > 1 && !isNew && (
+          <FormItem
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 12 }}
+            label="Categoria Padre"
+            name="parentCategoryId"
+          >
+            <SelectCategory />
+          </FormItem>
+        )}
         <FormItem
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 12 }}
-          label="Categoria"
+          label="Nombre"
           name="name"
           rules={[{ required: true, message: 'Nombre de Categoria obligatorio', min: 1 }]}
         >
           <Input placeholder="" autoFocus maxLength={45} />
+        </FormItem>
+        <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Nivel" name="level">
+          <InputNumber />
         </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
@@ -86,4 +165,4 @@ const CreateCategory = ({ current, modalVisible, onCancel }: Props) => {
   );
 };
 
-export default CreateCategory;
+export default CreateCategories;
