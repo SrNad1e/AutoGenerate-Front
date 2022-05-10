@@ -2,6 +2,7 @@
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
+  Avatar,
   Badge,
   Button,
   Card,
@@ -10,53 +11,51 @@ import {
   Input,
   Row,
   Space,
-  Table,
   Tooltip,
   Typography,
 } from 'antd';
-import moment from 'moment';
-import { useEffect, useState } from 'react';
-import type { Location } from 'umi';
-import { useLocation, useHistory } from 'umi';
-import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
+import type { SorterResult } from 'antd/lib/table/interface';
+import FormItem from 'antd/lib/form/FormItem';
+import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
+import Table from 'antd/lib/table';
+import Title from 'antd/lib/typography/Title';
 
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import { useGetColors } from '@/hooks/color.hooks';
+import { useEffect, useState } from 'react';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { useGetAttribs } from '@/hooks/attrib.hooks';
-import CreateAttrib from '@/components/CreateAttrib';
-import type { Attrib, FiltersAttribsInput } from '@/graphql/graphql';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import moment from 'moment';
+import type { Location } from 'umi';
+import { history, useLocation } from 'umi';
+import CreateColors from '@/components/CreateColor';
+import type { Color, FiltersColorsInput } from '@/graphql/graphql';
 
 import styles from './styles.less';
-
-const FormItem = Form.Item;
 
 type FormData = {
   name?: string;
   active?: boolean;
 };
 
-const AttribsList = () => {
-  const [attrib, setAttrib] = useState<Partial<Attrib>>({});
+const ColorsList = () => {
+  const [color, setColor] = useState<Partial<Color>>({});
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
   const [visible, setVisible] = useState(false);
-  const [sorterTable, setSorterTable] = useState<SorterResult<FiltersAttribsInput>>({});
+  const [sorterTable, setSorterTable] = useState<SorterResult<FiltersColorsInput>>({});
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
 
-  const { Text, Title } = Typography;
-
+  const { Text } = Typography;
   const [form] = Form.useForm();
-
   const location: Location = useLocation();
-  const history = useHistory();
 
-  const [getAttribs, { data, loading }] = useGetAttribs();
+  const [getColors, { data, loading }] = useGetColors();
 
   /**
-   * @description funcion usada por los hooks para mostrar los errores
+   * @description funcion usada para mostrar los errores
    * @param message mensaje de error a mostrar
    */
   const showError = (message: string) => {
@@ -79,12 +78,12 @@ const AttribsList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener los atributos
+   * @description se encarga de ejecutar la funcion para obtener los colores
    * @param values Variables para ejecutar la consulta
    */
-  const onSearch = (values?: FiltersAttribsInput) => {
+  const onSearch = (values?: FiltersColorsInput) => {
     try {
-      getAttribs({
+      getColors({
         variables: {
           input: {
             ...values,
@@ -97,27 +96,23 @@ const AttribsList = () => {
   };
 
   /**
-   * @description se encarga de abrir el modal de actualizacion o creacion de los atributos
-   * @param attribData propiedades del objeto para setear
+   * @description se encarga de abrir el modal de actualizacion o creacion del color
+   * @param colorData propiedades del objeto para setear
    */
-  const visibleModal = (attribData: Partial<Attrib>) => {
-    setAttrib(attribData || {});
+  const visibleModal = (colorData: Partial<Color>) => {
+    setColor(colorData || {});
     setVisible(true);
   };
 
   /**
-   * @description se encarga de cerrar el modal de actualizacion o creacion de los atributos
+   * @description se encarga de cerrar el modal de actualizacion o creacion del color
    */
   const closeModal = async () => {
-    await setAttrib({});
+    await setColor({});
     setVisible(false);
   };
 
-  /**
-   * @description se encarga de crear los parámetros para la url
-   * @param values
-   */
-  const setQueryParams = (values?: FiltersAttribsInput) => {
+  const setQueryParams = (values?: FiltersColorsInput) => {
     try {
       const valuesForm = form.getFieldsValue();
 
@@ -170,7 +165,7 @@ const AttribsList = () => {
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filterArg: Record<string, any>,
-    sorter: SorterResult<Partial<Attrib>> | any,
+    sorter: SorterResult<Partial<Color>> | any,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
@@ -245,7 +240,7 @@ const AttribsList = () => {
       <Row gutter={[8, 8]}>
         <Col span={12}>
           <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Nombre" autoComplete="off" />
+            <Input placeholder="Nombre del color" autoComplete="off" />
           </FormItem>
         </Col>
       </Row>
@@ -262,19 +257,37 @@ const AttribsList = () => {
     </Form>
   );
 
-  const columns: ColumnsType<Partial<Attrib>> = [
+  const columns: ColumnsType<Partial<Color>> = [
     {
       title: 'Nombre',
       dataIndex: 'name',
-      align: 'center',
       sorter: true,
+      sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
       showSorterTooltip: false,
-      sortOrder: sorterTable.field === 'name' ? sorterTable.order : undefined,
+      render: (name: string, { image, html }) => (
+        <>
+          <Avatar
+            style={{
+              border: image ? 'solid 1px black' : '',
+              backgroundColor: 'white',
+            }}
+            src={`${CDN_URL}/${image?.urls?.webp?.small}`}
+          />
+          <Avatar
+            style={{ backgroundColor: html, border: 'solid 1px black', marginLeft: 10 }}
+            shape="square"
+          />
+          <Text style={{ marginLeft: 10 }}>{name}</Text>
+        </>
+      ),
+    },
+    {
+      title: 'Nombre Interno',
+      dataIndex: 'name_internal',
     },
     {
       title: 'Activo',
       dataIndex: 'active',
-      align: 'center',
       render: (active: boolean) => {
         return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
       },
@@ -313,10 +326,10 @@ const AttribsList = () => {
       title: 'Acción',
       dataIndex: '_id',
       align: 'center',
-      render: (_: string, AttribID) => (
+      render: (_: string, colorID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
-            onClick={() => visibleModal(AttribID)}
+            onClick={() => visibleModal(colorID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
           />
@@ -330,7 +343,7 @@ const AttribsList = () => {
       title={
         <Space>
           <Title level={4} style={{ margin: 0 }}>
-            Atributos
+            Colores
           </Title>
         </Space>
       }
@@ -344,32 +357,33 @@ const AttribsList = () => {
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
-                onClick={() => visibleModal(attrib)}
+                onClick={() => visibleModal(color)}
               >
                 Nuevo
               </Button>
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
-              <Text strong>Total Encontrados:</Text> {data?.attribs?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.attribs?.page} / {data?.attribs?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.colors.totalDocs}{' '}
+              <Text strong>Páginas: </Text> {data?.colors.page} / {data?.colors.totalPages || 0}
             </Col>
           </Row>
           <Table
             columns={columns}
-            dataSource={data?.attribs?.docs}
+            dataSource={data?.colors.docs}
             pagination={{
-              current: data?.attribs?.page,
-              total: data?.attribs?.totalDocs,
+              current: data?.colors.page,
+              total: data?.colors.totalDocs,
+              showSizeChanger: false,
             }}
             loading={loading}
             onChange={handleChangeTable}
           />
         </div>
       </Card>
-      <CreateAttrib modalVisible={visible} onCancel={closeModal} current={attrib} />
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <CreateColors modalVisible={visible} onCancel={closeModal} current={color} />
     </PageContainer>
   );
 };
 
-export default AttribsList;
+export default ColorsList;

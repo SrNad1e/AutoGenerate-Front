@@ -182,6 +182,11 @@ export default defineConfig({
                   path: '/inventory/configurations/brand',
                   component: './inventory/configurations/brand/list',
                 },
+                {
+                  name: 'Colores',
+                  path: '/inventory/configurations/color',
+                  component: './inventory/configurations/color/list',
+                },
               ],
             },
           ],
