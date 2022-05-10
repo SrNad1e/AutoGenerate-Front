@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useGetBrands } from '@/hooks/brand.hooks';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useEffect, useState } from 'react';
@@ -10,7 +11,6 @@ export type Props = {
 };
 
 const SelectBrand = ({ onChange, value }: Props) => {
-  const [brands, setBrands] = useState<Partial<BRAND.Brand[]>>([]);
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -18,18 +18,6 @@ const SelectBrand = ({ onChange, value }: Props) => {
   });
 
   const { Option } = Select;
-
-  const resultBrands = (brandData: Partial<BRAND.ResponseBrands>) => {
-    setBrands(brandData.docs || []);
-  };
-
-  const showError = (message: string) => {
-    setAlertInformation({
-      message,
-      type: 'error',
-      visible: true,
-    });
-  };
 
   const closeAlertInformation = () => {
     setAlertInformation({
@@ -39,7 +27,7 @@ const SelectBrand = ({ onChange, value }: Props) => {
     });
   };
 
-  const { getBrands, loadingGet } = useGetBrands(resultBrands, showError);
+  const [getBrands, { data, loading }] = useGetBrands();
 
   const onSearchLocal = (name?: string) => {
     getBrands({
@@ -60,14 +48,14 @@ const SelectBrand = ({ onChange, value }: Props) => {
         showSearch
         optionFilterProp="children"
         allowClear
-        loading={loadingGet}
+        loading={loading}
         style={{ width: '80%' }}
         placeholder="Seleccionar Marca"
         onChange={onChange}
         onSearch={onSearchLocal}
         value={value}
       >
-        {brands.map((brand) => (
+        {data?.brands.docs.map((brand) => (
           <Option key={brand?._id?.toString()}>{brand?.name}</Option>
         ))}
       </Select>

@@ -56,6 +56,30 @@ export type Address = {
   phone: Scalars['String'];
 };
 
+/** Dirección del cliente */
+export type AddressInput = {
+  /** Identificador de la ciudad */
+  cityId: Scalars['String'];
+  /** Contacto para el envío */
+  contact: Scalars['String'];
+  /** Datos extra de la dirección */
+  extra?: InputMaybe<Scalars['String']>;
+  /** Tipo de ubicación (Calle, Avenida, Manzana, Etc) */
+  field1: Scalars['String'];
+  /** Define si la dirección es la principal */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Número de la casa */
+  loteNumber: Scalars['Float'];
+  /** Barrio */
+  neighborhood: Scalars['String'];
+  /** Número del field1 */
+  number1: Scalars['String'];
+  /** Número del field2 */
+  number2: Scalars['String'];
+  /** Teléfono del contacto */
+  phone: Scalars['String'];
+};
+
 /** Atributo del producto */
 export type Attrib = {
   __typename?: 'Attrib';
@@ -1100,6 +1124,8 @@ export type Mutation = {
   updateCategory: CategoryLevel1;
   /** Actualiza el color */
   updateColor: Color;
+  /** Se encarga actualizar un cliente */
+  updateCustomer: Customer;
   /** Se encarga actualizar un pedido */
   updateOrder: Order;
   /** Se encarga actualizar un producto */
@@ -1211,6 +1237,11 @@ export type MutationUpdateCategoryArgs = {
 export type MutationUpdateColorArgs = {
   id: Scalars['String'];
   updateColorInput: UpdateColorInput;
+};
+
+export type MutationUpdateCustomerArgs = {
+  id: Scalars['String'];
+  updateCustomerInput: UpdateCustomerInput;
 };
 
 export type MutationUpdateOrderArgs = {
@@ -2064,7 +2095,7 @@ export type Role = {
   changeWarehouse: Scalars['Boolean'];
   /** Fecha de creación del rol */
   createdAt: Scalars['DateTime'];
-  /** Nombre asiganado al rol */
+  /** Nombre asignado al rol */
   name: Scalars['String'];
   /** Permisos al los quie tiene el rol */
   permissions: Permission[];
@@ -2601,6 +2632,32 @@ export type UpdateColorInput = {
   name_internal?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para actualizar un cliente */
+export type UpdateCustomerInput = {
+  /** Direcciones del cliente */
+  addresses?: InputMaybe<AddressInput[]>;
+  /** Fecha de nacimiento */
+  birthday?: InputMaybe<Scalars['DateTime']>;
+  /** Identificación de tipo de cliente */
+  customerTypeId?: InputMaybe<Scalars['String']>;
+  /** Número de documento */
+  document?: InputMaybe<Scalars['String']>;
+  /** Identificación del tipo de documento */
+  documentTypeId?: InputMaybe<Scalars['String']>;
+  /** Correo del cliente */
+  email?: InputMaybe<Scalars['String']>;
+  /** Nombres del cliente */
+  firstName?: InputMaybe<Scalars['String']>;
+  /** Es el cliente por defecto, solo debe existir uno */
+  isDefault?: InputMaybe<Scalars['Boolean']>;
+  /** El teléfono tiene whatsapp */
+  isWhatsapp?: InputMaybe<Scalars['Boolean']>;
+  /** Apellidos del cliente */
+  lastName?: InputMaybe<Scalars['String']>;
+  /** Número de teléfono */
+  phone?: InputMaybe<Scalars['String']>;
+};
+
 /** Datos para actualizar el pedido */
 export type UpdateOrderInput = {
   /** Identificación del cliente */
@@ -2944,6 +3001,7 @@ export type CreateCategoryMutation = {
       _id: string;
       createdAt: any;
       updatedAt: any;
+      parentId?: string | null;
       name: string;
       childs?:
         | {
@@ -2952,6 +3010,7 @@ export type CreateCategoryMutation = {
             name: string;
             createdAt: any;
             updatedAt: any;
+            parentId?: string | null;
           }[]
         | null;
     }[];
@@ -2976,6 +3035,7 @@ export type UpdateCategoryMutation = {
       _id: string;
       createdAt: any;
       updatedAt: any;
+      parentId?: string | null;
       name: string;
       childs?:
         | {
@@ -2984,6 +3044,7 @@ export type UpdateCategoryMutation = {
             name: string;
             createdAt: any;
             updatedAt: any;
+            parentId?: string | null;
           }[]
         | null;
     }[];
@@ -3377,6 +3438,149 @@ export type UpdateStockOutputMutation = {
     }[];
     user: { __typename?: 'User'; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
+  };
+};
+
+export type CreateReferenceMutationVariables = Exact<{
+  input: CreateReferenceInput;
+}>;
+
+export type CreateReferenceMutation = {
+  __typename?: 'Mutation';
+  createReference: {
+    __typename?: 'Reference';
+    _id: string;
+    active: boolean;
+    changeable: boolean;
+    cost: number;
+    createdAt: any;
+    updatedAt: any;
+    description: string;
+    name: string;
+    price: number;
+    attribs: { __typename?: 'Attrib'; _id: string; active: boolean; name: string }[];
+    brand: { __typename?: 'Brand'; _id: string; active: boolean; name: string };
+    shipping: {
+      __typename?: 'Shipping';
+      height: number;
+      long: number;
+      volume: number;
+      width: number;
+      weight: number;
+    };
+    categoryLevel1: {
+      __typename?: 'CategoryLevel1';
+      _id: string;
+      name: string;
+      createdAt: any;
+      updatedAt: any;
+      childs: {
+        __typename?: 'CategoryLevel2';
+        _id: string;
+        name: string;
+        createdAt: any;
+        updatedAt: any;
+        parentId?: string | null;
+      }[];
+    };
+    categoryLevel2: {
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      name: string;
+      parentId?: string | null;
+      createdAt: any;
+      updatedAt: any;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel3';
+            _id: string;
+            name: string;
+            createdAt: any;
+            updatedAt: any;
+            parentId?: string | null;
+          }[]
+        | null;
+    };
+    categoryLevel3: {
+      __typename?: 'CategoryLevel3';
+      _id: string;
+      name: string;
+      createdAt: any;
+      updatedAt: any;
+      parentId?: string | null;
+    };
+  };
+};
+
+export type UpdateReferenceMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateReferenceInput;
+}>;
+
+export type UpdateReferenceMutation = {
+  __typename?: 'Mutation';
+  updateReference: {
+    __typename?: 'Reference';
+    _id: string;
+    active: boolean;
+    changeable: boolean;
+    cost: number;
+    createdAt: any;
+    description: string;
+    name: string;
+    price: number;
+    updatedAt: any;
+    shipping: {
+      __typename?: 'Shipping';
+      height: number;
+      long: number;
+      volume: number;
+      width: number;
+      weight: number;
+    };
+    brand: { __typename?: 'Brand'; _id: string; active: boolean; name: string };
+    attribs: { __typename?: 'Attrib'; _id: string; active: boolean; name: string }[];
+    categoryLevel1: {
+      __typename?: 'CategoryLevel1';
+      _id: string;
+      name: string;
+      createdAt: any;
+      updatedAt: any;
+      childs: {
+        __typename?: 'CategoryLevel2';
+        _id: string;
+        name: string;
+        createdAt: any;
+        updatedAt: any;
+        parentId?: string | null;
+      }[];
+    };
+    categoryLevel2: {
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      name: string;
+      parentId?: string | null;
+      createdAt: any;
+      updatedAt: any;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel3';
+            _id: string;
+            name: string;
+            createdAt: any;
+            updatedAt: any;
+            parentId?: string | null;
+          }[]
+        | null;
+    };
+    categoryLevel3: {
+      __typename?: 'CategoryLevel3';
+      _id: string;
+      name: string;
+      createdAt: any;
+      updatedAt: any;
+      parentId?: string | null;
+    };
   };
 };
 
@@ -4147,6 +4351,110 @@ export type ProductQuery = {
   };
 };
 
+export type ReferenceIdQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+export type ReferenceIdQuery = {
+  __typename?: 'Query';
+  referenceId: {
+    __typename?: 'Reference';
+    _id: string;
+    active: boolean;
+    changeable: boolean;
+    cost: number;
+    description: string;
+    name: string;
+    price: number;
+    attribs: {
+      __typename?: 'Attrib';
+      _id: string;
+      active: boolean;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+    }[];
+    brand: { __typename?: 'Brand'; _id: string; active: boolean; name: string };
+    categoryLevel1: {
+      __typename?: 'CategoryLevel1';
+      _id: string;
+      name: string;
+      createdAt: any;
+      updatedAt: any;
+      childs: {
+        __typename?: 'CategoryLevel2';
+        _id: string;
+        name: string;
+        createdAt: any;
+        updatedAt: any;
+        parentId?: string | null;
+      }[];
+    };
+    categoryLevel2: {
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      name: string;
+      parentId?: string | null;
+      createdAt: any;
+      updatedAt: any;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel3';
+            _id: string;
+            name: string;
+            createdAt: any;
+            updatedAt: any;
+            parentId?: string | null;
+          }[]
+        | null;
+    };
+    categoryLevel3: {
+      __typename?: 'CategoryLevel3';
+      _id: string;
+      name: string;
+      createdAt: any;
+      updatedAt: any;
+      parentId?: string | null;
+    };
+    shipping: {
+      __typename?: 'Shipping';
+      createdAt: any;
+      updatedAt: any;
+      height: number;
+      long: number;
+      volume: number;
+      width: number;
+    };
+  };
+};
+
+export type ReferencesQueryVariables = Exact<{
+  id: Scalars['String'];
+  input?: InputMaybe<FiltersReferencesInput>;
+}>;
+
+export type ReferencesQuery = {
+  __typename?: 'Query';
+  references: {
+    __typename?: 'ResponseReferences';
+    page: number;
+    totalDocs: number;
+    totalPages: number;
+    limit: number;
+    docs: {
+      __typename?: 'ReferenceData';
+      name: string;
+      active: boolean;
+      cost: number;
+      price: number;
+      createdAt: any;
+      updatedAt: any;
+      description: string;
+      brand: { __typename?: 'Brand'; name: string; _id: string };
+    }[];
+  };
+};
+
 export type StockRequestQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
@@ -4776,6 +5084,7 @@ export const CreateCategoryDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       {
                         kind: 'Field',
@@ -4787,6 +5096,7 @@ export const CreateCategoryDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                           ],
                         },
                       },
@@ -4860,6 +5170,7 @@ export const UpdateCategoryDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       {
                         kind: 'Field',
@@ -4871,6 +5182,7 @@ export const UpdateCategoryDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                           ],
                         },
                       },
@@ -6215,6 +6527,333 @@ export const UpdateStockOutputDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateStockOutputMutation, UpdateStockOutputMutationVariables>;
+export const CreateReferenceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createReference' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateReferenceInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createReference' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createReferenceInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'changeable' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'attribs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'brand' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'shipping' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'height' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'long' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'volume' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'width' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'weight' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'categoryLevel1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'categoryLevel2' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'categoryLevel3' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateReferenceMutation, CreateReferenceMutationVariables>;
+export const UpdateReferenceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateReference' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateReferenceInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateReference' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateReferenceInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'changeable' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'shipping' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'height' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'long' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'volume' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'width' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'weight' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'brand' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'attribs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'categoryLevel1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'categoryLevel2' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'categoryLevel3' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateReferenceMutation, UpdateReferenceMutationVariables>;
 export const CreateStockRequestDocument = {
   kind: 'Document',
   definitions: [
@@ -8707,6 +9346,247 @@ export const ProductDocument = {
     },
   ],
 } as unknown as DocumentNode<ProductQuery, ProductQueryVariables>;
+export const ReferenceIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'referenceId' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'referenceId' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'changeable' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'attribs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'brand' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'categoryLevel1' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'categoryLevel2' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'categoryLevel3' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'shipping' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'height' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'long' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'volume' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'width' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'width' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReferenceIdQuery, ReferenceIdQueryVariables>;
+export const ReferencesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'references' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersReferencesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'references' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'companyId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersReferencesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'limit' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'brand' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReferencesQuery, ReferencesQueryVariables>;
 export const StockRequestDocument = {
   kind: 'Document',
   definitions: [

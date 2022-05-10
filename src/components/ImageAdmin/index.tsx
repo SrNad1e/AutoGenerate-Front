@@ -13,7 +13,7 @@ const { Dragger } = Upload;
 const { Text } = Typography;
 
 export type Props = {
-  limit?: number;
+  limit: number;
   value?: ImageModel[] | [];
   onChange?: (images: ImageModel[] | []) => void;
   onCopyImage?: () => void;
@@ -27,7 +27,7 @@ export type Props = {
  * @param  onCopyImage funcion que se encarga de copiar la imagen que se seleccione
  * @returns Componente que muestra las imagenes
  */
-const ImageAdmin = ({ limit = 5, value = [], onChange, onCopyImage }: Props) => {
+const ImageAdmin = ({ limit, value = [], onChange, onCopyImage }: Props) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -148,7 +148,9 @@ const ImageAdmin = ({ limit = 5, value = [], onChange, onCopyImage }: Props) => 
           </Row>
         </Image.PreviewGroup>
       </Col>
-      {canUploadImage ? <AddImages setVisible={() => setVisible(true)} /> : null}
+      <Col span={24}>
+        {canUploadImage ? <AddImages setVisible={() => setVisible(true)} /> : null}
+      </Col>
       {onCopyImage ? (
         <Col>
           <Button icon={<CopyOutlined />} onClick={() => onCopyImage()}>

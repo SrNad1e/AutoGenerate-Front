@@ -1,0 +1,88 @@
+query referenceId($id: String!) {
+  referenceId(id: $id) {
+    _id
+    active
+    changeable
+    cost
+    description
+    name
+    price
+    attribs {
+      _id
+      active
+      createdAt
+      updatedAt
+      name
+    }
+    brand {
+      _id
+      active
+      name
+    }
+    categoryLevel1 {
+      _id
+      name
+      createdAt
+      updatedAt
+      childs {
+        _id
+        name
+        createdAt
+        updatedAt
+        parentId
+      }
+    }
+    categoryLevel2 {
+      _id
+      name
+      parentId
+      createdAt
+      updatedAt
+      childs {
+        _id
+        name
+        createdAt
+        updatedAt
+        parentId
+      }
+    }
+    categoryLevel3 {
+      _id
+      name
+      createdAt
+      updatedAt
+      parentId
+    }
+    shipping {
+      createdAt
+      updatedAt
+      height
+      long
+      volume
+      width
+      width
+    }
+  }
+}
+
+query references($id: String!, $input: FiltersReferencesInput) {
+  references(companyId: $id, filtersReferencesInput: $input) {
+    page
+    totalDocs
+    totalPages
+    limit
+    docs {
+      name
+      active
+      cost
+      price
+      createdAt
+      updatedAt
+      description
+      brand {
+        name
+        _id
+      }
+    }
+  }
+}
