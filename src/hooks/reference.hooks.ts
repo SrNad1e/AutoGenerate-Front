@@ -1,4 +1,5 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
+
 import {
   CreateReferenceDocument,
   ReferenceIdDocument,
@@ -7,11 +8,15 @@ import {
 } from '@/graphql/graphql';
 
 export const useGetReference = () => {
-  return useLazyQuery(ReferenceIdDocument);
+  return useLazyQuery(ReferenceIdDocument, {
+    fetchPolicy: 'cache-first',
+  });
 };
 
 export const useGetReferences = () => {
-  return useLazyQuery(ReferencesDocument);
+  return useLazyQuery(ReferencesDocument, {
+    fetchPolicy: 'cache-first',
+  });
 };
 
 export const useCreateReference = () => {

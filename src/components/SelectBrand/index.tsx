@@ -1,24 +1,30 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useGetBrands } from '@/hooks/brand.hooks';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useEffect, useState } from 'react';
 import { Select } from 'antd';
+
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import { useGetBrands } from '@/hooks/brand.hooks';
 
 export type Props = {
   onChange?: (_id: string) => void;
   value?: string;
+  disabled: boolean;
 };
+const { Option } = Select;
 
-const SelectBrand = ({ onChange, value }: Props) => {
+const SelectBrand = ({ onChange, value, disabled }: Props) => {
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
 
-  const { Option } = Select;
+  const [getBrands, { data, loading }] = useGetBrands();
 
+  /**
+   * @description cierra la alerta de información
+   */
   const closeAlertInformation = () => {
     setAlertInformation({
       message: '',
@@ -27,8 +33,10 @@ const SelectBrand = ({ onChange, value }: Props) => {
     });
   };
 
-  const [getBrands, { data, loading }] = useGetBrands();
-
+  /**
+   * @description se encarga de organizar los filtros y ejecutar la función de busqueda
+   * @param name nombre de la marca
+   */
   const onSearchLocal = (name?: string) => {
     getBrands({
       variables: {
@@ -42,14 +50,15 @@ const SelectBrand = ({ onChange, value }: Props) => {
   useEffect(() => {
     onSearchLocal();
   }, []);
+
   return (
     <>
       <Select
         showSearch
+        disabled={disabled}
         optionFilterProp="children"
         allowClear
         loading={loading}
-        style={{ width: '80%' }}
         placeholder="Seleccionar Marca"
         onChange={onChange}
         onSearch={onSearchLocal}

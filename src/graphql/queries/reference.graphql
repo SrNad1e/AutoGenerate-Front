@@ -73,16 +73,12 @@ query references($id: String!, $input: FiltersReferencesInput) {
     limit
     docs {
       name
+      description
       active
       cost
       price
-      createdAt
+      changeable
       updatedAt
-      description
-      brand {
-        name
-        _id
-      }
     }
   }
 }
