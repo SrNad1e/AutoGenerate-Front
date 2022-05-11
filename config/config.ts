@@ -168,6 +168,11 @@ export default defineConfig({
               path: '/inventory/configurations',
               routes: [
                 {
+                  name: 'Categorias',
+                  path: '/inventory/configurations/categories',
+                  component: './inventory/configurations/categories/list',
+                },
+                {
                   name: 'Tallas',
                   path: '/inventory/configurations/size',
                   component: './inventory/configurations/size/list',
