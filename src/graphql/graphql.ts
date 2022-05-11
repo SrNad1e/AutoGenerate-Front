@@ -326,7 +326,7 @@ export type CreateCategoryInput = {
   /** Nombre de la categoría */
   name: Scalars['String'];
   /** Identificador de la categoría padre */
-  parentCategoryId?: InputMaybe<Scalars['String']>;
+  parentId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para crear un color */
@@ -782,6 +782,8 @@ export type FiltersCategoriesLevelInput = {
   name?: InputMaybe<Scalars['String']>;
   /** Página */
   page?: InputMaybe<Scalars['Float']>;
+  /** Identificador de la categoría padre */
+  parentId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortCategories>;
 };
@@ -2801,7 +2803,7 @@ export type UpdateCategoryInput = {
   /** Nombre de la categoría */
   name?: InputMaybe<Scalars['String']>;
   /** Identificador de la categoría padre  */
-  parentCategoryId?: InputMaybe<Scalars['String']>;
+  parentId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para actualizar el color */

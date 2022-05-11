@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Alert, Form, Input, Modal } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -12,14 +12,13 @@ const FormItem = Form.Item;
 
 export type Props = {
   modalVisible: boolean;
+  isNew: boolean;
   level: number;
-  current?: Partial<CategoryLevel1 | CategoryLevel2 | CategoryLevel3>;
+  current: Partial<CategoryLevel1 | CategoryLevel2 | CategoryLevel3>;
   onCancel: () => void;
-  error?: string | null;
-  onOk?: () => void;
 };
 
-const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => {
+const CreateCategories = ({ level, current, modalVisible, onCancel, isNew }: Props) => {
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -29,10 +28,8 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
 
   const [form] = Form.useForm();
 
-  const [CreateCategory] = useCreateCategory();
-  const [UpdateCategory] = useUpdateCategory();
-
-  const isNew = !current?._id;
+  const [createCategory] = useCreateCategory();
+  const [updateCategory] = useUpdateCategory();
 
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
@@ -50,7 +47,7 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
   const showError = (message: string) => {
     setAlertInformation({
       message,
-      type: 'warning',
+      type: 'error',
       visible: true,
     });
   };
@@ -64,8 +61,8 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
       type: 'error',
       visible: false,
     });
-    if (alertInformation.message !== 'Complete los campos') {
-      closeAndClear();
+    if (alertInformation?.type === 'success') {
+      onCancel();
     }
   };
 
@@ -86,12 +83,13 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
       if (errorLocal) {
         setError(errorLocal);
       } else {
-        const response = await UpdateCategory({
+        const response = await updateCategory({
           variables: {
-            input: values,
+            input: { ...values, level },
             id: current?._id || '',
           },
         });
+
         if (response?.data?.updateCategory) {
           setAlertInformation({
             message: `Categoria ${response?.data?.updateCategory?.name} actualizada correctamente`,
@@ -113,11 +111,13 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
       form.getFieldsValue();
       const values = await form.validateFields();
 
-      console.log(values);
-
-      const response = await CreateCategory({
+      const response = await createCategory({
         variables: {
-          input: values,
+          input: {
+            parentId: current?._id,
+            ...values,
+            level: level > 1 || (level === 1 && current?._id && isNew) ? level + 1 : level,
+          },
         },
       });
       if (response?.data?.createCategory) {
@@ -129,11 +129,20 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
       }
     } catch (e: any) {
       showError(e.message);
-      if (e.message === undefined) {
-        showError('Complete los campos');
-      }
     }
   };
+
+  useEffect(() => {
+    setError('');
+    if (isNew) {
+      form.setFieldsValue({
+        parentId: current?._id,
+        name: '',
+      });
+    } else {
+      form.setFieldsValue(current);
+    }
+  }, [current, isNew]);
 
   return (
     <Modal
@@ -145,15 +154,28 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
       onCancel={() => closeAndClear()}
       onOk={() => (isNew ? createNewCategory() : editCategory())}
     >
-      <Form form={form} initialValues={current}>
-        {level > 1 && !isNew && (
+      <Form
+        form={form}
+        initialValues={
+          isNew
+            ? {
+                parentId: current?._id,
+              }
+            : current
+        }
+      >
+        {!isNew && level !== 1 && (
           <FormItem
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 12 }}
             label="Categoria Padre"
-            name="parentCategoryId"
+            name="parentId"
           >
-            <SelectCategory level={level} />
+            <SelectCategory
+              parentId={isNew ? current?._id : current?.parentId}
+              disabled={isNew}
+              level={level === 1 ? 1 : isNew ? level : level - 1}
+            />
           </FormItem>
         )}
         <FormItem

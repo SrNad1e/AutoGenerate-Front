@@ -16,9 +16,13 @@ export const useGetCategoriesLevel = () => {
 };
 
 export const useCreateCategory = () => {
-  return useMutation(CreateCategoryDocument);
+  return useMutation(CreateCategoryDocument, {
+    refetchQueries: [{ query: CategoriesDocument, variables: { input: {} } }],
+  });
 };
 
 export const useUpdateCategory = () => {
-  return useMutation(UpdateCategoryDocument);
+  return useMutation(UpdateCategoryDocument, {
+    refetchQueries: [{ query: CategoriesDocument, variables: { input: {} } }],
+  });
 };

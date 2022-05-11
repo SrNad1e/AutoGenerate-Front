@@ -2,17 +2,19 @@
 import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
-import type { CategoryLevel1, CategoryLevel2, CategoryLevel3 } from '@/graphql/graphql';
 import { useGetCategoriesLevel } from '@/hooks/category.hooks';
 
 const { Option } = Select;
 
 export type Params = {
-  onChange?: (value: CategoryLevel1 | CategoryLevel2 | CategoryLevel3) => void;
+  onChange?: (id: string) => void;
+  value?: string;
+  parentId?: string;
   level: number;
+  disabled: boolean;
 };
 
-const SelectCategory = ({ onChange, level }: Params) => {
+const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) => {
   const [getCategories, { loading, data, error }] = useGetCategoriesLevel();
 
   /**
@@ -24,6 +26,7 @@ const SelectCategory = ({ onChange, level }: Params) => {
       variables: {
         input: {
           name,
+          parentId,
           level,
           sort: {
             name: 1,
@@ -31,20 +34,6 @@ const SelectCategory = ({ onChange, level }: Params) => {
         },
       },
     });
-  };
-
-  /**
-   * @description se encarga de organizar la selección del campo
-   * @param categoryId identificador de la categoría
-   */
-  const onChangeLocal = (categoryId: string) => {
-    if (onChange) {
-      onChange(
-        data?.categoriesLevel?.docs?.find(
-          (category) => category?._id === categoryId,
-        ) as CategoryLevel1,
-      );
-    }
   };
 
   useEffect(() => {
@@ -52,13 +41,14 @@ const SelectCategory = ({ onChange, level }: Params) => {
       variables: {
         input: {
           level,
+          parentId,
           sort: {
             name: 1,
           },
         },
       },
     });
-  }, []);
+  }, [level]);
 
   return (
     <>
@@ -67,12 +57,16 @@ const SelectCategory = ({ onChange, level }: Params) => {
         showSearch
         loading={loading}
         placeholder="Seleccione Categoría"
-        optionFilterProp="parentCategoryId"
-        onChange={onChangeLocal}
+        optionFilterProp="parentId"
+        onChange={onChange}
         onSearch={onSearch}
+        disabled={disabled}
+        value={value}
       >
         {data?.categoriesLevel?.docs?.map(({ _id, name }) => (
-          <Option key={_id}>{name}</Option>
+          <Option key={_id} value={_id}>
+            {name}
+          </Option>
         ))}
       </Select>
       {error && <Alert message={error} type="info" showIcon />}

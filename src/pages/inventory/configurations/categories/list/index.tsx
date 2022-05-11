@@ -52,6 +52,7 @@ const CategoryList = () => {
     visible: false,
   });
   const [visible, setVisible] = useState(false);
+  const [isNew, setIsNew] = useState(false);
   const [sorterTable, setSorterTable] = useState<SorterResult<FiltersCategoriesInput>>({});
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
 
@@ -108,8 +109,10 @@ const CategoryList = () => {
    */
   const visibleModal = (
     categoryData: Partial<CategoryLevel1 | CategoryLevel2 | CategoryLevel3>,
+    isNewLocal: boolean,
   ) => {
     setCategory(categoryData);
+    setIsNew(isNewLocal);
     switch (categoryData?.__typename) {
       case 'CategoryLevel1':
         setLevel(1);
@@ -118,15 +121,17 @@ const CategoryList = () => {
       case 'CategoryLevel2':
         setLevel(2);
         setVisible(true);
+
         break;
       case 'CategoryLevel3':
         setLevel(3);
         setVisible(true);
         break;
       default:
+        setLevel(1);
+        setVisible(true);
         break;
     }
-    setVisible(true);
   };
 
   /**
@@ -135,6 +140,10 @@ const CategoryList = () => {
   const closeModal = async () => {
     await setCategory({});
     setVisible(false);
+    history.replace(location.pathname);
+    form.resetFields();
+    setSorterTable({});
+    setFilterTable({});
   };
 
   /**
@@ -321,7 +330,7 @@ const CategoryList = () => {
         <>
           <Tooltip title="Editar" placement="topLeft">
             <Button
-              onClick={() => visibleModal(categoryData)}
+              onClick={() => visibleModal(categoryData, false)}
               style={{ backgroundColor: '#dc9575' }}
               icon={<EditOutlined style={{ color: 'white' }} />}
             />
@@ -331,7 +340,7 @@ const CategoryList = () => {
               <Divider type="vertical" />
               <Tooltip title="Crear Subcategoria" placement="topLeft">
                 <Button
-                  onClick={() => visibleModal(categoryData)}
+                  onClick={() => visibleModal(categoryData, true)}
                   style={{ backgroundColor: '#dc9575' }}
                   icon={<PlusSquareOutlined style={{ color: 'white' }} />}
                 />
@@ -361,7 +370,7 @@ const CategoryList = () => {
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
-              onClick={() => visibleModal(category)}
+              onClick={() => visibleModal({ __typename: 'CategoryLevel1' }, true)}
             >
               Nuevo
             </Button>
@@ -394,6 +403,7 @@ const CategoryList = () => {
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       <CreateCategory
         level={level}
+        isNew={isNew}
         modalVisible={visible}
         onCancel={closeModal}
         current={category}
