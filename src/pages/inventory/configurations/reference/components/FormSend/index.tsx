@@ -1,10 +1,11 @@
 import { Descriptions, Form, Input, InputNumber } from 'antd';
-import DescriptionsItem from 'antd/lib/descriptions/Item';
-import FormItem from 'antd/lib/form/FormItem';
 
 import style from '../styles.less';
 
 const FormSend = () => {
+  const DescriptionsItem = Descriptions.Item;
+  const FormItem = Form.Item;
+
   return (
     <Form>
       <Descriptions bordered size="small">

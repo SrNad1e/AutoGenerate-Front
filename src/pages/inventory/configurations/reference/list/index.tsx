@@ -1,26 +1,36 @@
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Row,
+  Space,
+  Table,
+  Tooltip,
+  Typography,
+} from 'antd';
+import type { ColumnsType, SorterResult } from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Badge, Button, Card, Col, Form, Input, Row, Space, Tooltip, Typography } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
-import type { ColumnsType } from 'antd/lib/table';
-import type { SorterResult } from 'antd/lib/table/interface';
-import Table from 'antd/lib/table';
-
-import type { FiltersReferencesInput, Reference } from '@/graphql/graphql';
-import { useState } from 'react';
 import { history } from 'umi';
 import numeral from 'numeral';
 import moment from 'moment';
+
+import type { FiltersReferencesInput, Reference } from '@/graphql/graphql';
+import { useState } from 'react';
 import SelectBrand from '@/components/SelectBrand';
+import EditModal from '../components/EditModal';
 
 import style from './styles.less';
-import EditModal from '../components/EditModal';
 
 const ReferenceList = () => {
   const [sorterTable /*setSorterTable*/] = useState<SorterResult<FiltersReferencesInput>>({});
   const [filterTable /*setFilterTable*/] = useState<Record<string, any | null>>({});
 
   const { Title, Text } = Typography;
+  const FormItem = Form.Item;
 
   const columns: ColumnsType<Partial<Reference>> = [
     {

@@ -1,10 +1,9 @@
+import { Button, Col, Divider, Form, Row, Tooltip } from 'antd';
+import { BgColorsOutlined } from '@ant-design/icons';
+
 import CreateColors from '@/components/CreateColor';
 import SelectColor from '@/components/SelectColor';
 import SelectSize from '@/components/SelectSize';
-import { BgColorsOutlined } from '@ant-design/icons';
-import { Button, Col, Divider, Form, Row, Tooltip } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
-
 import { useState } from 'react';
 
 import style from '../styles.less';
@@ -12,6 +11,11 @@ import style from '../styles.less';
 const FormAdd = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
+  const FormItem = Form.Item;
+
+  /**
+   * @description se encarga de cerrar el modal para crear color
+   */
   const closeModal = () => {
     setModalVisible(false);
   };

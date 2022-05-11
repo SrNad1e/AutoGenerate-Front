@@ -12,12 +12,11 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import type { ColumnsType } from 'antd/lib/table';
+import type { ColumnsType } from 'antd/es/table/interface';
+import { history } from 'umi';
 
 import type { Product } from '@/graphql/graphql';
-import { history } from 'umi';
 import FormGeneralData from '../components/FormGeneralData';
-import { TabPane } from 'rc-tabs';
 import FormPrice from '../components/FormPrice';
 import FormSend from '../components/FormSend';
 import FormAdd from '../components/FormAdd';
@@ -26,6 +25,8 @@ import style from './styles.less';
 
 const Form = () => {
   const { Text } = Typography;
+  const { TabPane } = Tabs;
+
   const columns: ColumnsType<Product> = [
     {
       title: 'Imagen',

@@ -1,6 +1,4 @@
 import { Descriptions, Form, Input, Switch } from 'antd';
-import DescriptionsItem from 'antd/lib/descriptions/Item';
-import FormItem from 'antd/lib/form/FormItem';
 
 import SelectAnyCategory from '@/components/SelectAnyCategory';
 import SelectBrand from '@/components/SelectBrand';
@@ -8,6 +6,9 @@ import SelectBrand from '@/components/SelectBrand';
 import style from '../styles.less';
 
 const FormGeneralData = () => {
+  const DescriptionsItem = Descriptions.Item;
+  const FormItem = Form.Item;
+
   return (
     <Form>
       <Descriptions bordered size="small">

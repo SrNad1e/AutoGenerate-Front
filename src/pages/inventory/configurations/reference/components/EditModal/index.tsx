@@ -1,5 +1,4 @@
 import { Col, Form, Input, Modal, Row, Switch } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
 
 import ImageAdmin from '@/components/ImageAdmin';
 import SelectColor from '@/components/SelectColor';
@@ -8,6 +7,8 @@ import SelectSize from '@/components/SelectSize';
 import style from '../styles.less';
 
 const EditModal = () => {
+  const FormItem = Form.Item;
+
   return (
     <Modal
       okText="Aceptar"
