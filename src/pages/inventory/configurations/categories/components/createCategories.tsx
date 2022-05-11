@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Alert, Form, Input, InputNumber, Modal } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
-
+import { Alert, Form, Input, Modal } from 'antd';
 import { useState } from 'react';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { CategoryLevel1, CategoryLevel2, CategoryLevel3 } from '@/graphql/graphql';
 import { useCreateCategory, useUpdateCategory } from '@/hooks/category.hooks';
 import SelectCategory from '@/components/SelectCategory';
-//import AlertLoading from '@/components/Alerts/AlertLoading';
+
+const FormItem = Form.Item;
 
 export type Props = {
   modalVisible: boolean;
@@ -28,10 +28,11 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
   const [error, setError] = useState('');
 
   const [form] = Form.useForm();
-  const isNew = !current?._id;
 
-  const [CreateCategory /* propsCreate*/] = useCreateCategory();
-  const [UpdateCategory /*propsUpdate*/] = useUpdateCategory();
+  const [CreateCategory] = useCreateCategory();
+  const [UpdateCategory] = useUpdateCategory();
+
+  const isNew = !current?._id;
 
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
@@ -42,6 +43,10 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
     form.resetFields();
   };
 
+  /**
+   * @description abre el modal en modo error
+   * @param message mensaje de error a mostrar
+   */
   const showError = (message: string) => {
     setAlertInformation({
       message,
@@ -64,6 +69,9 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
     }
   };
 
+  /**
+   * @description se encarga de actualizar la categoría
+   */
   const editCategory = async () => {
     try {
       const values = form.getFieldsValue();
@@ -97,6 +105,9 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
     }
   };
 
+  /**
+   * @description se encarga de crear una nueva categoría
+   */
   const createNewCategory = async () => {
     try {
       form.getFieldsValue();
@@ -142,7 +153,7 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
             label="Categoria Padre"
             name="parentCategoryId"
           >
-            <SelectCategory />
+            <SelectCategory level={level} />
           </FormItem>
         )}
         <FormItem
@@ -152,15 +163,11 @@ const CreateCategories = ({ level, current, modalVisible, onCancel }: Props) => 
           name="name"
           rules={[{ required: true, message: 'Nombre de Categoria obligatorio', min: 1 }]}
         >
-          <Input placeholder="" autoFocus maxLength={45} />
-        </FormItem>
-        <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Nivel" name="level">
-          <InputNumber />
+          <Input placeholder="" autoFocus />
         </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      {/*<AlertLoading visible={loadingCreate || loadingUpdate} message="Guardando Talla" />*/}
     </Modal>
   );
 };

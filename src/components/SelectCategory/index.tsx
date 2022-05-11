@@ -3,16 +3,17 @@ import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
 import type { CategoryLevel1, CategoryLevel2, CategoryLevel3 } from '@/graphql/graphql';
-import { useGetCategories } from '@/hooks/category.hooks';
+import { useGetCategoriesLevel } from '@/hooks/category.hooks';
 
 const { Option } = Select;
 
-export type Props = {
+export type Params = {
   onChange?: (value: CategoryLevel1 | CategoryLevel2 | CategoryLevel3) => void;
+  level: number;
 };
 
-const SelectCategory = ({ onChange }: Props) => {
-  const [getCategories, { loading, data, error }] = useGetCategories();
+const SelectCategory = ({ onChange, level }: Params) => {
+  const [getCategories, { loading, data, error }] = useGetCategoriesLevel();
 
   /**
    * @description se encarga de consultar con base a un comodín
@@ -23,6 +24,7 @@ const SelectCategory = ({ onChange }: Props) => {
       variables: {
         input: {
           name,
+          level,
           sort: {
             name: 1,
           },
@@ -31,10 +33,16 @@ const SelectCategory = ({ onChange }: Props) => {
     });
   };
 
+  /**
+   * @description se encarga de organizar la selección del campo
+   * @param categoryId identificador de la categoría
+   */
   const onChangeLocal = (categoryId: string) => {
     if (onChange) {
       onChange(
-        data?.categories?.docs?.find((category) => category?._id === categoryId) as CategoryLevel1,
+        data?.categoriesLevel?.docs?.find(
+          (category) => category?._id === categoryId,
+        ) as CategoryLevel1,
       );
     }
   };
@@ -43,6 +51,7 @@ const SelectCategory = ({ onChange }: Props) => {
     getCategories({
       variables: {
         input: {
+          level,
           sort: {
             name: 1,
           },
@@ -57,20 +66,14 @@ const SelectCategory = ({ onChange }: Props) => {
         style={{ width: 220 }}
         showSearch
         loading={loading}
-        placeholder="Seleccione Categoria Padre"
+        placeholder="Seleccione Categoría"
         optionFilterProp="parentCategoryId"
         onChange={onChangeLocal}
         onSearch={onSearch}
       >
-        {/*Opciones para el selector de las categorias padre de nivel 1 */}
-        {data?.categories?.docs?.map(({ _id, name }) => (
+        {data?.categoriesLevel?.docs?.map(({ _id, name }) => (
           <Option key={_id}>{name}</Option>
         ))}
-
-        {/*Opciones para el selector de las categorias padre de nivel 2 */}
-        {data?.categories.docs.map(({ childs }) =>
-          childs.map((child) => <Option key={child._id}>{child.name}</Option>),
-        )}
       </Select>
       {error && <Alert message={error} type="info" showIcon />}
     </>

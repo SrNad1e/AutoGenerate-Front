@@ -45,7 +45,55 @@ export type Address = {
   /** Define si la dirección es la principal */
   isMain?: Maybe<Scalars['Boolean']>;
   /** Número de la casa */
-  loteNumber: Scalars['Float'];
+  loteNumber: Scalars['String'];
+  /** Barrio */
+  neighborhood: Scalars['String'];
+  /** Número del field1 */
+  number1: Scalars['String'];
+  /** Número del field2 */
+  number2: Scalars['String'];
+  /** Teléfono del contacto */
+  phone: Scalars['String'];
+};
+
+/** Dirección del cliente */
+export type AddressInput = {
+  /** Identificador de la ciudad */
+  cityId: Scalars['String'];
+  /** Contacto para el envío */
+  contact: Scalars['String'];
+  /** Datos extra de la dirección */
+  extra?: InputMaybe<Scalars['String']>;
+  /** Tipo de ubicación (Calle, Avenida, Manzana, Etc) */
+  field1: Scalars['String'];
+  /** Define si la dirección es la principal */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Número de la casa */
+  loteNumber: Scalars['String'];
+  /** Barrio */
+  neighborhood: Scalars['String'];
+  /** Número del field1 */
+  number1: Scalars['String'];
+  /** Número del field2 */
+  number2: Scalars['String'];
+  /** Teléfono del contacto */
+  phone: Scalars['String'];
+};
+
+/** Dirección del cliente */
+export type AddressInputOrder = {
+  /** Ciudad de envío */
+  city: CityInput;
+  /** Contacto para el envío */
+  contact: Scalars['String'];
+  /** Datos extra de la dirección */
+  extra?: InputMaybe<Scalars['String']>;
+  /** Tipo de ubicación (Calle, Avenida, Manzana, Etc) */
+  field1: Scalars['String'];
+  /** Define si la dirección es la principal */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Número de la casa */
+  loteNumber: Scalars['String'];
   /** Barrio */
   neighborhood: Scalars['String'];
   /** Número del field1 */
@@ -105,7 +153,7 @@ export type CategoryLevel1 = {
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Nombre de la categoría */
-  childs: CategoryLevel2[];
+  childs?: Maybe<CategoryLevel2[]>;
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -171,6 +219,22 @@ export type City = {
   user: User;
 };
 
+/** Ciudad entrada */
+export type CityInput = {
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** País */
+  country: Scalars['String'];
+  /** Fecha de creación */
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  /** Nombre de la ciudad */
+  name: Scalars['String'];
+  /** Departamento */
+  state: Scalars['String'];
+  /** Fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['DateTime']>;
+};
+
 /** Color del producto */
 export type Color = {
   __typename?: 'Color';
@@ -223,6 +287,23 @@ export type Company = {
   /** Fecha de actualización de la compañia */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la compañia */
+  user: User;
+};
+
+/** Modelo para la transportadora */
+export type Conveyor = {
+  __typename?: 'Conveyor';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Fecha de creación de la transportadora */
+  createdAt: Scalars['DateTime'];
+  /** Logo de la tranportadora */
+  logo: Image;
+  /** Nombre de la transportadora */
+  name: Scalars['String'];
+  /** Fecha de actualización de la transportadora */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que crea la transportadora */
   user: User;
 };
 
@@ -683,7 +764,21 @@ export type FiltersBrandsInput = {
 export type FiltersCategoriesInput = {
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
-  /** Nombre de la categoría de primer nivel */
+  /** Nombre de la categoría */
+  name?: InputMaybe<Scalars['String']>;
+  /** Página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortCategories>;
+};
+
+/** Filtros para obtener la lista de categorías */
+export type FiltersCategoriesLevelInput = {
+  /** Nivel de categoria */
+  level: Scalars['Float'];
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Nombre de la categoría */
   name?: InputMaybe<Scalars['String']>;
   /** Página */
   page?: InputMaybe<Scalars['Float']>;
@@ -721,6 +816,18 @@ export type FiltersColorsInput = {
   sort?: InputMaybe<SortColor>;
 };
 
+/** Filtros para obtener listado de transportadoras */
+export type FiltersConveyorsInput = {
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Nombre de la transportadora */
+  name?: InputMaybe<Scalars['String']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortConveyor>;
+};
+
 /** Filtros de listado de clientes */
 export type FiltersCustomersInput = {
   /** Si el cliente se encuentra activo */
@@ -751,6 +858,22 @@ export type FiltersImagesInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortImage>;
+};
+
+/** Filtros para obtener el listado de tipos de medios de pago */
+export type FiltersPaymentsInput = {
+  /** Estado del tipo de los médios de pago */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Nombre del medio de pago */
+  name?: InputMaybe<Scalars['String']>;
+  /** Página actual */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortPayment>;
+  /** Tipo de medio de pago (cash, bank, credit, bonus) */
+  type?: InputMaybe<Scalars['String']>;
 };
 
 export type FiltersProductInput = {
@@ -1100,6 +1223,8 @@ export type Mutation = {
   updateCategory: CategoryLevel1;
   /** Actualiza el color */
   updateColor: Color;
+  /** Se encarga actualizar un cliente */
+  updateCustomer: Customer;
   /** Se encarga actualizar un pedido */
   updateOrder: Order;
   /** Se encarga actualizar un producto */
@@ -1213,6 +1338,11 @@ export type MutationUpdateColorArgs = {
   updateColorInput: UpdateColorInput;
 };
 
+export type MutationUpdateCustomerArgs = {
+  id: Scalars['String'];
+  updateCustomerInput: UpdateCustomerInput;
+};
+
 export type MutationUpdateOrderArgs = {
   id: Scalars['String'];
   updateOrderInput: UpdateOrderInput;
@@ -1272,6 +1402,8 @@ export type Order = {
   address?: Maybe<Address>;
   /** Empresa a la que perteneces el pedido */
   company: Company;
+  /** Trasportadora */
+  conveyor?: Maybe<Conveyor>;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Cliente que solicita el pedido */
@@ -1399,7 +1531,7 @@ export type Product = {
   /** Imagenes del producto */
   images: Image[];
   /** Referencia del producto */
-  reference?: Maybe<Reference>;
+  reference: Reference;
   /** Talla del producto */
   size: Size;
   /** Estado del producto (active, inactive) */
@@ -1420,10 +1552,14 @@ export type Query = {
   brands: ResponseBrands;
   /** Lista las categorías */
   categories: ResponseCategories;
+  /** Lista las categorías por level */
+  categoriesLevel: ResponseCategories;
   /** Listado de ciudades */
   cities: ResponseCities;
   /** Lista los colores */
   colors: ResponseColors;
+  /** Lista de ajustes de productos */
+  conveyors: ResponseConveyors;
   /** Se encarga de obtener el usuario dependiendo del token enviado */
   currentUser: User;
   /** Listado de clientes */
@@ -1436,6 +1572,8 @@ export type Query = {
   orderId: Order;
   /** Obtener las ordenes por punto de venta */
   ordersByPointOfSale: Order[];
+  /** Se encarga de listar los metodos de pago */
+  payments: ResponsePayments;
   /** Obtiene un producto */
   product: Product;
   /** Lista los productos */
@@ -1486,12 +1624,20 @@ export type QueryCategoriesArgs = {
   filtersCategoriesInput?: InputMaybe<FiltersCategoriesInput>;
 };
 
+export type QueryCategoriesLevelArgs = {
+  filtersCategoriesLevelInput?: InputMaybe<FiltersCategoriesLevelInput>;
+};
+
 export type QueryCitiesArgs = {
   filtersCitiesInput?: InputMaybe<FiltersCitiesInput>;
 };
 
 export type QueryColorsArgs = {
   filtersColorsInput?: InputMaybe<FiltersColorsInput>;
+};
+
+export type QueryConveyorsArgs = {
+  filtersConveyorsInput?: InputMaybe<FiltersConveyorsInput>;
 };
 
 export type QueryCustomersArgs = {
@@ -1512,6 +1658,10 @@ export type QueryOrderIdArgs = {
 
 export type QueryOrdersByPointOfSaleArgs = {
   idPointOfSale: Scalars['String'];
+};
+
+export type QueryPaymentsArgs = {
+  filtersPaymentsInput?: InputMaybe<FiltersPaymentsInput>;
 };
 
 export type QueryProductArgs = {
@@ -1789,6 +1939,30 @@ export type ResponseColors = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de traslados de transportadoras */
+export type ResponseConveyors = {
+  __typename?: 'ResponseConveyors';
+  /** Lista de transportadoras */
+  docs: Conveyor[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta del listado de clientes */
 export type ResponseCustomers = {
   __typename?: 'ResponseCustomers';
@@ -1818,6 +1992,30 @@ export type ResponseImages = {
   __typename?: 'ResponseImages';
   /** Lista de imagenes */
   docs: Image[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta a la consulta de metodos de pago */
+export type ResponsePayments = {
+  __typename?: 'ResponsePayments';
+  /** Lista de metodos de pago */
+  docs: Payment[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -2064,7 +2262,7 @@ export type Role = {
   changeWarehouse: Scalars['Boolean'];
   /** Fecha de creación del rol */
   createdAt: Scalars['DateTime'];
-  /** Nombre asiganado al rol */
+  /** Nombre asignado al rol */
   name: Scalars['String'];
   /** Permisos al los quie tiene el rol */
   permissions: Permission[];
@@ -2217,6 +2415,16 @@ export type SortColor = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de la trasnportadora */
+export type SortConveyor = {
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por nombre */
+  name?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de creación */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento del cliente */
 export type SortCustomer = {
   /** ordernamiento por estado del cliente */
@@ -2240,6 +2448,15 @@ export type SortCustomer = {
 /** Ordenamiento para el listado de imagenes */
 export type SortImage = {
   name?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento de la teinda */
+export type SortPayment = {
+  active?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['Float']>;
+  type?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
 /** Ordenamiento para el listado de productos */
@@ -2601,8 +2818,38 @@ export type UpdateColorInput = {
   name_internal?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para actualizar un cliente */
+export type UpdateCustomerInput = {
+  /** Direcciones del cliente */
+  addresses?: InputMaybe<AddressInput[]>;
+  /** Fecha de nacimiento */
+  birthday?: InputMaybe<Scalars['DateTime']>;
+  /** Identificación de tipo de cliente */
+  customerTypeId?: InputMaybe<Scalars['String']>;
+  /** Número de documento */
+  document?: InputMaybe<Scalars['String']>;
+  /** Identificación del tipo de documento */
+  documentTypeId?: InputMaybe<Scalars['String']>;
+  /** Correo del cliente */
+  email?: InputMaybe<Scalars['String']>;
+  /** Nombres del cliente */
+  firstName?: InputMaybe<Scalars['String']>;
+  /** Es el cliente por defecto, solo debe existir uno */
+  isDefault?: InputMaybe<Scalars['Boolean']>;
+  /** El teléfono tiene whatsapp */
+  isWhatsapp?: InputMaybe<Scalars['Boolean']>;
+  /** Apellidos del cliente */
+  lastName?: InputMaybe<Scalars['String']>;
+  /** Número de teléfono */
+  phone?: InputMaybe<Scalars['String']>;
+};
+
 /** Datos para actualizar el pedido */
 export type UpdateOrderInput = {
+  /** Dirección de envío para el pedido */
+  address?: InputMaybe<AddressInputOrder>;
+  /** Identificación de la transportadora */
+  conveyorId?: InputMaybe<Scalars['String']>;
   /** Identificación del cliente */
   customerId?: InputMaybe<Scalars['String']>;
   /** Estado del pedido (open, pending ,cancelled, closed, sent, invoiced) */
@@ -2775,8 +3022,8 @@ export type User = {
   pointOfSale?: Maybe<PointOfSale>;
   /** Rol que ocupa el usuario */
   role: Role;
-  /** Tienda a la que se encuentra asiganado el usuario */
-  shop?: Maybe<Shop>;
+  /** Tienda a la que se encuentra asignado el usuario */
+  shop: Shop;
   /** Estado del usuario (active, inactive, suspend) */
   status: Scalars['String'];
   /** Nombre de usuario */
@@ -2842,7 +3089,7 @@ export type UpdateStockAdjustmentMutation = {
         _id: string;
         barcode: string;
         stock: { __typename?: 'Stock'; quantity: number }[];
-        reference?: { __typename?: 'Reference'; description: string } | null;
+        reference: { __typename?: 'Reference'; description: string };
         size: { __typename?: 'Size'; value: string };
         color: {
           __typename?: 'Color';
@@ -2939,22 +3186,26 @@ export type CreateCategoryMutation = {
     createdAt: any;
     updatedAt: any;
     name: string;
-    childs: {
-      __typename?: 'CategoryLevel2';
-      _id: string;
-      createdAt: any;
-      updatedAt: any;
-      name: string;
-      childs?:
-        | {
-            __typename?: 'CategoryLevel3';
-            _id: string;
-            name: string;
-            createdAt: any;
-            updatedAt: any;
-          }[]
-        | null;
-    }[];
+    childs?:
+      | {
+          __typename?: 'CategoryLevel2';
+          _id: string;
+          createdAt: any;
+          updatedAt: any;
+          parentId?: string | null;
+          name: string;
+          childs?:
+            | {
+                __typename?: 'CategoryLevel3';
+                _id: string;
+                name: string;
+                createdAt: any;
+                updatedAt: any;
+                parentId?: string | null;
+              }[]
+            | null;
+        }[]
+      | null;
   };
 };
 
@@ -2971,22 +3222,26 @@ export type UpdateCategoryMutation = {
     createdAt: any;
     updatedAt: any;
     name: string;
-    childs: {
-      __typename?: 'CategoryLevel2';
-      _id: string;
-      createdAt: any;
-      updatedAt: any;
-      name: string;
-      childs?:
-        | {
-            __typename?: 'CategoryLevel3';
-            _id: string;
-            name: string;
-            createdAt: any;
-            updatedAt: any;
-          }[]
-        | null;
-    }[];
+    childs?:
+      | {
+          __typename?: 'CategoryLevel2';
+          _id: string;
+          createdAt: any;
+          updatedAt: any;
+          parentId?: string | null;
+          name: string;
+          childs?:
+            | {
+                __typename?: 'CategoryLevel3';
+                _id: string;
+                name: string;
+                createdAt: any;
+                updatedAt: any;
+                parentId?: string | null;
+              }[]
+            | null;
+        }[]
+      | null;
   };
 };
 
@@ -3081,7 +3336,7 @@ export type UpdateStockInputMutation = {
             } | null;
           } | null;
         };
-        reference?: { __typename?: 'Reference'; description: string; name: string } | null;
+        reference: { __typename?: 'Reference'; description: string; name: string };
         size: { __typename?: 'Size'; value: string };
         stock: { __typename?: 'Stock'; quantity: number }[];
       };
@@ -3147,7 +3402,7 @@ export type UpdateOrderMutation = {
               } | null;
             };
             size: { __typename?: 'Size'; value: string };
-            reference?: { __typename?: 'Reference'; description: string } | null;
+            reference: { __typename?: 'Reference'; description: string };
             stock: { __typename?: 'Stock'; quantity: number }[];
           };
         }[]
@@ -3207,7 +3462,7 @@ export type AddPaymentsOrderMutation = {
             _id: string;
             barcode: string;
             status: string;
-            reference?: { __typename?: 'Reference'; description: string; price: number } | null;
+            reference: { __typename?: 'Reference'; description: string; price: number };
             color: {
               __typename?: 'Color';
               html: string;
@@ -3280,13 +3535,13 @@ export type AddProductsOrderMutation = {
             __typename?: 'Product';
             _id: string;
             barcode: string;
-            reference?: {
+            reference: {
               __typename?: 'Reference';
               changeable: boolean;
               name: string;
               description: string;
               price: number;
-            } | null;
+            };
             size: { __typename?: 'Size'; value: string };
             color: {
               __typename?: 'Color';
@@ -3370,7 +3625,7 @@ export type UpdateStockOutputMutation = {
             } | null;
           } | null;
         };
-        reference?: { __typename?: 'Reference'; description: string } | null;
+        reference: { __typename?: 'Reference'; description: string };
         size: { __typename?: 'Size'; value: string };
         stock: { __typename?: 'Stock'; quantity: number }[];
       };
@@ -3423,7 +3678,7 @@ export type UpdateStockRequestMutation = {
             } | null;
           } | null;
         };
-        reference?: { __typename?: 'Reference'; description: string } | null;
+        reference: { __typename?: 'Reference'; description: string };
         size: { __typename?: 'Size'; value: string };
         stock: { __typename?: 'Stock'; quantity: number }[];
       };
@@ -3490,12 +3745,12 @@ export type LoginMutation = {
       username: string;
       name: string;
       _id: string;
-      shop?: {
+      shop: {
         __typename?: 'Shop';
         _id: string;
         name: string;
         defaultWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
-      } | null;
+      };
       role: {
         __typename?: 'Role';
         name: string;
@@ -3530,12 +3785,7 @@ export type StockAdjustmentQuery = {
         _id: string;
         barcode: string;
         status: string;
-        reference?: {
-          __typename?: 'Reference';
-          cost: number;
-          description: string;
-          name: string;
-        } | null;
+        reference: { __typename?: 'Reference'; cost: number; description: string; name: string };
         size: { __typename?: 'Size'; value: string };
         color: {
           __typename?: 'Color';
@@ -3584,12 +3834,7 @@ export type StockAdjustmentsQuery = {
           __typename?: 'Product';
           _id: string;
           barcode: string;
-          reference?: {
-            __typename?: 'Reference';
-            description: string;
-            cost: number;
-            name: string;
-          } | null;
+          reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
           size: { __typename?: 'Size'; value: string };
           stock: { __typename?: 'Stock'; quantity: number }[];
           color: {
@@ -3672,24 +3917,48 @@ export type CategoriesQuery = {
       createdAt: any;
       updatedAt: any;
       name: string;
-      childs: {
-        __typename?: 'CategoryLevel2';
-        _id: string;
-        parentId?: string | null;
-        createdAt: any;
-        updatedAt: any;
-        name: string;
-        childs?:
-          | {
-              __typename?: 'CategoryLevel3';
-              _id: string;
-              parentId?: string | null;
-              createdAt: any;
-              updatedAt: any;
-              name: string;
-            }[]
-          | null;
-      }[];
+      childs?:
+        | {
+            __typename?: 'CategoryLevel2';
+            _id: string;
+            parentId?: string | null;
+            createdAt: any;
+            updatedAt: any;
+            name: string;
+            childs?:
+              | {
+                  __typename?: 'CategoryLevel3';
+                  _id: string;
+                  parentId?: string | null;
+                  createdAt: any;
+                  updatedAt: any;
+                  name: string;
+                }[]
+              | null;
+          }[]
+        | null;
+    }[];
+  };
+};
+
+export type CategoriesLevelQueryVariables = Exact<{
+  input?: InputMaybe<FiltersCategoriesLevelInput>;
+}>;
+
+export type CategoriesLevelQuery = {
+  __typename?: 'Query';
+  categoriesLevel: {
+    __typename?: 'ResponseCategories';
+    totalDocs: number;
+    limit: number;
+    page: number;
+    totalPages: number;
+    docs: {
+      __typename?: 'CategoryLevel1';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
     }[];
   };
 };
@@ -3772,12 +4041,7 @@ export type StockInputQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        reference?: {
-          __typename?: 'Reference';
-          description: string;
-          cost: number;
-          name: string;
-        } | null;
+        reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
         color: {
           __typename?: 'Color';
           html: string;
@@ -3826,13 +4090,13 @@ export type StockInputsQuery = {
         product: {
           __typename?: 'Product';
           barcode: string;
-          reference?: {
+          reference: {
             __typename?: 'Reference';
             description: string;
             cost: number;
             price: number;
             name: string;
-          } | null;
+          };
           color: { __typename?: 'Color'; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
@@ -3876,7 +4140,7 @@ export type OrderIdQuery = {
             _id: string;
             barcode: string;
             status: string;
-            reference?: { __typename?: 'Reference'; cost: number; description: string } | null;
+            reference: { __typename?: 'Reference'; cost: number; description: string };
             size: { __typename?: 'Size'; value: string };
             color: {
               __typename?: 'Color';
@@ -3953,7 +4217,7 @@ export type OrdersByPosQuery = {
             _id: string;
             barcode: string;
             status: string;
-            reference?: { __typename?: 'Reference'; cost: number; description: string } | null;
+            reference: { __typename?: 'Reference'; cost: number; description: string };
             color: {
               __typename?: 'Color';
               html: string;
@@ -4015,12 +4279,7 @@ export type StockOutputQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        reference?: {
-          __typename?: 'Reference';
-          description: string;
-          cost: number;
-          name: string;
-        } | null;
+        reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
         color: {
           __typename?: 'Color';
           html: string;
@@ -4069,13 +4328,13 @@ export type StockOutputsQuery = {
         product: {
           __typename?: 'Product';
           barcode: string;
-          reference?: {
+          reference: {
             __typename?: 'Reference';
             description: string;
             price: number;
             cost: number;
             name: string;
-          } | null;
+          };
           color: { __typename?: 'Color'; name: string; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
@@ -4099,7 +4358,7 @@ export type ProductsQuery = {
       __typename?: 'Product';
       _id: string;
       barcode: string;
-      reference?: { __typename?: 'Reference'; description: string; name: string } | null;
+      reference: { __typename?: 'Reference'; description: string; name: string };
       color: {
         __typename?: 'Color';
         name_internal: string;
@@ -4142,7 +4401,7 @@ export type ProductQuery = {
         } | null;
       } | null;
     };
-    reference?: { __typename?: 'Reference'; description: string; name: string } | null;
+    reference: { __typename?: 'Reference'; description: string; name: string };
     size: { __typename?: 'Size'; value: string };
   };
 };
@@ -4181,12 +4440,7 @@ export type StockRequestQuery = {
             } | null;
           } | null;
         };
-        reference?: {
-          __typename?: 'Reference';
-          cost: number;
-          description: string;
-          name: string;
-        } | null;
+        reference: { __typename?: 'Reference'; cost: number; description: string; name: string };
         size: { __typename?: 'Size'; value: string };
       };
     }[];
@@ -4222,7 +4476,7 @@ export type StockRequestsQuery = {
         product: {
           __typename?: 'Product';
           barcode: string;
-          reference?: { __typename?: 'Reference'; name: string; description: string } | null;
+          reference: { __typename?: 'Reference'; name: string; description: string };
           color: { __typename?: 'Color'; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
@@ -4263,12 +4517,12 @@ export type CurrentUserQuery = {
     username: string;
     name: string;
     pointOfSale?: { __typename?: 'PointOfSale'; _id: string } | null;
-    shop?: {
+    shop: {
       __typename?: 'Shop';
       _id: string;
       name: string;
       defaultWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
-    } | null;
+    };
     role: {
       __typename?: 'Role';
       name: string;
@@ -4776,6 +5030,7 @@ export const CreateCategoryDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       {
                         kind: 'Field',
@@ -4787,6 +5042,7 @@ export const CreateCategoryDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                           ],
                         },
                       },
@@ -4860,6 +5116,7 @@ export const UpdateCategoryDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       {
                         kind: 'Field',
@@ -4871,6 +5128,7 @@ export const UpdateCategoryDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                           ],
                         },
                       },
@@ -7217,6 +7475,61 @@ export const CategoriesDocument = {
     },
   ],
 } as unknown as DocumentNode<CategoriesQuery, CategoriesQueryVariables>;
+export const CategoriesLevelDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'categoriesLevel' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCategoriesLevelInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'categoriesLevel' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCategoriesLevelInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'limit' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CategoriesLevelQuery, CategoriesLevelQueryVariables>;
 export const ColorsDocument = {
   kind: 'Document',
   definitions: [

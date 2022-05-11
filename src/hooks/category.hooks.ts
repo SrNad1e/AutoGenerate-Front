@@ -1,12 +1,18 @@
+import { useLazyQuery, useMutation } from '@apollo/client';
+
 import {
   CategoriesDocument,
+  CategoriesLevelDocument,
   CreateCategoryDocument,
   UpdateCategoryDocument,
 } from '@/graphql/graphql';
-import { useLazyQuery, useMutation } from '@apollo/client';
 
 export const useGetCategories = () => {
   return useLazyQuery(CategoriesDocument);
+};
+
+export const useGetCategoriesLevel = () => {
+  return useLazyQuery(CategoriesLevelDocument);
 };
 
 export const useCreateCategory = () => {

@@ -26,3 +26,18 @@ query categories($input: FiltersCategoriesInput) {
     }
   }
 }
+
+query categoriesLevel($input: FiltersCategoriesLevelInput) {
+  categoriesLevel(filtersCategoriesLevelInput: $input) {
+    totalDocs
+    limit
+    page
+    totalPages
+    docs {
+      _id
+      createdAt
+      updatedAt
+      name
+    }
+  }
+}

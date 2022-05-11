@@ -14,19 +14,14 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import FormItem from 'antd/lib/form/FormItem';
-import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
-import Title from 'antd/lib/typography/Title';
-import type { SorterResult } from 'antd/lib/table/interface';
-
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
 import { useLocation, history } from 'umi';
+import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-
-import styles from './styles.less';
 import CreateCategory from '../components/createCategories';
 import { useGetCategories } from '@/hooks/category.hooks';
 import type {
@@ -35,6 +30,11 @@ import type {
   CategoryLevel3,
   FiltersCategoriesInput,
 } from '@/graphql/graphql';
+
+import styles from './styles.less';
+
+const { Text, Title } = Typography;
+const FormItem = Form.Item;
 
 type FormData = {
   name?: string;
@@ -54,8 +54,9 @@ const CategoryList = () => {
   const [visible, setVisible] = useState(false);
   const [sorterTable, setSorterTable] = useState<SorterResult<FiltersCategoriesInput>>({});
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
-  const { Text } = Typography;
+
   const [form] = Form.useForm();
+
   const location: Location = useLocation();
 
   const [getCategories, { data, loading }] = useGetCategories();
@@ -136,6 +137,10 @@ const CategoryList = () => {
     setVisible(false);
   };
 
+  /**
+   * @description se encarga de agregar los parámetros en la query
+   * @param values filtros de parametros
+   */
   const setQueryParams = (values?: FiltersCategoriesInput) => {
     try {
       const valuesForm = form.getFieldsValue();
