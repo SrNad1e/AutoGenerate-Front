@@ -8,6 +8,7 @@ import {
   Divider,
   Space,
   Table,
+  Form,
   Tabs,
   Tooltip,
   Typography,
@@ -17,15 +18,16 @@ import { history } from 'umi';
 
 import type { Product } from '@/graphql/graphql';
 import FormGeneralData from '../components/FormGeneralData';
-import FormPrice from '../components/FormPrice';
 import FormSend from '../components/FormSend';
 import FormAdd from '../components/FormAdd';
 
-import style from './styles.less';
+import styles from './styles';
 
-const Form = () => {
-  const { Text } = Typography;
-  const { TabPane } = Tabs;
+const { Text } = Typography;
+const { TabPane } = Tabs;
+
+const FormReference = () => {
+  const [form] = Form.useForm();
 
   const columns: ColumnsType<Product> = [
     {
@@ -67,11 +69,19 @@ const Form = () => {
     },
   ];
 
+  const onFinish = async () => {
+    try {
+      const values = await form.validateFields();
+      console.log(values);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <PageContainer
       title={
         <Space align="center">
-          {' '}
           <Tooltip title="Atrás">
             <Button
               type="primary"
@@ -85,29 +95,31 @@ const Form = () => {
         </Space>
       }
     >
-      <Tabs type="card" className={style.tabBackground}>
-        <TabPane tab="Datos generales" key="1" className={style.tabPadding}>
-          <FormGeneralData />
-        </TabPane>
-        <TabPane tab="Costos y Precios" key="2" className={style.tabPadding}>
-          <FormPrice />
-        </TabPane>
-        <TabPane tab="Datos de envio" key="3" className={style.tabPadding}>
-          <FormSend />
-        </TabPane>
-      </Tabs>
       <Card bordered={false}>
+        <Form form={form}>
+          <Tabs type="card">
+            <TabPane tab="Datos generales" key="1">
+              <FormGeneralData />
+            </TabPane>
+            <TabPane tab="Datos de envio" key="2">
+              <FormSend />
+            </TabPane>
+          </Tabs>
+        </Form>
         <Divider>Productos</Divider>
         <FormAdd />
+        <Divider />
         <Table columns={columns} pagination={false} bordered />
-        <Affix offsetBottom={20} className={style.buttonBottom}>
-          <Button type="primary" onClick={() => {}}>
-            Crear
-          </Button>
+        <Affix offsetBottom={0}>
+          <Card bodyStyle={styles.bodyStyle}>
+            <Button type="primary" onClick={onFinish}>
+              Crear
+            </Button>
+          </Card>
         </Affix>
       </Card>
     </PageContainer>
   );
 };
 
-export default Form;
+export default FormReference;

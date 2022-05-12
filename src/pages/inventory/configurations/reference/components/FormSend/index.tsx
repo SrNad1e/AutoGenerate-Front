@@ -1,66 +1,59 @@
-import { Descriptions, Form, Input, InputNumber } from 'antd';
+import { Descriptions, Form, InputNumber } from 'antd';
 
-import style from '../styles.less';
+import styles from '../styles';
+
+const DescriptionsItem = Descriptions.Item;
+const FormItem = Form.Item;
 
 const FormSend = () => {
-  const DescriptionsItem = Descriptions.Item;
-  const FormItem = Form.Item;
-
   return (
-    <Form>
-      <Descriptions bordered size="small">
-        <DescriptionsItem label="Ancho">
-          <FormItem
-            name="widht"
-            className={style.noMargin}
-            rules={[{ required: true, message: 'Obligatorio' }]}
-          >
-            <InputNumber min={0} className={style.styleNumber} step={100} />
-            <Input value="cm" disabled className={style.inputStyle} />
-          </FormItem>
-        </DescriptionsItem>
-        <DescriptionsItem label="Alto">
-          <FormItem
-            name="height"
-            className={style.noMargin}
-            rules={[{ required: true, message: 'Obligatorio' }]}
-          >
-            <InputNumber min={0} className={style.styleNumber} step={100} />
-            <Input value="cm" disabled className={style.inputStyle} />
-          </FormItem>
-        </DescriptionsItem>
-        <DescriptionsItem label="Largo">
-          <FormItem
-            name="long"
-            className={style.noMargin}
-            rules={[{ required: true, message: 'Obligatorio' }]}
-          >
-            <InputNumber min={0} className={style.styleNumber} step={100} />
-            <Input value="cm" disabled className={style.inputStyle} />
-          </FormItem>
-        </DescriptionsItem>
-        <DescriptionsItem label="Peso">
-          <FormItem
-            name="weight"
-            className={style.noMargin}
-            rules={[{ required: true, message: 'Obligatorio' }]}
-          >
-            <InputNumber min={0} className={style.styleNumber} step={100} />
-            <Input value="cm" disabled className={style.inputStyle} />
-          </FormItem>
-        </DescriptionsItem>
-        <DescriptionsItem label="Volumen">
-          <FormItem
-            name="volume"
-            className={style.noMargin}
-            rules={[{ required: true, message: 'Obligatorio' }]}
-          >
-            <InputNumber min={0} className={style.styleNumber} step={100} />
-            <Input value="cc" disabled className={style.inputStyle} />
-          </FormItem>
-        </DescriptionsItem>
-      </Descriptions>
-    </Form>
+    <Descriptions bordered size="small">
+      <DescriptionsItem label="Ancho">
+        <FormItem
+          name="widht"
+          style={styles.marginIntial}
+          rules={[{ required: true, message: 'Obligatorio' }]}
+        >
+          <InputNumber min={0} addonAfter="cm" />
+        </FormItem>
+      </DescriptionsItem>
+      <DescriptionsItem label="Alto">
+        <FormItem
+          style={styles.marginIntial}
+          name="height"
+          rules={[{ required: true, message: 'Obligatorio' }]}
+        >
+          <InputNumber min={0} addonAfter="cm" />
+        </FormItem>
+      </DescriptionsItem>
+      <DescriptionsItem label="Largo">
+        <FormItem
+          style={styles.marginIntial}
+          name="long"
+          rules={[{ required: true, message: 'Obligatorio' }]}
+        >
+          <InputNumber min={0} addonAfter="cm" />
+        </FormItem>
+      </DescriptionsItem>
+      <DescriptionsItem label="Peso">
+        <FormItem
+          name="weight"
+          style={styles.marginIntial}
+          rules={[{ required: true, message: 'Obligatorio' }]}
+        >
+          <InputNumber min={0} addonAfter="kg" />
+        </FormItem>
+      </DescriptionsItem>
+      <DescriptionsItem label="Volumen">
+        <FormItem
+          style={styles.marginIntial}
+          name="volume"
+          rules={[{ required: true, message: 'Obligatorio' }]}
+        >
+          <InputNumber min={0} addonAfter="cc" />
+        </FormItem>
+      </DescriptionsItem>
+    </Descriptions>
   );
 };
 

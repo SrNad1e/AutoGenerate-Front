@@ -1,43 +1,50 @@
-import { Button, Col, Divider, Form, Row, Tooltip } from 'antd';
-import { BgColorsOutlined } from '@ant-design/icons';
-
-import CreateColors from '@/components/CreateColor';
-import SelectColor from '@/components/SelectColor';
-import SelectSize from '@/components/SelectSize';
+import { Button, Col, Divider, Form, Row, Tooltip, Typography } from 'antd';
+import { BgColorsOutlined, ColumnHeightOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 
-import style from '../styles.less';
+import CreateColors from '@/components/CreateColor';
+import CreateSizes from '@/components/CreateSize';
+import SelectColor from '@/components/SelectColor';
+import SelectSize from '@/components/SelectSize';
+
+const FormItem = Form.Item;
+const { Text } = Typography;
 
 const FormAdd = () => {
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const FormItem = Form.Item;
+  const [modalColorVisible, setModalColorVisible] = useState(false);
+  const [modalSizeVisible, setModalSizeVisible] = useState(false);
 
   /**
    * @description se encarga de cerrar el modal para crear color
    */
-  const closeModal = () => {
-    setModalVisible(false);
+  const closeModalColor = () => {
+    setModalColorVisible(false);
+  };
+
+  /**
+   * @description se encarga de cerrar el modal para crear color
+   */
+  const closeModalSize = () => {
+    setModalSizeVisible(false);
   };
 
   return (
-    <Row gutter={16} className={style.formAdd}>
-      <Form layout="inline">
-        <Col>
+    <Row gutter={16} justify="center">
+      <Form layout="inline" style={{ width: '90%' }}>
+        <Col xs={24} md={10}>
           <FormItem
-            className={style.inputColor}
             label={
               <>
-                <Tooltip title="Agregar nuevo Color">
+                <Tooltip title="Crear nuevo color">
                   <Button
                     icon={<BgColorsOutlined />}
                     type="primary"
-                    style={{ marginRight: 10 }}
                     shape="circle"
-                    onClick={() => setModalVisible(true)}
+                    onClick={() => setModalColorVisible(true)}
                   />
                 </Tooltip>
-                Color
+                <Divider type="vertical" />
+                <Text>Color</Text>
               </>
             }
             rules={[{ required: true, message: 'Obligatorio' }]}
@@ -46,29 +53,38 @@ const FormAdd = () => {
             <SelectColor />
           </FormItem>
         </Col>
-        <Col>
-          <FormItem />
-        </Col>
-        <Col>
+        <Col xs={24} md={10}>
           <FormItem
-            className={style.inputSize}
-            label="Talla"
+            label={
+              <>
+                <Tooltip title="Crear nueva talla">
+                  <Button
+                    icon={<ColumnHeightOutlined />}
+                    type="primary"
+                    shape="circle"
+                    onClick={() => setModalSizeVisible(true)}
+                  />
+                </Tooltip>
+                <Divider type="vertical" />
+                <Text>Talla</Text>
+              </>
+            }
             rules={[{ required: true, message: 'Obligatorio' }]}
             name="size"
           >
             <SelectSize />
           </FormItem>
         </Col>
-        <Col>
+        <Col xs={24} md={4}>
           <FormItem>
-            <Divider type="vertical" />
             <Button onClick={() => {}} type="primary">
-              Agregar
+              Crear
             </Button>
           </FormItem>
         </Col>
+        <CreateColors modalVisible={modalColorVisible} onCancel={closeModalColor} />
+        <CreateSizes modalVisible={modalSizeVisible} onCancel={closeModalSize} />
       </Form>
-      <CreateColors modalVisible={modalVisible} onCancel={closeModal} />
     </Row>
   );
 };

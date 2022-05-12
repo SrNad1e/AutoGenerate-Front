@@ -25,9 +25,9 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import SelectBrand from '@/components/SelectBrand';
 import EditModal from '../components/EditModal';
 import { useGetReferences } from '@/hooks/reference.hooks';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import style from './styles.less';
-import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const { Title, Text } = Typography;
 const FormItem = Form.Item;
