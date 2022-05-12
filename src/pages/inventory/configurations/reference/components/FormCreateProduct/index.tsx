@@ -1,16 +1,28 @@
 import { Button, Col, Divider, Form, Row, Tooltip, Typography } from 'antd';
 import { BgColorsOutlined, ColumnHeightOutlined } from '@ant-design/icons';
+import type { FormInstance } from 'antd/es/form/Form';
 import { useState } from 'react';
 
 import CreateColors from '@/components/CreateColor';
 import CreateSizes from '@/components/CreateSize';
 import SelectListColor from '@/components/SelectListColor';
 import SelectListSize from '@/components/SelectListSize';
+import type { Color, Size } from '@/graphql/graphql';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
 
-const FormCreateProduct = () => {
+export type Params = {
+  onFinish: (values: { colors: Color[]; sizes: Size[] }) => void;
+  form:
+    | FormInstance<{
+        colors: Color[];
+        sizes: Size[];
+      }>
+    | undefined;
+};
+
+const FormCreateProduct = ({ onFinish, form }: Params) => {
   const [modalColorVisible, setModalColorVisible] = useState(false);
   const [modalSizeVisible, setModalSizeVisible] = useState(false);
 
@@ -30,7 +42,7 @@ const FormCreateProduct = () => {
 
   return (
     <Row gutter={16} justify="center">
-      <Form layout="inline" style={{ width: '90%' }}>
+      <Form form={form} onFinish={onFinish} layout="inline" style={{ width: '90%' }}>
         <Col xs={24} md={10}>
           <FormItem
             label={
@@ -48,7 +60,7 @@ const FormCreateProduct = () => {
               </>
             }
             rules={[{ required: true, message: 'Obligatorio' }]}
-            name="color"
+            name="colors"
           >
             <SelectListColor disabled={false} />
           </FormItem>
@@ -70,21 +82,19 @@ const FormCreateProduct = () => {
               </>
             }
             rules={[{ required: true, message: 'Obligatorio' }]}
-            name="size"
+            name="sizes"
           >
-            <SelectListSize />
+            <SelectListSize disabled={false} />
           </FormItem>
         </Col>
         <Col xs={24} md={4}>
-          <FormItem>
-            <Button onClick={() => {}} type="primary">
-              Crear
-            </Button>
-          </FormItem>
+          <Button type="primary" htmlType="submit">
+            Crear
+          </Button>
         </Col>
-        <CreateColors modalVisible={modalColorVisible} onCancel={closeModalColor} />
-        <CreateSizes modalVisible={modalSizeVisible} onCancel={closeModalSize} />
       </Form>
+      <CreateColors modalVisible={modalColorVisible} onCancel={closeModalColor} />
+      <CreateSizes modalVisible={modalSizeVisible} onCancel={closeModalSize} />
     </Row>
   );
 };

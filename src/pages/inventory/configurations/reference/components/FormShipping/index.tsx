@@ -10,7 +10,7 @@ const FormShipping = () => {
     <Descriptions bordered size="small">
       <DescriptionsItem label="Ancho">
         <FormItem
-          name="widht"
+          name="width"
           style={styles.marginIntial}
           rules={[{ required: true, message: 'Obligatorio' }]}
         >

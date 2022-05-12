@@ -1,22 +1,27 @@
-import { useGetColors } from '@/hooks/color.hooks';
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Alert, Avatar, Select, Typography } from 'antd';
+import { useEffect } from 'react';
+
+import { useGetColors } from '@/hooks/color.hooks';
+import type { Color } from '@/graphql/graphql';
 
 const { Text } = Typography;
 const { Option } = Select;
 
 export type Params = {
-  onChange?: (value: string[]) => void;
+  onChange?: (colors: Color[] | []) => void;
+  value?: Color[];
   disabled: boolean;
 };
 
-const SelectListColor = ({ onChange, disabled }: Params) => {
+const SelectListColor = ({ onChange, value, disabled }: Params) => {
   const [getColors, { loading, data, error }] = useGetColors();
 
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
-  const onSearch = (name: string) => {
+  const onSearch = (name?: string) => {
     getColors({
       variables: {
         input: {
@@ -30,6 +35,20 @@ const SelectListColor = ({ onChange, disabled }: Params) => {
     });
   };
 
+  const onChangeLocal = (ids: string[]) => {
+    const newIds = ids.filter((id) => !value?.find(({ _id }) => _id === id));
+
+    const newColors = data?.colors?.docs?.filter(({ _id }) => !!newIds.includes(_id));
+
+    if (onChange) {
+      onChange(value?.concat(newColors) || newColors || []);
+    }
+  };
+
+  useEffect(() => {
+    onSearch();
+  }, []);
+
   return (
     <>
       <Select
@@ -38,21 +57,21 @@ const SelectListColor = ({ onChange, disabled }: Params) => {
         loading={loading}
         placeholder="Seleccione Colores"
         optionFilterProp="children"
-        onChange={onChange}
+        onChange={onChangeLocal}
         onSearch={onSearch}
         disabled={disabled}
       >
-        {data?.colors?.docs?.map(({ _id, name_internal, name, image, html }) => (
-          <Option key={_id} name={name_internal}>
+        {data?.colors?.docs?.map((color) => (
+          <Option key={color?._id} name={color?.name_internal}>
             <>
               <Avatar
                 size="small"
-                style={{ backgroundColor: html, border: 'solid 1px black' }}
-                src={`${CDN_URL}/${image?.urls?.webp?.small}`}
+                style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
+                src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
               />
 
               <Text style={{ marginLeft: 10 }}>
-                {name} / {name_internal}
+                {color?.name} / {color?.name_internal}
               </Text>
             </>
           </Option>

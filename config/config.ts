@@ -201,6 +201,10 @@ export default defineConfig({
                   path: '/inventory/configurations/reference/new',
                   component: './inventory/configurations/reference/form',
                 },
+                {
+                  path: '/inventory/configurations/reference/:id',
+                  component: './inventory/configurations/reference/form',
+                },
               ],
             },
           ],

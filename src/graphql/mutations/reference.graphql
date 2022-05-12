@@ -1,65 +1,6 @@
-mutation createReference($input: CreateReferenceInput!) {
-  createReference(createReferenceInput: $input) {
+mutation createReference($input:CreateReferenceInput!){
+  createReference(createReferenceInput:$input){
     _id
-    active
-    changeable
-    cost
-    createdAt
-    updatedAt
-    description
-    name
-    price
-    attribs {
-      _id
-      active
-      name
-    }
-    brand {
-      _id
-      active
-      name
-    }
-    shipping {
-      height
-      long
-      volume
-      width
-      weight
-    }
-    categoryLevel1 {
-      _id
-      name
-      createdAt
-      updatedAt
-      childs {
-        _id
-        name
-        createdAt
-        updatedAt
-        parentId
-      }
-    }
-    categoryLevel2 {
-      _id
-      name
-      parentId
-      createdAt
-      updatedAt
-      childs {
-        _id
-        name
-        createdAt
-        updatedAt
-        parentId
-      }
-    }
-    categoryLevel3 {
-      _id
-      name
-      createdAt
-      updatedAt
-      parentId
-    }
   }
 }
 

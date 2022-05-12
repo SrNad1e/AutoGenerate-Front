@@ -1,21 +1,26 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Alert, Select } from 'antd';
+import { useEffect } from 'react';
 
 import { useGetSizes } from '@/hooks/size.hooks';
+import type { Size } from '@/graphql/graphql';
 
 const { Option } = Select;
 
 export type Params = {
-  onChange?: (value: string[]) => void;
+  onChange?: (sizes: Size[] | []) => void;
+  value?: Size[];
+  disabled: boolean;
 };
 
-const SelectListSize = ({ onChange }: Params) => {
+const SelectListSize = ({ onChange, disabled, value }: Params) => {
   const [getSizes, { loading, data, error }] = useGetSizes();
 
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
-  const onSearch = (name: string) => {
+  const onSearch = (name?: string) => {
     getSizes({
       variables: {
         input: {
@@ -29,6 +34,20 @@ const SelectListSize = ({ onChange }: Params) => {
     });
   };
 
+  const onChangeLocal = (ids: string[]) => {
+    const newIds = ids.filter((id) => !value?.find(({ _id }) => _id === id));
+
+    const newSizes = data?.sizes?.docs?.filter(({ _id }) => !!newIds.includes(_id));
+
+    if (onChange) {
+      onChange(value?.concat(newSizes) || newSizes || []);
+    }
+  };
+
+  useEffect(() => {
+    onSearch();
+  }, []);
+
   return (
     <>
       <Select
@@ -37,8 +56,9 @@ const SelectListSize = ({ onChange }: Params) => {
         loading={loading}
         placeholder="Seleccione Tallas"
         optionFilterProp="children"
-        onChange={onChange}
+        onChange={onChangeLocal}
         onSearch={onSearch}
+        disabled={disabled}
       >
         {data?.sizes?.docs?.map((size) => (
           <Option key={size?._id}>{size?.value}</Option>
