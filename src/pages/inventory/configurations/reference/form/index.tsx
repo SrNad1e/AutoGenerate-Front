@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, DeleteOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Affix,
@@ -18,8 +18,8 @@ import { history } from 'umi';
 
 import type { Product } from '@/graphql/graphql';
 import FormGeneralData from '../components/FormGeneralData';
-import FormSend from '../components/FormSend';
-import FormAdd from '../components/FormAdd';
+import FormShipping from '../components/FormShipping';
+import FormCreateProduct from '../components/FormCreateProduct';
 
 import styles from './styles';
 
@@ -28,6 +28,15 @@ const { TabPane } = Tabs;
 
 const FormReference = () => {
   const [form] = Form.useForm();
+
+  const onFinish = async () => {
+    try {
+      const values = await form.validateFields();
+      console.log(values);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const columns: ColumnsType<Product> = [
     {
@@ -67,16 +76,16 @@ const FormReference = () => {
       dataIndex: 'barcode',
       render: (text: string) => (text && text !== '' ? text : '(Pendiente)'),
     },
+    {
+      title: 'Acciones',
+      dataIndex: '_id',
+      render: () => (
+        <Tooltip title="Eliminar" placement="topLeft">
+          <Button danger onClick={() => {}} type="primary" icon={<DeleteOutlined />} />
+        </Tooltip>
+      ),
+    },
   ];
-
-  const onFinish = async () => {
-    try {
-      const values = await form.validateFields();
-      console.log(values);
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   return (
     <PageContainer
@@ -102,16 +111,16 @@ const FormReference = () => {
               <FormGeneralData />
             </TabPane>
             <TabPane tab="Datos de envio" key="2">
-              <FormSend />
+              <FormShipping />
             </TabPane>
           </Tabs>
         </Form>
         <Divider>Productos</Divider>
-        <FormAdd />
+        <FormCreateProduct />
         <Divider />
         <Table columns={columns} pagination={false} bordered />
         <Affix offsetBottom={0}>
-          <Card bodyStyle={styles.bodyStyle}>
+          <Card bodyStyle={styles.bodyStyle} size="small">
             <Button type="primary" onClick={onFinish}>
               Crear
             </Button>

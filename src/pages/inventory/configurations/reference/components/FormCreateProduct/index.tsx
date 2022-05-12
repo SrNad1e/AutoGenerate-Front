@@ -4,13 +4,13 @@ import { useState } from 'react';
 
 import CreateColors from '@/components/CreateColor';
 import CreateSizes from '@/components/CreateSize';
-import SelectColor from '@/components/SelectColor';
-import SelectSize from '@/components/SelectSize';
+import SelectListColor from '@/components/SelectListColor';
+import SelectListSize from '@/components/SelectListSize';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
 
-const FormAdd = () => {
+const FormCreateProduct = () => {
   const [modalColorVisible, setModalColorVisible] = useState(false);
   const [modalSizeVisible, setModalSizeVisible] = useState(false);
 
@@ -50,7 +50,7 @@ const FormAdd = () => {
             rules={[{ required: true, message: 'Obligatorio' }]}
             name="color"
           >
-            <SelectColor />
+            <SelectListColor disabled={false} />
           </FormItem>
         </Col>
         <Col xs={24} md={10}>
@@ -72,7 +72,7 @@ const FormAdd = () => {
             rules={[{ required: true, message: 'Obligatorio' }]}
             name="size"
           >
-            <SelectSize />
+            <SelectListSize />
           </FormItem>
         </Col>
         <Col xs={24} md={4}>
@@ -89,4 +89,4 @@ const FormAdd = () => {
   );
 };
 
-export default FormAdd;
+export default FormCreateProduct;

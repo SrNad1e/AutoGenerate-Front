@@ -5,7 +5,7 @@ import styles from '../styles';
 const DescriptionsItem = Descriptions.Item;
 const FormItem = Form.Item;
 
-const FormSend = () => {
+const FormShipping = () => {
   return (
     <Descriptions bordered size="small">
       <DescriptionsItem label="Ancho">
@@ -57,4 +57,4 @@ const FormSend = () => {
   );
 };
 
-export default FormSend;
+export default FormShipping;

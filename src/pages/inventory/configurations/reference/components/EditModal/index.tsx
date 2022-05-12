@@ -4,8 +4,6 @@ import ImageAdmin from '@/components/ImageAdmin';
 import SelectColor from '@/components/SelectColor';
 import SelectSize from '@/components/SelectSize';
 
-import style from '../styles.less';
-
 const EditModal = () => {
   const FormItem = Form.Item;
 
@@ -18,7 +16,7 @@ const EditModal = () => {
       visible={false}
       width="80%"
     >
-      <Row className={style.displayStyle}>
+      <Row>
         <Form layout="inline">
           <Col>
             <FormItem label="EAN 13" name="barcode">
@@ -27,7 +25,6 @@ const EditModal = () => {
           </Col>
           <Col>
             <FormItem
-              className={style.styleInput}
               label="Color"
               rules={[{ required: true, message: 'Obligatorio' }]}
               name="color"
