@@ -13,8 +13,6 @@ export type Props = {
   modalVisible: boolean;
   current?: Partial<Size>;
   onCancel: () => void;
-  error?: string | null;
-  onOk?: () => void;
 };
 
 const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {

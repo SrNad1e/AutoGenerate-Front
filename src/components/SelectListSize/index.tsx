@@ -1,25 +1,26 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Select, Alert } from 'antd';
+import { Alert, Select } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetSizes } from '@/hooks/size.hooks';
+import type { Size } from '@/graphql/graphql';
 
 const { Option } = Select;
 
-export type Props = {
-  onChange?: (value: string | undefined) => void;
-  value?: string;
+export type Params = {
+  onChange?: (sizes: Size[] | []) => void;
+  value?: Size[];
   disabled: boolean;
 };
 
-const SelectSize = ({ onChange, value, disabled }: Props) => {
+const SelectListSize = ({ onChange, disabled, value }: Params) => {
   const [getSizes, { loading, data, error }] = useGetSizes();
 
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
-  const onSearch = (name: string) => {
+  const onSearch = (name?: string) => {
     getSizes({
       variables: {
         input: {
@@ -33,35 +34,34 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
     });
   };
 
+  const onChangeLocal = (ids: string[]) => {
+    const newIds = ids.filter((id) => !value?.find(({ _id }) => _id === id));
+
+    const newSizes = data?.sizes?.docs?.filter(({ _id }) => !!newIds.includes(_id));
+
+    if (onChange) {
+      onChange(value?.concat(newSizes) || newSizes || []);
+    }
+  };
+
   useEffect(() => {
-    getSizes({
-      variables: {
-        input: {
-          active: true,
-          sort: {
-            value: 1,
-          },
-        },
-      },
-    });
+    onSearch();
   }, []);
 
   return (
     <>
       <Select
+        mode="multiple"
         showSearch
         loading={loading}
-        placeholder="Seleccione Talla"
+        placeholder="Seleccione Tallas"
         optionFilterProp="children"
-        onChange={onChange}
+        onChange={onChangeLocal}
         onSearch={onSearch}
-        value={value}
         disabled={disabled}
       >
         {data?.sizes?.docs?.map((size) => (
-          <Option key={size?._id} value={size._id}>
-            {size?.value}
-          </Option>
+          <Option key={size?._id}>{size?.value}</Option>
         ))}
       </Select>
       {error && <Alert message={error} type="info" showIcon />}
@@ -69,4 +69,4 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
   );
 };
 
-export default SelectSize;
+export default SelectListSize;

@@ -1,32 +1,31 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Select, Alert } from 'antd';
+import { useGetAttribs } from '@/hooks/attrib.hooks';
+import { Alert, Select } from 'antd';
 import { useEffect } from 'react';
-
-import { useGetSizes } from '@/hooks/size.hooks';
 
 const { Option } = Select;
 
-export type Props = {
-  onChange?: (value: string | undefined) => void;
-  value?: string;
+export type Params = {
+  onChange?: (value: string[]) => void;
+  value?: string[];
   disabled: boolean;
 };
 
-const SelectSize = ({ onChange, value, disabled }: Props) => {
-  const [getSizes, { loading, data, error }] = useGetSizes();
+const SelectListAttrib = ({ onChange, value, disabled }: Params) => {
+  const [getAttribs, { loading, data, error }] = useGetAttribs();
 
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
-  const onSearch = (name: string) => {
-    getSizes({
+  const onSearch = (name?: string) => {
+    getAttribs({
       variables: {
         input: {
           name,
           active: true,
           sort: {
-            value: 1,
+            name: 1,
           },
         },
       },
@@ -34,33 +33,25 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
   };
 
   useEffect(() => {
-    getSizes({
-      variables: {
-        input: {
-          active: true,
-          sort: {
-            value: 1,
-          },
-        },
-      },
-    });
+    onSearch();
   }, []);
 
   return (
     <>
       <Select
+        mode="multiple"
+        allowClear
         showSearch
         loading={loading}
-        placeholder="Seleccione Talla"
-        optionFilterProp="children"
+        placeholder="Seleccione Atributos"
         onChange={onChange}
         onSearch={onSearch}
         value={value}
         disabled={disabled}
       >
-        {data?.sizes?.docs?.map((size) => (
-          <Option key={size?._id} value={size._id}>
-            {size?.value}
+        {data?.attribs?.docs?.map(({ _id, name }) => (
+          <Option key={_id} name={name}>
+            {name}
           </Option>
         ))}
       </Select>
@@ -69,4 +60,4 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
   );
 };
 
-export default SelectSize;
+export default SelectListAttrib;

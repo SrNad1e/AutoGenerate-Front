@@ -1,11 +1,17 @@
-import { CopyOutlined, DeleteOutlined, InboxOutlined, LoadingOutlined } from '@ant-design/icons';
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  InboxOutlined,
+  LoadingOutlined,
+  PictureOutlined,
+} from '@ant-design/icons';
 import { Button, Card, Col, Row, Image, Tooltip, Popconfirm, Upload, Typography } from 'antd';
-
-import DefaultImage from '@/assets/default.webp';
 import { useState } from 'react';
-import AddImages from './AddImages';
+
 import ModalSearchImage from './ModalSearchImage';
 import type { Image as ImageModel } from '@/graphql/graphql';
+
+import DefaultImage from '@/assets/default.webp';
 
 import styles from './styles.less';
 
@@ -13,10 +19,11 @@ const { Dragger } = Upload;
 const { Text } = Typography;
 
 export type Props = {
-  limit?: number;
+  limit: number;
   value?: ImageModel[] | [];
   onChange?: (images: ImageModel[] | []) => void;
   onCopyImage?: () => void;
+  disabled: boolean;
 };
 
 /**
@@ -27,7 +34,7 @@ export type Props = {
  * @param  onCopyImage funcion que se encarga de copiar la imagen que se seleccione
  * @returns Componente que muestra las imagenes
  */
-const ImageAdmin = ({ limit = 5, value = [], onChange, onCopyImage }: Props) => {
+const ImageAdmin = ({ limit, value = [], onChange, onCopyImage, disabled }: Props) => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -57,8 +64,6 @@ const ImageAdmin = ({ limit = 5, value = [], onChange, onCopyImage }: Props) => 
    * se encarga de poner en value la imagen que se sube en el dragger
    */
   const setPic = async ({ file }: any) => {
-    console.log(file.status);
-
     if (file?.status === 'uploading') {
       setLoading(true);
     }
@@ -90,14 +95,19 @@ const ImageAdmin = ({ limit = 5, value = [], onChange, onCopyImage }: Props) => 
   };
 
   return (
-    <Row>
-      <Col className={styles.imgContainer}>
+    <Row gutter={24}>
+      <Col span={24} className={styles.imgContainer}>
         <Image.PreviewGroup>
           <Row>
             <Col className={styles.imglist}>
               {value?.length >= limit == false && (
-                <Dragger listType="picture-card" height="100%" {...draggerProps}>
-                  {loading ? (
+                <Dragger
+                  disabled={loading || disabled}
+                  listType="picture-card"
+                  height="100%"
+                  {...draggerProps}
+                >
+                  {loading || disabled ? (
                     <LoadingOutlined style={{ color: '#dc9575' }} />
                   ) : (
                     <InboxOutlined style={{ fontSize: 30, color: '#dc9575' }} />
@@ -128,7 +138,12 @@ const ImageAdmin = ({ limit = 5, value = [], onChange, onCopyImage }: Props) => 
                             okText="Si"
                             cancelText="No"
                           >
-                            <Button ghost danger style={{ margin: 0 }}>
+                            <Button
+                              loading={loading || disabled}
+                              ghost
+                              danger
+                              style={{ margin: 0 }}
+                            >
                               <DeleteOutlined />
                             </Button>
                           </Popconfirm>
@@ -148,11 +163,21 @@ const ImageAdmin = ({ limit = 5, value = [], onChange, onCopyImage }: Props) => 
           </Row>
         </Image.PreviewGroup>
       </Col>
-      {canUploadImage ? <AddImages setVisible={() => setVisible(true)} /> : null}
+      <Col>
+        {canUploadImage ? (
+          <Button
+            loading={loading || disabled}
+            icon={<PictureOutlined />}
+            onClick={() => setVisible(true)}
+          >
+            Buscar
+          </Button>
+        ) : null}
+      </Col>
       {onCopyImage ? (
         <Col>
-          <Button icon={<CopyOutlined />} onClick={() => onCopyImage()}>
-            Copiar Imagen
+          <Button loading={disabled} icon={<CopyOutlined />} onClick={() => onCopyImage()}>
+            Copiar imagen del mismo color
           </Button>
         </Col>
       ) : undefined}
