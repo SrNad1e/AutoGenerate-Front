@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
-import { history } from 'umi';
+import { history, Link } from 'umi';
 import numeral from 'numeral';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -285,9 +285,11 @@ const ReferenceList = () => {
       align: 'center',
       width: 80,
       fixed: 'right',
-      render: () => (
+      render: (id: string) => (
         <Tooltip title="Editar" placement="topLeft">
-          <Button onClick={() => {}} type="primary" icon={<EditOutlined />} />
+          <Link to={`/inventory/configurations/reference/${id}`}>
+            <Button type="primary" icon={<EditOutlined />} />
+          </Link>
         </Tooltip>
       ),
     },

@@ -371,18 +371,22 @@ export type CreateProductInput = {
 
 /** Datos para crear una referencia */
 export type CreateReferenceInput = {
+  /** Estado de la referencia */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Atributos de la referencia */
+  attribIds: Scalars['String'][];
   /** Marca de la referencia */
   brandId: Scalars['String'];
   /** Categoría nivel 1 de la referencia */
   categoryLevel1Id: Scalars['String'];
   /** Categoría nivel 2 de la referencia */
-  categoryLevel2Id: Scalars['String'];
+  categoryLevel2Id?: InputMaybe<Scalars['String']>;
   /** Categoría nivel 3 de la referencia */
-  categoryLevel3Id: Scalars['String'];
+  categoryLevel3Id?: InputMaybe<Scalars['String']>;
   /** Se puede cambiar */
-  changeable: Scalars['Boolean'];
+  changeable?: InputMaybe<Scalars['Boolean']>;
   /** Combinaciones de talla y color para crear los productos */
-  combinations: CombinationInput;
+  combinations?: InputMaybe<CombinationInput[]>;
   /** Costo de la referencia */
   cost: Scalars['Float'];
   /** Descripción de la referencia */
@@ -1549,7 +1553,7 @@ export type Product = {
   /** Estado del producto (active, inactive) */
   status: Scalars['String'];
   /** Inventario del producto por bodegas */
-  stock: Stock[];
+  stock?: Maybe<Stock[]>;
   /** Fecha de actualización del producto */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea el producto */
@@ -1591,7 +1595,7 @@ export type Query = {
   /** Lista los productos */
   products: ResponseProducts;
   /** Obtiene la referencia por el identificador */
-  referenceId: Reference;
+  referenceId: ReferenceData;
   /** Listado de las referencias */
   references: ResponseReferences;
   /** Listar las tallas */
@@ -1757,15 +1761,15 @@ export type Reference = {
   /** Estado de la referencia */
   active: Scalars['Boolean'];
   /** Atributos de la referencia */
-  attribs: Attrib[];
+  attribs?: Maybe<Attrib[]>;
   /** Marca de la referencia */
   brand: Brand;
   /** Categoría Nivel 1 de la referencia */
   categoryLevel1: CategoryLevel1;
   /** Categoría Nivel 2 de la referencia */
-  categoryLevel2: CategoryLevel2;
+  categoryLevel2?: Maybe<CategoryLevel2>;
   /** Categoría Nivel 3 de la referencia */
-  categoryLevel3: CategoryLevel3;
+  categoryLevel3?: Maybe<CategoryLevel3>;
   /** Determina si la referencia se puede cambiar */
   changeable: Scalars['Boolean'];
   /** Compañias que pueden usar la referencia */
@@ -1796,15 +1800,15 @@ export type ReferenceData = {
   /** Estado de la referencia */
   active: Scalars['Boolean'];
   /** Atributos de la referencia */
-  attribs: Attrib[];
+  attribs?: Maybe<Attrib[]>;
   /** Marca de la referencia */
   brand: Brand;
   /** Categoría Nivel 1 de la referencia */
   categoryLevel1: CategoryLevel1;
   /** Categoría Nivel 2 de la referencia */
-  categoryLevel2: CategoryLevel2;
+  categoryLevel2?: Maybe<CategoryLevel2>;
   /** Categoría Nivel 3 de la referencia */
-  categoryLevel3: CategoryLevel3;
+  categoryLevel3?: Maybe<CategoryLevel3>;
   /** Determina si la referencia se puede cambiar */
   changeable: Scalars['Boolean'];
   /** Compañias que pueden usar la referencia */
@@ -3100,7 +3104,7 @@ export type UpdateStockAdjustmentMutation = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        stock: { __typename?: 'Stock'; quantity: number }[];
+        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
         reference: { __typename?: 'Reference'; description: string };
         size: { __typename?: 'Size'; value: string };
         color: {
@@ -3350,7 +3354,7 @@ export type UpdateStockInputMutation = {
         };
         reference: { __typename?: 'Reference'; description: string; name: string };
         size: { __typename?: 'Size'; value: string };
-        stock: { __typename?: 'Stock'; quantity: number }[];
+        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
       };
     }[];
     user: { __typename?: 'User'; name: string };
@@ -3415,7 +3419,7 @@ export type UpdateOrderMutation = {
             };
             size: { __typename?: 'Size'; value: string };
             reference: { __typename?: 'Reference'; description: string };
-            stock: { __typename?: 'Stock'; quantity: number }[];
+            stock?: { __typename?: 'Stock'; quantity: number }[] | null;
           };
         }[]
       | null;
@@ -3489,7 +3493,7 @@ export type AddPaymentsOrderMutation = {
               } | null;
             };
             size: { __typename?: 'Size'; value: string };
-            stock: { __typename?: 'Stock'; quantity: number }[];
+            stock?: { __typename?: 'Stock'; quantity: number }[] | null;
           };
         }[]
       | null;
@@ -3568,7 +3572,7 @@ export type AddProductsOrderMutation = {
                 } | null;
               } | null;
             };
-            stock: { __typename?: 'Stock'; quantity: number }[];
+            stock?: { __typename?: 'Stock'; quantity: number }[] | null;
           };
         }[]
       | null;
@@ -3639,11 +3643,64 @@ export type UpdateStockOutputMutation = {
         };
         reference: { __typename?: 'Reference'; description: string };
         size: { __typename?: 'Size'; value: string };
-        stock: { __typename?: 'Stock'; quantity: number }[];
+        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
       };
     }[];
     user: { __typename?: 'User'; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
+  };
+};
+
+export type UpdateProductMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateProductInput;
+}>;
+
+export type UpdateProductMutation = {
+  __typename?: 'Mutation';
+  updateProduct: {
+    __typename?: 'Product';
+    _id: string;
+    barcode: string;
+    status: string;
+    color: { __typename?: 'Color'; _id: string; name: string };
+    size: { __typename?: 'Size'; _id: string; value: string };
+    images?:
+      | {
+          __typename?: 'Image';
+          _id: string;
+          urls?: {
+            __typename?: 'Urls';
+            webp?: { __typename?: 'ImageTypes'; small: string } | null;
+          } | null;
+        }[]
+      | null;
+  };
+};
+
+export type CreateProductMutationVariables = Exact<{
+  input: CreateProductInput;
+}>;
+
+export type CreateProductMutation = {
+  __typename?: 'Mutation';
+  createProduct: {
+    __typename?: 'Product';
+    _id: string;
+    barcode: string;
+    status: string;
+    color: { __typename?: 'Color'; _id: string; name: string };
+    size: { __typename?: 'Size'; _id: string; value: string };
+    images?:
+      | {
+          __typename?: 'Image';
+          _id: string;
+          urls?: {
+            __typename?: 'Urls';
+            webp?: { __typename?: 'ImageTypes'; small: string } | null;
+          } | null;
+        }[]
+      | null;
   };
 };
 
@@ -3683,7 +3740,7 @@ export type UpdateReferenceMutation = {
       weight: number;
     };
     brand: { __typename?: 'Brand'; _id: string; active: boolean; name: string };
-    attribs: { __typename?: 'Attrib'; _id: string; active: boolean; name: string }[];
+    attribs?: { __typename?: 'Attrib'; _id: string; active: boolean; name: string }[] | null;
     categoryLevel1: {
       __typename?: 'CategoryLevel1';
       _id: string;
@@ -3701,7 +3758,7 @@ export type UpdateReferenceMutation = {
           }[]
         | null;
     };
-    categoryLevel2: {
+    categoryLevel2?: {
       __typename?: 'CategoryLevel2';
       _id: string;
       name: string;
@@ -3718,15 +3775,15 @@ export type UpdateReferenceMutation = {
             parentId?: string | null;
           }[]
         | null;
-    };
-    categoryLevel3: {
+    } | null;
+    categoryLevel3?: {
       __typename?: 'CategoryLevel3';
       _id: string;
       name: string;
       createdAt: any;
       updatedAt: any;
       parentId?: string | null;
-    };
+    } | null;
   };
 };
 
@@ -3775,7 +3832,7 @@ export type UpdateStockRequestMutation = {
         };
         reference: { __typename?: 'Reference'; description: string };
         size: { __typename?: 'Size'; value: string };
-        stock: { __typename?: 'Stock'; quantity: number }[];
+        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
       };
     }[];
     user: { __typename?: 'User'; name: string };
@@ -3894,7 +3951,7 @@ export type StockAdjustmentQuery = {
             } | null;
           } | null;
         };
-        stock: { __typename?: 'Stock'; quantity: number }[];
+        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
         user: { __typename?: 'User'; name: string };
       };
     }[];
@@ -3931,7 +3988,7 @@ export type StockAdjustmentsQuery = {
           barcode: string;
           reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
           size: { __typename?: 'Size'; value: string };
-          stock: { __typename?: 'Stock'; quantity: number }[];
+          stock?: { __typename?: 'Stock'; quantity: number }[] | null;
           color: {
             __typename?: 'Color';
             html: string;
@@ -4127,7 +4184,7 @@ export type StockInputQuery = {
             } | null;
           } | null;
         };
-        stock: { __typename?: 'Stock'; quantity: number }[];
+        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
         size: { __typename?: 'Size'; value: string };
       };
     }[];
@@ -4227,7 +4284,7 @@ export type OrderIdQuery = {
                 } | null;
               } | null;
             };
-            stock: { __typename?: 'Stock'; quantity: number }[];
+            stock?: { __typename?: 'Stock'; quantity: number }[] | null;
           };
         }[]
       | null;
@@ -4304,7 +4361,7 @@ export type OrdersByPosQuery = {
               } | null;
             };
             size: { __typename?: 'Size'; value: string };
-            stock: { __typename?: 'Stock'; quantity: number }[];
+            stock?: { __typename?: 'Stock'; quantity: number }[] | null;
           };
         }[]
       | null;
@@ -4365,7 +4422,7 @@ export type StockOutputQuery = {
             } | null;
           } | null;
         };
-        stock: { __typename?: 'Stock'; quantity: number }[];
+        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
         size: { __typename?: 'Size'; value: string };
       };
     }[];
@@ -4445,7 +4502,7 @@ export type ProductsQuery = {
         } | null;
       };
       size: { __typename?: 'Size'; value: string };
-      stock: { __typename?: 'Stock'; quantity: number }[];
+      stock?: { __typename?: 'Stock'; quantity: number }[] | null;
     }[];
   };
 };
@@ -4461,7 +4518,7 @@ export type ProductQuery = {
     _id: string;
     barcode: string;
     status: string;
-    stock: { __typename?: 'Stock'; quantity: number }[];
+    stock?: { __typename?: 'Stock'; quantity: number }[] | null;
     color: {
       __typename?: 'Color';
       name_internal: string;
@@ -4486,7 +4543,7 @@ export type ReferenceIdQueryVariables = Exact<{
 export type ReferenceIdQuery = {
   __typename?: 'Query';
   referenceId: {
-    __typename?: 'Reference';
+    __typename?: 'ReferenceData';
     _id: string;
     active: boolean;
     changeable: boolean;
@@ -4494,67 +4551,59 @@ export type ReferenceIdQuery = {
     description: string;
     name: string;
     price: number;
-    attribs: {
-      __typename?: 'Attrib';
-      _id: string;
-      active: boolean;
-      createdAt: any;
-      updatedAt: any;
-      name: string;
-    }[];
+    attribs?:
+      | {
+          __typename?: 'Attrib';
+          _id: string;
+          active: boolean;
+          createdAt: any;
+          updatedAt: any;
+          name: string;
+        }[]
+      | null;
     brand: { __typename?: 'Brand'; _id: string; active: boolean; name: string };
-    categoryLevel1: {
-      __typename?: 'CategoryLevel1';
-      _id: string;
-      name: string;
-      createdAt: any;
-      updatedAt: any;
-      childs?:
-        | {
-            __typename?: 'CategoryLevel2';
-            _id: string;
-            name: string;
-            createdAt: any;
-            updatedAt: any;
-            parentId?: string | null;
-          }[]
-        | null;
-    };
-    categoryLevel2: {
-      __typename?: 'CategoryLevel2';
-      _id: string;
-      name: string;
-      parentId?: string | null;
-      createdAt: any;
-      updatedAt: any;
-      childs?:
-        | {
-            __typename?: 'CategoryLevel3';
-            _id: string;
-            name: string;
-            createdAt: any;
-            updatedAt: any;
-            parentId?: string | null;
-          }[]
-        | null;
-    };
-    categoryLevel3: {
-      __typename?: 'CategoryLevel3';
-      _id: string;
-      name: string;
-      createdAt: any;
-      updatedAt: any;
-      parentId?: string | null;
-    };
+    categoryLevel1: { __typename?: 'CategoryLevel1'; _id: string };
+    categoryLevel2?: { __typename?: 'CategoryLevel2'; _id: string } | null;
+    categoryLevel3?: { __typename?: 'CategoryLevel3'; _id: string } | null;
     shipping: {
       __typename?: 'Shipping';
-      createdAt: any;
-      updatedAt: any;
       height: number;
       long: number;
       volume: number;
       width: number;
+      weight: number;
     };
+    products: {
+      __typename?: 'Product';
+      _id: string;
+      barcode: string;
+      status: string;
+      images?:
+        | {
+            __typename?: 'Image';
+            _id: string;
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
+          }[]
+        | null;
+      color: {
+        __typename?: 'Color';
+        _id: string;
+        name: string;
+        name_internal: string;
+        html: string;
+        image?: {
+          __typename?: 'Image';
+          urls?: {
+            __typename?: 'Urls';
+            webp?: { __typename?: 'ImageTypes'; small: string } | null;
+          } | null;
+        } | null;
+      };
+      size: { __typename?: 'Size'; _id: string; value: string };
+    }[];
   };
 };
 
@@ -4573,6 +4622,7 @@ export type ReferencesQuery = {
     limit: number;
     docs: {
       __typename?: 'ReferenceData';
+      _id: string;
       name: string;
       description: string;
       active: boolean;
@@ -4605,7 +4655,7 @@ export type StockRequestQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        stock: { __typename?: 'Stock'; quantity: number }[];
+        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
         color: {
           __typename?: 'Color';
           html: string;
@@ -6651,6 +6701,209 @@ export const UpdateStockOutputDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateStockOutputMutation, UpdateStockOutputMutationVariables>;
+export const UpdateProductDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateProduct' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateProductInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateProduct' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateProductInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'color' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'size' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'images' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'urls' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'webp' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'small' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateProductMutation, UpdateProductMutationVariables>;
+export const CreateProductDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createProduct' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateProductInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createProduct' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createProductInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'color' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'size' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'images' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'urls' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'webp' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'small' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateProductMutation, CreateProductMutationVariables>;
 export const CreateReferenceDocument = {
   kind: 'Document',
   definitions: [
@@ -9424,26 +9677,7 @@ export const ReferenceIdDocument = {
                   name: { kind: 'Name', value: 'categoryLevel1' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'childs' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
-                          ],
-                        },
-                      },
-                    ],
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
                   },
                 },
                 {
@@ -9451,27 +9685,7 @@ export const ReferenceIdDocument = {
                   name: { kind: 'Name', value: 'categoryLevel2' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'childs' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
-                          ],
-                        },
-                      },
-                    ],
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
                   },
                 },
                 {
@@ -9479,13 +9693,7 @@ export const ReferenceIdDocument = {
                   name: { kind: 'Name', value: 'categoryLevel3' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
-                    ],
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
                   },
                 },
                 {
@@ -9494,13 +9702,107 @@ export const ReferenceIdDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'height' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'long' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'volume' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'width' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'width' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'weight' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'products' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'images' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'urls' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'webp' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'small' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'color' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'html' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'image' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'urls' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'webp' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'small' },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'size' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -9565,6 +9867,7 @@ export const ReferencesDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'active' } },

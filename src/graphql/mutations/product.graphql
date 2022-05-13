@@ -1,0 +1,47 @@
+mutation updateProduct($id: String!, $input: UpdateProductInput!) {
+  updateProduct(id: $id, updateProductInput: $input) {
+    _id
+    barcode
+    status
+    color {
+      _id
+      name
+    }
+    size {
+      _id
+      value
+    }
+    images {
+      _id
+      urls {
+        webp {
+          small
+        }
+      }
+    }
+  }
+}
+
+mutation createProduct($input: CreateProductInput!) {
+  createProduct(createProductInput: $input) {
+    _id
+    barcode
+    status
+    color {
+      _id
+      name
+    }
+    size {
+      _id
+      value
+    }
+    images {
+      _id
+      urls {
+        webp {
+          small
+        }
+      }
+    }
+  }
+}

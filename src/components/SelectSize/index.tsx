@@ -3,18 +3,16 @@ import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetSizes } from '@/hooks/size.hooks';
-import type { Size } from '@/graphql/graphql';
-
-import styles from './styles.less';
 
 const { Option } = Select;
 
 export type Props = {
-  onChange?: (value: Size | undefined) => void;
+  onChange?: (value: string | undefined) => void;
   value?: string;
+  disabled: boolean;
 };
 
-const SelectSize = ({ onChange }: Props) => {
+const SelectSize = ({ onChange, value, disabled }: Props) => {
   const [getSizes, { loading, data, error }] = useGetSizes();
 
   /**
@@ -35,12 +33,6 @@ const SelectSize = ({ onChange }: Props) => {
     });
   };
 
-  const onChangeLocal = (sizeId: string) => {
-    if (onChange) {
-      onChange(data?.sizes?.docs?.find((size) => size?._id === sizeId) as Size);
-    }
-  };
-
   useEffect(() => {
     getSizes({
       variables: {
@@ -57,16 +49,19 @@ const SelectSize = ({ onChange }: Props) => {
   return (
     <>
       <Select
-        className={styles.select}
         showSearch
         loading={loading}
         placeholder="Seleccione Talla"
         optionFilterProp="children"
-        onChange={onChangeLocal}
+        onChange={onChange}
         onSearch={onSearch}
+        value={value}
+        disabled={disabled}
       >
         {data?.sizes?.docs?.map((size) => (
-          <Option key={size?._id}>{size?.value}</Option>
+          <Option key={size?._id} value={size._id}>
+            {size?.value}
+          </Option>
         ))}
       </Select>
       {error && <Alert message={error} type="info" showIcon />}

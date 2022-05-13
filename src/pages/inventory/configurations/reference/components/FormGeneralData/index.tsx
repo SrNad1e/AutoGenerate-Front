@@ -52,7 +52,7 @@ const FormGeneralData = () => {
             style={styles.marginIntial}
             rules={[{ required: true, message: 'Obligatorio' }]}
           >
-            <Input />
+            <Input autoFocus />
           </FormItem>
         </DescriptionsItem>
         <DescriptionsItem label="Descripción">

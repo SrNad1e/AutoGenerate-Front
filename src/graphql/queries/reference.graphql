@@ -21,46 +21,49 @@ query referenceId($id: String!) {
     }
     categoryLevel1 {
       _id
-      name
-      createdAt
-      updatedAt
-      childs {
-        _id
-        name
-        createdAt
-        updatedAt
-        parentId
-      }
     }
     categoryLevel2 {
       _id
-      name
-      parentId
-      createdAt
-      updatedAt
-      childs {
-        _id
-        name
-        createdAt
-        updatedAt
-        parentId
-      }
     }
     categoryLevel3 {
       _id
-      name
-      createdAt
-      updatedAt
-      parentId
     }
     shipping {
-      createdAt
-      updatedAt
       height
       long
       volume
       width
-      width
+      weight
+    }
+    products {
+      _id
+      barcode
+      status
+      images {
+        _id
+        urls {
+          webp {
+            small
+          }
+        }
+      }
+      color {
+        _id
+        name
+        name_internal
+        html
+        image {
+          urls {
+            webp {
+              small
+            }
+          }
+        }
+      }
+      size{
+        _id
+        value
+      }
     }
   }
 }
@@ -72,6 +75,7 @@ query references($id: String!, $input: FiltersReferencesInput) {
     totalPages
     limit
     docs {
+      _id
       name
       description
       active

@@ -1,4 +1,5 @@
-import { ArrowLeftOutlined, DeleteOutlined } from '@ant-design/icons';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { ArrowLeftOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Affix,
@@ -12,20 +13,34 @@ import {
   Tabs,
   Tooltip,
   Typography,
+  Popconfirm,
+  Image,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
-import { useHistory } from 'umi';
-import { useState } from 'react';
+import { useHistory, useParams } from 'umi';
+import { useEffect, useState } from 'react';
 
-import type { Color, Product, Size } from '@/graphql/graphql';
+import type {
+  Color,
+  Product,
+  Size,
+  Image as ImageModel,
+  CreateProductInput,
+} from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import FormGeneralData from '../components/FormGeneralData';
 import FormShipping from '../components/FormShipping';
 import FormCreateProduct from '../components/FormCreateProduct';
-import { useCreateReference } from '@/hooks/reference.hooks';
+import { useCreateReference, useGetReference } from '@/hooks/reference.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import AlertSave from '@/components/Alerts/AlertSave';
+import EditProduct from '../components/EditModal';
+
+import DefaultImage from '@/assets/default.webp';
 
 import styles from './styles';
+import { useCreateProduct } from '@/hooks/product.hooks';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -33,23 +48,42 @@ const { TabPane } = Tabs;
 const FormReference = () => {
   const [combinations, setCombinations] = useState<Partial<Product>[]>([]);
   const [activeKey, setActiveKey] = useState('1');
+  const [editProduct, setEditProduct] = useState(false);
+  const [product, setProduct] = useState<Product>();
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
+  const [alertSave, setAlertSave] = useState<Partial<PropsAlertSave>>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
   const history = useHistory();
+  const { id } = useParams<Partial<{ id: string }>>();
 
   const [form] = Form.useForm();
   const [formCreateProduct] = Form.useForm();
 
   const [createReference] = useCreateReference();
+  const [getReference, { data }] = useGetReference();
+  const [createProduct, { loading }] = useCreateProduct(id || '');
 
   /**
    * @description se encarga de cerrar la alerta informativa
    */
   const closeAlertInformation = () => {
     setAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  const closeAlertSave = () => {
+    setAlertSave({
       message: '',
       type: 'error',
       visible: false,
@@ -68,7 +102,17 @@ const FormReference = () => {
     });
   };
 
-  const onFinish = async () => {
+  const onFinish = () => {
+    setAlertSave({
+      message: id
+        ? '¿Estás seguro que deseas actualizar la referencia?'
+        : '¿Estás seguro que deseas crear la referencia?',
+      type: 'warning',
+      visible: true,
+    });
+  };
+
+  const newReference = async () => {
     try {
       const values = await form.validateFields();
 
@@ -135,6 +179,22 @@ const FormReference = () => {
     }
   };
 
+  const saveReference = async () => {
+    //actualiza los datos de la referencia
+  };
+
+  const addProduct = async (values: CreateProductInput) => {
+    try {
+      return createProduct({
+        variables: {
+          input: values,
+        },
+      });
+    } catch (e) {
+      return e;
+    }
+  };
+
   const addProducts = ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
     const newCombinations = [];
 
@@ -145,11 +205,24 @@ const FormReference = () => {
         const combinationFind = combinations.find(
           (combination) => combination?.color === color && combination?.size === size,
         );
+
         if (!combinationFind) {
-          newCombinations.push({
-            color,
-            size,
-          });
+          if (id) {
+            try {
+              addProduct({
+                referenceId: id,
+                colorId: color?._id,
+                sizeId: size?._id,
+              });
+            } catch (e: any) {
+              showError(e.message);
+            }
+          } else {
+            newCombinations.push({
+              color,
+              size,
+            });
+          }
         }
       }
     }
@@ -158,11 +231,77 @@ const FormReference = () => {
     formCreateProduct.resetFields();
   };
 
+  const deleteProduct = ({ color, size }: Product) => {
+    const newCombinations = combinations?.filter(
+      (combination) =>
+        !(combination?.color?._id === color?._id && combination?.size?._id === size?._id),
+    );
+    setCombinations(newCombinations);
+  };
+
+  useEffect(() => {
+    if (id) {
+      getReference({
+        variables: {
+          id,
+        },
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (data?.referenceId) {
+      const {
+        name,
+        description,
+        changeable,
+        active,
+        price,
+        cost,
+        shipping,
+        categoryLevel1,
+        categoryLevel2,
+        categoryLevel3,
+        attribs,
+        brand,
+      } = data?.referenceId;
+
+      form.setFieldsValue({
+        name,
+        description,
+        changeable,
+        active,
+        price,
+        cost,
+        ...shipping,
+        categoriesId:
+          `${categoryLevel1?._id}-${categoryLevel2?._id}-${categoryLevel3?._id}`.replaceAll(
+            '-undefined',
+            '',
+          ),
+        attribIds: attribs?.map((attrib) => attrib._id) || [],
+        brandId: brand?._id,
+      });
+
+      setCombinations((data?.referenceId?.products as Product[]) || []);
+    }
+  }, [data]);
+
   const columns: ColumnsType<Product> = [
     {
       title: 'Imagen',
       dataIndex: 'images',
-      render: () => <Avatar shape="square" size="large" />,
+      width: 100,
+      render: (images: ImageModel[]) => {
+        const image = images && images[0];
+        return (
+          <Image
+            style={{ maxWidth: 200, maxHeight: 125 }}
+            src={`${CDN_URL}/${image?.urls?.webp?.small}`}
+            fallback={DefaultImage}
+          />
+        );
+      },
     },
     {
       title: 'Color',
@@ -195,11 +334,29 @@ const FormReference = () => {
       title: 'Acciones',
       dataIndex: '_id',
       align: 'center',
-      render: () => (
-        <Tooltip title="Eliminar" placement="topLeft">
-          <Button danger onClick={() => {}} type="primary" icon={<DeleteOutlined />} />
-        </Tooltip>
-      ),
+      render: (_id: string, record) =>
+        _id ? (
+          <Tooltip title="Editar" placement="topLeft">
+            <Button
+              onClick={() => {
+                setProduct(record);
+                setEditProduct(true);
+              }}
+              type="primary"
+              icon={<EditOutlined />}
+            />
+          </Tooltip>
+        ) : (
+          <Tooltip title="Eliminar" placement="topLeft">
+            <Popconfirm
+              title="¿Está seguro que desea eliminarlo?"
+              okText="Eliminar"
+              onConfirm={() => deleteProduct(record)}
+            >
+              <Button danger type="primary" icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Tooltip>
+        ),
     },
   ];
 
@@ -216,12 +373,17 @@ const FormReference = () => {
             />
           </Tooltip>
           <Divider type="vertical" />
-          Nueva Referencia
+          {id ? `Edición de referencia: ${data?.referenceId?.name}` : 'Nueva Referencia'}
         </Space>
       }
     >
-      <Card bordered={false}>
-        <Form form={form}>
+      <Card bordered={false} loading={loading}>
+        <Form
+          form={form}
+          initialValues={{
+            name: data?.referenceId?.name,
+          }}
+        >
           <Tabs type="card" activeKey={activeKey} onChange={setActiveKey}>
             <TabPane tab="Datos generales" key="1">
               <FormGeneralData />
@@ -234,9 +396,15 @@ const FormReference = () => {
         <Divider>Productos</Divider>
         <FormCreateProduct form={formCreateProduct} onFinish={addProducts} />
         <Divider />
-        <Table dataSource={combinations} columns={columns} pagination={false} bordered />
+        <Table
+          loading={loading}
+          dataSource={combinations}
+          columns={columns}
+          pagination={false}
+          bordered
+        />
         <Affix offsetBottom={0}>
-          <Card bodyStyle={styles.bodyStyle} size="small">
+          <Card loading={loading} bodyStyle={styles.bodyStyle} size="small">
             <Button type="primary" onClick={onFinish}>
               Guardar
             </Button>
@@ -244,6 +412,19 @@ const FormReference = () => {
         </Affix>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <AlertSave
+        {...alertSave}
+        onCancel={closeAlertSave}
+        onOk={id ? saveReference : newReference}
+      />
+      {product && (
+        <EditProduct
+          products={combinations as Product[]}
+          current={product}
+          visible={editProduct}
+          onClose={() => setEditProduct(false)}
+        />
+      )}
     </PageContainer>
   );
 };

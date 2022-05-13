@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useGetAttribs } from '@/hooks/attrib.hooks';
 import { Alert, Select } from 'antd';
+import { useEffect } from 'react';
 
 const { Option } = Select;
 
@@ -16,7 +18,7 @@ const SelectListAttrib = ({ onChange, value, disabled }: Params) => {
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
-  const onSearch = (name: string) => {
+  const onSearch = (name?: string) => {
     getAttribs({
       variables: {
         input: {
@@ -29,6 +31,10 @@ const SelectListAttrib = ({ onChange, value, disabled }: Params) => {
       },
     });
   };
+
+  useEffect(() => {
+    onSearch();
+  }, []);
 
   return (
     <>

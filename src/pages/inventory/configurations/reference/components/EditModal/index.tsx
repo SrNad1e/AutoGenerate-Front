@@ -1,61 +1,207 @@
-import { Col, Form, Input, Modal, Row, Switch } from 'antd';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Alert, Col, Form, Input, Modal, Progress, Row, Select } from 'antd';
+import { useEffect, useState } from 'react';
 
 import ImageAdmin from '@/components/ImageAdmin';
 import SelectColor from '@/components/SelectColor';
 import SelectSize from '@/components/SelectSize';
+import type { Image, Product, UpdateProductInput } from '@/graphql/graphql';
+import { StatusType } from '../../product.data';
+import { useUpdateProduct } from '@/hooks/product.hooks';
 
-const EditModal = () => {
-  const FormItem = Form.Item;
+const FormItem = Form.Item;
+const { Option } = Select;
+
+export type Params = {
+  visible: boolean;
+  current: Product;
+  onClose: () => void;
+  products: Product[] | [];
+};
+
+const EditModal = ({ visible, current, onClose, products }: Params) => {
+  const [error, setError] = useState('');
+  const [progress, setProgress] = useState(0);
+
+  const [updateProduct, { loading }] = useUpdateProduct();
+
+  const [form] = Form.useForm();
+
+  /**
+   * @description se encarga de ejecutar la consulta para actualizar el producto
+   * @param params datos del producto a actualizar
+   * @param productId identificador del producto a actualizar
+   * @param copyImages si lo que se desea es copiar las imagenes solamente
+   * @returns respuesta de la consulta
+   */
+  const saveProduct = async (
+    params: UpdateProductInput,
+    productId: string,
+    copyImages?: boolean,
+  ) => {
+    try {
+      const { barcode, colorId, imagesId, sizeId, status } = params;
+      const values: UpdateProductInput = {};
+
+      const currentImagesId = current?.images?.map((image) => image._id) || [];
+
+      if (current?.color?._id !== colorId) {
+        values.colorId = colorId;
+      }
+
+      if (current?.size?._id !== sizeId) {
+        values.sizeId = sizeId;
+      }
+
+      if (current?.barcode !== barcode) {
+        values.barcode = barcode;
+      }
+
+      if (current?.status !== status) {
+        values.status = status;
+      }
+
+      if (JSON.stringify(currentImagesId) !== JSON.stringify(imagesId) || copyImages) {
+        values.imagesId = imagesId;
+      }
+
+      if (Object.keys(values).length === 0) {
+        setError('No hay cambios para guardar');
+      } else {
+        return updateProduct({
+          variables: {
+            id: productId,
+            input: values,
+          },
+        });
+      }
+    } catch (e: any) {
+      setError(e?.message);
+      return e;
+    }
+  };
+
+  /**
+   * @description se encarga de seleccionar y actualizar los productos que tengan el mismo color
+   */
+  const copyImages = async () => {
+    try {
+      const newProducts = products?.filter(
+        (product) => product?.color?._id === current?.color?._id,
+      );
+
+      const images = form.getFieldValue('images');
+      for (let i = 0; i < newProducts.length; i++) {
+        const product = newProducts[i];
+
+        await saveProduct(
+          {
+            imagesId: images.map((image: Image) => image?._id),
+          },
+          product._id,
+          true,
+        );
+        setProgress(((i + 1) * 100) / newProducts.length);
+      }
+    } catch (e: any) {
+      setError(e?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de organizar los datos para actualizar el producto
+   */
+  const onFinish = async () => {
+    try {
+      setError('');
+      const values = await form.validateFields();
+
+      if (values?.images?.length > 0) {
+        values.imagesId = values?.images?.map((image: Image) => image?._id);
+      }
+      delete values?.images;
+      const response = await saveProduct(values, current?._id);
+      if (response?.data?.updateProduct) {
+        onClose();
+      }
+    } catch (e: any) {
+      setError(e?.message);
+    }
+  };
+
+  useEffect(() => {
+    if (current) {
+      setError('');
+      setProgress(0);
+      form.setFieldsValue({
+        barcode: current?.barcode,
+        colorId: current?.color?._id,
+        sizeId: current?.size?._id,
+        status: current?.status,
+        images: current?.images,
+      });
+    }
+  }, [current]);
 
   return (
     <Modal
+      onOk={onFinish}
       okText="Aceptar"
       cancelText="Cancelar"
       destroyOnClose
-      title={`Edición Producto ${'Nombre del Producto'}`}
-      visible={false}
+      title={`Edición Producto ${current?.barcode}`}
+      visible={visible}
       width="80%"
+      onCancel={onClose}
     >
       <Row>
-        <Form layout="inline">
-          <Col>
+        <Form form={form} layout="inline">
+          <Col xs={24} lg={6} md={7}>
             <FormItem label="EAN 13" name="barcode">
-              <Input placeholder="" />
+              <Input disabled={loading} autoFocus placeholder="" />
             </FormItem>
           </Col>
-          <Col>
+          <Col xs={24} lg={8} md={7}>
             <FormItem
               label="Color"
               rules={[{ required: true, message: 'Obligatorio' }]}
-              name="color"
+              name="colorId"
             >
-              <SelectColor />
+              <SelectColor disabled={loading} />
             </FormItem>
           </Col>
-          <Col>
+          <Col xs={24} lg={5} md={5}>
             <FormItem
               label="Talla"
               rules={[{ required: true, message: 'Obligatorio' }]}
-              name="size"
+              name="sizeId"
             >
-              <SelectSize />
+              <SelectSize disabled={loading} />
             </FormItem>
           </Col>
-          <Col>
+          <Col xs={24} lg={5} md={5}>
             <FormItem
-              name="active"
+              name="status"
               label="Activo"
               rules={[{ required: true, message: 'Obligatorio' }]}
             >
-              <Switch />
+              <Select disabled={loading}>
+                {StatusType.map((status) => (
+                  <Option key={status.name} value={status.name}>
+                    {status.title}
+                  </Option>
+                ))}
+              </Select>
             </FormItem>
           </Col>
           <Col span={24}>
             <FormItem label="Imagenes" name="images">
-              <ImageAdmin limit={20} />
+              <ImageAdmin disabled={loading} limit={3} onCopyImage={copyImages} />
             </FormItem>
           </Col>
         </Form>
+        {error && <Alert type="error" message={error} showIcon />}
+        {progress > 0 && <Progress strokeColor="primary.main" percent={progress} />}
       </Row>
     </Modal>
   );
