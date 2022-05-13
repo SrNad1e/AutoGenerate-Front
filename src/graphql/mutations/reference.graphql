@@ -10,11 +10,9 @@ mutation updateReference($id: String!, $input: UpdateReferenceInput!) {
     active
     changeable
     cost
-    createdAt
     description
     name
     price
-    updatedAt
     shipping {
       height
       long
@@ -24,47 +22,31 @@ mutation updateReference($id: String!, $input: UpdateReferenceInput!) {
     }
     brand {
       _id
-      active
       name
     }
     attribs {
       _id
-      active
       name
     }
     categoryLevel1 {
       _id
       name
-      createdAt
-      updatedAt
       childs {
         _id
         name
-        createdAt
-        updatedAt
-        parentId
       }
     }
     categoryLevel2 {
       _id
       name
-      parentId
-      createdAt
-      updatedAt
       childs {
         _id
         name
-        createdAt
-        updatedAt
-        parentId
       }
     }
     categoryLevel3 {
       _id
       name
-      createdAt
-      updatedAt
-      parentId
     }
   }
 }

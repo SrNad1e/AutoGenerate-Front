@@ -26,13 +26,14 @@ import type {
   Size,
   Image as ImageModel,
   CreateProductInput,
+  UpdateReferenceInput,
 } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import FormGeneralData from '../components/FormGeneralData';
 import FormShipping from '../components/FormShipping';
 import FormCreateProduct from '../components/FormCreateProduct';
-import { useCreateReference, useGetReference } from '@/hooks/reference.hooks';
+import { useCreateReference, useGetReference, useUpdateReference } from '@/hooks/reference.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertSave from '@/components/Alerts/AlertSave';
 import EditProduct from '../components/EditModal';
@@ -70,6 +71,7 @@ const FormReference = () => {
   const [createReference] = useCreateReference();
   const [getReference, { data }] = useGetReference();
   const [createProduct, { loading }] = useCreateProduct(id || '');
+  const [updateReference] = useUpdateReference();
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -180,7 +182,108 @@ const FormReference = () => {
   };
 
   const saveReference = async () => {
-    //actualiza los datos de la referencia
+    try {
+      const values = await form.validateFields();
+
+      const params: UpdateReferenceInput = {};
+
+      const categoriesId = values?.categoriesId?.split('-');
+
+      if (categoriesId.length === 3) {
+        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
+          params.categoryLevel1Id = categoriesId[0];
+        }
+
+        if (categoriesId[1] !== data?.referenceId?.categoryLevel2?._id) {
+          params.categoryLevel2Id = categoriesId[1];
+        }
+
+        if (categoriesId[2] !== data?.referenceId?.categoryLevel3?._id) {
+          params.categoryLevel3Id = categoriesId[2];
+        }
+      }
+
+      if (categoriesId.length === 2) {
+        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
+          params.categoryLevel1Id = categoriesId[0];
+        }
+
+        if (categoriesId[1] !== data?.referenceId?.categoryLevel2?._id) {
+          params.categoryLevel2Id = categoriesId[1];
+        }
+      }
+
+      if (categoriesId.length === 1) {
+        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
+          params.categoryLevel1Id = categoriesId[0];
+        }
+      }
+
+      if (values?.active) {
+        params.active = values?.active;
+      }
+
+      if (values?.attribIds) {
+        params.attribIds = values?.attribIds;
+      }
+
+      if (values?.brandId) {
+        params.brandId = values?.brandId;
+      }
+
+      if (values?.changeable) {
+        params.changeable = values?.changeable;
+      }
+
+      if (values?.cost) {
+        params.cost = values?.cost;
+      }
+
+      if (values?.description) {
+        params.description = values?.description;
+      }
+
+      if (values?.height) {
+        params.height = values?.height;
+      }
+
+      if (values?.long) {
+        params.long = values?.long;
+      }
+
+      if (values?.name) {
+        params.name = values?.name;
+      }
+
+      if (values?.price) {
+        params.price = values?.price;
+      }
+
+      if (values?.volume) {
+        params.volume = values?.volume;
+      }
+
+      if (values?.weight) {
+        params.weight = values?.weight;
+      }
+
+      if (values?.width) {
+        params.width = values?.width;
+      }
+
+      delete values.categoriesId;
+
+      updateReference({
+        variables: {
+          id: id || '',
+          input: values,
+        },
+      });
+    } catch (e: any) {
+      if (e?.message) {
+        showError(e?.message);
+      }
+    }
   };
 
   const addProduct = async (values: CreateProductInput) => {

@@ -3726,11 +3726,9 @@ export type UpdateReferenceMutation = {
     active: boolean;
     changeable: boolean;
     cost: number;
-    createdAt: any;
     description: string;
     name: string;
     price: number;
-    updatedAt: any;
     shipping: {
       __typename?: 'Shipping';
       height: number;
@@ -3739,51 +3737,21 @@ export type UpdateReferenceMutation = {
       width: number;
       weight: number;
     };
-    brand: { __typename?: 'Brand'; _id: string; active: boolean; name: string };
-    attribs?: { __typename?: 'Attrib'; _id: string; active: boolean; name: string }[] | null;
+    brand: { __typename?: 'Brand'; _id: string; name: string };
+    attribs?: { __typename?: 'Attrib'; _id: string; name: string }[] | null;
     categoryLevel1: {
       __typename?: 'CategoryLevel1';
       _id: string;
       name: string;
-      createdAt: any;
-      updatedAt: any;
-      childs?:
-        | {
-            __typename?: 'CategoryLevel2';
-            _id: string;
-            name: string;
-            createdAt: any;
-            updatedAt: any;
-            parentId?: string | null;
-          }[]
-        | null;
+      childs?: { __typename?: 'CategoryLevel2'; _id: string; name: string }[] | null;
     };
     categoryLevel2?: {
       __typename?: 'CategoryLevel2';
       _id: string;
       name: string;
-      parentId?: string | null;
-      createdAt: any;
-      updatedAt: any;
-      childs?:
-        | {
-            __typename?: 'CategoryLevel3';
-            _id: string;
-            name: string;
-            createdAt: any;
-            updatedAt: any;
-            parentId?: string | null;
-          }[]
-        | null;
+      childs?: { __typename?: 'CategoryLevel3'; _id: string; name: string }[] | null;
     } | null;
-    categoryLevel3?: {
-      __typename?: 'CategoryLevel3';
-      _id: string;
-      name: string;
-      createdAt: any;
-      updatedAt: any;
-      parentId?: string | null;
-    } | null;
+    categoryLevel3?: { __typename?: 'CategoryLevel3'; _id: string; name: string } | null;
   };
 };
 
@@ -6994,11 +6962,9 @@ export const UpdateReferenceDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'changeable' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'price' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'shipping' },
@@ -7020,7 +6986,6 @@ export const UpdateReferenceDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                     ],
                   },
@@ -7032,7 +6997,6 @@ export const UpdateReferenceDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                     ],
                   },
@@ -7045,8 +7009,6 @@ export const UpdateReferenceDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'childs' },
@@ -7055,9 +7017,6 @@ export const UpdateReferenceDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                           ],
                         },
                       },
@@ -7072,9 +7031,6 @@ export const UpdateReferenceDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'childs' },
@@ -7083,9 +7039,6 @@ export const UpdateReferenceDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                           ],
                         },
                       },
@@ -7100,9 +7053,6 @@ export const UpdateReferenceDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
                     ],
                   },
                 },
