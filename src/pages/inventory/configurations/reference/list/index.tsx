@@ -15,7 +15,8 @@ import {
 } from 'antd';
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
-import { history, Link } from 'umi';
+import type { Location } from 'umi';
+import { history, Link, useLocation } from 'umi';
 import numeral from 'numeral';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -45,6 +46,8 @@ const ReferenceList = () => {
     type: 'error',
     visible: false,
   });
+
+  const location: Location = useLocation();
 
   const [form] = Form.useForm();
 
@@ -124,6 +127,27 @@ const ReferenceList = () => {
   };
 
   /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const getFiltersQuery = () => {
+    const queryParams: any = location.query;
+    const params = {};
+    const tableFilters = {
+      active: queryParams.active ? [queryParams.active === 'true'] : null,
+    };
+    Object.keys(queryParams).forEach((item) => {
+      if (item === 'active') {
+        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+      } else {
+        params[item] = JSON.parse(queryParams[item]);
+      }
+    });
+    form.setFieldsValue(params);
+    setFilterTable(tableFilters);
+    onSearch(params);
+  };
+
+  /**
    * @description esta funcion evalua los paramametros del formulario y ejecuta la busqueda
    * @param values valores del formulario
    */
@@ -187,6 +211,7 @@ const ReferenceList = () => {
 
   useEffect(() => {
     onSearch();
+    getFiltersQuery();
   }, []);
 
   const columns: ColumnsType<Partial<Reference>> = [
