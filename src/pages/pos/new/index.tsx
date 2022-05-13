@@ -1,65 +1,15 @@
 import { Col, Row } from 'antd';
-import { useState } from 'react';
-import Resumen from '../components/Resumen';
-//import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-//import { useGetOrder } from "@/hooks/order.hooks";
-import SearchProduct from '../components/SearchProduct';
-//import { useParams } from 'umi';
+
+import SearchProduct from '../components/SearchForm';
+import Resumen from '../components/SellResumen';
 
 const PosNew = () => {
-  const [order, setOrder] = useState<Partial<ORDER.Order>>({
-    customer: {
-      firstName: 'Jose Luis',
-      lastName: 'Rodriguez',
-      document: '12345151515',
-      type: {
-        name: 'Mayorista',
-      },
-      documentType: {
-        abbreviation: 'CC.',
-      },
-    },
-  });
-  /*const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
-    message: '',
-    type: 'error',
-    visible: false,
-  });
-
-
-  const onShowError = (message: string) => {
-    setPropsAlert({
-      message,
-      type: 'error',
-      visible: true,
-    });
-  };
-
- /* const onCloseAlert = () => {
-    setPropsAlert({
-      message: '',
-      type: 'error',
-      visible: false,
-    });
-  };
-
-
-  const currentOrder = (data: Partial<ORDER.Order>) => {
-    setOrder(data);
-  };
-
-  const showError = (message: string) => {
-    onShowError(message)
-  };*/
-
-  //const { getOrder, loadingGetOne } = useGetOrder(currentOrder, showError);
-
   return (
-    <Row style={{ height: '90vh' }}>
-      <Col xxl={6} lg={8}>
-        <Resumen order={order} setOrder={setOrder} addProduct={() => {}} />
+    <Row>
+      <Col xs={12} md={8} lg={8}>
+        <Resumen />
       </Col>
-      <Col xxl={18} lg={16}>
+      <Col xs={12} md={16} lg={16}>
         <SearchProduct />
       </Col>
     </Row>
