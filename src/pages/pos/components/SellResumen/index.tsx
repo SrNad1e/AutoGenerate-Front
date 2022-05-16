@@ -1,40 +1,47 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
-  DeleteOutlined,
   DollarOutlined,
   PlusOutlined,
   PrinterOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import {
-  Avatar,
   Button,
   Card,
   Col,
-  InputNumber,
+  Divider,
+  Empty,
   List,
-  Popconfirm,
   Row,
+  Space,
   Tag,
   Tooltip,
   Typography,
 } from 'antd';
 import numeral from 'numeral';
-import { useState } from 'react';
+import { useParams } from 'umi';
+import { useEffect, useState } from 'react';
 
 import ModalChangeClient from '../ChangeCustomer';
 import ModalPayment from '../Payment';
+import ItemResume from './item';
+import { useGetOrder } from '@/hooks/order.hooks';
 
-import styles from '../styles';
-import style from '../styles.less';
+import type { DetailOrder } from '@/graphql/graphql';
 
-const { Title, Text } = Typography;
-const ListItem = List.Item;
+const { Title } = Typography;
 
 const Resumen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false);
+
+  const { id } = useParams<Partial<{ id: string }>>();
+
+  const [getOrder, { data }] = useGetOrder();
+
+  const totalProducts = data?.orderId?.details?.reduce((sum, detail) => detail?.quantity + sum, 0);
 
   /**
    * @description cierra el modal de cambio de cliente
@@ -50,186 +57,201 @@ const Resumen = () => {
     setModalPaymentVisible(false);
   };
 
+  useEffect(() => {
+    if (id) {
+      getOrder({
+        variables: {
+          id,
+        },
+      });
+    }
+  }, [id]);
+
   return (
-    <Card style={styles.cardSize} bodyStyle={styles.cardPadding}>
-      <Row>
-        <Col span={12}>
-          <Title level={4}>Productos:</Title>
+    <Card
+      bodyStyle={{
+        padding: '10px',
+      }}
+    >
+      <Row gutter={[12, 12]}>
+        <Col offset={2} span={11}>
+          <Title level={4}>Productos: {data?.orderId?.details?.length || 0}</Title>
         </Col>
-        <Col span={12}>
-          <Title level={4}>Total: {1}</Title>
+        <Col span={11}>
+          <Title level={4}>Total: {totalProducts}</Title>
         </Col>
-      </Row>
-      <List itemLayout="horizontal" size="small" style={styles.listSize}>
-        <ListItem style={styles.listBorderBottom}>
-          <Card bordered={false} bodyStyle={styles.bodyPadding}>
-            <Row gutter={[20, 0]} align="middle">
-              <Col>
-                <Title level={4}>{1}</Title>
-              </Col>
-              <Col>
-                <Avatar
-                  size={70}
-                  style={styles.imageBorder}
-                  src={'https://i.pinimg.com/736x/03/4b/de/034bde783ea726b922100c86547831e8.jpg'}
-                  alt={'Azula'}
-                  shape="square"
-                />
-              </Col>
-              <Col xs={24} md={24} lg={8}>
-                <Row>
-                  <Col span={24}>
-                    <Text style={styles.textSize}>{'Susana'}</Text>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span={24}>
-                    <Text style={styles.textSize}>{'10010101'}</Text>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span={24}>
-                    <Text>
-                      <Text strong>Talla</Text> {'L'}
-                    </Text>
-                  </Col>
-                  <Col span={24}>
-                    <Text>
-                      <Text strong>Color</Text> {'Rojo'}
-                    </Text>
-                  </Col>
-                </Row>
-              </Col>
-              <Col xs={24} md={24} lg={8}>
-                <Row gutter={[40, 0]} align="middle">
-                  <Col span={11} style={{}}>
-                    <InputNumber min={1} style={styles.inputNumberWidth} />
-                  </Col>
-                  <Col span={13} style={styles.priceStyle}>
-                    <Text style={styles.textSize}>{numeral(10000).format('$ 0,0')}</Text>
-                    <Text className={style.discountStyle}>{numeral(2000).format('$ 0,0')}</Text>
-                    <Popconfirm
-                      title="¿Estás seguro que deseas eliminar?"
-                      onConfirm={() => {}}
-                      okText="Si, eliminar"
-                      cancelText="No"
-                    >
-                      <Button style={styles.alignIcon} icon={<DeleteOutlined />} danger />
-                    </Popconfirm>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-          </Card>
-        </ListItem>
-      </List>
-      <Row>
-        <Col span={24} style={styles.customerTop}>
-          <Row style={styles.contentStyle}>
-            <Title level={3}>Cliente:</Title>
-            <Button
-              onClick={() => setModalVisible(true)}
-              icon={<UserOutlined />}
-              shape="round"
-              size="small"
-              type="primary"
-              style={styles.customerChange}
-            >
-              Cambiar
-            </Button>
+        <Col span={24}>
+          <List
+            size="small"
+            style={{
+              height: '50vh',
+              overflow: 'scroll',
+            }}
+          >
+            {(totalProducts || 0) > 0 ? (
+              data?.orderId?.details?.map((detail) => (
+                <ItemResume key={detail?.product?._id} {...(detail as DetailOrder)} />
+              ))
+            ) : (
+              <Empty />
+            )}
+          </List>
+        </Col>
+        <Col span={24}>
+          <Row>
+            <Col span={12}>
+              <Title level={3} style={{ lineHeight: 1 }}>
+                Cliente:
+              </Title>
+              <Title level={5} style={{ lineHeight: 0 }}>
+                {data?.orderId?.customer?.firstName} {data?.orderId?.customer?.lastName}
+              </Title>
+              <Title level={5} style={{ lineHeight: 1 }}>
+                {data?.orderId?.customer?.documentType?.abbreviation}{' '}
+                {data?.orderId?.customer?.document}
+              </Title>
+            </Col>
+            <Col span={12}>
+              <Row gutter={[24, 16]}>
+                <Col span={24}>
+                  <Button
+                    onClick={() => setModalVisible(true)}
+                    icon={<UserOutlined />}
+                    shape="round"
+                    size="small"
+                    type="primary"
+                    ghost
+                  >
+                    Cambiar
+                  </Button>
+                </Col>
+                <Col span={24}>
+                  <Tag color="volcano">{data?.orderId?.customer?.customerType?.name}</Tag>
+                  <Tooltip title={'activo' ? 'Activo' : 'Inactivo'}>
+                    <Tag color={'activo' ? '#87d068' : 'red'}>
+                      {'activo' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                    </Tag>
+                  </Tooltip>
+                </Col>
+              </Row>
+            </Col>
           </Row>
         </Col>
-      </Row>
-      <Row gutter={[10, 0]} style={styles.listBorderBottom}>
-        <Col style={styles.customerData}>
-          <Title level={5}>
-            {'Jose'} {'Rodriguez'}
-          </Title>
-        </Col>
-        <Col span={14}>
-          <Tag color="volcano">{'Mayorista'}</Tag>
-
-          <Tooltip title={'activo' ? 'Activo' : 'Inactivo'}>
-            <Tag style={styles.tagSize} color={'activo' ? '#87d068' : 'red'}>
-              {'activo' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
-            </Tag>
-          </Tooltip>
-        </Col>
-        <Col style={styles.customerData}>
-          <Title level={5}>{'CC.'} </Title>
-        </Col>
-        <Col>
-          <Text strong>{'01100001'}</Text>
-        </Col>
-      </Row>
-      <Col style={styles.totalContainer}>
-        <Row>
-          <Col md={19} lg={19}>
-            <Title level={4}>Total:</Title>
-          </Col>
-          <Col md={5} lg={5}>
-            <Title level={4}>{numeral(10000).format('$ 0,0')}</Title>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={19} lg={19} style={styles.totalStyle}>
-            <Title level={4}>Subtotal:</Title>
-          </Col>
-          <Col md={5} lg={5} style={styles.totalStyle}>
-            <Title level={4}>{numeral(8000).format('$ 0,0')}</Title>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={19} lg={19} style={styles.discountStyle}>
-            <Title level={4}>Descuento:</Title>
-          </Col>
-          <Col md={5} lg={5} style={styles.discountStyle}>
-            <Title level={4}>{numeral(2000).format('$ 0,0')}</Title>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={19} lg={19} style={styles.sendStyle}>
-            <Title level={4}>Envío:</Title>
-          </Col>
-          <Col md={5} lg={5} style={styles.sendStyle}>
-            <Title level={4}>{'N/A'}</Title>
-          </Col>
-        </Row>
-      </Col>
-      <Row>
-        <Col xs={12} md={12} lg={12}>
-          <Button
-            icon={<DollarOutlined />}
-            type="primary"
-            style={styles.payButton}
-            onClick={() => setModalPaymentVisible(true)}
-          >
-            PAGAR
-          </Button>
-        </Col>
-        <Col xs={12} md={12} lg={12}>
+        <Divider
+          style={{
+            backgroundColor: 'black',
+            margin: '5px 0',
+          }}
+        />
+        <Col span={24}>
           <Row>
-            <Col style={styles.buttonSendMargin}>
-              <Button
-                shape="round"
-                icon={<PlusOutlined />}
-                size="small"
-                type="primary"
-                style={styles.customerChange}
+            <Col span={12}>
+              <Title
+                style={{
+                  lineHeight: 0,
+                }}
+                level={4}
               >
-                Agregar Envio
+                Total:
+              </Title>
+              <Title
+                style={{
+                  lineHeight: 0,
+                }}
+                level={4}
+              >
+                Subtotal:
+              </Title>
+              <Title
+                style={{
+                  lineHeight: 0,
+                }}
+                level={4}
+              >
+                Descuento:
+              </Title>
+              <Title
+                style={{
+                  lineHeight: 0,
+                }}
+                level={4}
+              >
+                Envío:
+              </Title>
+            </Col>
+            <Col
+              span={12}
+              style={{
+                textAlign: 'right',
+                lineHeight: 0,
+              }}
+            >
+              <Title
+                style={{
+                  lineHeight: 0,
+                }}
+                level={4}
+              >
+                {numeral(data?.orderId?.summary?.total).format('$ 0,0')}
+              </Title>
+              <Title
+                style={{
+                  lineHeight: 0,
+                }}
+                level={4}
+              >
+                {numeral(data?.orderId?.summary?.subtotal).format('$ 0,0')}
+              </Title>
+              <Title
+                style={{
+                  lineHeight: 0,
+                }}
+                level={4}
+              >
+                {numeral(data?.orderId?.summary?.discount).format('$ 0,0')}
+              </Title>
+              <Title
+                style={{
+                  lineHeight: 0,
+                }}
+                level={4}
+              >
+                {numeral(0).format('$ 0,0')}
+              </Title>
+            </Col>
+          </Row>
+        </Col>
+        <Divider
+          style={{
+            backgroundColor: 'black',
+            margin: '5px 0',
+          }}
+        />
+        <Col span={24}>
+          <Row gutter={12}>
+            <Col span={12}>
+              <Button
+                icon={<DollarOutlined />}
+                type="primary"
+                onClick={() => setModalPaymentVisible(true)}
+                style={{
+                  fontSize: 30,
+                  width: '100%',
+                  height: 'auto',
+                }}
+              >
+                PAGAR
               </Button>
             </Col>
-            <Col style={styles.buttonSendMargin}>
-              <Button
-                shape="round"
-                icon={<PrinterOutlined />}
-                size="small"
-                type="primary"
-                style={styles.customerChange}
-              >
-                Imprimir
-              </Button>
+            <Col span={12}>
+              <Space direction="vertical">
+                <Button ghost shape="round" icon={<PlusOutlined />} size="small" type="primary">
+                  Agregar Envio
+                </Button>
+                <Button ghost shape="round" icon={<PrinterOutlined />} size="small" type="primary">
+                  Imprimir
+                </Button>
+              </Space>
             </Col>
           </Row>
         </Col>

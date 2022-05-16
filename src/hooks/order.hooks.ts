@@ -10,7 +10,9 @@ import {
 } from '@/graphql/graphql';
 
 export const useGetOrder = () => {
-  return useLazyQuery(OrderIdDocument);
+  return useLazyQuery(OrderIdDocument, {
+    fetchPolicy: 'cache-first',
+  });
 };
 
 export const useGetOrdersByPos = () => {

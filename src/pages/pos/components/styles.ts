@@ -1,18 +1,9 @@
 export default {
-  marginLayout: {
-    margin: 30,
-    marginTop: 30,
-  },
-  cardStyle: {
+  card: {
     borderRadius: 10,
-    borderColor: '#dc9575',
-    minWidth: 250,
+    width: 350,
   },
-  iconStyle: {
-    fontSize: 50,
-    color: '#dc9575',
-  },
-  iconSaveStyle: {
+  icon: {
     fontSize: 25,
     color: '#dc9575',
   },
@@ -27,10 +18,6 @@ export default {
   cardSize: {
     borderRight: 'solid 2px black',
     height: 910,
-  },
-  listSize: {
-    height: '50vh',
-    overflowY: 'scroll',
   },
   listBorderBottom: {
     borderBottom: '1px solid black',
