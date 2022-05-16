@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DropboxOutlined, FileTextOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Card, Steps } from 'antd';
+import type { StockTransfer, Warehouse } from '@/graphql/graphql';
 
 import FormTransfer from '../components/FormTransfer';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
@@ -13,9 +14,7 @@ const { Step } = Steps;
 
 const Form = () => {
   const [currentStep, setCurretStep] = useState(0);
-  const [transfer, setTransfer] = useState<Partial<TRANSFER.Transfer & TRANSFER.CreateTransfer>>(
-    {},
-  );
+  const [transfer, setTransfer] = useState<Partial<StockTransfer>>({});
 
   const isNew = true;
 
@@ -23,7 +22,7 @@ const Form = () => {
    * @description se encarga de cambiar el paso y asignar la bodega
    * @param warehouseDestinationId bodega seleccionada
    */
-  const changeCurrentStep = (warehouseDestination?: WAREHOUSE.warehouse) => {
+  const changeCurrentStep = (warehouseDestination?: Warehouse | any) => {
     if (warehouseDestination) {
       setCurretStep(1);
       setTransfer({
@@ -49,7 +48,7 @@ const Form = () => {
       case 0:
         return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega Destino" />;
       case 1:
-        return <FormTransfer warehouse={transfer.warehouseDestination} transfer={transfer} />;
+        return <FormTransfer transfer={transfer} />;
       default:
         return <ErrorStep />;
     }
