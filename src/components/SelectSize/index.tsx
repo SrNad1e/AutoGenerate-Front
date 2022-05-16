@@ -37,6 +37,7 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
     getSizes({
       variables: {
         input: {
+          _id: value,
           active: true,
           sort: {
             value: 1,
@@ -57,6 +58,7 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
         onSearch={onSearch}
         value={value}
         disabled={disabled}
+        allowClear
       >
         {data?.sizes?.docs?.map((size) => (
           <Option key={size?._id} value={size._id}>

@@ -37,11 +37,11 @@ import { useCreateReference, useGetReference, useUpdateReference } from '@/hooks
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertSave from '@/components/Alerts/AlertSave';
 import EditProduct from '../components/EditModal';
+import { useCreateProduct } from '@/hooks/product.hooks';
 
 import DefaultImage from '@/assets/default.webp';
 
 import styles from './styles';
-import { useCreateProduct } from '@/hooks/product.hooks';
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -481,12 +481,7 @@ const FormReference = () => {
       }
     >
       <Card bordered={false} loading={loading}>
-        <Form
-          form={form}
-          initialValues={{
-            name: data?.referenceId?.name,
-          }}
-        >
+        <Form form={form}>
           <Tabs type="card" activeKey={activeKey} onChange={setActiveKey}>
             <TabPane tab="Datos generales" key="1">
               <FormGeneralData />

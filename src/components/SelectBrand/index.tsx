@@ -37,19 +37,25 @@ const SelectBrand = ({ onChange, value, disabled }: Props) => {
    * @description se encarga de organizar los filtros y ejecutar la función de busqueda
    * @param name nombre de la marca
    */
-  const onSearchLocal = (name?: string) => {
+  const onSearchLocal = (values?: string) => {
     getBrands({
       variables: {
         input: {
-          name,
+          name: values,
         },
       },
     });
   };
 
   useEffect(() => {
-    onSearchLocal();
-  }, []);
+    getBrands({
+      variables: {
+        input: {
+          _id: value,
+        },
+      },
+    });
+  }, [!!value]);
 
   return (
     <>

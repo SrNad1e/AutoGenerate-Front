@@ -33,8 +33,31 @@ const SelectListAttrib = ({ onChange, value, disabled }: Params) => {
   };
 
   useEffect(() => {
-    onSearch();
-  }, []);
+    if (value && value?.length > 0) {
+      getAttribs({
+        variables: {
+          input: {
+            _ids: value,
+            active: true,
+            sort: {
+              name: 1,
+            },
+          },
+        },
+      });
+    } else {
+      getAttribs({
+        variables: {
+          input: {
+            active: true,
+            sort: {
+              name: 1,
+            },
+          },
+        },
+      });
+    }
+  }, [!!value]);
 
   return (
     <>
@@ -43,6 +66,7 @@ const SelectListAttrib = ({ onChange, value, disabled }: Params) => {
         allowClear
         showSearch
         loading={loading}
+        optionFilterProp="children"
         placeholder="Seleccione Atributos"
         onChange={onChange}
         onSearch={onSearch}

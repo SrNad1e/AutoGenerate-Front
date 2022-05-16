@@ -748,6 +748,8 @@ export type DocumentType = {
 
 /** Filtros para la lista de atributos */
 export type FiltersAttribsInput = {
+  /** Identificadores de los atributos */
+  _ids?: InputMaybe<Scalars['String'][]>;
   /** Estado del atributo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
@@ -762,6 +764,8 @@ export type FiltersAttribsInput = {
 
 /** Filtros para la lista de marcas */
 export type FiltersBrandsInput = {
+  /** Identificador de la marcas */
+  _id?: InputMaybe<Scalars['String']>;
   /** Estado del atributo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
@@ -820,6 +824,8 @@ export type FiltersCitiesInput = {
 
 /** Filtros para la lista de colores */
 export type FiltersColorsInput = {
+  /** Identificador del color */
+  _id?: InputMaybe<Scalars['String']>;
   /** Estado de la bodega */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
@@ -961,6 +967,8 @@ export type FiltersReferencesInput = {
 
 /** Filtros para la lista de tallas */
 export type FiltersSizesInput = {
+  /** Identificador de la talla */
+  _id?: InputMaybe<Scalars['String']>;
   /** Estado de la bodega */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
@@ -1103,6 +1111,8 @@ export type FiltersUsersInput = {
 
 /** Filtros de las bodegas */
 export type FiltersWarehousesInput = {
+  /** Identificador de la bodega */
+  _id?: InputMaybe<Scalars['String']>;
   /** Estado de la bodega */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Si se requiere traer la bodega principal */

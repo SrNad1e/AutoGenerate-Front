@@ -11,16 +11,16 @@ import {
   Tooltip,
 } from 'antd';
 import { AlignCenterOutlined, AppstoreOutlined, FileMarkdownOutlined } from '@ant-design/icons';
+import { Link } from 'umi';
+import { useState } from 'react';
 
 import SelectCategories from '@/components/SelectCategories';
 import SelectBrand from '@/components/SelectBrand';
-
-import styles from '../styles';
-import { Link } from 'umi';
 import SelectListAttrib from '@/components/SelectListAttrib';
 import CreateAttrib from '@/components/CreateAttrib';
-import { useState } from 'react';
 import CreateBrands from '@/components/CreateBrand';
+
+import styles from '../styles';
 
 const DescriptionsItem = Descriptions.Item;
 const FormItem = Form.Item;

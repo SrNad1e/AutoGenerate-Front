@@ -38,6 +38,7 @@ const SelectColor = ({ onChange, value, disabled }: Props) => {
     getColors({
       variables: {
         input: {
+          _id: value,
           active: true,
           sort: {
             name: 1,
@@ -58,6 +59,7 @@ const SelectColor = ({ onChange, value, disabled }: Props) => {
         onSearch={onSearch}
         value={value}
         disabled={disabled}
+        allowClear
       >
         {data?.colors?.docs?.map((color) => (
           <Option key={color?._id} value={color?._id} name={color?.name_internal}>
