@@ -1,21 +1,23 @@
-import { useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Alert, Form, Input, Modal, Switch } from 'antd';
+import { useEffect, useState } from 'react';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '../Alerts/AlertLoading';
-import { useCreateSize, useUpdateSize } from '@/hooks/size.hooks';
-import type { Size } from '@/graphql/graphql';
+import { useCreateColor, useUpdateColor } from '@/hooks/color.hooks';
+import type { Color } from '@/graphql/graphql';
+import ImageAdmin from '../ImageAdmin';
 
 const FormItem = Form.Item;
 
 export type Props = {
   modalVisible: boolean;
-  current?: Partial<Size>;
+  current?: Partial<Color>;
   onCancel: () => void;
 };
 
-const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
+const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -25,19 +27,19 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
 
   const [form] = Form.useForm();
 
-  const [createSize, paramsCreate] = useCreateSize();
-  const [updateSize, paramsUpdate] = useUpdateSize();
+  const [createColor, paramsCreate] = useCreateColor();
+  const [updateColor, paramsUpdate] = useUpdateColor();
 
   const isNew = !current?._id;
 
   /**
-   * @description funcion usada por los hooks para mostrar los errores
+   * @description funcion usada para mostrar los errores
    * @param message mensaje de error a mostrar
    */
   const showError = (message: string) => {
     setAlertInformation({
       message,
-      type: 'error',
+      type: 'warning',
       visible: true,
     });
   };
@@ -48,7 +50,6 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
   const closeAndClear = async () => {
     await onCancel();
     setError('');
-    form.resetFields();
   };
 
   /**
@@ -60,13 +61,15 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
       type: 'error',
       visible: false,
     });
-    closeAndClear();
+    if (alertInformation.message !== 'Complete los campos') {
+      closeAndClear();
+    }
   };
 
   /**
-   * @description ejecuta la mutation para actualizar una talla
+   * @description ejecuta la mutation para actualizar un color
    */
-  const editSize = async () => {
+  const editColor = async () => {
     try {
       const values = form.getFieldsValue();
       let errorLocal = 'No hay cambios para aplicar';
@@ -80,15 +83,19 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
       if (errorLocal) {
         setError(errorLocal);
       } else {
-        const response = await updateSize({
+        if (values?.image?.length > 0) {
+          values.imageId = values?.image[0]._id;
+        }
+        delete values.image;
+        const response = await updateColor({
           variables: {
             input: values,
             id: current?._id || '',
           },
         });
-        if (response?.data?.updateSize) {
+        if (response?.data?.updateColor) {
           setAlertInformation({
-            message: `Talla ${response?.data?.updateSize?.value} actualizada correctamente`,
+            message: `Color ${response?.data?.updateColor?.name} actualizado correctamente`,
             type: 'success',
             visible: true,
           });
@@ -100,28 +107,50 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
   };
 
   /**
-   * @description ejecuta la mutation para crear una nueva talla
+   * @description ejecuta la mutation para crear un nuevo color
    */
-  const createNewSize = async () => {
+  const createNewColor = async () => {
     try {
+      form.getFieldsValue();
       const values = await form.validateFields();
       delete values.active;
-      const response = await createSize({
+      if (values.image.length === 0) {
+        delete values.image;
+      }
+      if (!values.html) {
+        values.html = '#000000';
+      }
+      if (values?.image?.length > 0) {
+        values.imageId = values?.image[0]._id;
+      }
+      delete values.image;
+
+      const response = await createColor({
         variables: {
           input: values,
         },
       });
-      if (response?.data?.createSize) {
+      if (response?.data?.createColor) {
         setAlertInformation({
-          message: `Talla ${response?.data?.createSize?.value} creada correctamente`,
+          message: `Color ${response?.data?.createColor?.name} creado correctamente`,
           type: 'success',
           visible: true,
         });
       }
     } catch (e: any) {
-      showError(e?.message);
+      showError(e.message);
+      if (e.message === undefined) {
+        showError('Complete los campos');
+      }
     }
   };
+
+  useEffect(() => {
+    form.resetFields();
+    form.setFieldsValue({
+      image: current?.image ? [current?.image] : [],
+    });
+  }, [modalVisible]);
 
   return (
     <Modal
@@ -131,17 +160,29 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
       title={isNew ? 'Nuevo' : 'Editar'}
       visible={modalVisible}
       onCancel={() => closeAndClear()}
-      onOk={() => (isNew ? createNewSize() : editSize())}
+      onOk={() => (isNew ? createNewColor() : editColor())}
     >
-      <Form form={form} initialValues={current}>
+      <Form
+        form={form}
+        initialValues={{ ...current, image: current?.image ? [current?.image] : [] }}
+      >
         <FormItem
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 12 }}
           label="Nombre"
-          name="value"
-          rules={[{ required: true, message: 'Nombre obligatorio', min: 1 }]}
+          name="name"
+          rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
         >
-          <Input placeholder="" autoFocus maxLength={45} />
+          <Input placeholder="" />
+        </FormItem>
+        <FormItem
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 12 }}
+          label="Nombre Interno"
+          name="name_internal"
+          rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
+        >
+          <Input placeholder="" autoFocus />
         </FormItem>
         <FormItem
           labelCol={{ span: 8 }}
@@ -152,6 +193,12 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
         >
           <Switch />
         </FormItem>
+        <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Color" name="html">
+          <Input type="color" />
+        </FormItem>
+        <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Imagen" name="image">
+          <ImageAdmin limit={1} />
+        </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
@@ -161,4 +208,4 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
   );
 };
 
-export default CreateSizes;
+export default CreateColors;

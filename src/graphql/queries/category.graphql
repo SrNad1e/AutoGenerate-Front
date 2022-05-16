@@ -1,0 +1,43 @@
+query categories($input: FiltersCategoriesInput) {
+  categories(filtersCategoriesInput: $input) {
+    totalDocs
+    limit
+    page
+    totalPages
+    docs {
+      _id
+      createdAt
+      updatedAt
+      name
+      childs {
+        _id
+        parentId
+        createdAt
+        updatedAt
+        name
+        childs {
+          _id
+          parentId
+          createdAt
+          updatedAt
+          name
+        }
+      }
+    }
+  }
+}
+
+query categoriesLevel($input: FiltersCategoriesLevelInput) {
+  categoriesLevel(filtersCategoriesLevelInput: $input) {
+    totalDocs
+    limit
+    page
+    totalPages
+    docs {
+      _id
+      createdAt
+      updatedAt
+      name
+    }
+  }
+}

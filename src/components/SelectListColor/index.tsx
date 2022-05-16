@@ -3,24 +3,25 @@ import { Alert, Avatar, Select, Typography } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetColors } from '@/hooks/color.hooks';
+import type { Color } from '@/graphql/graphql';
 
-const { Option } = Select;
 const { Text } = Typography;
+const { Option } = Select;
 
-export type Props = {
-  onChange?: (value: string | undefined) => void;
-  value?: string;
+export type Params = {
+  onChange?: (colors: Color[] | []) => void;
+  value?: Color[];
   disabled: boolean;
 };
 
-const SelectColor = ({ onChange, value, disabled }: Props) => {
+const SelectListColor = ({ onChange, value, disabled }: Params) => {
   const [getColors, { loading, data, error }] = useGetColors();
 
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
-  const onSearch = (name: string) => {
+  const onSearch = (name?: string) => {
     getColors({
       variables: {
         input: {
@@ -34,35 +35,34 @@ const SelectColor = ({ onChange, value, disabled }: Props) => {
     });
   };
 
+  const onChangeLocal = (ids: string[]) => {
+    const newIds = ids.filter((id) => !value?.find(({ _id }) => _id === id));
+
+    const newColors = data?.colors?.docs?.filter(({ _id }) => !!newIds.includes(_id));
+
+    if (onChange) {
+      onChange(value?.concat(newColors) || newColors || []);
+    }
+  };
+
   useEffect(() => {
-    getColors({
-      variables: {
-        input: {
-          _id: value,
-          active: true,
-          sort: {
-            name: 1,
-          },
-        },
-      },
-    });
+    onSearch();
   }, []);
 
   return (
     <>
       <Select
+        mode="multiple"
         showSearch
         loading={loading}
-        placeholder="Seleccione Color"
+        placeholder="Seleccione Colores"
         optionFilterProp="children"
-        onChange={onChange}
+        onChange={onChangeLocal}
         onSearch={onSearch}
-        value={value}
         disabled={disabled}
-        allowClear
       >
         {data?.colors?.docs?.map((color) => (
-          <Option key={color?._id} value={color?._id} name={color?.name_internal}>
+          <Option key={color?._id} name={color?.name_internal}>
             <>
               <Avatar
                 size="small"
@@ -82,4 +82,4 @@ const SelectColor = ({ onChange, value, disabled }: Props) => {
   );
 };
 
-export default SelectColor;
+export default SelectListColor;

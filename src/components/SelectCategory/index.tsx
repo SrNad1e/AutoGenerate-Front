@@ -2,31 +2,34 @@
 import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
-import { useGetSizes } from '@/hooks/size.hooks';
+import { useGetCategoriesLevel } from '@/hooks/category.hooks';
 
 const { Option } = Select;
 
-export type Props = {
-  onChange?: (value: string | undefined) => void;
+export type Params = {
+  onChange?: (id: string) => void;
   value?: string;
+  parentId?: string;
+  level: number;
   disabled: boolean;
 };
 
-const SelectSize = ({ onChange, value, disabled }: Props) => {
-  const [getSizes, { loading, data, error }] = useGetSizes();
+const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) => {
+  const [getCategories, { loading, data, error }] = useGetCategoriesLevel();
 
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
   const onSearch = (name: string) => {
-    getSizes({
+    getCategories({
       variables: {
         input: {
           name,
-          active: true,
+          parentId,
+          level,
           sort: {
-            value: 1,
+            name: 1,
           },
         },
       },
@@ -34,35 +37,35 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
   };
 
   useEffect(() => {
-    getSizes({
+    getCategories({
       variables: {
         input: {
-          _id: value,
-          active: true,
+          level,
+          parentId,
           sort: {
-            value: 1,
+            name: 1,
           },
         },
       },
     });
-  }, []);
+  }, [level]);
 
   return (
     <>
       <Select
+        style={{ width: 220 }}
         showSearch
         loading={loading}
-        placeholder="Seleccione Talla"
-        optionFilterProp="children"
+        placeholder="Seleccione Categoría"
+        optionFilterProp="parentId"
         onChange={onChange}
         onSearch={onSearch}
-        value={value}
         disabled={disabled}
-        allowClear
+        value={value}
       >
-        {data?.sizes?.docs?.map((size) => (
-          <Option key={size?._id} value={size._id}>
-            {size?.value}
+        {data?.categoriesLevel?.docs?.map(({ _id, name }) => (
+          <Option key={_id} value={_id}>
+            {name}
           </Option>
         ))}
       </Select>
@@ -71,4 +74,4 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
   );
 };
 
-export default SelectSize;
+export default SelectCategory;

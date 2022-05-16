@@ -1,6 +1,3 @@
-import { gql } from '@apollo/client';
-
-export const IMAGES = gql`
   query images($input: FiltersImagesInput) {
     images(filtersImagesInput: $input) {
       totalDocs
@@ -18,4 +15,4 @@ export const IMAGES = gql`
       }
     }
   }
-`;
+

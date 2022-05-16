@@ -168,6 +168,21 @@ export default defineConfig({
               path: '/inventory/configurations',
               routes: [
                 {
+                  name: 'Referencias',
+                  path: '/inventory/configurations/reference',
+                  component: './inventory/configurations/reference/list',
+                },
+                {
+                  name: 'Colores',
+                  path: '/inventory/configurations/color',
+                  component: './inventory/configurations/color/list',
+                },
+                {
+                  name: 'Categorias',
+                  path: '/inventory/configurations/categories',
+                  component: './inventory/configurations/categories/list',
+                },
+                {
                   name: 'Tallas',
                   path: '/inventory/configurations/size',
                   component: './inventory/configurations/size/list',
@@ -181,6 +196,14 @@ export default defineConfig({
                   name: 'Marcas',
                   path: '/inventory/configurations/brand',
                   component: './inventory/configurations/brand/list',
+                },
+                {
+                  path: '/inventory/configurations/reference/new',
+                  component: './inventory/configurations/reference/form',
+                },
+                {
+                  path: '/inventory/configurations/reference/:id',
+                  component: './inventory/configurations/reference/form',
                 },
               ],
             },

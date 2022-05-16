@@ -33,9 +33,9 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
 
   useEffect(() => {
     getWarehouses({
-      variables: { input: { active: true } },
+      variables: { input: { _id: value, active: true } },
     });
-  }, []);
+  }, [!!value]);
 
   return (
     <>
