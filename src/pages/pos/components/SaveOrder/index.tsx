@@ -18,10 +18,10 @@ const SaveOrder = ({ _id, number, updatedAt, customer, summary }: Order) => {
   };
 
   return (
-    <Card onClick={onClick} hoverable style={styles.card}>
+    <Card onClick={onClick} hoverable style={{ width: 350, borderRadius: 10 }}>
       <Row gutter={[0, 6]}>
         <Col span={10}>
-          <Row gutter={142} align="middle">
+          <Row gutter={12} align="middle">
             <Col>
               <Tooltip title="Numero de pedido">
                 <BorderlessTableOutlined style={styles.icon} />
