@@ -258,6 +258,7 @@ const Resumen = ({ addProductOrder }: Params) => {
               <Button
                 icon={<DollarOutlined />}
                 type="primary"
+                disabled={(data?.orderId?.summary?.total || 0) <= 0}
                 onClick={() => setModalPaymentVisible(true)}
                 style={{
                   fontSize: 30,

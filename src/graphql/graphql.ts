@@ -1497,8 +1497,12 @@ export type Payment = {
   _id: Scalars['String'];
   /** Estado del tipo de los médios de pago */
   active: Scalars['Boolean'];
+  /** Color del medio de pago */
+  color?: Maybe<Scalars['String']>;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
+  /** Logo para el medio de pago */
+  logo?: Maybe<Image>;
   /** Nombre del medio de pago */
   name: Scalars['String'];
   /** Tipo de medio de pago (cash, bank, credit, bonus) */
@@ -4466,6 +4470,30 @@ export type StockOutputsQuery = {
           size: { __typename?: 'Size'; value: string };
         };
       }[];
+    }[];
+  };
+};
+
+export type PaymentsQueryVariables = Exact<{
+  input?: InputMaybe<FiltersPaymentsInput>;
+}>;
+
+export type PaymentsQuery = {
+  __typename?: 'Query';
+  payments: {
+    __typename?: 'ResponsePayments';
+    docs: {
+      __typename?: 'Payment';
+      _id: string;
+      name: string;
+      color?: string | null;
+      logo?: {
+        __typename?: 'Image';
+        urls?: {
+          __typename?: 'Urls';
+          webp?: { __typename?: 'ImageTypes'; small: string } | null;
+        } | null;
+      } | null;
     }[];
   };
 };
@@ -9265,6 +9293,84 @@ export const StockOutputsDocument = {
     },
   ],
 } as unknown as DocumentNode<StockOutputsQuery, StockOutputsQueryVariables>;
+export const PaymentsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'payments' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersPaymentsInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'payments' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersPaymentsInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'color' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'logo' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'urls' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'webp' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'small' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PaymentsQuery, PaymentsQueryVariables>;
 export const ProductsDocument = {
   kind: 'Document',
   definitions: [
