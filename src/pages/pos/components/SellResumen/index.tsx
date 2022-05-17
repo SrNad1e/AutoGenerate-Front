@@ -28,12 +28,15 @@ import ModalChangeClient from '../ChangeCustomer';
 import ModalPayment from '../Payment';
 import ItemResume from './item';
 import { useGetOrder } from '@/hooks/order.hooks';
-
-import type { DetailOrder } from '@/graphql/graphql';
+import type { DetailOrder, Product } from '@/graphql/graphql';
 
 const { Title } = Typography;
 
-const Resumen = () => {
+export type Params = {
+  addProductOrder: (product: Product, quantity: number) => void;
+};
+
+const Resumen = ({ addProductOrder }: Params) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false);
 
@@ -84,13 +87,19 @@ const Resumen = () => {
           <List
             size="small"
             style={{
-              height: '50vh',
+              height: '55vh',
               overflow: 'scroll',
+              borderBottom: 'solid 1px black',
             }}
           >
             {(totalProducts || 0) > 0 ? (
-              data?.orderId?.details?.map((detail) => (
-                <ItemResume key={detail?.product?._id} {...(detail as DetailOrder)} />
+              data?.orderId?.details?.map((detail, key) => (
+                <ItemResume
+                  number={key + 1}
+                  key={detail?.product?._id}
+                  detail={detail as DetailOrder}
+                  addProductOrder={addProductOrder}
+                />
               ))
             ) : (
               <Empty />

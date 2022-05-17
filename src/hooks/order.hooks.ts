@@ -28,9 +28,29 @@ export const useUpdateOrder = () => {
 };
 
 export const useAddPaymentsOrder = () => {
-  return useMutation(AddPaymentsOrderDocument);
+  return useMutation(AddPaymentsOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.addPaymentsOrder;
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useAddProductsOrder = () => {
-  return useMutation(AddProductsOrderDocument);
+  return useMutation(AddProductsOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.addProductsOrder;
+          },
+        },
+      });
+    },
+  });
 };

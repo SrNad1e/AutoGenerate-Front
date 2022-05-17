@@ -3409,6 +3409,7 @@ export type UpdateOrderMutation = {
           __typename?: 'DetailOrder';
           quantity: number;
           status: string;
+          price: number;
           product: {
             __typename?: 'Product';
             _id: string;
@@ -3464,31 +3465,33 @@ export type AddPaymentsOrderMutation = {
   addPaymentsOrder: {
     __typename?: 'Order';
     _id: string;
-    createdAt: any;
-    updatedAt: any;
     number: number;
-    status: string;
     customer: {
       __typename?: 'Customer';
-      _id: string;
       document: string;
       firstName: string;
       lastName: string;
-      phone?: string | null;
+      documentType: { __typename?: 'DocumentType'; abbreviation: string };
+      customerType: { __typename?: 'CustomerType'; name: string };
     };
     details?:
       | {
           __typename?: 'DetailOrder';
           discount: number;
-          price: number;
           quantity: number;
-          status: string;
+          price: number;
           product: {
             __typename?: 'Product';
             _id: string;
             barcode: string;
             status: string;
-            reference: { __typename?: 'Reference'; description: string; price: number };
+            reference: {
+              __typename?: 'Reference';
+              name: string;
+              cost: number;
+              description: string;
+            };
+            size: { __typename?: 'Size'; value: string };
             color: {
               __typename?: 'Color';
               html: string;
@@ -3502,7 +3505,6 @@ export type AddPaymentsOrderMutation = {
                 } | null;
               } | null;
             };
-            size: { __typename?: 'Size'; value: string };
             stock?: { __typename?: 'Stock'; quantity: number }[] | null;
           };
         }[]
@@ -3511,21 +3513,16 @@ export type AddPaymentsOrderMutation = {
       | {
           __typename?: 'PaymentOrder';
           total: number;
-          payment: { __typename?: 'Payment'; _id: string; name: string; type: string };
+          payment: { __typename?: 'Payment'; name: string };
         }[]
       | null;
-    pointOfSale: { __typename?: 'PointOfSale'; name: string; _id: string };
-    shop: { __typename?: 'Shop'; _id: string; name: string };
     summary: {
       __typename?: 'SummaryOrder';
-      change: number;
       discount: number;
       subtotal: number;
-      tax: number;
       total: number;
       totalPaid: number;
     };
-    user: { __typename?: 'User'; name: string; _id: string };
   };
 };
 
@@ -3538,35 +3535,31 @@ export type AddProductsOrderMutation = {
   addProductsOrder: {
     __typename?: 'Order';
     _id: string;
-    createdAt: any;
-    updatedAt: any;
-    status: string;
     number: number;
     customer: {
       __typename?: 'Customer';
-      active: boolean;
       document: string;
       firstName: string;
       lastName: string;
-      phone?: string | null;
+      documentType: { __typename?: 'DocumentType'; abbreviation: string };
+      customerType: { __typename?: 'CustomerType'; name: string };
     };
     details?:
       | {
           __typename?: 'DetailOrder';
           discount: number;
-          price: number;
           quantity: number;
-          status: string;
+          price: number;
           product: {
             __typename?: 'Product';
             _id: string;
             barcode: string;
+            status: string;
             reference: {
               __typename?: 'Reference';
-              changeable: boolean;
               name: string;
+              cost: number;
               description: string;
-              price: number;
             };
             size: { __typename?: 'Size'; value: string };
             color: {
@@ -3590,21 +3583,16 @@ export type AddProductsOrderMutation = {
       | {
           __typename?: 'PaymentOrder';
           total: number;
-          payment: { __typename?: 'Payment'; name: string; type: string };
+          payment: { __typename?: 'Payment'; name: string };
         }[]
       | null;
-    pointOfSale: { __typename?: 'PointOfSale'; name: string; _id: string };
-    shop: { __typename?: 'Shop'; name: string; _id: string };
     summary: {
       __typename?: 'SummaryOrder';
-      change: number;
       discount: number;
       subtotal: number;
-      tax: number;
       total: number;
       totalPaid: number;
     };
-    user: { __typename?: 'User'; name: string; _id: string };
   };
 };
 
@@ -4258,6 +4246,7 @@ export type OrderIdQuery = {
           __typename?: 'DetailOrder';
           discount: number;
           quantity: number;
+          price: number;
           product: {
             __typename?: 'Product';
             _id: string;
@@ -4428,10 +4417,11 @@ export type ProductsQuery = {
       __typename?: 'Product';
       _id: string;
       barcode: string;
-      reference: { __typename?: 'Reference'; description: string; name: string };
+      reference: { __typename?: 'Reference'; description: string; name: string; price: number };
       color: {
         __typename?: 'Color';
         name_internal: string;
+        name: string;
         html: string;
         image?: {
           __typename?: 'Image';
@@ -5803,6 +5793,7 @@ export const UpdateOrderDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'product' },
@@ -6002,21 +5993,34 @@ export const AddPaymentsOrderDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'number' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'customer' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'documentType' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'abbreviation' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'customerType' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                     ],
                   },
                 },
@@ -6027,9 +6031,8 @@ export const AddPaymentsOrderDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'product' },
@@ -6044,8 +6047,19 @@ export const AddPaymentsOrderDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'size' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'value' } },
                                 ],
                               },
                             },
@@ -6057,6 +6071,7 @@ export const AddPaymentsOrderDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'html' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'image' },
@@ -6088,18 +6103,7 @@ export const AddPaymentsOrderDocument = {
                                       ],
                                     },
                                   },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'size' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'value' } },
                                 ],
                               },
                             },
@@ -6131,35 +6135,9 @@ export const AddPaymentsOrderDocument = {
                         name: { kind: 'Name', value: 'payment' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                          ],
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                         },
                       },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'pointOfSale' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'shop' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                     ],
                   },
                 },
@@ -6169,23 +6147,10 @@ export const AddPaymentsOrderDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'change' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'tax' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'user' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                     ],
                   },
                 },
@@ -6231,9 +6196,6 @@ export const AddProductsOrderDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                 {
                   kind: 'Field',
@@ -6241,11 +6203,27 @@ export const AddProductsOrderDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'documentType' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'abbreviation' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'customerType' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                     ],
                   },
                 },
@@ -6256,9 +6234,8 @@ export const AddProductsOrderDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'product' },
@@ -6273,10 +6250,9 @@ export const AddProductsOrderDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'changeable' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                                 ],
                               },
                             },
@@ -6290,6 +6266,7 @@ export const AddProductsOrderDocument = {
                                 ],
                               },
                             },
+                            { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'color' },
@@ -6297,6 +6274,7 @@ export const AddProductsOrderDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'html' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'image' },
@@ -6328,7 +6306,6 @@ export const AddProductsOrderDocument = {
                                       ],
                                     },
                                   },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
                                 ],
                               },
@@ -6361,34 +6338,9 @@ export const AddProductsOrderDocument = {
                         name: { kind: 'Name', value: 'payment' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                          ],
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                         },
                       },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'pointOfSale' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'shop' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                     ],
                   },
                 },
@@ -6398,23 +6350,10 @@ export const AddProductsOrderDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'change' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'tax' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'user' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                     ],
                   },
                 },
@@ -8620,6 +8559,7 @@ export const OrderIdDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'product' },
@@ -9177,6 +9117,7 @@ export const ProductsDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                           ],
                         },
                       },
@@ -9187,6 +9128,7 @@ export const ProductsDocument = {
                           kind: 'SelectionSet',
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'html' } },
                             {
                               kind: 'Field',

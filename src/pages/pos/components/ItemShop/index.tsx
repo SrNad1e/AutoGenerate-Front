@@ -2,15 +2,30 @@ import { BarcodeOutlined } from '@ant-design/icons';
 import { Avatar, Button, Card, Col, Image, InputNumber, Row, Space, Typography } from 'antd';
 import numeral from 'numeral';
 
+import type { Product } from '@/graphql/graphql';
+
 import DefaultImage from '@/assets/default.webp';
+import { useState } from 'react';
 
 const { Text, Title } = Typography;
 
-const ShopItem = () => {
+export type Params = {
+  product: Product;
+  addProductOrder: (product: Product, quantity: number) => void;
+};
+
+const ShopItem = ({ product, addProductOrder }: Params) => {
+  const [quantity, setQuantity] = useState(1);
+  const { images, reference, size, color, barcode, stock } = product;
+
+  const onClick = () => {
+    addProductOrder(product, quantity);
+  };
+
   return (
     <Card
       style={{
-        width: 380,
+        width: 370,
         borderRadius: 10,
       }}
       bodyStyle={{
@@ -18,7 +33,7 @@ const ShopItem = () => {
       }}
     >
       <Row gutter={12}>
-        <Col span={12}>
+        <Col span={13}>
           <Image
             style={{
               borderTopLeftRadius: 10,
@@ -26,10 +41,10 @@ const ShopItem = () => {
             }}
             preview={false}
             fallback={DefaultImage}
-            src={''}
+            src={`${CDN_URL}/${images && images[0]?.urls?.webp?.medium}`}
           />
         </Col>
-        <Col span={12} style={{ margin: '20px 0' }}>
+        <Col span={11} style={{ margin: '20px 0' }}>
           <Row gutter={12}>
             <Col span={24}>
               <Space size={1} direction="vertical">
@@ -39,7 +54,7 @@ const ShopItem = () => {
                   }}
                   level={4}
                 >
-                  {'Susana'}
+                  {reference?.description}
                 </Title>
                 <Text
                   style={{
@@ -47,26 +62,27 @@ const ShopItem = () => {
                   }}
                   italic
                 >
-                  {'Brasier'}
+                  {reference?.name}
                 </Text>
               </Space>
             </Col>
             <Col span={24}>
-              <Row>
-                <Col lg={8} sm={24}>
+              <Row gutter={24}>
+                <Col sm={24}>
                   <Space>
                     <Text strong>Talla:</Text>
-                    <Text>{'M'}</Text>
+                    <Text>{size.value}</Text>
                   </Space>
                 </Col>
-                <Col lg={16} sm={24}>
+                <Col sm={24}>
                   <Space>
                     <Text strong>Color:</Text>
-                    <Text>{'Blue'}</Text>
+                    <Text>{color?.name}</Text>
                     <Avatar
                       size="small"
+                      src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
                       style={{
-                        backgroundColor: 'blue',
+                        backgroundColor: color?.html,
                         borderRadius: '50%',
                         border: 'solid 1px black',
                       }}
@@ -78,13 +94,13 @@ const ShopItem = () => {
             <Col span={24}>
               <Space>
                 <Text>Precio:</Text>
-                <Text>{numeral(10000).format('$ 0,0')}</Text>
+                <Text>{numeral(reference?.price).format('$ 0,0')}</Text>
               </Space>
             </Col>
             <Col span={24}>
               <Space>
                 <BarcodeOutlined />
-                <Text>{10010101}</Text>
+                <Text>{barcode}</Text>
               </Space>
             </Col>
             <Col span={24}>
@@ -106,7 +122,7 @@ const ShopItem = () => {
                     }}
                     level={2}
                   >
-                    {10}
+                    {stock ? stock[0]?.quantity : 0}
                   </Title>
                 </Col>
               </Row>
@@ -120,14 +136,15 @@ const ShopItem = () => {
                 direction="vertical"
               >
                 <InputNumber
-                  defaultValue={1}
+                  value={quantity}
                   controls={false}
                   min={1}
                   style={{
                     fontSize: 25,
                   }}
+                  onChange={(e) => setQuantity(e)}
                 />
-                <Button disabled={false} type="primary" onClick={() => {}}>
+                <Button disabled={false} type="primary" onClick={onClick}>
                   Agregar
                 </Button>
               </Space>

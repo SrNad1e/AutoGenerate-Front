@@ -22,6 +22,7 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
     details {
       quantity
       status
+      price
       product {
         _id
         barcode
@@ -82,32 +83,37 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
 mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
   addPaymentsOrder(addPaymentsOrderInput: $input) {
     _id
-    createdAt
-    updatedAt
     number
-    status
     customer {
-      _id
       document
       firstName
       lastName
-      phone
+      documentType {
+        abbreviation
+      }
+      customerType {
+        name
+      }
     }
     details {
       discount
-      price
       quantity
-      status
+      price
       product {
         _id
         barcode
         reference {
+          name
+          cost
           description
-          price
+        }
+        size {
+          value
         }
         status
         color {
           html
+          name
           image {
             urls {
               webp {
@@ -115,11 +121,7 @@ mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
               }
             }
           }
-          name
           name_internal
-        }
-        size {
-          value
         }
         stock {
           quantity
@@ -129,30 +131,14 @@ mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
     payments {
       total
       payment {
-        _id
         name
-        type
       }
     }
-    pointOfSale {
-      name
-      _id
-    }
-    shop {
-      _id
-      name
-    }
     summary {
-      change
       discount
       subtotal
-      tax
       total
       totalPaid
-    }
-    user {
-      name
-      _id
     }
   }
 }
@@ -160,36 +146,37 @@ mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
 mutation addProductsOrder($input: AddProductsOrderInput!) {
   addProductsOrder(addProductsOrderInput: $input) {
     _id
-    createdAt
-    updatedAt
-    status
     number
     customer {
-      active
       document
       firstName
       lastName
-      phone
+      documentType {
+        abbreviation
+      }
+      customerType {
+        name
+      }
     }
     details {
       discount
-      price
       quantity
-      status
+      price
       product {
         _id
         barcode
         reference {
-          changeable
           name
+          cost
           description
-          price
         }
         size {
           value
         }
+        status
         color {
           html
+          name
           image {
             urls {
               webp {
@@ -197,7 +184,6 @@ mutation addProductsOrder($input: AddProductsOrderInput!) {
               }
             }
           }
-          name
           name_internal
         }
         stock {
@@ -209,28 +195,13 @@ mutation addProductsOrder($input: AddProductsOrderInput!) {
       total
       payment {
         name
-        type
       }
     }
-    pointOfSale {
-      name
-      _id
-    }
-    shop {
-      name
-      _id
-    }
     summary {
-      change
       discount
       subtotal
-      tax
       total
       totalPaid
-    }
-    user {
-      name
-      _id
     }
   }
 }

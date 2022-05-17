@@ -6,9 +6,11 @@ query products($input: FiltersProductsInput!) {
       reference {
         description
         name
+        price
       }
       color {
         name_internal
+        name
         html
         image {
           urls {

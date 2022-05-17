@@ -16,6 +16,7 @@ query orderId($id: String!) {
     details {
       discount
       quantity
+      price
       product {
         _id
         barcode

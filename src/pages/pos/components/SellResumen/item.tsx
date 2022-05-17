@@ -2,12 +2,34 @@ import { CloseOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Image, InputNumber, List, Row, Tooltip, Typography } from 'antd';
 import numeral from 'numeral';
 
-import type { DetailOrder } from '@/graphql/graphql';
+import type { DetailOrder, Product } from '@/graphql/graphql';
+
+import DefaultImage from '@/assets/default.webp';
 
 const ListItem = List.Item;
 const { Text, Title } = Typography;
 
-const ItemResume = ({}: DetailOrder) => {
+export type Params = {
+  detail: DetailOrder;
+  number: number;
+  addProductOrder: (product: Product, quantity: number) => void;
+};
+
+const ItemResume = ({
+  detail: { discount, price, product, quantity },
+  number,
+  addProductOrder,
+}: Params) => {
+  const onChange = (value: number) => {
+    if (value && value !== quantity) {
+      addProductOrder(product, value - quantity);
+    }
+  };
+
+  const deleteProduct = () => {
+    addProductOrder(product, 0);
+  };
+
   return (
     <ListItem>
       <Card
@@ -25,52 +47,60 @@ const ItemResume = ({}: DetailOrder) => {
             }}
           >
             <Tooltip title="Eliminar">
-              <Button danger type="link" shape="circle" icon={<CloseOutlined type="" />} />
+              <Button
+                onClick={deleteProduct}
+                danger
+                type="link"
+                shape="circle"
+                icon={<CloseOutlined type="" />}
+              />
             </Tooltip>
           </Col>
           <Col lg={2}>
-            <Title level={4}>10</Title>
+            <Title level={4}>{number}</Title>
           </Col>
           <Col lg={4}>
             <Image
               preview={false}
-              fallback=""
-              src="https://i.pinimg.com/736x/03/4b/de/034bde783ea726b922100c86547831e8.jpg"
-              alt="Azula"
+              fallback={DefaultImage}
+              src={`${CDN_URL}/${product?.images && product?.images[0]?.urls?.webp?.medium}`}
+              alt="Product"
             />
           </Col>
-          <Col lg={7}>
+          <Col lg={8}>
             <Row>
               <Col span={24} style={{ lineHeight: 0 }}>
-                <Text>Susana</Text>
+                <Text>{product?.reference?.name}</Text>
               </Col>
               <Col span={24}>
-                <Text italic>10010101</Text>
+                <Text italic>{product?.barcode}</Text>
               </Col>
               <Col span={24}>
                 <Text>
-                  <Text strong>Talla:</Text> L
+                  <Text strong>Talla:</Text> {product?.size?.value}
                 </Text>
               </Col>
               <Col span={24}>
                 <Text>
-                  <Text strong>Color: </Text> Rojo
+                  <Text strong>Color: </Text> {product?.color?.name}
                 </Text>
               </Col>
             </Row>
           </Col>
-          <Col lg={6}>
-            <InputNumber defaultValue={1} style={{ width: 70 }} min={1} />
+          <Col lg={5}>
+            <InputNumber onChange={onChange} value={quantity} style={{ width: 70 }} min={1} />
           </Col>
           <Col lg={5}>
             <Row style={{ lineHeight: 1, textAlign: 'right' }}>
               <Col span={24}>
-                <Text>{numeral(10000).format('$ 0,0')}</Text>
+                <Text>{numeral(price * quantity - discount).format('$ 0,0')}</Text>
               </Col>
               <Col span={24}>
-                <Text italic delete>
-                  {numeral(2000).format('$ 0,0')}
-                </Text>
+                {discount > 0 && (
+                  <Text italic delete>
+                    {numeral(price * quantity).format('$ 0,0')}
+                  </Text>
+                )}
               </Col>
             </Row>
           </Col>
