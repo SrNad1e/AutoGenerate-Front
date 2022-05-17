@@ -8,7 +8,7 @@ import { Button, Card, Col, Divider, Image, Modal, Row, Tag, Tooltip, Typography
 import { useState } from 'react';
 import numeral from 'numeral';
 
-import ModalChangeClient from '../ChangeCustomer';
+import SelectCustomer from '../SelectCustomer';
 
 import styles from '../styles';
 
@@ -211,7 +211,7 @@ const ModalPayment = ({ visible, onCancel }: Props) => {
           </Row>
         </Col>
       </Row>
-      <ModalChangeClient visible={modalVisible} onCancel={closeModal} />
+      <SelectCustomer visible={modalVisible} onCancel={closeModal} />
     </Modal>
   );
 };

@@ -24,11 +24,11 @@ import numeral from 'numeral';
 import { useParams } from 'umi';
 import { useEffect, useState } from 'react';
 
-import ModalChangeClient from '../ChangeCustomer';
+import SelectCustomer from '../SelectCustomer';
 import ModalPayment from '../Payment';
 import ItemResume from './item';
-import { useGetOrder } from '@/hooks/order.hooks';
-import type { DetailOrder, Product } from '@/graphql/graphql';
+import { useGetOrder, useUpdateOrder } from '@/hooks/order.hooks';
+import type { DetailOrder, Product, UpdateOrderInput } from '@/graphql/graphql';
 
 const { Title } = Typography;
 
@@ -37,7 +37,7 @@ export type Params = {
 };
 
 const Resumen = ({ addProductOrder }: Params) => {
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalCustomerVisible, setModalCustomerVisible] = useState(false);
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false);
 
   const { id } = useParams<Partial<{ id: string }>>();
@@ -46,11 +46,27 @@ const Resumen = ({ addProductOrder }: Params) => {
 
   const totalProducts = data?.orderId?.details?.reduce((sum, detail) => detail?.quantity + sum, 0);
 
+  const [updateOrder] = useUpdateOrder();
+
+  const editOrder = (params: UpdateOrderInput) => {
+    try {
+      if (id) {
+        updateOrder({
+          variables: {
+            id,
+            input: params,
+          },
+        });
+      }
+      setModalCustomerVisible(false);
+    } catch (e) {}
+  };
+
   /**
    * @description cierra el modal de cambio de cliente
    */
-  const closeModal = () => {
-    setModalVisible(false);
+  const closeModalCustomer = () => {
+    setModalCustomerVisible(false);
   };
 
   /**
@@ -108,23 +124,23 @@ const Resumen = ({ addProductOrder }: Params) => {
         </Col>
         <Col span={24}>
           <Row>
-            <Col span={12}>
+            <Col span={16}>
               <Title level={3} style={{ lineHeight: 1 }}>
                 Cliente:
               </Title>
-              <Title level={5} style={{ lineHeight: 0 }}>
+              <Title level={5} style={{ lineHeight: 1, overflow: 'hidden', height: '17.6px' }}>
                 {data?.orderId?.customer?.firstName} {data?.orderId?.customer?.lastName}
               </Title>
-              <Title level={5} style={{ lineHeight: 1 }}>
+              <Title level={5} style={{ lineHeight: 0 }}>
                 {data?.orderId?.customer?.documentType?.abbreviation}{' '}
                 {data?.orderId?.customer?.document}
               </Title>
             </Col>
-            <Col span={12}>
+            <Col span={6}>
               <Row gutter={[24, 16]}>
                 <Col span={24}>
                   <Button
-                    onClick={() => setModalVisible(true)}
+                    onClick={() => setModalCustomerVisible(true)}
                     icon={<UserOutlined />}
                     shape="round"
                     size="small"
@@ -266,7 +282,11 @@ const Resumen = ({ addProductOrder }: Params) => {
         </Col>
       </Row>
       <ModalPayment visible={modalPaymentVisible} onCancel={onCloseModalPayment} />
-      <ModalChangeClient visible={modalVisible} onCancel={closeModal} />
+      <SelectCustomer
+        editOrder={editOrder}
+        visible={modalCustomerVisible}
+        onCancel={closeModalCustomer}
+      />
     </Card>
   );
 };

@@ -24,7 +24,17 @@ export const useCreateOrder = () => {
 };
 
 export const useUpdateOrder = () => {
-  return useMutation(UpdateOrderDocument);
+  return useMutation(UpdateOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.updateOrder;
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useAddPaymentsOrder = () => {

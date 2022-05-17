@@ -6,26 +6,35 @@ mutation createOrder($input: CreateOrderInput!) {
 
 mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
   updateOrder(id: $id, updateOrderInput: $input) {
-    _id
-    createdAt
-    updatedAt
-    status
+      _id
     number
     customer {
-      _id
-      active
       document
       firstName
       lastName
-      phone
+      documentType {
+        abbreviation
+      }
+      customerType {
+        name
+      }
     }
     details {
+      discount
       quantity
-      status
       price
       product {
         _id
         barcode
+        reference {
+          name
+          cost
+          description
+        }
+        size {
+          value
+        }
+        status
         color {
           html
           name
@@ -38,13 +47,6 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
           }
           name_internal
         }
-        status
-        size {
-          value
-        }
-        reference {
-          description
-        }
         stock {
           quantity
         }
@@ -54,28 +56,13 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
       total
       payment {
         name
-        type
       }
     }
-    pointOfSale {
-      _id
-      name
-    }
-    shop {
-      _id
-      name
-    }
     summary {
-      change
       discount
       subtotal
-      tax
       total
       totalPaid
-    }
-    user {
-      _id
-      name
     }
   }
 }
