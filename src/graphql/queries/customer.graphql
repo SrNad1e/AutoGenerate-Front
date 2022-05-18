@@ -1,0 +1,18 @@
+query customers ($input:FiltersCustomersInput){
+  customers(filtersCustomerInput:$input){
+    docs{
+      _id
+      documentType{
+          _id
+          abbreviation
+      }
+      document
+      firstName
+      lastName
+      customerType{
+        _id
+        name
+      }
+    }
+  }
+}
