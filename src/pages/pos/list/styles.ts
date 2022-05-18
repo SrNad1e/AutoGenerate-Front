@@ -11,5 +11,6 @@ export default {
   },
   orders: {
     height: '45vh',
+    overflow: 'scroll',
   },
 };

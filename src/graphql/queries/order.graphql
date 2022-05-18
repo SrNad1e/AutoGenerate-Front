@@ -50,6 +50,7 @@ query orderId($id: String!) {
       total
       payment {
         name
+        type
       }
     }
     summary {

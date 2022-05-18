@@ -3,6 +3,7 @@ query payments($input:FiltersPaymentsInput){
     docs{
       _id
       name
+      type
       color
       logo{
         urls{

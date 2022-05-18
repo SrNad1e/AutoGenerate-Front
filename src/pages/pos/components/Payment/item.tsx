@@ -1,31 +1,54 @@
-import { Card, Col, Image, Row } from 'antd';
+import { Button, Image, Space, Typography } from 'antd';
 
-import type { Payment } from '@/graphql/graphql';
+import type { Payment, PaymentOrder } from '@/graphql/graphql';
 
 import DefaultImage from '@/assets/default.webp';
 
+const { Title } = Typography;
+
 export type Params = {
   payment: Payment;
+  paymentsOrder: PaymentOrder[];
   setPayment: (payment: Payment) => void;
+  disabled: boolean;
 };
 
-const Item = ({ payment, setPayment }: Params) => {
+const Item = ({ payment, setPayment, paymentsOrder, disabled }: Params) => {
   const { name, color, logo } = payment;
+
+  const disabledLocal =
+    !!paymentsOrder?.find((item) => item?.payment?._id === payment?._id) || disabled;
+
   return (
-    <Card
+    <Button
       style={{
-        backgroundColor: color || 'yellow',
-        color: 'white',
+        backgroundColor: disabledLocal ? 'grey' : color || 'yellow',
+        width: 230,
+        height: '100%',
+        padding: 20,
       }}
+      disabled={disabledLocal}
+      type="text"
       onClick={() => setPayment(payment)}
     >
-      <Row>
-        <Col span={24}>
-          <Image src={`${CDN_URL}/${logo?.urls?.webp?.small}`} fallback={DefaultImage} />
-        </Col>
-        <Col span={24}>{name}</Col>
-      </Row>
-    </Card>
+      <Space
+        direction="vertical"
+        align="center"
+        style={{
+          width: '100%',
+        }}
+      >
+        <Image width={100} src={`${CDN_URL}/${logo?.urls?.webp?.small}`} fallback={DefaultImage} />
+        <Title
+          style={{
+            color: 'white',
+          }}
+          level={3}
+        >
+          {name}
+        </Title>
+      </Space>
+    </Button>
   );
 };
 

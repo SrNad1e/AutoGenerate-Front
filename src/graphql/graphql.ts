@@ -4352,7 +4352,7 @@ export type OrderIdQuery = {
       | {
           __typename?: 'PaymentOrder';
           total: number;
-          payment: { __typename?: 'Payment'; name: string };
+          payment: { __typename?: 'Payment'; name: string; type: string };
         }[]
       | null;
     summary: {
@@ -4486,6 +4486,7 @@ export type PaymentsQuery = {
       __typename?: 'Payment';
       _id: string;
       name: string;
+      type: string;
       color?: string | null;
       logo?: {
         __typename?: 'Image';
@@ -8887,7 +8888,10 @@ export const OrderIdDocument = {
                         name: { kind: 'Name', value: 'payment' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                          ],
                         },
                       },
                     ],
@@ -9331,6 +9335,7 @@ export const PaymentsDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'color' } },
                       {
                         kind: 'Field',

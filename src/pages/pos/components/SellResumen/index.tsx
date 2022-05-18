@@ -28,7 +28,7 @@ import SelectCustomer from '../SelectCustomer';
 import ModalPayment from '../Payment';
 import ItemResume from './item';
 import { useGetOrder, useUpdateOrder } from '@/hooks/order.hooks';
-import type { DetailOrder, Product, UpdateOrderInput } from '@/graphql/graphql';
+import type { DetailOrder, Product, SummaryOrder, UpdateOrderInput } from '@/graphql/graphql';
 
 const { Title } = Typography;
 
@@ -282,7 +282,12 @@ const Resumen = ({ addProductOrder }: Params) => {
           </Row>
         </Col>
       </Row>
-      <ModalPayment visible={modalPaymentVisible} onCancel={onCloseModalPayment} />
+      <ModalPayment
+        summary={data?.orderId?.summary as SummaryOrder}
+        editOrder={editOrder}
+        visible={modalPaymentVisible}
+        onCancel={onCloseModalPayment}
+      />
       <SelectCustomer
         editOrder={editOrder}
         visible={modalCustomerVisible}

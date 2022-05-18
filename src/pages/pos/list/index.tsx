@@ -65,9 +65,13 @@ const PosList = () => {
             </Card>
           </Col>
           <Col span={24}>
-            {data?.ordersByPointOfSale?.map((order) => (
-              <SaveOrder key={order?._id} {...(order as Order)} />
-            ))}
+            <Row gutter={[16, 16]}>
+              {data?.ordersByPointOfSale?.map((order) => (
+                <Col key={order?._id}>
+                  <SaveOrder {...(order as Order)} />
+                </Col>
+              ))}
+            </Row>
           </Col>
         </Row>
       </Col>
