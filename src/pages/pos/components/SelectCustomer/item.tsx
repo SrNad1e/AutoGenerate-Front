@@ -10,10 +10,7 @@ export type Props = {
   editOrder: (params: UpdateOrderInput) => void;
 };
 
-const Item = ({
-  customer: { _id, firstName, lastName, document, documentType, customerType, phone },
-  editOrder,
-}: Props) => {
+const Item = ({ customer, editOrder }: Props) => {
   return (
     <Row
       style={{
@@ -24,12 +21,12 @@ const Item = ({
         <Row>
           <Col span={24}>
             <Text>
-              {firstName} {lastName}
+              {customer?.firstName} {customer?.lastName}
             </Text>
           </Col>
           <Col span={24}>
             <Text>
-              {documentType?.abbreviation} {document}
+              {customer?.documentType?.abbreviation} {document}
             </Text>
           </Col>
         </Row>
@@ -37,17 +34,17 @@ const Item = ({
       <Col span={6}>
         <Row>
           <Col span={24}>
-            <Tag color="volcano">{customerType?.name}</Tag>
+            <Tag color="volcano">{customer?.customerType?.name}</Tag>
             <Tooltip title="Agregar">
               <Button
-                onClick={() => editOrder({ customerId: _id })}
+                onClick={() => editOrder({ customerId: customer?._id })}
                 type="primary"
                 icon={<LoginOutlined />}
               />
             </Tooltip>
           </Col>
           <Col span={24}>
-            <Text>{phone}</Text>
+            <Text>{customer?.phone}</Text>
           </Col>
         </Row>
       </Col>

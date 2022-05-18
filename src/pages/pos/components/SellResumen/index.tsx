@@ -3,41 +3,28 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   DollarOutlined,
-  PlusOutlined,
   PrinterOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Empty,
-  List,
-  Row,
-  Space,
-  Tag,
-  Tooltip,
-  Typography,
-} from 'antd';
+import { Button, Card, Col, Divider, Empty, List, Row, Tag, Tooltip, Typography } from 'antd';
 import numeral from 'numeral';
 import { useParams } from 'umi';
 import { useEffect, useState } from 'react';
 
-import SelectCustomer from '../SelectCustomer';
 import ModalPayment from '../Payment';
 import ItemResume from './item';
-import { useGetOrder, useUpdateOrder } from '@/hooks/order.hooks';
+import { useGetOrder } from '@/hooks/order.hooks';
 import type { DetailOrder, Product, SummaryOrder, UpdateOrderInput } from '@/graphql/graphql';
 
 const { Title } = Typography;
 
 export type Params = {
   addProductOrder: (product: Product, quantity: number) => void;
+  editOrder: (params: UpdateOrderInput) => void;
+  setModalCustomerVisible: (flag: boolean) => void;
 };
 
-const Resumen = ({ addProductOrder }: Params) => {
-  const [modalCustomerVisible, setModalCustomerVisible] = useState(false);
+const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params) => {
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false);
 
   const { id } = useParams<Partial<{ id: string }>>();
@@ -45,29 +32,6 @@ const Resumen = ({ addProductOrder }: Params) => {
   const [getOrder, { data }] = useGetOrder();
 
   const totalProducts = data?.orderId?.details?.reduce((sum, detail) => detail?.quantity + sum, 0);
-
-  const [updateOrder] = useUpdateOrder();
-
-  const editOrder = (params: UpdateOrderInput) => {
-    try {
-      if (id) {
-        updateOrder({
-          variables: {
-            id,
-            input: params,
-          },
-        });
-      }
-      setModalCustomerVisible(false);
-    } catch (e) {}
-  };
-
-  /**
-   * @description cierra el modal de cambio de cliente
-   */
-  const closeModalCustomer = () => {
-    setModalCustomerVisible(false);
-  };
 
   /**
    * @description cierra el modal de pago
@@ -103,7 +67,7 @@ const Resumen = ({ addProductOrder }: Params) => {
           <List
             size="small"
             style={{
-              height: '55vh',
+              height: '58vh',
               overflow: 'scroll',
               borderBottom: 'solid 1px black',
             }}
@@ -195,14 +159,6 @@ const Resumen = ({ addProductOrder }: Params) => {
               >
                 Descuento:
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
-                Envío:
-              </Title>
             </Col>
             <Col
               span={12}
@@ -235,14 +191,6 @@ const Resumen = ({ addProductOrder }: Params) => {
               >
                 {numeral(data?.orderId?.summary?.discount).format('$ 0,0')}
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
-                {numeral(0).format('$ 0,0')}
-              </Title>
             </Col>
           </Row>
         </Col>
@@ -270,14 +218,9 @@ const Resumen = ({ addProductOrder }: Params) => {
               </Button>
             </Col>
             <Col span={12}>
-              <Space direction="vertical">
-                <Button ghost shape="round" icon={<PlusOutlined />} size="small" type="primary">
-                  Agregar Envio
-                </Button>
-                <Button ghost shape="round" icon={<PrinterOutlined />} size="small" type="primary">
-                  Imprimir
-                </Button>
-              </Space>
+              <Button ghost shape="round" icon={<PrinterOutlined />} size="small" type="primary">
+                Imprimir
+              </Button>
             </Col>
           </Row>
         </Col>
@@ -287,11 +230,6 @@ const Resumen = ({ addProductOrder }: Params) => {
         editOrder={editOrder}
         visible={modalPaymentVisible}
         onCancel={onCloseModalPayment}
-      />
-      <SelectCustomer
-        editOrder={editOrder}
-        visible={modalCustomerVisible}
-        onCancel={closeModalCustomer}
       />
     </Card>
   );

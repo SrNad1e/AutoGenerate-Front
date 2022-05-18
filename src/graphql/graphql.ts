@@ -598,6 +598,10 @@ export type DetailInput = {
 /** Productos de la factura */
 export type DetailInvoice = {
   __typename?: 'DetailInvoice';
+  /** Descuento del producto en la factura */
+  discount: Scalars['Float'];
+  /** Precio del producto en la factura */
+  price: Scalars['Float'];
   /** Producto agregado a la factura */
   product: Product;
   /** Cantidad de productos en la factura */
@@ -965,6 +969,8 @@ export type FiltersProductsInput = {
   status?: InputMaybe<Scalars['String']>;
   /** Bodega de inventario o "all" para traer todos los inventarios */
   warehouseId?: InputMaybe<Scalars['String']>;
+  /** Se usa para seleccionar solo los productos que tengan inventario */
+  withStock?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** Filtros para la lista de referencias */
@@ -3496,6 +3502,52 @@ export type UpdateOrderMutation = {
       total: number;
       totalPaid: number;
     };
+    invoice?: {
+      __typename?: 'Invoice';
+      createdAt: any;
+      number: number;
+      authorization: { __typename?: 'AuthorizationDian'; prefix: string };
+      customer: {
+        __typename?: 'Customer';
+        document: string;
+        firstName: string;
+        lastName: string;
+        phone?: string | null;
+        documentType: { __typename?: 'DocumentType'; abbreviation: string };
+      };
+      details?:
+        | {
+            __typename?: 'DetailInvoice';
+            quantity: number;
+            price: number;
+            discount: number;
+            product: {
+              __typename?: 'Product';
+              barcode: string;
+              color: { __typename?: 'Color'; name: string };
+              reference: { __typename?: 'Reference'; name: string; description: string };
+              size: { __typename?: 'Size'; value: string };
+            };
+          }[]
+        | null;
+      payments?:
+        | {
+            __typename?: 'PaymentInvoice';
+            total: number;
+            payment: { __typename?: 'Payment'; _id: string; name: string };
+          }[]
+        | null;
+      shop: { __typename?: 'Shop'; name: string };
+      summary: {
+        __typename?: 'SummaryInvoice';
+        total: number;
+        subtotal: number;
+        change: number;
+        discount: number;
+        totalPaid: number;
+      };
+      user: { __typename?: 'User'; name: string };
+    } | null;
   };
 };
 
@@ -4305,6 +4357,7 @@ export type OrderIdQuery = {
     __typename?: 'Order';
     _id: string;
     number: number;
+    status: string;
     customer: {
       __typename?: 'Customer';
       document: string;
@@ -6061,6 +6114,155 @@ export const UpdateOrderDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'invoice' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'authorization' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'prefix' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'customer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'documentType' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'abbreviation' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'details' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'product' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'color' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'reference' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'description' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'size' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payments' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payment' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'summary' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'change' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                     ],
                   },
                 },
@@ -8910,6 +9112,7 @@ export const OrderIdDocument = {
                     ],
                   },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
               ],
             },
           },

@@ -1,8 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Col, Divider, Modal, Row, Typography } from 'antd';
 import { useParams } from 'umi';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import numeral from 'numeral';
+import { useReactToPrint } from 'react-to-print';
 
 import type {
   Payment as PaymentModel,
@@ -14,6 +16,9 @@ import Item from './item';
 import { useGetPayments } from '@/hooks/payment.hooks';
 import Payment from './payment';
 import { useAddPaymentsOrder } from '@/hooks/order.hooks';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import InvoiceReport from '../../reports/invoice/Invoice';
+import AlertLoading from '@/components/Alerts/AlertLoading';
 
 const { Title } = Typography;
 
@@ -25,14 +30,63 @@ export type Params = {
 };
 
 const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
+  const [loading, setLoading] = useState(false);
   const [payments, setPayments] = useState<PaymentOrder[]>([]);
+  const [invoice, setInvoice] = useState({});
+  const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
+  const invoiceRef = useRef(null);
 
   const { id } = useParams<Partial<{ id: string }>>();
 
   const [getPayments, { data }] = useGetPayments();
-  const [addPayments] = useAddPaymentsOrder();
+  const [addPayments, dataPayments] = useAddPaymentsOrder();
 
   const totalPayments = payments?.reduce((sum, paymentOrder) => sum + paymentOrder?.total, 0);
+
+  const handlePrint = useReactToPrint({
+    content: () => invoiceRef?.current,
+  });
+
+  /**
+   * @description funcion usada por los hooks para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showError = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description funcion usada por los hooks para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showSuccess = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'success',
+      redirect: '/pos',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description cierra la alerta y el modal
+   */
+  const closeAlertInformation = () => {
+    setAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
 
   const setPayment = (payment: PaymentModel) => {
     setPayments(
@@ -77,13 +131,24 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
         },
       });
       if (responsePayments.data?.addPaymentsOrder) {
-        await editOrder({
+        setLoading(true);
+        const response: any = await editOrder({
           status: 'invoiced',
         });
-        //mostar la factura
+
+        setLoading(false);
+        if (response?.invoice) {
+          setInvoice(response?.invoice);
+          handlePrint();
+          showSuccess(
+            `Factura ${response?.invoice?.authorization?.prefix} ${response?.invoice?.number} generada correctamente`,
+          );
+        } else {
+          showError(response?.message);
+        }
       }
     } catch (e: any) {
-      console.log(e);
+      showError(e?.message);
     }
   };
 
@@ -215,6 +280,14 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
           </Button>
         </Col>
       </Row>
+      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <AlertLoading
+        visible={loading || dataPayments?.loading}
+        message={dataPayments.loading ? 'Generando factura' : 'Guardando medios de pago'}
+      />
+      <div style={{ display: 'none' }}>
+        <InvoiceReport data={invoice} ref={invoiceRef} />
+      </div>
     </Modal>
   );
 };

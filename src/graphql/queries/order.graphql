@@ -59,6 +59,7 @@ query orderId($id: String!) {
       total
       totalPaid
     }
+    status
   }
 }
 

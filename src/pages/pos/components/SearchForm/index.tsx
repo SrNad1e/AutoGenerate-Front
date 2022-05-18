@@ -1,44 +1,90 @@
 import { useGetProducts } from '@/hooks/product.hooks';
 import { BarcodeOutlined, DeleteFilled } from '@ant-design/icons';
 import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Popconfirm, Row } from 'antd';
+import { useModel, useHistory } from 'umi';
 
-import type { FiltersProductsInput, Product } from '@/graphql/graphql';
+import type { FiltersProductsInput, Product, UpdateOrderInput } from '@/graphql/graphql';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import ShopItem from '../ItemShop';
+import { useState } from 'react';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const FormItem = Form.Item;
 
 export type Params = {
   addProductOrder: (product: Product, quantity: number) => void;
   refCode: React.Ref<any>;
+  editOrder: (params: UpdateOrderInput) => void;
 };
 
-type FormValues = {
-  name?: string;
-  stock: boolean;
-  quantity: number;
-};
+const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
+  const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
 
-const SearchProduct = ({ addProductOrder, refCode }: Params) => {
+  const { initialState } = useModel('@@initialState');
+
+  const history = useHistory();
+
+  const [form] = Form.useForm();
+
   const [getProducts, { loading, data }] = useGetProducts();
+
+  /**
+   * @description funcion usada por los hooks para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showError = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
 
   const onSearch = async (filters: FiltersProductsInput) => {
     return getProducts({
       variables: {
-        input: { ...filters, limit: 20 },
+        input: {
+          ...filters,
+          warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
+          limit: 20,
+        },
       },
     });
   };
 
-  const onFinish = async ({ stock = true, name, quantity = 1 }: FormValues) => {
+  const onFinish = async () => {
+    const { withStock = false, name, quantity = 1 } = await form.validateFields();
     try {
-      //TODO: se debe realizar el analisis de si se requiere con stock o sin stock
-      console.log(stock);
-      const response = await onSearch({ name });
+      const response = await onSearch({ name, withStock });
       if (response?.data?.products?.totalDocs === 1) {
         addProductOrder(response?.data?.products?.docs[0] as Product, quantity);
       }
     } catch (e: any) {
-      console.log(e?.message);
+      showError(e?.message);
+    }
+  };
+
+  /**
+   * @description cierra la alerta y el modal
+   */
+  const closeAlertInformation = () => {
+    setAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  const cancelOrder = async () => {
+    try {
+      await editOrder({ status: 'cancelled' });
+      history.push('/pos');
+    } catch (e: any) {
+      showError(e?.error);
     }
   };
 
@@ -46,7 +92,7 @@ const SearchProduct = ({ addProductOrder, refCode }: Params) => {
     <Row>
       <Col span={24}>
         <Card bordered size="small">
-          <Form layout="inline" onFinish={onFinish}>
+          <Form form={form} layout="inline">
             <Row
               gutter={[12, 0]}
               align="middle"
@@ -61,7 +107,7 @@ const SearchProduct = ({ addProductOrder, refCode }: Params) => {
                   }}
                 />
               </Col>
-              <Col span={8}>
+              <Col span={12}>
                 <FormItem name="name">
                   <Input
                     disabled={loading}
@@ -69,13 +115,14 @@ const SearchProduct = ({ addProductOrder, refCode }: Params) => {
                     placeholder="Código, Referencia"
                     autoFocus
                     ref={refCode}
+                    onPressEnter={onFinish}
                   />
                 </FormItem>
               </Col>
               <Col span={4}>
-                <FormItem name="stock">
-                  <Checkbox disabled={loading} defaultChecked>
-                    Sin Stock
+                <FormItem valuePropName="checked" name="withStock">
+                  <Checkbox disabled={loading} defaultChecked={false}>
+                    Con Stock
                   </Checkbox>
                 </FormItem>
               </Col>
@@ -94,16 +141,9 @@ const SearchProduct = ({ addProductOrder, refCode }: Params) => {
                 </FormItem>
               </Col>
               <Col span={4}>
-                <FormItem>
-                  <Button loading={loading} size="small" htmlType="submit" type="primary">
-                    Agregar
-                  </Button>
-                </FormItem>
-              </Col>
-              <Col span={4}>
                 <Popconfirm
                   title="¿Estás seguro que deseas cancelar el carrito?"
-                  onConfirm={() => history.back()}
+                  onConfirm={cancelOrder}
                   okText="Si, cancelar"
                   cancelText="No"
                 >
@@ -130,6 +170,7 @@ const SearchProduct = ({ addProductOrder, refCode }: Params) => {
           ))}
         </Row>
       </Col>
+      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </Row>
   );
 };

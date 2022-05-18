@@ -1,22 +1,53 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Card, Col, Row } from 'antd';
-import { useHistory } from 'umi';
+import { useHistory, useModel } from 'umi';
 import { ShoppingCartOutlined } from '@ant-design/icons';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useCreateOrder, useGetOrdersByPos } from '@/hooks/order.hooks';
-import { useGetCurrentUser } from '@/hooks/user.hooks';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Order } from '@/graphql/graphql';
 import SaveOrder from '../components/SaveOrder';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import style from './styles';
 
 const PosList = () => {
+  const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
   const history = useHistory();
 
-  const currentUser = useGetCurrentUser();
-  const [getOrders, { data, loading }] = useGetOrdersByPos();
+  const { initialState } = useModel('@@initialState');
+
+  const [getOrders, { data, loading, error }] = useGetOrdersByPos();
   const [createOrder] = useCreateOrder();
+
+  /**
+   * @description funcion usada por los hooks para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showError = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description cierra la alerta y el modal
+   */
+  const closeAlertInformation = () => {
+    setAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
 
   /**
    * @description crea la nueva orden
@@ -33,18 +64,26 @@ const PosList = () => {
       if (response?.data?.createOrder) {
         history.push(`/pos/${response?.data?.createOrder?._id}`);
       }
-    } catch (error: any) {}
+    } catch (e: any) {
+      showError(e?.message);
+    }
   };
 
   useEffect(() => {
-    if (currentUser?.data?.currentUser) {
+    if (initialState?.currentUser) {
       getOrders({
         variables: {
-          id: currentUser?.data?.currentUser?.pointOfSale?._id || '',
+          id: initialState?.currentUser?.pointOfSale?._id || '',
         },
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (error) {
+      showError(error?.message);
+    }
+  }, [error]);
 
   return (
     <Row gutter={[12, 12]}>
@@ -78,6 +117,7 @@ const PosList = () => {
       <Col span={24}>
         <Card>Estadisticas</Card>
       </Col>
+      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </Row>
   );
 };
