@@ -209,7 +209,19 @@ export default defineConfig({
             },
           ],
         },
-
+        {
+          name: 'Facturación',
+          path: '/billing',
+          icon: 'container',
+          routes: [
+            {
+              name: 'Devoluciones',
+              path: '/billing/return',
+              component: './billing/return/list',
+              routes: [{ path: '/billing/return/:id', component: './billing/return/form' }],
+            },
+          ],
+        },
         {
           layout: false,
           component: '404',
