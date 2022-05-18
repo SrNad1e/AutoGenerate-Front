@@ -147,7 +147,7 @@ const ReturnList = () => {
                   <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={() => {}}>
+                  <Button htmlType="reset" onClick={() => {}}>
                     Limpiar
                   </Button>
                 </Space>
