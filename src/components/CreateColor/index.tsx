@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Alert, Form, Input, Modal, Switch } from 'antd';
-
 import { useEffect, useState } from 'react';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '../Alerts/AlertLoading';
@@ -15,8 +15,6 @@ export type Props = {
   modalVisible: boolean;
   current?: Partial<Color>;
   onCancel: () => void;
-  error?: string | null;
-  onOk?: () => void;
 };
 
 const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
@@ -52,7 +50,6 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
   const closeAndClear = async () => {
     await onCancel();
     setError('');
-    //form.resetFields();
   };
 
   /**

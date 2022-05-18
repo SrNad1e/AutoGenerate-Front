@@ -3,7 +3,9 @@ import { useLazyQuery, useMutation } from '@apollo/client';
 import { AttribsDocument, CreateAttribDocument, UpdateAttribDocument } from '@/graphql/graphql';
 
 export const useGetAttribs = () => {
-  return useLazyQuery(AttribsDocument);
+  return useLazyQuery(AttribsDocument, {
+    fetchPolicy: 'cache-first',
+  });
 };
 
 export const useCreateAttrib = () => {

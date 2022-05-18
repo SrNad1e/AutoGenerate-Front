@@ -13,8 +13,6 @@ export type Props = {
   modalVisible: boolean;
   current?: Partial<Attrib>;
   onCancel: () => void;
-  error?: string | null;
-  onOk?: () => void;
 };
 
 const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {

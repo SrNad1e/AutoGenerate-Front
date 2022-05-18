@@ -168,6 +168,16 @@ export default defineConfig({
               path: '/inventory/configurations',
               routes: [
                 {
+                  name: 'Referencias',
+                  path: '/inventory/configurations/reference',
+                  component: './inventory/configurations/reference/list',
+                },
+                {
+                  name: 'Colores',
+                  path: '/inventory/configurations/color',
+                  component: './inventory/configurations/color/list',
+                },
+                {
                   name: 'Categorias',
                   path: '/inventory/configurations/categories',
                   component: './inventory/configurations/categories/list',
@@ -188,9 +198,12 @@ export default defineConfig({
                   component: './inventory/configurations/brand/list',
                 },
                 {
-                  name: 'Colores',
-                  path: '/inventory/configurations/color',
-                  component: './inventory/configurations/color/list',
+                  path: '/inventory/configurations/reference/new',
+                  component: './inventory/configurations/reference/form',
+                },
+                {
+                  path: '/inventory/configurations/reference/:id',
+                  component: './inventory/configurations/reference/form',
                 },
               ],
             },

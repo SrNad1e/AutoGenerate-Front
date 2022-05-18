@@ -48,8 +48,8 @@ export type Props = {
 
 export type FormValues = {
   name?: string;
-  color?: Partial<Color>;
-  size?: Partial<Size>;
+  colorId?: string;
+  sizeId?: string;
 };
 
 const ModalSearchProducts = ({
@@ -89,12 +89,12 @@ const ModalSearchProducts = ({
    * @description realiza la busqueda de los productos con base al filtro
    * @param values valores del formulario
    */
-  const onFinish = ({ color, name, size }: FormValues) => {
+  const onFinish = ({ colorId, name, sizeId }: FormValues) => {
     const params: Partial<FiltersProductsInput> = {
       page: 1,
-      colorId: color?._id,
+      colorId,
       name: name,
-      sizeId: size?._id,
+      sizeId,
     };
     setFilters({ ...filters, ...params });
     onSearch({ ...filters, ...params });
@@ -199,7 +199,9 @@ const ModalSearchProducts = ({
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => createDetail(product, 1)}
-              disabled={validateStock ? product.stock && product?.stock[0]?.quantity === 0 : false}
+              loading={
+                validateStock ? !!(product.stock && product?.stock[0]?.quantity === 0) : false
+              }
             />
           </Tooltip>
         );
@@ -220,13 +222,13 @@ const ModalSearchProducts = ({
                   </FormItem>
                 </Col>
                 <Col lg={8} xs={24}>
-                  <Form.Item label="Color" name="color">
-                    <SelectColor />
+                  <Form.Item label="Color" name="colorId">
+                    <SelectColor disabled={loading} />
                   </Form.Item>
                 </Col>
                 <Col lg={4} xs={24}>
-                  <Form.Item label="Talla" name="size">
-                    <SelectSize />
+                  <Form.Item label="Talla" name="sizeId">
+                    <SelectSize disabled={loading} />
                   </Form.Item>
                 </Col>
                 <Col xs={24} lg={2}>
