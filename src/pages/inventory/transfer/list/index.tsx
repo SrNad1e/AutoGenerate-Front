@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import SelectWarehouses from '@/components/SelectWarehouses';
 import { EyeOutlined, PlusOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -17,23 +19,226 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import type { ColumnsType } from 'antd/lib/table';
+import type { Moment } from 'moment';
 import moment from 'moment';
-import { history } from 'umi';
+import type {
+  ColumnsType,
+  FilterValue,
+  SorterResult,
+  TableCurrentDataSource,
+  TablePaginationConfig,
+} from 'antd/es/table/interface';
+import type { Location } from 'umi';
+import { useHistory, useLocation } from 'umi';
+import { useEffect, useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
 
 import { StatusType } from '../tranfer.data';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
 
 import styles from './styles.less';
 import './styles.less';
+import { useGetTransfers } from '@/hooks/transfer.hooks';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const { Text } = Typography;
-
+const { Text, Title } = Typography;
 const { RangePicker } = DatePicker;
 
+export type FormValues = {
+  status?: string;
+  number?: number;
+  warehouseId?: string;
+  dates?: Moment[];
+  type?: string;
+};
+
 const TransferList = () => {
-  const columns: ColumnsType = [
+  const [transferData, setTransferData] = useState<Partial<StockTransfer>>({});
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
+  console.log(transferData);
+
+  const history = useHistory();
+  const location: Location = useLocation();
+
+  const [form] = Form.useForm();
+
+  const reportRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
+
+  const [getTransfers, { data, loading }] = useGetTransfers();
+
+  /**
+   * @description funcion usada por los hook para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const messageError = (message: string) => {
+    setPropsAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description Se encarga de imprimir una solicitud
+   * @param record
+   */
+  const printPage = async (record: Partial<StockTransfer>) => {
+    await setTransferData(record);
+    handlePrint();
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  /**
+   * @description se encarga de ejecutar la funcion para obtener las solicitudes
+   * @param params filtros necesarios para la busqueda
+   */
+  const onSearch = (params?: FiltersStockTransfersInput) => {
+    getTransfers({
+      variables: {
+        input: {
+          sort: {
+            createdAt: -1,
+          },
+          ...params,
+        },
+      },
+    });
+  };
+
+  /**
+   * @description se encarga de realizar el proceso de busqueda con los filtros
+   * @param props filtros seleccionados en el formulario
+   */
+  const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
+    const { status, number, warehouseId, dates, type = 'sent' } = props;
+    try {
+      const params: FiltersStockTransfersInput = {
+        page: pageCurrent || 1,
+        limit: 10,
+        status,
+        number,
+        sort: sort || { createdAt: -1 },
+      };
+
+      if (dates) {
+        const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
+        const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
+      }
+      if (warehouseId) {
+        if (type === 'sent') {
+          params.warehouseOriginId = warehouseId;
+        } else {
+          params.warehouseDestinationId = warehouseId;
+        }
+      }
+
+      onSearch(params);
+
+      const datos = Object.keys(props)
+        .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
+        .slice(1);
+
+      form.setFieldsValue(props);
+      history.replace(`${location.pathname}?${datos}`);
+    } catch (e: any) {
+      messageError(e?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
+   */
+  const handleChangeTable = (
+    paginationLocal: TablePaginationConfig,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<StockTransfer> | SorterResult<StockTransfer>[] | any,
+    _: TableCurrentDataSource<StockTransfer>,
+  ) => {
+    const { current } = paginationLocal;
+    const params = form.getFieldsValue();
+
+    let sort = {};
+
+    if (sorter?.field) {
+      sort = {
+        [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
+      };
+    } else {
+      sort = {
+        createdAt: -1,
+      };
+    }
+
+    onFinish(params, sort, current);
+  };
+
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
+  const onClear = () => {
+    history.replace(location.pathname);
+    form.resetFields();
+    onSearch();
+    form.setFieldsValue({
+      type: 'sent',
+    });
+  };
+
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const loadingData = () => {
+    const queryParams: any = location?.query;
+
+    const newFilters = {};
+
+    Object.keys(queryParams).forEach((item) => {
+      if (item === 'dates') {
+        const dataItem = JSON.parse(queryParams[item]);
+        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      } else {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      }
+    });
+
+    form.setFieldsValue({
+      type: 'sent',
+    });
+
+    onFinish(newFilters);
+  };
+
+  useEffect(() => {
+    loadingData();
+  }, []);
+
+  const columns: ColumnsType<StockTransfer> = [
     {
       title: 'Número',
       dataIndex: 'number',
@@ -83,7 +288,7 @@ const TransferList = () => {
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
-      render: (_id: string) => {
+      render: (_id: string, record) => {
         return (
           <Space>
             <Tooltip title="Ver">
@@ -98,7 +303,7 @@ const TransferList = () => {
                 <Button
                   type="ghost"
                   style={{ backgroundColor: 'white' }}
-                  onClick={() => {}}
+                  onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
                 />
               </Tooltip>
@@ -110,9 +315,15 @@ const TransferList = () => {
   ];
 
   return (
-    <PageContainer>
+    <PageContainer
+      title={
+        <Title level={4} style={{ margin: 0 }}>
+          Lista de traslados
+        </Title>
+      }
+    >
       <Card>
-        <Form layout="inline" className={styles.filters}>
+        <Form layout="inline" className={styles.filters} onFinish={onFinish}>
           <Row gutter={[20, 20]} className={styles.form}>
             <Col xs={24} md={5} lg={5}>
               <FormItem label="Número" name="number">
@@ -123,27 +334,29 @@ const TransferList = () => {
               <FormItem label="Estado" name="status">
                 <Select className={styles.item}>
                   {Object.keys(StatusType).map((key) => (
-                    <Option key={key}>{StatusType[key].text}</Option>
+                    <Option key={key}>
+                      <Badge text={StatusType[key].label} color={StatusType[key].color} />
+                    </Option>
                   ))}
                 </Select>
               </FormItem>
             </Col>
             <Col xs={24} md={6} lg={5}>
               <FormItem label="Tipo" name="type">
-                <Select className={styles.item}>
+                <Select className={styles.item} disabled={loading}>
                   <Option key="sent">Enviados</Option>
                   <Option key="received">Recibidos</Option>
                 </Select>
               </FormItem>
             </Col>
             <Col xs={24} md={7} lg={7}>
-              <FormItem label="Bodega" name="warehouse">
+              <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
             </Col>
             <Col xs={24} md={12} lg={11}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker />
+                <RangePicker disabled={loading} />
               </FormItem>
             </Col>
             <Col span={10}>
@@ -152,7 +365,9 @@ const TransferList = () => {
                   <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
                     Buscar
                   </Button>
-                  <Button htmlType="reset">Limpiar</Button>
+                  <Button htmlType="reset" onClick={onClear} loading={loading}>
+                    Limpiar
+                  </Button>
                 </Space>
               </FormItem>
             </Col>
@@ -160,22 +375,35 @@ const TransferList = () => {
         </Form>
         <Divider />
         <Row>
-          <Col span={18}>
-            <Button
-              icon={<PlusOutlined />}
-              type="primary"
-              shape="round"
-              onClick={() => history.push('/inventory/transfer/new')}
-            >
-              Nuevo
-            </Button>
-          </Col>
-          <Col span={6}>
-            <Text strong>Total Encontrados:</Text> {0} <Text strong>Páginas: </Text> {1} / {1}
+          <Col
+            span={24}
+            style={{
+              textAlign: 'right',
+            }}
+          >
+            <Space align="end">
+              <Text strong>Total Encontrados:</Text>
+              <Text>{0}</Text>
+              <Text strong>Páginas: </Text>
+              <Text>
+                {1} / {1}
+              </Text>
+            </Space>
           </Col>
         </Row>
       </Card>
-      <Table scroll={{ x: 1200 }} columns={columns} />
+      <Table
+        scroll={{ x: 1200 }}
+        columns={columns}
+        dataSource={data?.stockTransfers?.docs as any}
+        pagination={{
+          current: data?.stockTransfers?.page,
+          total: data?.stockTransfers?.totalDocs,
+        }}
+        onChange={handleChangeTable}
+        loading={loading}
+      />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );
 };

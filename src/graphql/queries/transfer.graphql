@@ -1,0 +1,21 @@
+query stockTransfers($input:FiltersStockTransfersInput){
+  stockTransfers(filtersStockTransfersInput:$input){
+    page
+    totalDocs
+    docs{
+      _id
+      details{
+        quantity
+      }
+      number
+      status
+      updatedAt
+      warehouseDestination{
+        name
+      }
+      warehouseOrigin{
+        name
+      }
+    }
+  }
+}
