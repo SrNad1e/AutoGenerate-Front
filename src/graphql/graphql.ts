@@ -943,6 +943,8 @@ export type FiltersProductInput = {
   reference?: InputMaybe<Scalars['String']>;
   /** talla del producto */
   size?: InputMaybe<Scalars['String']>;
+  /** Estado del producto */
+  status?: InputMaybe<Scalars['String']>;
   /** Bodega de inventario o "all" para traer todos los inventarios */
   warehouseId?: InputMaybe<Scalars['String']>;
 };

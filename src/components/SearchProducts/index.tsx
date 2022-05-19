@@ -65,6 +65,7 @@ const SearchProducts = ({
     const response = await getProduct({
       variables: {
         input: {
+          status: 'active',
           barcode: e.target.value,
           warehouseId,
         },
@@ -79,7 +80,7 @@ const SearchProducts = ({
         createDetail(response?.data?.product as Product, quantity || 1);
       }
     } else {
-      setError('Producto no existe');
+      setError('Producto no existe o no se encuentra activo');
     }
     searchRef?.current?.select();
   };
