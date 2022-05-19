@@ -7,7 +7,7 @@ import ModalSearchProducts from './Modal';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetProduct } from '@/hooks/product.hooks';
-import type { DetailRequest, Product } from '@/graphql/graphql';
+import type { DetailRequest, DetailTransfer, Product } from '@/graphql/graphql';
 
 const { Search } = Input;
 
@@ -15,7 +15,7 @@ export type Props = {
   barcode?: boolean;
   validateStock?: boolean;
   quantity?: number;
-  details?: Partial<DetailRequest & { action: string }>[];
+  details?: Partial<(DetailRequest | DetailTransfer) & { action: string }>[];
   warehouseId: string | undefined;
   createDetail: (product: Product, quantity: number) => void;
   updateDetail: (product: Product, quantity: number) => void;

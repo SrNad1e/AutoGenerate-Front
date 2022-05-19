@@ -13,26 +13,284 @@ import {
   Tag,
   Typography,
 } from 'antd';
-import { useModel } from 'umi';
+import { useModel, useParams } from 'umi';
 import type { ColumnsType } from 'antd/es/table/interface';
 import { CheckCircleOutlined, DeleteFilled } from '@ant-design/icons';
 import moment from 'moment';
 
 import { StatusType } from '../tranfer.data';
 import type { StockTransfer } from '@/graphql/graphql';
+//import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+//import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
+//import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
 import SearchProducts from '@/components/SearchProducts';
 
 import styles from './styles.less';
+import { useEffect, useState } from 'react';
+//import { useCreateTransfer, useUpdateTransfer } from '@/hooks/transfer.hooks';
 
 const { Title } = Typography;
 const DescriptionsItem = Descriptions.Item;
 
 export type Props = {
   transfer?: Partial<StockTransfer>;
+  setCurrentStep: (step: number) => void;
 };
 
 const FormTransfer = ({ transfer }: Props) => {
   const { initialState } = useModel('@@initialState');
+  //const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
+  /*const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+  const [propsAlertSave, setPropsAlertSave] = useState<{
+    type: TYPES;
+    visible: boolean;
+    message: string;
+    status?: string;
+  }>({
+    visible: false,
+    message: '',
+    type: 'error',
+  });*/
+  const [observation, setObservation] = useState('');
+  console.log(observation);
+
+  const { id } = useParams<Partial<{ id: string }>>();
+
+  // const [createTransfer, paramsCreate] = useCreateTransfer();
+  //const [updateTransfer, paramsUpdate] = useUpdateTransfer();
+
+  //const allowEdit = transfer?.status === 'open';
+
+  /**
+   * @description se encarga de abrir aviso de información
+   * @param error error de apollo
+   */
+  /*const onShowInformation = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'warning',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description maneja el error de la consulta
+   * @param message error que genera al consulta
+   */
+  /* const showError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description se encarga de mostrar la alerta de guardado y cancelar
+   * @param status estado actual de la solicitud
+   */
+  /* const showAlertSave = (status?: string) => {
+    if (details.length > 0 || status === 'cancelled' || observation !== transfer?.observation) {
+      if (status === 'cancelled') {
+        setPropsAlertSave({
+          status,
+          visible: true,
+          message: '¿Está seguro que desea cancelar el traslado?',
+          type: 'error',
+        });
+      } else {
+        setPropsAlertSave({
+          status,
+          visible: true,
+          message: '¿Está seguro que desea guardar el traslado?',
+          type: 'warning',
+        });
+      }
+    } else {
+      onShowInformation('El traslado no tiene productos');
+    }
+  };
+
+  /**
+   * @description se encarga de guardar el traslado
+   * @param status se usa para definir el estado del traslado
+   */
+  /*const saveTransfer = async (status?: string) => {
+    try {
+      if (id) {
+        const detailsFilter = details.filter((detail) => detail?.action);
+
+        const newDetails = detailsFilter.map((detail) => ({
+          productId: detail?.product?._id || '',
+          quantity: detail?.quantity || 1,
+          action: detail?.action || '',
+        }));
+        if (newDetails.length > 0 || status || observation !== transfer?.observation) {
+          const props = {
+            details: newDetails,
+            observation,
+            status,
+          };
+
+          const response = await updateTransfer({
+            variables: {
+              input: props,
+              id,
+            },
+          });
+          if (response?.data?.updateStockTransfer) {
+            setPropsAlert({
+              message: `Traslado creado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
+              type: 'success',
+              visible: true,
+            });
+          }
+        } else {
+          onShowInformation('El traslado no tiene cambios a realizar');
+        }
+      } else {
+        if (status === 'cancelled') {
+          setCurrentStep(0);
+        } else {
+          const newDetails = details.map((detail) => ({
+            productId: detail?.product?._id || '',
+            quantity: detail?.quantity || 1,
+          }));
+          const props = {
+            details: newDetails,
+            warehouseDestinationId:
+              transfer?.warehouseDestination?._id ||
+              initialState?.currentUser?.shop?.defaultWarehouse?._id ||
+              '',
+            warehouseOriginId: transfer?.warehouseOrigin?._id || '',
+            observation,
+            status,
+          };
+          const response = await createTransfer({
+            variables: {
+              input: props,
+            },
+          });
+
+          if (response?.data?.createStockTransfer) {
+            setPropsAlert({
+              message: `Traslado creado correctamente No. ${response?.data?.createStockTransfer?.number}`,
+              type: 'success',
+              visible: true,
+              redirect: `/inventory/transfer/${response?.data?.createStockTransfer?._id}`,
+            });
+          }
+        }
+      }
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
+  /**
+   * @description elimina un producto
+   * @param _id identificador del producto a eliminar
+   */
+  /*const deleteDetail = (_id: string) => {
+    if (setDetails) {
+      const productFind = details.find((detail) => detail?.product?._id);
+
+      if (productFind && !productFind.__typename) {
+        setDetails(details.filter((detail) => detail?.product?._id !== _id));
+      } else {
+        setDetails(
+          details.map((detail) => {
+            if (detail?.product?._id === _id) {
+              return {
+                ...detail,
+                action: 'delete',
+              };
+            }
+            return detail;
+          }),
+        );
+      }
+    }
+  };
+
+  /**
+   * @description actualiza la cantidad de un producto
+   * @param product producto a actualizar
+   * @param quantity cantidad nueva a asignar
+   */
+  /*const updateDetail = (product: Product, quantity: number) => {
+    if (setDetails) {
+      setDetails(
+        details.map((detail) => {
+          if (detail?.product?._id === product._id) {
+            return {
+              ...detail,
+              quantity: quantity || 0,
+              action: detail?.action ?? 'update',
+            };
+          }
+          return detail;
+        }),
+      );
+    }
+  };
+
+  /**
+   * @description se agrega un detalle de solicitud a los detalles
+   * @param product producto del detalle
+   * @param quantity cantidad del producto
+   */
+  /*const createDetail = (product: Product, quantity: number) => {
+    if (setDetails) {
+      setDetails([...details, { product, quantity, action: 'create' }]);
+    }
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta information
+   */
+  /* const onCloseAlert = () => {
+    setPropsAlert({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+  /**
+   * @description se encarga de cerrar la alerta Save
+   */
+  /*const onCancelAlert = () => {
+    setPropsAlertSave({
+      visible: false,
+      message: '',
+      type: 'error',
+    });
+  };*/
+
+  useEffect(() => {
+    if (id) {
+      //setDetails(transfer?.details || []);
+      setObservation(transfer?.observation || '');
+    }
+  }, [transfer, id]);
+
+  /*const propsAlertSaveFinal: PropsAlertSave = {
+    ...propsAlertSave,
+    onOk: saveTransfer,
+    onCancel: onCancelAlert,
+  };
+
+  const propsSearchProduct: PropsSearchProduct = {
+    details,
+    warehouseId: transfer?.warehouseOrigin?._id,
+    createDetail,
+    updateDetail,
+    deleteDetail,
+  };*/
 
   const columns: ColumnsType = [
     {

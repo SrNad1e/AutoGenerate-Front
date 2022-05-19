@@ -272,13 +272,7 @@ const TransferList = () => {
       },
     },
     {
-      title: 'Creado',
-      dataIndex: 'createdAt',
-      align: 'center',
-      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
-    },
-    {
-      title: 'Actualizado',
+      title: 'Fecha',
       dataIndex: 'updatedAt',
       align: 'center',
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),

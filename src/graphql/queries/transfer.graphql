@@ -1,21 +1,70 @@
-query stockTransfers($input:FiltersStockTransfersInput){
-  stockTransfers(filtersStockTransfersInput:$input){
+query stockTransfers($input: FiltersStockTransfersInput) {
+  stockTransfers(filtersStockTransfersInput: $input) {
     page
     totalDocs
-    docs{
+    docs {
       _id
-      details{
+      details {
         quantity
       }
       number
       status
       updatedAt
-      warehouseDestination{
+      warehouseDestination {
         name
       }
-      warehouseOrigin{
+      warehouseOrigin {
         name
       }
+    }
+  }
+}
+
+query stockTransferId($id: String!) {
+  stockTransferId(id: $id) {
+    _id
+    createdAt
+    details {
+      product {
+        _id
+        barcode
+        color {
+          name
+        }
+        reference {
+          name
+          description
+        }
+        size {
+          value
+        }
+        stock {
+          quantity
+        }
+      }
+      quantity
+      quantityConfirmed
+    }
+    observation
+    observationDestination
+    observationOrigin
+    requests {
+      _id
+      number
+    }
+    status
+    updatedAt
+    userDestination {
+      name
+    }
+    userOrigin {
+      name
+    }
+    warehouseDestination {
+      name
+    }
+    warehouseOrigin {
+      name
     }
   }
 }

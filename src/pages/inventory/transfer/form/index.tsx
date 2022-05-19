@@ -1,11 +1,23 @@
-import { useState } from 'react';
-import { DropboxOutlined, FileTextOutlined } from '@ant-design/icons';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useRef, useState } from 'react';
+import {
+  ArrowLeftOutlined,
+  DropboxOutlined,
+  FileTextOutlined,
+  PrinterOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Card, Steps } from 'antd';
-import type { StockTransfer, Warehouse } from '@/graphql/graphql';
+import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
+import { useHistory, useModel, useParams } from 'umi';
+import { useReactToPrint } from 'react-to-print';
 
+import type { StockTransfer, Warehouse } from '@/graphql/graphql';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import FormTransfer from '../components/FormTransfer';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
+import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
+import { useGetTransfer } from '@/hooks/transfer.hooks';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import './styles.less';
 import styles from './styles.less';
@@ -13,26 +25,111 @@ import styles from './styles.less';
 const { Step } = Steps;
 
 const Form = () => {
-  const [currentStep, setCurretStep] = useState(0);
-  const [transfer, setTransfer] = useState<Partial<StockTransfer>>({});
+  const [currentStep, setCurrentStep] = useState(0);
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+  const [transfer, setTransfer] = useState<Partial<StockTransfer>>({
+    status: 'open',
+  });
 
-  const isNew = true;
+  const { initialState } = useModel('@@initialState');
+
+  const { id } = useParams<Partial<{ id: string }>>();
+  const history = useHistory();
+
+  const reportRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
+
+  const [getTransfer, { loading, data }] = useGetTransfer();
+  const [getWarehouseId] = useGetWarehouseId();
+
+  const isNew = !id;
 
   /**
-   * @description se encarga de cambiar el paso y asignar la bodega
-   * @param warehouseDestinationId bodega seleccionada
+   * @description se encarga de abrir aviso de información
+   * @param error error de apollo
    */
-  const changeCurrentStep = (warehouseDestination?: Warehouse | any) => {
-    if (warehouseDestination) {
-      setCurretStep(1);
-      setTransfer({
-        ...transfer,
-        warehouseDestination,
+  const onShowError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta
+   */
+  const onCloseAlert = () => {
+    setPropsAlert({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  /**
+   * @description consulta la solicitud y almacena en memoria
+   */
+  const getTransferId = async () => {
+    try {
+      const response = await getTransfer({
+        variables: {
+          id: id || '',
+        },
       });
-    } else {
-      setCurretStep(0);
+
+      if (response?.data?.stockTransferId) {
+        setTransfer(response?.data?.stockTransferId as StockTransfer);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
   };
+
+  /**
+   * @description se encarga de cambiar el paso, consultar y asignar la bodega
+   * @param warehouseDestinationId identificador bodega seleccionada
+   */
+  const changeCurrentStep = async (warehouseDestinationId?: string) => {
+    try {
+      if (warehouseDestinationId) {
+        setCurrentStep(1);
+        const response = await getWarehouseId({
+          variables: {
+            warehouseId: warehouseDestinationId,
+          },
+        });
+
+        setTransfer({
+          ...transfer,
+          warehouseDestination: response?.data?.warehouseId as Warehouse,
+        });
+      } else {
+        setCurrentStep(0);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
+    }
+  };
+
+  useEffect(() => {
+    if (!isNew) {
+      getTransferId();
+    }
+  }, [isNew]);
+
+  useEffect(() => {
+    if (data?.stockTransferId) {
+      setTransfer(data?.stockTransferId as StockTransfer);
+    }
+  }, [data]);
 
   const ErrorStep = () => {
     return <></>;
@@ -46,16 +143,48 @@ const Form = () => {
   const renderSteps = (step: number) => {
     switch (step) {
       case 0:
-        return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega Destino" />;
+        return (
+          <SelectWarehouseStep
+            warehouseId={initialState?.currentUser?.shop?.defaultWarehouse._id}
+            changeCurrentStep={changeCurrentStep}
+            label="Bodega Destino"
+          />
+        );
       case 1:
-        return <FormTransfer transfer={transfer} />;
+        return <FormTransfer transfer={transfer} setCurrentStep={setCurrentStep} />;
       default:
         return <ErrorStep />;
     }
   };
 
   return (
-    <PageContainer title={isNew ? 'Nuevo Traslado' : `Traslado No. ${transfer?.number}`}>
+    <PageContainer
+      title={
+        <Space align="center">
+          <Tooltip title="Atrás">
+            <Button
+              type="primary"
+              ghost
+              icon={<ArrowLeftOutlined />}
+              onClick={() => history.goBack()}
+            />
+          </Tooltip>
+          <Divider type="vertical" />
+          {isNew ? (
+            'Nuevo traslado'
+          ) : (
+            <>
+              Traslado No. {transfer?.number}
+              <Divider type="vertical" />
+              <Tooltip title="Imprimir">
+                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+              </Tooltip>
+            </>
+          )}
+        </Space>
+      }
+      loading={loading}
+    >
       {isNew ? (
         <Card>
           <Steps className={styles.steps}>
@@ -73,8 +202,9 @@ const Form = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormTransfer />
+        <FormTransfer transfer={transfer} setCurrentStep={setCurrentStep} />
       )}
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </PageContainer>
   );
 };
