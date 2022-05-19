@@ -8,6 +8,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetProduct } from '@/hooks/product.hooks';
 import type { DetailRequest, DetailTransfer, Product } from '@/graphql/graphql';
+import validateCodeBar from '@/libs/validateCodeBar';
 
 const { Search } = Input;
 
@@ -62,10 +63,12 @@ const SearchProducts = ({
    */
   const onPressEnter = async (e: any) => {
     setError(undefined);
+    const value = validateCodeBar(e?.target?.value);
     const response = await getProduct({
       variables: {
         input: {
-          barcode: e.target.value,
+          status: 'active',
+          barcode: value,
           warehouseId,
         },
       },
@@ -79,7 +82,7 @@ const SearchProducts = ({
         createDetail(response?.data?.product as Product, quantity || 1);
       }
     } else {
-      setError('Producto no existe');
+      setError('Producto no existe o no se encuentra activo');
     }
     searchRef?.current?.select();
   };

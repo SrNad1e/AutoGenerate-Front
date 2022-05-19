@@ -50,13 +50,17 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
   };
 
   const onSearch = (value: string) => {
-    getCustomers({
-      variables: {
-        input: {
-          dato: value,
+    try {
+      getCustomers({
+        variables: {
+          input: {
+            dato: value,
+          },
         },
-      },
-    });
+      });
+    } catch (e: any) {
+      console.log(e);
+    }
   };
 
   const renderSearchCustomer = () => (

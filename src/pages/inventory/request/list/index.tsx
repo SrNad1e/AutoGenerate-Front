@@ -374,7 +374,7 @@ const RequestList = () => {
           <Row gutter={[8, 8]} className={styles.form}>
             <Col xs={24} lg={4} xl={3} xxl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber min={1} className={styles.item} disabled={loading} />
+                <InputNumber controls={false} min={1} className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} lg={5} xl={4} xxl={3}>

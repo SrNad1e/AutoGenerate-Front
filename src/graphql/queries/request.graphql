@@ -40,9 +40,11 @@ query stockRequest($id: String!) {
     }
     observation
     warehouseDestination {
+      _id
       name
     }
     warehouseOrigin {
+      _id
       name
     }
   }
@@ -53,10 +55,13 @@ query stockRequests($input: FiltersStockRequestsInput!) {
     docs {
       _id
       number
+      observation
       warehouseOrigin {
+        _id
         name
       }
       warehouseDestination {
+        _id
         name
       }
       status
@@ -75,6 +80,9 @@ query stockRequests($input: FiltersStockRequestsInput!) {
             value
           }
         }
+      }
+      user{
+        name
       }
       createdAt
       updatedAt
