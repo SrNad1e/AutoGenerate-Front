@@ -8,6 +8,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetProduct } from '@/hooks/product.hooks';
 import type { DetailRequest, Product } from '@/graphql/graphql';
+import validateCodeBar from '@/libs/validateCodeBar';
 
 const { Search } = Input;
 
@@ -62,11 +63,12 @@ const SearchProducts = ({
    */
   const onPressEnter = async (e: any) => {
     setError(undefined);
+    const value = validateCodeBar(e?.target?.value);
     const response = await getProduct({
       variables: {
         input: {
           status: 'active',
-          barcode: e.target.value,
+          barcode: value,
           warehouseId,
         },
       },
