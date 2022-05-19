@@ -1,0 +1,17 @@
+query payments($input:FiltersPaymentsInput){
+  payments(filtersPaymentsInput:$input){
+    docs{
+      _id
+      name
+      type
+      color
+      logo{
+        urls{
+          webp{
+            small
+          }
+        }
+      }
+    }
+  }
+}
