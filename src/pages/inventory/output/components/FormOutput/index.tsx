@@ -237,7 +237,7 @@ const FormOutput = ({ output, setCurrentStep }: Props) => {
               if (detail?.product?._id === product?._id) {
                 return {
                   ...detail,
-                  quantity: quantity || 0,
+                  quantity: quantity || 1,
                   action: detail?.action ?? 'update',
                 };
               }
