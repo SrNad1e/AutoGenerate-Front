@@ -207,15 +207,31 @@ const InputList = () => {
     setFilters({});
   };
 
-  useEffect(() => {
-    const queryParams: any = location.query;
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const loadingData = () => {
+    const queryParams: any = location?.query;
 
     const newFilters = {};
 
     Object.keys(queryParams).forEach((item) => {
-      newFilters[item] = JSON.parse(queryParams[item]);
+      if (item === 'dates') {
+        const dataItem = JSON.parse(queryParams[item]);
+        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      } else {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      }
     });
+
+    form.setFieldsValue({
+      type: 'received',
+    });
+
     onFinish(newFilters);
+  };
+  useEffect(() => {
+    loadingData();
   }, []);
 
   const columns: ColumnsType<Partial<StockInput>> = [
