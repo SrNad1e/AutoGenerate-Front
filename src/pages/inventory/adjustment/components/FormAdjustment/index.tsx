@@ -237,7 +237,7 @@ const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
             return {
               ...detail,
               quantity: quantity || 0,
-              action: detail?.action ?? 'update',
+              action: 'update',
             };
           }
           return detail;
@@ -252,8 +252,13 @@ const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
    * @param quantity cantidad  a asignar
    */
   const createDetail = (product: Product, quantity: number) => {
-    if (setDetails) {
-      setDetails([...details, { product, quantity, action: 'create' }]);
+    const findProduct = adjustment?.details?.find((detail) => detail?.product?._id === product._id);
+    if (findProduct) {
+      updateDetail(product, quantity);
+    } else {
+      if (setDetails) {
+        setDetails([...details, { product, quantity, action: 'create' }]);
+      }
     }
   };
 

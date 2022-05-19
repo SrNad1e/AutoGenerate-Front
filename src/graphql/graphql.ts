@@ -943,6 +943,8 @@ export type FiltersProductInput = {
   reference?: InputMaybe<Scalars['String']>;
   /** talla del producto */
   size?: InputMaybe<Scalars['String']>;
+  /** Estado del producto */
+  status?: InputMaybe<Scalars['String']>;
   /** Bodega de inventario o "all" para traer todos los inventarios */
   warehouseId?: InputMaybe<Scalars['String']>;
 };
@@ -4753,8 +4755,8 @@ export type StockRequestQuery = {
       };
     }[];
     user: { __typename?: 'User'; name: string };
-    warehouseDestination: { __typename?: 'Warehouse'; name: string };
-    warehouseOrigin: { __typename?: 'Warehouse'; name: string };
+    warehouseDestination: { __typename?: 'Warehouse'; _id: string; name: string };
+    warehouseOrigin: { __typename?: 'Warehouse'; _id: string; name: string };
   };
 };
 
@@ -4777,8 +4779,8 @@ export type StockRequestsQuery = {
       status: string;
       createdAt: any;
       updatedAt: any;
-      warehouseOrigin: { __typename?: 'Warehouse'; name: string };
-      warehouseDestination: { __typename?: 'Warehouse'; name: string };
+      warehouseOrigin: { __typename?: 'Warehouse'; _id: string; name: string };
+      warehouseDestination: { __typename?: 'Warehouse'; _id: string; name: string };
       details: {
         __typename?: 'DetailRequest';
         quantity: number;
@@ -10263,7 +10265,10 @@ export const StockRequestDocument = {
                   name: { kind: 'Name', value: 'warehouseDestination' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
                 {
@@ -10271,7 +10276,10 @@ export const StockRequestDocument = {
                   name: { kind: 'Name', value: 'warehouseOrigin' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
               ],
@@ -10329,7 +10337,10 @@ export const StockRequestsDocument = {
                         name: { kind: 'Name', value: 'warehouseOrigin' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
                         },
                       },
                       {
@@ -10337,7 +10348,10 @@ export const StockRequestsDocument = {
                         name: { kind: 'Name', value: 'warehouseDestination' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'status' } },
