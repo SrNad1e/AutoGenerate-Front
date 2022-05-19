@@ -341,7 +341,7 @@ const OutputList = () => {
               </FormItem>
             </Col>
             <Col xs={24} lg={10} xl={6} xxl={6}>
-              <FormItem label="Bodega" name="warehouse">
+              <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
             </Col>
