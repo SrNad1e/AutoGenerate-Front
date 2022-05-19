@@ -221,10 +221,32 @@ export default defineConfig({
               routes: [{ path: '/billing/return/:id', component: './billing/return/form' }],
             },
             {
-              name: 'Cierre X',
-              path: '/billing/closingX',
-              component: './billing/closingX/list',
-              routes: [{ path: '/billing/closingX/:id', component: './billing/closingX/form' }],
+              name: 'Cierres',
+              path: '/billing/closings',
+              routes: [
+                {
+                  name: 'Cierre X',
+                  path: '/billing/closings/closingX',
+                  component: './billing/closings/closingX/list',
+                  routes: [
+                    {
+                      path: '/billing/closings/closingX/:id',
+                      component: './billing/closings/closingX/form',
+                    },
+                  ],
+                },
+                {
+                  name: 'Cierre Z',
+                  path: '/billing/closings/closingZ',
+                  component: './billing/closings/closingZ/list',
+                  routes: [
+                    {
+                      path: '/billing/closings/closingZ/:id',
+                      component: './billing/closings/closingZ/form',
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },

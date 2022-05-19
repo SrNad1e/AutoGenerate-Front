@@ -166,7 +166,7 @@ const FormClosingX = ({ onCancel, onOk, visible }: Props) => {
         </FormItem>
       </Form>
       {error && <Alert message={error} type="error" showIcon />}
-      <Title level={4} style={{ textAlign: 'right', marginRight: 60 }}>
+      <Title level={4} style={styles.titleAlign}>
         Total: {numeral(getTotal()).format('$ 0,0')}{' '}
       </Title>
     </Modal>

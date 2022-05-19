@@ -5,4 +5,8 @@ export default {
   inputWidth: {
     width: '80%',
   },
+  titleAlign: {
+    textAlign: 'right',
+    marginRight: 60,
+  },
 };
