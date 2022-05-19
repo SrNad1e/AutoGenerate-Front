@@ -238,7 +238,7 @@ const FormOutput = ({ output, setCurrentStep }: Props) => {
                 return {
                   ...detail,
                   quantity: quantity || 1,
-                  action: detail?.action ?? 'update',
+                  action: 'update',
                 };
               }
               return detail;
@@ -262,7 +262,14 @@ const FormOutput = ({ output, setCurrentStep }: Props) => {
     if (setDetails) {
       if (product?.stock && product.stock[0].quantity) {
         if (product?.stock[0].quantity >= quantity) {
-          setDetails([...details, { product, quantity, action: 'create' }]);
+          const findProduct = output?.details?.find(
+            (detail) => detail?.product?._id === product._id,
+          );
+          if (findProduct) {
+            updateDetail(product, quantity);
+          } else {
+            setDetails([...details, { product, quantity, action: 'create' }]);
+          }
         } else {
           onShowInformation(
             `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,

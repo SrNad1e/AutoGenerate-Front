@@ -234,7 +234,7 @@ const FormInput = ({ input, setCurrentStep }: Props) => {
             return {
               ...detail,
               quantity: quantity || 1,
-              action: detail?.action ?? 'update',
+              action: 'update',
             };
           }
           return detail;
@@ -249,8 +249,13 @@ const FormInput = ({ input, setCurrentStep }: Props) => {
    * @param quantity cantidad  a asignar
    */
   const createDetail = (product: Product, quantity: number) => {
-    if (setDetails) {
-      setDetails([...details, { product, quantity, action: 'create' }]);
+    const findProduct = input?.details?.find((detail) => detail?.product?._id === product._id);
+    if (findProduct) {
+      updateDetail(product, quantity);
+    } else {
+      if (setDetails) {
+        setDetails([...details, { product, quantity, action: 'create' }]);
+      }
     }
   };
 
