@@ -26,7 +26,7 @@ const Item = ({ customer, editOrder }: Props) => {
           </Col>
           <Col span={24}>
             <Text>
-              {customer?.documentType?.abbreviation} {document}
+              {customer?.documentType?.abbreviation} {customer?.document}
             </Text>
           </Col>
         </Row>
