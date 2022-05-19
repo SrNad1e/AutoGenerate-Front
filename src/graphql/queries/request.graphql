@@ -53,6 +53,7 @@ query stockRequests($input: FiltersStockRequestsInput!) {
     docs {
       _id
       number
+      observation
       warehouseOrigin {
         name
       }
@@ -75,6 +76,9 @@ query stockRequests($input: FiltersStockRequestsInput!) {
             value
           }
         }
+      }
+      user{
+        name
       }
       createdAt
       updatedAt

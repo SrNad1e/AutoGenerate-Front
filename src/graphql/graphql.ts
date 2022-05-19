@@ -4773,6 +4773,7 @@ export type StockRequestsQuery = {
       __typename?: 'StockRequest';
       _id: string;
       number: number;
+      observation?: string | null;
       status: string;
       createdAt: any;
       updatedAt: any;
@@ -4789,6 +4790,7 @@ export type StockRequestsQuery = {
           size: { __typename?: 'Size'; value: string };
         };
       }[];
+      user: { __typename?: 'User'; name: string };
     }[];
   };
 };
@@ -10321,6 +10323,7 @@ export const StockRequestsDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'observation' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'warehouseOrigin' },
@@ -10393,6 +10396,14 @@ export const StockRequestsDocument = {
                               },
                             },
                           ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
