@@ -226,6 +226,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Product, quantity: number) => {
+    const productFind = request?.details?.find((detail) => detail?.product?._id === product?._id);
     if (setDetails) {
       setDetails(
         details.map((detail) => {
@@ -233,7 +234,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
             return {
               ...detail,
               quantity: quantity || 1,
-              action: 'update',
+              action: productFind ? 'update' : 'create',
             };
           }
           return detail;

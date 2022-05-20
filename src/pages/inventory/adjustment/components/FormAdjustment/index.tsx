@@ -144,6 +144,8 @@ const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
             status,
           };
 
+          console.log(props);
+
           const response = await updateAdjustment({
             variables: {
               input: props,
@@ -231,13 +233,16 @@ const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
    */
   const updateDetail = (product: Product, quantity: number) => {
     if (setDetails) {
+      const productFind = adjustment?.details?.find(
+        (detail) => detail?.product?._id === product?._id,
+      );
       setDetails(
         details.map((detail) => {
           if (detail?.product?._id === product?._id) {
             return {
               ...detail,
               quantity: quantity || 0,
-              action: 'update',
+              action: productFind ? 'update' : 'create',
             };
           }
           return detail;

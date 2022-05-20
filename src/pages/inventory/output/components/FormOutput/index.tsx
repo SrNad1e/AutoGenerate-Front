@@ -232,13 +232,16 @@ const FormOutput = ({ output, setCurrentStep }: Props) => {
     if (setDetails) {
       if (product.stock && product?.stock[0].quantity) {
         if (product?.stock[0].quantity >= quantity) {
+          const productFind = output?.details?.find(
+            (detail) => detail?.product?._id === product?._id,
+          );
           setDetails(
             details.map((detail) => {
               if (detail?.product?._id === product?._id) {
                 return {
                   ...detail,
                   quantity: quantity || 1,
-                  action: 'update',
+                  action: productFind ? 'update' : 'create',
                 };
               }
               return detail;
