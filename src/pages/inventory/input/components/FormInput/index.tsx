@@ -228,13 +228,14 @@ const FormInput = ({ input, setCurrentStep }: Props) => {
    */
   const updateDetail = (product: Partial<Product>, quantity: number) => {
     if (setDetails) {
+      const productFind = input?.details?.find((detail) => detail?.product?._id === product?._id);
       setDetails(
         details.map((detail) => {
           if (detail?.product?._id === product?._id) {
             return {
               ...detail,
               quantity: quantity || 1,
-              action: 'update',
+              action: productFind ? 'update' : 'create',
             };
           }
           return detail;
