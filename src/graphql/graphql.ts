@@ -2763,6 +2763,8 @@ export type StockRequest = {
    * @deprecated Migración mysql
    */
   code?: Maybe<Scalars['String']>;
+  /** Compañía a la que pertence la solicitud */
+  company: Company;
   /** Fecha de creación de la solicitud */
   createdAt: Scalars['DateTime'];
   /** Detalles de la solicitud */
@@ -2788,6 +2790,8 @@ export type StockTransfer = {
   __typename?: 'StockTransfer';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Compañía a la que pertence el traslado */
+  company: Company;
   /** Fecha de creación del traslado */
   createdAt: Scalars['DateTime'];
   /** Detalle de los productos */
@@ -3956,6 +3960,7 @@ export type CreateStockTransferMutation = {
     __typename?: 'StockTransfer';
     _id: string;
     createdAt: any;
+    number: number;
     observation?: string | null;
     observationDestination?: string | null;
     observationOrigin?: string | null;
@@ -3994,6 +3999,7 @@ export type UpdateStockTransferMutation = {
     __typename?: 'StockTransfer';
     _id: string;
     createdAt: any;
+    number: number;
     observation?: string | null;
     observationDestination?: string | null;
     observationOrigin?: string | null;
@@ -4928,6 +4934,7 @@ export type StockTransferIdQuery = {
     __typename?: 'StockTransfer';
     _id: string;
     createdAt: any;
+    number: number;
     observation?: string | null;
     observationDestination?: string | null;
     observationOrigin?: string | null;
@@ -4937,11 +4944,24 @@ export type StockTransferIdQuery = {
       __typename?: 'DetailTransfer';
       quantity: number;
       quantityConfirmed?: number | null;
+      status: string;
       product: {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        color: { __typename?: 'Color'; name: string };
+        color: {
+          __typename?: 'Color';
+          name: string;
+          name_internal: string;
+          html: string;
+          image?: {
+            __typename?: 'Image';
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
+          } | null;
+        };
         reference: { __typename?: 'Reference'; name: string; description: string };
         size: { __typename?: 'Size'; value: string };
         stock?: { __typename?: 'Stock'; quantity: number }[] | null;
@@ -7832,6 +7852,7 @@ export const CreateStockTransferDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'details' },
@@ -7999,6 +8020,7 @@ export const UpdateStockTransferDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'details' },
@@ -11065,6 +11087,7 @@ export const StockTransferIdDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'details' },
@@ -11086,6 +11109,39 @@ export const StockTransferIdDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'html' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'image' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'urls' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'webp' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'small' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
                                 ],
                               },
                             },
@@ -11125,6 +11181,7 @@ export const StockTransferIdDocument = {
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantityConfirmed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                     ],
                   },
                 },

@@ -217,9 +217,13 @@ export default defineConfig({
                   component: './inventory/transfer/list',
                 },
                 {
-                  name: 'Nueva',
+                  name: 'Nuevo',
                   path: '/inventory/transfer/new',
                   component: './inventory/transfer/form',
+                },
+                {
+                  path: '/inventory/transfer/confirm/:id',
+                  component: './inventory/transfer/confirm',
                 },
                 {
                   path: '/inventory/transfer/:id',

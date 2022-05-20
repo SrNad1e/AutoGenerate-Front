@@ -2,6 +2,7 @@ mutation createStockTransfer($input: CreateStockTransferInput!) {
   createStockTransfer(createStockTransferInput: $input) {
     _id
     createdAt
+    number
     details {
       product {
         _id
@@ -51,6 +52,7 @@ mutation updateStockTransfer($id: String!, $input: UpdateStockTransferInput!) {
   updateStockTransfer(id: $id, updateStockTransferInput: $input) {
     _id
     createdAt
+    number
     details {
       product {
         _id

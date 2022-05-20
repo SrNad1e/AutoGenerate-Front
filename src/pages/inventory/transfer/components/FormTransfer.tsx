@@ -1,46 +1,56 @@
 import {
   Affix,
+  Avatar,
   Badge,
   Button,
   Card,
   Col,
   Descriptions,
   Divider,
+  Form,
+  Input,
   InputNumber,
   Row,
   Space,
   Table,
   Tag,
+  Tooltip,
   Typography,
 } from 'antd';
 import { useModel, useParams } from 'umi';
 import type { ColumnsType } from 'antd/es/table/interface';
-import { CheckCircleOutlined, DeleteFilled } from '@ant-design/icons';
+import { BarcodeOutlined, CheckCircleOutlined, DeleteOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import { useEffect, useState } from 'react';
 
 import { StatusType } from '../tranfer.data';
-import type { StockTransfer } from '@/graphql/graphql';
-//import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-//import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
-//import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
+import type { DetailTransfer, Product, StockTransfer } from '@/graphql/graphql';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
+import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
 import SearchProducts from '@/components/SearchProducts';
+import { useCreateTransfer, useUpdateTransfer } from '@/hooks/transfer.hooks';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import AlertLoading from '@/components/Alerts/AlertLoading';
+import AlertSave from '@/components/Alerts/AlertSave';
 
 import styles from './styles.less';
-import { useEffect, useState } from 'react';
-//import { useCreateTransfer, useUpdateTransfer } from '@/hooks/transfer.hooks';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const DescriptionsItem = Descriptions.Item;
+const FormItem = Form.Item;
+const { TextArea } = Input;
 
 export type Props = {
   transfer?: Partial<StockTransfer>;
   setCurrentStep: (step: number) => void;
 };
 
-const FormTransfer = ({ transfer }: Props) => {
+const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
   const { initialState } = useModel('@@initialState');
-  //const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
-  /*const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+
+  const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
@@ -54,22 +64,21 @@ const FormTransfer = ({ transfer }: Props) => {
     visible: false,
     message: '',
     type: 'error',
-  });*/
+  });
   const [observation, setObservation] = useState('');
-  console.log(observation);
 
   const { id } = useParams<Partial<{ id: string }>>();
 
-  // const [createTransfer, paramsCreate] = useCreateTransfer();
-  //const [updateTransfer, paramsUpdate] = useUpdateTransfer();
+  const [createTransfer, paramsCreate] = useCreateTransfer();
+  const [updateTransfer, paramsUpdate] = useUpdateTransfer();
 
-  //const allowEdit = transfer?.status === 'open';
+  const allowEdit = transfer?.status === 'open';
 
   /**
    * @description se encarga de abrir aviso de información
    * @param error error de apollo
    */
-  /*const onShowInformation = (message: string) => {
+  const onShowInformation = (message: string) => {
     setPropsAlert({
       message,
       type: 'warning',
@@ -81,7 +90,7 @@ const FormTransfer = ({ transfer }: Props) => {
    * @description maneja el error de la consulta
    * @param message error que genera al consulta
    */
-  /* const showError = (message: string) => {
+  const showError = (message: string) => {
     setPropsAlert({
       message,
       type: 'error',
@@ -93,7 +102,7 @@ const FormTransfer = ({ transfer }: Props) => {
    * @description se encarga de mostrar la alerta de guardado y cancelar
    * @param status estado actual de la solicitud
    */
-  /* const showAlertSave = (status?: string) => {
+  const showAlertSave = (status?: string) => {
     if (details.length > 0 || status === 'cancelled' || observation !== transfer?.observation) {
       if (status === 'cancelled') {
         setPropsAlertSave({
@@ -119,7 +128,7 @@ const FormTransfer = ({ transfer }: Props) => {
    * @description se encarga de guardar el traslado
    * @param status se usa para definir el estado del traslado
    */
-  /*const saveTransfer = async (status?: string) => {
+  const saveTransfer = async (status?: string) => {
     try {
       if (id) {
         const detailsFilter = details.filter((detail) => detail?.action);
@@ -162,12 +171,12 @@ const FormTransfer = ({ transfer }: Props) => {
           }));
           const props = {
             details: newDetails,
-            warehouseDestinationId:
-              transfer?.warehouseDestination?._id ||
+            warehouseDestinationId: transfer?.warehouseDestination?._id || '',
+            warehouseOriginId:
+              transfer?.warehouseOrigin?._id ||
               initialState?.currentUser?.shop?.defaultWarehouse?._id ||
               '',
-            warehouseOriginId: transfer?.warehouseOrigin?._id || '',
-            observation,
+            observationOrigin: observation,
             status,
           };
           const response = await createTransfer({
@@ -195,7 +204,7 @@ const FormTransfer = ({ transfer }: Props) => {
    * @description elimina un producto
    * @param _id identificador del producto a eliminar
    */
-  /*const deleteDetail = (_id: string) => {
+  const deleteDetail = (_id: string) => {
     if (setDetails) {
       const productFind = details.find((detail) => detail?.product?._id);
 
@@ -222,7 +231,7 @@ const FormTransfer = ({ transfer }: Props) => {
    * @param product producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
-  /*const updateDetail = (product: Product, quantity: number) => {
+  const updateDetail = (product: Product, quantity: number) => {
     if (setDetails) {
       setDetails(
         details.map((detail) => {
@@ -244,7 +253,7 @@ const FormTransfer = ({ transfer }: Props) => {
    * @param product producto del detalle
    * @param quantity cantidad del producto
    */
-  /*const createDetail = (product: Product, quantity: number) => {
+  const createDetail = (product: Product, quantity: number) => {
     if (setDetails) {
       setDetails([...details, { product, quantity, action: 'create' }]);
     }
@@ -253,7 +262,7 @@ const FormTransfer = ({ transfer }: Props) => {
   /**
    * @description se encarga de cerrar la alerta information
    */
-  /* const onCloseAlert = () => {
+  const onCloseAlert = () => {
     setPropsAlert({
       message: '',
       type: 'error',
@@ -263,22 +272,22 @@ const FormTransfer = ({ transfer }: Props) => {
   /**
    * @description se encarga de cerrar la alerta Save
    */
-  /*const onCancelAlert = () => {
+  const onCancelAlert = () => {
     setPropsAlertSave({
       visible: false,
       message: '',
       type: 'error',
     });
-  };*/
+  };
 
   useEffect(() => {
     if (id) {
-      //setDetails(transfer?.details || []);
+      setDetails(transfer?.details || []);
       setObservation(transfer?.observation || '');
     }
   }, [transfer, id]);
 
-  /*const propsAlertSaveFinal: PropsAlertSave = {
+  const propsAlertSaveFinal: PropsAlertSave = {
     ...propsAlertSave,
     onOk: saveTransfer,
     onCancel: onCancelAlert,
@@ -286,150 +295,214 @@ const FormTransfer = ({ transfer }: Props) => {
 
   const propsSearchProduct: PropsSearchProduct = {
     details,
-    warehouseId: transfer?.warehouseOrigin?._id,
+    warehouseId:
+      transfer?.warehouseOrigin?._id || initialState?.currentUser?.shop?.defaultWarehouse?._id,
     createDetail,
     updateDetail,
     deleteDetail,
-  };*/
+  };
 
-  const columns: ColumnsType = [
+  const columns: ColumnsType<DetailTransfer> = [
     {
       title: 'Producto',
-      dataIndex: 'product.barcode',
-      width: 250,
-      render: (barcode: string) => (
-        <>
-          {`${'Referencia'} / ${'Descripcion'}`}
-          <Tag>{barcode}</Tag>
-        </>
+      dataIndex: 'product',
+      width: 80,
+      render: ({ reference, barcode }: Product) => (
+        <Row>
+          <Col span={24}>
+            {reference?.name} / {reference?.description}
+          </Col>
+          <Col span={24}>
+            <Tag icon={<BarcodeOutlined />}>{barcode}</Tag>
+          </Col>
+        </Row>
       ),
     },
     {
-      title: 'Talla y Color',
+      title: 'Color',
       dataIndex: 'product',
-      width: 200,
-      render: () => {
+      width: 60,
+      render: ({ color }: Product) => {
         return (
-          <>
-            {'valor de la talla'}
-            <Tag color={'blue'}>{'nombre del color'}</Tag>
-          </>
+          <Space>
+            <Avatar
+              size="small"
+              style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
+              src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
+            />
+            <Text style={{ marginLeft: 10 }}>{color?.name_internal}</Text>
+          </Space>
         );
       },
     },
     {
+      title: 'Talla',
+      dataIndex: 'product',
+      width: 30,
+      render: ({ size }: Product) => size.value,
+    },
+    {
+      title: 'Inventario',
+      dataIndex: 'product',
+      align: 'center',
+      width: 30,
+      render: ({ stock = [] }: Product) =>
+        stock?.length > 0 && (
+          <Badge
+            overflowCount={99999}
+            count={stock[0]?.quantity}
+            style={{ backgroundColor: (stock[0]?.quantity || 0) > 0 ? '#dc9575' : 'red' }}
+            showZero
+          />
+        ),
+    },
+    {
       title: 'Cantidad',
-      dataIndex: 'product.quantity',
-      width: 100,
-      render: (quantity: number) => <InputNumber value={quantity} />,
+      dataIndex: 'quantity',
+      align: 'center',
+      width: 50,
+      render: (quantity: number, { product = {} }) => (
+        <InputNumber
+          value={quantity || 0}
+          min={1}
+          max={product?.stock ? product?.stock[0]?.quantity : 0}
+          onChange={(value) => updateDetail(product as Product, value)}
+          disabled={!allowEdit}
+          style={{ color: 'black', backgroundColor: 'white' }}
+        />
+      ),
     },
     {
       title: 'Opciones',
-      dataIndex: 'product._id',
-      width: 100,
+      dataIndex: 'product',
+      align: 'center',
+      width: 30,
       fixed: 'right',
-      render: () => <Button icon={<DeleteFilled />} />,
+      render: ({ _id = '' }: Product) => (
+        <Tooltip title="Eliminar">
+          <Button
+            icon={<DeleteOutlined />}
+            type="primary"
+            danger
+            onClick={() => deleteDetail(_id)}
+            disabled={!allowEdit}
+          />
+        </Tooltip>
+      ),
     },
   ];
 
   return (
     <>
       <Card>
-        <Row gutter={[20, 20]}>
+        <Row gutter={[0, 1]}>
           <Col lg={12} xs={24}>
-            <Descriptions bordered size="middle">
-              <DescriptionsItem label="Bodega de origen" span={3}>
-                {initialState?.currentUser?.shop?.defaultWarehouse?.name}
+            <Descriptions bordered size="small">
+              <DescriptionsItem label="Bodega que traslada" span={3}>
+                {transfer?.warehouseOrigin?.name ||
+                  initialState?.currentUser?.shop?.defaultWarehouse?.name}
               </DescriptionsItem>
               <DescriptionsItem label="Usuario que envía" span={3}>
-                {initialState?.currentUser?.name}
-              </DescriptionsItem>
-              <DescriptionsItem label="Observación de envío">
-                {'Observacion a enviar'}
+                {transfer?.userOrigin?.name || initialState?.currentUser?.name}
               </DescriptionsItem>
             </Descriptions>
           </Col>
           <Col lg={12} xs={24}>
-            <Descriptions bordered size="middle">
+            <Descriptions bordered size="small">
               <DescriptionsItem label="Bodega de destino" span={3}>
-                {'Bodega'}
+                {transfer?.warehouseDestination?.name}
               </DescriptionsItem>
               <DescriptionsItem label="Usuario que recibe" span={3}>
-                {'Usuario destinado'}
-              </DescriptionsItem>
-              <DescriptionsItem label="Observación de recepción">
-                {'Observacion a recibir'}
+                {transfer?.userDestination?.name || '(Pendiente)'}
               </DescriptionsItem>
             </Descriptions>
           </Col>
-          <Col lg={12} xs={24}>
-            <Descriptions bordered size="middle">
-              <DescriptionsItem label="Número" span={3}>
+          <Col lg={24} xs={24}>
+            <Descriptions bordered size="small">
+              <DescriptionsItem label="Número" span={2}>
                 {transfer?.number || '(Pendiente)'}
               </DescriptionsItem>
-              <DescriptionsItem label="Creado" span={3}>
-                {moment(transfer?.createdAt).format(FORMAT_DATE)}
-              </DescriptionsItem>
-              <DescriptionsItem label="Solicitudes base" span={3}>
-                {
-                  <Tag key={1} color="red" icon={<CheckCircleOutlined />}>
-                    {2}
-                  </Tag>
-                }
-              </DescriptionsItem>
-            </Descriptions>
-          </Col>
-          <Col lg={12} xs={24}>
-            <Descriptions bordered size="middle">
-              <DescriptionsItem label="Estado" span={3}>
+              <DescriptionsItem label="Estado" span={2}>
                 <Badge
                   color={StatusType[transfer?.status || 'open']?.color}
                   text={StatusType[transfer?.status || 'open']?.text}
                 />
               </DescriptionsItem>
-              <DescriptionsItem label="Actualizado" span={3}>
+              <DescriptionsItem label="Creado" span={2}>
+                {moment(transfer?.createdAt).format(FORMAT_DATE)}
+              </DescriptionsItem>
+              <DescriptionsItem label="Actualizado" span={2}>
                 {moment(transfer?.updatedAt).format(FORMAT_DATE)}
               </DescriptionsItem>
-              <DescriptionsItem label="Observación general">
-                {transfer?.observation}
+              <DescriptionsItem label="Solicitudes" span={2}>
+                {transfer?.requests?.map((request) => {
+                  <Tag key={request?._id} color="volcano" icon={<CheckCircleOutlined />}>
+                    {request?.number}
+                  </Tag>;
+                })}
+              </DescriptionsItem>
+              <DescriptionsItem label="Observación" span={2}>
+                {allowEdit ? (
+                  <TextArea
+                    value={observation}
+                    onChange={(e) => setObservation(e?.target?.value)}
+                  />
+                ) : (
+                  transfer?.observationOrigin
+                )}
               </DescriptionsItem>
             </Descriptions>
           </Col>
         </Row>
+        {allowEdit && (
+          <Form layout="vertical">
+            <FormItem label="Código de barras">
+              <SearchProducts {...propsSearchProduct} />
+            </FormItem>
+          </Form>
+        )}
+        <Table
+          columns={columns}
+          dataSource={details.filter((detail) => detail?.action !== 'delete')}
+          scroll={{ x: 800 }}
+          pagination={{ size: 'small' }}
+        />
       </Card>
-      <Card bordered={false}>
-        <SearchProducts />
-      </Card>
-      <Table columns={columns} scroll={{ x: 1500 }} />
+
       <Affix offsetBottom={0}>
         <Card bordered={false}>
           <Row justify="center" align="middle">
             <Col span={4}>
               <Button
-                disabled={false}
+                disabled={!allowEdit}
                 type={transfer?._id ? 'primary' : 'default'}
                 danger={!!transfer?._id}
-                onClick={() => {}}
+                onClick={() => showAlertSave('cancelled')}
               >
                 Cancelar
               </Button>
             </Col>
             <Col span={14}>
-              {' '}
               <Space className={styles.centerFooter}>
                 <Title level={3}>
-                  REFERENCIAS: 0
+                  REFERENCIAS: {details.filter((detail) => detail?.action !== 'delete').length}
                   <Divider type="vertical" />
-                  PRODUCTOS: 0
+                  PRODUCTOS:{' '}
+                  {details
+                    .filter((detail) => detail?.action !== 'delete')
+                    .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
                 </Title>
               </Space>
             </Col>
             <Col span={6}>
-              <Space>
-                <Button disabled={false} onClick={() => {}}>
+              <Space
+                align="end"
+                style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}
+              >
+                <Button disabled={!allowEdit} onClick={() => showAlertSave()}>
                   Guardar
                 </Button>
-                <Button type="primary" disabled={false} onClick={() => {}}>
+                <Button type="primary" disabled={!allowEdit} onClick={() => showAlertSave('sent')}>
                   Enviar
                 </Button>
               </Space>
@@ -437,6 +510,12 @@ const FormTransfer = ({ transfer }: Props) => {
           </Row>
         </Card>
       </Affix>
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
+      <AlertLoading
+        visible={paramsCreate?.loading || paramsUpdate?.loading}
+        message="Guardando traslado"
+      />
+      <AlertSave {...propsAlertSaveFinal} />
     </>
   );
 };

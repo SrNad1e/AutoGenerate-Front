@@ -24,12 +24,22 @@ query stockTransferId($id: String!) {
   stockTransferId(id: $id) {
     _id
     createdAt
+    number
     details {
       product {
         _id
         barcode
         color {
           name
+          name_internal
+          html
+          image {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
         }
         reference {
           name
@@ -44,6 +54,7 @@ query stockTransferId($id: String!) {
       }
       quantity
       quantityConfirmed
+      status
     }
     observation
     observationDestination

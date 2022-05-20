@@ -1,7 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import SelectWarehouses from '@/components/SelectWarehouses';
-import { EyeOutlined, PlusOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
+import {
+  EditOutlined,
+  EyeOutlined,
+  FileDoneOutlined,
+  PrinterFilled,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -36,11 +42,11 @@ import { useReactToPrint } from 'react-to-print';
 import { StatusType } from '../tranfer.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
+import { useGetTransfers } from '@/hooks/transfer.hooks';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from './styles.less';
 import './styles.less';
-import { useGetTransfers } from '@/hooks/transfer.hooks';
-import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -243,29 +249,34 @@ const TransferList = () => {
       title: 'Número',
       dataIndex: 'number',
       align: 'center',
+      width: 100,
     },
     {
       title: 'Origen',
       dataIndex: 'warehouseOrigin',
       align: 'center',
+      width: 200,
       render: (warehouseOrigin) => warehouseOrigin.name,
     },
     {
       title: 'Destino',
       dataIndex: 'warehouseDestination',
       align: 'center',
+      width: 200,
       render: (warehouseDestination) => warehouseDestination.name,
     },
     {
       title: 'Referencias',
-      dataIndex: 'detail',
+      dataIndex: 'details',
       align: 'center',
-      render: (detail) => detail.length,
+      width: 110,
+      render: (details) => details?.length,
     },
     {
       title: 'Estado',
       dataIndex: 'status',
       align: 'center',
+      width: 100,
       render: (status: string) => {
         const { color, text } = StatusType[status || ''];
         return <Badge color={color} text={text} />;
@@ -282,26 +293,37 @@ const TransferList = () => {
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
+      width: 100,
       render: (_id: string, record) => {
         return (
           <Space>
-            <Tooltip title="Ver">
-              <Button
-                type="primary"
-                icon={<EyeOutlined />}
-                onClick={() => history.push(`/inventory/transfer/${_id}`)}
-              />
-            </Tooltip>
-            <Space>
-              <Tooltip title="Imprimir">
+            {record?.status === 'open' ? (
+              <Tooltip title="Editar">
                 <Button
-                  type="ghost"
-                  style={{ backgroundColor: 'white' }}
-                  onClick={() => printPage(record)}
-                  icon={<PrinterFilled />}
+                  type="primary"
+                  color="secondary"
+                  icon={<EditOutlined />}
+                  onClick={() => history.push(`/inventory/transfer/${_id}`)}
                 />
               </Tooltip>
-            </Space>
+            ) : (
+              <Tooltip title={record?.status === 'sent' ? 'Confirmar' : 'Ver'}>
+                <Button
+                  type="primary"
+                  danger={record?.status === 'sent'}
+                  icon={record?.status === 'sent' ? <FileDoneOutlined /> : <EyeOutlined />}
+                  onClick={() => history.push(`/inventory/transfer/confirm/${_id}`)}
+                />
+              </Tooltip>
+            )}
+            <Tooltip title="Imprimir">
+              <Button
+                type="ghost"
+                style={{ backgroundColor: 'white' }}
+                onClick={() => printPage(record)}
+                icon={<PrinterFilled />}
+              />
+            </Tooltip>
           </Space>
         );
       },
@@ -329,7 +351,7 @@ const TransferList = () => {
                 <Select className={styles.item}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
-                      <Badge text={StatusType[key].label} color={StatusType[key].color} />
+                      <Badge text={StatusType[key].text} color={StatusType[key].color} />
                     </Option>
                   ))}
                 </Select>
@@ -385,18 +407,18 @@ const TransferList = () => {
             </Space>
           </Col>
         </Row>
+        <Table
+          scroll={{ x: 800 }}
+          columns={columns}
+          dataSource={data?.stockTransfers?.docs as any}
+          pagination={{
+            current: data?.stockTransfers?.page,
+            total: data?.stockTransfers?.totalDocs,
+          }}
+          onChange={handleChangeTable}
+          loading={loading}
+        />
       </Card>
-      <Table
-        scroll={{ x: 1200 }}
-        columns={columns}
-        dataSource={data?.stockTransfers?.docs as any}
-        pagination={{
-          current: data?.stockTransfers?.page,
-          total: data?.stockTransfers?.totalDocs,
-        }}
-        onChange={handleChangeTable}
-        loading={loading}
-      />
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );
