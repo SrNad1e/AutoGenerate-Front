@@ -1,5 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useGetTransfer } from '@/hooks/transfer.hooks';
+import {
+  useConfirmProductsTransfer,
+  useGetTransfer,
+  useUpdateTransfer,
+} from '@/hooks/transfer.hooks';
 import {
   ArrowLeftOutlined,
   BarcodeOutlined,
@@ -74,7 +78,7 @@ const ConfirmTransfer = () => {
   const { id } = useParams<Partial<{ id: string }>>();
 
   const reportRef = useRef(null);
-  const barcodeRef = useRef(null);
+  const barcodeRef: any = useRef(null);
 
   const [form] = Form.useForm();
 
@@ -83,12 +87,16 @@ const ConfirmTransfer = () => {
   });
 
   const [getTransfer, { loading, data }] = useGetTransfer();
+  const [confirmProductsTransfer] = useConfirmProductsTransfer();
+  const [updateTransfer] = useUpdateTransfer();
 
   const allowConfirm =
     data?.stockTransferId?.status === 'sent' &&
     initialState?.currentUser?.shop?.defaultWarehouse?._id ===
       data?.stockTransferId?.warehouseDestination?._id;
-  const confirmTransfer = !data?.stockTransferId?.details?.find((item) => item.status === 'new');
+  const allowConfirmTransfer = !data?.stockTransferId?.details?.find(
+    (item) => item.status === 'new',
+  );
 
   /**
    * @description se encarga de abrir aviso de información
@@ -196,35 +204,90 @@ const ConfirmTransfer = () => {
 
   const confirmProducts = () => {
     const productsConfirm = details.filter(
-      ((item) => (item?.status === 'new' && item?.quantityConfirmed) || 0 > 0) ||
-        ((item) => item?.status === 'confirmed' && item?.quantityConfirmed === 0),
+      (item) =>
+        ((item?.status === 'new' && item?.quantityConfirmed) || 0) > 0 ||
+        (item?.status === 'confirmed' && item?.quantityConfirmed === 0),
     );
+
     if (productsConfirm.length > 0) {
       setPropsAlertSave({
         visible: true,
         message: '¿Está seguro que desea confirmar los productos?',
-        type: 'error',
+        type: 'warning',
       });
     } else {
       onShowError('No hay productos para confirmar');
     }
   };
 
-  const saveTransfer = (status?: string) => {
-    if (status === 'sent') {
-      /*  const productsConfirm = details.filter(
-        ((item) => (item?.status === 'new' && item?.quantityConfirmed) || 0 > 0) ||
-          ((item) => item?.status === 'confirmed' && item?.quantityConfirmed === 0),
-      );*/
-      //actualizar traslado con los productos
+  const confirmTransfer = () => {
+    const productsConfirm = details.find((item) => item?.status !== 'confirmed');
+
+    if (!productsConfirm) {
+      setPropsAlertSave({
+        visible: true,
+        message: 'Se enviaran las unidades confirmadas a la bodega, ¿Está Seguro?',
+        type: 'warning',
+        status: 'confirmed',
+      });
     } else {
-      //actualizar el traslado con su observación
+      onShowError('Debe confirmar todos los productos');
+    }
+  };
+
+  const saveTransfer = async (status?: string) => {
+    if (status === 'confirmed') {
+      const confirm = !details?.find((item) => item?.status === 'sent');
+
+      if (!confirm) {
+        onShowError('Debe confirmar todos los productos antes de enviar');
+      } else {
+        if (id) {
+          const response = await updateTransfer({
+            variables: {
+              id,
+              input: {
+                observation,
+                status,
+              },
+            },
+          });
+          if (response?.data?.updateStockTransfer) {
+          }
+        }
+      }
+    } else {
+      const newDetails = details.filter(
+        (item) =>
+          (item?.status === 'new' && (item?.quantityConfirmed || 0) > 0) ||
+          (item?.status === 'confirmed' && (item?.quantityConfirmed || 0) === 0),
+      );
+      console.log(newDetails);
+
+      if (id) {
+        const response = await confirmProductsTransfer({
+          variables: {
+            id,
+            input: {
+              details:
+                newDetails.map((item) => ({
+                  productId: item?.product?._id || '',
+                  quantity: item?.quantityConfirmed || 0,
+                  action: 'update',
+                })) || [],
+            },
+          },
+        });
+
+        if (response?.data?.confirmProductsStockTransfer) {
+        }
+      }
     }
   };
 
   useEffect(() => {
     getTransferId();
-  }, []);
+  }, [data]);
 
   const propsAlertSaveFinal: PropsAlertSave = {
     ...propsAlertSave,
@@ -296,7 +359,7 @@ const ConfirmTransfer = () => {
           render: ({ _id = '' }: Product, record) => (
             <Popconfirm
               disabled={!allowConfirm || record?.status === 'confirmed'}
-              title="¿Desea confirmar en 0?"
+              title="¿De<sea confirmar en 0?"
               okText="Si, confirmar"
               cancelText="Cancelar"
               onConfirm={() => confirmZero(_id)}
@@ -305,9 +368,8 @@ const ConfirmTransfer = () => {
                 <Button
                   icon={<StopOutlined />}
                   type="primary"
-                  danger
-                  // onClick={() => deleteDetail(_id)}
                   disabled={!allowConfirm || record?.status === 'confirmed'}
+                  danger
                 />
               </Tooltip>
             </Popconfirm>
@@ -424,7 +486,7 @@ const ConfirmTransfer = () => {
         </Row>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== 'delete')}
+          dataSource={details.filter((detail) => detail?.action !== 'delete') as any}
           scroll={{ x: 800 }}
           pagination={{ size: 'small' }}
         />
@@ -453,8 +515,8 @@ const ConfirmTransfer = () => {
                 align="end"
                 style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}
               >
-                {confirmTransfer ? (
-                  <Button type="primary" disabled={!allowConfirm}>
+                {allowConfirmTransfer ? (
+                  <Button onClick={confirmTransfer} type="primary" disabled={!allowConfirm}>
                     Confirmar Traslado
                   </Button>
                 ) : (

@@ -97,3 +97,32 @@ mutation updateStockTransfer($id: String!, $input: UpdateStockTransferInput!) {
     }
   }
 }
+
+mutation confirmProductsStockTransfer($id: String!, $input: ConfirmStockTransferInput!) {
+  confirmProductsStockTransfer(id: $id, confirmStockTransferInput: $input) {
+    _id
+    details {
+      product {
+        _id
+        barcode
+        color {
+          name
+        }
+        reference {
+          name
+          description
+        }
+        size {
+          value
+        }
+        stock {
+          quantity
+        }
+      }
+      quantity
+      quantityConfirmed
+      status
+    }
+  }
+}
+

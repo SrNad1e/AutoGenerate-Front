@@ -11,7 +11,7 @@ export const StatusType = {
     color: 'blue',
     text: 'Enviado',
   },
-  confirm: {
+  confirmed: {
     color: 'yellow',
     text: 'Confirmado',
   },

@@ -300,6 +300,12 @@ export type Company = {
   user: User;
 };
 
+/** Datos para confirmar los productos del traslado */
+export type ConfirmStockTransferInput = {
+  /** Productos para confirmar */
+  details: DetailConfirmStockTransferInput[];
+};
+
 /** Modelo para la transportadora */
 export type Conveyor = {
   __typename?: 'Conveyor';
@@ -580,6 +586,16 @@ export type DetailAdjustment = {
   quantity: Scalars['Float'];
   /** Fecha de actualización del detalle al ajuste */
   updatedAt: Scalars['DateTime'];
+};
+
+/** Producto a confirmar en el traslado */
+export type DetailConfirmStockTransferInput = {
+  /** Acción a efectuar con el producto (delete, update, create) */
+  action: Scalars['String'];
+  /** Identificador de mongo del producto */
+  productId: Scalars['String'];
+  /** Cantidad de productos */
+  quantity: Scalars['Float'];
 };
 
 /** Detalle de la salida de productos */
@@ -1245,6 +1261,8 @@ export type Mutation = {
   addPaymentsOrder: Order;
   /** Se encarga de agregar productos a un pedido */
   addProductsOrder: Order;
+  /** Confirma los productos del traslado */
+  confirmProductsStockTransfer: StockTransfer;
   /** Crea un atributo */
   createAttrib: Attrib;
   /** Crea una marca */
@@ -1316,6 +1334,11 @@ export type MutationAddPaymentsOrderArgs = {
 
 export type MutationAddProductsOrderArgs = {
   addProductsOrderInput: AddProductsOrderInput;
+};
+
+export type MutationConfirmProductsStockTransferArgs = {
+  confirmStockTransferInput: ConfirmStockTransferInput;
+  id: Scalars['String'];
 };
 
 export type MutationCreateAttribArgs = {
@@ -4024,6 +4047,34 @@ export type UpdateStockTransferMutation = {
     userOrigin: { __typename?: 'User'; name: string };
     warehouseDestination: { __typename?: 'Warehouse'; name: string };
     warehouseOrigin: { __typename?: 'Warehouse'; name: string };
+  };
+};
+
+export type ConfirmProductsStockTransferMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: ConfirmStockTransferInput;
+}>;
+
+export type ConfirmProductsStockTransferMutation = {
+  __typename?: 'Mutation';
+  confirmProductsStockTransfer: {
+    __typename?: 'StockTransfer';
+    _id: string;
+    details: {
+      __typename?: 'DetailTransfer';
+      quantity: number;
+      quantityConfirmed?: number | null;
+      status: string;
+      product: {
+        __typename?: 'Product';
+        _id: string;
+        barcode: string;
+        color: { __typename?: 'Color'; name: string };
+        reference: { __typename?: 'Reference'; name: string; description: string };
+        size: { __typename?: 'Size'; value: string };
+        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+      };
+    }[];
   };
 };
 
@@ -8154,6 +8205,128 @@ export const UpdateStockTransferDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateStockTransferMutation, UpdateStockTransferMutationVariables>;
+export const ConfirmProductsStockTransferDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'confirmProductsStockTransfer' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ConfirmStockTransferInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'confirmProductsStockTransfer' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'confirmStockTransferInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'details' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'product' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'color' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'reference' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'size' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'stock' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantityConfirmed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ConfirmProductsStockTransferMutation,
+  ConfirmProductsStockTransferMutationVariables
+>;
 export const LoginDocument = {
   kind: 'Document',
   definitions: [

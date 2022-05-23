@@ -1,6 +1,7 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
 import {
+  ConfirmProductsStockTransferDocument,
   CreateStockTransferDocument,
   StockTransferIdDocument,
   StockTransfersDocument,
@@ -34,6 +35,23 @@ export const useUpdateTransfer = () => {
           stockTransferId: {
             ...dataInStore?.stockTransferId,
             ...response.data?.updateStockTransfer,
+          },
+        },
+      });
+    },
+  });
+};
+export const useConfirmProductsTransfer = () => {
+  return useMutation(ConfirmProductsStockTransferDocument, {
+    update: (store, response) => {
+      const dataInStore = store.readQuery({ query: StockTransferIdDocument });
+      store.writeQuery({
+        query: StockTransferIdDocument,
+        data: {
+          ...dataInStore,
+          stockTransferId: {
+            ...dataInStore?.stockTransferId,
+            ...response.data?.confirmProductsStockTransfer,
           },
         },
       });
