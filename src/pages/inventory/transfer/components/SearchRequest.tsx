@@ -49,6 +49,13 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
       },
     });
   };
+  const onSelect = () => {
+    const newRequests = requestsSelected.filter(
+      (item) => !requests?.find((request) => request?._id === item?._id),
+    );
+
+    onOk(newRequests);
+  };
 
   const onFinish = (values: FormValues) => {
     const filters: FiltersStockRequestsInput = {};
@@ -87,9 +94,9 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
     },
     {
       title: 'Origen',
-      dataIndex: 'warehouseOrigin',
+      dataIndex: 'warehouseDestination',
       align: 'center',
-      render: (warehouseOrigin: Warehouse) => warehouseOrigin?.name,
+      render: (warehouseDestination: Warehouse) => warehouseDestination?.name,
     },
     {
       title: 'Referencias',
@@ -116,7 +123,7 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
 
   return (
     <Modal
-      onOk={() => onOk(requestsSelected)}
+      onOk={onSelect}
       onCancel={onCancel}
       visible={visible}
       width={1000}

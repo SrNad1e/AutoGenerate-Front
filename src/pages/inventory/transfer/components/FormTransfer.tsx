@@ -160,6 +160,7 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
         if (newDetails.length > 0 || status || observation !== transfer?.observation) {
           const props = {
             details: newDetails,
+            requests: requests?.map((request) => request?._id),
             observation,
             status,
           };
@@ -195,6 +196,7 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
               transfer?.warehouseOrigin?._id ||
               initialState?.currentUser?.shop?.defaultWarehouse?._id ||
               '',
+            requests: requests?.map((request) => request?._id),
             observationOrigin: observation,
             status,
           };
@@ -250,21 +252,19 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
    * @param product producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
-  const updateDetail = async (product: Product, quantity: number) => {
-    if (setDetails) {
-      await setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product._id) {
-            return {
-              ...detail,
-              quantity: quantity || 0,
-              action: detail?.action ?? 'update',
-            };
-          }
-          return detail;
-        }),
-      );
-    }
+  const updateDetail = (product: Product, quantity: number) => {
+    setDetails(
+      details.map((detail) => {
+        if (detail?.product?._id === product._id) {
+          return {
+            ...detail,
+            quantity: quantity || 0,
+            action: detail?.action ?? 'update',
+          };
+        }
+        return detail;
+      }),
+    );
   };
 
   /**
@@ -272,10 +272,8 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
    * @param product producto del detalle
    * @param quantity cantidad del producto
    */
-  const createDetail = async (product: Product, quantity: number) => {
-    if (setDetails) {
-      await setDetails([...details, { product, quantity, action: 'create' }]);
-    }
+  const createDetail = (product: Product, quantity: number) => {
+    setDetails([...details, { product, quantity, action: 'create' }]);
   };
 
   const addRequests = async (requestsAdd: StockRequest[]) => {
@@ -287,24 +285,43 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
         for (let j = 0; j < request?.details?.length; j++) {
           const detail = request?.details[j];
           const productFind = details?.find((item) => item?.product?._id === detail?.product?._id);
-          const productFindLocal = create?.find(
+          const productFindLocal = create?.findIndex(
             (item) => item?.product?._id === detail?.product?._id,
           );
-          if (productFind || productFindLocal) {
+
+          if (productFind) {
             update.push({
               product: detail?.product,
               quantity: detail?.quantity,
             });
           } else {
-            create.push({
-              product: detail?.product,
-              quantity: detail?.quantity,
-            });
+            if (productFindLocal >= 0) {
+              create[productFindLocal] = {
+                product: detail?.product,
+                quantity: detail?.quantity,
+                action: 'create',
+              };
+            } else {
+              create.push({
+                product: detail?.product,
+                quantity: detail?.quantity,
+                action: 'create',
+              });
+            }
           }
         }
       }
-      console.log(requests.concat(requestsAdd));
-
+      const newDetails = details.map((item) => {
+        const find = update.find((detail) => detail?.product?._id === item?.product?._id);
+        if (find) {
+          return {
+            ...item,
+            quantity: find?.quantity,
+          };
+        }
+        return item;
+      });
+      setDetails(newDetails.concat(create));
       setRequests(requests.concat(requestsAdd));
     }
     closeModalSelectRequests();
@@ -446,6 +463,8 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
     },
   ];
 
+  console.log(requests);
+
   return (
     <>
       <Card>
@@ -489,11 +508,11 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
                 {moment(transfer?.updatedAt).format(FORMAT_DATE)}
               </DescriptionsItem>
               <DescriptionsItem label="Solicitudes" span={2}>
-                {requests?.map((request) => {
+                {requests?.map((request) => (
                   <Tag key={request?._id} color="volcano" icon={<CheckCircleOutlined />}>
                     {request?.number}
-                  </Tag>;
-                })}
+                  </Tag>
+                ))}
                 <Tooltip title="Agregar solicitud">
                   <Button
                     onClick={showModalSelectRequests}
