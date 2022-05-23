@@ -12,7 +12,6 @@ export const useCreateAttrib = () => {
   return useMutation(CreateAttribDocument, {
     update: (store, response) => {
       const dataInStore = store.readQuery({ query: AttribsDocument });
-      console.log(dataInStore?.attribs);
       store.writeQuery({
         query: AttribsDocument,
         data: {

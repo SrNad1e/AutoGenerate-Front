@@ -207,6 +207,30 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Traslados',
+              path: '/inventory/transfer',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/inventory/transfer/list',
+                  component: './inventory/transfer/list',
+                },
+                {
+                  name: 'Nuevo',
+                  path: '/inventory/transfer/new',
+                  component: './inventory/transfer/form',
+                },
+                {
+                  path: '/inventory/transfer/confirm/:id',
+                  component: './inventory/transfer/confirm',
+                },
+                {
+                  path: '/inventory/transfer/:id',
+                  component: './inventory/transfer/form',
+                },
+              ],
+            },
           ],
         },
 
