@@ -84,7 +84,10 @@ const ConfirmTransfer = () => {
 
   const [getTransfer, { loading, data }] = useGetTransfer();
 
-  const allowConfirm = data?.stockTransferId?.status === 'sent';
+  const allowConfirm =
+    data?.stockTransferId?.status === 'sent' &&
+    initialState?.currentUser?.shop?.defaultWarehouse?._id ===
+      data?.stockTransferId?.warehouseDestination?._id;
   const confirmTransfer = !data?.stockTransferId?.details?.find((item) => item.status === 'new');
 
   /**
@@ -233,7 +236,6 @@ const ConfirmTransfer = () => {
     {
       title: 'Producto',
       dataIndex: 'product',
-      width: 80,
       render: ({ reference, barcode }: Product) => (
         <Row>
           <Col span={24}>
@@ -248,7 +250,6 @@ const ConfirmTransfer = () => {
     {
       title: 'Color',
       dataIndex: 'product',
-      width: 60,
       render: ({ color }: Product) => {
         return (
           <Space>
@@ -265,20 +266,17 @@ const ConfirmTransfer = () => {
     {
       title: 'Talla',
       dataIndex: 'product',
-      width: 30,
       render: ({ size }: Product) => size.value,
     },
     {
       title: 'Enviado',
       dataIndex: 'quantity',
       align: 'center',
-      width: 30,
     },
     {
       title: 'Confirmado',
       dataIndex: 'quantityConfirmed',
       align: 'center',
-      width: 50,
       render: (quantityConfirmed: number, record) => (
         <Badge
           style={{
@@ -294,7 +292,6 @@ const ConfirmTransfer = () => {
           title: 'Opciones',
           dataIndex: 'product',
           align: 'center',
-          width: 30,
           fixed: 'right',
           render: ({ _id = '' }: Product, record) => (
             <Popconfirm
@@ -316,7 +313,9 @@ const ConfirmTransfer = () => {
             </Popconfirm>
           ),
         }
-      : {},
+      : {
+          width: 0,
+        },
   ];
 
   return (

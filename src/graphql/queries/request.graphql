@@ -68,20 +68,32 @@ query stockRequests($input: FiltersStockRequestsInput!) {
       details {
         quantity
         product {
+          _id
           barcode
           reference {
             name
             description
           }
           color {
+            html
+            image {
+              urls {
+                webp {
+                  small
+                }
+              }
+            }
             name_internal
           }
           size {
             value
           }
+          stock{
+            quantity
+          }
         }
       }
-      user{
+      user {
         name
       }
       createdAt

@@ -2,6 +2,7 @@ query stockTransfers($input: FiltersStockTransfersInput) {
   stockTransfers(filtersStockTransfersInput: $input) {
     page
     totalDocs
+    totalPages
     docs {
       _id
       details {
@@ -72,9 +73,11 @@ query stockTransferId($id: String!) {
       name
     }
     warehouseDestination {
+      _id
       name
     }
     warehouseOrigin {
+      _id
       name
     }
   }

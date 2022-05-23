@@ -17,7 +17,7 @@ import {
   DatePicker,
   Divider,
   Form,
-  Input,
+  InputNumber,
   Row,
   Select,
   Space,
@@ -275,11 +275,9 @@ const TransferList = () => {
     {
       title: 'Estado',
       dataIndex: 'status',
-      align: 'center',
       width: 100,
       render: (status: string) => {
-        const { color, text } = StatusType[status || ''];
-        return <Badge color={color} text={text} />;
+        return <Badge color={StatusType[status]?.color} text={StatusType[status]?.text} />;
       },
     },
     {
@@ -339,11 +337,11 @@ const TransferList = () => {
       }
     >
       <Card>
-        <Form layout="inline" className={styles.filters} onFinish={onFinish}>
+        <Form form={form} layout="inline" className={styles.filters} onFinish={onFinish}>
           <Row gutter={[20, 20]} className={styles.form}>
             <Col xs={24} md={5} lg={5}>
               <FormItem label="Número" name="number">
-                <Input className={styles.item} />
+                <InputNumber controls={false} />
               </FormItem>
             </Col>
             <Col xs={24} md={6} lg={6}>
@@ -351,7 +349,7 @@ const TransferList = () => {
                 <Select className={styles.item}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
-                      <Badge text={StatusType[key].text} color={StatusType[key].color} />
+                      <Badge text={StatusType[key]?.text} color={StatusType[key]?.color} />
                     </Option>
                   ))}
                 </Select>
@@ -399,10 +397,10 @@ const TransferList = () => {
           >
             <Space align="end">
               <Text strong>Total Encontrados:</Text>
-              <Text>{0}</Text>
+              <Text>{data?.stockTransfers?.totalDocs}</Text>
               <Text strong>Páginas: </Text>
               <Text>
-                {1} / {1}
+                {data?.stockTransfers?.page} / {data?.stockTransfers?.totalPages || 0}
               </Text>
             </Space>
           </Col>

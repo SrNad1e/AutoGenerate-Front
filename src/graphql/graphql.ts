@@ -4867,10 +4867,23 @@ export type StockRequestsQuery = {
         quantity: number;
         product: {
           __typename?: 'Product';
+          _id: string;
           barcode: string;
           reference: { __typename?: 'Reference'; name: string; description: string };
-          color: { __typename?: 'Color'; name_internal: string };
+          color: {
+            __typename?: 'Color';
+            html: string;
+            name_internal: string;
+            image?: {
+              __typename?: 'Image';
+              urls?: {
+                __typename?: 'Urls';
+                webp?: { __typename?: 'ImageTypes'; small: string } | null;
+              } | null;
+            } | null;
+          };
           size: { __typename?: 'Size'; value: string };
+          stock?: { __typename?: 'Stock'; quantity: number }[] | null;
         };
       }[];
       user: { __typename?: 'User'; name: string };
@@ -4911,6 +4924,7 @@ export type StockTransfersQuery = {
     __typename?: 'ResponseStockTransfers';
     page: number;
     totalDocs: number;
+    totalPages: number;
     docs: {
       __typename?: 'StockTransfer';
       _id: string;
@@ -4970,8 +4984,8 @@ export type StockTransferIdQuery = {
     requests?: { __typename?: 'StockRequest'; _id: string; number: number }[] | null;
     userDestination?: { __typename?: 'User'; name: string } | null;
     userOrigin: { __typename?: 'User'; name: string };
-    warehouseDestination: { __typename?: 'Warehouse'; name: string };
-    warehouseOrigin: { __typename?: 'Warehouse'; name: string };
+    warehouseDestination: { __typename?: 'Warehouse'; _id: string; name: string };
+    warehouseOrigin: { __typename?: 'Warehouse'; _id: string; name: string };
   };
 };
 
@@ -10846,6 +10860,7 @@ export const StockRequestsDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
                                   {
                                     kind: 'Field',
@@ -10867,6 +10882,38 @@ export const StockRequestsDocument = {
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'html' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'image' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'urls' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'webp' },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: { kind: 'Name', value: 'small' },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
                                         {
                                           kind: 'Field',
                                           name: { kind: 'Name', value: 'name_internal' },
@@ -10881,6 +10928,19 @@ export const StockRequestsDocument = {
                                       kind: 'SelectionSet',
                                       selections: [
                                         { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'stock' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'quantity' },
+                                        },
                                       ],
                                     },
                                   },
@@ -11005,6 +11065,7 @@ export const StockTransfersDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -11222,7 +11283,10 @@ export const StockTransferIdDocument = {
                   name: { kind: 'Name', value: 'warehouseDestination' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
                 {
@@ -11230,7 +11294,10 @@ export const StockTransferIdDocument = {
                   name: { kind: 'Name', value: 'warehouseOrigin' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
               ],

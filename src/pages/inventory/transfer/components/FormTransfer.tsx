@@ -19,12 +19,17 @@ import {
 } from 'antd';
 import { useModel, useParams } from 'umi';
 import type { ColumnsType } from 'antd/es/table/interface';
-import { BarcodeOutlined, CheckCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import {
+  BarcodeOutlined,
+  CheckCircleOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
 import { StatusType } from '../tranfer.data';
-import type { DetailTransfer, Product, StockTransfer } from '@/graphql/graphql';
+import type { DetailTransfer, Product, StockRequest, StockTransfer } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
@@ -35,6 +40,7 @@ import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
 import styles from './styles.less';
+import SearchRequest from './SearchRequest';
 
 const { Title, Text } = Typography;
 const DescriptionsItem = Descriptions.Item;
@@ -47,9 +53,10 @@ export type Props = {
 };
 
 const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
-  const { initialState } = useModel('@@initialState');
-
+  const [showSelectRequests, setShowSelectRequests] = useState(false);
+  const [requests, setRequests] = useState<StockRequest[]>([]);
   const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
+  const [observation, setObservation] = useState('');
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -65,14 +72,18 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
     message: '',
     type: 'error',
   });
-  const [observation, setObservation] = useState('');
+
+  const { initialState } = useModel('@@initialState');
 
   const { id } = useParams<Partial<{ id: string }>>();
 
   const [createTransfer, paramsCreate] = useCreateTransfer();
   const [updateTransfer, paramsUpdate] = useUpdateTransfer();
 
-  const allowEdit = transfer?.status === 'open';
+  const allowEdit =
+    transfer?.status === 'open' &&
+    (!transfer?.warehouseOrigin?._id ||
+      transfer?.warehouseOrigin?._id === initialState?.currentUser?.shop?.defaultWarehouse?._id);
 
   /**
    * @description se encarga de abrir aviso de información
@@ -122,6 +133,14 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
     } else {
       onShowInformation('El traslado no tiene productos');
     }
+  };
+
+  const closeModalSelectRequests = () => {
+    setShowSelectRequests(false);
+  };
+
+  const showModalSelectRequests = () => {
+    setShowSelectRequests(true);
   };
 
   /**
@@ -231,9 +250,9 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
    * @param product producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
-  const updateDetail = (product: Product, quantity: number) => {
+  const updateDetail = async (product: Product, quantity: number) => {
     if (setDetails) {
-      setDetails(
+      await setDetails(
         details.map((detail) => {
           if (detail?.product?._id === product._id) {
             return {
@@ -253,10 +272,42 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
    * @param product producto del detalle
    * @param quantity cantidad del producto
    */
-  const createDetail = (product: Product, quantity: number) => {
+  const createDetail = async (product: Product, quantity: number) => {
     if (setDetails) {
-      setDetails([...details, { product, quantity, action: 'create' }]);
+      await setDetails([...details, { product, quantity, action: 'create' }]);
     }
+  };
+
+  const addRequests = async (requestsAdd: StockRequest[]) => {
+    const create: any[] = [];
+    const update: any[] = [];
+    if (requestsAdd.length > 0) {
+      for (let i = 0; i < requestsAdd.length; i++) {
+        const request = requestsAdd[i];
+        for (let j = 0; j < request?.details?.length; j++) {
+          const detail = request?.details[j];
+          const productFind = details?.find((item) => item?.product?._id === detail?.product?._id);
+          const productFindLocal = create?.find(
+            (item) => item?.product?._id === detail?.product?._id,
+          );
+          if (productFind || productFindLocal) {
+            update.push({
+              product: detail?.product,
+              quantity: detail?.quantity,
+            });
+          } else {
+            create.push({
+              product: detail?.product,
+              quantity: detail?.quantity,
+            });
+          }
+        }
+      }
+      console.log(requests.concat(requestsAdd));
+
+      setRequests(requests.concat(requestsAdd));
+    }
+    closeModalSelectRequests();
   };
 
   /**
@@ -283,6 +334,7 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
   useEffect(() => {
     if (id) {
       setDetails(transfer?.details || []);
+      setRequests(transfer?.requests || []);
       setObservation(transfer?.observation || '');
     }
   }, [transfer, id]);
@@ -347,11 +399,13 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
       align: 'center',
       width: 30,
       render: ({ stock = [] }: Product) =>
-        stock?.length > 0 && (
+        (stock?.length || 0) > 0 && (
           <Badge
             overflowCount={99999}
-            count={stock[0]?.quantity}
-            style={{ backgroundColor: (stock[0]?.quantity || 0) > 0 ? '#dc9575' : 'red' }}
+            count={stock && stock[0]?.quantity}
+            style={{
+              backgroundColor: ((stock && stock[0]?.quantity) || 0) > 0 ? '#dc9575' : 'red',
+            }}
             showZero
           />
         ),
@@ -435,11 +489,19 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
                 {moment(transfer?.updatedAt).format(FORMAT_DATE)}
               </DescriptionsItem>
               <DescriptionsItem label="Solicitudes" span={2}>
-                {transfer?.requests?.map((request) => {
+                {requests?.map((request) => {
                   <Tag key={request?._id} color="volcano" icon={<CheckCircleOutlined />}>
                     {request?.number}
                   </Tag>;
                 })}
+                <Tooltip title="Agregar solicitud">
+                  <Button
+                    onClick={showModalSelectRequests}
+                    disabled={!allowEdit}
+                    type="primary"
+                    icon={<PlusOutlined />}
+                  />
+                </Tooltip>
               </DescriptionsItem>
               <DescriptionsItem label="Observación" span={2}>
                 {allowEdit ? (
@@ -463,7 +525,7 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
         )}
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== 'delete')}
+          dataSource={details.filter((detail) => detail?.action !== 'delete') as any}
           scroll={{ x: 800 }}
           pagination={{ size: 'small' }}
         />
@@ -510,6 +572,12 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
           </Row>
         </Card>
       </Affix>
+      <SearchRequest
+        visible={showSelectRequests}
+        onCancel={closeModalSelectRequests}
+        requests={requests as StockRequest[]}
+        onOk={addRequests}
+      />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading
         visible={paramsCreate?.loading || paramsUpdate?.loading}
