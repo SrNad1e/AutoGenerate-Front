@@ -44,6 +44,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
 import { useGetTransfers } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import ReportTransfer from '../reports/transfer';
 
 import styles from './styles.less';
 import './styles.less';
@@ -68,8 +69,6 @@ const TransferList = () => {
     type: 'error',
     visible: false,
   });
-
-  console.log(transferData);
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -275,7 +274,7 @@ const TransferList = () => {
     {
       title: 'Estado',
       dataIndex: 'status',
-      width: 100,
+      width: 120,
       render: (status: string) => {
         return <Badge color={StatusType[status]?.color} text={StatusType[status]?.text} />;
       },
@@ -418,6 +417,9 @@ const TransferList = () => {
         />
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
+      <div style={{ display: 'none' }}>
+        <ReportTransfer ref={reportRef} data={transferData} />
+      </div>
     </PageContainer>
   );
 };

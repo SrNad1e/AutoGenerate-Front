@@ -184,7 +184,7 @@ const ConfirmTransfer = () => {
       }
       barcodeRef?.current?.select();
     } catch (e: any) {
-      console.log(e);
+      setError(e?.message);
     }
   };
 
@@ -253,6 +253,12 @@ const ConfirmTransfer = () => {
             },
           });
           if (response?.data?.updateStockTransfer) {
+            setPropsAlert({
+              message: 'Productos confirmados correctamente',
+              visible: true,
+              type: 'success',
+              redirect: '/transfer/list',
+            });
           }
         }
       }
@@ -262,7 +268,6 @@ const ConfirmTransfer = () => {
           (item?.status === 'new' && (item?.quantityConfirmed || 0) > 0) ||
           (item?.status === 'confirmed' && (item?.quantityConfirmed || 0) === 0),
       );
-      console.log(newDetails);
 
       if (id) {
         const response = await confirmProductsTransfer({
@@ -280,6 +285,11 @@ const ConfirmTransfer = () => {
         });
 
         if (response?.data?.confirmProductsStockTransfer) {
+          setPropsAlert({
+            message: 'Productos confirmados correctamente',
+            visible: true,
+            type: 'success',
+          });
         }
       }
     }

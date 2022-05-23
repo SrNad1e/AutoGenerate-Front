@@ -460,8 +460,6 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
     },
   ];
 
-  console.log(requests);
-
   return (
     <>
       <Card>
