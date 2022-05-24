@@ -1,5 +1,6 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
+import type { CategoryLevel1 } from '@/graphql/graphql';
 import {
   CategoriesDocument,
   CategoriesLevelDocument,
@@ -23,6 +24,19 @@ export const useCreateCategory = () => {
 
 export const useUpdateCategory = () => {
   return useMutation(UpdateCategoryDocument, {
-    refetchQueries: [{ query: CategoriesDocument, variables: { input: {} } }],
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          colors(existingCategories = []) {
+            return existingCategories?.docs?.map((category: CategoryLevel1) => {
+              if (category?._id === data?.updateCategory?._id) {
+                return data?.updateCategory;
+              }
+              return category;
+            });
+          },
+        },
+      });
+    },
   });
 };
