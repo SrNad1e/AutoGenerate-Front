@@ -218,7 +218,15 @@ export default defineConfig({
               name: 'Devoluciones',
               path: '/billing/return',
               component: './billing/return/list',
-              routes: [{ path: '/billing/return/:id', component: './billing/return/form' }],
+            },
+            {
+              name: 'E-Commerce',
+              path: '/billing/e-commerce',
+              component: './billing/e-commerce/list',
+            },
+            {
+              path: '/billing/e-commerce/:id',
+              component: './billing/e-commerce/edit',
             },
             {
               name: 'Cierres',
@@ -228,23 +236,11 @@ export default defineConfig({
                   name: 'Cierre X',
                   path: '/billing/closings/closingX',
                   component: './billing/closings/closingX/list',
-                  routes: [
-                    {
-                      path: '/billing/closings/closingX/:id',
-                      component: './billing/closings/closingX/form',
-                    },
-                  ],
                 },
                 {
                   name: 'Cierre Z',
                   path: '/billing/closings/closingZ',
                   component: './billing/closings/closingZ/list',
-                  routes: [
-                    {
-                      path: '/billing/closings/closingZ/:id',
-                      component: './billing/closings/closingZ/form',
-                    },
-                  ],
                 },
               ],
             },
