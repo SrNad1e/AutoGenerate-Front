@@ -193,14 +193,14 @@ export default defineConfig({
         },
         {
           name: 'Facturación',
-          path: '/billing',
+          path: '/invoicing',
           icon: 'container',
           routes: [
             {
               name: 'Devoluciones',
-              path: '/billing/return',
-              component: './billing/return/list',
-              routes: [{ path: '/billing/return/:id', component: './billing/return/form' }],
+              path: '/invoicing/return',
+              component: './invoicing/return/list',
+              routes: [{ path: '/invoicing/return/:id', component: './invoicing/return/form' }],
             },
           ],
         },
