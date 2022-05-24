@@ -191,7 +191,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           name="active"
           valuePropName="checked"
         >
-          <Switch />
+          <Switch defaultChecked />
         </FormItem>
         <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Color" name="html">
           <Input type="color" />

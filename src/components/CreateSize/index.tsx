@@ -150,7 +150,7 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
           name="active"
           valuePropName="checked"
         >
-          <Switch />
+          <Switch defaultChecked />
         </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
