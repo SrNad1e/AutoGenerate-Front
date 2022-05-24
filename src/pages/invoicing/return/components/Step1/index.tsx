@@ -1,3 +1,4 @@
+import { Invoice } from '@/graphql/graphql';
 import { FileProtectOutlined, SearchOutlined, SelectOutlined } from '@ant-design/icons';
 import {
   Badge,
@@ -13,6 +14,7 @@ import {
   Table,
   Tag,
 } from 'antd';
+import { ColumnsType } from 'antd/es/table/interface';
 import moment from 'moment';
 import numeral from 'numeral';
 
@@ -25,27 +27,16 @@ type Props = {
 };
 
 const RenderStep1 = ({ selectInvoice }: Props) => {
-  const test = [
-    {
-      shop: 'Gucci',
-      identification: 1234,
-      customer: { name: 'Jotaro', lastName: 'Dio' },
-      total: 10000,
-      createdAt: '12/05/2022',
-      status: 'Open',
-    },
-  ];
-
-  const columns = [
+  const columns: ColumnsType<Invoice> = [
     {
       title: 'Factura',
-      dataIndex: 'invoice',
+      dataIndex: 'number',
       align: 'center',
-      render: () => (
+      render: (number: number, { authorization }) => (
         <Tag color="blue">
           <FileProtectOutlined />
-          {'SJ'}
-          {2905}
+          {authorization?.prefix}
+          {number}
         </Tag>
       ),
     },

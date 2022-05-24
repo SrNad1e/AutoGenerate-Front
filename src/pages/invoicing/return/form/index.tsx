@@ -26,7 +26,7 @@ const FormReturn = ({ visible, onCancel }: Props) => {
       title="Nueva Devolución"
       visible={visible}
       onCancel={onCancel}
-      width={800}
+      width={1000}
       footer={
         currentStep > -1 && [
           <Button

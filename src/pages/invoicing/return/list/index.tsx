@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { PlusOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -16,8 +17,10 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+import type { FiltersReturnsInvoiceInput, ReturnInvoice } from '@/graphql/graphql';
+import { useGetReturnsInvoice } from '@/hooks/return-invoice.hooks';
 import FormReturn from '../form';
 
 import styles from './styles';
@@ -29,39 +32,33 @@ const { Text } = Typography;
 const ReturnList = () => {
   const [visible, setVisible] = useState(false);
 
+  const [getReturns, { data }] = useGetReturnsInvoice();
+
   const closeModal = () => {
     setVisible(false);
   };
 
-  const dataTest = [
-    {
-      code: '1',
-      invoice: 4321,
-      order: 32,
-      shop: '10 Downing Street',
-      value: 10000,
-    },
-    {
-      code: '2',
-      invoice: 1234,
-      order: 42,
-      shop: '10 Downing Street',
-      value: 10000,
-    },
-  ];
+  const onSearch = (values?: FiltersReturnsInvoiceInput) => {
+    getReturns({
+      variables: {
+        input: {
+          ...values,
+        },
+      },
+    });
+  };
 
-  const columns: ColumnsType = [
+  useEffect(() => {
+    onSearch();
+  }, []);
+
+  const columns: ColumnsType<ReturnInvoice> = [
     {
       title: 'Codigo',
       dataIndex: 'code',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-    },
-    {
-      title: 'Pedido',
-      dataIndex: 'order',
-      align: 'center',
     },
     {
       title: 'Factura',
@@ -178,7 +175,12 @@ const ReturnList = () => {
         </Row>
       </Card>
       <Card bordered={false} bodyStyle={styles.noPaddingTop}>
-        <Table columns={columns} scroll={{ x: 1000 }} pagination={false} dataSource={dataTest} />
+        <Table
+          columns={columns}
+          scroll={{ x: 1000 }}
+          pagination={false}
+          dataSource={data?.returnsInvoice?.docs as any}
+        />
       </Card>
       <FormReturn visible={visible} onCancel={closeModal} />
     </PageContainer>
