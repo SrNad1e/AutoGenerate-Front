@@ -22,15 +22,16 @@ export const useCreateOutput = () => {
 
 export const useUpdateOutput = () => {
   return useMutation(UpdateStockOutputDocument, {
-    update: (store, response) => {
-      const dataInStore = store.readQuery({ query: StockOutputDocument });
-      store.writeQuery({
-        query: StockOutputDocument,
-        data: {
-          ...dataInStore,
-          stockOutputId: {
-            ...dataInStore?.stockOutputId,
-            ...(response?.data?.updateStockOutput as StockOutput),
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          colors(existingOutputs = []) {
+            return existingOutputs?.docs?.map((output: StockOutput) => {
+              if (output?._id === data?.updateStockOutput?._id) {
+                return data?.updateStockOutput;
+              }
+              return output;
+            });
           },
         },
       });

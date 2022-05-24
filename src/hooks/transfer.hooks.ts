@@ -1,5 +1,6 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
+import type { StockTransfer } from '@/graphql/graphql';
 import {
   ConfirmProductsStockTransferDocument,
   CreateStockTransferDocument,
@@ -26,15 +27,16 @@ export const useCreateTransfer = () => {
 
 export const useUpdateTransfer = () => {
   return useMutation(UpdateStockTransferDocument, {
-    update: (store, response) => {
-      const dataInStore = store.readQuery({ query: StockTransferIdDocument });
-      store.writeQuery({
-        query: StockTransferIdDocument,
-        data: {
-          ...dataInStore,
-          stockTransferId: {
-            ...dataInStore?.stockTransferId,
-            ...response.data?.updateStockTransfer,
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          colors(existingTransfers = []) {
+            return existingTransfers?.docs?.map((transfer: StockTransfer) => {
+              if (transfer?._id === data?.updateStockTransfer?._id) {
+                return data?.updateStockTransfer;
+              }
+              return transfer;
+            });
           },
         },
       });
