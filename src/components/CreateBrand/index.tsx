@@ -70,7 +70,7 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
    */
   const editBrand = async () => {
     try {
-      const values = form.getFieldsValue();
+      const values = form.validateFields();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {

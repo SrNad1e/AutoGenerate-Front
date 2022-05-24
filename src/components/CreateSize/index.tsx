@@ -68,7 +68,7 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
    */
   const editSize = async () => {
     try {
-      const values = form.getFieldsValue();
+      const values = await form.validateFields();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {
