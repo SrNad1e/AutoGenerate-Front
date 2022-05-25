@@ -26,7 +26,7 @@ export const useUpdateProduct = () => {
     update: (cache, { data }) => {
       cache.modify({
         fields: {
-          colors(existingProducts = []) {
+          products(existingProducts = []) {
             return existingProducts?.docs?.map((product: Product) => {
               if (product?._id === data?.updateProduct?._id) {
                 return data?.updateProduct;

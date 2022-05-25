@@ -30,7 +30,7 @@ export const useUpdateTransfer = () => {
     update: (cache, { data }) => {
       cache.modify({
         fields: {
-          colors(existingTransfers = []) {
+          stockTransfers(existingTransfers = []) {
             return existingTransfers?.docs?.map((transfer: StockTransfer) => {
               if (transfer?._id === data?.updateStockTransfer?._id) {
                 return data?.updateStockTransfer;
