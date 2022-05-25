@@ -222,27 +222,27 @@ export default defineConfig({
             },
             {
               name: 'Cierres',
-              path: '/billing/closings',
+              path: '/invoicing/closings',
               routes: [
                 {
                   name: 'Cierre X',
-                  path: '/billing/closings/closingX',
-                  component: './billing/closings/closingX/list',
+                  path: '/invoicing/closings/closingX',
+                  component: './invoicing/closings/closingX/list',
                   routes: [
                     {
-                      path: '/billing/closings/closingX/:id',
-                      component: './billing/closings/closingX/form',
+                      path: '/invoicing/closings/closingX/:id',
+                      component: './invoicing/closings/closingX/form',
                     },
                   ],
                 },
                 {
                   name: 'Cierre Z',
-                  path: '/billing/closings/closingZ',
-                  component: './billing/closings/closingZ/list',
+                  path: '/invoicing/closings/closingZ',
+                  component: './invoicing/closings/closingZ/list',
                   routes: [
                     {
-                      path: '/billing/closings/closingZ/:id',
-                      component: './billing/closings/closingZ/form',
+                      path: '/invoicing/closings/closingZ/:id',
+                      component: './invoicing/closings/closingZ/form',
                     },
                   ],
                 },
