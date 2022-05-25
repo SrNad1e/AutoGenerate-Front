@@ -224,12 +224,9 @@ const OutputList = () => {
       }
     });
 
-    form.setFieldsValue({
-      type: 'received',
-    });
-
     onFinish(newFilters);
   };
+
   useEffect(() => {
     loadingData();
   }, []);

@@ -224,12 +224,9 @@ const AdjustmentList = () => {
       }
     });
 
-    form.setFieldsValue({
-      type: 'received',
-    });
-
     onFinish(newFilters);
   };
+
   useEffect(() => {
     loadingData();
   }, []);
