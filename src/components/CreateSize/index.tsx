@@ -95,7 +95,9 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
         }
       }
     } catch (e: any) {
-      showError(e?.message);
+      if (e?.message) {
+        showError(e?.message);
+      }
     }
   };
 
