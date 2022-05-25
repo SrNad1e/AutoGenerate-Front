@@ -27,7 +27,7 @@ export const useUpdateCategory = () => {
     update: (cache, { data }) => {
       cache.modify({
         fields: {
-          colors(existingCategories = []) {
+          categories(existingCategories = []) {
             return existingCategories?.docs?.map((category: CategoryLevel1) => {
               if (category?._id === data?.updateCategory?._id) {
                 return data?.updateCategory;

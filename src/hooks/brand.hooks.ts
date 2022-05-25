@@ -16,7 +16,7 @@ export const useUpdateBrand = () => {
     update: (cache, { data }) => {
       cache.modify({
         fields: {
-          colors(existingBrands = []) {
+          brands(existingBrands = []) {
             return existingBrands?.docs?.map((brand: Brand) => {
               if (brand?._id === data?.updateBrand?._id) {
                 return data?.updateBrand;

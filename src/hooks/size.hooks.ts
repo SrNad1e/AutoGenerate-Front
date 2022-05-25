@@ -12,7 +12,7 @@ export const useUpdateSize = () => {
     update: (cache, { data }) => {
       cache.modify({
         fields: {
-          colors(existingSizes = []) {
+          sizes(existingSizes = []) {
             return existingSizes?.docs?.map((size: Size) => {
               if (size?._id === data?.updateSize?._id) {
                 return data?.updateSize;

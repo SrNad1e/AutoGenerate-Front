@@ -25,7 +25,7 @@ export const useUpdateAdjustment = () => {
     update: (cache, { data }) => {
       cache.modify({
         fields: {
-          colors(existingAdjustment = []) {
+          stockAdjustments(existingAdjustment = []) {
             return existingAdjustment?.docs?.map((adjustment: StockAdjustment) => {
               if (adjustment?._id === data?.updateStockAdjustment?._id) {
                 return data?.updateStockAdjustment;

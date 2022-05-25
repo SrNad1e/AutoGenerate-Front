@@ -18,7 +18,7 @@ export const useUpdateAttrib = () => {
     update: (cache, { data }) => {
       cache.modify({
         fields: {
-          colors(existingAttribs = []) {
+          attribs(existingAttribs = []) {
             return existingAttribs?.docs?.map((attrib: Attrib) => {
               if (attrib?._id === data?.updateAttrib?._id) {
                 return data?.updateAttrib;
