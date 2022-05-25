@@ -1,5 +1,6 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
+import type { StockInput } from '@/graphql/graphql';
 import {
   CreateStockInputDocument,
   StockInputDocument,
@@ -20,5 +21,20 @@ export const useCreateInput = () => {
 };
 
 export const useUpdateInput = () => {
-  return useMutation(UpdateStockInputDocument);
+  return useMutation(UpdateStockInputDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockInputs(existingInputs = []) {
+            return existingInputs?.docs?.map((input: StockInput) => {
+              if (input?._id === data?.updateStockInput?._id) {
+                return data?.updateStockInput;
+              }
+              return input;
+            });
+          },
+        },
+      });
+    },
+  });
 };

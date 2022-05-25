@@ -71,7 +71,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
    */
   const editColor = async () => {
     try {
-      const values = form.getFieldsValue();
+      const values = await form.validateFields();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {
@@ -102,7 +102,9 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
         }
       }
     } catch (e: any) {
-      showError(e?.message);
+      if (e?.message) {
+        showError(e?.message);
+      }
     }
   };
 
@@ -191,7 +193,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           name="active"
           valuePropName="checked"
         >
-          <Switch />
+          <Switch defaultChecked />
         </FormItem>
         <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Color" name="html">
           <Input type="color" />
