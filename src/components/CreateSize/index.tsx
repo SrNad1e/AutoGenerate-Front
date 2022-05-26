@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Form, Input, Modal, Switch } from 'antd';
+import { Alert, Form, Input, InputNumber, Modal, Switch } from 'antd';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -142,6 +142,15 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
           rules={[{ required: true, message: 'Nombre obligatorio', min: 1 }]}
         >
           <Input placeholder="" autoFocus maxLength={45} />
+        </FormItem>
+        <FormItem
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 12 }}
+          label="Ordenamiento"
+          name="weight"
+          rules={[{ required: true, message: 'La posición es obligatoria' }]}
+        >
+          <InputNumber controls={false} />
         </FormItem>
         <FormItem
           labelCol={{ span: 8 }}

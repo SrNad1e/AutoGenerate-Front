@@ -10,6 +10,7 @@ query sizes($input: FiltersSizesInput!) {
       _id
       value
       active
+      weight
     }
   }
 }

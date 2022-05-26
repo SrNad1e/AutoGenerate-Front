@@ -5,6 +5,7 @@ mutation createSize($input: CreateSizeInput!) {
     createdAt
     updatedAt
     value
+    weight
   }
 }
 
@@ -15,5 +16,6 @@ mutation updateSize($id: String!, $input: UpdateSizeInput!) {
     createdAt
     updatedAt
     value
+    weight
   }
 }
