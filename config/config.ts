@@ -263,6 +263,11 @@ export default defineConfig({
               component: './billing/expenses/list',
             },
             {
+              name: 'Recibo de Cajas',
+              path: '/billing/cashReceipt',
+              component: './billing/cashReceipt/list',
+            },
+            {
               name: 'Cierres',
               path: '/billing/closings',
               routes: [
