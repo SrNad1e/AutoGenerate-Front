@@ -1104,6 +1104,22 @@ export type FiltersPaymentsInput = {
   type?: InputMaybe<Scalars['String']>;
 };
 
+/** Filtros para obtener los puntos de venta */
+export type FiltersPointOfSalesInput = {
+  /** Identificador del punto de venta */
+  _id?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Comodín busqueda del punto de venta */
+  name?: InputMaybe<Scalars['String']>;
+  /** Página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Tienda a la que pertenecen los puntos de venta */
+  shopId?: InputMaybe<Scalars['String']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortPointOfSale>;
+};
+
 export type FiltersProductInput = {
   /** Identificador de mongo */
   _id?: InputMaybe<Scalars['String']>;
@@ -1898,6 +1914,8 @@ export type Query = {
   ordersByPointOfSale: Order[];
   /** Se encarga de listar los metodos de pago */
   payments: ResponsePayments;
+  /** Lista de puntos de venta */
+  pointOfSales: ResponsePointOfSales;
   /** Obtiene un producto */
   product: Product;
   /** Lista los productos */
@@ -1998,6 +2016,10 @@ export type QueryOrdersByPointOfSaleArgs = {
 
 export type QueryPaymentsArgs = {
   filtersPaymentsInput?: InputMaybe<FiltersPaymentsInput>;
+};
+
+export type QueryPointOfSalesArgs = {
+  filtersPointOfSales?: InputMaybe<FiltersPointOfSalesInput>;
 };
 
 export type QueryProductArgs = {
@@ -2435,6 +2457,30 @@ export type ResponsePayments = {
   __typename?: 'ResponsePayments';
   /** Lista de metodos de pago */
   docs: Payment[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Lista de puntos de venta */
+export type ResponsePointOfSales = {
+  __typename?: 'ResponsePointOfSales';
+  /** Lista de puntos de venta */
+  docs: PointOfSale[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -2972,6 +3018,14 @@ export type SortPayment = {
   createdAt?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['Float']>;
   type?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento para el listado de colores */
+export type SortPointOfSale = {
+  closeDate?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['Float']>;
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
@@ -5072,6 +5126,26 @@ export type StockOutputsQuery = {
           size: { __typename?: 'Size'; value: string };
         };
       }[];
+    }[];
+  };
+};
+
+export type PointOfSalesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersPointOfSalesInput>;
+}>;
+
+export type PointOfSalesQuery = {
+  __typename?: 'Query';
+  pointOfSales: {
+    __typename?: 'ResponsePointOfSales';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'PointOfSale';
+      _id: string;
+      name: string;
+      shop: { __typename?: 'Shop'; name: string };
     }[];
   };
 };
@@ -10295,6 +10369,66 @@ export const StockOutputsDocument = {
     },
   ],
 } as unknown as DocumentNode<StockOutputsQuery, StockOutputsQueryVariables>;
+export const PointOfSalesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'pointOfSales' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersPointOfSalesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'pointOfSales' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersPointOfSales' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PointOfSalesQuery, PointOfSalesQueryVariables>;
 export const ProductsDocument = {
   kind: 'Document',
   definitions: [
