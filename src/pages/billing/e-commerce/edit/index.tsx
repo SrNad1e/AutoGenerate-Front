@@ -1,6 +1,13 @@
-import { HomeOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  CloseCircleOutlined,
+  HomeOutlined,
+  PhoneOutlined,
+  PrinterOutlined,
+  SendOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Badge, Card, Col, Divider, Row, Tag, Typography } from 'antd';
+import { Affix, Badge, Button, Card, Col, Divider, Row, Space, Tag, Typography } from 'antd';
 import moment from 'moment';
 import numeral from 'numeral';
 
@@ -126,7 +133,26 @@ const EcommerceEdit = () => {
         </Grid>
         <Divider />
       </Card>
-      <Col>{<Tabs />}</Col>
+      <Row gutter={[0, 10]} justify="center">
+        <Col>{<Tabs />}</Col>
+        <Col>
+          <Affix offsetBottom={10}>
+            <Card size="small" style={styles.affixStyle}>
+              <Space>
+                <Button icon={<CloseCircleOutlined />} type="primary" onClick={() => {}}>
+                  Cancelar Pedido
+                </Button>
+                <Button icon={<PrinterOutlined />} type="primary" onClick={() => {}}>
+                  Imprimir pedido
+                </Button>
+                <Button icon={<SendOutlined />} type="primary" onClick={() => {}}>
+                  Enviar Pedido
+                </Button>
+              </Space>
+            </Card>
+          </Affix>
+        </Col>
+      </Row>
     </PageContainer>
   );
 };

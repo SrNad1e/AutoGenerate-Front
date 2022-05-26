@@ -270,9 +270,10 @@ const Products = () => {
         </Col>
         <Col span={24}>
           <Table
+            pagination={false}
             columns={confirmProduct ? columnConfirm : column}
             dataSource={dataTest}
-            scroll={{ x: 1600 }}
+            scroll={{ x: 1600, y: 'auto' }}
           />
         </Col>
       </Row>

@@ -36,4 +36,9 @@ export default {
   divGrid: {
     marginTop: 15,
   },
+  affixStyle: {
+    width: 485,
+    borderRadius: 10,
+    borderColor: '#dc9575',
+  },
 };
