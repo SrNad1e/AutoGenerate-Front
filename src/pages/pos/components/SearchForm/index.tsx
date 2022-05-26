@@ -48,6 +48,7 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
     return getProducts({
       variables: {
         input: {
+          status: 'active',
           ...filters,
           warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
           limit: 20,

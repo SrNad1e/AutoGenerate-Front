@@ -199,7 +199,7 @@ const ModalSearchProducts = ({
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => createDetail(product, 1)}
-              loading={
+              disabled={
                 validateStock ? !!(product.stock && product?.stock[0]?.quantity === 0) : false
               }
             />

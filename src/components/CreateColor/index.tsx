@@ -70,8 +70,8 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para actualizar un color
    */
   const editColor = async () => {
+    const values = await form.validateFields();
     try {
-      const values = form.getFieldsValue();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {
@@ -102,7 +102,9 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
         }
       }
     } catch (e: any) {
-      showError(e?.message);
+      if (e?.message) {
+        showError(e?.message);
+      }
     }
   };
 
@@ -110,9 +112,8 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para crear un nuevo color
    */
   const createNewColor = async () => {
+    const values = await form.validateFields();
     try {
-      form.getFieldsValue();
-      const values = await form.validateFields();
       delete values.active;
       if (values.image.length === 0) {
         delete values.image;
@@ -138,10 +139,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
         });
       }
     } catch (e: any) {
-      showError(e.message);
-      if (e.message === undefined) {
-        showError('Complete los campos');
-      }
+      showError(e?.message);
     }
   };
 
@@ -191,7 +189,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           name="active"
           valuePropName="checked"
         >
-          <Switch />
+          <Switch defaultChecked />
         </FormItem>
         <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Color" name="html">
           <Input type="color" />

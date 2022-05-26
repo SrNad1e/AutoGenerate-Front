@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -87,6 +88,9 @@ const SizesList = () => {
       getSizes({
         variables: {
           input: {
+            sort: {
+              weight: 1,
+            },
             ...values,
           },
         },
@@ -150,11 +154,11 @@ const SizesList = () => {
       }
     });
 
-    onSearch({ ...filters, ...values });
     setQueryParams({
       ...values,
       ...filters,
     });
+    onSearch({ ...filters, ...values });
   };
 
   /**
@@ -192,8 +196,14 @@ const SizesList = () => {
     }
 
     setQueryParams(filters);
-    onSearch({ ...prop, sort, page: current, ...filters });
     setSorterTable(sorter);
+
+    if (sort['value']) {
+      sort['weight'] = sort['value'];
+      delete sort['value'];
+    }
+
+    onSearch({ ...prop, sort, page: current, ...filters });
     setFilterTable(filterArg);
   };
 
