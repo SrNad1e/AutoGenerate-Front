@@ -1,0 +1,31 @@
+query closesXInvoicing($input: FiltersClosesXInvoicingInput) {
+  closesXInvoicing(filtersClosesXInvoicing: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      number
+      pointOfSale {
+        shop {
+          name
+        }
+      }
+      closeDate
+      summaryOrder {
+        value
+        quantityClosed
+      }
+      payments {
+        payment {
+          name
+        }
+        quantity
+        value
+      }
+      user {
+        name
+      }
+    }
+  }
+}

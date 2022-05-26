@@ -52,7 +52,7 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
         showSearch
         loading={loading}
         placeholder="Seleccione la tienda"
-        optionFilterProp="name"
+        optionFilterProp="children"
         onChange={onChange}
         onSearch={onSearch}
         disabled={disabled}

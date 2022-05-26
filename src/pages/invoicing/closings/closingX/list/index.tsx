@@ -1,10 +1,14 @@
-import {
-  EditFilled,
-  EyeFilled,
-  PlusOutlined,
-  PrinterFilled,
-  SearchOutlined,
-} from '@ant-design/icons';
+/* eslint-disable react-hooks/exhaustive-deps */
+import type {
+  CloseXInvoicing,
+  FiltersClosesXInvoicingInput,
+  PaymentOrderClose,
+  Shop,
+  SummaryOrderClose,
+  User,
+} from '@/graphql/graphql';
+import { useGetClosesXInvoicing } from '@/hooks/closeXInvoicing.hooks';
+import { EditFilled, PlusOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Button,
@@ -15,33 +19,94 @@ import {
   Form,
   Input,
   Row,
-  Select,
   Space,
   Table,
   Tag,
   Tooltip,
   Typography,
 } from 'antd';
+import type {
+  ColumnsType,
+  FilterValue,
+  SorterResult,
+  TablePaginationConfig,
+} from 'antd/es/table/interface';
+import type { Moment } from 'moment';
 import moment from 'moment';
 import numeral from 'numeral';
-import { useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
+import { useEffect, useRef, useState } from 'react';
+import type { Location } from 'umi';
+import { useLocation, useHistory } from 'umi';
 
 import CloseDay from '../components/DayClose';
 import EditClose from '../components/EditClose';
-import ViewClose from '../components/ViewClose';
-import FormClosingX from '../form';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import FormClosingX from '../components/form';
 
 import styles from './styles';
+import SelectShop from '@/components/SelectShop';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const FormItem = Form.Item;
-const { Option } = Select;
 const { Text } = Typography;
+
+export type FormValues = {
+  number?: number;
+  shopId?: string;
+  date?: Moment;
+};
 
 const ClosingXList = () => {
   const [visible, setVisible] = useState(false);
   const [visibleNewClose, setVisibleNewClose] = useState(false);
   const [visibleEditClose, setVisibleEditClose] = useState(false);
-  const [visibleViewClose, setVisibleViewClose] = useState(false);
+  const [filters, setFilters] = useState<Partial<FormValues>>();
+  const [closeData, setCloseData] = useState<Partial<CloseXInvoicing>>({});
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
+  console.log(closeData);
+
+  const [form] = Form.useForm();
+
+  const history = useHistory();
+
+  const location: Location = useLocation();
+
+  const reportRef = useRef(null);
+
+  const [getCloses, { data, loading }] = useGetClosesXInvoicing();
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
+
+  /**
+   * @description funcion usada por los hook para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const messageError = (message: string) => {
+    setPropsAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
 
   /**
    * Cierra el modal de arqueo de dinero
@@ -73,68 +138,147 @@ const ClosingXList = () => {
   };
 
   /**
-   * Cierra el modal de la vista
+   * @description se encarga de seleccionar el cierre que imprime
+   * @param record cierre
    */
-  const closeViewClose = () => {
-    setVisibleViewClose(false);
+  const printPage = async (record: Partial<CloseXInvoicing>) => {
+    await setCloseData(record);
+    handlePrint();
   };
 
-  const test = [
-    {
-      code: 123,
-      shop: 'Gucci',
-      createdAt: '2022-05-04T18:10:20.727Z',
-      total: 100000,
-      status: { name: 'Completo', color: 'green' },
-      name: 'Dio Brandon',
-      fixedByName: 'Jotaro',
-    },
-    {
-      code: 321,
-      shop: 'Louis XVI',
-      createdAt: '2022-05-04T18:10:20.727Z',
-      total: 200000,
-      status: { name: 'Incompleto', color: 'red' },
-      name: 'Jotaro Kujo',
-      fixedByName: 'Dio',
-    },
-  ];
+  /**
+   * @description se encarga de ejecutar la funcion para obtener los cierres
+   * @param params filtros necesarios para la busqueda
+   */
+  const onSearch = (params?: FiltersClosesXInvoicingInput) => {
+    getCloses({
+      variables: {
+        input: {
+          sort: {
+            createdAt: -1,
+          },
+          ...params,
+        },
+      },
+    });
+  };
 
-  const column = [
+  /**
+   * @description se encarga de realizar el proceso de busqueda con los filtros
+   * @param props filtros seleccionados en el formulario
+   */
+  const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
+    const { number, shopId, date } = props;
+    try {
+      const params: Partial<FiltersClosesXInvoicingInput> = {
+        page: pageCurrent || 1,
+        limit: 10,
+        number,
+        sort: sort || { createdAt: -1 },
+      };
+
+      if (date) {
+        const closeDate = moment(date).format(FORMAT_DATE_API);
+        params.closeDate = closeDate;
+      }
+      if (shopId) {
+        params.shopId = shopId;
+      }
+      onSearch(params);
+
+      const datos = Object.keys(props)
+        .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
+        .slice(1);
+
+      form.setFieldsValue(props);
+      history.replace(`${location.pathname}?${datos}`);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
+   */
+  const handleChangeTable = (
+    paginationLocal: TablePaginationConfig,
+    _: Record<string, FilterValue | null>,
+    sorter: SorterResult<CloseXInvoicing> | SorterResult<CloseXInvoicing>[] | any,
+  ) => {
+    const { current } = paginationLocal;
+    const params = form.getFieldsValue();
+
+    let sort = {};
+
+    if (sorter.field) {
+      sort = {
+        [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+      };
+    } else {
+      sort = {
+        createdAt: -1,
+      };
+    }
+
+    onFinish(params, sort, current);
+  };
+
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
+  const onClear = () => {
+    history.replace(location.pathname);
+    form.resetFields();
+    onSearch({
+      limit: 10,
+      page: 1,
+    });
+    setFilters({});
+  };
+
+  useEffect(() => {
+    const queryParams: any = location.query;
+
+    const newFilters = {};
+    Object.keys(queryParams).forEach((item) => {
+      newFilters[item] = JSON.parse(queryParams[item]);
+    });
+    onFinish(newFilters);
+  }, []);
+
+  const columns: ColumnsType<Partial<CloseXInvoicing>> = [
     {
-      title: 'Código',
-      dataIndex: 'code',
+      title: 'Número',
+      dataIndex: 'number',
       sorter: true,
       showSorterTooltip: false,
     },
     {
       title: 'Tienda',
       dataIndex: 'shop',
-      sorter: true,
-      showSorterTooltip: false,
+      render: (shop: Shop) => shop?.name,
     },
     {
       title: 'Fecha cierre',
-      dataIndex: 'createdAt',
+      dataIndex: 'closeDate',
       sorter: true,
       showSorterTooltip: false,
-      render: (createdAt: Date) => <span>{moment(createdAt).format(FORMAT_DATE)}</span>,
+      render: (closeDate: Date) => <span>{moment(closeDate).format(FORMAT_DATE_API)}</span>,
     },
     {
-      title: 'Total Ingresos',
-      dataIndex: 'total',
-      sorter: true,
-      showSorterTooltip: false,
+      title: 'Ingresos',
+      dataIndex: 'payemnts',
       align: 'right',
-      render: (total: number) => numeral(total).format('$ 0,0'),
+      render: (payments: PaymentOrderClose[]) =>
+        numeral(payments?.reduce((sum, payment) => sum + payment?.value, 0)).format('$ 0,0'),
     },
     {
-      title: 'Total Facturas',
-      dataIndex: 'total',
-      sorter: true,
-      showSorterTooltip: false,
+      title: 'Facturas',
+      dataIndex: 'summaryOrder',
       align: 'right',
-      render: (total: number) => numeral(total).format('$ 0,0'),
+      render: (summary: SummaryOrderClose) => numeral(summary?.value).format('$ 0,0'),
     },
     {
       title: 'Estado',
@@ -144,57 +288,29 @@ const ClosingXList = () => {
         status ? <Tag color={status.color}> {status.name}</Tag> : '',
     },
     {
-      title: 'Consignaciones',
-      dataIndex: '',
+      title: 'Registrado',
+      dataIndex: 'user',
       align: 'center',
-      render: () => (
-        <>
-          {1} / {1}
-        </>
-      ),
-    },
-    {
-      title: 'Registrado Por',
-      dataIndex: 'name',
-      align: 'center',
-    },
-    {
-      title: 'Modificado Por',
-      dataIndex: 'fixedByName',
-      align: 'center',
-      render: (fixedByName: string) => fixedByName || '(Sin Modificar)',
+      render: (user: User) => user?.name,
     },
     {
       title: 'Acción',
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
-      render: () => (
-        <Row gutter={10}>
-          <Col span={8}>
-            <Tooltip title="Editar" placement="topLeft">
-              <Button
-                onClick={() => setVisibleEditClose(true)}
-                type="primary"
-                icon={<EditFilled />}
-              />
-            </Tooltip>
-          </Col>
-          <Col span={8}>
-            <Tooltip title="Ver Cierre" placement="topLeft">
-              <Button
-                onClick={() => setVisibleViewClose(true)}
-                type="primary"
-                icon={<EyeFilled />}
-              />
-            </Tooltip>
-          </Col>
-          <Col span={8}>
+      render: (_: string, record) => (
+        <Space>
+          <Tooltip title="Editar" placement="topLeft">
+            <Button
+              onClick={() => setVisibleEditClose(true)}
+              type="primary"
+              icon={<EditFilled />}
+            />
             <Tooltip title="Imprimir" placement="topLeft">
-              <Button type="primary" icon={<PrinterFilled />} />
+              <Button onClick={() => printPage(record)} type="primary" icon={<PrinterFilled />} />
             </Tooltip>
-          </Col>
-        </Row>
+          </Tooltip>
+        </Space>
       ),
     },
   ];
@@ -202,51 +318,40 @@ const ClosingXList = () => {
   return (
     <PageContainer>
       <Card bordered={false}>
-        <Form>
-          <Row gutter={[20, 0]}>
-            <Col xs={11} md={9} lg={9} xl={9}>
-              <FormItem label="Fecha de Cierre">
-                <DatePicker placeholder="Seleccione una fecha" style={{ width: '100%' }} />
-              </FormItem>
-            </Col>
+        <Form form={form} layout="inline" onFinish={onFinish} initialValues={filters}>
+          <Row gutter={[20, 10]}>
             <Col xs={13} md={7} lg={5} xl={5}>
-              <FormItem label="Codigo">
+              <FormItem label="Número" name="number">
                 <Input />
               </FormItem>
             </Col>
+            <Col xs={11} md={9} lg={9} xl={9}>
+              <FormItem label="Fecha de Cierre" name="date">
+                <DatePicker placeholder="Seleccione una fecha" style={{ width: '100%' }} />
+              </FormItem>
+            </Col>
             <Col xs={24} md={8} lg={8} xl={5}>
-              <FormItem label="Tienda">
-                <Select showSearch placeholder="Seleccione una tienda">
-                  <Option value="Gucci">Gucci</Option>
-                  <Option value="Toulouse">Toulouse</Option>
-                  <Option>Louis Vuitton</Option>
-                </Select>
+              <FormItem label="Tienda" name="shopId">
+                <SelectShop disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={5}>
-              <FormItem label="Estado">
-                <Select placeholder="Estado">
-                  <Option value="Completo">Completo</Option>
-                  <Option value="Incompleto">Incompleto</Option>
-                  <Option>Verificado</Option>
-                </Select>
-              </FormItem>
-            </Col>
-            <Col xs={24} md={17} lg={17} xl={24}>
+            <Col xs={24} md={8} lg={8} xl={5}>
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button icon={<SearchOutlined />} type="primary">
                     Buscar
                   </Button>
-                  <Button>Limpiar</Button>
+                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                    Limpiar
+                  </Button>
                 </Space>
               </FormItem>
             </Col>
           </Row>
         </Form>
-        <Divider style={styles.dividerMargin} />
+        <Divider />
         <Row>
-          <Col xs={12} md={15} lg={15}>
+          <Col xs={12} md={12} lg={12}>
             <Button
               icon={<PlusOutlined />}
               onClick={() => setVisible(true)}
@@ -256,23 +361,30 @@ const ClosingXList = () => {
               Nuevo
             </Button>
           </Col>
-          <Col xs={12} md={9} lg={9}>
-            <Space>
-              <Text strong>Total Encontrados:</Text>
-              <Text>10</Text>
-              <Text strong>Pagina:</Text>
-              <Text>1/1</Text>
-            </Space>
+          <Col span={12} style={{ textAlign: 'right' }}>
+            <Text strong>Total Encontrados:</Text> {data?.closesXInvoicing?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.closesXInvoicing?.page} /{' '}
+            {data?.closesXInvoicing?.totalPages || 0}
           </Col>
         </Row>
       </Card>
       <Card bordered={false} bodyStyle={styles.bodyPadding}>
-        <Table columns={column} scroll={{ x: 1350 }} dataSource={test} />
+        <Table
+          pagination={{
+            current: data?.closesXInvoicing?.page,
+            total: data?.closesXInvoicing?.totalDocs,
+          }}
+          onChange={handleChangeTable}
+          columns={columns}
+          scroll={{ x: 1000 }}
+          loading={loading}
+          dataSource={data?.closesXInvoicing?.docs as any}
+        />
       </Card>
       <FormClosingX visible={visible} onCancel={closeModal} onOk={onOk} />
       <CloseDay visible={visibleNewClose} onCancel={closeNewClose} />
       <EditClose visible={visibleEditClose} onCancel={closeEditClose} />
-      <ViewClose visible={visibleViewClose} onCancel={closeViewClose} />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );
 };
