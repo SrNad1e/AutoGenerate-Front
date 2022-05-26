@@ -253,6 +253,11 @@ export default defineConfig({
               component: './billing/e-commerce/edit',
             },
             {
+              name: 'Clientes',
+              path: '/billing/customer',
+              component: './billing/customers/list',
+            },
+            {
               name: 'Cierres',
               path: '/billing/closings',
               routes: [
