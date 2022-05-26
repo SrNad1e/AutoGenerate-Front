@@ -258,6 +258,11 @@ export default defineConfig({
               component: './billing/customers/list',
             },
             {
+              name: 'Egresos',
+              path: '/billing/expenses',
+              component: './billing/expenses/list',
+            },
+            {
               name: 'Cierres',
               path: '/billing/closings',
               routes: [
