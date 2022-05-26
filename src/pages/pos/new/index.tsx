@@ -84,7 +84,9 @@ const PosNew = () => {
         return response?.data?.updateOrder;
       }
     } catch (e: any) {
-      showError(e?.message);
+      if (e?.message) {
+        showError(e?.message);
+      }
       return e;
     }
   };
