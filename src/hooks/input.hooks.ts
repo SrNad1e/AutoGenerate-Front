@@ -17,7 +17,17 @@ export const useGetInputs = () => {
 };
 
 export const useCreateInput = () => {
-  return useMutation(CreateStockInputDocument);
+  return useMutation(CreateStockInputDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockInputs(existingInputs = []) {
+            return [data?.createStockInput].concat(existingInputs);
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useUpdateInput = () => {
