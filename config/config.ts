@@ -233,7 +233,48 @@ export default defineConfig({
             },
           ],
         },
-
+        {
+          name: 'Facturación',
+          path: '/billing',
+          icon: 'container',
+          routes: [
+            {
+              name: 'Devoluciones',
+              path: '/billing/return',
+              component: './billing/return/list',
+            },
+            {
+              name: 'E-Commerce',
+              path: '/billing/e-commerce',
+              component: './billing/e-commerce/list',
+            },
+            {
+              path: '/billing/e-commerce/:id',
+              component: './billing/e-commerce/edit',
+            },
+            {
+              name: 'Clientes',
+              path: '/billing/customer',
+              component: './billing/customers/list',
+            },
+            {
+              name: 'Cierres',
+              path: '/billing/closings',
+              routes: [
+                {
+                  name: 'Cierre X',
+                  path: '/billing/closings/closingX',
+                  component: './billing/closings/closingX/list',
+                },
+                {
+                  name: 'Cierre Z',
+                  path: '/billing/closings/closingZ',
+                  component: './billing/closings/closingZ/list',
+                },
+              ],
+            },
+          ],
+        },
         {
           layout: false,
           component: '404',
