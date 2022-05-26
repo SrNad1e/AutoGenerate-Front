@@ -130,6 +130,29 @@ export type AuthorizationDian = {
   prefix: Scalars['String'];
 };
 
+/** Caja donde se deposita el dinero */
+export type Box = {
+  __typename?: 'Box';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Base de la caja */
+  base: Scalars['Float'];
+  /** Empresa a la que perteneces la caja */
+  company: Company;
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Caja principal de la empresa */
+  isMain: Scalars['Boolean'];
+  /** Nombre de la caja */
+  name: Scalars['String'];
+  /** Total de dinero en la caja sin contar la base */
+  total: Scalars['Float'];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó la caja */
+  user: User;
+};
+
 /** Marca del producto */
 export type Brand = {
   __typename?: 'Brand';
@@ -145,6 +168,59 @@ export type Brand = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la marca */
   user: User;
+};
+
+/** Arqueo de caja */
+export type CashRegister = {
+  __typename?: 'CashRegister';
+  /** Billete o moneda de $ 1.000 */
+  B1000: Scalars['Float'];
+  /** Billete de $ 2.000 */
+  B2000: Scalars['Float'];
+  /** Billete de $ 5.000 */
+  B5000: Scalars['Float'];
+  /** Billete de $ 10.000 */
+  B10000: Scalars['Float'];
+  /** Billete de $ 20.000 */
+  B20000: Scalars['Float'];
+  /** Billete de $ 50.000 */
+  B50000: Scalars['Float'];
+  /** Billete de $ 100.000 */
+  B100000: Scalars['Float'];
+  /** Moneda de 50 */
+  M50: Scalars['Float'];
+  /** Moneda de $ 100 */
+  M100: Scalars['Float'];
+  /** Moneda de $ 200 */
+  M200: Scalars['Float'];
+  /** Moneda de $ 500 */
+  M500: Scalars['Float'];
+};
+
+/** Arqueo de caja */
+export type CashRegisterInput = {
+  /** Billete o moneda de $ 1.000 */
+  B1000: Scalars['Float'];
+  /** Billete de $ 2.000 */
+  B2000: Scalars['Float'];
+  /** Billete de $ 5.000 */
+  B5000: Scalars['Float'];
+  /** Billete de $ 10.000 */
+  B10000: Scalars['Float'];
+  /** Billete de $ 20.000 */
+  B20000: Scalars['Float'];
+  /** Billete de $ 50.000 */
+  B50000: Scalars['Float'];
+  /** Billete de $ 100.000 */
+  B100000: Scalars['Float'];
+  /** Moneda de 50 */
+  M50: Scalars['Float'];
+  /** Moneda de $ 100 */
+  M100: Scalars['Float'];
+  /** Moneda de $ 200 */
+  M200: Scalars['Float'];
+  /** Moneda de $ 500 */
+  M500: Scalars['Float'];
 };
 
 /** Categoría del producto nivel 1 */
@@ -233,6 +309,33 @@ export type CityInput = {
   state: Scalars['String'];
   /** Fecha de actualización */
   updatedAt?: InputMaybe<Scalars['DateTime']>;
+};
+
+/** Cierre X de facturación */
+export type CloseXInvoicing = {
+  __typename?: 'CloseXInvoicing';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Listado de billetes y monedas registrados */
+  cashRegister: CashRegister;
+  /** Fecha de cierre */
+  closeDate: Scalars['DateTime'];
+  /** Compañía a la que pertence el cierre */
+  company: Company;
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Número consecutivo */
+  number: Scalars['Float'];
+  /** Listado de pagos */
+  payments?: Maybe<PaymentOrderClose[]>;
+  /** Punto de venta que registra el cierre */
+  pointOfSale: PointOfSale;
+  /** Datos de las ordenes */
+  summaryOrder: SummaryOrderClose;
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó el cierre */
+  user: User;
 };
 
 /** Color del producto */
@@ -345,6 +448,16 @@ export type CreateCategoryInput = {
   parentId?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para crear un cierre X */
+export type CreateCloseXInvoicingInput = {
+  /** Listado de cash reportado */
+  cashRegister: CashRegisterInput;
+  /** Fecha del cierre */
+  closeDate: Scalars['String'];
+  /** Identificador del punto de venta */
+  pointOfSaleId: Scalars['String'];
+};
+
 /** Datos para crear un color */
 export type CreateColorInput = {
   /** Url asignado al color */
@@ -443,6 +556,8 @@ export type CreateReferenceInput = {
 export type CreateSizeInput = {
   /** Valor asignado a la talla */
   value: Scalars['String'];
+  /** Posición del ordenamiento */
+  weight: Scalars['String'];
 };
 
 /** Datos para crear el ajuste de productos */
@@ -879,6 +994,22 @@ export type FiltersCitiesInput = {
   state?: InputMaybe<Scalars['String']>;
 };
 
+/** Filtros para consultar los cierres X */
+export type FiltersClosesXInvoicingInput = {
+  /** Fecha del cierre */
+  closeDate?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Número del cierre */
+  number?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Tienda del cierre */
+  shopId?: InputMaybe<Scalars['String']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortCloseXInvoicing>;
+};
+
 /** Filtros para la lista de colores */
 export type FiltersColorsInput = {
   /** Identificador del color */
@@ -1058,6 +1189,32 @@ export type FiltersReturnsInvoiceInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortReturnInovice>;
+};
+
+/** Filtros usados para consultar las tiendas */
+export type FiltersShopsInput = {
+  /** Identificador de la tienda */
+  _id?: InputMaybe<Scalars['String']>;
+  /** Dirección de la sucursal */
+  address?: InputMaybe<Scalars['String']>;
+  /** Empresa de la tienda */
+  companyId?: InputMaybe<Scalars['String']>;
+  /** Bodega por defecto para la sucursal */
+  defaultWarehouseId?: InputMaybe<Scalars['String']>;
+  /** Meta asignada a la tienda */
+  goal?: InputMaybe<Scalars['Float']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Comodín de la tienda */
+  name?: InputMaybe<Scalars['String']>;
+  /** Página actual */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Teléfono de la sucursal */
+  phone?: InputMaybe<Scalars['String']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortShop>;
+  /** Estado de la tienda (active, inactive, suspend) */
+  status?: InputMaybe<Scalars['String']>;
 };
 
 /** Filtros para la lista de tallas */
@@ -1259,6 +1416,8 @@ export type Invoice = {
   active: Scalars['Boolean'];
   /** Autorización de facturación */
   authorization: AuthorizationDian;
+  /** Empresa a la que perteneces la factura */
+  company: Company;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Cliente para la factura */
@@ -1312,6 +1471,8 @@ export type Mutation = {
   createBrand: Brand;
   /** Crea una categoría */
   createCategory: CategoryLevel1;
+  /** Crea un cierre X de facturación */
+  createCloseXInvoicing: CloseXInvoicing;
   /** Crea un color */
   createColor: Color;
   /** Se encarga crear un cliente */
@@ -1394,6 +1555,10 @@ export type MutationCreateBrandArgs = {
 
 export type MutationCreateCategoryArgs = {
   createCategoryInput: CreateCategoryInput;
+};
+
+export type MutationCreateCloseXInvoicingArgs = {
+  createCloseXInvoicing?: InputMaybe<CreateCloseXInvoicingInput>;
 };
 
 export type MutationCreateColorArgs = {
@@ -1604,9 +1769,22 @@ export type PaymentOrder = {
   /** Método de pago usado */
   payment: Payment;
   /** Total pagado */
+  receipt?: Maybe<Receipt>;
+  /** Total pagado */
   total: Scalars['Float'];
   /** Fecha de actualizado del pago al pedido */
   updatedAt: Scalars['DateTime'];
+};
+
+/** Resumen de los pagos */
+export type PaymentOrderClose = {
+  __typename?: 'PaymentOrderClose';
+  /** Medio de pago */
+  payment: Payment;
+  /** Cantidad de las pagos del medio */
+  quantity: Scalars['Float'];
+  /** Valor del medio de pago */
+  value: Scalars['Float'];
 };
 
 /** Medio de pago que se va a agregar */
@@ -1643,6 +1821,10 @@ export type PointOfSale = {
   _id: Scalars['String'];
   /** Tienda a la que pertenece el punto de venta */
   authorization: AuthorizationDian;
+  /** Caja del punto de venta */
+  box: Box;
+  /** Fecha de cierre */
+  closeDate?: Maybe<Scalars['DateTime']>;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Nombre del punto de venta */
@@ -1694,6 +1876,8 @@ export type Query = {
   categoriesLevel: ResponseCategories;
   /** Listado de ciudades */
   cities: ResponseCities;
+  /** Lista de cierres x */
+  closesXInvoicing: ResponseClosesXInvoicing;
   /** Lista los colores */
   colors: ResponseColors;
   /** Lista de ajustes de productos */
@@ -1724,6 +1908,8 @@ export type Query = {
   references: ResponseReferences;
   /** Lista de devoluciones de factura */
   returnsInvoice: ResponseReturnsInvoice;
+  /** Se encarga de listar las tiendas */
+  shops: ResponseShops;
   /** Listar las tallas */
   sizes: ResponseSizes;
   /** Obtiene un ajuste de productos con base a su identificador */
@@ -1772,6 +1958,10 @@ export type QueryCategoriesLevelArgs = {
 
 export type QueryCitiesArgs = {
   filtersCitiesInput?: InputMaybe<FiltersCitiesInput>;
+};
+
+export type QueryClosesXInvoicingArgs = {
+  filtersClosesXInvoicing?: InputMaybe<FiltersClosesXInvoicingInput>;
 };
 
 export type QueryColorsArgs = {
@@ -1831,6 +2021,10 @@ export type QueryReturnsInvoiceArgs = {
   filtersReturnsInvoice?: InputMaybe<FiltersReturnsInvoiceInput>;
 };
 
+export type QueryShopsArgs = {
+  filtersShopsInput?: InputMaybe<FiltersShopsInput>;
+};
+
 export type QuerySizesArgs = {
   filtersSizesInput?: InputMaybe<FiltersSizesInput>;
 };
@@ -1885,6 +2079,33 @@ export type QueryWarehouseIdArgs = {
 
 export type QueryWarehousesArgs = {
   filtersWarehousesInput?: InputMaybe<FiltersWarehousesInput>;
+};
+
+/** Egreso de dinero */
+export type Receipt = {
+  __typename?: 'Receipt';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Método de pago del recibo de caja */
+  box: Box;
+  /** Empresa a la que pertenece el recibo de caja */
+  company: Company;
+  /** Concepto del recibo de caja */
+  concept?: Maybe<Scalars['String']>;
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Consecutivo del recibo de caja */
+  number: Scalars['Float'];
+  /** Método de pago del recibo de caja */
+  payment: Payment;
+  /** Estado del recibo de caja */
+  status: Scalars['String'];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó el recibo de caja */
+  user: User;
+  /** Valor del recibo de caja */
+  value: Scalars['Float'];
 };
 
 /** Referencia de los productos */
@@ -2046,6 +2267,30 @@ export type ResponseCities = {
   __typename?: 'ResponseCities';
   /** Lista de ciudades */
   docs: City[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Lista de cierres X */
+export type ResponseClosesXInvoicing = {
+  __typename?: 'ResponseClosesXInvoicing';
+  /** Lista de cierres X */
+  docs: CloseXInvoicing[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -2262,6 +2507,30 @@ export type ResponseReturnsInvoice = {
   __typename?: 'ResponseReturnsInvoice';
   /** Lista de ajustes */
   docs: ReturnInvoice[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta a la consulta de tiendas */
+export type ResponseShops = {
+  __typename?: 'ResponseShops';
+  /** Lista de tiendas */
+  docs: Shop[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -2592,6 +2861,8 @@ export type Size = {
   user: User;
   /** Valor de la talla */
   value: Scalars['String'];
+  /** Peso de la talla para el ordenamiento */
+  weight: Scalars['Float'];
 };
 
 /** Ordenamiento para el listado de atributos */
@@ -2628,6 +2899,18 @@ export type SortCity = {
   /** ordernamiento por estado */
   state?: InputMaybe<Scalars['Float']>;
   /** ordernamiento por fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento de cierre z */
+export type SortCloseXInvoicing = {
+  /** Ordenamiento por fecha de cierre */
+  closeDate?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por numero */
+  number?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de actualización */
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
@@ -2720,12 +3003,23 @@ export type SortReturnInovice = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de la tienda */
+export type SortShop = {
+  address?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
+  goal?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['Float']>;
+  phone?: InputMaybe<Scalars['Float']>;
+  status?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento para el listado de tallas */
 export type SortSize = {
   active?: InputMaybe<Scalars['Float']>;
   createdAt?: InputMaybe<Scalars['Float']>;
   updatedAt?: InputMaybe<Scalars['Float']>;
-  value?: InputMaybe<Scalars['Float']>;
+  weight?: InputMaybe<Scalars['Float']>;
 };
 
 /** Ordenamiento del ajuste de productos */
@@ -3023,6 +3317,19 @@ export type SummaryOrder = {
   totalPaid: Scalars['Float'];
 };
 
+/** Resumen de las ordenes */
+export type SummaryOrderClose = {
+  __typename?: 'SummaryOrderClose';
+  /** Cantidad de las ordenes canceladas */
+  quantityCancel: Scalars['Float'];
+  /** Cantidad de las ordenes finalizadas */
+  quantityClosed: Scalars['Float'];
+  /** Cantidad de las ordenes abiertas */
+  quantityOpen: Scalars['Float'];
+  /** Valor de las ordenes finalizadas */
+  value: Scalars['Float'];
+};
+
 /** Datos para actualizar el atributo */
 export type UpdateAttribInput = {
   /** Se encuentra activa el atributo */
@@ -3157,6 +3464,8 @@ export type UpdateSizeInput = {
   active?: InputMaybe<Scalars['Boolean']>;
   /** Valor asignado a la talla */
   value?: InputMaybe<Scalars['String']>;
+  /** Posición del ordenamiento */
+  weight?: InputMaybe<Scalars['Float']>;
 };
 
 /** Datos para actualizar el ajuste de productos */
@@ -4312,6 +4621,37 @@ export type CategoriesLevelQuery = {
   };
 };
 
+export type ClosesXInvoicingQueryVariables = Exact<{
+  input?: InputMaybe<FiltersClosesXInvoicingInput>;
+}>;
+
+export type ClosesXInvoicingQuery = {
+  __typename?: 'Query';
+  closesXInvoicing: {
+    __typename?: 'ResponseClosesXInvoicing';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'CloseXInvoicing';
+      _id: string;
+      number: number;
+      closeDate: any;
+      pointOfSale: { __typename?: 'PointOfSale'; shop: { __typename?: 'Shop'; name: string } };
+      summaryOrder: { __typename?: 'SummaryOrderClose'; value: number; quantityClosed: number };
+      payments?:
+        | {
+            __typename?: 'PaymentOrderClose';
+            quantity: number;
+            value: number;
+            payment: { __typename?: 'Payment'; name: string };
+          }[]
+        | null;
+      user: { __typename?: 'User'; name: string };
+    }[];
+  };
+};
+
 export type ColorsQueryVariables = Exact<{
   input: FiltersColorsInput;
 }>;
@@ -5005,6 +5345,21 @@ export type ReturnsInvoiceQuery = {
         | null;
       warehouse: { __typename?: 'Warehouse'; name: string };
     }[];
+  };
+};
+
+export type ShopsQueryVariables = Exact<{
+  input?: InputMaybe<FiltersShopsInput>;
+}>;
+
+export type ShopsQuery = {
+  __typename?: 'Query';
+  shops: {
+    __typename?: 'ResponseShops';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: { __typename?: 'Shop'; _id: string; name: string }[];
   };
 };
 
@@ -8448,6 +8803,121 @@ export const CategoriesLevelDocument = {
     },
   ],
 } as unknown as DocumentNode<CategoriesLevelQuery, CategoriesLevelQueryVariables>;
+export const ClosesXInvoicingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'closesXInvoicing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NamedType',
+            name: { kind: 'Name', value: 'FiltersClosesXInvoicingInput' },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'closesXInvoicing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersClosesXInvoicing' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'shop' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'summaryOrder' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantityClosed' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payments' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payment' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ClosesXInvoicingQuery, ClosesXInvoicingQueryVariables>;
 export const ColorsDocument = {
   kind: 'Document',
   definitions: [
@@ -10775,6 +11245,58 @@ export const ReturnsInvoiceDocument = {
     },
   ],
 } as unknown as DocumentNode<ReturnsInvoiceQuery, ReturnsInvoiceQueryVariables>;
+export const ShopsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'shops' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersShopsInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'shops' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersShopsInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ShopsQuery, ShopsQueryVariables>;
 export const SizesDocument = {
   kind: 'Document',
   definitions: [
