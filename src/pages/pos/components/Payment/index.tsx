@@ -17,7 +17,7 @@ import { useGetPayments } from '@/hooks/payment.hooks';
 import Payment from './payment';
 import { useAddPaymentsOrder } from '@/hooks/order.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import InvoiceReport from '../../reports/invoice/Invoice';
+import OrderReport from '../../reports/order/Order';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 
 const { Title } = Typography;
@@ -32,14 +32,14 @@ export type Params = {
 const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
   const [loading, setLoading] = useState(false);
   const [payments, setPayments] = useState<PaymentOrder[]>([]);
-  const [invoice, setInvoice] = useState({});
+  const [order, setOrder] = useState({});
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
 
-  const invoiceRef = useRef(null);
+  const orderRef = useRef(null);
 
   const { id } = useParams<Partial<{ id: string }>>();
 
@@ -49,7 +49,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
   const totalPayments = payments?.reduce((sum, paymentOrder) => sum + paymentOrder?.total, 0);
 
   const handlePrint = useReactToPrint({
-    content: () => invoiceRef?.current,
+    content: () => orderRef?.current,
   });
 
   /**
@@ -133,22 +133,25 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
       if (responsePayments.data?.addPaymentsOrder) {
         setLoading(true);
         const response: any = await editOrder({
-          status: 'invoiced',
+          status: 'closed',
         });
 
         setLoading(false);
-        if (response?.invoice) {
-          setInvoice(response?.invoice);
+        if (response) {
+          console.log(response);
+
+          setOrder(response);
           handlePrint();
-          showSuccess(
-            `Factura ${response?.invoice?.authorization?.prefix} ${response?.invoice?.number} generada correctamente`,
-          );
+          showSuccess(`Peidido ${response?.number} generado correctamente`);
         } else {
           showError(response?.message);
         }
       }
     } catch (e: any) {
-      showError(e?.message);
+      console.log(e);
+      if (e?.message) {
+        showError(e?.message);
+      }
     }
   };
 
@@ -175,7 +178,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
       <Row>
         <Col span={12}>
           <Title level={3}>Medios de pago</Title>
-          <Row gutter={24}>
+          <Row gutter={[24, 24]}>
             {data?.payments?.docs?.map((payment) => (
               <Col key={payment?._id}>
                 <Item
@@ -286,7 +289,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
         message={dataPayments.loading ? 'Generando factura' : 'Guardando medios de pago'}
       />
       <div style={{ display: 'none' }}>
-        <InvoiceReport data={invoice} ref={invoiceRef} />
+        <OrderReport data={order} ref={orderRef} />
       </div>
     </Modal>
   );

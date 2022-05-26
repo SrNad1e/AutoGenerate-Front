@@ -11,6 +11,12 @@ const classes = {
     margin: 20,
     maxWidth: '60mm',
   },
+  title: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    lineHeight: 1,
+    marginTop: 2,
+  },
   header: {
     display: 'flex',
     flexDirection: 'column',
@@ -59,13 +65,9 @@ export default class OrderProduction extends React.PureComponent {
       <div style={classes.content}>
         <div style={classes.header}>
           <img src="/logo.svg" alt="logo" width="50%" style={{ marginBottom: -25 }} />
-          <Barcode
-            value={data?.number}
-            height={50}
-            text={`No. ${data?.authorization?.prefix} ${data?.number}`}
-            fontSize={12}
-          />
+          <Barcode value={data?.number} height={50} text={`No. ${data?.number}`} fontSize={12} />
           <div style={classes.text}>
+            <div style={classes.title}>TICKET DE VENTA</div>
             Fecha: {moment(data?.createdAt).format('YYYY/MM/DD HH:mm:ss')}
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>
@@ -74,16 +76,16 @@ export default class OrderProduction extends React.PureComponent {
               {data?.customer?.firstName} {data?.customer?.lastName}
             </div>
             <div style={classes.text}>
+              <span style={classes.textBold}>DNI/NIF:</span>
+              {data?.customer?.document}
+            </div>
+            <div style={classes.text}>
               <span style={classes.textBold}>Teléfono:</span>
               {data?.customer?.phone}
             </div>
             <div style={classes.text}>
               <span style={classes.textBold}>Vendedor:</span>
               {data?.user?.name}
-            </div>
-            <div style={classes.text}>
-              <span style={classes.textBold}>DNI/NIF:</span>
-              {data?.customer?.document}
             </div>
           </div>
           <div style={classes.body}>

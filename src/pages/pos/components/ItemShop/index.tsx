@@ -1,11 +1,11 @@
 import { BarcodeOutlined } from '@ant-design/icons';
 import { Avatar, Button, Card, Col, Image, InputNumber, Row, Space, Typography } from 'antd';
 import numeral from 'numeral';
+import { useState } from 'react';
 
 import type { Product } from '@/graphql/graphql';
 
 import DefaultImage from '@/assets/default.webp';
-import { useState } from 'react';
 
 const { Text, Title } = Typography;
 
@@ -50,7 +50,8 @@ const ShopItem = ({ product, addProductOrder }: Params) => {
               <Space size={1} direction="vertical">
                 <Title
                   style={{
-                    lineHeight: 0,
+                    lineHeight: 1,
+                    marginBottom: 0,
                   }}
                   level={4}
                 >
@@ -58,7 +59,7 @@ const ShopItem = ({ product, addProductOrder }: Params) => {
                 </Title>
                 <Text
                   style={{
-                    lineHeight: 0,
+                    lineHeight: 1,
                   }}
                   italic
                 >
