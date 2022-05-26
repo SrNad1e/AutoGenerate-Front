@@ -17,7 +17,17 @@ export const useGetOutputs = () => {
 };
 
 export const useCreateOutput = () => {
-  return useMutation(CreateStockOutputDocument);
+  return useMutation(CreateStockOutputDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockOutputs(existingOutputs = []) {
+            return [data?.createStockOutput].concat(existingOutputs);
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useUpdateOutput = () => {

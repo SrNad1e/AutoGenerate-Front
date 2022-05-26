@@ -17,7 +17,17 @@ export const useGetAdjustments = () => {
 };
 
 export const useCreateAdjustment = () => {
-  return useMutation(CreateStockAdjustmentDocument);
+  return useMutation(CreateStockAdjustmentDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockAdjustments(existingAdjustments = []) {
+            return [data?.createStockAdjustment].concat(existingAdjustments);
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useUpdateAdjustment = () => {

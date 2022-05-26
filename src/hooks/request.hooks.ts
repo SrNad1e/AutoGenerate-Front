@@ -21,11 +21,31 @@ export const useGetRequests = () => {
 };
 
 export const useCreateRequest = () => {
-  return useMutation(CreateStockRequestDocument);
+  return useMutation(CreateStockRequestDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockRequests(existingRequests = []) {
+            return [data?.createStockRequest].concat(existingRequests);
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useGenerateRequest = () => {
-  return useMutation(GenerateStockRequestDocument);
+  return useMutation(GenerateStockRequestDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockRequests(existingRequests = []) {
+            return [data?.generateStockRequest].concat(existingRequests);
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useUpdateRequest = () => {
