@@ -252,21 +252,7 @@ export default defineConfig({
               path: '/billing/e-commerce/:id',
               component: './billing/e-commerce/edit',
             },
-            {
-              name: 'Clientes',
-              path: '/billing/customer',
-              component: './billing/customers/list',
-            },
-            {
-              name: 'Egresos',
-              path: '/billing/expenses',
-              component: './billing/expenses/list',
-            },
-            {
-              name: 'Recibo de Cajas',
-              path: '/billing/cashReceipt',
-              component: './billing/cashReceipt/list',
-            },
+
             {
               name: 'Cierres',
               path: '/billing/closings',
@@ -282,6 +268,35 @@ export default defineConfig({
                   component: './billing/closings/closingZ/list',
                 },
               ],
+            },
+          ],
+        },
+        {
+          name: 'Tesoreria',
+          path: '/treasury',
+          icon: 'gold',
+          routes: [
+            {
+              name: 'Egresos',
+              path: '/treasury/expenses',
+              component: './treasury/expenses/list',
+            },
+            {
+              name: 'Recibo de Cajas',
+              path: '/treasury/cashReceipt',
+              component: './treasury/cashReceipt/list',
+            },
+          ],
+        },
+        {
+          name: 'CRM',
+          path: '/crm',
+          icon: 'radarChart',
+          routes: [
+            {
+              name: 'Clientes',
+              path: '/crm/customer',
+              component: './crm/customers/list',
             },
           ],
         },
