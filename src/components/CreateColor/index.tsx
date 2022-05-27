@@ -145,6 +145,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
 
   useEffect(() => {
     form.resetFields();
+    setError(null);
     form.setFieldsValue({
       image: current?.image ? [current?.image] : [],
     });
@@ -171,7 +172,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           name="name"
           rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
         >
-          <Input placeholder="" />
+          <Input placeholder="" disabled={paramsCreate?.loading || paramsUpdate?.loading} />
         </FormItem>
         <FormItem
           labelCol={{ span: 8 }}
@@ -180,7 +181,11 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           name="name_internal"
           rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
         >
-          <Input placeholder="" autoFocus />
+          <Input
+            placeholder=""
+            autoFocus
+            disabled={paramsCreate?.loading || paramsUpdate?.loading}
+          />
         </FormItem>
         <FormItem
           labelCol={{ span: 8 }}
@@ -189,13 +194,13 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           name="active"
           valuePropName="checked"
         >
-          <Switch defaultChecked />
+          <Switch defaultChecked disabled={paramsCreate?.loading || paramsUpdate?.loading} />
         </FormItem>
         <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Color" name="html">
-          <Input type="color" />
+          <Input type="color" disabled={paramsCreate?.loading || paramsUpdate?.loading} />
         </FormItem>
         <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Imagen" name="image">
-          <ImageAdmin limit={1} />
+          <ImageAdmin disabled={paramsCreate?.loading || paramsUpdate?.loading} limit={1} />
         </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>

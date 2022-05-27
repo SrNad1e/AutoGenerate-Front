@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Form, Input, InputNumber, Modal, Switch } from 'antd';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -122,6 +122,10 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
       showError(e?.message);
     }
   };
+
+  useEffect(() => {
+    setError(null);
+  }, [modalVisible]);
 
   return (
     <Modal
