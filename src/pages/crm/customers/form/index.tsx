@@ -5,6 +5,7 @@ import 'moment/locale/es-mx';
 import Address from '@/components/Address';
 
 import styles from '../styles';
+import { WhatsAppOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
 const { TabPane } = Tabs;
@@ -59,7 +60,7 @@ const FormCustmer = ({ visible, onCancel }: Props) => {
               </Col>
               <Col span={20}>
                 <FormItem label="Teléfono" labelCol={{ span: 7 }}>
-                  <Input />
+                  <Input suffix={'whatsapp' && <WhatsAppOutlined />} />
                 </FormItem>
               </Col>
               <Col span={20}>
