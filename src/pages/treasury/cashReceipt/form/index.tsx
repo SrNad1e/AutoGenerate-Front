@@ -47,6 +47,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
   const dataTest = [
     {
       number: 1,
+      key: 1,
       invoice: 18711,
       createdAt: '2022-05-04T18:10:20.727Z',
       expiration: '2022-05-04T18:10:20.727Z',
@@ -64,8 +65,8 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
       title: 'Factura',
       dataIndex: 'invoice',
       render: (invoice: any) => (
-        <Tag style={{ backgroundColor: 'white', color: '#dc9575', borderColor: '#dc9575' }}>
-          {<FileProtectOutlined style={{ color: '#dc9575' }} />}
+        <Tag style={styles.tagStyle}>
+          {<FileProtectOutlined style={styles.iconColor} />}
           {invoice}
         </Tag>
       ),
@@ -122,6 +123,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
           </Col>
           <Col span={24}>
             <Table
+              rowSelection={{ type: 'checkbox' }}
               columns={column}
               dataSource={dataTest}
               pagination={false}
