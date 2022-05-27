@@ -252,7 +252,6 @@ export default defineConfig({
               path: '/billing/e-commerce/:id',
               component: './billing/e-commerce/edit',
             },
-
             {
               name: 'Cierres',
               path: '/billing/closings',
@@ -285,6 +284,11 @@ export default defineConfig({
               name: 'Recibo de Cajas',
               path: '/treasury/cashReceipt',
               component: './treasury/cashReceipt/list',
+            },
+            {
+              name: 'Carteras',
+              path: '/treasury/wallets',
+              component: './treasury/wallets/list',
             },
           ],
         },
