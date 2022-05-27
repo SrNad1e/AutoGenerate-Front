@@ -40,6 +40,12 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     return keys.reduce((sum, item) => sum + cashRegister[item] * parseInt(item.slice(1)), 0) || 0;
   };
 
+  const getDifference = () => {
+    const total = getTotal();
+
+    return total - (data?.createCloseXInvoicing?.summaryOrder?.value || 0);
+  };
+
   /**
    * @description se encarga de cerrar la alerta informativa
    */
@@ -98,7 +104,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
             });
             if (response?.data?.createCloseXInvoicing) {
               messageSuccess(
-                `Se ha cerrado el punto de venta ${
+                `Se ha generado el cierre X del punto de venta ${
                   response?.data?.createCloseXInvoicing?.pointOfSale?.shop?.name
                 } / ${response?.data?.createCloseXInvoicing?.pointOfSale?.name} a la fecha ${moment(
                   response?.data?.createCloseXInvoicing?.closeDate,
@@ -120,6 +126,10 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
   useEffect(() => {
     setCurrentStep(0);
     form.resetFields();
+    form.setFieldsValue({
+      closeDate: moment(),
+      total: getTotal(),
+    });
   }, [visible]);
 
   return (
@@ -162,10 +172,6 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
         layout="horizontal"
         wrapperCol={{ span: 10 }}
         labelCol={{ span: 10 }}
-        initialValues={{
-          closeDate: moment(),
-          total: getTotal(),
-        }}
       >
         {currentStep === 0 && (
           <FormItem
@@ -207,105 +213,39 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
           </>
         )}
         {currentStep === 2 && (
-          <>
-            <Row justify="center">
-              <Col>
-                <Title level={3}>Resumen Cierre</Title>
-              </Col>
-              <Col span={20}>
-                <Text strong>Total Venta:</Text>
-              </Col>
-              <Col span={4}>
-                <Text>
-                  {numeral(data?.createCloseXInvoicing?.summaryOrder?.value).format('$ 0,0')}
-                </Text>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={20}>
-                <Text strong>Efectivo</Text>
-              </Col>
-              <Col span={4}>
-                <Text>
-                  {numeral(
-                    data?.createCloseXInvoicing?.payments?.find(
-                      (payment) => payment?.payment?.name === 'cash',
-                    )?.quantity,
-                  ).format('$ 0,0')}
-                </Text>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={20}>
-                <Text strong>Total Efectivo:</Text>
-              </Col>
-              <Col span={4}>
-                <Text>{numeral(100000).format('$ 0,0')}</Text>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={20}>
-                <Text strong>Total Efectivo Reportado:</Text>
-              </Col>
-              <Col span={4}>
-                <Text>{numeral(10000).format('$ 0,0')}</Text>
-              </Col>
-            </Row>
-            {'status' ? (
-              <Row>
+          <Row justify="center">
+            <Col>
+              <Title level={3}>Resumen Cierre X</Title>
+            </Col>
+            <Col span={20}>
+              <Text strong>Recaudo Efectivo:</Text>
+            </Col>
+            <Col span={4}>
+              <Text>
+                {numeral(data?.createCloseXInvoicing?.summaryOrder?.value).format('$ 0,0')}
+              </Text>
+            </Col>
+            <Col span={20}>
+              <Text strong>Efectivo Reportado:</Text>
+            </Col>
+            <Col span={4}>
+              <Text>{numeral(getTotal()).format('$ 0,0')}</Text>
+            </Col>
+            {getDifference() !== 0 && (
+              <>
                 <Col span={20}>
-                  <Text strong>Sobrante:</Text>
+                  <Text strong>{getDifference() > 0 ? 'Sobrante' : 'Faltante'}</Text>
                 </Col>
                 <Col span={4}>
-                  <Text>{numeral(10000).format('$ 0,0')}</Text>
+                  <Text>
+                    {numeral(getDifference() > 0 ? getDifference() : -getDifference()).format(
+                      '$ 0,0',
+                    )}
+                  </Text>
                 </Col>
-              </Row>
-            ) : (
-              <Row>
-                <Col span={20}>
-                  <Text strong>Faltante:</Text>
-                </Col>
-                <Col span={4}>
-                  <Text strong>{numeral((10000 || 0) * -1).format('$ 0,0')}</Text>
-                </Col>
-              </Row>
+              </>
             )}
-            <Row>
-              <Col span={20}>
-                <Text strong>Transferencias reportadas:</Text>
-              </Col>
-              <Col span={4}>
-                <Text>{10}</Text>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={20}>
-                <Text strong>Transferencias registradas:</Text>
-              </Col>
-              <Col span={4}>
-                <Text>{12}</Text>
-              </Col>
-            </Row>
-            {'status' ? (
-              <Row>
-                <Col span={20}>
-                  <Text strong>Sobrante Transferencia:</Text>
-                </Col>
-                <Col span={4}>
-                  <Text>{12}</Text>
-                </Col>
-              </Row>
-            ) : (
-              <Row>
-                <Col span={20}>
-                  <Text strong>Faltante Transferencia:</Text>
-                </Col>
-                <Col span={4}>
-                  <Text strong>{(12 || 0) * -1}</Text>
-                </Col>
-              </Row>
-            )}
-          </>
+          </Row>
         )}
       </Form>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />

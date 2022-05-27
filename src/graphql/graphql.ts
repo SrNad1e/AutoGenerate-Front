@@ -3868,6 +3868,7 @@ export type CreateCloseXInvoicingMutation = {
       | {
           __typename?: 'PaymentOrderClose';
           quantity: number;
+          value: number;
           payment: { __typename?: 'Payment'; name: string };
         }[]
       | null;
@@ -6422,6 +6423,7 @@ export const CreateCloseXInvoicingDocument = {
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
                     ],
                   },
                 },

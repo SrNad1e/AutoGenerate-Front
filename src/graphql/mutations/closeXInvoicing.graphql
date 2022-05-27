@@ -8,6 +8,7 @@ mutation createCloseXInvoicing($input: CreateCloseXInvoicingInput!) {
         name
       }
       quantity
+      value
     }
     pointOfSale {
       authorization {
