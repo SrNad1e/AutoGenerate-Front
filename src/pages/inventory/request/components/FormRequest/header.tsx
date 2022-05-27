@@ -21,28 +21,24 @@ const Header = ({ request, setObservation, observation }: Props) => {
 
   return (
     <Card>
-      <Row gutter={[10, 10]}>
-        <Col lg={12} xs={24}>
-          <Descriptions bordered size="small" column={1}>
-            <DescriptionsItem label="Bodega que solicita">
+      <Row justify="center" gutter={[0, 10]}>
+        <Col>
+          <Descriptions bordered size="small">
+            <DescriptionsItem label="Bodega que solicita" span={2}>
               {request?.warehouseDestination?.name ||
                 initialState?.currentUser?.shop?.defaultWarehouse?.name}
             </DescriptionsItem>
-          </Descriptions>
-        </Col>
-        <Col lg={12} xs={24}>
-          <Descriptions bordered size="small" column={1}>
-            <DescriptionsItem label="Bodega de despacho">
+            <DescriptionsItem label="Bodega de despacho" span={2}>
               {request?.warehouseOrigin?.name}
             </DescriptionsItem>
           </Descriptions>
         </Col>
-        <Col span={24}>
-          <Descriptions bordered size="small" column={4}>
+        <Col>
+          <Descriptions bordered size="small" style={{ width: '100%' }}>
             <DescriptionsItem label="Número" span={1}>
               {request?.number || '(Pendiente)'}
             </DescriptionsItem>
-            <DescriptionsItem label="Estado" span={1}>
+            <DescriptionsItem label="Estado" span={3}>
               <Badge
                 color={StatusType[request?.status || 'open']?.color}
                 text={StatusType[request?.status || 'open']?.label}
@@ -51,13 +47,13 @@ const Header = ({ request, setObservation, observation }: Props) => {
             <DescriptionsItem label="Creado" span={1}>
               {moment(request?.createdAt).format(FORMAT_DATE)}
             </DescriptionsItem>
-            <DescriptionsItem label="Actualizado" span={1}>
+            <DescriptionsItem label="Actualizado" span={2}>
               {moment(request?.updatedAt).format(FORMAT_DATE)}
             </DescriptionsItem>
-            <DescriptionsItem label="Usuario">
+            <DescriptionsItem label="Usuario" span={1}>
               {request?.user?.name || initialState?.currentUser?.name}
             </DescriptionsItem>
-            <DescriptionsItem label="Observación de general">
+            <DescriptionsItem label="Observación de general" span={1}>
               {allowEdit ? (
                 <TextArea value={observation} onChange={(e) => setObservation(e?.target?.value)} />
               ) : (

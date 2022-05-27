@@ -400,7 +400,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
         <Table
           columns={columns}
           dataSource={details.filter((detail) => detail?.action !== 'delete')}
-          scroll={{ x: 1000 }}
+          scroll={{ x: 800, y: 200 }}
           pagination={{ size: 'small' }}
         />
       </Card>
