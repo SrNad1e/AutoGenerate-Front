@@ -26,7 +26,7 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
           name,
           active: true,
           sort: {
-            value: 1,
+            weight: 1,
           },
         },
       },
@@ -40,7 +40,7 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
           _id: value,
           active: true,
           sort: {
-            value: 1,
+            weight: 1,
           },
         },
       },

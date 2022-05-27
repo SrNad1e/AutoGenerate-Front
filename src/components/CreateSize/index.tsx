@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Form, Input, Modal, Switch } from 'antd';
+import { Alert, Form, Input, InputNumber, Modal, Switch } from 'antd';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -67,8 +67,8 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para actualizar una talla
    */
   const editSize = async () => {
+    const values = await form.validateFields();
     try {
-      const values = form.getFieldsValue();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {
@@ -103,8 +103,8 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para crear una nueva talla
    */
   const createNewSize = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
       delete values.active;
       const response = await createSize({
         variables: {
@@ -146,11 +146,20 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
         <FormItem
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 12 }}
+          label="Ordenamiento"
+          name="weight"
+          rules={[{ required: true, message: 'La posición es obligatoria' }]}
+        >
+          <InputNumber controls={false} />
+        </FormItem>
+        <FormItem
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 12 }}
           label="Activo"
           name="active"
           valuePropName="checked"
         >
-          <Switch />
+          <Switch defaultChecked />
         </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>

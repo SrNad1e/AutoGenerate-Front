@@ -10,7 +10,9 @@ import {
 } from '@/graphql/graphql';
 
 export const useGetOrder = () => {
-  return useLazyQuery(OrderIdDocument);
+  return useLazyQuery(OrderIdDocument, {
+    fetchPolicy: 'cache-first',
+  });
 };
 
 export const useGetOrdersByPos = () => {
@@ -22,13 +24,43 @@ export const useCreateOrder = () => {
 };
 
 export const useUpdateOrder = () => {
-  return useMutation(UpdateOrderDocument);
+  return useMutation(UpdateOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.updateOrder;
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useAddPaymentsOrder = () => {
-  return useMutation(AddPaymentsOrderDocument);
+  return useMutation(AddPaymentsOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.addPaymentsOrder;
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useAddProductsOrder = () => {
-  return useMutation(AddProductsOrderDocument);
+  return useMutation(AddProductsOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.addProductsOrder;
+          },
+        },
+      });
+    },
+  });
 };

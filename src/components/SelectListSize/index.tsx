@@ -27,7 +27,7 @@ const SelectListSize = ({ onChange, disabled, value }: Params) => {
           name,
           active: true,
           sort: {
-            value: 1,
+            weight: 1,
           },
         },
       },

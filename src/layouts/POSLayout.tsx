@@ -24,6 +24,7 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
         navTheme="light"
         layout="top"
         contentWidth="Fixed"
+        contentStyle={{ margin: 0 }}
         fixedHeader={false}
         fixSiderbar={true}
         splitMenus={false}
