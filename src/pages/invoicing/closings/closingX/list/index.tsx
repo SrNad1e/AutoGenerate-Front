@@ -1,14 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import type {
+  CashRegister,
   CloseXInvoicing,
   FiltersClosesXInvoicingInput,
   PaymentOrderClose,
-  Shop,
+  PointOfSale,
   SummaryOrderClose,
   User,
 } from '@/graphql/graphql';
 import { useGetClosesXInvoicing } from '@/hooks/closeXInvoicing.hooks';
-import { EditFilled, PlusOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
+import { PlusOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Button,
@@ -40,13 +41,12 @@ import type { Location } from 'umi';
 import { useLocation, useHistory } from 'umi';
 
 import CloseDay from '../components/DayClose';
-import EditClose from '../components/EditClose';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import FormClosingX from '../components/form';
-
-import styles from './styles';
+import CashRegisterModal from '../components/CashRegister';
 import SelectShop from '@/components/SelectShop';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+
+import styles from './styles';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -59,8 +59,8 @@ export type FormValues = {
 
 const ClosingXList = () => {
   const [visible, setVisible] = useState(false);
+  const [cashRegister, setCashRegister] = useState<Partial<CashRegister>>({});
   const [visibleNewClose, setVisibleNewClose] = useState(false);
-  const [visibleEditClose, setVisibleEditClose] = useState(false);
   const [filters, setFilters] = useState<Partial<FormValues>>();
   const [closeData, setCloseData] = useState<Partial<CloseXInvoicing>>({});
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
@@ -118,7 +118,8 @@ const ClosingXList = () => {
   /**
    * Cierra el modal de arqueo de dinero y abre el modal de creacion
    */
-  const onOk = () => {
+  const saveCashRegister = (cash: CashRegister) => {
+    setCashRegister(cash);
     setVisibleNewClose(true);
     closeModal();
   };
@@ -128,13 +129,6 @@ const ClosingXList = () => {
    */
   const closeNewClose = () => {
     setVisibleNewClose(false);
-  };
-
-  /**
-   * Cierra el modal de edicion
-   */
-  const closeEditClose = () => {
-    setVisibleEditClose(false);
   };
 
   /**
@@ -151,6 +145,8 @@ const ClosingXList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersClosesXInvoicingInput) => {
+    console.log('Prueba');
+
     getCloses({
       variables: {
         input: {
@@ -256,16 +252,23 @@ const ClosingXList = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Tienda',
-      dataIndex: 'shop',
-      render: (shop: Shop) => shop?.name,
+      title: 'Punto de venta',
+      dataIndex: 'pointOfSale',
+      width: 150,
+      render: ({ shop, name }: PointOfSale) => (
+        <Space direction="vertical" size={0}>
+          <Text>{shop?.name}</Text>
+          <Tag>{name}</Tag>
+        </Space>
+      ),
     },
     {
-      title: 'Fecha cierre',
+      title: 'Cierre',
       dataIndex: 'closeDate',
       sorter: true,
       showSorterTooltip: false,
-      render: (closeDate: Date) => <span>{moment(closeDate).format(FORMAT_DATE_API)}</span>,
+      width: 105,
+      render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE_API),
     },
     {
       title: 'Ingresos',
@@ -299,18 +302,9 @@ const ClosingXList = () => {
       align: 'center',
       fixed: 'right',
       render: (_: string, record) => (
-        <Space>
-          <Tooltip title="Editar" placement="topLeft">
-            <Button
-              onClick={() => setVisibleEditClose(true)}
-              type="primary"
-              icon={<EditFilled />}
-            />
-            <Tooltip title="Imprimir" placement="topLeft">
-              <Button onClick={() => printPage(record)} type="primary" icon={<PrinterFilled />} />
-            </Tooltip>
-          </Tooltip>
-        </Space>
+        <Tooltip title="Imprimir" placement="topLeft">
+          <Button onClick={() => printPage(record)} type="primary" icon={<PrinterFilled />} />
+        </Tooltip>
       ),
     },
   ];
@@ -338,7 +332,7 @@ const ClosingXList = () => {
             <Col xs={24} md={8} lg={8} xl={5}>
               <FormItem label=" " colon={false}>
                 <Space>
-                  <Button icon={<SearchOutlined />} type="primary">
+                  <Button htmlType="submit" icon={<SearchOutlined />} type="primary">
                     Buscar
                   </Button>
                   <Button htmlType="button" onClick={onClear} loading={loading}>
@@ -358,7 +352,7 @@ const ClosingXList = () => {
               shape="round"
               type="primary"
             >
-              Nuevo
+              Registrar
             </Button>
           </Col>
           <Col span={12} style={{ textAlign: 'right' }}>
@@ -376,14 +370,13 @@ const ClosingXList = () => {
           }}
           onChange={handleChangeTable}
           columns={columns}
-          scroll={{ x: 1000 }}
+          scroll={{ x: 900 }}
           loading={loading}
           dataSource={data?.closesXInvoicing?.docs as any}
         />
       </Card>
-      <FormClosingX visible={visible} onCancel={closeModal} onOk={onOk} />
-      <CloseDay visible={visibleNewClose} onCancel={closeNewClose} />
-      <EditClose visible={visibleEditClose} onCancel={closeEditClose} />
+      <CashRegisterModal visible={visible} onCancel={closeModal} onOk={saveCashRegister} />
+      <CloseDay cashRegister={cashRegister} visible={visibleNewClose} onCancel={closeNewClose} />
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );

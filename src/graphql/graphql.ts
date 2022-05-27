@@ -3853,6 +3853,41 @@ export type UpdateCategoryMutation = {
   };
 };
 
+export type CreateCloseXInvoicingMutationVariables = Exact<{
+  input: CreateCloseXInvoicingInput;
+}>;
+
+export type CreateCloseXInvoicingMutation = {
+  __typename?: 'Mutation';
+  createCloseXInvoicing: {
+    __typename?: 'CloseXInvoicing';
+    _id: string;
+    closeDate: any;
+    number: number;
+    payments?:
+      | {
+          __typename?: 'PaymentOrderClose';
+          quantity: number;
+          payment: { __typename?: 'Payment'; name: string };
+        }[]
+      | null;
+    pointOfSale: {
+      __typename?: 'PointOfSale';
+      name: string;
+      authorization: { __typename?: 'AuthorizationDian'; prefix: string };
+      shop: { __typename?: 'Shop'; name: string };
+    };
+    summaryOrder: {
+      __typename?: 'SummaryOrderClose';
+      quantityCancel: number;
+      quantityClosed: number;
+      quantityOpen: number;
+      value: number;
+    };
+    user: { __typename?: 'User'; name: string };
+  };
+};
+
 export type CreateColorMutationVariables = Exact<{
   input: CreateColorInput;
 }>;
@@ -4691,7 +4726,11 @@ export type ClosesXInvoicingQuery = {
       _id: string;
       number: number;
       closeDate: any;
-      pointOfSale: { __typename?: 'PointOfSale'; shop: { __typename?: 'Shop'; name: string } };
+      pointOfSale: {
+        __typename?: 'PointOfSale';
+        name: string;
+        shop: { __typename?: 'Shop'; name: string };
+      };
       summaryOrder: { __typename?: 'SummaryOrderClose'; value: number; quantityClosed: number };
       payments?:
         | {
@@ -6095,6 +6134,118 @@ export const UpdateCategoryDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateCategoryMutation, UpdateCategoryMutationVariables>;
+export const CreateCloseXInvoicingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createCloseXInvoicing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'CreateCloseXInvoicingInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createCloseXInvoicing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createCloseXInvoicing' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'payments' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payment' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pointOfSale' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'authorization' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'prefix' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'summaryOrder' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantityCancel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantityClosed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantityOpen' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'user' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateCloseXInvoicingMutation, CreateCloseXInvoicingMutationVariables>;
 export const CreateColorDocument = {
   kind: 'Document',
   definitions: [
@@ -8927,6 +9078,7 @@ export const ClosesXInvoicingDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'shop' },

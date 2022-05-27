@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Alert, Button, Form, InputNumber, Modal, Typography } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import numeral from 'numeral';
 
 import type { CashRegister } from '@/graphql/graphql';
@@ -48,6 +49,9 @@ const FormClosingX = ({ onCancel, onOk, visible }: Props) => {
       sm: { span: 12 },
     },
   };
+  useEffect(() => {
+    form.resetFields();
+  }, [visible]);
 
   return (
     <Modal

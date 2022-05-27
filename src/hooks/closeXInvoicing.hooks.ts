@@ -1,7 +1,11 @@
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 
-import { ClosesXInvoicingDocument } from '@/graphql/graphql';
+import { ClosesXInvoicingDocument, CreateCloseXInvoicingDocument } from '@/graphql/graphql';
 
 export const useGetClosesXInvoicing = () => {
   return useLazyQuery(ClosesXInvoicingDocument);
+};
+
+export const useCreateCloseXInvoicing = () => {
+  return useMutation(CreateCloseXInvoicingDocument);
 };

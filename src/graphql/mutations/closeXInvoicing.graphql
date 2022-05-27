@@ -1,0 +1,31 @@
+mutation createCloseXInvoicing($input: CreateCloseXInvoicingInput!) {
+  createCloseXInvoicing(createCloseXInvoicing: $input) {
+    _id
+    closeDate
+    number
+    payments {
+      payment {
+        name
+      }
+      quantity
+    }
+    pointOfSale {
+      authorization {
+        prefix
+      }
+      name
+      shop {
+        name
+      }
+    }
+    summaryOrder {
+      quantityCancel
+      quantityClosed
+      quantityOpen
+      value
+    }
+    user {
+      name
+    }
+  }
+}
