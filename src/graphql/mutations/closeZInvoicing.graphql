@@ -1,0 +1,51 @@
+mutation createCloseZInvoicing($input: CreateCloseZInvoicingInput!) {
+  createCloseZInvoicing(createCloseZInvoicing: $input) {
+    _id
+    number
+    cashRegister {
+      M50
+      M100
+      M200
+      M500
+      B1000
+      B2000
+      B5000
+      B10000
+      B20000
+      B50000
+      B100000
+    }
+    pointOfSale {
+      name
+      shop {
+        name
+      }
+    }
+    closeDate
+    expenses {
+      value
+    }
+    refunds {
+      quantity
+      value
+    }
+    summaryOrder {
+      value
+      quantityClosed
+      quantityCancel
+      quantityOpen
+    }
+    quantityBank
+    payments {
+      payment {
+        type
+        name
+      }
+      quantity
+      value
+    }
+    user {
+      name
+    }
+  }
+}
