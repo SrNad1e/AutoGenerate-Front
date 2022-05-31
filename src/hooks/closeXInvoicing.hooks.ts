@@ -7,5 +7,7 @@ export const useGetClosesXInvoicing = () => {
 };
 
 export const useCreateCloseXInvoicing = () => {
-  return useMutation(CreateCloseXInvoicingDocument);
+  return useMutation(CreateCloseXInvoicingDocument, {
+    refetchQueries: [{ query: ClosesXInvoicingDocument, variables: { input: {} } }],
+  });
 };

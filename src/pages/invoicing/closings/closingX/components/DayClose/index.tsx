@@ -1,17 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { DollarCircleFilled, PrinterFilled, PrinterOutlined, ShopFilled } from '@ant-design/icons';
 import { Button, Col, DatePicker, Form, InputNumber, Modal, Row, Steps, Typography } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import numeral from 'numeral';
 import moment from 'moment';
+import { useReactToPrint } from 'react-to-print';
 
 import type { CashRegister } from '@/graphql/graphql';
 import SelectPointOfSale from '@/components/SelectPointOfSale';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useCreateCloseXInvoicing } from '@/hooks/closeXInvoicing.hooks';
+import ReportCloseX from '../../reports/closeX';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
-import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const { Text, Title } = Typography;
 const { Step } = Steps;
@@ -33,7 +35,13 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
 
   const [form] = Form.useForm();
 
+  const reportRef = useRef(null);
+
   const [createClose, { loading, data }] = useCreateCloseXInvoicing();
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
 
   const getTotal = () => {
     const keys = Object.keys(cashRegister);
@@ -90,7 +98,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
         }
         break;
       case 1:
-        const values2 = await form.validateFields(['closeDate', 'pointOfSaleId']);
+        const values2 = await form.validateFields(['closeDate', 'pointOfSaleId', 'quantityBank']);
         if (values2?.closeDate) {
           try {
             const response = await createClose({
@@ -99,6 +107,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                   cashRegister,
                   closeDate: moment(values2?.closeDate).format(FORMAT_DATE_API),
                   pointOfSaleId: values2?.pointOfSaleId,
+                  quantityBank: values2?.quantityBank || 0,
                 },
               },
             });
@@ -117,7 +126,10 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
           }
         }
         break;
-
+      case 2:
+        handlePrint();
+        onCancel();
+        break;
       default:
         break;
     }
@@ -170,6 +182,9 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
         style={styles.formMargin}
         form={form}
         layout="horizontal"
+        initialValues={{
+          quantityBank: 0,
+        }}
         wrapperCol={{ span: 10 }}
         labelCol={{ span: 10 }}
       >
@@ -191,13 +206,12 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
             >
               <DatePicker
                 disabled={loading}
-                autoFocus
                 style={styles.inputWidth}
                 placeholder="Seleccione Fecha"
               />
             </FormItem>
             <FormItem
-              label="Cantidad de efectivo"
+              label="Valor de efectivo"
               rules={[{ required: true, message: 'Obligatorio' }]}
               name="total"
             >
@@ -209,6 +223,13 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
               />
+            </FormItem>
+            <FormItem
+              label="Cantidad de transacciones"
+              rules={[{ required: true, message: 'Obligatorio' }]}
+              name="quantityBank"
+            >
+              <InputNumber autoFocus controls={false} style={styles.inputWidth} />
             </FormItem>
           </>
         )}
@@ -248,6 +269,9 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
           </Row>
         )}
       </Form>
+      <div style={{ display: 'none' }}>
+        <ReportCloseX ref={reportRef} data={data?.createCloseXInvoicing} />
+      </div>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </Modal>
   );

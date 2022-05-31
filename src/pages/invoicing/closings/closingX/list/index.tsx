@@ -45,6 +45,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import CashRegisterModal from '../components/CashRegister';
 import SelectShop from '@/components/SelectShop';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import ReportCloseX from '../reports/closeX';
 
 import styles from './styles';
 
@@ -68,8 +69,6 @@ const ClosingXList = () => {
     type: 'error',
     visible: false,
   });
-
-  console.log(closeData);
 
   const [form] = Form.useForm();
 
@@ -145,8 +144,6 @@ const ClosingXList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersClosesXInvoicingInput) => {
-    console.log('Prueba');
-
     getCloses({
       variables: {
         input: {
@@ -272,7 +269,7 @@ const ClosingXList = () => {
     },
     {
       title: 'Ingresos',
-      dataIndex: 'payemnts',
+      dataIndex: 'payments',
       align: 'right',
       render: (payments: PaymentOrderClose[]) =>
         numeral(payments?.reduce((sum, payment) => sum + payment?.value, 0)).format('$ 0,0'),
@@ -282,13 +279,6 @@ const ClosingXList = () => {
       dataIndex: 'summaryOrder',
       align: 'right',
       render: (summary: SummaryOrderClose) => numeral(summary?.value).format('$ 0,0'),
-    },
-    {
-      title: 'Estado',
-      dataIndex: 'status',
-      align: 'center',
-      render: (status: string | any) =>
-        status ? <Tag color={status.color}> {status.name}</Tag> : '',
     },
     {
       title: 'Registrado',
@@ -324,12 +314,12 @@ const ClosingXList = () => {
                 <DatePicker placeholder="Seleccione una fecha" style={{ width: '100%' }} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={8} xl={5}>
+            <Col xs={24} md={8} lg={8} xl={6} xxl={6}>
               <FormItem label="Tienda" name="shopId">
                 <SelectShop disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={8} xl={5}>
+            <Col xs={24} md={9} lg={8} xl={5} xxl={4}>
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button htmlType="submit" icon={<SearchOutlined />} type="primary">
@@ -376,7 +366,14 @@ const ClosingXList = () => {
         />
       </Card>
       <CashRegisterModal visible={visible} onCancel={closeModal} onOk={saveCashRegister} />
-      <CloseDay cashRegister={cashRegister} visible={visibleNewClose} onCancel={closeNewClose} />
+      <CloseDay
+        cashRegister={cashRegister as CashRegister}
+        visible={visibleNewClose}
+        onCancel={closeNewClose}
+      />
+      <div style={{ display: 'none' }}>
+        <ReportCloseX ref={reportRef} data={closeData} />
+      </div>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );

@@ -6,6 +6,7 @@ import numeral from 'numeral';
 import type { CashRegister } from '@/graphql/graphql';
 
 import styles from './styles';
+import './styles.css';
 
 const FormItem = Form.Item;
 const { Title } = Typography;
@@ -57,7 +58,6 @@ const FormClosingX = ({ onCancel, onOk, visible }: Props) => {
     <Modal
       visible={visible}
       title="Arqueo de dinero"
-      onCancel={onCancel}
       destroyOnClose
       footer={
         <>
@@ -70,6 +70,7 @@ const FormClosingX = ({ onCancel, onOk, visible }: Props) => {
     >
       <Form
         onChange={getTotal}
+        className="cash-register"
         initialValues={{
           M50: 0,
           M100: 0,

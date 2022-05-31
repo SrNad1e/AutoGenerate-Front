@@ -1,7 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-use-before-define */
 import React from 'react';
 import moment from 'moment';
 import numeral from 'numeral';
@@ -49,50 +45,56 @@ const classes = {
   },
 };
 
-export default class TemporalClose extends React.PureComponent {
+export default class BoxCount extends React.PureComponent {
   render() {
+    const { data } = this.props;
+
     return (
       <div style={classes.content}>
         <div style={classes.header}>
           <img src="/logo.svg" alt="logo" width="50%" style={{ marginBottom: -15 }} />
           <div style={{ ...classes.title, marginBottom: 5 }}>ARQUEO</div>
           <div style={classes.text}>
-            Fecha Registro: {moment('2022-05-04T18:10:20.727Z').format('DD/MM/YYYY HH:mm:ss ')}
+            Fecha Registro: {moment(data?.createdAt).format('DD/MM/YYYY HH:mm:ss')}
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>
             <div style={classes.text}>
               <span style={classes.textBold}>Cierre No.</span>
-              {1}
+              {data?.number}
             </div>
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>
             <div style={classes.text}>
               <span style={classes.textBold}>Tienda:</span>
-              {'Gucci'}
+              {data?.pointOfSale?.shop?.name}
             </div>
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>
             <div style={classes.text}>
               <span style={classes.textBold}>Usuario:</span>
-              {'Dio'}
+              {data?.user?.name}
             </div>
           </div>
         </div>
         <div style={classes.body}>
           <div style={classes.title}>Lista de denominaciones</div>
-          {
-            <div key={1} style={classes.text}>
+          {Object.keys(data?.cashRegister).map((key) => (
+            <div key={key} style={classes.text}>
               <div style={classes.row}>
-                <div style={classes.col1}>{numeral(21).format('$ 0,0')}</div>
-                <div style={classes.col2}>{2000}</div>
+                <div style={classes.col1}>{numeral(data?.cashRegister[key]).format('$ 0,0')}</div>
+                <div style={classes.col2}>{key}</div>
               </div>
             </div>
-          }
+          ))}
         </div>
         <div style={{ ...classes.text, fontWeight: 'bold', marginTop: 15, fontSize: 20 }}>
           <div style={classes.row}>
             <div style={classes.col1}>Total:</div>
-            <div style={classes.col2}>{numeral(10000).format('$ 0,0')}</div>
+            <div style={classes.col2}>
+              {numeral(
+                Object.values(data?.cashRegister).reduce((sum, dato) => sum + dato, 0),
+              ).format('$ 0,0')}
+            </div>
           </div>
         </div>
       </div>

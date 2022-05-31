@@ -1,6 +1,7 @@
 export default {
   inputWidth: {
     width: '100%',
+    textAlign: 'right',
   },
   formMargin: {
     marginTop: 20,
