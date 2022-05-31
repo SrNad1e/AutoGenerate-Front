@@ -6,4 +6,8 @@ export default {
   bodyPadding: {
     paddingTop: 0,
   },
+  titleAlign: {
+    textAlign: 'right',
+    marginRight: 60,
+  },
 };

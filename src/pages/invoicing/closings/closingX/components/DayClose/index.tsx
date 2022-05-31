@@ -14,6 +14,7 @@ import ReportCloseX from '../../reports/closeX';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import { RangePickerProps } from 'antd/lib/date-picker';
 
 const { Text, Title } = Typography;
 const { Step } = Steps;
@@ -109,6 +110,10 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
       type: 'success',
       visible: true,
     });
+  };
+
+  const disabledDate: RangePickerProps['disabledDate'] = (current) => {
+    return current && current > moment().endOf('day');
   };
 
   const onFinish = async () => {
@@ -230,6 +235,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 disabled={loading}
                 style={styles.inputWidth}
                 placeholder="Seleccione Fecha"
+                disabledDate={disabledDate}
               />
             </FormItem>
             <FormItem

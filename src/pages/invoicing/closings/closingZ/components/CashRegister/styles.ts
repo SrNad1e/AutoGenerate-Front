@@ -4,6 +4,7 @@ export default {
   },
   inputWidth: {
     width: '80%',
+    display: 'flex',
   },
   titleAlign: {
     textAlign: 'right',
