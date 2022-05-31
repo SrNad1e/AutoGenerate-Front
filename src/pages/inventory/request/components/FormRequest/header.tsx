@@ -24,17 +24,17 @@ const Header = ({ request, setObservation, observation }: Props) => {
       <Row justify="center" gutter={[0, 10]}>
         <Col>
           <Descriptions bordered size="small">
-            <DescriptionsItem label="Bodega que solicita" span={2}>
+            <DescriptionsItem label="Bodega que solicita" span={1}>
               {request?.warehouseDestination?.name ||
                 initialState?.currentUser?.shop?.defaultWarehouse?.name}
             </DescriptionsItem>
-            <DescriptionsItem label="Bodega de despacho" span={2}>
+            <DescriptionsItem label="Bodega de despacho" span={1}>
               {request?.warehouseOrigin?.name}
             </DescriptionsItem>
           </Descriptions>
         </Col>
         <Col>
-          <Descriptions bordered size="small" style={{ width: '100%' }}>
+          <Descriptions bordered size="small">
             <DescriptionsItem label="Número" span={1}>
               {request?.number || '(Pendiente)'}
             </DescriptionsItem>

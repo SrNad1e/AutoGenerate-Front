@@ -370,7 +370,7 @@ const RequestList = () => {
     >
       <Card>
         <Form form={form} layout="horizontal" className={styles.filters} onFinish={onFinish}>
-          <Row gutter={[10, 5]} className={styles.form}>
+          <Row gutter={10} className={styles.form}>
             <Col xs={24} md={4} lg={4} xl={3}>
               <FormItem label="Número" name="number">
                 <InputNumber controls={false} min={1} className={styles.item} disabled={loading} />
@@ -400,7 +400,7 @@ const RequestList = () => {
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} md={10} lg={10} xl={6}>
+            <Col xs={24} md={9} lg={10} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
