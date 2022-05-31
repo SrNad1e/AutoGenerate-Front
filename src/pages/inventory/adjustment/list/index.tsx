@@ -360,7 +360,7 @@ const AdjustmentList = () => {
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={9} xl={5}>
+            <Col xs={24} md={9} lg={9} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>

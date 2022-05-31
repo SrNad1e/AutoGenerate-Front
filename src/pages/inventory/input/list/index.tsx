@@ -337,7 +337,7 @@ const InputList = () => {
           <Row gutter={20} className={styles.form}>
             <Col xs={24} md={5} lg={5} xl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber className={styles.item} disabled={loading} min={1} />
+                <InputNumber className={styles.item} disabled={loading} min={1} controls={false} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={9} xl={5}>
@@ -356,7 +356,7 @@ const InputList = () => {
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={9} xl={5}>
+            <Col xs={24} md={9} lg={9} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
@@ -386,7 +386,7 @@ const InputList = () => {
             <Text strong>Páginas: </Text> {data?.stockInputs?.page} /{' '}
             {data?.stockInputs?.totalPages || 0}
           </Col>
-          <Col>
+          <Col span={24}>
             <Table
               columns={columns}
               dataSource={data?.stockInputs?.docs as any}

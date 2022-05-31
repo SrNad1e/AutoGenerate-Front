@@ -387,7 +387,7 @@ const RequestList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={5}>
+            <Col xs={24} md={6} lg={6} xl={4}>
               <FormItem label="Tipo" name="type">
                 <Select className={styles.item} disabled={loading}>
                   <Option key="sent">Enviado</Option>
@@ -395,7 +395,7 @@ const RequestList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={5}>
+            <Col xs={24} md={7} lg={7} xl={6}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
