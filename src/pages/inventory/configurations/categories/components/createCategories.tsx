@@ -92,7 +92,7 @@ const CreateCategories = ({ level, current, modalVisible, onCancel, isNew }: Pro
 
         if (response?.data?.updateCategory) {
           setAlertInformation({
-            message: `Categoria ${response?.data?.updateCategory?.name} actualizada correctamente`,
+            message: `Categoria ${values?.name} actualizada correctamente`,
             type: 'success',
             visible: true,
           });
@@ -122,7 +122,7 @@ const CreateCategories = ({ level, current, modalVisible, onCancel, isNew }: Pro
       });
       if (response?.data?.createCategory) {
         setAlertInformation({
-          message: `Categoria ${response?.data?.createCategory?.name} creada correctamente`,
+          message: `Categoria ${values?.name} creada correctamente`,
           type: 'success',
           visible: true,
         });
