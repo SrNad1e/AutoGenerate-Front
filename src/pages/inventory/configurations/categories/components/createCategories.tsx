@@ -70,8 +70,8 @@ const CreateCategories = ({ level, current, modalVisible, onCancel, isNew }: Pro
    * @description se encarga de actualizar la categoría
    */
   const editCategory = async () => {
+    const values = await form.validateFields();
     try {
-      const values = form.getFieldsValue();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {
@@ -107,10 +107,8 @@ const CreateCategories = ({ level, current, modalVisible, onCancel, isNew }: Pro
    * @description se encarga de crear una nueva categoría
    */
   const createNewCategory = async () => {
+    const values = await form.validateFields();
     try {
-      form.getFieldsValue();
-      const values = await form.validateFields();
-
       const response = await createCategory({
         variables: {
           input: {
