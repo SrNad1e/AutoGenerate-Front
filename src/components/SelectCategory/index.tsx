@@ -50,6 +50,20 @@ const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) 
     });
   }, [level]);
 
+  useEffect(() => {
+    getCategories({
+      variables: {
+        input: {
+          _id: value,
+          level,
+          sort: {
+            name: 1,
+          },
+        },
+      },
+    });
+  }, [!!value]);
+
   return (
     <>
       <Select

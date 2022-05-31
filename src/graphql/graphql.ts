@@ -1042,6 +1042,8 @@ export type FiltersCategoriesInput = {
 
 /** Filtros para obtener la lista de categorías */
 export type FiltersCategoriesLevelInput = {
+  /** Identificador de la categoría */
+  _id?: InputMaybe<Scalars['String']>;
   /** Nivel de categoria */
   level: Scalars['Float'];
   /** Cantidad de registros */
