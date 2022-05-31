@@ -32,10 +32,13 @@ mutation createCloseXInvoicing($input: CreateCloseXInvoicingInput!) {
     summaryOrder {
       value
       quantityClosed
+      quantityCancel
+      quantityOpen
     }
     quantityBank
     payments {
       payment {
+        type
         name
       }
       quantity

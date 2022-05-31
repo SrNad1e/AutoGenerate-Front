@@ -48,10 +48,32 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     return keys.reduce((sum, item) => sum + cashRegister[item] * parseInt(item.slice(1)), 0) || 0;
   };
 
-  const getDifference = () => {
-    const total = getTotal();
+  const getTotalCash = () => {
+    return (
+      data?.createCloseXInvoicing?.payments?.reduce(
+        (sum, payment) => sum + (payment?.payment?.type === 'cash' ? payment?.value : 0),
+        0,
+      ) || 0
+    );
+  };
 
-    return total - (data?.createCloseXInvoicing?.summaryOrder?.value || 0);
+  const getDifferenceCash = () => {
+    const total = getTotal();
+    const totalCash = getTotalCash();
+    return total - totalCash;
+  };
+
+  const getTotalBank = () => {
+    return (
+      data?.createCloseXInvoicing?.payments?.reduce(
+        (sum, payment) => sum + (payment?.payment?.type === 'bank' ? payment?.quantity : 0),
+        0,
+      ) || 0
+    );
+  };
+
+  const getDifferenceBank = () => {
+    return (data?.createCloseXInvoicing?.quantityBank || 0) - getTotalBank();
   };
 
   /**
@@ -241,27 +263,85 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
             <Col span={20}>
               <Text strong>Recaudo Efectivo:</Text>
             </Col>
-            <Col span={4}>
-              <Text>
-                {numeral(data?.createCloseXInvoicing?.summaryOrder?.value).format('$ 0,0')}
-              </Text>
+            <Col
+              span={4}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <Text>{numeral(getTotalCash()).format('$ 0,0')}</Text>
             </Col>
             <Col span={20}>
               <Text strong>Efectivo Reportado:</Text>
             </Col>
-            <Col span={4}>
+            <Col
+              span={4}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
+            >
               <Text>{numeral(getTotal()).format('$ 0,0')}</Text>
             </Col>
-            {getDifference() !== 0 && (
+            {getDifferenceCash() !== 0 && (
               <>
                 <Col span={20}>
-                  <Text strong>{getDifference() > 0 ? 'Sobrante' : 'Faltante'}</Text>
+                  <Text strong>{getDifferenceCash() > 0 ? 'Sobrante' : 'Faltante'}</Text>
                 </Col>
-                <Col span={4}>
+                <Col
+                  span={4}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
                   <Text>
-                    {numeral(getDifference() > 0 ? getDifference() : -getDifference()).format(
-                      '$ 0,0',
-                    )}
+                    {numeral(
+                      getDifferenceCash() > 0 ? getDifferenceCash() : -getDifferenceCash(),
+                    ).format('$ 0,0')}
+                  </Text>
+                </Col>
+              </>
+            )}
+            <Col span={20}>
+              <Text strong>Transacciones:</Text>
+            </Col>
+            <Col
+              span={4}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <Text>{data?.createCloseXInvoicing?.quantityBank}</Text>
+            </Col>
+            <Col span={20}>
+              <Text strong>Transacciones reportadas:</Text>
+            </Col>
+            <Col
+              span={4}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <Text>{getTotalBank()}</Text>
+            </Col>
+            {getDifferenceBank() !== 0 && (
+              <>
+                <Col span={20}>
+                  <Text strong>{getDifferenceBank() > 0 ? 'Sobrante' : 'Faltante'}</Text>
+                </Col>
+                <Col
+                  span={4}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Text>
+                    {getDifferenceBank() > 0 ? getDifferenceBank() : -getDifferenceBank()}
                   </Text>
                 </Col>
               </>

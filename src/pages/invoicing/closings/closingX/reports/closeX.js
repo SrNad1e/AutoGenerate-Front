@@ -81,8 +81,8 @@ export default class ReportCloseX extends React.PureComponent {
       delete cashRegister['__typename'];
     }
 
-    const totalCashRegister = Object.values(cashRegister || {})?.reduce(
-      (sum, value) => sum + value,
+    const totalCashRegister = Object.keys(cashRegister || {})?.reduce(
+      (sum, key) => sum + parseInt(key.slice(1)) * parseInt(cashRegister[key]),
       0,
     );
 

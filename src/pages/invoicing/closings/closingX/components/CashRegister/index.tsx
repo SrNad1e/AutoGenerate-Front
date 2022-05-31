@@ -58,6 +58,7 @@ const FormClosingX = ({ onCancel, onOk, visible }: Props) => {
     <Modal
       visible={visible}
       title="Arqueo de dinero"
+      closable={false}
       destroyOnClose
       footer={
         <>

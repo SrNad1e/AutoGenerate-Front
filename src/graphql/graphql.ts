@@ -3932,13 +3932,19 @@ export type CreateCloseXInvoicingMutation = {
       quantity?: number | null;
       value?: number | null;
     } | null;
-    summaryOrder: { __typename?: 'SummaryOrderClose'; value: number; quantityClosed: number };
+    summaryOrder: {
+      __typename?: 'SummaryOrderClose';
+      value: number;
+      quantityClosed: number;
+      quantityCancel: number;
+      quantityOpen: number;
+    };
     payments?:
       | {
           __typename?: 'PaymentOrderClose';
           quantity: number;
           value: number;
-          payment: { __typename?: 'Payment'; name: string };
+          payment: { __typename?: 'Payment'; type: string; name: string };
         }[]
       | null;
     user: { __typename?: 'User'; name: string };
@@ -6556,6 +6562,8 @@ export const CreateCloseXInvoicingDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'value' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantityClosed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantityCancel' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantityOpen' } },
                     ],
                   },
                 },
@@ -6571,7 +6579,10 @@ export const CreateCloseXInvoicingDocument = {
                         name: { kind: 'Name', value: 'payment' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
