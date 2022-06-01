@@ -437,6 +437,7 @@ const FormReference = () => {
       title: 'Acciones',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, record) =>
         _id ? (
           <Tooltip title="Editar" placement="topLeft">
@@ -500,6 +501,7 @@ const FormReference = () => {
           columns={columns}
           pagination={false}
           bordered
+          scroll={{ x: 'auto' }}
         />
         <Affix offsetBottom={0}>
           <Card loading={loading} bodyStyle={styles.bodyStyle} size="small">

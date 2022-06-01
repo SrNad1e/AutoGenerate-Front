@@ -15,7 +15,6 @@ import {
   Card,
   Col,
   DatePicker,
-  Divider,
   Form,
   InputNumber,
   Row,
@@ -247,6 +246,8 @@ const TransferList = () => {
     {
       title: 'Número',
       dataIndex: 'number',
+      sorter: true,
+      showSorterTooltip: false,
       align: 'center',
       width: 100,
     },
@@ -282,11 +283,13 @@ const TransferList = () => {
     {
       title: 'Fecha',
       dataIndex: 'updatedAt',
+      sorter: true,
+      showSorterTooltip: false,
       align: 'center',
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Acciones',
+      title: 'Opciones',
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -336,14 +339,14 @@ const TransferList = () => {
       }
     >
       <Card>
-        <Form form={form} layout="inline" className={styles.filters} onFinish={onFinish}>
-          <Row gutter={[20, 20]} className={styles.form}>
-            <Col xs={24} md={5} lg={5}>
+        <Form form={form} layout="horizontal" className={styles.filters} onFinish={onFinish}>
+          <Row gutter={20} className={styles.form}>
+            <Col xs={24} md={5} lg={5} xl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber controls={false} />
+                <InputNumber controls={false} style={{ width: '100%' }} />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6}>
+            <Col xs={24} md={6} lg={6} xl={5}>
               <FormItem label="Estado" name="status">
                 <Select className={styles.item}>
                   {Object.keys(StatusType).map((key) => (
@@ -354,7 +357,7 @@ const TransferList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={5}>
+            <Col xs={24} md={6} lg={6} xl={4}>
               <FormItem label="Tipo" name="type">
                 <Select className={styles.item} disabled={loading}>
                   <Option key="sent">Enviados</Option>
@@ -362,17 +365,17 @@ const TransferList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7}>
+            <Col xs={24} md={7} lg={7} xl={6}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} md={12} lg={11}>
+            <Col xs={24} md={9} lg={9} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker disabled={loading} />
               </FormItem>
             </Col>
-            <Col span={10}>
+            <Col xs={24} md={7} lg={7} xl={24}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
@@ -386,35 +389,26 @@ const TransferList = () => {
             </Col>
           </Row>
         </Form>
-        <Divider />
-        <Row>
-          <Col
-            span={24}
-            style={{
-              textAlign: 'right',
-            }}
-          >
-            <Space align="end">
-              <Text strong>Total Encontrados:</Text>
-              <Text>{data?.stockTransfers?.totalDocs}</Text>
-              <Text strong>Páginas: </Text>
-              <Text>
-                {data?.stockTransfers?.page} / {data?.stockTransfers?.totalPages || 0}
-              </Text>
-            </Space>
+        <Row gutter={[0, 20]}>
+          <Col span={24} className={styles.marginFilters}>
+            <Text strong>Total Encontrados:</Text> {data?.stockTransfers?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.stockTransfers?.page} /{' '}
+            {data?.stockTransfers?.totalPages || 0}
+          </Col>
+          <Col span={24}>
+            <Table
+              scroll={{ x: 'auto' }}
+              columns={columns}
+              dataSource={data?.stockTransfers?.docs as any}
+              pagination={{
+                current: data?.stockTransfers?.page,
+                total: data?.stockTransfers?.totalDocs,
+              }}
+              onChange={handleChangeTable}
+              loading={loading}
+            />
           </Col>
         </Row>
-        <Table
-          scroll={{ x: 800 }}
-          columns={columns}
-          dataSource={data?.stockTransfers?.docs as any}
-          pagination={{
-            current: data?.stockTransfers?.page,
-            total: data?.stockTransfers?.totalDocs,
-          }}
-          onChange={handleChangeTable}
-          loading={loading}
-        />
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>

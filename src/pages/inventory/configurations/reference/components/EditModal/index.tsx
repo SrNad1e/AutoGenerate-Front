@@ -154,14 +154,14 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
       width="80%"
       onCancel={onClose}
     >
-      <Row>
-        <Form form={form} layout="inline">
-          <Col xs={24} lg={6} md={7}>
+      <Form form={form} layout="horizontal">
+        <Row gutter={20}>
+          <Col xs={24} md={10} lg={6}>
             <FormItem label="EAN 13" name="barcode">
               <Input disabled={loading} autoFocus placeholder="" />
             </FormItem>
           </Col>
-          <Col xs={24} lg={8} md={7}>
+          <Col xs={24} md={11} lg={8}>
             <FormItem
               label="Color"
               rules={[{ required: true, message: 'Obligatorio' }]}
@@ -170,7 +170,7 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
               <SelectColor disabled={loading} />
             </FormItem>
           </Col>
-          <Col xs={24} lg={5} md={5}>
+          <Col xs={24} md={10} lg={4}>
             <FormItem
               label="Talla"
               rules={[{ required: true, message: 'Obligatorio' }]}
@@ -179,7 +179,7 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
               <SelectSize disabled={loading} />
             </FormItem>
           </Col>
-          <Col xs={24} lg={5} md={5}>
+          <Col xs={24} md={10} lg={6}>
             <FormItem
               name="status"
               label="Activo"
@@ -199,10 +199,10 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
               <ImageAdmin disabled={loading} limit={3} onCopyImage={copyImages} />
             </FormItem>
           </Col>
-        </Form>
-        {error && <Alert type="error" message={error} showIcon />}
-        {progress > 0 && <Progress strokeColor="primary.main" percent={progress} />}
-      </Row>
+        </Row>
+      </Form>
+      {error && <Alert type="error" message={error} showIcon />}
+      {progress > 0 && <Progress strokeColor="primary.main" percent={progress} />}
     </Modal>
   );
 };
