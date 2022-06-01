@@ -29,13 +29,16 @@ export const useUpdateReference = () => {
     update: (cache, { data }) => {
       cache.modify({
         fields: {
-          products(existingReferences = []) {
+          references(existingReferences = []) {
             return existingReferences?.docs?.map((reference: Reference) => {
               if (reference?._id === data?.updateReference?._id) {
                 return data?.updateReference;
               }
               return reference;
             });
+          },
+          referenceId() {
+            return data?.updateReference;
           },
         },
       });

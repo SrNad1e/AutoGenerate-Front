@@ -128,9 +128,8 @@ const FormReference = () => {
   };
 
   const newReference = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
-
       if (!values?.name) {
         setActiveKey('1');
         return;
@@ -195,39 +194,27 @@ const FormReference = () => {
 
   const saveReference = async () => {
     const values = await form.validateFields();
+
     try {
       const params: UpdateReferenceInput = {};
 
       const categoriesId = values?.categoriesId?.split('-');
 
       if (categoriesId.length === 3) {
-        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
-          params.categoryLevel1Id = categoriesId[0];
-        }
-
-        if (categoriesId[1] !== data?.referenceId?.categoryLevel2?._id) {
-          params.categoryLevel2Id = categoriesId[1];
-        }
-
-        if (categoriesId[2] !== data?.referenceId?.categoryLevel3?._id) {
-          params.categoryLevel3Id = categoriesId[2];
-        }
+        params.categoryLevel1Id = categoriesId[0];
+        params.categoryLevel2Id = categoriesId[1];
+        params.categoryLevel3Id = categoriesId[2];
       }
 
       if (categoriesId.length === 2) {
-        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
-          params.categoryLevel1Id = categoriesId[0];
-        }
-
-        if (categoriesId[1] !== data?.referenceId?.categoryLevel2?._id) {
-          params.categoryLevel2Id = categoriesId[1];
-        }
+        params.categoryLevel1Id = categoriesId[0];
+        params.categoryLevel2Id = categoriesId[1];
       }
 
       if (categoriesId.length === 1) {
-        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
-          params.categoryLevel1Id = categoriesId[0];
-        }
+        params.categoryLevel1Id = categoriesId[0];
+        params.categoryLevel2Id = '';
+        params.categoryLevel3Id = '';
       }
 
       if (values?.active) {
@@ -282,12 +269,12 @@ const FormReference = () => {
         params.width = values?.width;
       }
 
-      delete values.categoriesId;
+      console.log(params);
 
       const response = await updateReference({
         variables: {
           id: id || '',
-          input: values,
+          input: params,
         },
       });
 
@@ -496,7 +483,7 @@ const FormReference = () => {
       }
     >
       <Card bordered={false} loading={loading}>
-        <Form form={form}>
+        <Form form={form} onChange={console.log}>
           <Tabs type="card" activeKey={activeKey} onChange={setActiveKey}>
             <TabPane tab="Datos generales" key="1">
               <FormGeneralData />
