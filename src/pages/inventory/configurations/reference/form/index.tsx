@@ -300,7 +300,7 @@ const FormReference = () => {
     }
   };
 
-  const addProducts = ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
+  const addProducts = async ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
     const newCombinations = [];
 
     for (let c = 0; c < colors.length; c++) {
@@ -314,7 +314,7 @@ const FormReference = () => {
         if (!combinationFind) {
           if (id) {
             try {
-              addProduct({
+              await addProduct({
                 referenceId: id,
                 colorId: color?._id,
                 sizeId: size?._id,
