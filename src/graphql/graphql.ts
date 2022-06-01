@@ -1030,6 +1030,8 @@ export type FiltersBrandsInput = {
 
 /** Filtros para obtener la lista de categorías */
 export type FiltersCategoriesInput = {
+  /** Identificador de la categoría padre */
+  _id?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Nombre de la categoría */
@@ -3197,9 +3199,11 @@ export type SortProduct = {
 export type SortReference = {
   changeable?: InputMaybe<Scalars['Float']>;
   cost?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
   description?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['Float']>;
   price?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
 /** Ordenamiento de las devoluciones en factura */
