@@ -2,32 +2,28 @@
 import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
-import { useGetCategoriesLevel } from '@/hooks/category.hooks';
+import { useGetPointOfSales } from '@/hooks/pointOfSale.hooks';
 
 const { Option } = Select;
 
 export type Params = {
   onChange?: (id: string) => void;
   value?: string;
-  parentId?: string;
-  level: number;
   disabled: boolean;
 };
 
-const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) => {
-  const [getCategories, { loading, data, error }] = useGetCategoriesLevel();
+const SelectPointOfSale = ({ onChange, disabled, value }: Params) => {
+  const [getPointOfSales, { loading, data, error }] = useGetPointOfSales();
 
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
   const onSearch = (name: string) => {
-    getCategories({
+    getPointOfSales({
       variables: {
         input: {
           name,
-          parentId,
-          level,
           sort: {
             name: 1,
           },
@@ -37,32 +33,17 @@ const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) 
   };
 
   useEffect(() => {
-    getCategories({
-      variables: {
-        input: {
-          level,
-          parentId,
-          sort: {
-            name: 1,
-          },
-        },
-      },
-    });
-  }, [level]);
-
-  useEffect(() => {
-    getCategories({
+    getPointOfSales({
       variables: {
         input: {
           _id: value,
-          level,
           sort: {
             name: 1,
           },
         },
       },
     });
-  }, [!!value]);
+  }, []);
 
   return (
     <>
@@ -70,16 +51,16 @@ const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) 
         style={{ width: 220 }}
         showSearch
         loading={loading}
-        placeholder="Seleccione Categoría"
-        optionFilterProp="parentId"
+        placeholder="Seleccione el punto de venta"
+        optionFilterProp="key"
         onChange={onChange}
         onSearch={onSearch}
         disabled={disabled}
         value={value}
       >
-        {data?.categoriesLevel?.docs?.map(({ _id, name }) => (
-          <Option key={_id} value={_id}>
-            {name}
+        {data?.pointOfSales?.docs?.map(({ _id, name, shop }) => (
+          <Option key={name} value={_id}>
+            {shop.name} / {name}
           </Option>
         ))}
       </Select>
@@ -88,4 +69,4 @@ const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) 
   );
 };
 
-export default SelectCategory;
+export default SelectPointOfSale;
