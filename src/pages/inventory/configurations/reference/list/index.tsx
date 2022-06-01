@@ -29,6 +29,7 @@ import { useGetReferences } from '@/hooks/reference.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import style from './styles.less';
+import Filters from '@/components/Filters';
 
 const { Title, Text } = Typography;
 const FormItem = Form.Item;
@@ -255,18 +256,22 @@ const ReferenceList = () => {
       dataIndex: 'active',
       width: 120,
       align: 'center',
-      filterMultiple: false,
       filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Activo',
+              value: true,
+            },
+            {
+              text: 'Inactivo',
+              value: false,
+            },
+          ]}
+        />
+      ),
       render: (active: boolean) => {
         return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
       },
@@ -276,18 +281,22 @@ const ReferenceList = () => {
       dataIndex: 'changeable',
       width: 120,
       align: 'center',
-      filterMultiple: false,
-      filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filteredValue: filterTable?.changeable || null,
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
       render: (changeable: boolean) => {
         return (
           <Badge status={changeable ? 'success' : 'default'} text={changeable ? 'Si' : 'No'} />
