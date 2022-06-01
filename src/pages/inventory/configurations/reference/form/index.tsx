@@ -114,6 +114,10 @@ const FormReference = () => {
     });
   };
 
+  /**
+   * @description ejecuta la mutation para crear una referencia y valida las combinaciones para
+   *  crear productos
+   */
   const newReference = async () => {
     try {
       const values = await form.validateFields();
@@ -181,6 +185,10 @@ const FormReference = () => {
     }
   };
 
+  /**
+   * @description valida los valores en los campos y ejecuta la mutation para actualizar la
+   * referencia
+   */
   const saveReference = async () => {
     try {
       const values = await form.validateFields();
@@ -286,6 +294,10 @@ const FormReference = () => {
     }
   };
 
+  /**
+   * @description ejecuta la mutation para crear un producto
+   * @param values datos que recibe la mutation para crear un producto
+   */
   const addProduct = async (values: CreateProductInput) => {
     try {
       return createProduct({
@@ -298,6 +310,11 @@ const FormReference = () => {
     }
   };
 
+  /**
+   * @description gestiona las combinaciones entre color y talla para la creacion de productos
+   * @param colors array de colores
+   * @param sizes array de tallas
+   */
   const addProducts = ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
     const newCombinations = [];
 
@@ -334,6 +351,9 @@ const FormReference = () => {
     formCreateProduct.resetFields();
   };
 
+  /**
+   * @description elimina la combinacion seleccionada
+   */
   const deleteProduct = ({ color, size }: Product) => {
     const newCombinations = combinations?.filter(
       (combination) =>

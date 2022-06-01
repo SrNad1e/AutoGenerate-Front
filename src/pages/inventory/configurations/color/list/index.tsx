@@ -31,6 +31,7 @@ import CreateColors from '@/components/CreateColor';
 import type { Color, FiltersColorsInput } from '@/graphql/graphql';
 
 import styles from './styles.less';
+import Filters from '@/components/Filters';
 
 type FormData = {
   name?: string;
@@ -265,7 +266,7 @@ const ColorsList = () => {
       sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
       showSorterTooltip: false,
       render: (name: string, { image, html }) => (
-        <>
+        <Space>
           <Avatar
             style={{
               border: image ? 'solid 1px black' : '',
@@ -277,8 +278,8 @@ const ColorsList = () => {
             style={{ backgroundColor: html, border: 'solid 1px black', marginLeft: 10 }}
             shape="square"
           />
-          <Text style={{ marginLeft: 10 }}>{name}</Text>
-        </>
+          <Text>{name}</Text>
+        </Space>
       ),
     },
     {
@@ -293,16 +294,21 @@ const ColorsList = () => {
       },
       filterMultiple: false,
       filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
     },
     {
       title: 'Fecha Creación',
@@ -326,6 +332,7 @@ const ColorsList = () => {
       title: 'Acción',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_: string, colorID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
@@ -377,6 +384,7 @@ const ColorsList = () => {
             }}
             loading={loading}
             onChange={handleChangeTable}
+            scroll={{ x: 'auto' }}
           />
         </div>
       </Card>

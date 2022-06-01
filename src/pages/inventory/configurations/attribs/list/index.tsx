@@ -27,6 +27,7 @@ import CreateAttrib from '@/components/CreateAttrib';
 import type { Attrib, FiltersAttribsInput } from '@/graphql/graphql';
 
 import styles from './styles.less';
+import Filters from '@/components/Filters';
 
 const FormItem = Form.Item;
 
@@ -242,23 +243,17 @@ const AttribsList = () => {
    */
   const renderFormSearch = () => (
     <Form layout="inline" onFinish={onFinish} form={form}>
-      <Row gutter={[8, 8]}>
-        <Col span={12}>
-          <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Nombre" autoComplete="off" />
-          </FormItem>
-        </Col>
-      </Row>
-      <Col span={12}>
-        <span className={styles.submitButtons}>
-          <Button type="primary" htmlType="submit">
-            Buscar
-          </Button>
-          <Button style={{ marginLeft: 8 }} onClick={onClear}>
-            Limpiar
-          </Button>
-        </span>
-      </Col>
+      <FormItem label="Nombre" name="name" style={{ width: 300 }}>
+        <Input placeholder="Nombre" autoComplete="off" />
+      </FormItem>
+      <span className={styles.submitButtons}>
+        <Button type="primary" htmlType="submit">
+          Buscar
+        </Button>
+        <Button style={{ marginLeft: 8 }} onClick={onClear}>
+          Limpiar
+        </Button>
+      </span>
     </Form>
   );
 
@@ -280,16 +275,21 @@ const AttribsList = () => {
       },
       filterMultiple: false,
       filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
     },
     {
       title: 'Fecha Creación',
@@ -313,6 +313,7 @@ const AttribsList = () => {
       title: 'Acción',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_: string, AttribID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
@@ -329,17 +330,15 @@ const AttribsList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Atributos
-          </Title>
+          <Title level={4}>Atributos</Title>
         </Space>
       }
     >
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row>
-            <Col span={12} style={{ marginBottom: 10 }}>
+          <Row gutter={[0, 20]} align="middle">
+            <Col span={12}>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
@@ -353,17 +352,20 @@ const AttribsList = () => {
               <Text strong>Total Encontrados:</Text> {data?.attribs?.totalDocs}{' '}
               <Text strong>Páginas: </Text> {data?.attribs?.page} / {data?.attribs?.totalPages || 0}
             </Col>
+            <Col span={24}>
+              <Table
+                columns={columns}
+                dataSource={data?.attribs?.docs}
+                pagination={{
+                  current: data?.attribs?.page,
+                  total: data?.attribs?.totalDocs,
+                }}
+                loading={loading}
+                onChange={handleChangeTable}
+                scroll={{ x: 'auto' }}
+              />
+            </Col>
           </Row>
-          <Table
-            columns={columns}
-            dataSource={data?.attribs?.docs}
-            pagination={{
-              current: data?.attribs?.page,
-              total: data?.attribs?.totalDocs,
-            }}
-            loading={loading}
-            onChange={handleChangeTable}
-          />
         </div>
       </Card>
       <CreateAttrib modalVisible={visible} onCancel={closeModal} current={attrib} />
