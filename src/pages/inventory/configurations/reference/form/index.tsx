@@ -194,6 +194,7 @@ const FormReference = () => {
 
   const saveReference = async () => {
     const values = await form.validateFields();
+    console.log(values);
 
     try {
       const params: UpdateReferenceInput = {};
@@ -217,7 +218,7 @@ const FormReference = () => {
         params.categoryLevel3Id = '';
       }
 
-      if (values?.active) {
+      if (values?.active !== undefined) {
         params.active = values?.active;
       }
 
@@ -229,7 +230,7 @@ const FormReference = () => {
         params.brandId = values?.brandId;
       }
 
-      if (values?.changeable) {
+      if (values?.changeable !== undefined) {
         params.changeable = values?.changeable;
       }
 
