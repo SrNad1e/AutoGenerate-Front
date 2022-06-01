@@ -269,8 +269,6 @@ const FormReference = () => {
         params.width = values?.width;
       }
 
-      console.log(params);
-
       const response = await updateReference({
         variables: {
           id: id || '',
@@ -483,7 +481,7 @@ const FormReference = () => {
       }
     >
       <Card bordered={false} loading={loading}>
-        <Form form={form} onChange={console.log}>
+        <Form form={form}>
           <Tabs type="card" activeKey={activeKey} onChange={setActiveKey}>
             <TabPane tab="Datos generales" key="1">
               <FormGeneralData />

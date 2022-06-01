@@ -138,8 +138,6 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
 
         setLoading(false);
         if (response) {
-          console.log(response);
-
           setOrder(response);
           handlePrint();
           showSuccess(`Peidido ${response?.number} generado correctamente`);
@@ -148,10 +146,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
         }
       }
     } catch (e: any) {
-      console.log(e);
-      if (e?.message) {
-        showError(e?.message);
-      }
+      showError(e?.message);
     }
   };
 

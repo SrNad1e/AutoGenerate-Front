@@ -144,8 +144,6 @@ const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
             status,
           };
 
-          console.log(props);
-
           const response = await updateAdjustment({
             variables: {
               input: props,
