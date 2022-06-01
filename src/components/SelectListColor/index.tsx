@@ -56,7 +56,7 @@ const SelectListColor = ({ onChange, value, disabled }: Params) => {
         showSearch
         loading={loading}
         placeholder="Seleccione Colores"
-        optionFilterProp="children"
+        optionFilterProp="name"
         onChange={onChangeLocal}
         onSearch={onSearch}
         disabled={disabled}
