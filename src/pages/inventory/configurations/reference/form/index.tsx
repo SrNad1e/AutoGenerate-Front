@@ -104,6 +104,19 @@ const FormReference = () => {
     });
   };
 
+  /**
+   * @description funcion usada para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showSuccess = (message: string, redirect?: string) => {
+    setAlertInformation({
+      message,
+      type: 'success',
+      visible: true,
+      redirect,
+    });
+  };
+
   const onFinish = () => {
     setAlertSave({
       message: id
@@ -167,7 +180,8 @@ const FormReference = () => {
           },
         });
         if (response?.data?.createReference) {
-          history.push(
+          showSuccess(
+            `Referencia creada correctamente`,
             `/inventory/configurations/reference/${response?.data?.createReference?._id}`,
           );
         }
@@ -175,16 +189,13 @@ const FormReference = () => {
         showError('Debes agregar combinaciones para crear los productos');
       }
     } catch (e: any) {
-      if (e?.message) {
-        showError(e?.message);
-      }
+      showError(e?.message);
     }
   };
 
   const saveReference = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
-
       const params: UpdateReferenceInput = {};
 
       const categoriesId = values?.categoriesId?.split('-');
@@ -273,16 +284,20 @@ const FormReference = () => {
 
       delete values.categoriesId;
 
-      updateReference({
+      const response = await updateReference({
         variables: {
           id: id || '',
           input: values,
         },
       });
-    } catch (e: any) {
-      if (e?.message) {
-        showError(e?.message);
+
+      if (response?.data) {
+        showSuccess(
+          `La referencia ${response?.data?.updateReference?.name} ha sido actualizada correctamente`,
+        );
       }
+    } catch (e: any) {
+      showError(e?.message);
     }
   };
 
