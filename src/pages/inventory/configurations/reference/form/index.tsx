@@ -104,6 +104,19 @@ const FormReference = () => {
     });
   };
 
+  /**
+   * @description funcion usada para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showSuccess = (message: string, redirect?: string) => {
+    setAlertInformation({
+      message,
+      type: 'success',
+      visible: true,
+      redirect,
+    });
+  };
+
   const onFinish = () => {
     setAlertSave({
       message: id
@@ -119,9 +132,8 @@ const FormReference = () => {
    *  crear productos
    */
   const newReference = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
-
       if (!values?.name) {
         setActiveKey('1');
         return;
@@ -171,7 +183,8 @@ const FormReference = () => {
           },
         });
         if (response?.data?.createReference) {
-          history.push(
+          showSuccess(
+            `Referencia creada correctamente`,
             `/inventory/configurations/reference/${response?.data?.createReference?._id}`,
           );
         }
@@ -179,9 +192,7 @@ const FormReference = () => {
         showError('Debes agregar combinaciones para crear los productos');
       }
     } catch (e: any) {
-      if (e?.message) {
-        showError(e?.message);
-      }
+      showError(e?.message);
     }
   };
 
@@ -190,41 +201,28 @@ const FormReference = () => {
    * referencia
    */
   const saveReference = async () => {
-    try {
-      const values = await form.validateFields();
+    const values = await form.validateFields();
 
+    try {
       const params: UpdateReferenceInput = {};
 
       const categoriesId = values?.categoriesId?.split('-');
 
       if (categoriesId.length === 3) {
-        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
-          params.categoryLevel1Id = categoriesId[0];
-        }
-
-        if (categoriesId[1] !== data?.referenceId?.categoryLevel2?._id) {
-          params.categoryLevel2Id = categoriesId[1];
-        }
-
-        if (categoriesId[2] !== data?.referenceId?.categoryLevel3?._id) {
-          params.categoryLevel3Id = categoriesId[2];
-        }
+        params.categoryLevel1Id = categoriesId[0];
+        params.categoryLevel2Id = categoriesId[1];
+        params.categoryLevel3Id = categoriesId[2];
       }
 
       if (categoriesId.length === 2) {
-        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
-          params.categoryLevel1Id = categoriesId[0];
-        }
-
-        if (categoriesId[1] !== data?.referenceId?.categoryLevel2?._id) {
-          params.categoryLevel2Id = categoriesId[1];
-        }
+        params.categoryLevel1Id = categoriesId[0];
+        params.categoryLevel2Id = categoriesId[1];
       }
 
       if (categoriesId.length === 1) {
-        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
-          params.categoryLevel1Id = categoriesId[0];
-        }
+        params.categoryLevel1Id = categoriesId[0];
+        params.categoryLevel2Id = '';
+        params.categoryLevel3Id = '';
       }
 
       if (values?.active) {
@@ -279,18 +277,22 @@ const FormReference = () => {
         params.width = values?.width;
       }
 
-      delete values.categoriesId;
+      console.log(params);
 
-      updateReference({
+      const response = await updateReference({
         variables: {
           id: id || '',
-          input: values,
+          input: params,
         },
       });
-    } catch (e: any) {
-      if (e?.message) {
-        showError(e?.message);
+
+      if (response?.data) {
+        showSuccess(
+          `La referencia ${response?.data?.updateReference?.name} ha sido actualizada correctamente`,
+        );
       }
+    } catch (e: any) {
+      showError(e?.message);
     }
   };
 
@@ -502,7 +504,7 @@ const FormReference = () => {
       }
     >
       <Card bordered={false} loading={loading}>
-        <Form form={form}>
+        <Form form={form} onChange={console.log}>
           <Tabs type="card" activeKey={activeKey} onChange={setActiveKey}>
             <TabPane tab="Datos generales" key="1">
               <FormGeneralData />

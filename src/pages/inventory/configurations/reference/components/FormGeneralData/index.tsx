@@ -65,7 +65,7 @@ const FormGeneralData = () => {
           </FormItem>
         </DescriptionsItem>
         <DescriptionsItem label="Cambiable">
-          <FormItem style={styles.marginIntial} name="changeable">
+          <FormItem valuePropName="checked" style={styles.marginIntial} name="changeable">
             <Switch />
           </FormItem>
         </DescriptionsItem>
@@ -91,7 +91,7 @@ const FormGeneralData = () => {
           </Row>
         </DescriptionsItem>
         <DescriptionsItem label="Activo">
-          <FormItem style={styles.marginIntial} name="active">
+          <FormItem valuePropName="checked" style={styles.marginIntial} name="active">
             <Switch defaultChecked />
           </FormItem>
         </DescriptionsItem>
