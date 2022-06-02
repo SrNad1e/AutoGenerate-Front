@@ -46,6 +46,8 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 //import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
+import styles from './styles.less';
+
 const { Text, Title } = Typography;
 const FormItem = Form.Item;
 const DescriptionsItem = Descriptions.Item;
@@ -416,31 +418,23 @@ const ConfirmTransfer = () => {
       loading={loading}
     >
       <Card>
-        <Row gutter={[0, 2]}>
-          <Col lg={12} xs={24}>
+        <Row gutter={[0, 40]}>
+          <Col span={24}>
             <Descriptions bordered size="small">
-              <DescriptionsItem label="Bodega que traslada" span={3}>
+              <DescriptionsItem label="Bodega que traslada" span={1}>
                 {data?.stockTransferId?.warehouseOrigin?.name}
               </DescriptionsItem>
-              <DescriptionsItem label="Usuario que envía" span={3}>
+              <DescriptionsItem label="Usuario que envía" span={2}>
                 {data?.stockTransferId?.userOrigin?.name || initialState?.currentUser?.name}
               </DescriptionsItem>
-            </Descriptions>
-          </Col>
-          <Col lg={12} xs={24}>
-            <Descriptions bordered size="small">
-              <DescriptionsItem label="Bodega de destino" span={3}>
+              <DescriptionsItem label="Bodega de destino" span={1}>
                 {data?.stockTransferId?.warehouseDestination?.name ||
                   initialState?.currentUser?.shop?.defaultWarehouse?.name}
               </DescriptionsItem>
-              <DescriptionsItem label="Usuario que recibe" span={3}>
+              <DescriptionsItem label="Usuario que recibe" span={2}>
                 {data?.stockTransferId?.userDestination?.name || initialState?.currentUser?.name}
               </DescriptionsItem>
-            </Descriptions>
-          </Col>
-          <Col lg={24} xs={24}>
-            <Descriptions bordered size="small">
-              <DescriptionsItem label="Número" span={2}>
+              <DescriptionsItem label="Número" span={1}>
                 {data?.stockTransferId?.number || '(Pendiente)'}
               </DescriptionsItem>
               <DescriptionsItem label="Estado" span={2}>
@@ -449,13 +443,13 @@ const ConfirmTransfer = () => {
                   text={StatusType[data?.stockTransferId?.status || 'open']?.text}
                 />
               </DescriptionsItem>
-              <DescriptionsItem label="Creado" span={2}>
+              <DescriptionsItem label="Creado" span={1}>
                 {moment(data?.stockTransferId?.createdAt).format(FORMAT_DATE)}
               </DescriptionsItem>
               <DescriptionsItem label="Actualizado" span={2}>
                 {moment(data?.stockTransferId?.updatedAt).format(FORMAT_DATE)}
               </DescriptionsItem>
-              <DescriptionsItem label="Solicitudes" span={2}>
+              <DescriptionsItem label="Solicitudes" span={1}>
                 {data?.stockTransferId?.requests?.map((request) => {
                   <Tag key={request?._id} color="volcano" icon={<CheckCircleOutlined />}>
                     {request?.number}
@@ -473,8 +467,6 @@ const ConfirmTransfer = () => {
                 )}
               </DescriptionsItem>
             </Descriptions>
-          </Col>
-          <Col span={24}>
             {allowConfirm && (
               <Form form={form} layout="vertical">
                 <FormItem
@@ -493,18 +485,20 @@ const ConfirmTransfer = () => {
               </Form>
             )}
           </Col>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={details.filter((detail) => detail?.action !== 'delete') as any}
+              scroll={{ x: 800 }}
+              pagination={{ size: 'small' }}
+            />
+          </Col>
         </Row>
-        <Table
-          columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== 'delete') as any}
-          scroll={{ x: 800 }}
-          pagination={{ size: 'small' }}
-        />
       </Card>
       <Affix offsetBottom={0}>
         <Card bordered={false}>
           <Row justify="center" align="middle">
-            <Col offset={4} span={16}>
+            <Col xs={12} md={18} lg={20}>
               <Title
                 level={3}
                 style={{
@@ -520,11 +514,8 @@ const ConfirmTransfer = () => {
                   .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
               </Title>
             </Col>
-            <Col span={4}>
-              <Space
-                align="end"
-                style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}
-              >
+            <Col xs={12} md={6} lg={4}>
+              <Space align="end" className={styles.alignRigth}>
                 {allowConfirmTransfer ? (
                   <Button onClick={confirmTransfer} type="primary" disabled={!allowConfirm}>
                     Confirmar Traslado

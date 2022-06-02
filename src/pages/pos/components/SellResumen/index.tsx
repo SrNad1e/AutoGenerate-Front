@@ -16,6 +16,8 @@ import ItemResume from './item';
 import { useGetOrder } from '@/hooks/order.hooks';
 import type { DetailOrder, Product, SummaryOrder, UpdateOrderInput } from '@/graphql/graphql';
 
+import styles from '../styles';
+
 const { Title } = Typography;
 
 export type Params = {
@@ -51,11 +53,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
   }, [id]);
 
   return (
-    <Card
-      bodyStyle={{
-        padding: '10px',
-      }}
-    >
+    <Card bodyStyle={styles.bodyPadding}>
       <Row gutter={[12, 12]}>
         <Col offset={2} span={11}>
           <Title level={4}>Productos: {data?.orderId?.details?.length || 0}</Title>
@@ -64,14 +62,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
           <Title level={4}>Total: {totalProducts}</Title>
         </Col>
         <Col span={24}>
-          <List
-            size="small"
-            style={{
-              height: '58vh',
-              overflow: 'scroll',
-              borderBottom: 'solid 1px black',
-            }}
-          >
+          <List size="small" style={styles.listResumenStyle}>
             {(totalProducts || 0) > 0 ? (
               data?.orderId?.details?.map((detail, key) => (
                 <ItemResume
@@ -88,20 +79,20 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
         </Col>
         <Col span={24}>
           <Row>
-            <Col span={16}>
-              <Title level={3} style={{ lineHeight: 1 }}>
+            <Col md={15} lg={16}>
+              <Title level={3} style={styles.titleLineSize}>
                 Cliente:
               </Title>
-              <Title level={5} style={{ lineHeight: 1, overflow: 'hidden', height: '17.6px' }}>
+              <Title level={5} style={styles.titleLineStyle}>
                 {data?.orderId?.customer?.firstName} {data?.orderId?.customer?.lastName}
               </Title>
-              <Title level={5} style={{ lineHeight: 0 }}>
+              <Title level={5} style={styles.titleLine}>
                 {data?.orderId?.customer?.documentType?.abbreviation}{' '}
                 {data?.orderId?.customer?.document}
               </Title>
             </Col>
-            <Col span={6}>
-              <Row gutter={[24, 16]}>
+            <Col md={8} lg={6}>
+              <Row gutter={[25, 16]}>
                 <Col span={24}>
                   <Button
                     onClick={() => setModalCustomerVisible(true)}
@@ -116,9 +107,13 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
                 </Col>
                 <Col span={24}>
                   <Tag color="volcano">{data?.orderId?.customer?.customerType?.name}</Tag>
-                  <Tooltip title={'activo' ? 'Activo' : 'Inactivo'}>
-                    <Tag color={'activo' ? '#87d068' : 'red'}>
-                      {'activo' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                  <Tooltip title={data?.orderId?.customer?.active ? 'Activo' : 'Inactivo'}>
+                    <Tag color={data?.orderId?.customer?.active ? '#87d068' : 'red'}>
+                      {data?.orderId?.customer?.active ? (
+                        <CheckCircleOutlined />
+                      ) : (
+                        <CloseCircleOutlined />
+                      )}
                     </Tag>
                   </Tooltip>
                 </Col>
@@ -126,98 +121,48 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
             </Col>
           </Row>
         </Col>
-        <Divider
-          style={{
-            backgroundColor: 'black',
-            margin: '5px 0',
-          }}
-        />
+        <Divider style={styles.dividerStyle} />
         <Col span={24}>
           <Row>
             <Col span={12}>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.titleLine} level={4}>
                 Total:
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.titleLine} level={4}>
                 Subtotal:
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.titleLine} level={4}>
                 Descuento:
               </Title>
             </Col>
-            <Col
-              span={12}
-              style={{
-                textAlign: 'right',
-                lineHeight: 0,
-              }}
-            >
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+            <Col span={12} style={styles.titleLineRight}>
+              <Title style={styles.titleLine} level={4}>
                 {numeral(data?.orderId?.summary?.total).format('$ 0,0')}
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.titleLine} level={4}>
                 {numeral(data?.orderId?.summary?.subtotal).format('$ 0,0')}
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.titleLine} level={4}>
                 {numeral(data?.orderId?.summary?.discount).format('$ 0,0')}
               </Title>
             </Col>
           </Row>
         </Col>
-        <Divider
-          style={{
-            backgroundColor: 'black',
-            margin: '5px 0',
-          }}
-        />
+        <Divider style={styles.dividerStyle} />
         <Col span={24}>
-          <Row gutter={12}>
-            <Col span={12}>
+          <Row gutter={10}>
+            <Col md={14} lg={16}>
               <Button
                 icon={<DollarOutlined />}
                 type="primary"
                 disabled={(data?.orderId?.summary?.total || 0) <= 0}
                 onClick={() => setModalPaymentVisible(true)}
-                style={{
-                  fontSize: 30,
-                  width: '100%',
-                  height: 'auto',
-                }}
+                style={styles.payButtonStyle}
               >
                 PAGAR
               </Button>
             </Col>
-            <Col span={12}>
+            <Col md={10} lg={8} style={styles.alignPrint}>
               <Button ghost shape="round" icon={<PrinterOutlined />} size="small" type="primary">
                 Imprimir
               </Button>

@@ -54,7 +54,6 @@ const RequestForm = () => {
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
    */
   const onShowError = (message: string) => {
     setPropsAlert({

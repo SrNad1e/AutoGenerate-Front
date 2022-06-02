@@ -9,6 +9,8 @@ import ShopItem from '../ItemShop';
 import { useState } from 'react';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
+import styles from '../styles';
+
 const FormItem = Form.Item;
 
 export type Params = {
@@ -44,6 +46,10 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
     });
   };
 
+  /**
+   * @description ejecuta la consulta para obtener los productos
+   * @param filters filtros para obtener los productos
+   */
   const onSearch = async (filters: FiltersProductsInput) => {
     return getProducts({
       variables: {
@@ -57,6 +63,9 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
     });
   };
 
+  /**
+   *@description ejecuta la consulta en base a los filtros
+   */
   const onFinish = async () => {
     const { withStock = false, name, quantity = 1 } = await form.validateFields();
     try {
@@ -120,14 +129,14 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
                   />
                 </FormItem>
               </Col>
-              <Col span={4}>
+              <Col span={3}>
                 <FormItem valuePropName="checked" name="withStock">
                   <Checkbox disabled={loading} defaultChecked={false}>
                     Con Stock
                   </Checkbox>
                 </FormItem>
               </Col>
-              <Col span={2}>
+              <Col span={3}>
                 <FormItem name="quantity">
                   <InputNumber
                     min={1}
@@ -135,9 +144,7 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
                     defaultValue={1}
                     size="small"
                     controls={false}
-                    style={{
-                      width: 50,
-                    }}
+                    style={styles.inputNumberMin}
                   />
                 </FormItem>
               </Col>
@@ -158,12 +165,7 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
         </Card>
       </Col>
       <Col span={24}>
-        <Row
-          style={{
-            padding: 10,
-          }}
-          gutter={[16, 16]}
-        >
+        <Row style={styles.bodyPadding} gutter={[16, 16]}>
           {data?.products?.docs?.map((product) => (
             <Col key={product?._id}>
               <ShopItem addProductOrder={addProductOrder} product={product as Product} />

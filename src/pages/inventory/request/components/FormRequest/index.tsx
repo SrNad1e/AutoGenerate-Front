@@ -362,7 +362,6 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
           max={product?.stock ? product?.stock[0]?.quantity : 0}
           onChange={(value) => updateDetail(product as Product, value)}
           disabled={!allowEdit}
-          style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
     },
@@ -400,7 +399,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
         <Table
           columns={columns}
           dataSource={details.filter((detail) => detail?.action !== 'delete')}
-          scroll={{ x: 1000 }}
+          scroll={{ x: 800, y: 200 }}
           pagination={{ size: 'small' }}
         />
       </Card>

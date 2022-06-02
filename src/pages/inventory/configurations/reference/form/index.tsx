@@ -127,6 +127,10 @@ const FormReference = () => {
     });
   };
 
+  /**
+   * @description ejecuta la mutation para crear una referencia y valida las combinaciones para
+   *  crear productos
+   */
   const newReference = async () => {
     const values = await form.validateFields();
     try {
@@ -192,6 +196,10 @@ const FormReference = () => {
     }
   };
 
+  /**
+   * @description valida los valores en los campos y ejecuta la mutation para actualizar la
+   * referencia
+   */
   const saveReference = async () => {
     const values = await form.validateFields();
     console.log(values);
@@ -287,6 +295,10 @@ const FormReference = () => {
     }
   };
 
+  /**
+   * @description ejecuta la mutation para crear un producto
+   * @param values datos que recibe la mutation para crear un producto
+   */
   const addProduct = async (values: CreateProductInput) => {
     try {
       return createProduct({
@@ -299,7 +311,12 @@ const FormReference = () => {
     }
   };
 
-  const addProducts = async ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
+  /**
+   * @description gestiona las combinaciones entre color y talla para la creacion de productos
+   * @param colors array de colores
+   * @param sizes array de tallas
+   */
+  const addProducts = ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
     const newCombinations = [];
 
     for (let c = 0; c < colors.length; c++) {
@@ -335,6 +352,9 @@ const FormReference = () => {
     formCreateProduct.resetFields();
   };
 
+  /**
+   * @description elimina la combinacion seleccionada
+   */
   const deleteProduct = ({ color, size }: Product) => {
     const newCombinations = combinations?.filter(
       (combination) =>
@@ -438,6 +458,7 @@ const FormReference = () => {
       title: 'Acciones',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, record) =>
         _id ? (
           <Tooltip title="Editar" placement="topLeft">
@@ -501,6 +522,7 @@ const FormReference = () => {
           columns={columns}
           pagination={false}
           bordered
+          scroll={{ x: 'auto' }}
         />
         <Affix offsetBottom={0}>
           <Card loading={loading} bodyStyle={styles.bodyStyle} size="small">
