@@ -40,7 +40,7 @@ const SelectListSize = ({ onChange, disabled, value }: Params) => {
     const newSizes = data?.sizes?.docs?.filter(({ _id }) => !!newIds.includes(_id));
 
     if (onChange) {
-      onChange(value?.concat(newSizes) || newSizes || []);
+      onChange(newSizes || []);
     }
   };
 
