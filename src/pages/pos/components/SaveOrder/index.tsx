@@ -18,8 +18,8 @@ const SaveOrder = ({ _id, number, updatedAt, customer, summary }: Order) => {
   };
 
   return (
-    <Card onClick={onClick} hoverable style={{ width: 350, borderRadius: 10 }}>
-      <Row gutter={[0, 6]}>
+    <Card onClick={onClick} hoverable style={styles.orderSave}>
+      <Row gutter={[0, 10]}>
         <Col span={10}>
           <Row gutter={12} align="middle">
             <Col>
@@ -66,7 +66,7 @@ const SaveOrder = ({ _id, number, updatedAt, customer, summary }: Order) => {
           </Row>
         </Col>
         <Col span={24}>
-          <Row justify="center">
+          <Row justify="center" style={styles.marginRow}>
             <Col>
               <Title level={3}>{numeral(summary?.total).format('$ 0,0')}</Title>
             </Col>

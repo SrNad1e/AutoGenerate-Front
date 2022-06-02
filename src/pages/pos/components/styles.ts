@@ -15,25 +15,17 @@ export default {
     paddingTop: 10,
     paddingLeft: 10,
   },
-  cardSize: {
-    borderRight: 'solid 2px black',
-    height: 910,
-  },
   listBorderBottom: {
     borderBottom: '1px solid black',
   },
-  bodyPadding: {
-    padding: 0,
-  },
+
   textSize: {
     fontSize: 15,
   },
   imageBorder: {
     border: '1px solid black',
   },
-  inputNumberWidth: {
-    width: 50,
-  },
+
   priceStyle: {
     paddingRight: 0,
     display: 'flex',
@@ -146,11 +138,7 @@ export default {
   paddingModal: {
     padding: '0 35px',
   },
-  cardItem: {
-    borderRadius: 5,
-    minHeight: 380,
-    margin: 10,
-  },
+
   imageStyle: {
     borderRadius: 5,
     height: 360,
@@ -178,5 +166,106 @@ export default {
   },
   buttonWidth: {
     width: '80%',
+  },
+  alignPrint: {
+    textAlign: 'right',
+  },
+  payButtonStyle: {
+    fontSize: 25,
+    width: '100%',
+    height: 'auto',
+  },
+  dividerStyle: {
+    backgroundColor: 'black',
+    margin: '5px 0',
+  },
+  titleLine: {
+    lineHeight: 0,
+  },
+  titleLineRight: {
+    textAlign: 'right',
+    lineHeight: 0,
+  },
+  titleLineSize: {
+    lineHeight: 1,
+  },
+  titleLineStyle: {
+    lineHeight: 1,
+    overflow: 'hidden',
+    height: '17.6px',
+  },
+  listResumenStyle: {
+    height: '58vh',
+    overflow: 'scroll',
+    borderBottom: 'solid 1px black',
+  },
+  bodyPadding: {
+    padding: 10,
+  },
+  rowStyle: {
+    lineHeight: 1,
+    textAlign: 'right',
+  },
+  inputNumberWidth: {
+    width: 70,
+  },
+  cardNoPadding: {
+    padding: 0,
+  },
+  colEnd: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  maxWidth: {
+    width: '100%',
+  },
+  listCustomerStyle: {
+    maxHeight: '50vh',
+    overflow: 'scroll',
+  },
+  inputNumberMin: {
+    width: 50,
+  },
+  orderSave: {
+    width: 350,
+    borderRadius: 10,
+    border: '1px solid  #dc9575',
+  },
+  marginRow: {
+    marginTop: 20,
+  },
+  payStyle: {
+    lineHeight: 0,
+  },
+  payTextRight: {
+    textAlign: 'right',
+    lineHeight: 0,
+  },
+  whiteColor: {
+    color: 'white',
+  },
+  textCenter: {
+    textAlign: 'center',
+  },
+  inputNumberSize: {
+    fontSize: 25,
+  },
+  cardItem: {
+    borderRadius: 10,
+    width: 370,
+  },
+  marginItem: {
+    margin: '20px 0',
+  },
+  linePlus: {
+    lineHeight: 1,
+  },
+  lineMargin: {
+    lineHeight: 1,
+    marginBottom: 0,
+  },
+  borderStyle: {
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
   },
 };

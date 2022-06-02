@@ -339,7 +339,7 @@ const ReferenceList = () => {
     >
       <Card>
         <Form layout="horizontal" form={form} onReset={onClear} onFinish={onFinish}>
-          <Row gutter={[20, 20]}>
+          <Row gutter={[20, 0]}>
             <Col xs={24} md={9} lg={9} xl={10}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Nombre, Descripción" autoComplete="off" disabled={loading} />
@@ -360,6 +360,8 @@ const ReferenceList = () => {
                 </Button>
               </Space>
             </Col>
+          </Row>
+          <Row gutter={[0, 20]} align="middle">
             <Col span={12}>
               <Button
                 icon={<PlusOutlined />}

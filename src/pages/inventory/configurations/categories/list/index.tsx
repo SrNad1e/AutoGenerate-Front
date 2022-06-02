@@ -353,7 +353,7 @@ const CategoryList = () => {
               Nuevo
             </Button>
           </Col>
-          <Col span={12} style={{ textAlign: 'right' }}>
+          <Col span={12} className={styles.alignRigth}>
             <Text strong>Total Encontrados:</Text> {data?.categories.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.categories.page} /{' '}
             {data?.categories.totalPages || 0}

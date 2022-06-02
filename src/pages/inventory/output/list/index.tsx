@@ -303,12 +303,7 @@ const OutputList = () => {
             </Tooltip>
             <Space>
               <Tooltip title="Imprimir">
-                <Button
-                  type="ghost"
-                  style={{ backgroundColor: 'white' }}
-                  onClick={() => printPage(record)}
-                  icon={<PrinterFilled />}
-                />
+                <Button type="ghost" onClick={() => printPage(record)} icon={<PrinterFilled />} />
               </Tooltip>
             </Space>
           </Space>
@@ -320,9 +315,7 @@ const OutputList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de Salidas
-          </Title>
+          <Title level={4}>Lista de Salidas</Title>
         </Space>
       }
     >

@@ -320,9 +320,7 @@ const InputList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de Entradas
-          </Title>
+          <Title level={4}>Lista de Entradas</Title>
         </Space>
       }
     >

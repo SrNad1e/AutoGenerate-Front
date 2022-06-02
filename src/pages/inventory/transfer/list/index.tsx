@@ -47,6 +47,7 @@ import ReportTransfer from '../reports/transfer';
 
 import styles from './styles.less';
 import './styles.less';
+import style from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -319,7 +320,7 @@ const TransferList = () => {
             <Tooltip title="Imprimir">
               <Button
                 type="ghost"
-                style={{ backgroundColor: 'white' }}
+                style={style.whiteColor}
                 onClick={() => printPage(record)}
                 icon={<PrinterFilled />}
               />
@@ -343,7 +344,7 @@ const TransferList = () => {
           <Row gutter={20} className={styles.form}>
             <Col xs={24} md={5} lg={5} xl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber controls={false} style={{ width: '100%' }} />
+                <InputNumber controls={false} style={style.maxWidth} />
               </FormItem>
             </Col>
             <Col xs={24} md={6} lg={6} xl={5}>

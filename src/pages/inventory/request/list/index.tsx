@@ -358,9 +358,7 @@ const RequestList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de solicitudes
-          </Title>
+          <Title level={4}>Lista de solicitudes</Title>
           <Divider type="vertical" />
           <Button shape="round" type="primary" onClick={autoRequest}>
             AutoGenerar

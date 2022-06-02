@@ -335,7 +335,7 @@ const BrandsList = () => {
                 Nuevo
               </Button>
             </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
+            <Col span={12} className={styles.alignRigth}>
               <Text strong>Total Encontrados:</Text> {data?.brands?.totalDocs}{' '}
               <Text strong>Páginas: </Text> {data?.brands?.page} / {data?.brands?.totalPages || 0}
             </Col>

@@ -358,8 +358,8 @@ const ColorsList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row>
-            <Col span={12} style={{ marginBottom: 10 }}>
+          <Row gutter={[0, 20]}>
+            <Col span={12}>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
@@ -369,23 +369,25 @@ const ColorsList = () => {
                 Nuevo
               </Button>
             </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
+            <Col span={12} className={styles.alignRigth}>
               <Text strong>Total Encontrados:</Text> {data?.colors.totalDocs}{' '}
               <Text strong>Páginas: </Text> {data?.colors.page} / {data?.colors.totalPages || 0}
             </Col>
+            <Col span={24}>
+              <Table
+                columns={columns}
+                dataSource={data?.colors.docs}
+                pagination={{
+                  current: data?.colors.page,
+                  total: data?.colors.totalDocs,
+                  showSizeChanger: false,
+                }}
+                loading={loading}
+                onChange={handleChangeTable}
+                scroll={{ x: 'auto' }}
+              />
+            </Col>
           </Row>
-          <Table
-            columns={columns}
-            dataSource={data?.colors.docs}
-            pagination={{
-              current: data?.colors.page,
-              total: data?.colors.totalDocs,
-              showSizeChanger: false,
-            }}
-            loading={loading}
-            onChange={handleChangeTable}
-            scroll={{ x: 'auto' }}
-          />
         </div>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />

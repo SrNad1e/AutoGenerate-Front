@@ -363,7 +363,6 @@ const FormInput = ({ input, setCurrentStep }: Props) => {
           min={1}
           onChange={(value) => updateDetail(product || {}, value)}
           disabled={!allowEdit}
-          style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
     },

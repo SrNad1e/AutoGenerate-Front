@@ -321,9 +321,7 @@ const AdjustmentList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de Ajustes
-          </Title>
+          <Title level={4}>Lista de Ajustes</Title>
         </Space>
       }
     >
