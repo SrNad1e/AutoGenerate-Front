@@ -41,7 +41,7 @@ const SelectListColor = ({ onChange, value, disabled }: Params) => {
     const newColors = data?.colors?.docs?.filter(({ _id }) => !!newIds.includes(_id));
 
     if (onChange) {
-      onChange(value?.concat(newColors) || newColors || []);
+      onChange(newColors || []);
     }
   };
 
