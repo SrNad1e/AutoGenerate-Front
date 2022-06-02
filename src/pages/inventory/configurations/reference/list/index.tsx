@@ -62,7 +62,7 @@ const ReferenceList = () => {
     getReferences({
       variables: {
         id: COMPANY_ID,
-        input: { active: true, ...filters },
+        input: { ...filters },
       },
     });
   };
@@ -311,7 +311,7 @@ const ReferenceList = () => {
       width: 180,
       sortOrder: sorterTable?.field === 'updatedAt' ? sorterTable.order : undefined,
       showSorterTooltip: false,
-      render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: 'Acción',
