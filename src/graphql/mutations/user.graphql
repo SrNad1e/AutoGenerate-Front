@@ -14,7 +14,7 @@ mutation login($input: LoginUserInput!) {
         role {
           name
           permissions {
-            name
+            action
           }
         }
         _id

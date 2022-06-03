@@ -1275,6 +1275,8 @@ export type FiltersReferencesInput = {
   categoryLevel2Id?: InputMaybe<Scalars['String']>;
   /** Identificación de la marca */
   categoryLevel3Id?: InputMaybe<Scalars['String']>;
+  /** Referencia se puede cambiar */
+  changeable?: InputMaybe<Scalars['Boolean']>;
   /** Costo para la busqueda de referencias */
   cost?: InputMaybe<Scalars['Float']>;
   /** Cantidad de registros */
@@ -1922,8 +1924,8 @@ export type Permission = {
   __typename?: 'Permission';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Tipo de acción (list, see, create, update, autogenerate) */
-  action: Scalars['String'];
+  /** Tipo de acción */
+  action: Permissions;
   /** Detalle de la acción */
   description: Scalars['String'];
   /** Módulo al que pertenece el permiso */
@@ -1933,6 +1935,97 @@ export type Permission = {
   /** Opción del módulo al que pertenece el permiso */
   option: Scalars['String'];
 };
+
+export enum Permissions {
+  AccessConfigurationConveyors = 'ACCESS_CONFIGURATION_CONVEYORS',
+  AccessCrmCities = 'ACCESS_CRM_CITIES',
+  AccessCrmCustomers = 'ACCESS_CRM_CUSTOMERS',
+  AccessErp = 'ACCESS_ERP',
+  AccessInventoryAdjustments = 'ACCESS_INVENTORY_ADJUSTMENTS',
+  AccessInventoryAttribs = 'ACCESS_INVENTORY_ATTRIBS',
+  AccessInventoryBrands = 'ACCESS_INVENTORY_BRANDS',
+  AccessInventoryCategories = 'ACCESS_INVENTORY_CATEGORIES',
+  AccessInventoryColors = 'ACCESS_INVENTORY_COLORS',
+  AccessInventoryInputs = 'ACCESS_INVENTORY_INPUTS',
+  AccessInventoryOutputs = 'ACCESS_INVENTORY_OUTPUTS',
+  AccessInventoryProducts = 'ACCESS_INVENTORY_PRODUCTS',
+  AccessInventoryReferences = 'ACCESS_INVENTORY_REFERENCES',
+  AccessInventoryRequests = 'ACCESS_INVENTORY_REQUESTS',
+  AccessInventorySizes = 'ACCESS_INVENTORY_SIZES',
+  AccessInventoryTransfers = 'ACCESS_INVENTORY_TRANSFERS',
+  AccessInvoicingClosesx = 'ACCESS_INVOICING_CLOSESX',
+  AccessInvoicingClosesz = 'ACCESS_INVOICING_CLOSESZ',
+  AccessInvoicingReturns = 'ACCESS_INVOICING_RETURNS',
+  AccessPos = 'ACCESS_POS',
+  AutogenerateInventoryRequest = 'AUTOGENERATE_INVENTORY_REQUEST',
+  ConfirmInventoryTransfer = 'CONFIRM_INVENTORY_TRANSFER',
+  CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
+  CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
+  CreateInventoryAttrib = 'CREATE_INVENTORY_ATTRIB',
+  CreateInventoryBrand = 'CREATE_INVENTORY_BRAND',
+  CreateInventoryCategory = 'CREATE_INVENTORY_CATEGORY',
+  CreateInventoryColor = 'CREATE_INVENTORY_COLOR',
+  CreateInventoryInput = 'CREATE_INVENTORY_INPUT',
+  CreateInventoryOutput = 'CREATE_INVENTORY_OUTPUT',
+  CreateInventoryProduct = 'CREATE_INVENTORY_PRODUCT',
+  CreateInventoryReference = 'CREATE_INVENTORY_REFERENCE',
+  CreateInventoryRequest = 'CREATE_INVENTORY_REQUEST',
+  CreateInventorySize = 'CREATE_INVENTORY_SIZE',
+  CreateInventoryTransfer = 'CREATE_INVENTORY_TRANSFER',
+  CreateInvoicingClosesx = 'CREATE_INVOICING_CLOSESX',
+  CreateInvoicingClosesz = 'CREATE_INVOICING_CLOSESZ',
+  CreateInvoicingOrder = 'CREATE_INVOICING_ORDER',
+  CreateInvoicingReturns = 'CREATE_INVOICING_RETURNS',
+  PrintInventoryAdjustment = 'PRINT_INVENTORY_ADJUSTMENT',
+  PrintInventoryInput = 'PRINT_INVENTORY_INPUT',
+  PrintInventoryOutput = 'PRINT_INVENTORY_OUTPUT',
+  PrintInventoryRequest = 'PRINT_INVENTORY_REQUEST',
+  PrintInventoryTransfer = 'PRINT_INVENTORY_TRANSFER',
+  PrintInvoicingClosesx = 'PRINT_INVOICING_CLOSESX',
+  PrintInvoicingClosesz = 'PRINT_INVOICING_CLOSESZ',
+  PrintInvoicingReturns = 'PRINT_INVOICING_RETURNS',
+  ReadConfigurationConveyors = 'READ_CONFIGURATION_CONVEYORS',
+  ReadCrmCities = 'READ_CRM_CITIES',
+  ReadCrmCustomers = 'READ_CRM_CUSTOMERS',
+  ReadInventoryAdjustments = 'READ_INVENTORY_ADJUSTMENTS',
+  ReadInventoryAttribs = 'READ_INVENTORY_ATTRIBS',
+  ReadInventoryBrands = 'READ_INVENTORY_BRANDS',
+  ReadInventoryCategories = 'READ_INVENTORY_CATEGORIES',
+  ReadInventoryColors = 'READ_INVENTORY_COLORS',
+  ReadInventoryInputs = 'READ_INVENTORY_INPUTS',
+  ReadInventoryOutputs = 'READ_INVENTORY_OUTPUTS',
+  ReadInventoryProducts = 'READ_INVENTORY_PRODUCTS',
+  ReadInventoryReferences = 'READ_INVENTORY_REFERENCES',
+  ReadInventoryRequests = 'READ_INVENTORY_REQUESTS',
+  ReadInventorySizes = 'READ_INVENTORY_SIZES',
+  ReadInventoryTransfers = 'READ_INVENTORY_TRANSFERS',
+  ReadInvoicingClosesx = 'READ_INVOICING_CLOSESX',
+  ReadInvoicingClosesz = 'READ_INVOICING_CLOSESZ',
+  ReadInvoicingInvoices = 'READ_INVOICING_INVOICES',
+  ReadInvoicingOrders = 'READ_INVOICING_ORDERS',
+  ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
+  ReadInvoicingReturns = 'READ_INVOICING_RETURNS',
+  ReadShops = 'READ_SHOPS',
+  ReadShopsWarehouses = 'READ_SHOPS_WAREHOUSES',
+  ReadStaticfilesImages = 'READ_STATICFILES_IMAGES',
+  ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
+  ReadUsers = 'READ_USERS',
+  UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
+  UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
+  UpdateInventoryAttrib = 'UPDATE_INVENTORY_ATTRIB',
+  UpdateInventoryBrand = 'UPDATE_INVENTORY_BRAND',
+  UpdateInventoryCategory = 'UPDATE_INVENTORY_CATEGORY',
+  UpdateInventoryColor = 'UPDATE_INVENTORY_COLOR',
+  UpdateInventoryInput = 'UPDATE_INVENTORY_INPUT',
+  UpdateInventoryOutput = 'UPDATE_INVENTORY_OUTPUT',
+  UpdateInventoryProduct = 'UPDATE_INVENTORY_PRODUCT',
+  UpdateInventoryReference = 'UPDATE_INVENTORY_REFERENCE',
+  UpdateInventoryRequest = 'UPDATE_INVENTORY_REQUEST',
+  UpdateInventorySize = 'UPDATE_INVENTORY_SIZE',
+  UpdateInventoryTransfer = 'UPDATE_INVENTORY_TRANSFER',
+  UpdateInvoicingOrder = 'UPDATE_INVOICING_ORDER',
+  UpdateUser = 'UPDATE_USER',
+}
 
 /** Punto de venta de la tienda */
 export type PointOfSale = {
@@ -4881,7 +4974,7 @@ export type LoginMutation = {
       role: {
         __typename?: 'Role';
         name: string;
-        permissions: { __typename?: 'Permission'; name: string }[];
+        permissions: { __typename?: 'Permission'; action: Permissions }[];
       };
     };
   };
@@ -6074,7 +6167,7 @@ export type CurrentUserQuery = {
     role: {
       __typename?: 'Role';
       name: string;
-      permissions: { __typename?: 'Permission'; name: string }[];
+      permissions: { __typename?: 'Permission'; action: Permissions }[];
     };
   };
 };
@@ -9717,7 +9810,7 @@ export const LoginDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'action' } },
                                 ],
                               },
                             },
@@ -13545,7 +13638,7 @@ export const CurrentUserDocument = {
                         name: { kind: 'Name', value: 'permissions' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'action' } }],
                         },
                       },
                     ],

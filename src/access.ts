@@ -1,3 +1,4 @@
+import { typesAccess } from './generalData';
 import type { User } from './graphql/graphql';
 
 /**
@@ -5,7 +6,19 @@ import type { User } from './graphql/graphql';
  * */
 export default function access(initialState: { currentUser?: User | undefined }) {
   const { currentUser } = initialState || {};
+
   return {
-    canAdmin: currentUser && currentUser.name === 'Administrador',
+    allowOption: (route: any) => {
+      if (route?.path) {
+        return !!currentUser?.role?.permissions.find((permission) =>
+          typesAccess[route?.path]?.access?.includes(permission?.action),
+        );
+      } else {
+        return false;
+      }
+    },
+    canEditRequest: !!currentUser?.role?.permissions.find(
+      (permission) => permission?.action === 'UPDATE_INVENTORY_REQUEST',
+    ),
   };
 }
