@@ -316,7 +316,7 @@ const FormReference = () => {
    * @param colors array de colores
    * @param sizes array de tallas
    */
-  const addProducts = ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
+  const addProducts = async ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
     const newCombinations = [];
 
     for (let c = 0; c < colors.length; c++) {

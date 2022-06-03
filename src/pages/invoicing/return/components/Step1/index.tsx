@@ -1,5 +1,6 @@
-import { Invoice } from '@/graphql/graphql';
-import { FileProtectOutlined, SearchOutlined, SelectOutlined } from '@ant-design/icons';
+import type { Customer, Order, Shop, SummaryOrder } from '@/graphql/graphql';
+import { useGetOrdersByPos } from '@/hooks/order.hooks';
+import { SearchOutlined, SelectOutlined } from '@ant-design/icons';
 import {
   Badge,
   Button,
@@ -14,81 +15,98 @@ import {
   Table,
   Tag,
 } from 'antd';
-import { ColumnsType } from 'antd/es/table/interface';
+import type { ColumnsType } from 'antd/es/table/interface';
 import moment from 'moment';
 import numeral from 'numeral';
+import { useModel } from 'umi';
+import { StatusType } from '../../return.data';
 
 import styles from '../styles';
 
 const FormItem = Form.Item;
 
 type Props = {
-  selectInvoice: () => void;
+  selectOrder: (record: Order) => void;
 };
 
-const RenderStep1 = ({ selectInvoice }: Props) => {
-  const columns: ColumnsType<Invoice> = [
+const RenderStep1 = ({ selectOrder }: Props) => {
+  const { initialState } = useModel('@@initialState');
+  const [getOrders, { data }] = useGetOrdersByPos();
+
+  const idPos = initialState?.currentUser?.pointOfSale?._id;
+  const onSearch = (id: string) => {
+    getOrders({
+      variables: {
+        id,
+      },
+    });
+  };
+
+  const columns: ColumnsType<Order> = [
     {
-      title: 'Factura',
+      title: 'Pedido',
       dataIndex: 'number',
       align: 'center',
-      render: (number: number, { authorization }) => (
-        <Tag color="blue">
-          <FileProtectOutlined />
-          {authorization?.prefix}
-          {number}
-        </Tag>
-      ),
+      render: (number: number) => <Tag color={'cyan'}>{number}</Tag>,
     },
     {
       title: 'Tienda',
       dataIndex: 'shop',
       align: 'center',
+      render: (shop: Shop) => <>{shop?.name}</>,
     },
     {
       title: 'Documento',
-      dataIndex: 'identification',
+      dataIndex: 'customer',
       align: 'center',
+      render: (customer: Customer) => <>{customer.document}</>,
     },
     {
       title: 'Cliente',
       dataIndex: 'customer',
       align: 'center',
-      render: (customer: any) => (
+      render: (customer: Customer) => (
         <>
-          {customer.name} {customer.lastName}
+          {customer.firstName} {customer.lastName}
         </>
       ),
     },
     {
       title: 'Total',
-      dataIndex: 'total',
+      dataIndex: 'summary',
       sorter: true,
       showSorterTooltip: false,
       align: 'right',
-      render: (total: number) => numeral(total).format('$ 0,0'),
+      render: (value: SummaryOrder) => numeral(value.total).format('$ 0,0'),
     },
     {
       title: 'Fecha',
-      dataIndex: 'createdAt',
+      dataIndex: 'updatedAt',
       sorter: true,
       showSorterTooltip: false,
       align: 'center',
-      render: (createdAt: Date) => moment(createdAt).format('DD/MM/YYYY HH:mm:ss'),
+      render: (updatedAt: Date) => moment(updatedAt).format('DD/MM/YYYY HH:mm:ss'),
     },
     {
       title: 'Estado',
       dataIndex: 'status',
       align: 'center',
-      render: (status: string) => <Badge color={'green'} text={status} />,
+      render: (status: string) => (
+        <Badge color={StatusType[status]?.color} text={StatusType[status]?.text} />
+      ),
     },
     {
       title: 'Selecccionar',
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
-      render: () => (
-        <Button disabled={false} onClick={selectInvoice} type="primary" icon={<SelectOutlined />} />
+      render: (_, Order: Order) => (
+        <Button
+          disabled={false}
+          onClick={() => selectOrder(Order)}
+          type="primary"
+          icon={<SelectOutlined />}
+        />
       ),
     },
   ];
@@ -99,7 +117,7 @@ const RenderStep1 = ({ selectInvoice }: Props) => {
         <Row>
           <Col xs={24} md={7} lg={8}>
             <FormItem label="Buscar">
-              <Input autoFocus placeholder="Documento, factura" />
+              <Input autoFocus placeholder="Documento, pedido" />
             </FormItem>
           </Col>
           <Col xs={24} md={7} lg={7}>
@@ -118,7 +136,12 @@ const RenderStep1 = ({ selectInvoice }: Props) => {
           </Col>
           <Col xs={18} md={5} lg={3}>
             <FormItem label=" " colon={false}>
-              <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
+              <Button
+                icon={<SearchOutlined />}
+                onClick={() => onSearch(idPos)}
+                type="primary"
+                htmlType="submit"
+              >
                 Buscar
               </Button>
             </FormItem>
@@ -126,10 +149,14 @@ const RenderStep1 = ({ selectInvoice }: Props) => {
         </Row>
       </Form>
       <Divider orientation="left" style={styles.dividerMarginTop}>
-        Facturas
+        Pedidos
       </Divider>
       <Card bordered={false} bodyStyle={styles.bodyCardPadding}>
-        <Table columns={columns} scroll={{ x: 900 }} dataSource={test} />
+        <Table
+          columns={columns}
+          scroll={{ x: 900 }}
+          dataSource={data?.ordersByPointOfSale as any}
+        />
       </Card>
     </>
   );

@@ -1,3 +1,4 @@
+import type { Order } from '@/graphql/graphql';
 import { Button, Modal, Steps } from 'antd';
 import { useState } from 'react';
 
@@ -16,9 +17,11 @@ const { Step } = Steps;
 
 const FormReturn = ({ visible, onCancel }: Props) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [orderSelected, setOrderSelected] = useState<Partial<Order>>({});
 
-  const selectInvoice = () => {
+  const selectOrder = (record: Order) => {
     setCurrentStep(1);
+    setOrderSelected(record);
   };
 
   return (
@@ -49,11 +52,11 @@ const FormReturn = ({ visible, onCancel }: Props) => {
       destroyOnClose
     >
       <Steps progressDot current={currentStep} style={styles.marginStep}>
-        <Step key="1" title="Factura" />
+        <Step key="1" title="Pedido" />
         <Step key="2" title="Productos" />
       </Steps>
-      {currentStep === 0 && <RenderStep1 selectInvoice={selectInvoice} />}
-      {currentStep === 1 && <RenderStep2 />}
+      {currentStep === 0 && <RenderStep1 selectOrder={selectOrder} />}
+      {currentStep === 1 && <RenderStep2 orderSelected={orderSelected} />}
     </Modal>
   );
 };

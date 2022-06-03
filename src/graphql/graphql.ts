@@ -1275,6 +1275,8 @@ export type FiltersReferencesInput = {
   categoryLevel2Id?: InputMaybe<Scalars['String']>;
   /** Identificación de la marca */
   categoryLevel3Id?: InputMaybe<Scalars['String']>;
+  /** Referencia se puede cambiar */
+  changeable?: InputMaybe<Scalars['Boolean']>;
   /** Costo para la busqueda de referencias */
   cost?: InputMaybe<Scalars['Float']>;
   /** Cantidad de registros */
@@ -5511,7 +5513,10 @@ export type OrdersByPosQuery = {
     __typename?: 'Order';
     _id: string;
     number: number;
+    status: string;
     updatedAt: any;
+    shop: { __typename?: 'Shop'; name: string };
+    invoice?: { __typename?: 'Invoice'; number: number } | null;
     customer: {
       __typename?: 'Customer';
       document: string;
@@ -5519,7 +5524,21 @@ export type OrdersByPosQuery = {
       lastName: string;
       documentType: { __typename?: 'DocumentType'; abbreviation: string };
     };
-    details?: { __typename?: 'DetailOrder'; quantity: number }[] | null;
+    details?:
+      | {
+          __typename?: 'DetailOrder';
+          price: number;
+          quantity: number;
+          product: {
+            __typename?: 'Product';
+            _id: string;
+            barcode: string;
+            color: { __typename?: 'Color'; name: string };
+            size: { __typename?: 'Size'; value: string };
+            reference: { __typename?: 'Reference'; name: string };
+          };
+        }[]
+      | null;
     summary: { __typename?: 'SummaryOrder'; total: number };
   }[];
 };
@@ -5919,6 +5938,9 @@ export type ReturnsInvoiceQuery = {
   __typename?: 'Query';
   returnsInvoice: {
     __typename?: 'ResponseReturnsInvoice';
+    totalPages: number;
+    totalDocs: number;
+    page: number;
     docs: {
       __typename?: 'ReturnInvoice';
       _id: string;
@@ -11600,6 +11622,23 @@ export const OrdersByPosDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'shop' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'invoice' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'number' } }],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'customer' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -11626,7 +11665,51 @@ export const OrdersByPosDocument = {
                   name: { kind: 'Name', value: 'details' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'quantity' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'product' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'color' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'size' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'reference' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
                   },
                 },
                 {
@@ -13010,6 +13093,9 @@ export const ReturnsInvoiceDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },

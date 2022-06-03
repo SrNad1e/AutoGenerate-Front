@@ -48,7 +48,7 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
   return (
     <>
       <Select
-        style={{ width: 220 }}
+        style={{ width: '100%' }}
         showSearch
         loading={loading}
         placeholder="Seleccione la tienda"

@@ -1,29 +1,32 @@
-query returnsInvoice($input:FiltersReturnsInvoiceInput){
-  returnsInvoice(filtersReturnsInvoice:$input){
-    docs{
+query returnsInvoice($input: FiltersReturnsInvoiceInput) {
+  returnsInvoice(filtersReturnsInvoice: $input) {
+    totalPages
+    totalDocs
+    page
+    docs {
       _id
-      authorization{
+      authorization {
         prefix
       }
       number
-      details{
+      details {
         price
-        product{
+        product {
           barcode
-          color{
+          color {
             name
           }
-          size{
+          size {
             value
           }
-          reference{
+          reference {
             name
             description
           }
         }
         quantity
       }
-      warehouse{
+      warehouse {
         name
       }
     }
