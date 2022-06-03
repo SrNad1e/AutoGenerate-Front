@@ -36,9 +36,10 @@ const { Text } = Typography;
 export type Props = {
   adjustment?: Partial<StockAdjustment>;
   setCurrentStep: (step: number) => void;
+  allowEdit: boolean;
 };
 
-const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
+const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
   const [details, setDetails] = useState<Partial<DetailAdjustment & { action: string }>[]>([]);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
@@ -64,8 +65,6 @@ const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
 
   const [createAdjustment, paramsCreate] = useCreateAdjustment();
   const [updateAdjustment, paramsUpdate] = useUpdateAdjustment();
-
-  const allowEdit = adjustment?.status === 'open';
 
   /**
    * @description se encarga de abrir aviso de información
@@ -393,7 +392,12 @@ const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
 
   return (
     <>
-      <Header adjustment={adjustment} setObservation={setObservation} observation={observation} />
+      <Header
+        allowEdit={allowEdit}
+        adjustment={adjustment}
+        setObservation={setObservation}
+        observation={observation}
+      />
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
@@ -411,7 +415,12 @@ const FormAdjustment = ({ adjustment, setCurrentStep }: Props) => {
           pagination={{ size: 'small' }}
         />
       </Card>
-      <Footer adjustment={adjustment} saveAdjustment={showAlertSave} details={details} />
+      <Footer
+        allowEdit={allowEdit}
+        adjustment={adjustment}
+        saveAdjustment={showAlertSave}
+        details={details}
+      />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading visible={paramsUpdate?.loading} message="Guardando Ajuste" />
       <AlertLoading visible={paramsCreate?.loading} message="Creando Ajuste" />

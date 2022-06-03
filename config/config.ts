@@ -60,16 +60,19 @@ export default defineConfig({
       path: '/pos',
       component: '../layouts/POSLayout',
       layout: false,
+      access: 'allowOption',
       routes: [
         {
           path: '/pos',
           name: 'POS',
           icon: 'shop',
           component: './pos/list',
+          access: 'allowOption',
         },
         {
           path: '/pos/:id',
           component: './pos/new',
+          access: 'allowOption',
         },
       ],
     },
@@ -104,6 +107,7 @@ export default defineConfig({
                 {
                   path: '/inventory/request/:id',
                   component: './inventory/request/form',
+                  access: 'allowOption',
                 },
               ],
             },
@@ -191,6 +195,16 @@ export default defineConfig({
                   access: 'allowOption',
                 },
                 {
+                  path: '/inventory/configurations/reference/new',
+                  component: './inventory/configurations/reference/form',
+                  access: 'allowOption',
+                },
+                {
+                  path: '/inventory/configurations/reference/:id',
+                  component: './inventory/configurations/reference/form',
+                  access: 'allowOption',
+                },
+                {
                   name: 'Colores',
                   path: '/inventory/configurations/color',
                   component: './inventory/configurations/color/list',
@@ -218,16 +232,6 @@ export default defineConfig({
                   name: 'Marcas',
                   path: '/inventory/configurations/brand',
                   component: './inventory/configurations/brand/list',
-                  access: 'allowOption',
-                },
-                {
-                  path: '/inventory/configurations/reference/new',
-                  component: './inventory/configurations/reference/form',
-                  access: 'allowOption',
-                },
-                {
-                  path: '/inventory/configurations/reference/:id',
-                  component: './inventory/configurations/reference/form',
                   access: 'allowOption',
                 },
               ],
@@ -273,21 +277,25 @@ export default defineConfig({
               name: 'Devoluciones',
               path: '/invoicing/return',
               component: './invoicing/return/list',
+              access: 'allowOption',
               routes: [{ path: '/invoicing/return/:id', component: './invoicing/return/form' }],
             },
             {
               name: 'Cierres',
               path: '/invoicing/closings',
+              access: 'allowOption',
               routes: [
                 {
                   name: 'Cierre X',
                   path: '/invoicing/closings/closingX',
                   component: './invoicing/closings/closingX/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Cierre Z',
                   path: '/invoicing/closings/closingZ',
                   component: './invoicing/closings/closingZ/list',
+                  access: 'allowOption',
                 },
               ],
             },

@@ -30,7 +30,7 @@ import type { Moment } from 'moment';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import type { Location } from 'umi';
-import { useHistory, useLocation, useModel } from 'umi';
+import { useHistory, useLocation, useModel, useAccess } from 'umi';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
@@ -71,6 +71,10 @@ const RequestList = () => {
   });
 
   const { initialState } = useModel('@@initialState');
+
+  const {
+    request: { canAutoCreate, canPrint },
+  } = useAccess();
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -343,6 +347,7 @@ const RequestList = () => {
               <Tooltip title="Imprimir">
                 <Button
                   type="ghost"
+                  disabled={!canPrint}
                   style={{ backgroundColor: 'white' }}
                   onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
@@ -363,7 +368,7 @@ const RequestList = () => {
             Lista de solicitudes
           </Title>
           <Divider type="vertical" />
-          <Button shape="round" type="primary" onClick={autoRequest}>
+          <Button shape="round" type="primary" onClick={autoRequest} disabled={!canAutoCreate}>
             AutoGenerar
           </Button>
         </Space>

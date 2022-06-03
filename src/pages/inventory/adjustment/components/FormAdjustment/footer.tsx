@@ -10,11 +10,10 @@ export type Props = {
   adjustment: Partial<StockAdjustment> | undefined;
   saveAdjustment: (status?: string) => void;
   details: Partial<DetailAdjustment & { action: string }>[];
+  allowEdit: boolean;
 };
 
-const Footer = ({ adjustment, saveAdjustment, details }: Props) => {
-  const allowEdit = adjustment?.status === 'open';
-
+const Footer = ({ adjustment, saveAdjustment, details, allowEdit }: Props) => {
   const renderResumen = () => {
     return (
       <Space align="center" className={styles.alignCenter}>

@@ -12,12 +12,11 @@ export type Props = {
   request: Partial<StockRequest> | undefined;
   setObservation: (value: string) => void;
   observation: string;
+  allowEdit: boolean;
 };
 
-const Header = ({ request, setObservation, observation }: Props) => {
+const Header = ({ request, setObservation, observation, allowEdit }: Props) => {
   const { initialState } = useModel('@@initialState');
-
-  const allowEdit = request?.status === 'open';
 
   return (
     <Card>
@@ -59,7 +58,11 @@ const Header = ({ request, setObservation, observation }: Props) => {
             </DescriptionsItem>
             <DescriptionsItem label="Observación de general">
               {allowEdit ? (
-                <TextArea value={observation} onChange={(e) => setObservation(e?.target?.value)} />
+                <TextArea
+                  disabled={!allowEdit}
+                  value={observation}
+                  onChange={(e) => setObservation(e?.target?.value)}
+                />
               ) : (
                 request?.observation
               )}
