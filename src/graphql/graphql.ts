@@ -465,6 +465,33 @@ export type Conveyor = {
   user: User;
 };
 
+/** Cupones para pagos */
+export type Coupon = {
+  __typename?: 'Coupon';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Código para redención del cupón */
+  code: Scalars['String'];
+  /** Consecutivo del cupón */
+  company: Company;
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Fecha de vencimiento del cupón */
+  expiration: Scalars['DateTime'];
+  /** Mensaje del pie del cupón */
+  message: Scalars['String'];
+  /** Consecutivo del cupón */
+  number: Scalars['Float'];
+  /** Título del cupón */
+  title: Scalars['String'];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó el cupón */
+  user: User;
+  /** Valor de redención del cupón */
+  value: Scalars['Float'];
+};
+
 /** Datos para crear un atributo */
 export type CreateAttribInput = {
   /** Nombre del atributo */
@@ -603,6 +630,13 @@ export type CreateReferenceInput = {
   weight: Scalars['Float'];
   /** Ancho del producto */
   width: Scalars['Float'];
+};
+
+export type CreateReturnOrderInput = {
+  /** Productos que se devuelven del pedido */
+  details: DetailReturnInput[];
+  /** Pedido al que afecta la devolución */
+  orderId: Scalars['String'];
 };
 
 /** Datos para crear una talla */
@@ -836,14 +870,22 @@ export type DetailRequest = {
   updatedAt: Scalars['DateTime'];
 };
 
+/** Producto de la devoliución del pedido */
+export type DetailReturnInput = {
+  /** Identificador del producto */
+  productId: Scalars['String'];
+  /** Cantidad del producto */
+  quantity: Scalars['Float'];
+};
+
 /** Productos de la devolucion */
 export type DetailReturnInvoice = {
   __typename?: 'DetailReturnInvoice';
-  /** Precio del producto en la factura */
+  /** Precio del producto de la devolución */
   price: Scalars['Float'];
-  /** Producto agregado a la factura */
+  /** Producto de la devolución */
   product: Product;
-  /** Cantidad de productos en la factura */
+  /** Cantidad de productos de la devolución */
   quantity: Scalars['Float'];
 };
 
@@ -1275,6 +1317,8 @@ export type FiltersReferencesInput = {
   categoryLevel2Id?: InputMaybe<Scalars['String']>;
   /** Identificación de la marca */
   categoryLevel3Id?: InputMaybe<Scalars['String']>;
+  /** Referencia se puede cambiar */
+  changeable?: InputMaybe<Scalars['Boolean']>;
   /** Costo para la busqueda de referencias */
   cost?: InputMaybe<Scalars['Float']>;
   /** Cantidad de registros */
@@ -1289,9 +1333,9 @@ export type FiltersReferencesInput = {
   sort?: InputMaybe<SortReference>;
 };
 
-/** Filtros de listado de devoluciones de facturación */
-export type FiltersReturnsInvoiceInput = {
-  /** Si la devolucion de encuentra se encuentra activ< */
+/** Filtros de listado de devoluciones del pedido */
+export type FiltersReturnsOrderInput = {
+  /** Si la devolucion de encuentra se encuentra activo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Fecha final para la busqueda */
   dateFinal?: InputMaybe<Scalars['String']>;
@@ -1302,7 +1346,7 @@ export type FiltersReturnsInvoiceInput = {
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
-  sort?: InputMaybe<SortReturnInovice>;
+  sort?: InputMaybe<SortReturnOrder>;
 };
 
 /** Filtros usados para consultar las tiendas */
@@ -1599,6 +1643,8 @@ export type Mutation = {
   createProduct: Product;
   /** Crea una referencia */
   createReference: Reference;
+  /** Se encarga de crear la devolución del pedido */
+  createReturnOrder: ReturnOrder;
   /** Crear una talla */
   createSize: Size;
   /** Crea un ajuste de productos */
@@ -1699,6 +1745,10 @@ export type MutationCreateProductArgs = {
 
 export type MutationCreateReferenceArgs = {
   createReferenceInput: CreateReferenceInput;
+};
+
+export type MutationCreateReturnOrderArgs = {
+  createReturnOrderInput: CreateReturnOrderInput;
 };
 
 export type MutationCreateSizeArgs = {
@@ -1922,8 +1972,8 @@ export type Permission = {
   __typename?: 'Permission';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Tipo de acción (list, see, create, update, autogenerate) */
-  action: Scalars['String'];
+  /** Tipo de acción */
+  action: Permissions;
   /** Detalle de la acción */
   description: Scalars['String'];
   /** Módulo al que pertenece el permiso */
@@ -1933,6 +1983,97 @@ export type Permission = {
   /** Opción del módulo al que pertenece el permiso */
   option: Scalars['String'];
 };
+
+export enum Permissions {
+  AccessConfigurationConveyors = 'ACCESS_CONFIGURATION_CONVEYORS',
+  AccessCrmCities = 'ACCESS_CRM_CITIES',
+  AccessCrmCustomers = 'ACCESS_CRM_CUSTOMERS',
+  AccessErp = 'ACCESS_ERP',
+  AccessInventoryAdjustments = 'ACCESS_INVENTORY_ADJUSTMENTS',
+  AccessInventoryAttribs = 'ACCESS_INVENTORY_ATTRIBS',
+  AccessInventoryBrands = 'ACCESS_INVENTORY_BRANDS',
+  AccessInventoryCategories = 'ACCESS_INVENTORY_CATEGORIES',
+  AccessInventoryColors = 'ACCESS_INVENTORY_COLORS',
+  AccessInventoryInputs = 'ACCESS_INVENTORY_INPUTS',
+  AccessInventoryOutputs = 'ACCESS_INVENTORY_OUTPUTS',
+  AccessInventoryProducts = 'ACCESS_INVENTORY_PRODUCTS',
+  AccessInventoryReferences = 'ACCESS_INVENTORY_REFERENCES',
+  AccessInventoryRequests = 'ACCESS_INVENTORY_REQUESTS',
+  AccessInventorySizes = 'ACCESS_INVENTORY_SIZES',
+  AccessInventoryTransfers = 'ACCESS_INVENTORY_TRANSFERS',
+  AccessInvoicingClosesx = 'ACCESS_INVOICING_CLOSESX',
+  AccessInvoicingClosesz = 'ACCESS_INVOICING_CLOSESZ',
+  AccessInvoicingReturns = 'ACCESS_INVOICING_RETURNS',
+  AccessPos = 'ACCESS_POS',
+  AutogenerateInventoryRequest = 'AUTOGENERATE_INVENTORY_REQUEST',
+  ConfirmInventoryTransfer = 'CONFIRM_INVENTORY_TRANSFER',
+  CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
+  CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
+  CreateInventoryAttrib = 'CREATE_INVENTORY_ATTRIB',
+  CreateInventoryBrand = 'CREATE_INVENTORY_BRAND',
+  CreateInventoryCategory = 'CREATE_INVENTORY_CATEGORY',
+  CreateInventoryColor = 'CREATE_INVENTORY_COLOR',
+  CreateInventoryInput = 'CREATE_INVENTORY_INPUT',
+  CreateInventoryOutput = 'CREATE_INVENTORY_OUTPUT',
+  CreateInventoryProduct = 'CREATE_INVENTORY_PRODUCT',
+  CreateInventoryReference = 'CREATE_INVENTORY_REFERENCE',
+  CreateInventoryRequest = 'CREATE_INVENTORY_REQUEST',
+  CreateInventorySize = 'CREATE_INVENTORY_SIZE',
+  CreateInventoryTransfer = 'CREATE_INVENTORY_TRANSFER',
+  CreateInvoicingClosex = 'CREATE_INVOICING_CLOSEX',
+  CreateInvoicingClosez = 'CREATE_INVOICING_CLOSEZ',
+  CreateInvoicingOrder = 'CREATE_INVOICING_ORDER',
+  CreateInvoicingReturn = 'CREATE_INVOICING_RETURN',
+  PrintInventoryAdjustment = 'PRINT_INVENTORY_ADJUSTMENT',
+  PrintInventoryInput = 'PRINT_INVENTORY_INPUT',
+  PrintInventoryOutput = 'PRINT_INVENTORY_OUTPUT',
+  PrintInventoryRequest = 'PRINT_INVENTORY_REQUEST',
+  PrintInventoryTransfer = 'PRINT_INVENTORY_TRANSFER',
+  PrintInvoicingClosex = 'PRINT_INVOICING_CLOSEX',
+  PrintInvoicingClosez = 'PRINT_INVOICING_CLOSEZ',
+  PrintInvoicingReturn = 'PRINT_INVOICING_RETURN',
+  ReadConfigurationConveyors = 'READ_CONFIGURATION_CONVEYORS',
+  ReadConfigurationImages = 'READ_CONFIGURATION_IMAGES',
+  ReadConfigurationShops = 'READ_CONFIGURATION_SHOPS',
+  ReadConfigurationUsers = 'READ_CONFIGURATION_USERS',
+  ReadConfigurationWarehouses = 'READ_CONFIGURATION_WAREHOUSES',
+  ReadCrmCities = 'READ_CRM_CITIES',
+  ReadCrmCustomers = 'READ_CRM_CUSTOMERS',
+  ReadInventoryAdjustments = 'READ_INVENTORY_ADJUSTMENTS',
+  ReadInventoryAttribs = 'READ_INVENTORY_ATTRIBS',
+  ReadInventoryBrands = 'READ_INVENTORY_BRANDS',
+  ReadInventoryCategories = 'READ_INVENTORY_CATEGORIES',
+  ReadInventoryColors = 'READ_INVENTORY_COLORS',
+  ReadInventoryInputs = 'READ_INVENTORY_INPUTS',
+  ReadInventoryOutputs = 'READ_INVENTORY_OUTPUTS',
+  ReadInventoryProducts = 'READ_INVENTORY_PRODUCTS',
+  ReadInventoryReferences = 'READ_INVENTORY_REFERENCES',
+  ReadInventoryRequests = 'READ_INVENTORY_REQUESTS',
+  ReadInventorySizes = 'READ_INVENTORY_SIZES',
+  ReadInventoryTransfers = 'READ_INVENTORY_TRANSFERS',
+  ReadInvoicingClosesx = 'READ_INVOICING_CLOSESX',
+  ReadInvoicingClosesz = 'READ_INVOICING_CLOSESZ',
+  ReadInvoicingInvoices = 'READ_INVOICING_INVOICES',
+  ReadInvoicingOrders = 'READ_INVOICING_ORDERS',
+  ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
+  ReadInvoicingReturns = 'READ_INVOICING_RETURNS',
+  ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
+  UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
+  UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
+  UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
+  UpdateInventoryAttrib = 'UPDATE_INVENTORY_ATTRIB',
+  UpdateInventoryBrand = 'UPDATE_INVENTORY_BRAND',
+  UpdateInventoryCategory = 'UPDATE_INVENTORY_CATEGORY',
+  UpdateInventoryColor = 'UPDATE_INVENTORY_COLOR',
+  UpdateInventoryInput = 'UPDATE_INVENTORY_INPUT',
+  UpdateInventoryOutput = 'UPDATE_INVENTORY_OUTPUT',
+  UpdateInventoryProduct = 'UPDATE_INVENTORY_PRODUCT',
+  UpdateInventoryReference = 'UPDATE_INVENTORY_REFERENCE',
+  UpdateInventoryRequest = 'UPDATE_INVENTORY_REQUEST',
+  UpdateInventorySize = 'UPDATE_INVENTORY_SIZE',
+  UpdateInventoryTransfer = 'UPDATE_INVENTORY_TRANSFER',
+  UpdateInvoicingOrder = 'UPDATE_INVOICING_ORDER',
+}
 
 /** Punto de venta de la tienda */
 export type PointOfSale = {
@@ -2030,8 +2171,8 @@ export type Query = {
   referenceId: ReferenceData;
   /** Listado de las referencias */
   references: ResponseReferences;
-  /** Lista de devoluciones de factura */
-  returnsInvoice: ResponseReturnsInvoice;
+  /** Lista de devoluciones de pedidos */
+  returnsOrder: ResponseReturnsOrder;
   /** Se encarga de listar las tiendas */
   shops: ResponseShops;
   /** Listar las tallas */
@@ -2149,8 +2290,8 @@ export type QueryReferencesArgs = {
   filtersReferencesInput?: InputMaybe<FiltersReferencesInput>;
 };
 
-export type QueryReturnsInvoiceArgs = {
-  filtersReturnsInvoice?: InputMaybe<FiltersReturnsInvoiceInput>;
+export type QueryReturnsOrderArgs = {
+  filtersReturnsOrder?: InputMaybe<FiltersReturnsOrderInput>;
 };
 
 export type QueryShopsArgs = {
@@ -2691,11 +2832,11 @@ export type ResponseReferences = {
   totalPages: Scalars['Float'];
 };
 
-/** Lista de devoluciones de factura */
-export type ResponseReturnsInvoice = {
-  __typename?: 'ResponseReturnsInvoice';
+/** Lista de devoluciones de ordenes */
+export type ResponseReturnsOrder = {
+  __typename?: 'ResponseReturnsOrder';
   /** Lista de ajustes */
-  docs: ReturnInvoice[];
+  docs: ReturnOrder[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -2908,30 +3049,28 @@ export type ResponseWarehouses = {
 };
 
 /** Devoluciones de facturación */
-export type ReturnInvoice = {
-  __typename?: 'ReturnInvoice';
+export type ReturnOrder = {
+  __typename?: 'ReturnOrder';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Autorización */
-  authorization: AuthorizationDian;
-  /** Compañía a la que pertence el ajuste */
+  /** Estado del devolucion */
+  active: Scalars['Boolean'];
+  /** Compañía a la que pertence la devolución */
   company: Company;
+  /** Cupón generado */
+  coupon: Coupon;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Productos de la devolución */
   details?: Maybe<DetailReturnInvoice[]>;
-  /** Factura de la devolución */
-  invoice: Invoice;
   /** Número consecutivo */
   number: Scalars['Float'];
-  /** Estado del ajuste (open, confirmed, cancelled) */
-  status: Scalars['String'];
+  /** Pedido de la devolución */
+  order: Order;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
   user: User;
-  /** Bodega del ajuste */
-  warehouse: Warehouse;
 };
 
 /** Rol del usuario  */
@@ -3206,8 +3345,8 @@ export type SortReference = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
-/** Ordenamiento de las devoluciones en factura */
-export type SortReturnInovice = {
+/** Ordenamiento de las devoluciones en pedido */
+export type SortReturnOrder = {
   /** Ordenamiento por fecha de creación */
   createdAt?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por fecha de actualización */
@@ -5910,19 +6049,18 @@ export type StockRequestsQuery = {
   };
 };
 
-export type ReturnsInvoiceQueryVariables = Exact<{
-  input?: InputMaybe<FiltersReturnsInvoiceInput>;
+export type ReturnsOrderQueryVariables = Exact<{
+  input?: InputMaybe<FiltersReturnsOrderInput>;
 }>;
 
-export type ReturnsInvoiceQuery = {
+export type ReturnsOrderQuery = {
   __typename?: 'Query';
-  returnsInvoice: {
-    __typename?: 'ResponseReturnsInvoice';
+  returnsOrder: {
+    __typename?: 'ResponseReturnsOrder';
     docs: {
-      __typename?: 'ReturnInvoice';
+      __typename?: 'ReturnOrder';
       _id: string;
       number: number;
-      authorization: { __typename?: 'AuthorizationDian'; prefix: string };
       details?:
         | {
             __typename?: 'DetailReturnInvoice';
@@ -5937,7 +6075,6 @@ export type ReturnsInvoiceQuery = {
             };
           }[]
         | null;
-      warehouse: { __typename?: 'Warehouse'; name: string };
     }[];
   };
 };
@@ -12978,18 +13115,18 @@ export const StockRequestsDocument = {
     },
   ],
 } as unknown as DocumentNode<StockRequestsQuery, StockRequestsQueryVariables>;
-export const ReturnsInvoiceDocument = {
+export const ReturnsOrderDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'returnsInvoice' },
+      name: { kind: 'Name', value: 'returnsOrder' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersReturnsInvoiceInput' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersReturnsOrderInput' } },
         },
       ],
       selectionSet: {
@@ -12997,11 +13134,11 @@ export const ReturnsInvoiceDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'returnsInvoice' },
+            name: { kind: 'Name', value: 'returnsOrder' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'filtersReturnsInvoice' },
+                name: { kind: 'Name', value: 'filtersReturnsOrder' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
               },
             ],
@@ -13015,14 +13152,6 @@ export const ReturnsInvoiceDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'authorization' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'prefix' } }],
-                        },
-                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                       {
                         kind: 'Field',
@@ -13079,14 +13208,6 @@ export const ReturnsInvoiceDocument = {
                           ],
                         },
                       },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'warehouse' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
                     ],
                   },
                 },
@@ -13097,7 +13218,7 @@ export const ReturnsInvoiceDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<ReturnsInvoiceQuery, ReturnsInvoiceQueryVariables>;
+} as unknown as DocumentNode<ReturnsOrderQuery, ReturnsOrderQueryVariables>;
 export const ShopsDocument = {
   kind: 'Document',
   definitions: [
