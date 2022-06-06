@@ -6,7 +6,6 @@ export const typesAccess = {
       'ACCESS_INVENTORY_OUTPUTS',
       'ACCESS_INVENTORY_REQUESTS',
       'ACCESS_INVENTORY_TRANSFERS',
-      'ACCESS_INVENTORY_CONFIGURATIONS',
     ],
   },
   '/inventory/request': {
@@ -105,5 +104,17 @@ export const typesAccess = {
   },
   '/inventory/transfer/:id': {
     access: ['UPDATE_INVENTORY_TRANSFER'],
+  },
+  '/invoicing': {
+    access: ['ACCESS_INVOICING_CLOSESX', 'ACCESS_INVOICING_CLOSESZ', 'ACCESS_INVOICING_RETURNS'],
+  },
+  '/invoicing/closings': {
+    access: ['ACCESS_INVOICING_CLOSESX', 'ACCESS_INVOICING_CLOSESZ'],
+  },
+  '/invoicing/closings/closingX': {
+    access: ['READ_INVOICING_CLOSESX'],
+  },
+  '/invoicing/closings/closingZ': {
+    access: ['READ_INVOICING_CLOSESZ'],
   },
 };

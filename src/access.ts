@@ -126,5 +126,21 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === 'CREATE_INVENTORY_BRAND',
       ),
     },
+    closingX: {
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'PRINT_INVOICING_CLOSEX',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVOICING_CLOSEX',
+      ),
+    },
+    closingZ: {
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'PRINT_INVOICING_CLOSEZ',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVOICING_CLOSEZ',
+      ),
+    },
   };
 }
