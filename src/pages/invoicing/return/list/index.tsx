@@ -19,8 +19,6 @@ import type { ColumnsType } from 'antd/es/table/interface';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-import type { FiltersReturnsInvoiceInput, ReturnInvoice } from '@/graphql/graphql';
-import { useGetReturnsInvoice } from '@/hooks/return-invoice.hooks';
 import FormReturn from '../form';
 
 import styles from './styles';
@@ -32,13 +30,13 @@ const { Text } = Typography;
 const ReturnList = () => {
   const [visible, setVisible] = useState(false);
 
-  const [getReturns, { data }] = useGetReturnsInvoice();
+  //const [getReturns, { data }] = useGetReturnsInvoice();
 
   const closeModal = () => {
     setVisible(false);
   };
 
-  const onSearch = (values?: FiltersReturnsInvoiceInput) => {
+  /*const onSearch = (values?: FiltersReturnsInvoiceInput) => {
     getReturns({
       variables: {
         input: {
@@ -46,13 +44,13 @@ const ReturnList = () => {
         },
       },
     });
-  };
+  };*/
 
   useEffect(() => {
-    onSearch();
+    //onSearch();
   }, []);
 
-  const columns: ColumnsType<ReturnInvoice> = [
+  const columns: ColumnsType<any> = [
     {
       title: 'Codigo',
       dataIndex: 'code',
@@ -179,7 +177,7 @@ const ReturnList = () => {
           columns={columns}
           scroll={{ x: 1000 }}
           pagination={false}
-          dataSource={data?.returnsInvoice?.docs as any}
+          //dataSource={data?.returnsInvoice?.docs as any}
         />
       </Card>
       <FormReturn visible={visible} onCancel={closeModal} />

@@ -63,14 +63,26 @@ export default defineConfig({
       access: 'allowOption',
       routes: [
         {
-          path: '/pos',
+          path: '/pos/sales',
           name: 'POS',
           icon: 'shop',
           component: './pos/list',
           access: 'allowOption',
         },
         {
-          path: '/pos/:id',
+          name: 'Cierre X',
+          path: '/pos/closes/closingX',
+          component: './invoicing/closings/closingX/list',
+          access: 'allowOption',
+        },
+        {
+          name: 'Cierre Z',
+          path: '/pos/closes/closingZ',
+          component: './invoicing/closings/closingZ/list',
+          access: 'allowOption',
+        },
+        {
+          path: '/pos/sales/:id',
           component: './pos/new',
           access: 'allowOption',
         },
@@ -273,6 +285,11 @@ export default defineConfig({
           icon: 'container',
           access: 'allowOption',
           routes: [
+            {
+              name: 'POS',
+              path: '/pos/sales',
+              access: 'allowOption',
+            },
             {
               name: 'Devoluciones',
               path: '/invoicing/return',

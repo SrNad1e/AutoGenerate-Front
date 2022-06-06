@@ -465,6 +465,33 @@ export type Conveyor = {
   user: User;
 };
 
+/** Cupones para pagos */
+export type Coupon = {
+  __typename?: 'Coupon';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Código para redención del cupón */
+  code: Scalars['String'];
+  /** Consecutivo del cupón */
+  company: Company;
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Fecha de vencimiento del cupón */
+  expiration: Scalars['DateTime'];
+  /** Mensaje del pie del cupón */
+  message: Scalars['String'];
+  /** Consecutivo del cupón */
+  number: Scalars['Float'];
+  /** Título del cupón */
+  title: Scalars['String'];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó el cupón */
+  user: User;
+  /** Valor de redención del cupón */
+  value: Scalars['Float'];
+};
+
 /** Datos para crear un atributo */
 export type CreateAttribInput = {
   /** Nombre del atributo */
@@ -603,6 +630,13 @@ export type CreateReferenceInput = {
   weight: Scalars['Float'];
   /** Ancho del producto */
   width: Scalars['Float'];
+};
+
+export type CreateReturnOrderInput = {
+  /** Productos que se devuelven del pedido */
+  details: DetailReturnInput[];
+  /** Pedido al que afecta la devolución */
+  orderId: Scalars['String'];
 };
 
 /** Datos para crear una talla */
@@ -836,14 +870,22 @@ export type DetailRequest = {
   updatedAt: Scalars['DateTime'];
 };
 
+/** Producto de la devoliución del pedido */
+export type DetailReturnInput = {
+  /** Identificador del producto */
+  productId: Scalars['String'];
+  /** Cantidad del producto */
+  quantity: Scalars['Float'];
+};
+
 /** Productos de la devolucion */
 export type DetailReturnInvoice = {
   __typename?: 'DetailReturnInvoice';
-  /** Precio del producto en la factura */
+  /** Precio del producto de la devolución */
   price: Scalars['Float'];
-  /** Producto agregado a la factura */
+  /** Producto de la devolución */
   product: Product;
-  /** Cantidad de productos en la factura */
+  /** Cantidad de productos de la devolución */
   quantity: Scalars['Float'];
 };
 
@@ -1291,9 +1333,9 @@ export type FiltersReferencesInput = {
   sort?: InputMaybe<SortReference>;
 };
 
-/** Filtros de listado de devoluciones de facturación */
-export type FiltersReturnsInvoiceInput = {
-  /** Si la devolucion de encuentra se encuentra activ< */
+/** Filtros de listado de devoluciones del pedido */
+export type FiltersReturnsOrderInput = {
+  /** Si la devolucion de encuentra se encuentra activo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Fecha final para la busqueda */
   dateFinal?: InputMaybe<Scalars['String']>;
@@ -1304,7 +1346,7 @@ export type FiltersReturnsInvoiceInput = {
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
-  sort?: InputMaybe<SortReturnInovice>;
+  sort?: InputMaybe<SortReturnOrder>;
 };
 
 /** Filtros usados para consultar las tiendas */
@@ -1601,6 +1643,8 @@ export type Mutation = {
   createProduct: Product;
   /** Crea una referencia */
   createReference: Reference;
+  /** Se encarga de crear la devolución del pedido */
+  createReturnOrder: ReturnOrder;
   /** Crear una talla */
   createSize: Size;
   /** Crea un ajuste de productos */
@@ -1701,6 +1745,10 @@ export type MutationCreateProductArgs = {
 
 export type MutationCreateReferenceArgs = {
   createReferenceInput: CreateReferenceInput;
+};
+
+export type MutationCreateReturnOrderArgs = {
+  createReturnOrderInput: CreateReturnOrderInput;
 };
 
 export type MutationCreateSizeArgs = {
@@ -2123,8 +2171,8 @@ export type Query = {
   referenceId: ReferenceData;
   /** Listado de las referencias */
   references: ResponseReferences;
-  /** Lista de devoluciones de factura */
-  returnsInvoice: ResponseReturnsInvoice;
+  /** Lista de devoluciones de pedidos */
+  returnsOrder: ResponseReturnsOrder;
   /** Se encarga de listar las tiendas */
   shops: ResponseShops;
   /** Listar las tallas */
@@ -2242,8 +2290,8 @@ export type QueryReferencesArgs = {
   filtersReferencesInput?: InputMaybe<FiltersReferencesInput>;
 };
 
-export type QueryReturnsInvoiceArgs = {
-  filtersReturnsInvoice?: InputMaybe<FiltersReturnsInvoiceInput>;
+export type QueryReturnsOrderArgs = {
+  filtersReturnsOrder?: InputMaybe<FiltersReturnsOrderInput>;
 };
 
 export type QueryShopsArgs = {
@@ -2784,11 +2832,11 @@ export type ResponseReferences = {
   totalPages: Scalars['Float'];
 };
 
-/** Lista de devoluciones de factura */
-export type ResponseReturnsInvoice = {
-  __typename?: 'ResponseReturnsInvoice';
+/** Lista de devoluciones de ordenes */
+export type ResponseReturnsOrder = {
+  __typename?: 'ResponseReturnsOrder';
   /** Lista de ajustes */
-  docs: ReturnInvoice[];
+  docs: ReturnOrder[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3001,30 +3049,28 @@ export type ResponseWarehouses = {
 };
 
 /** Devoluciones de facturación */
-export type ReturnInvoice = {
-  __typename?: 'ReturnInvoice';
+export type ReturnOrder = {
+  __typename?: 'ReturnOrder';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Autorización */
-  authorization: AuthorizationDian;
-  /** Compañía a la que pertence el ajuste */
+  /** Estado del devolucion */
+  active: Scalars['Boolean'];
+  /** Compañía a la que pertence la devolución */
   company: Company;
+  /** Cupón generado */
+  coupon: Coupon;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Productos de la devolución */
   details?: Maybe<DetailReturnInvoice[]>;
-  /** Factura de la devolución */
-  invoice: Invoice;
   /** Número consecutivo */
   number: Scalars['Float'];
-  /** Estado del ajuste (open, confirmed, cancelled) */
-  status: Scalars['String'];
+  /** Pedido de la devolución */
+  order: Order;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
   user: User;
-  /** Bodega del ajuste */
-  warehouse: Warehouse;
 };
 
 /** Rol del usuario  */
@@ -3299,8 +3345,8 @@ export type SortReference = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
-/** Ordenamiento de las devoluciones en factura */
-export type SortReturnInovice = {
+/** Ordenamiento de las devoluciones en pedido */
+export type SortReturnOrder = {
   /** Ordenamiento por fecha de creación */
   createdAt?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por fecha de actualización */
@@ -4962,9 +5008,10 @@ export type LoginMutation = {
     access_token: string;
     user: {
       __typename?: 'User';
+      _id: string;
       username: string;
       name: string;
-      _id: string;
+      pointOfSale?: { __typename?: 'PointOfSale'; _id: string } | null;
       shop: {
         __typename?: 'Shop';
         _id: string;
@@ -6000,38 +6047,6 @@ export type StockRequestsQuery = {
         };
       }[];
       user: { __typename?: 'User'; name: string };
-    }[];
-  };
-};
-
-export type ReturnsInvoiceQueryVariables = Exact<{
-  input?: InputMaybe<FiltersReturnsInvoiceInput>;
-}>;
-
-export type ReturnsInvoiceQuery = {
-  __typename?: 'Query';
-  returnsInvoice: {
-    __typename?: 'ResponseReturnsInvoice';
-    docs: {
-      __typename?: 'ReturnInvoice';
-      _id: string;
-      number: number;
-      authorization: { __typename?: 'AuthorizationDian'; prefix: string };
-      details?:
-        | {
-            __typename?: 'DetailReturnInvoice';
-            price: number;
-            quantity: number;
-            product: {
-              __typename?: 'Product';
-              barcode: string;
-              color: { __typename?: 'Color'; name: string };
-              size: { __typename?: 'Size'; value: string };
-              reference: { __typename?: 'Reference'; name: string; description: string };
-            };
-          }[]
-        | null;
-      warehouse: { __typename?: 'Warehouse'; name: string };
     }[];
   };
 };
@@ -9774,8 +9789,17 @@ export const LoginDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                        },
+                      },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'shop' },
@@ -9818,7 +9842,6 @@ export const LoginDocument = {
                           ],
                         },
                       },
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                     ],
                   },
                 },
@@ -13073,126 +13096,6 @@ export const StockRequestsDocument = {
     },
   ],
 } as unknown as DocumentNode<StockRequestsQuery, StockRequestsQueryVariables>;
-export const ReturnsInvoiceDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'returnsInvoice' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersReturnsInvoiceInput' } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'returnsInvoice' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'filtersReturnsInvoice' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'docs' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'authorization' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'prefix' } }],
-                        },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'details' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'price' } },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'product' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'color' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                      ],
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'size' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'value' } },
-                                      ],
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'reference' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'description' },
-                                        },
-                                      ],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                            { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'warehouse' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ReturnsInvoiceQuery, ReturnsInvoiceQueryVariables>;
 export const ShopsDocument = {
   kind: 'Document',
   definitions: [

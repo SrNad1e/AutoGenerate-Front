@@ -1,4 +1,5 @@
 export const typesAccess = {
+  //ERP
   '/inventory': {
     access: [
       'ACCESS_INVENTORY_ADJUSTMENTS',
@@ -116,5 +117,21 @@ export const typesAccess = {
   },
   '/invoicing/closings/closingZ': {
     access: ['READ_INVOICING_CLOSESZ'],
+  },
+  //POS
+  '/pos': {
+    access: ['ACCESS_POS'],
+  },
+  '/pos/sales': {
+    access: ['ACCESS_POS'],
+  },
+  '/pos/sales/:id': {
+    access: ['ACCESS_POS'],
+  },
+  '/pos/closes/closingX': {
+    access: ['READ_INVOICING_CLOSESX'],
+  },
+  '/pos/closes/closingZ': {
+    access: ['READ_INVOICING_CLOSESX'],
   },
 };

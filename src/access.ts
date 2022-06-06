@@ -17,6 +17,12 @@ export default function access(initialState: { currentUser?: User | undefined })
         return false;
       }
     },
+    allowERP: !!initialState?.currentUser?.role?.permissions.find(
+      (permission) => permission?.action === 'ACCESS_ERP',
+    ),
+    allowPOS: !!initialState?.currentUser?.role?.permissions.find(
+      (permission) => permission?.action === 'ACCESS_POS',
+    ),
     request: {
       canEdit: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === 'UPDATE_INVENTORY_REQUEST',

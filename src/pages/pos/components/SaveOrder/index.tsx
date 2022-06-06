@@ -14,7 +14,7 @@ const SaveOrder = ({ _id, number, updatedAt, customer, summary }: Order) => {
   const history = useHistory();
 
   const onClick = () => {
-    history.push(`/pos/${_id}`);
+    history.push(`/pos/sales/${_id}`);
   };
 
   return (

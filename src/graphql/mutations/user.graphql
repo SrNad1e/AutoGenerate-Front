@@ -1,24 +1,27 @@
 mutation login($input: LoginUserInput!) {
-    login(loginUserInput: $input) {
-      user {
-        username
-        name
-        shop {
-          _id
-          name
-          defaultWarehouse {
-            _id
-            name
-          }
-        }
-        role {
-          name
-          permissions {
-            action
-          }
-        }
+  login(loginUserInput: $input) {
+    user {
+      _id
+      username
+      name
+      pointOfSale {
         _id
       }
-      access_token
+      shop {
+        _id
+        name
+        defaultWarehouse {
+          _id
+          name
+        }
+      }
+      role {
+        name
+        permissions {
+          action
+        }
+      }
     }
+    access_token
   }
+}
