@@ -58,11 +58,7 @@ const Header = ({ request, setObservation, observation, allowEdit }: Props) => {
             </DescriptionsItem>
             <DescriptionsItem label="Observación de general">
               {allowEdit ? (
-                <TextArea
-                  disabled={!allowEdit}
-                  value={observation}
-                  onChange={(e) => setObservation(e?.target?.value)}
-                />
+                <TextArea value={observation} onChange={(e) => setObservation(e?.target?.value)} />
               ) : (
                 request?.observation
               )}

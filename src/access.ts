@@ -64,5 +64,19 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === 'CREATE_INVENTORY_OUTPUT',
       ),
     },
+    transfer: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'UPDATE_INVENTORY_TRANSFER',
+      ),
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'PRINT_INVENTORY_TRANSFER',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVENTORY_TRANSFER',
+      ),
+      canConfirm: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CONFIRM_INVENTORY_TRANSFER',
+      ),
+    },
   };
 }

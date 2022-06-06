@@ -58,36 +58,52 @@ export const typesAccess = {
     access: ['UPDATE_INVENTORY_OUTPUT'],
   },
   '/inventory/configurations': {
-    access: ['ACCESS_INVENTORY_CONFIGURATIONS'],
+    access: [
+      'ACCESS_INVENTORY_REFERENCES',
+      'ACCESS_INVENTORY_COLORS',
+      'ACCESS_INVENTORY_SIZES',
+      'ACCESS_INVENTORY_CATEGORIES',
+      'ACCESS_INVENTORY_ATTRIBS',
+      'ACCESS_INVENTORY_BRANDS',
+    ],
   },
   '/inventory/configurations/reference': {
-    access: ['ACCESS_INVENTORY_CONFIGURATIONS_REFERENCES'],
+    access: ['READ_INVENTORY_REFERENCES'],
   },
   '/inventory/configurations/reference/new': {
-    access: ['ACCESS_INVENTORY_CONFIGURATIONS_REFERENCE'],
+    access: ['CREATE_INVENTORY_REFERENCE'],
   },
   '/inventory/configurations/reference/:id': {
-    access: ['ACCESS_INVENTORY_CONFIGURATIONS_REFERENCE'],
+    access: ['UPDATE_INVENTORY_REFERENCE'],
   },
   '/inventory/configurations/color': {
-    access: ['ACCESS_INVENTORY_CONFIGURATIONS_COLORS'],
+    access: ['READ_INVENTORY_COLORS'],
   },
   '/inventory/configurations/categories': {
-    access: ['ACCESS_INVENTORY_CONFIGURATIONS_CATEGORIES'],
+    access: ['READ_INVENTORY_CATEGORIES'],
   },
   '/inventory/configurations/size': {
-    access: ['ACCESS_INVENTORY_CONFIGURATIONS_SIZES'],
+    access: ['READ_INVENTORY_SIZES'],
   },
   '/inventory/configurations/attribs': {
-    access: ['ACCESS_INVENTORY_CONFIGURATIONS_ATTRIBS'],
+    access: ['READ_INVENTORY_ATTRIBS'],
   },
   '/inventory/configurations/brand': {
-    access: ['ACCESS_INVENTORY_CONFIGURATIONS_BRANDS'],
+    access: ['READ_INVENTORY_BRANDS'],
   },
   '/inventory/transfer': {
     access: ['ACCESS_INVENTORY_TRANSFERS'],
   },
   '/inventory/transfer/list': {
     access: ['READ_INVENTORY_TRANSFERS'],
+  },
+  '/inventory/transfer/new': {
+    access: ['CREATE_INVENTORY_TRANSFER'],
+  },
+  '/inventory/transfer/confirm/:id': {
+    access: ['CONFIRM_INVENTORY_TRANSFER'],
+  },
+  '/inventory/transfer/:id': {
+    access: ['UPDATE_INVENTORY_TRANSFER'],
   },
 };
