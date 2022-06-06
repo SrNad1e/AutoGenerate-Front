@@ -33,7 +33,7 @@ const Footer = ({ input, saveInput, details, allowEdit }: Props) => {
     <Affix offsetBottom={0}>
       <Card>
         <Row>
-          <Col span={4}>
+          <Col xs={24} md={3}>
             <Button
               disabled={!allowEdit}
               type={input?._id ? 'primary' : 'default'}
@@ -43,8 +43,10 @@ const Footer = ({ input, saveInput, details, allowEdit }: Props) => {
               Cancelar
             </Button>
           </Col>
-          <Col span={16}>{renderResumen()}</Col>
-          <Col span={4}>
+          <Col xs={24} md={16}>
+            {renderResumen()}
+          </Col>
+          <Col xs={24} md={5}>
             <Space align="end" className={styles.alignRigth}>
               <Button disabled={!allowEdit} onClick={() => saveInput()}>
                 Guardar

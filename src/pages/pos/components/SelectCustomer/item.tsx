@@ -3,6 +3,8 @@ import { LoginOutlined } from '@ant-design/icons';
 
 import type { Customer, UpdateOrderInput } from '@/graphql/graphql';
 
+import styles from '../styles';
+
 const { Text } = Typography;
 
 export type Props = {
@@ -12,11 +14,7 @@ export type Props = {
 
 const Item = ({ customer, editOrder }: Props) => {
   return (
-    <Row
-      style={{
-        width: '100%',
-      }}
-    >
+    <Row style={styles.maxWidth}>
       <Col span={18}>
         <Row>
           <Col span={24}>

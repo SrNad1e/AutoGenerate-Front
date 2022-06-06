@@ -368,7 +368,6 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
           min={0}
           onChange={(value) => updateDetail(product as Product, value)}
           disabled={!allowEdit}
-          style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
     },

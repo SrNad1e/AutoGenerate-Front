@@ -338,19 +338,19 @@ const ReferenceList = () => {
       }
     >
       <Card>
-        <Form layout="inline" form={form} onReset={onClear} onFinish={onFinish}>
-          <Row gutter={[24, 18]}>
-            <Col span={8}>
+        <Form layout="horizontal" form={form} onReset={onClear} onFinish={onFinish}>
+          <Row gutter={[20, 0]}>
+            <Col xs={24} md={9} lg={9} xl={10}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Nombre, Descripción" autoComplete="off" disabled={loading} />
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={9} lg={9} xl={9}>
               <FormItem label="Marca" name="brandId">
                 <SelectBrand disabled={loading} />
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={6} lg={6} xl={5}>
               <Space>
                 <Button type="primary" htmlType="submit" loading={loading}>
                   Buscar
@@ -360,6 +360,8 @@ const ReferenceList = () => {
                 </Button>
               </Space>
             </Col>
+          </Row>
+          <Row gutter={[0, 20]} align="middle">
             <Col span={12}>
               <Button
                 icon={<PlusOutlined />}
@@ -377,20 +379,22 @@ const ReferenceList = () => {
                 {data?.references?.totalPages || 1}
               </Text>
             </Col>
+            <Col span={24}>
+              <Table
+                loading={loading}
+                dataSource={data?.references?.docs}
+                scroll={{ x: 1200 }}
+                pagination={{
+                  current: data?.references?.page,
+                  total: data?.references?.totalDocs,
+                  showSizeChanger: false,
+                }}
+                columns={columns}
+                onChange={handleChangeTable}
+              />
+            </Col>
           </Row>
         </Form>
-        <Table
-          loading={loading}
-          dataSource={data?.references?.docs}
-          scroll={{ x: 1200 }}
-          pagination={{
-            current: data?.references?.page,
-            total: data?.references?.totalDocs,
-            showSizeChanger: false,
-          }}
-          columns={columns}
-          onChange={handleChangeTable}
-        />
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       {<EditModal />}

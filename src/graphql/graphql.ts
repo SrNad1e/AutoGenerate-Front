@@ -5538,6 +5538,7 @@ export type OrderIdQuery = {
       document: string;
       firstName: string;
       lastName: string;
+      active: boolean;
       documentType: { __typename?: 'DocumentType'; abbreviation: string };
       customerType: { __typename?: 'CustomerType'; name: string };
     };
@@ -11491,6 +11492,7 @@ export const OrderIdDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'documentType' },

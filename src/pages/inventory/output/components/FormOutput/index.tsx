@@ -385,7 +385,6 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
           max={product?.stock ? product?.stock[0]?.quantity : 0}
           onChange={(value) => updateDetail(product || {}, value)}
           disabled={!allowEdit}
-          style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
     },

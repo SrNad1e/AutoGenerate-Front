@@ -293,6 +293,7 @@ const InputList = () => {
       title: 'Opciones',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, record) => {
         return (
           <Space>
@@ -323,27 +324,25 @@ const InputList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de Entradas
-          </Title>
+          <Title level={4}>Lista de Entradas</Title>
         </Space>
       }
     >
       <Card>
         <Form
           form={form}
-          layout="inline"
+          layout="horizontal"
           className={styles.filters}
           onFinish={onFinish}
           initialValues={filters}
         >
-          <Row gutter={[8, 8]} className={styles.form}>
-            <Col xs={24} lg={4} xl={4} xxl={2}>
+          <Row gutter={20} className={styles.form}>
+            <Col xs={24} md={5} lg={5} xl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber className={styles.item} disabled={loading} min={1} />
+                <InputNumber className={styles.item} disabled={loading} min={1} controls={false} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={5} xxl={4}>
+            <Col xs={24} md={8} lg={9} xl={5}>
               <FormItem label="Estado" name="status">
                 <Select className={styles.item} allowClear disabled={loading}>
                   {Object.keys(StatusTypeInput).map((key) => (
@@ -354,17 +353,17 @@ const InputList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={6} xxl={6}>
+            <Col xs={24} md={10} lg={10} xl={5}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={8} xxl={7}>
+            <Col xs={24} md={9} lg={9} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={5} xxl={4}>
+            <Col xs={24} md={7} lg={7} xl={5}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -383,23 +382,26 @@ const InputList = () => {
             </Col>
           </Row>
         </Form>
-      </Card>
-      <Card>
-        <Col span={24} style={{ textAlign: 'right' }}>
-          <Text strong>Total Encontrados:</Text> {data?.stockInputs?.totalDocs}{' '}
-          <Text strong>Páginas: </Text> {data?.stockInputs?.page} /{' '}
-          {data?.stockInputs?.totalPages || 0}
-        </Col>
-        <Table
-          columns={columns}
-          dataSource={data?.stockInputs?.docs as any}
-          pagination={{
-            current: data?.stockInputs?.page,
-            total: data?.stockInputs?.totalDocs,
-          }}
-          onChange={handleChangeTable}
-          loading={loading}
-        />
+        <Row gutter={[0, 20]}>
+          <Col span={24} className={styles.marginFilters}>
+            <Text strong>Total Encontrados:</Text> {data?.stockInputs?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.stockInputs?.page} /{' '}
+            {data?.stockInputs?.totalPages || 0}
+          </Col>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={data?.stockInputs?.docs as any}
+              pagination={{
+                current: data?.stockInputs?.page,
+                total: data?.stockInputs?.totalDocs,
+              }}
+              onChange={handleChangeTable}
+              loading={loading}
+              scroll={{ x: 'auto' }}
+            />
+          </Col>
+        </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>

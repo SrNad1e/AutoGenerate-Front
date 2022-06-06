@@ -12,6 +12,8 @@ import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectCustomer from '../components/SelectCustomer';
 
+import styles from './styles';
+
 const PosNew = () => {
   const [modalCustomerVisible, setModalCustomerVisible] = useState(false);
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
@@ -71,6 +73,10 @@ const PosNew = () => {
     });
   };
 
+  /**
+   * @description ejecuta la mutation para actualizar la orden
+   * @param params datos para ejecutar la mutation
+   */
   const editOrder = async (params: UpdateOrderInput) => {
     try {
       if (id) {
@@ -91,6 +97,11 @@ const PosNew = () => {
     }
   };
 
+  /**
+   * @description gestiona los productos que estan en la orden
+   * @param product producto para agregar a la orden
+   * @param quantity cantidad del producto para agregar
+   */
   const addProductOrder = async (product: Product, quantity: number) => {
     try {
       const productExist = data?.orderId?.details?.find(
@@ -116,6 +127,9 @@ const PosNew = () => {
     }
   };
 
+  /**
+   * @description funcion usada para en listar las ordenes
+   */
   const order = async () => {
     if (id) {
       const response = await getOrder({
@@ -141,37 +155,15 @@ const PosNew = () => {
   }, [error]);
 
   return (
-    <Row
-      style={{
-        height: '95vh',
-        overflow: 'hidden',
-      }}
-    >
-      <Col
-        xs={12}
-        md={8}
-        lg={8}
-        style={{
-          height: '100%',
-          borderRight: 'solid 1px black',
-        }}
-      >
+    <Row style={styles.rowScroll}>
+      <Col xs={12} md={8} lg={8} style={styles.colBorder}>
         <Resumen
           setModalCustomerVisible={setModalCustomerVisible}
           editOrder={editOrder}
           addProductOrder={addProductOrder}
         />
       </Col>
-      <Col
-        style={{
-          height: '100%',
-          overflowY: 'scroll',
-          overflowX: 'hidden',
-        }}
-        xs={12}
-        md={16}
-        lg={16}
-      >
+      <Col style={styles.colScroll} xs={12} md={16} lg={16}>
         <SearchProduct editOrder={editOrder} addProductOrder={addProductOrder} refCode={refCode} />
       </Col>
       <SelectCustomer

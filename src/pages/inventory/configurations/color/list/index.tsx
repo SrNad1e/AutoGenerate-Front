@@ -31,6 +31,7 @@ import CreateColors from '@/components/CreateColor';
 import type { Color, FiltersColorsInput } from '@/graphql/graphql';
 
 import styles from './styles.less';
+import Filters from '@/components/Filters';
 
 type FormData = {
   name?: string;
@@ -265,7 +266,7 @@ const ColorsList = () => {
       sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
       showSorterTooltip: false,
       render: (name: string, { image, html }) => (
-        <>
+        <Space>
           <Avatar
             style={{
               border: image ? 'solid 1px black' : '',
@@ -277,8 +278,8 @@ const ColorsList = () => {
             style={{ backgroundColor: html, border: 'solid 1px black', marginLeft: 10 }}
             shape="square"
           />
-          <Text style={{ marginLeft: 10 }}>{name}</Text>
-        </>
+          <Text>{name}</Text>
+        </Space>
       ),
     },
     {
@@ -293,16 +294,21 @@ const ColorsList = () => {
       },
       filterMultiple: false,
       filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
     },
     {
       title: 'Fecha Creación',
@@ -326,6 +332,7 @@ const ColorsList = () => {
       title: 'Acción',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_: string, colorID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
@@ -351,8 +358,8 @@ const ColorsList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row>
-            <Col span={12} style={{ marginBottom: 10 }}>
+          <Row gutter={[0, 20]}>
+            <Col span={12}>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
@@ -362,22 +369,25 @@ const ColorsList = () => {
                 Nuevo
               </Button>
             </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
+            <Col span={12} className={styles.alignRigth}>
               <Text strong>Total Encontrados:</Text> {data?.colors.totalDocs}{' '}
               <Text strong>Páginas: </Text> {data?.colors.page} / {data?.colors.totalPages || 0}
             </Col>
+            <Col span={24}>
+              <Table
+                columns={columns}
+                dataSource={data?.colors.docs}
+                pagination={{
+                  current: data?.colors.page,
+                  total: data?.colors.totalDocs,
+                  showSizeChanger: false,
+                }}
+                loading={loading}
+                onChange={handleChangeTable}
+                scroll={{ x: 'auto' }}
+              />
+            </Col>
           </Row>
-          <Table
-            columns={columns}
-            dataSource={data?.colors.docs}
-            pagination={{
-              current: data?.colors.page,
-              total: data?.colors.totalDocs,
-              showSizeChanger: false,
-            }}
-            loading={loading}
-            onChange={handleChangeTable}
-          />
         </div>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />

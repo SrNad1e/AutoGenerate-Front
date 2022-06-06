@@ -294,6 +294,7 @@ const AdjustmentList = () => {
       title: 'Opciones',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, record) => {
         return (
           <Space>
@@ -320,31 +321,30 @@ const AdjustmentList = () => {
       },
     },
   ];
+
   return (
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de Ajustes
-          </Title>
+          <Title level={4}>Lista de Ajustes</Title>
         </Space>
       }
     >
       <Card>
         <Form
           form={form}
-          layout="inline"
+          layout="horizontal"
           className={styles.filters}
           onFinish={onFinish}
           initialValues={filters}
         >
-          <Row gutter={[8, 8]} className={styles.form}>
-            <Col xs={24} lg={4} xl={4} xxl={2}>
+          <Row gutter={20} className={styles.form}>
+            <Col xs={24} md={5} lg={5} xl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber className={styles.item} disabled={loading} min={1} />
+                <InputNumber controls={false} className={styles.item} disabled={loading} min={1} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={5} xxl={4}>
+            <Col xs={24} md={8} lg={9} xl={5}>
               <FormItem label="Estado" name="status">
                 <Select className={styles.item} allowClear disabled={loading}>
                   {Object.keys(StatusTypeAdjustment).map((key) => (
@@ -358,17 +358,17 @@ const AdjustmentList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={6} xxl={6}>
+            <Col xs={24} md={10} lg={10} xl={5}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={8} xxl={7}>
+            <Col xs={24} md={9} lg={9} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={5} xxl={4}>
+            <Col xs={24} md={7} lg={7} xl={5}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -387,23 +387,26 @@ const AdjustmentList = () => {
             </Col>
           </Row>
         </Form>
-      </Card>
-      <Card>
-        <Col span={24} style={{ textAlign: 'right' }}>
-          <Text strong>Total Encontrados:</Text> {data?.stockAdjustments?.totalDocs}{' '}
-          <Text strong>Páginas: </Text> {data?.stockAdjustments?.page} /{' '}
-          {data?.stockAdjustments?.totalPages || 0}
-        </Col>
-        <Table
-          columns={columns}
-          dataSource={data?.stockAdjustments?.docs as any}
-          pagination={{
-            current: data?.stockAdjustments?.page,
-            total: data?.stockAdjustments?.totalDocs,
-          }}
-          onChange={handleChangeTable}
-          loading={loading}
-        />
+        <Row gutter={[0, 20]}>
+          <Col span={24} className={styles.marginFilters}>
+            <Text strong>Total Encontrados:</Text> {data?.stockAdjustments?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.stockAdjustments?.page} /{' '}
+            {data?.stockAdjustments?.totalPages || 0}
+          </Col>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={data?.stockAdjustments?.docs as any}
+              pagination={{
+                current: data?.stockAdjustments?.page,
+                total: data?.stockAdjustments?.totalDocs,
+              }}
+              onChange={handleChangeTable}
+              loading={loading}
+              scroll={{ x: 800 }}
+            />
+          </Col>
+        </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>
