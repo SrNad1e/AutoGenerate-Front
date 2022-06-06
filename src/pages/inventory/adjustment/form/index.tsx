@@ -7,7 +7,7 @@ import {
   FileTextOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-import { useHistory, useParams } from 'umi';
+import { useAccess, useHistory, useModel, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 
@@ -35,6 +35,8 @@ const AdjustmentForm = () => {
     status: 'open',
   });
 
+  const { initialState } = useModel('@@initialState');
+
   const { id } = useParams<Partial<{ id: string }>>();
 
   const history = useHistory();
@@ -45,7 +47,15 @@ const AdjustmentForm = () => {
     content: () => reportRef?.current,
   });
 
+  const {
+    adjustment: { canPrint, canEdit },
+  } = useAccess();
+
   const isNew = !id;
+  const allowEdit =
+    initialState?.currentUser?._id === adjustment?.user?._id &&
+    adjustment?.status === 'open' &&
+    canEdit;
 
   const [getAdjustment, { loading, data }] = useGetAdjustment();
   const [getWarehouseId] = useGetWarehouseId();
@@ -135,7 +145,13 @@ const AdjustmentForm = () => {
       case 0:
         return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
       case 1:
-        return <FormAdjustment adjustment={adjustment} setCurrentStep={setCurrentStep} />;
+        return (
+          <FormAdjustment
+            allowEdit={allowEdit}
+            adjustment={adjustment}
+            setCurrentStep={setCurrentStep}
+          />
+        );
       default:
         return <></>;
     }
@@ -160,7 +176,12 @@ const AdjustmentForm = () => {
             <>
               Ajuste No. {adjustment?.number} <Divider type="vertical" />
               <Tooltip title="Imprimir">
-                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+                <Button
+                  type="primary"
+                  icon={<PrinterOutlined />}
+                  onClick={() => handlePrint()}
+                  disabled={!canPrint}
+                />
               </Tooltip>
             </>
           )}
@@ -185,7 +206,11 @@ const AdjustmentForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormAdjustment adjustment={adjustment} setCurrentStep={setCurrentStep} />
+        <FormAdjustment
+          allowEdit={allowEdit}
+          adjustment={adjustment}
+          setCurrentStep={setCurrentStep}
+        />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />

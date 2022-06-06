@@ -30,7 +30,7 @@ import type { Moment } from 'moment';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import type { Location } from 'umi';
-import { useHistory, useLocation, useModel } from 'umi';
+import { useHistory, useLocation, useModel, useAccess } from 'umi';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
@@ -71,6 +71,10 @@ const RequestList = () => {
   });
 
   const { initialState } = useModel('@@initialState');
+
+  const {
+    request: { canAutoCreate, canPrint },
+  } = useAccess();
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -329,6 +333,7 @@ const RequestList = () => {
       title: 'Opciones',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, record) => {
         return (
           <Space>
@@ -343,6 +348,7 @@ const RequestList = () => {
               <Tooltip title="Imprimir">
                 <Button
                   type="ghost"
+                  disabled={!canPrint}
                   style={{ backgroundColor: 'white' }}
                   onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
@@ -359,25 +365,23 @@ const RequestList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de solicitudes
-          </Title>
+          <Title level={4}>Lista de solicitudes</Title>
           <Divider type="vertical" />
-          <Button shape="round" type="primary" onClick={autoRequest}>
+          <Button shape="round" type="primary" onClick={autoRequest} disabled={!canAutoCreate}>
             AutoGenerar
           </Button>
         </Space>
       }
     >
       <Card>
-        <Form form={form} layout="inline" className={styles.filters} onFinish={onFinish}>
-          <Row gutter={[8, 8]} className={styles.form}>
-            <Col xs={24} lg={4} xl={3} xxl={3}>
+        <Form form={form} layout="horizontal" className={styles.filters} onFinish={onFinish}>
+          <Row gutter={10} className={styles.form}>
+            <Col xs={24} md={4} lg={4} xl={3}>
               <FormItem label="Número" name="number">
                 <InputNumber controls={false} min={1} className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={4} xxl={3}>
+            <Col xs={24} md={7} lg={7} xl={5}>
               <FormItem label="Estado" name="status">
                 <Select className={styles.item} allowClear disabled={loading}>
                   {Object.keys(StatusType).map((key) => (
@@ -388,7 +392,7 @@ const RequestList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={3} xxl={4}>
+            <Col xs={24} md={6} lg={6} xl={4}>
               <FormItem label="Tipo" name="type">
                 <Select className={styles.item} disabled={loading}>
                   <Option key="sent">Enviado</Option>
@@ -396,17 +400,17 @@ const RequestList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={5} xxl={5}>
+            <Col xs={24} md={7} lg={7} xl={6}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={7} xxl={6}>
+            <Col xs={24} md={9} lg={10} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker className={styles.item} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={24} xxl={3}>
+            <Col xs={24} md={7} lg={7} xl={24}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -425,23 +429,26 @@ const RequestList = () => {
             </Col>
           </Row>
         </Form>
-      </Card>
-      <Card>
-        <Col span={24} style={{ textAlign: 'right' }}>
-          <Text strong>Total Encontrados:</Text> {data?.stockRequests?.totalDocs}{' '}
-          <Text strong>Páginas: </Text> {data?.stockRequests?.page} /{' '}
-          {data?.stockRequests?.totalPages || 0}
-        </Col>
-        <Table
-          columns={columns}
-          dataSource={data?.stockRequests?.docs as any}
-          pagination={{
-            current: data?.stockRequests?.page,
-            total: data?.stockRequests?.totalDocs,
-          }}
-          onChange={handleChangeTable}
-          loading={loading}
-        />
+        <Row gutter={[0, 20]}>
+          <Col span={24} className={styles.marginFilters}>
+            <Text strong>Total Encontrados:</Text> {data?.stockRequests?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.stockRequests?.page} /{' '}
+            {data?.stockRequests?.totalPages || 0}
+          </Col>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={data?.stockRequests?.docs as any}
+              pagination={{
+                current: data?.stockRequests?.page,
+                total: data?.stockRequests?.totalDocs,
+              }}
+              onChange={handleChangeTable}
+              loading={loading}
+              scroll={{ x: 'auto' }}
+            />
+          </Col>
+        </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <AlertLoading message="Generando solicitud" visible={propsGenerate?.loading} />

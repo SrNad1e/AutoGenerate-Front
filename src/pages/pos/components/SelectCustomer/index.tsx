@@ -8,6 +8,8 @@ import type { Customer, UpdateOrderInput } from '@/graphql/graphql';
 import { useGetDocumentTypes } from '@/hooks/documentType.hooks';
 import Item from './item';
 
+import styles from '../styles';
+
 export type Props = {
   visible: boolean;
   onCancel: () => void;
@@ -27,6 +29,9 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
 
   const [form] = Form.useForm();
 
+  /**
+   * @description valida los campos del formulario y ejecuta la mutation para la creacion del cliente
+   */
   const newCustomer = async () => {
     try {
       const values = await form.validateFields();
@@ -49,6 +54,10 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
     }
   };
 
+  /**
+   * @description consulta el listado de clientes
+   * @param value filtro para consultar lista de clientes
+   */
   const onSearch = (value: string) => {
     try {
       getCustomers({
@@ -64,12 +73,7 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
   };
 
   const renderSearchCustomer = () => (
-    <Space
-      direction="vertical"
-      style={{
-        width: '100%',
-      }}
-    >
+    <Space direction="vertical" style={styles.maxWidth}>
       <Input.Search
         enterButton="Buscar"
         size="large"
@@ -78,7 +82,7 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
         placeholder="Nombre o identificación"
         onSearch={onSearch}
       />
-      <List style={{ maxHeight: '50vh', overflow: 'scroll' }}>
+      <List style={styles.listCustomerStyle}>
         {data?.customers?.docs?.map((customer) => (
           <ListItem key={customer?._id}>
             <Item editOrder={editOrder} customer={customer as Customer} />

@@ -1,14 +1,10 @@
 import {
-  Affix,
   Avatar,
   Badge,
   Button,
   Card,
   Col,
-  Descriptions,
-  Divider,
   Form,
-  Input,
   InputNumber,
   Popconfirm,
   Row,
@@ -20,16 +16,9 @@ import {
 } from 'antd';
 import { useModel, useParams } from 'umi';
 import type { ColumnsType } from 'antd/es/table/interface';
-import {
-  BarcodeOutlined,
-  CheckCircleOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
-import moment from 'moment';
+import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 
-import { StatusType } from '../tranfer.data';
 import type { DetailTransfer, Product, StockRequest, StockTransfer } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
@@ -40,21 +29,19 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
-import styles from './styles.less';
-import SearchRequest from './SearchRequest';
+import Footer from './footer';
+import Header from './header';
 
-const { Title, Text } = Typography;
-const DescriptionsItem = Descriptions.Item;
+const { Text } = Typography;
 const FormItem = Form.Item;
-const { TextArea } = Input;
 
 export type Props = {
   transfer?: Partial<StockTransfer>;
   setCurrentStep: (step: number) => void;
+  allowEdit: boolean;
 };
 
-const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
-  const [showSelectRequests, setShowSelectRequests] = useState(false);
+const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
   const [requests, setRequests] = useState<StockRequest[]>([]);
   const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
   const [observation, setObservation] = useState('');
@@ -80,11 +67,6 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
 
   const [createTransfer, paramsCreate] = useCreateTransfer();
   const [updateTransfer, paramsUpdate] = useUpdateTransfer();
-
-  const allowEdit =
-    transfer?.status === 'open' &&
-    (!transfer?.warehouseOrigin?._id ||
-      transfer?.warehouseOrigin?._id === initialState?.currentUser?.shop?.defaultWarehouse?._id);
 
   /**
    * @description se encarga de abrir aviso de información
@@ -134,14 +116,6 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
     } else {
       onShowInformation('El traslado no tiene productos');
     }
-  };
-
-  const closeModalSelectRequests = () => {
-    setShowSelectRequests(false);
-  };
-
-  const showModalSelectRequests = () => {
-    setShowSelectRequests(true);
   };
 
   /**
@@ -275,57 +249,6 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
    */
   const createDetail = (product: Product, quantity: number) => {
     setDetails([...details, { product, quantity, action: 'create' }]);
-  };
-
-  const addRequests = async (requestsAdd: StockRequest[]) => {
-    const create: any[] = [];
-    const update: any[] = [];
-    if (requestsAdd.length > 0) {
-      for (let i = 0; i < requestsAdd.length; i++) {
-        const request = requestsAdd[i];
-        for (let j = 0; j < request?.details?.length; j++) {
-          const detail = request?.details[j];
-          const productFind = details?.find((item) => item?.product?._id === detail?.product?._id);
-          const productFindLocal = create?.findIndex(
-            (item) => item?.product?._id === detail?.product?._id,
-          );
-
-          if (productFind) {
-            update.push({
-              product: detail?.product,
-              quantity: detail?.quantity,
-            });
-          } else {
-            if (productFindLocal >= 0) {
-              create[productFindLocal] = {
-                product: detail?.product,
-                quantity: detail?.quantity,
-                action: 'create',
-              };
-            } else {
-              create.push({
-                product: detail?.product,
-                quantity: detail?.quantity,
-                action: 'create',
-              });
-            }
-          }
-        }
-      }
-      const newDetails = details.map((item) => {
-        const find = update.find((detail) => detail?.product?._id === item?.product?._id);
-        if (find) {
-          return {
-            ...item,
-            quantity: find?.quantity,
-          };
-        }
-        return item;
-      });
-      setDetails(newDetails.concat(create));
-      setRequests(requests.concat(requestsAdd));
-    }
-    closeModalSelectRequests();
   };
 
   /**
@@ -462,136 +385,30 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
 
   return (
     <>
-      <Card>
-        <Row gutter={[0, 1]}>
-          <Col lg={12} xs={24}>
-            <Descriptions bordered size="small">
-              <DescriptionsItem label="Bodega que traslada" span={3}>
-                {transfer?.warehouseOrigin?.name ||
-                  initialState?.currentUser?.shop?.defaultWarehouse?.name}
-              </DescriptionsItem>
-              <DescriptionsItem label="Usuario que envía" span={3}>
-                {transfer?.userOrigin?.name || initialState?.currentUser?.name}
-              </DescriptionsItem>
-            </Descriptions>
-          </Col>
-          <Col lg={12} xs={24}>
-            <Descriptions bordered size="small">
-              <DescriptionsItem label="Bodega de destino" span={3}>
-                {transfer?.warehouseDestination?.name}
-              </DescriptionsItem>
-              <DescriptionsItem label="Usuario que recibe" span={3}>
-                {transfer?.userDestination?.name || '(Pendiente)'}
-              </DescriptionsItem>
-            </Descriptions>
-          </Col>
-          <Col lg={24} xs={24}>
-            <Descriptions bordered size="small">
-              <DescriptionsItem label="Número" span={2}>
-                {transfer?.number || '(Pendiente)'}
-              </DescriptionsItem>
-              <DescriptionsItem label="Estado" span={2}>
-                <Badge
-                  color={StatusType[transfer?.status || 'open']?.color}
-                  text={StatusType[transfer?.status || 'open']?.text}
-                />
-              </DescriptionsItem>
-              <DescriptionsItem label="Creado" span={2}>
-                {moment(transfer?.createdAt).format(FORMAT_DATE)}
-              </DescriptionsItem>
-              <DescriptionsItem label="Actualizado" span={2}>
-                {moment(transfer?.updatedAt).format(FORMAT_DATE)}
-              </DescriptionsItem>
-              <DescriptionsItem label="Solicitudes" span={2}>
-                {requests?.map((request) => (
-                  <Tag key={request?._id} color="volcano" icon={<CheckCircleOutlined />}>
-                    {request?.number}
-                  </Tag>
-                ))}
-                <Tooltip title="Agregar solicitud">
-                  <Button
-                    onClick={showModalSelectRequests}
-                    disabled={!allowEdit}
-                    type="primary"
-                    icon={<PlusOutlined />}
-                  />
-                </Tooltip>
-              </DescriptionsItem>
-              <DescriptionsItem label="Observación" span={2}>
-                {allowEdit ? (
-                  <TextArea
-                    value={observation}
-                    onChange={(e) => setObservation(e?.target?.value)}
-                  />
-                ) : (
-                  transfer?.observationOrigin
-                )}
-              </DescriptionsItem>
-            </Descriptions>
-          </Col>
-        </Row>
-        {allowEdit && (
+      <Header
+        allowEdit={allowEdit}
+        transfer={transfer}
+        setObservation={setObservation}
+        observation={observation}
+      />
+      {allowEdit && (
+        <Card bordered={false} size="small">
           <Form layout="vertical">
             <FormItem label="Código de barras">
               <SearchProducts {...propsSearchProduct} />
             </FormItem>
           </Form>
-        )}
+        </Card>
+      )}
+      <Card>
         <Table
           columns={columns}
           dataSource={details.filter((detail) => detail?.action !== 'delete') as any}
-          scroll={{ x: 800 }}
+          scroll={{ x: 800, y: 200 }}
           pagination={{ size: 'small' }}
         />
       </Card>
-
-      <Affix offsetBottom={0}>
-        <Card bordered={false}>
-          <Row justify="center" align="middle">
-            <Col span={4}>
-              <Button
-                disabled={!allowEdit}
-                type={transfer?._id ? 'primary' : 'default'}
-                danger={!!transfer?._id}
-                onClick={() => showAlertSave('cancelled')}
-              >
-                Cancelar
-              </Button>
-            </Col>
-            <Col span={14}>
-              <Space className={styles.centerFooter}>
-                <Title level={3}>
-                  REFERENCIAS: {details.filter((detail) => detail?.action !== 'delete').length}
-                  <Divider type="vertical" />
-                  PRODUCTOS:{' '}
-                  {details
-                    .filter((detail) => detail?.action !== 'delete')
-                    .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
-                </Title>
-              </Space>
-            </Col>
-            <Col span={6}>
-              <Space
-                align="end"
-                style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}
-              >
-                <Button disabled={!allowEdit} onClick={() => showAlertSave()}>
-                  Guardar
-                </Button>
-                <Button type="primary" disabled={!allowEdit} onClick={() => showAlertSave('sent')}>
-                  Enviar
-                </Button>
-              </Space>
-            </Col>
-          </Row>
-        </Card>
-      </Affix>
-      <SearchRequest
-        visible={showSelectRequests}
-        onCancel={closeModalSelectRequests}
-        requests={requests as StockRequest[]}
-        onOk={addRequests}
-      />
+      <Footer transfer={transfer} saveTransfer={showAlertSave} details={details} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading
         visible={paramsCreate?.loading || paramsUpdate?.loading}

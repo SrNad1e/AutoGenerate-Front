@@ -7,7 +7,7 @@ import {
   FileTextOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-import { useHistory, useParams } from 'umi';
+import { useAccess, useHistory, useModel, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 
@@ -34,6 +34,7 @@ const OutputForm = () => {
   const [output, setOutput] = useState<Partial<StockOutput>>({
     status: 'open',
   });
+  const { initialState } = useModel('@@initialState');
 
   const { id } = useParams<Partial<{ id: string }>>();
 
@@ -49,7 +50,11 @@ const OutputForm = () => {
   const [getWarehouseId] = useGetWarehouseId();
 
   const isNew = !id;
-
+  const {
+    output: { canPrint, canEdit },
+  } = useAccess();
+  const allowEdit =
+    initialState?.currentUser?._id === output?.user?._id && output?.status === 'open' && canEdit;
   /**
    * @description se encarga de abrir aviso de información
    * @param error error de apollo
@@ -135,7 +140,7 @@ const OutputForm = () => {
       case 0:
         return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
       case 1:
-        return <FormOutput output={output} setCurrentStep={setCurrentStep} />;
+        return <FormOutput allowEdit={allowEdit} output={output} setCurrentStep={setCurrentStep} />;
       default:
         return <></>;
     }
@@ -162,7 +167,12 @@ const OutputForm = () => {
               {' '}
               Salida No. {output?.number} <Divider type="vertical" />
               <Tooltip title="Imprimir">
-                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+                <Button
+                  disabled={!canPrint}
+                  type="primary"
+                  icon={<PrinterOutlined />}
+                  onClick={() => handlePrint()}
+                />
               </Tooltip>{' '}
             </>
           )}
@@ -187,7 +197,7 @@ const OutputForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormOutput output={output} setCurrentStep={setCurrentStep} />
+        <FormOutput allowEdit={allowEdit} output={output} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />

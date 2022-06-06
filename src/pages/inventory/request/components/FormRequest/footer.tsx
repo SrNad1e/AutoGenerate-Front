@@ -10,11 +10,10 @@ export type Props = {
   request: Partial<StockRequest> | undefined;
   saveRequest: (status?: string) => void;
   details: Partial<DetailRequest & { action: string }>[];
+  allowEdit: boolean;
 };
 
-const Footer = ({ request, saveRequest, details }: Props) => {
-  const allowEdit = request?.status === 'open';
-
+const Footer = ({ request, saveRequest, details, allowEdit }: Props) => {
   /**
    * @description genera la vista del resumen
    * @returns componente para la vista de resumen
@@ -38,7 +37,7 @@ const Footer = ({ request, saveRequest, details }: Props) => {
     <Affix offsetBottom={0}>
       <Card>
         <Row>
-          <Col span={4}>
+          <Col xs={24} md={3}>
             <Button
               disabled={!allowEdit}
               type={request?._id ? 'primary' : 'default'}
@@ -48,9 +47,11 @@ const Footer = ({ request, saveRequest, details }: Props) => {
               Cancelar
             </Button>
           </Col>
-          <Col span={16}>{renderResumen()}</Col>
-          <Col span={4}>
-            <Space align="end" className={styles.alignRigth}>
+          <Col xs={24} md={16}>
+            {renderResumen()}
+          </Col>
+          <Col xs={24} md={5}>
+            <Space className={styles.alignRigth}>
               <Button disabled={!allowEdit} onClick={() => saveRequest()}>
                 Guardar
               </Button>

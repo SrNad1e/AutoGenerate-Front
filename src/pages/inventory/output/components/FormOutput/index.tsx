@@ -36,9 +36,10 @@ const { Text } = Typography;
 export type Props = {
   output?: Partial<StockOutput>;
   setCurrentStep: (step: number) => void;
+  allowEdit: boolean;
 };
 
-const FormOutput = ({ output, setCurrentStep }: Props) => {
+const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
   const [details, setDetails] = useState<Partial<DetailOutput & { action: string }>[]>([]);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
@@ -64,8 +65,6 @@ const FormOutput = ({ output, setCurrentStep }: Props) => {
 
   const [createOutput, paramsCreate] = useCreateOutput();
   const [updateOutput, paramsUpdate] = useUpdateOutput();
-
-  const allowEdit = output?.status === 'open';
 
   /**
    * @description se encarga de abrir aviso de información
@@ -386,7 +385,6 @@ const FormOutput = ({ output, setCurrentStep }: Props) => {
           max={product?.stock ? product?.stock[0]?.quantity : 0}
           onChange={(value) => updateDetail(product || {}, value)}
           disabled={!allowEdit}
-          style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
     },
@@ -410,7 +408,12 @@ const FormOutput = ({ output, setCurrentStep }: Props) => {
 
   return (
     <>
-      <Header output={output} setObservation={setObservation} observation={observation} />
+      <Header
+        allowEdit={allowEdit}
+        output={output}
+        setObservation={setObservation}
+        observation={observation}
+      />
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
@@ -428,7 +431,7 @@ const FormOutput = ({ output, setCurrentStep }: Props) => {
           pagination={{ size: 'small' }}
         />
       </Card>
-      <Footer output={output} saveOutput={showAlertSave} details={details} />
+      <Footer allowEdit={allowEdit} output={output} saveOutput={showAlertSave} details={details} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading visible={paramsUpdate?.loading} message="Guardando Salida" />
       <AlertLoading visible={paramsCreate?.loading} message="Creando Salida" />
