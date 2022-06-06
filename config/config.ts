@@ -186,7 +186,18 @@ export default defineConfig({
             },
           ],
         },
-
+        {
+          name: 'Configuraciones',
+          path: '/configurations',
+          icon: 'setting',
+          routes: [
+            {
+              name: 'Usuarios',
+              path: '/configurations/users',
+              component: './configurations/users/list',
+            },
+          ],
+        },
         {
           layout: false,
           component: '404',
