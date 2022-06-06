@@ -16,7 +16,7 @@ import {
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { Location } from 'umi';
-import { history, Link, useLocation } from 'umi';
+import { history, Link, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -51,6 +51,10 @@ const ReferenceList = () => {
   const location: Location = useLocation();
 
   const [form] = Form.useForm();
+
+  const {
+    reference: { canEdit, canCreate },
+  } = useAccess();
 
   const [getReferences, { data, loading }] = useGetReferences();
 
@@ -322,7 +326,7 @@ const ReferenceList = () => {
       render: (id: string) => (
         <Tooltip title="Editar" placement="topLeft">
           <Link to={`/inventory/configurations/reference/${id}`}>
-            <Button type="primary" icon={<EditOutlined />} />
+            <Button type="primary" icon={<EditOutlined />} disabled={!canEdit} />
           </Link>
         </Tooltip>
       ),
@@ -367,6 +371,7 @@ const ReferenceList = () => {
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                disabled={!canCreate}
                 onClick={() => history.push('/inventory/configurations/reference/new')}
               >
                 Nueva Referencia

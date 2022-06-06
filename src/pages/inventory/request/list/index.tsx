@@ -435,7 +435,7 @@ const RequestList = () => {
             <Text strong>Páginas: </Text> {data?.stockRequests?.page} /{' '}
             {data?.stockRequests?.totalPages || 0}
           </Col>
-          <Col>
+          <Col span={24}>
             <Table
               columns={columns}
               dataSource={data?.stockRequests?.docs as any}

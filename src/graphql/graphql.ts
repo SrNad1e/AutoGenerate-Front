@@ -1985,6 +1985,10 @@ export enum Permissions {
   PrintInvoicingClosez = 'PRINT_INVOICING_CLOSEZ',
   PrintInvoicingReturn = 'PRINT_INVOICING_RETURN',
   ReadConfigurationConveyors = 'READ_CONFIGURATION_CONVEYORS',
+  ReadConfigurationImages = 'READ_CONFIGURATION_IMAGES',
+  ReadConfigurationShops = 'READ_CONFIGURATION_SHOPS',
+  ReadConfigurationUsers = 'READ_CONFIGURATION_USERS',
+  ReadConfigurationWarehouses = 'READ_CONFIGURATION_WAREHOUSES',
   ReadCrmCities = 'READ_CRM_CITIES',
   ReadCrmCustomers = 'READ_CRM_CUSTOMERS',
   ReadInventoryAdjustments = 'READ_INVENTORY_ADJUSTMENTS',
@@ -2005,11 +2009,8 @@ export enum Permissions {
   ReadInvoicingOrders = 'READ_INVOICING_ORDERS',
   ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
   ReadInvoicingReturns = 'READ_INVOICING_RETURNS',
-  ReadShops = 'READ_SHOPS',
-  ReadShopsWarehouses = 'READ_SHOPS_WAREHOUSES',
-  ReadStaticfilesImages = 'READ_STATICFILES_IMAGES',
   ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
-  ReadUsers = 'READ_USERS',
+  UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
   UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
   UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
   UpdateInventoryAttrib = 'UPDATE_INVENTORY_ATTRIB',
@@ -2024,7 +2025,6 @@ export enum Permissions {
   UpdateInventorySize = 'UPDATE_INVENTORY_SIZE',
   UpdateInventoryTransfer = 'UPDATE_INVENTORY_TRANSFER',
   UpdateInvoicingOrder = 'UPDATE_INVOICING_ORDER',
-  UpdateUser = 'UPDATE_USER',
 }
 
 /** Punto de venta de la tienda */

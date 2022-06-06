@@ -5,7 +5,7 @@ import { Button, Card, Col, Form, Input, Row, Space, Table, Tooltip, Typography 
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
-import { useLocation, history } from 'umi';
+import { useLocation, history, useAccess } from 'umi';
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -47,6 +47,10 @@ const CategoryList = () => {
   const [form] = Form.useForm();
 
   const location: Location = useLocation();
+
+  const {
+    categories: { canEdit, canCreate },
+  } = useAccess();
 
   const [getCategories, { data, loading }] = useGetCategories();
 
@@ -313,6 +317,7 @@ const CategoryList = () => {
         <Space>
           <Tooltip title="Editar" placement="topLeft">
             <Button
+              disabled={!canEdit}
               onClick={() => visibleModal(categoryData, false)}
               style={{ backgroundColor: '#dc9575' }}
               icon={<EditOutlined style={{ color: 'white' }} />}
@@ -321,6 +326,7 @@ const CategoryList = () => {
           {val !== 'CategoryLevel3' && (
             <Tooltip title="Crear Subcategoria" placement="topLeft">
               <Button
+                disabled={!canCreate}
                 onClick={() => visibleModal(categoryData, true)}
                 style={{ backgroundColor: '#dc9575' }}
                 icon={<PlusSquareOutlined style={{ color: 'white' }} />}
@@ -349,6 +355,7 @@ const CategoryList = () => {
               type="primary"
               shape="round"
               onClick={() => visibleModal({ __typename: 'CategoryLevel1' }, true)}
+              disabled={!canCreate}
             >
               Nuevo
             </Button>

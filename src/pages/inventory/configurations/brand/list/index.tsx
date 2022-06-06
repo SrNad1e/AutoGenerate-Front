@@ -18,7 +18,7 @@ import {
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
-import { useHistory, useLocation } from 'umi';
+import { useHistory, useLocation, useAccess } from 'umi';
 import type { ColumnsType, SorterResult } from 'antd/es/table/interface';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -54,6 +54,10 @@ const BrandsList = () => {
 
   const location: Location = useLocation();
   const history = useHistory();
+
+  const {
+    brand: { canCreate, canEdit },
+  } = useAccess();
 
   const [getBrands, { data, loading }] = useGetBrands();
 
@@ -304,6 +308,7 @@ const BrandsList = () => {
       render: (_: string, BrandID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            disabled={!canEdit}
             onClick={() => visibleModal(BrandID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -327,6 +332,7 @@ const BrandsList = () => {
           <Row gutter={[0, 20]} align="middle">
             <Col span={12}>
               <Button
+                disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"

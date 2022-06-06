@@ -38,9 +38,10 @@ const FormItem = Form.Item;
 export type Props = {
   transfer?: Partial<StockTransfer>;
   setCurrentStep: (step: number) => void;
+  allowEdit: boolean;
 };
 
-const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
+const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
   const [requests, setRequests] = useState<StockRequest[]>([]);
   const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
   const [observation, setObservation] = useState('');
@@ -66,11 +67,6 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
 
   const [createTransfer, paramsCreate] = useCreateTransfer();
   const [updateTransfer, paramsUpdate] = useUpdateTransfer();
-
-  const allowEdit =
-    transfer?.status === 'open' &&
-    (!transfer?.warehouseOrigin?._id ||
-      transfer?.warehouseOrigin?._id === initialState?.currentUser?.shop?.defaultWarehouse?._id);
 
   /**
    * @description se encarga de abrir aviso de información
@@ -389,7 +385,12 @@ const FormTransfer = ({ transfer, setCurrentStep }: Props) => {
 
   return (
     <>
-      <Header transfer={transfer} setObservation={setObservation} observation={observation} />
+      <Header
+        allowEdit={allowEdit}
+        transfer={transfer}
+        setObservation={setObservation}
+        observation={observation}
+      />
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">

@@ -34,7 +34,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
-import { useHistory, useModel, useParams } from 'umi';
+import { useAccess, useHistory, useModel, useParams } from 'umi';
 import { useReactToPrint } from 'react-to-print';
 import type { ColumnsType } from 'antd/es/table/interface';
 
@@ -92,10 +92,16 @@ const ConfirmTransfer = () => {
   const [confirmProductsTransfer] = useConfirmProductsTransfer();
   const [updateTransfer] = useUpdateTransfer();
 
+  const {
+    transfer: { canPrint, canConfirm },
+  } = useAccess();
+
   const allowConfirm =
     data?.stockTransferId?.status === 'sent' &&
     initialState?.currentUser?.shop?.defaultWarehouse?._id ===
-      data?.stockTransferId?.warehouseDestination?._id;
+      data?.stockTransferId?.warehouseDestination?._id &&
+    canConfirm;
+
   const allowConfirmTransfer = !data?.stockTransferId?.details?.find(
     (item) => item.status === 'new',
   );
@@ -371,7 +377,7 @@ const ConfirmTransfer = () => {
           render: ({ _id = '' }: Product, record) => (
             <Popconfirm
               disabled={!allowConfirm || record?.status === 'confirmed'}
-              title="¿De<sea confirmar en 0?"
+              title="¿Desea confirmar en 0?"
               okText="Si, confirmar"
               cancelText="Cancelar"
               onConfirm={() => confirmZero(_id)}
@@ -410,7 +416,12 @@ const ConfirmTransfer = () => {
             <Text>Traslado No. {data?.stockTransferId?.number}</Text>
             <Divider type="vertical" />
             <Tooltip title="Imprimir">
-              <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+              <Button
+                type="primary"
+                icon={<PrinterOutlined />}
+                onClick={() => handlePrint()}
+                disabled={!canPrint}
+              />
             </Tooltip>
           </>
         </Space>

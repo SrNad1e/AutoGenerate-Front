@@ -78,5 +78,53 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === 'CONFIRM_INVENTORY_TRANSFER',
       ),
     },
+    reference: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'UPDATE_INVENTORY_REFERENCE',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVENTORY_REFERENCE',
+      ),
+    },
+    color: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'UPDATE_INVENTORY_COLOR',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVENTORY_COLOR',
+      ),
+    },
+    categories: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'UPDATE_INVENTORY_COLOR',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVENTORY_COLOR',
+      ),
+    },
+    size: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'UPDATE_INVENTORY_SIZE',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVENTORY_SIZE',
+      ),
+    },
+    attrib: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'UPDATE_INVENTORY_ATTRIB',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVENTORY_ATTRIB',
+      ),
+    },
+    brand: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'UPDATE_INVENTORY_BRAND',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVENTORY_BRAND',
+      ),
+    },
   };
 }

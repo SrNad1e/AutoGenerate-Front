@@ -34,7 +34,7 @@ import type {
   TablePaginationConfig,
 } from 'antd/es/table/interface';
 import type { Location } from 'umi';
-import { useHistory, useLocation } from 'umi';
+import { useHistory, useLocation, useAccess } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 
@@ -80,6 +80,10 @@ const TransferList = () => {
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
+
+  const {
+    transfer: { canPrint, canConfirm },
+  } = useAccess();
 
   const [getTransfers, { data, loading }] = useGetTransfers();
 
@@ -311,6 +315,7 @@ const TransferList = () => {
               <Tooltip title={record?.status === 'sent' ? 'Confirmar' : 'Ver'}>
                 <Button
                   type="primary"
+                  disabled={record.status === 'sent' && !canConfirm}
                   danger={record?.status === 'sent'}
                   icon={record?.status === 'sent' ? <FileDoneOutlined /> : <EyeOutlined />}
                   onClick={() => history.push(`/inventory/transfer/confirm/${_id}`)}
@@ -320,6 +325,7 @@ const TransferList = () => {
             <Tooltip title="Imprimir">
               <Button
                 type="ghost"
+                disabled={!canPrint}
                 style={style.whiteColor}
                 onClick={() => printPage(record)}
                 icon={<PrinterFilled />}
