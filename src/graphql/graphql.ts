@@ -1228,6 +1228,26 @@ export type FiltersInvoicesInput = {
   sort?: InputMaybe<SortInovice>;
 };
 
+/** Filtros del listado de pedidos */
+export type FiltersOrdersInput = {
+  /** Fecha final para la busqueda */
+  dateFinal?: InputMaybe<Scalars['String']>;
+  /** Fecha inicial para la busqueda */
+  dateInitial?: InputMaybe<Scalars['String']>;
+  /** Documento del cliente que registra en el pedidod */
+  document?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Número consecutivo del pedido */
+  number?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortOrder>;
+  /** Estado del pedido */
+  status?: InputMaybe<Scalars['String']>;
+};
+
 /** Filtros para obtener el listado de tipos de medios de pago */
 export type FiltersPaymentsInput = {
   /** Estado del tipo de los médios de pago */
@@ -2157,6 +2177,8 @@ export type Query = {
   invoices: ResponseInvoices;
   /** Obtiene la orden por el id */
   orderId: Order;
+  /** Obtener las ordenes */
+  orders: ResponseOrders;
   /** Obtener las ordenes por punto de venta */
   ordersByPointOfSale: Order[];
   /** Se encarga de listar los metodos de pago */
@@ -2259,6 +2281,10 @@ export type QueryInvoicesArgs = {
 
 export type QueryOrderIdArgs = {
   id: Scalars['String'];
+};
+
+export type QueryOrdersArgs = {
+  filtersOrdersInput: FiltersOrdersInput;
 };
 
 export type QueryOrdersByPointOfSaleArgs = {
@@ -2717,6 +2743,30 @@ export type ResponseInvoices = {
   __typename?: 'ResponseInvoices';
   /** Lista de facturas */
   docs: Invoice[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Lista de predidos */
+export type ResponseOrders = {
+  __typename?: 'ResponseOrders';
+  /** Lista de pedidos */
+  docs: Order[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3302,6 +3352,16 @@ export type SortImage = {
 export type SortInovice = {
   /** Ordenamiento por fecha de creación */
   createdAt?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento de pedidos */
+export type SortOrder = {
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por número consecutivo del pedido */
+  number?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por fecha de actualización */
   updatedAt?: InputMaybe<Scalars['Float']>;
 };

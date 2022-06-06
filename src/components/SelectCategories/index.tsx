@@ -36,11 +36,27 @@ const SelectCategories = ({ value, onChange }: Params) => {
     onSearch();
   }, []);
 
+  useEffect(() => {
+    if (value) {
+      getCategories({
+        variables: {
+          input: {
+            _id: value.split('-')[0],
+            sort: {
+              name: 1,
+            },
+          },
+        },
+      });
+    }
+  }, [!!value]);
+
   return (
     <>
       <TreeSelect
         placeholder="Seleccione categoría"
         loading={loading}
+        defaultValue={value?.split('-')}
         value={value}
         onChange={onChange}
       >
