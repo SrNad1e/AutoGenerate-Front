@@ -46,7 +46,7 @@ const SelectColor = ({ onChange, value, disabled }: Props) => {
         },
       },
     });
-  }, []);
+  }, [!!value]);
 
   return (
     <>
