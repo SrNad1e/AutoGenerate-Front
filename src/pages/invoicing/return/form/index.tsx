@@ -1,4 +1,6 @@
-import type { Order } from '@/graphql/graphql';
+import type { DetailOrder, DetailReturnInput, FiltersOrdersInput, Order } from '@/graphql/graphql';
+import { useGetOrders } from '@/hooks/order.hooks';
+import { useCreateReturnInvoice } from '@/hooks/return-invoice.hooks';
 import { Button, Modal, Steps } from 'antd';
 import { useState } from 'react';
 
@@ -10,7 +12,6 @@ import styles from './styles';
 type Props = {
   visible?: boolean;
   onCancel?: () => void;
-  onOk?: () => void;
 };
 
 const { Step } = Steps;
@@ -18,10 +19,43 @@ const { Step } = Steps;
 const FormReturn = ({ visible, onCancel }: Props) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [orderSelected, setOrderSelected] = useState<Partial<Order>>({});
+  const [productsSelected, setProductsSelected] = useState<
+    Partial<(DetailOrder & { quantityReturn: number })[]>
+  >([]);
 
   const selectOrder = (record: Order) => {
     setCurrentStep(1);
     setOrderSelected(record);
+  };
+
+  const [createReturnOrder] = useCreateReturnInvoice();
+  const [getOrders, { data }] = useGetOrders();
+
+  const createNewReturn = () => {
+    const details: DetailReturnInput[] = productsSelected?.map((detail) => ({
+      productId: detail?.product?._id || '',
+      quantity: detail?.quantityReturn || 1,
+    }));
+
+    createReturnOrder({
+      variables: {
+        input: {
+          details,
+          orderId: orderSelected?._id || '',
+        },
+      },
+    });
+  };
+
+  const onSearch = (params?: FiltersOrdersInput) => {
+    getOrders({
+      variables: {
+        input: {
+          status: 'closed',
+          ...params,
+        },
+      },
+    });
   };
 
   return (
@@ -44,7 +78,12 @@ const FormReturn = ({ visible, onCancel }: Props) => {
           >
             {currentStep === 1 ? 'Atrás' : 'Cancelar'}
           </Button>,
-          <Button key={2} disabled={true} type="primary">
+          <Button
+            key={2}
+            disabled={productsSelected.length < 1}
+            type="primary"
+            onClick={createNewReturn}
+          >
             {currentStep === 1 ? 'Crear Devolución' : undefined}
           </Button>,
         ]
@@ -55,8 +94,17 @@ const FormReturn = ({ visible, onCancel }: Props) => {
         <Step key="1" title="Pedido" />
         <Step key="2" title="Productos" />
       </Steps>
-      {currentStep === 0 && <RenderStep1 selectOrder={selectOrder} />}
-      {currentStep === 1 && <RenderStep2 orderSelected={orderSelected} />}
+      {currentStep === 0 && (
+        <RenderStep1 data={data} onSearch={onSearch} selectOrder={selectOrder} />
+      )}
+      {currentStep === 1 && (
+        <RenderStep2
+          currentStep={currentStep}
+          orderSelected={orderSelected}
+          productsSelected={productsSelected}
+          setProductsSelected={setProductsSelected}
+        />
+      )}
     </Modal>
   );
 };

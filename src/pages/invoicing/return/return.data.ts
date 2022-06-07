@@ -3,7 +3,7 @@ export const StatusType = {
     color: 'green',
     text: 'Abierto',
   },
-  cancel: {
+  cancelled: {
     color: 'red',
     text: 'Cancelado',
   },
@@ -11,8 +11,17 @@ export const StatusType = {
     color: 'blue',
     text: 'Enviado',
   },
-  confirmed: {
+  invoiced: {
+    color: 'green',
+    text: 'Facturado',
+  },
+  pending: {
     color: 'yellow',
-    text: 'Confirmado',
+    text: 'Pendiente',
+  },
+
+  closed: {
+    color: 'red',
+    text: 'Cerrado',
   },
 };

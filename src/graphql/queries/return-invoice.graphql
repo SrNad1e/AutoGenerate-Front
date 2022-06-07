@@ -1,14 +1,20 @@
-query returnsInvoice($input: FiltersReturnsInvoiceInput) {
-  returnsInvoice(filtersReturnsInvoice: $input) {
+query returnsOrder($input: FiltersReturnsOrderInput) {
+  returnsOrder(filtersReturnsOrder: $input) {
     totalPages
     totalDocs
     page
     docs {
+      active
+      createdAt
+      updatedAt
       _id
-      authorization {
-        prefix
+      shop {
+        name
       }
       number
+      order {
+        number
+      }
       details {
         price
         product {
@@ -25,9 +31,6 @@ query returnsInvoice($input: FiltersReturnsInvoiceInput) {
           }
         }
         quantity
-      }
-      warehouse {
-        name
       }
     }
   }

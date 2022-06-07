@@ -15,6 +15,17 @@ export type Scalars = {
   DateTime: any;
 };
 
+/** Opción del permiso */
+export type ActionPermission = {
+  __typename?: 'ActionPermission';
+  /** Identificador del permiso */
+  _id: Scalars['String'];
+  /** Descripción del permiso */
+  description: Scalars['String'];
+  /** Nombre de la acción del permiso */
+  name: Scalars['String'];
+};
+
 /** Datos para agregar medios de pago al pedido */
 export type AddPaymentsOrderInput = {
   /** Id del pedido que se requiere agreagar o editar productos */
@@ -465,6 +476,33 @@ export type Conveyor = {
   user: User;
 };
 
+/** Cupones para pagos */
+export type Coupon = {
+  __typename?: 'Coupon';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Código para redención del cupón */
+  code: Scalars['String'];
+  /** Consecutivo del cupón */
+  company: Company;
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Fecha de vencimiento del cupón */
+  expiration: Scalars['DateTime'];
+  /** Mensaje del pie del cupón */
+  message: Scalars['String'];
+  /** Consecutivo del cupón */
+  number: Scalars['Float'];
+  /** Título del cupón */
+  title: Scalars['String'];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó el cupón */
+  user: User;
+  /** Valor de redención del cupón */
+  value: Scalars['Float'];
+};
+
 /** Datos para crear un atributo */
 export type CreateAttribInput = {
   /** Nombre del atributo */
@@ -605,6 +643,25 @@ export type CreateReferenceInput = {
   width: Scalars['Float'];
 };
 
+export type CreateReturnOrderInput = {
+  /** Productos que se devuelven del pedido */
+  details: DetailReturnInput[];
+  /** Pedido al que afecta la devolución */
+  orderId: Scalars['String'];
+};
+
+/** Datos para la creación de un rol */
+export type CreateRoleInput = {
+  /** Estado del rol */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Habilita para que el usuario pueda consulta cualquier bodega */
+  changeWarehouse?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre del rol */
+  name: Scalars['String'];
+  /** Identificadores de los permisos asignados */
+  permissionIds: Scalars['String'][];
+};
+
 /** Datos para crear una talla */
 export type CreateSizeInput = {
   /** Valor asignado a la talla */
@@ -677,6 +734,26 @@ export type CreateStockTransferInput = {
   warehouseDestinationId: Scalars['String'];
   /** Identificador de la bodega de origen del traslado */
   warehouseOriginId: Scalars['String'];
+};
+
+/** Datos para la creación de un usuario */
+export type CreateUserInput = {
+  /** Identificador de la empresa a la que pertenece el usuario */
+  companyId?: InputMaybe<Scalars['String']>;
+  /** Identificador del cliente asignado al usuario */
+  customerId?: InputMaybe<Scalars['String']>;
+  /** Nombre del usuario */
+  name: Scalars['String'];
+  /** Contraseña de usuario */
+  password: Scalars['String'];
+  /** Identificador del punto de venta asignado al usuario */
+  pointOfSaleId?: InputMaybe<Scalars['String']>;
+  /** Identificador del rol del usuario */
+  roleId: Scalars['String'];
+  /** Identificador de la tienda asignada al usuario */
+  shopId: Scalars['String'];
+  /** Usuario registrado */
+  username: Scalars['String'];
 };
 
 /** Cliente */
@@ -836,14 +913,22 @@ export type DetailRequest = {
   updatedAt: Scalars['DateTime'];
 };
 
+/** Producto de la devoliución del pedido */
+export type DetailReturnInput = {
+  /** Identificador del producto */
+  productId: Scalars['String'];
+  /** Cantidad del producto */
+  quantity: Scalars['Float'];
+};
+
 /** Productos de la devolucion */
 export type DetailReturnInvoice = {
   __typename?: 'DetailReturnInvoice';
-  /** Precio del producto en la factura */
+  /** Precio del producto de la devolución */
   price: Scalars['Float'];
-  /** Producto agregado a la factura */
+  /** Producto de la devolución */
   product: Product;
-  /** Cantidad de productos en la factura */
+  /** Cantidad de productos de la devolución */
   quantity: Scalars['Float'];
 };
 
@@ -1186,6 +1271,26 @@ export type FiltersInvoicesInput = {
   sort?: InputMaybe<SortInovice>;
 };
 
+/** Filtros del listado de pedidos */
+export type FiltersOrdersInput = {
+  /** Fecha final para la busqueda */
+  dateFinal?: InputMaybe<Scalars['String']>;
+  /** Fecha inicial para la busqueda */
+  dateInitial?: InputMaybe<Scalars['String']>;
+  /** Documento del cliente que registra en el pedidod */
+  document?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Número consecutivo del pedido */
+  number?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortOrder>;
+  /** Estado del pedido */
+  status?: InputMaybe<Scalars['String']>;
+};
+
 /** Filtros para obtener el listado de tipos de medios de pago */
 export type FiltersPaymentsInput = {
   /** Estado del tipo de los médios de pago */
@@ -1291,9 +1396,9 @@ export type FiltersReferencesInput = {
   sort?: InputMaybe<SortReference>;
 };
 
-/** Filtros de listado de devoluciones de facturación */
-export type FiltersReturnsInvoiceInput = {
-  /** Si la devolucion de encuentra se encuentra activ< */
+/** Filtros de listado de devoluciones del pedido */
+export type FiltersReturnsOrderInput = {
+  /** Si la devolucion de encuentra se encuentra activo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Fecha final para la busqueda */
   dateFinal?: InputMaybe<Scalars['String']>;
@@ -1301,10 +1406,28 @@ export type FiltersReturnsInvoiceInput = {
   dateInitial?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
+  /** Número de la devolución */
+  number?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
+  /** Identificador de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
-  sort?: InputMaybe<SortReturnInovice>;
+  sort?: InputMaybe<SortReturnOrder>;
+};
+
+/** Filtros para consultar los roles */
+export type FiltersRolesInput = {
+  /** El rol se encuentra activo */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Nombre del rol */
+  name?: InputMaybe<Scalars['String']>;
+  /** Página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortRole>;
 };
 
 /** Filtros usados para consultar las tiendas */
@@ -1601,6 +1724,10 @@ export type Mutation = {
   createProduct: Product;
   /** Crea una referencia */
   createReference: Reference;
+  /** Se encarga de crear la devolución del pedido */
+  createReturnOrder: ReturnOrder;
+  /** Crea una rol */
+  createRole: Role;
   /** Crear una talla */
   createSize: Size;
   /** Crea un ajuste de productos */
@@ -1613,6 +1740,7 @@ export type Mutation = {
   createStockRequest: StockRequest;
   /** Crea una traslado de productos */
   createStockTransfer: StockTransfer;
+  createUser: User;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
@@ -1635,6 +1763,8 @@ export type Mutation = {
   updateProduct: Product;
   /** Actualiza una referencia */
   updateReference: Reference;
+  /** Actualiza un rol */
+  updateRole: Role;
   /** Actualizar la talla */
   updateSize: Size;
   /** Actualiza un ajuste de productos */
@@ -1703,6 +1833,14 @@ export type MutationCreateReferenceArgs = {
   createReferenceInput: CreateReferenceInput;
 };
 
+export type MutationCreateReturnOrderArgs = {
+  createReturnOrderInput: CreateReturnOrderInput;
+};
+
+export type MutationCreateRoleArgs = {
+  createRoleInput: CreateRoleInput;
+};
+
 export type MutationCreateSizeArgs = {
   createSizeInput: CreateSizeInput;
 };
@@ -1725,6 +1863,10 @@ export type MutationCreateStockRequestArgs = {
 
 export type MutationCreateStockTransferArgs = {
   createStockTransferInput: CreateStockTransferInput;
+};
+
+export type MutationCreateUserArgs = {
+  createUserInput: CreateUserInput;
 };
 
 export type MutationGenerateStockRequestArgs = {
@@ -1779,6 +1921,11 @@ export type MutationUpdateReferenceArgs = {
   updateReferenceInput: UpdateReferenceInput;
 };
 
+export type MutationUpdateRoleArgs = {
+  id: Scalars['String'];
+  updateRoleInput: UpdateRoleInput;
+};
+
 export type MutationUpdateSizeArgs = {
   id: Scalars['String'];
   updateSizeInput: UpdateSizeInput;
@@ -1812,6 +1959,15 @@ export type MutationUpdateStockTransferArgs = {
 export type MutationUpdateUserArgs = {
   id: Scalars['String'];
   updateUserInput: UpdateUserInput;
+};
+
+/** Opción del permiso */
+export type OptionPermission = {
+  __typename?: 'OptionPermission';
+  /** Acciones a realizan en la opción */
+  actions: ActionPermission[];
+  /** Nombre de la opción */
+  name: Scalars['String'];
 };
 
 /** Pedido de productos */
@@ -1924,8 +2080,8 @@ export type Permission = {
   __typename?: 'Permission';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Tipo de acción (list, see, create, update, autogenerate) */
-  action: Scalars['String'];
+  /** Tipo de acción */
+  action: Permissions;
   /** Detalle de la acción */
   description: Scalars['String'];
   /** Módulo al que pertenece el permiso */
@@ -1935,6 +2091,113 @@ export type Permission = {
   /** Opción del módulo al que pertenece el permiso */
   option: Scalars['String'];
 };
+
+/** Permiso */
+export type PermissionData = {
+  __typename?: 'PermissionData';
+  /** Nombre del módulo */
+  module: Scalars['String'];
+  /** Opciones del módulo */
+  options: OptionPermission[];
+};
+
+export enum Permissions {
+  AccessConfigurationConveyors = 'ACCESS_CONFIGURATION_CONVEYORS',
+  AccessConfigurationRoles = 'ACCESS_CONFIGURATION_ROLES',
+  AccessConfigurationUsers = 'ACCESS_CONFIGURATION_USERS',
+  AccessCrmCities = 'ACCESS_CRM_CITIES',
+  AccessCrmCustomers = 'ACCESS_CRM_CUSTOMERS',
+  AccessErp = 'ACCESS_ERP',
+  AccessInventoryAdjustments = 'ACCESS_INVENTORY_ADJUSTMENTS',
+  AccessInventoryAttribs = 'ACCESS_INVENTORY_ATTRIBS',
+  AccessInventoryBrands = 'ACCESS_INVENTORY_BRANDS',
+  AccessInventoryCategories = 'ACCESS_INVENTORY_CATEGORIES',
+  AccessInventoryColors = 'ACCESS_INVENTORY_COLORS',
+  AccessInventoryInputs = 'ACCESS_INVENTORY_INPUTS',
+  AccessInventoryOutputs = 'ACCESS_INVENTORY_OUTPUTS',
+  AccessInventoryProducts = 'ACCESS_INVENTORY_PRODUCTS',
+  AccessInventoryReferences = 'ACCESS_INVENTORY_REFERENCES',
+  AccessInventoryRequests = 'ACCESS_INVENTORY_REQUESTS',
+  AccessInventorySizes = 'ACCESS_INVENTORY_SIZES',
+  AccessInventoryTransfers = 'ACCESS_INVENTORY_TRANSFERS',
+  AccessInvoicingClosesx = 'ACCESS_INVOICING_CLOSESX',
+  AccessInvoicingClosesz = 'ACCESS_INVOICING_CLOSESZ',
+  AccessInvoicingReturns = 'ACCESS_INVOICING_RETURNS',
+  AccessPos = 'ACCESS_POS',
+  AutogenerateInventoryRequest = 'AUTOGENERATE_INVENTORY_REQUEST',
+  ConfirmInventoryTransfer = 'CONFIRM_INVENTORY_TRANSFER',
+  CreateConfigurationRole = 'CREATE_CONFIGURATION_ROLE',
+  CreateConfigurationUser = 'CREATE_CONFIGURATION_USER',
+  CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
+  CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
+  CreateInventoryAttrib = 'CREATE_INVENTORY_ATTRIB',
+  CreateInventoryBrand = 'CREATE_INVENTORY_BRAND',
+  CreateInventoryCategory = 'CREATE_INVENTORY_CATEGORY',
+  CreateInventoryColor = 'CREATE_INVENTORY_COLOR',
+  CreateInventoryInput = 'CREATE_INVENTORY_INPUT',
+  CreateInventoryOutput = 'CREATE_INVENTORY_OUTPUT',
+  CreateInventoryProduct = 'CREATE_INVENTORY_PRODUCT',
+  CreateInventoryReference = 'CREATE_INVENTORY_REFERENCE',
+  CreateInventoryRequest = 'CREATE_INVENTORY_REQUEST',
+  CreateInventorySize = 'CREATE_INVENTORY_SIZE',
+  CreateInventoryTransfer = 'CREATE_INVENTORY_TRANSFER',
+  CreateInvoicingClosex = 'CREATE_INVOICING_CLOSEX',
+  CreateInvoicingClosez = 'CREATE_INVOICING_CLOSEZ',
+  CreateInvoicingOrder = 'CREATE_INVOICING_ORDER',
+  CreateInvoicingReturn = 'CREATE_INVOICING_RETURN',
+  PrintInventoryAdjustment = 'PRINT_INVENTORY_ADJUSTMENT',
+  PrintInventoryInput = 'PRINT_INVENTORY_INPUT',
+  PrintInventoryOutput = 'PRINT_INVENTORY_OUTPUT',
+  PrintInventoryRequest = 'PRINT_INVENTORY_REQUEST',
+  PrintInventoryTransfer = 'PRINT_INVENTORY_TRANSFER',
+  PrintInvoicingClosex = 'PRINT_INVOICING_CLOSEX',
+  PrintInvoicingClosez = 'PRINT_INVOICING_CLOSEZ',
+  PrintInvoicingReturn = 'PRINT_INVOICING_RETURN',
+  ReadConfigurationConveyors = 'READ_CONFIGURATION_CONVEYORS',
+  ReadConfigurationImages = 'READ_CONFIGURATION_IMAGES',
+  ReadConfigurationPermissions = 'READ_CONFIGURATION_PERMISSIONS',
+  ReadConfigurationRoles = 'READ_CONFIGURATION_ROLES',
+  ReadConfigurationShops = 'READ_CONFIGURATION_SHOPS',
+  ReadConfigurationUsers = 'READ_CONFIGURATION_USERS',
+  ReadConfigurationWarehouses = 'READ_CONFIGURATION_WAREHOUSES',
+  ReadCrmCities = 'READ_CRM_CITIES',
+  ReadCrmCustomers = 'READ_CRM_CUSTOMERS',
+  ReadInventoryAdjustments = 'READ_INVENTORY_ADJUSTMENTS',
+  ReadInventoryAttribs = 'READ_INVENTORY_ATTRIBS',
+  ReadInventoryBrands = 'READ_INVENTORY_BRANDS',
+  ReadInventoryCategories = 'READ_INVENTORY_CATEGORIES',
+  ReadInventoryColors = 'READ_INVENTORY_COLORS',
+  ReadInventoryInputs = 'READ_INVENTORY_INPUTS',
+  ReadInventoryOutputs = 'READ_INVENTORY_OUTPUTS',
+  ReadInventoryProducts = 'READ_INVENTORY_PRODUCTS',
+  ReadInventoryReferences = 'READ_INVENTORY_REFERENCES',
+  ReadInventoryRequests = 'READ_INVENTORY_REQUESTS',
+  ReadInventorySizes = 'READ_INVENTORY_SIZES',
+  ReadInventoryTransfers = 'READ_INVENTORY_TRANSFERS',
+  ReadInvoicingClosesx = 'READ_INVOICING_CLOSESX',
+  ReadInvoicingClosesz = 'READ_INVOICING_CLOSESZ',
+  ReadInvoicingInvoices = 'READ_INVOICING_INVOICES',
+  ReadInvoicingOrders = 'READ_INVOICING_ORDERS',
+  ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
+  ReadInvoicingReturns = 'READ_INVOICING_RETURNS',
+  ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
+  UpdateConfigurationRole = 'UPDATE_CONFIGURATION_ROLE',
+  UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
+  UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
+  UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
+  UpdateInventoryAttrib = 'UPDATE_INVENTORY_ATTRIB',
+  UpdateInventoryBrand = 'UPDATE_INVENTORY_BRAND',
+  UpdateInventoryCategory = 'UPDATE_INVENTORY_CATEGORY',
+  UpdateInventoryColor = 'UPDATE_INVENTORY_COLOR',
+  UpdateInventoryInput = 'UPDATE_INVENTORY_INPUT',
+  UpdateInventoryOutput = 'UPDATE_INVENTORY_OUTPUT',
+  UpdateInventoryProduct = 'UPDATE_INVENTORY_PRODUCT',
+  UpdateInventoryReference = 'UPDATE_INVENTORY_REFERENCE',
+  UpdateInventoryRequest = 'UPDATE_INVENTORY_REQUEST',
+  UpdateInventorySize = 'UPDATE_INVENTORY_SIZE',
+  UpdateInventoryTransfer = 'UPDATE_INVENTORY_TRANSFER',
+  UpdateInvoicingOrder = 'UPDATE_INVOICING_ORDER',
+}
 
 /** Punto de venta de la tienda */
 export type PointOfSale = {
@@ -2018,10 +2281,14 @@ export type Query = {
   invoices: ResponseInvoices;
   /** Obtiene la orden por el id */
   orderId: Order;
+  /** Obtener las ordenes */
+  orders: ResponseOrders;
   /** Obtener las ordenes por punto de venta */
   ordersByPointOfSale: Order[];
   /** Se encarga de listar los metodos de pago */
   payments: ResponsePayments;
+  /** Se encarga de listar los permisos */
+  permissions: PermissionData[];
   /** Lista de puntos de venta */
   pointOfSales: ResponsePointOfSales;
   /** Obtiene un producto */
@@ -2032,8 +2299,12 @@ export type Query = {
   referenceId: ReferenceData;
   /** Listado de las referencias */
   references: ResponseReferences;
-  /** Lista de devoluciones de factura */
-  returnsInvoice: ResponseReturnsInvoice;
+  /** Lista de devoluciones de pedidos */
+  returnsOrder: ResponseReturnsOrder;
+  /** Obtiene el rol por el identificador */
+  roleId: Role;
+  /** Listado de las roles */
+  roles: ResponseRoles;
   /** Se encarga de listar las tiendas */
   shops: ResponseShops;
   /** Listar las tallas */
@@ -2122,6 +2393,10 @@ export type QueryOrderIdArgs = {
   id: Scalars['String'];
 };
 
+export type QueryOrdersArgs = {
+  filtersOrdersInput: FiltersOrdersInput;
+};
+
 export type QueryOrdersByPointOfSaleArgs = {
   idPointOfSale: Scalars['String'];
 };
@@ -2151,8 +2426,16 @@ export type QueryReferencesArgs = {
   filtersReferencesInput?: InputMaybe<FiltersReferencesInput>;
 };
 
-export type QueryReturnsInvoiceArgs = {
-  filtersReturnsInvoice?: InputMaybe<FiltersReturnsInvoiceInput>;
+export type QueryReturnsOrderArgs = {
+  filtersReturnsOrder?: InputMaybe<FiltersReturnsOrderInput>;
+};
+
+export type QueryRoleIdArgs = {
+  id: Scalars['String'];
+};
+
+export type QueryRolesArgs = {
+  filtersRolesInput?: InputMaybe<FiltersRolesInput>;
 };
 
 export type QueryShopsArgs = {
@@ -2597,6 +2880,30 @@ export type ResponseInvoices = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de predidos */
+export type ResponseOrders = {
+  __typename?: 'ResponseOrders';
+  /** Lista de pedidos */
+  docs: Order[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta a la consulta de metodos de pago */
 export type ResponsePayments = {
   __typename?: 'ResponsePayments';
@@ -2693,11 +3000,35 @@ export type ResponseReferences = {
   totalPages: Scalars['Float'];
 };
 
-/** Lista de devoluciones de factura */
-export type ResponseReturnsInvoice = {
-  __typename?: 'ResponseReturnsInvoice';
+/** Lista de devoluciones de ordenes */
+export type ResponseReturnsOrder = {
+  __typename?: 'ResponseReturnsOrder';
   /** Lista de ajustes */
-  docs: ReturnInvoice[];
+  docs: ReturnOrder[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta a la consulta de roles */
+export type ResponseRoles = {
+  __typename?: 'ResponseRoles';
+  /** Lista de roles */
+  docs: Role[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -2910,30 +3241,30 @@ export type ResponseWarehouses = {
 };
 
 /** Devoluciones de facturación */
-export type ReturnInvoice = {
-  __typename?: 'ReturnInvoice';
+export type ReturnOrder = {
+  __typename?: 'ReturnOrder';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Autorización */
-  authorization: AuthorizationDian;
-  /** Compañía a la que pertence el ajuste */
+  /** Estado del devolucion */
+  active: Scalars['Boolean'];
+  /** Compañía a la que pertence la devolución */
   company: Company;
+  /** Cupón generado */
+  coupon: Coupon;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Productos de la devolución */
   details?: Maybe<DetailReturnInvoice[]>;
-  /** Factura de la devolución */
-  invoice: Invoice;
   /** Número consecutivo */
   number: Scalars['Float'];
-  /** Estado del ajuste (open, confirmed, cancelled) */
-  status: Scalars['String'];
+  /** Pedido de la devolución */
+  order: Order;
+  /** Tienda */
+  shop: Shop;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
   user: User;
-  /** Bodega del ajuste */
-  warehouse: Warehouse;
 };
 
 /** Rol del usuario  */
@@ -3169,6 +3500,16 @@ export type SortInovice = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de pedidos */
+export type SortOrder = {
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por número consecutivo del pedido */
+  number?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento de la teinda */
 export type SortPayment = {
   active?: InputMaybe<Scalars['Float']>;
@@ -3208,11 +3549,20 @@ export type SortReference = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
-/** Ordenamiento de las devoluciones en factura */
-export type SortReturnInovice = {
+/** Ordenamiento de las devoluciones en pedido */
+export type SortReturnOrder = {
   /** Ordenamiento por fecha de creación */
   createdAt?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento para el listado de roles */
+export type SortRole = {
+  active?: InputMaybe<Scalars['Float']>;
+  changeWarehouse?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['Float']>;
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
@@ -3669,6 +4019,18 @@ export type UpdateReferenceInput = {
   weight?: InputMaybe<Scalars['Float']>;
   /** Ancho del producto */
   width?: InputMaybe<Scalars['Float']>;
+};
+
+/** Datos para actualizar el rol */
+export type UpdateRoleInput = {
+  /** Estado del rol */
+  active: Scalars['Boolean'];
+  /** Puede el usuario cambiar su bodega */
+  changeWarehouse: Scalars['Boolean'];
+  /** Nombre del rol */
+  name: Scalars['String'];
+  /** Identificadores de los permisos seleccionados */
+  permissionIds?: InputMaybe<Scalars['String'][]>;
 };
 
 /** Datos para actualizar la talla */
@@ -4720,6 +5082,31 @@ export type GenerateStockRequestMutation = {
   generateStockRequest: { __typename?: 'StockRequest'; _id: string; number: number };
 };
 
+export type CreateReturnOrderMutationVariables = Exact<{
+  input: CreateReturnOrderInput;
+}>;
+
+export type CreateReturnOrderMutation = {
+  __typename?: 'Mutation';
+  createReturnOrder: {
+    __typename?: 'ReturnOrder';
+    number: number;
+    coupon: {
+      __typename?: 'Coupon';
+      code: string;
+      title: string;
+      number: number;
+      message: string;
+      createdAt: any;
+      updatedAt: any;
+      expiration: any;
+      value: number;
+      _id: string;
+    };
+    order: { __typename?: 'Order'; number: number; shop: { __typename?: 'Shop'; name: string } };
+  };
+};
+
 export type CreateSizeMutationVariables = Exact<{
   input: CreateSizeInput;
 }>;
@@ -5543,6 +5930,51 @@ export type OrdersByPosQuery = {
   }[];
 };
 
+export type OrdersQueryVariables = Exact<{
+  input: FiltersOrdersInput;
+}>;
+
+export type OrdersQuery = {
+  __typename?: 'Query';
+  orders: {
+    __typename?: 'ResponseOrders';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Order';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      number: number;
+      status: string;
+      summary: { __typename?: 'SummaryOrder'; total: number };
+      customer: { __typename?: 'Customer'; document: string; firstName: string; lastName: string };
+      shop: { __typename?: 'Shop'; name: string };
+      details?:
+        | {
+            __typename?: 'DetailOrder';
+            price: number;
+            quantity: number;
+            product: {
+              __typename?: 'Product';
+              _id: string;
+              barcode: string;
+              reference: {
+                __typename?: 'Reference';
+                changeable: boolean;
+                name: string;
+                description: string;
+              };
+              color: { __typename?: 'Color'; name: string };
+              size: { __typename?: 'Size'; value: string };
+            };
+          }[]
+        | null;
+    }[];
+  };
+};
+
 export type StockOutputQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
@@ -5930,22 +6362,26 @@ export type StockRequestsQuery = {
   };
 };
 
-export type ReturnsInvoiceQueryVariables = Exact<{
-  input?: InputMaybe<FiltersReturnsInvoiceInput>;
+export type ReturnsOrderQueryVariables = Exact<{
+  input?: InputMaybe<FiltersReturnsOrderInput>;
 }>;
 
-export type ReturnsInvoiceQuery = {
+export type ReturnsOrderQuery = {
   __typename?: 'Query';
-  returnsInvoice: {
-    __typename?: 'ResponseReturnsInvoice';
+  returnsOrder: {
+    __typename?: 'ResponseReturnsOrder';
     totalPages: number;
     totalDocs: number;
     page: number;
     docs: {
-      __typename?: 'ReturnInvoice';
+      __typename?: 'ReturnOrder';
+      active: boolean;
+      createdAt: any;
+      updatedAt: any;
       _id: string;
       number: number;
-      authorization: { __typename?: 'AuthorizationDian'; prefix: string };
+      shop: { __typename?: 'Shop'; name: string };
+      order: { __typename?: 'Order'; number: number };
       details?:
         | {
             __typename?: 'DetailReturnInvoice';
@@ -5960,7 +6396,6 @@ export type ReturnsInvoiceQuery = {
             };
           }[]
         | null;
-      warehouse: { __typename?: 'Warehouse'; name: string };
     }[];
   };
 };
@@ -9112,6 +9547,84 @@ export const GenerateStockRequestDocument = {
     },
   ],
 } as unknown as DocumentNode<GenerateStockRequestMutation, GenerateStockRequestMutationVariables>;
+export const CreateReturnOrderDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createReturnOrder' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateReturnOrderInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createReturnOrder' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createReturnOrderInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'coupon' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'code' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'order' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateReturnOrderMutation, CreateReturnOrderMutationVariables>;
 export const CreateSizeDocument = {
   kind: 'Document',
   definitions: [
@@ -11728,6 +12241,153 @@ export const OrdersByPosDocument = {
     },
   ],
 } as unknown as DocumentNode<OrdersByPosQuery, OrdersByPosQueryVariables>;
+export const OrdersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Orders' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersOrdersInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'orders' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersOrdersInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'summary' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'total' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'customer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'details' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'product' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'reference' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'changeable' },
+                                        },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'description' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'color' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'size' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<OrdersQuery, OrdersQueryVariables>;
 export const StockOutputDocument = {
   kind: 'Document',
   definitions: [
@@ -13063,18 +13723,18 @@ export const StockRequestsDocument = {
     },
   ],
 } as unknown as DocumentNode<StockRequestsQuery, StockRequestsQueryVariables>;
-export const ReturnsInvoiceDocument = {
+export const ReturnsOrderDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'returnsInvoice' },
+      name: { kind: 'Name', value: 'returnsOrder' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersReturnsInvoiceInput' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersReturnsOrderInput' } },
         },
       ],
       selectionSet: {
@@ -13082,11 +13742,11 @@ export const ReturnsInvoiceDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'returnsInvoice' },
+            name: { kind: 'Name', value: 'returnsOrder' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'filtersReturnsInvoice' },
+                name: { kind: 'Name', value: 'filtersReturnsOrder' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
               },
             ],
@@ -13102,16 +13762,27 @@ export const ReturnsInvoiceDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'authorization' },
+                        name: { kind: 'Name', value: 'shop' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'prefix' } }],
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'order' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'number' } }],
+                        },
+                      },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'details' },
@@ -13167,14 +13838,6 @@ export const ReturnsInvoiceDocument = {
                           ],
                         },
                       },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'warehouse' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
                     ],
                   },
                 },
@@ -13185,7 +13848,7 @@ export const ReturnsInvoiceDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<ReturnsInvoiceQuery, ReturnsInvoiceQueryVariables>;
+} as unknown as DocumentNode<ReturnsOrderQuery, ReturnsOrderQueryVariables>;
 export const ShopsDocument = {
   kind: 'Document',
   definitions: [

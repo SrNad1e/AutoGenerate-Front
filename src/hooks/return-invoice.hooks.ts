@@ -1,9 +1,13 @@
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 
-import { ReturnsInvoiceDocument } from '@/graphql/graphql';
+import { CreateReturnOrderDocument, ReturnsOrderDocument } from '@/graphql/graphql';
 
 export const useGetReturnsInvoice = () => {
-  return useLazyQuery(ReturnsInvoiceDocument, {
+  return useLazyQuery(ReturnsOrderDocument, {
     fetchPolicy: 'cache-first',
   });
+};
+
+export const useCreateReturnInvoice = () => {
+  return useMutation(CreateReturnOrderDocument);
 };

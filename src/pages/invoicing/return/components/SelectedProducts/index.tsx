@@ -1,18 +1,15 @@
 import type { DetailOrder, Product } from '@/graphql/graphql';
-import { InputNumber, Select, Table, Tag } from 'antd';
+import { InputNumber, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import numeral from 'numeral';
-import styles from '../styles';
-
-const { Option } = Select;
 
 type Props = {
-  productsSelected: Partial<DetailOrder[]>;
+  productsSelected: Partial<(DetailOrder & { quantityReturn: number })[]>;
   onChangeQuantity: (quantity: number, product: Product) => void;
 };
 
 const SelectedProducts = ({ productsSelected, onChangeQuantity }: Props) => {
-  const columnsSelected: ColumnsType<DetailOrder> = [
+  const columnsSelected: ColumnsType<DetailOrder & { quantityReturn: number }> = [
     {
       title: 'Referencia',
       dataIndex: 'product',
@@ -33,44 +30,30 @@ const SelectedProducts = ({ productsSelected, onChangeQuantity }: Props) => {
       render: (product: Product) => <Tag>{product?.barcode}</Tag>,
     },
     {
-      title: 'Motivo',
-      dataIndex: 'returnType',
-      width: 150,
-      render: (returnType: number) => {
-        return (
-          <>
-            {' '}
-            <Select defaultValue={returnType} style={styles.allWidth}>
-              <Option key="change" value="change">
-                Cambio
-              </Option>
-              <Option key="warranty" value="warranty">
-                Garantía
-              </Option>
-            </Select>
-          </>
-        );
-      },
-    },
-    {
       title: 'Cantidad',
-      dataIndex: 'quantity',
-      render: (quantity: number) => (
-        <InputNumber min={1} value={quantity} onChange={() => onChangeQuantity} />
+      dataIndex: 'quantityReturn',
+      render: (quantityReturn: number, { quantity, product }) => (
+        <InputNumber
+          max={quantity}
+          min={1}
+          value={quantityReturn}
+          onChange={(value) => onChangeQuantity(value, product)}
+        />
       ),
     },
     {
       title: 'Precio',
-      dataIndex: 'price',
+      dataIndex: 'quantityReturn',
       align: 'right',
-      render: (price: number) => numeral(price).format('$ 0,0'),
+      render: (quantityReturn: number, record) =>
+        numeral(quantityReturn * record.price).format('$ 0,0'),
     },
   ];
 
   return (
     <Table
       columns={columnsSelected}
-      dataSource={productsSelected}
+      dataSource={productsSelected as any}
       pagination={false}
       scroll={{ y: 'auto', x: 800 }}
     />

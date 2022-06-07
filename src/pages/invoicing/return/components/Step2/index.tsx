@@ -1,40 +1,44 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import type { DetailOrder, Order, Product } from '@/graphql/graphql';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { Col, Descriptions, Divider, Form, Row, Select, Switch, Table, Tag } from 'antd';
+import { Col, Descriptions, Divider, Row, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import moment from 'moment';
 import numeral from 'numeral';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SelectedProducts from '../SelectedProducts';
 
 import styles from '../styles';
 
-const { Option } = Select;
 const DescriptionsItem = Descriptions.Item;
-const FormItem = Form.Item;
 
 type Props = {
   orderSelected?: Partial<Order>;
+  productsSelected: (DetailOrder & { quantityReturn: number })[];
+  setProductsSelected: (products: (DetailOrder & { quantityReturn: number })[]) => void;
+  currentStep: number;
 };
 
-const RenderStep2 = ({ orderSelected }: Props) => {
-  const [productsSelected, setProductsSelected] = useState<Partial<DetailOrder[]>>([]);
+const RenderStep2 = ({
+  orderSelected,
+  productsSelected,
+  setProductsSelected,
+  currentStep,
+}: Props) => {
+  const [keysSelected, setKeysSelected] = useState<React.Key[]>([]);
 
-  const [form] = Form.useForm();
+  const dataCustomer = orderSelected?.customer;
 
   const rowSelection = {
-    onChange: (_: any, selectedRows: DetailOrder[]) => {
-      const rows = selectedRows.map((product) => {
-        const productFind = productsSelected.find(
-          (item) => product?.product?._id === item?.product._id,
-        );
-        return {
-          ...product,
-          quantity: productFind?.quantity || 1,
-          returnType: form.getFieldValue('returnType'),
-        };
-      });
-      setProductsSelected(rows);
+    selectedRowKeys: keysSelected,
+    onChange: (selectedRowKeys: React.Key[], selectedRows: DetailOrder[]) => {
+      setProductsSelected(
+        selectedRows.map((detail) => ({
+          ...detail,
+          quantityReturn: 1,
+        })),
+      );
+      setKeysSelected(selectedRowKeys);
     },
     getCheckboxProps: (record: DetailOrder) => ({
       disabled: record.product.reference.changeable === true,
@@ -42,25 +46,22 @@ const RenderStep2 = ({ orderSelected }: Props) => {
     }),
   };
 
-  const dataCustomer = orderSelected?.customer;
-
-  const onChangeQuantity = (quantity: number, product: Product) => {
-    const max =
-      orderSelected?.details?.find((item) => item.product._id === product._id)?.quantity || 0;
-
-    if (quantity <= max) {
-      const productsChange = productsSelected.map((item) => {
-        if (product._id === item?.product._id) {
-          return {
-            ...item,
-            quantity,
-          };
-        }
-        return item;
-      });
-      setProductsSelected(productsChange);
-    }
+  const onChangeQuantity = (quantityReturn: number, product: Product) => {
+    const productsChange = productsSelected?.map((item) => {
+      if (product?._id === item?.product?._id) {
+        return {
+          ...item,
+          quantityReturn,
+        };
+      }
+      return item;
+    });
+    setProductsSelected(productsChange);
   };
+
+  useEffect(() => {
+    setProductsSelected([]);
+  }, [currentStep]);
 
   /**
    * Columna de productos de la factura
@@ -107,14 +108,6 @@ const RenderStep2 = ({ orderSelected }: Props) => {
           <CloseCircleOutlined style={styles.closeStyle} />
         ),
     },
-    {
-      title: 'Opciones',
-      dataIndex: 'product',
-      align: 'center',
-      render: (product: Product) => (
-        <Switch checked={product.reference.changeable} onChange={() => {}} />
-      ),
-    },
   ];
 
   return (
@@ -140,21 +133,12 @@ const RenderStep2 = ({ orderSelected }: Props) => {
             </DescriptionsItem>
           </Descriptions>
         </Col>
-        <Col span={9}>
-          <Form form={form}>
-            <FormItem name="returnType" initialValue="Cambio">
-              <Select placeholder="Seleccionar Motivo" allowClear style={styles.allWidth}>
-                <Option value="Cambio">Cambio</Option>
-                <Option value="Garantia">Garantia</Option>
-              </Select>
-            </FormItem>
-          </Form>
-        </Col>
       </Row>
       <Divider orientation="left" style={styles.dividerMargin}>
         Productos Del Pedido
       </Divider>
       <Table
+        rowKey="product"
         rowSelection={rowSelection}
         columns={columns}
         dataSource={orderSelected?.details as any}
