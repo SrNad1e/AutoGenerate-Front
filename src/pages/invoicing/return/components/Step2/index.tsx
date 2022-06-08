@@ -1,81 +1,99 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import {
-  Col,
-  Descriptions,
-  Divider,
-  Form,
-  InputNumber,
-  Row,
-  Select,
-  Switch,
-  Table,
-  Tag,
-} from 'antd';
+import { Col, Descriptions, Divider, Row, Table, Tag } from 'antd';
+import type { ColumnsType } from 'antd/lib/table';
+import type { DetailOrder, Order, Product } from '@/graphql/graphql';
 import moment from 'moment';
 import numeral from 'numeral';
+import { useEffect, useState } from 'react';
+
+import SelectedProducts from '../SelectedProducts';
 
 import styles from '../styles';
 
-const { Option } = Select;
 const DescriptionsItem = Descriptions.Item;
-const FormItem = Form.Item;
 
-const RenderStep2 = () => {
+type Props = {
+  orderSelected?: Partial<Order>;
+  productsSelected: (DetailOrder & { quantityReturn: number })[];
+  setProductsSelected: (products: (DetailOrder & { quantityReturn: number })[]) => void;
+  currentStep: number;
+};
+
+const RenderStep2 = ({
+  orderSelected,
+  productsSelected,
+  setProductsSelected,
+  currentStep,
+}: Props) => {
+  const [keysSelected, setKeysSelected] = useState<React.Key[]>([]);
+
+  const dataCustomer = orderSelected?.customer;
+
+  /**
+   * @description se encarga de seleccionar los productos del pedido para hacer la devolucion
+   */
   const rowSelection = {
-    getCheckboxProps: (record: any) => ({
-      disabled: record.name === 'Jotaro',
+    selectedRowKeys: keysSelected,
+    onChange: (selectedRowKeys: React.Key[], selectedRows: DetailOrder[]) => {
+      setProductsSelected(
+        selectedRows.map((detail) => ({
+          ...detail,
+          quantityReturn: 1,
+        })),
+      );
+      setKeysSelected(selectedRowKeys);
+    },
+    getCheckboxProps: (record: DetailOrder) => ({
+      disabled: record.product.reference.changeable === false,
+      name: record.product.reference.name,
     }),
   };
 
   /**
-   * Columna de productos de la factura
+   * @description se encarga de gestionar la cantidad del producto seleccionado para hacer la devolucion
+   * @param quantityReturn cantidad para devolver
+   * @param product producto al cual se le cambia la cantidad a devolver
    */
-  const data = [
-    {
-      key: 1,
-      id: 1,
-      name: 'Jotaro',
-      reference: 1010101,
-      product: { color: 'Rojo', talla: 'XL' },
-      code: 1011010,
-      quantity: 10,
-      price: 10000,
-      changeable: true,
-    },
-    {
-      key: 2,
-      id: 2,
-      reference: 1010101,
-      product: { color: 'Rojo', talla: 'XL' },
-      code: 1011010,
-      quantity: 10,
-      price: 10000,
-      changeable: false,
-    },
-  ];
+  const onChangeQuantity = (quantityReturn: number, product: Product) => {
+    const productsChange = productsSelected?.map((item) => {
+      if (product?._id === item?.product?._id) {
+        return {
+          ...item,
+          quantityReturn,
+        };
+      }
+      return item;
+    });
+    setProductsSelected(productsChange);
+  };
 
-  const columns = [
-    {
-      title: 'Id',
-      dataIndex: 'id',
-    },
+  useEffect(() => {
+    setProductsSelected([]);
+  }, [currentStep]);
+
+  /**
+   * Columna de productos del pedido
+   */
+  const columns: ColumnsType<DetailOrder> = [
     {
       title: 'Referencia',
-      dataIndex: 'reference',
+      dataIndex: 'product',
+      render: (product: Product) => <>{product?.reference?.name}</>,
     },
     {
       title: 'Color y Talla',
       dataIndex: 'product',
-      render: (product: any) => (
+      render: (product: Product) => (
         <>
-          {product.color}/{product.talla}
+          {product?.color?.name}/{product?.size?.value}
         </>
       ),
     },
     {
       title: 'Codigo',
-      dataIndex: 'code',
-      render: (barcode: number) => <Tag>{barcode}</Tag>,
+      dataIndex: 'product',
+      render: (product: Product) => <Tag>{product?.barcode}</Tag>,
     },
     {
       title: 'Cantidad',
@@ -90,160 +108,56 @@ const RenderStep2 = () => {
     },
     {
       title: 'Cambiable',
-      dataIndex: 'changeable',
+      dataIndex: 'product',
       align: 'center',
-      render: (changeable: boolean) =>
-        changeable ? (
+      render: (product: Product) =>
+        product.reference.changeable ? (
           <CheckCircleOutlined style={styles.checkStyle} />
         ) : (
           <CloseCircleOutlined style={styles.closeStyle} />
         ),
     },
-    {
-      title: 'Opciones',
-      dataIndex: 'changeable',
-      align: 'center',
-      render: (changeable: boolean) => <Switch checked={changeable} onChange={() => {}} />,
-    },
-  ];
-
-  /**
-   * Columna de productos seleccionados
-   */
-  const dataSelected = [
-    {
-      id: 1,
-      reference: 1010101,
-      product: { color: 'Rojo', talla: 'XL' },
-      code: 1011010,
-      quantity: 10,
-      price: 10000,
-      changeable: true,
-    },
-    {
-      id: 2,
-      reference: 1010101,
-      product: { color: 'Rojo', talla: 'XL' },
-      code: 1011010,
-      quantity: 10,
-      price: 10000,
-      changeable: false,
-    },
-  ];
-
-  const columnsSelected = [
-    {
-      title: 'Id',
-      dataIndex: 'id',
-      onclick: () => console.log('Click'),
-    },
-    {
-      title: 'Referencia',
-      dataIndex: 'reference',
-    },
-    {
-      title: 'Color y Talla',
-      dataIndex: 'product',
-      render: (product: any) => (
-        <>
-          {product.color}/{product.talla}
-        </>
-      ),
-    },
-    {
-      title: 'Codigo',
-      dataIndex: 'code',
-      render: (barcode: number) => <Tag>{barcode}</Tag>,
-    },
-    {
-      title: 'Motivo',
-      dataIndex: 'returnType',
-      width: 150,
-      render: () => {
-        return (
-          <>
-            {' '}
-            <Select style={styles.allWidth}>
-              <Option key="change" value="change">
-                Cambio
-              </Option>
-              <Option key="warranty" value="warranty">
-                Garantía
-              </Option>
-            </Select>
-          </>
-        );
-      },
-    },
-    {
-      title: 'Cantidad',
-      dataIndex: 'quantity',
-      render: (quantity: number) => <InputNumber min={1} value={quantity} onChange={() => {}} />,
-    },
-    {
-      title: 'Precio',
-      dataIndex: 'price',
-      align: 'right',
-      render: (price: number) => numeral(price).format('$ 0,0'),
-    },
   ];
 
   return (
     <>
-      <Divider>Factura No.1</Divider>
+      <Divider>Pedido No. {orderSelected?.number}</Divider>
       <Row justify="center" gutter={[0, 20]}>
         <Col span={24}>
           <Descriptions bordered size="small">
             <DescriptionsItem label="Cliente" span={1}>
-              {'Dio Brandon'}
+              {dataCustomer?.firstName} {dataCustomer?.lastName}
             </DescriptionsItem>
             <DescriptionsItem label="Documento" span={3}>
-              {100101001}
+              {dataCustomer?.document}
             </DescriptionsItem>
             <DescriptionsItem label="Tienda" span={1}>
-              {'Salvador'}
+              {orderSelected?.shop?.name}
             </DescriptionsItem>
             <DescriptionsItem label="Total" span={3}>
-              {numeral(10000).format('$ 0,0')}
+              {numeral(orderSelected?.summary?.total).format('$ 0,0')}
             </DescriptionsItem>
             <DescriptionsItem label="Fecha" span={1}>
-              {moment('2022-05-04T18:10:20.727Z').format('DD/MM/YYYY HH:mm:ss')}
+              {moment(orderSelected?.createdAt).format('DD/MM/YYYY HH:mm:ss')}
             </DescriptionsItem>
           </Descriptions>
         </Col>
-        <Col span={9}>
-          <Form>
-            <FormItem>
-              <Select placeholder="Seleccionar Motivo" allowClear style={styles.allWidth}>
-                <Option value="Cambio">Cambio</Option>
-                <Option>Garantia</Option>
-              </Select>
-            </FormItem>
-          </Form>
-        </Col>
       </Row>
       <Divider orientation="left" style={styles.dividerMargin}>
-        Productos De La Factura
+        Productos Del Pedido
       </Divider>
       <Table
-        rowSelection={{
-          type: 'checkbox',
-          ...rowSelection,
-        }}
+        rowKey="product"
+        rowSelection={rowSelection}
         columns={columns}
-        dataSource={data}
+        dataSource={orderSelected?.details as any}
         pagination={false}
         scroll={{ y: 'auto', x: 900 }}
       />
       <Divider orientation="left" style={styles.dividerMargin}>
         Productos Seleccionados
       </Divider>
-      <Table
-        columns={columnsSelected}
-        dataSource={dataSelected}
-        pagination={false}
-        scroll={{ y: 'auto', x: 800 }}
-      />
+      <SelectedProducts productsSelected={productsSelected} onChangeQuantity={onChangeQuantity} />
     </>
   );
 };

@@ -120,7 +120,7 @@ const TransferList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener las solicitudes
+   * @description se encarga de ejecutar la funcion para obtener los traslados
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersStockTransfersInput) => {

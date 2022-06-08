@@ -1,0 +1,45 @@
+query Orders($input: FiltersOrdersInput!) {
+  orders(filtersOrdersInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      createdAt
+      updatedAt
+      summary {
+        total
+      }
+      customer {
+        document
+        firstName
+        lastName
+      }
+      shop {
+        name
+      }
+      number
+      status
+      details {
+        price
+        quantity
+        product {
+          _id
+          barcode
+          reference {
+            changeable
+            name
+            description
+          }
+          color {
+            name
+          }
+          barcode
+          size {
+            value
+          }
+        }
+      }
+    }
+  }
+}

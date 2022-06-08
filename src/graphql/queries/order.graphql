@@ -68,6 +68,13 @@ query OrdersByPos($id: String!) {
   ordersByPointOfSale(idPointOfSale: $id) {
     _id
     number
+    shop {
+      name
+    }
+    invoice {
+      number
+    }
+    status
     customer {
       document
       firstName
@@ -78,7 +85,21 @@ query OrdersByPos($id: String!) {
     }
     updatedAt
     details {
+      price
       quantity
+      product {
+        _id
+        barcode
+        color {
+          name
+        }
+        size {
+          value
+        }
+        reference {
+          name
+        }
+      }
     }
     summary {
       total
