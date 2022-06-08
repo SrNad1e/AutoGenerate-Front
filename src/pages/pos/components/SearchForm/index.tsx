@@ -92,7 +92,7 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
   const cancelOrder = async () => {
     try {
       await editOrder({ status: 'cancelled' });
-      history.push('/pos');
+      history.push('/pos/sales');
     } catch (e: any) {
       showError(e?.error);
     }

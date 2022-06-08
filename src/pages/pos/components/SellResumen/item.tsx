@@ -89,12 +89,12 @@ const ItemResume = ({
           <Col lg={5}>
             <Row style={styles.rowStyle}>
               <Col span={24}>
-                <Text>{numeral(price * quantity - discount).format('$ 0,0')}</Text>
+                <Text>{numeral(price * quantity).format('$ 0,0')}</Text>
               </Col>
               <Col span={24}>
                 {discount > 0 && (
                   <Text italic delete>
-                    {numeral(price * quantity).format('$ 0,0')}
+                    {numeral((price + discount) * quantity).format('$ 0,0')}
                   </Text>
                 )}
               </Col>
