@@ -79,7 +79,7 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
         placeholder="Seleccione Bodega"
         optionFilterProp="children"
         onChange={onChange}
-        onSearch={onSearch}
+        onSearch={(name) => onSearch({ name })}
         allowClear
         value={value}
       >
