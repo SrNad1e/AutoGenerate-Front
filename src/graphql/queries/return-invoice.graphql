@@ -4,6 +4,20 @@ query returnsOrder($input: FiltersReturnsOrderInput) {
     totalDocs
     page
     docs {
+      user {
+        name
+      }
+      coupon {
+        _id
+        code
+        createdAt
+        updatedAt
+        title
+        value
+        number
+        message
+        expiration
+      }
       active
       createdAt
       updatedAt
@@ -14,6 +28,10 @@ query returnsOrder($input: FiltersReturnsOrderInput) {
       number
       order {
         number
+        summary{
+          discount
+          total
+        }
       }
       details {
         price

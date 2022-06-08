@@ -27,34 +27,35 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-
 import type { TablePaginationConfig } from 'antd';
 import type { ColumnsType, FilterValue, SorterResult } from 'antd/es/table/interface';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import type { Moment } from 'moment';
 import type { Location } from 'umi';
 import { useHistory, useLocation } from 'umi';
 import numeral from 'numeral';
-import type { Moment } from 'moment';
-
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-
+import { useEffect, useState, useRef } from 'react';
 import type {
-  DetailReturnInvoice,
-  FiltersReturnsOrderInput,
-  Order,
-  ResponseReturnsOrder,
-  ReturnOrder,
   Shop,
+  Order,
+  ReturnOrder,
+  DetailReturnInvoice,
+  ResponseReturnsOrder,
+  FiltersReturnsOrderInput,
+  Coupon,
 } from '@/graphql/graphql';
 import { useGetReturnsInvoice } from '@/hooks/return-invoice.hooks';
-import FormReturn from '../form';
+import { useReactToPrint } from 'react-to-print';
 
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import FormReturn from '../form';
 import SelectShop from '@/components/SelectShop';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import Filters from '@/components/Filters';
 
 import styles from './styles';
-import Filters from '@/components/Filters';
+import ReportCoupon from '../reports/coupon';
+import ReportReturn from '../reports/return/return';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -68,24 +69,61 @@ type FormValues = {
 };
 
 const ReturnList = () => {
+  const [returnData, setReturnData] = useState<Partial<ReturnOrder>>({});
+  const [couponData, setCouponData] = useState<Partial<Coupon>>({});
   const [visible, setVisible] = useState(false);
+  const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
-  const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
 
   const [form] = Form.useForm();
   const history = useHistory();
   const location: Location = useLocation();
 
+  const reportRef = useRef(null);
+  const reportRef1 = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
+  const handlePrintReturn = useReactToPrint({
+    content: () => reportRef1?.current,
+  });
+
+  /**
+   * @description se encarga de seleccionar el ajuste e imprime
+   * @param record ajuste
+   */
+  const printCoupon = async (record: Partial<Coupon>) => {
+    await setCouponData(record);
+    handlePrint();
+  };
+
+  /**
+   * @description se encarga de seleccionar el ajuste e imprime
+   * @param record ajuste
+   */
+  const printReturn = async (record: Partial<ReturnOrder>) => {
+    await setReturnData(record);
+    handlePrintReturn();
+  };
+
   const [getReturns, { data, loading }] = useGetReturnsInvoice();
 
+  /**
+   * @description se encarga de cerrar el modal de creacion
+   */
   const closeModal = () => {
     setVisible(false);
   };
 
+  /**
+   * @description funcion usada por los hook para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
   const messageError = (message: string) => {
     setPropsAlertInformation({
       message,
@@ -94,6 +132,9 @@ const ReturnList = () => {
     });
   };
 
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
   const closeAlertInformation = () => {
     setPropsAlertInformation({
       message: '',
@@ -102,16 +143,25 @@ const ReturnList = () => {
     });
   };
 
+  /**
+   * @description se encarga de ejecutar la funcion para obtener las devoluciones
+   * @param values filtros necesarios para la busqueda
+   */
   const onSearch = (values?: FiltersReturnsOrderInput) => {
     getReturns({
       variables: {
         input: {
+          sort: { createdAt: -1 },
           ...values,
         },
       },
     });
   };
 
+  /**
+   * @description se encarga de setear los filtros en la url
+   * @param valuesQuery filtros para setear en la url
+   */
   const setQueryParams = (valuesQuery?: FiltersReturnsOrderInput) => {
     try {
       const valuesForm = form.getFieldsValue();
@@ -135,6 +185,10 @@ const ReturnList = () => {
     }
   };
 
+  /**
+   * @description ejecuta la busqueda con base a los filtros del formulario y formatea las fechas
+   * @param props valores del formulario
+   */
   const onFinish = (props: FormValues) => {
     const filters = { ...filterTable };
     const params: any = {
@@ -163,6 +217,12 @@ const ReturnList = () => {
     });
   };
 
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
+   * @param filtersArg filtros de la tabla
+   */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filtersArg: Record<string, FilterValue | any>,
@@ -196,6 +256,9 @@ const ReturnList = () => {
     setFilterTable(filtersArg);
   };
 
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
@@ -203,6 +266,9 @@ const ReturnList = () => {
     setFilterTable({});
   };
 
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
   const getFiltersQuery = () => {
     const queryParams: any = location.query;
     const tableFilters = {
@@ -320,15 +386,23 @@ const ReturnList = () => {
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
-      render: () => {
+      render: (_, returns) => {
         return (
           <Space>
             <Tooltip title="Imprimir Devolución">
-              <Button type="primary" onClick={() => {}} icon={<PrinterFilled />} />
+              <Button
+                type="primary"
+                onClick={() => printReturn(returns)}
+                icon={<PrinterFilled />}
+              />
             </Tooltip>
             <Space>
               <Tooltip title="Imprimir Cupon">
-                <Button type="ghost" onClick={() => {}} icon={<PrinterFilled />} />
+                <Button
+                  type="ghost"
+                  onClick={() => printCoupon(returns.coupon)}
+                  icon={<PrinterFilled />}
+                />
               </Tooltip>
             </Space>
           </Space>
@@ -342,26 +416,25 @@ const ReturnList = () => {
       <Card bordered={false}>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={30}>
-            <Col xs={24} md={6} lg={6} xl={5}>
+            <Col xs={24} md={7} lg={5} xl={5}>
               <FormItem label="Número Pedido" name="number">
                 <InputNumber controls={false} placeholder="Ejem: 10" style={styles.allWidth} />
               </FormItem>
             </Col>
-            <Col xs={24} md={5} lg={6} xl={6}>
+            <Col xs={24} md={7} lg={6} xl={6}>
               <FormItem label="Tienda" name="shopId">
                 <SelectShop disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={7}>
-              <FormItem label="Fechas" name="dates" colon={false}>
+            <Col xs={24} md={9} lg={6} xl={7}>
+              <FormItem label="Fechas" name="dates">
                 <RangePicker
-                  onOpenChange={form.setFieldsValue()}
                   style={styles.allWidth}
                   placeholder={['Fecha Inicial', 'Fecha Final']}
                 />
               </FormItem>
             </Col>
-            <Col xs={24} md={5} lg={4} xl={5}>
+            <Col xs={24} md={4} lg={4} xl={5}>
               <FormItem>
                 <Space>
                   <Button
@@ -385,7 +458,7 @@ const ReturnList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 15]} align="middle">
+        <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
           <Col xs={8} md={15} lg={15}>
             <Button
               onClick={() => setVisible(true)}
@@ -422,6 +495,12 @@ const ReturnList = () => {
       </Card>
       <FormReturn visible={visible} onCancel={closeModal} />
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
+      <div style={{ display: 'none' }}>
+        <ReportCoupon ref={reportRef} data={couponData} />
+      </div>
+      <div style={{ display: 'none' }}>
+        <ReportReturn ref={reportRef1} data={returnData} />
+      </div>
     </PageContainer>
   );
 };

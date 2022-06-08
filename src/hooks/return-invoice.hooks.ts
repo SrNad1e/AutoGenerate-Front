@@ -9,5 +9,15 @@ export const useGetReturnsInvoice = () => {
 };
 
 export const useCreateReturnInvoice = () => {
-  return useMutation(CreateReturnOrderDocument);
+  return useMutation(CreateReturnOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          returnsOrder(existingReturnsOrders = []) {
+            return [data?.createReturnOrder].concat(existingReturnsOrders);
+          },
+        },
+      });
+    },
+  });
 };

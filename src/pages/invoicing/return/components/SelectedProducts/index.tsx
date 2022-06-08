@@ -1,6 +1,6 @@
 import type { DetailOrder, Product } from '@/graphql/graphql';
-import { InputNumber, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
+import { InputNumber, Table, Tag } from 'antd';
 import numeral from 'numeral';
 
 type Props = {
@@ -9,6 +9,9 @@ type Props = {
 };
 
 const SelectedProducts = ({ productsSelected, onChangeQuantity }: Props) => {
+  /**
+   * columna de productos seleccionados para la devolucion
+   */
   const columnsSelected: ColumnsType<DetailOrder & { quantityReturn: number }> = [
     {
       title: 'Referencia',

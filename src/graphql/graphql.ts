@@ -6380,8 +6380,25 @@ export type ReturnsOrderQuery = {
       updatedAt: any;
       _id: string;
       number: number;
+      user: { __typename?: 'User'; name: string };
+      coupon: {
+        __typename?: 'Coupon';
+        _id: string;
+        code: string;
+        createdAt: any;
+        updatedAt: any;
+        title: string;
+        value: number;
+        number: number;
+        message: string;
+        expiration: any;
+      };
       shop: { __typename?: 'Shop'; name: string };
-      order: { __typename?: 'Order'; number: number };
+      order: {
+        __typename?: 'Order';
+        number: number;
+        summary: { __typename?: 'SummaryOrder'; discount: number; total: number };
+      };
       details?:
         | {
             __typename?: 'DetailReturnInvoice';
@@ -13762,6 +13779,32 @@ export const ReturnsOrderDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'coupon' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'code' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -13780,7 +13823,20 @@ export const ReturnsOrderDocument = {
                         name: { kind: 'Name', value: 'order' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'number' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'summary' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                                ],
+                              },
+                            },
+                          ],
                         },
                       },
                       {

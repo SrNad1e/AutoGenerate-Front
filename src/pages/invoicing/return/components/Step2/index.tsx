@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import type { DetailOrder, Order, Product } from '@/graphql/graphql';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { Col, Descriptions, Divider, Row, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
+import type { DetailOrder, Order, Product } from '@/graphql/graphql';
 import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useState } from 'react';
+
 import SelectedProducts from '../SelectedProducts';
 
 import styles from '../styles';
@@ -29,6 +30,9 @@ const RenderStep2 = ({
 
   const dataCustomer = orderSelected?.customer;
 
+  /**
+   * @description se encarga de seleccionar los productos del pedido para hacer la devolucion
+   */
   const rowSelection = {
     selectedRowKeys: keysSelected,
     onChange: (selectedRowKeys: React.Key[], selectedRows: DetailOrder[]) => {
@@ -41,11 +45,16 @@ const RenderStep2 = ({
       setKeysSelected(selectedRowKeys);
     },
     getCheckboxProps: (record: DetailOrder) => ({
-      disabled: record.product.reference.changeable === true,
+      disabled: record.product.reference.changeable === false,
       name: record.product.reference.name,
     }),
   };
 
+  /**
+   * @description se encarga de gestionar la cantidad del producto seleccionado para hacer la devolucion
+   * @param quantityReturn cantidad para devolver
+   * @param product producto al cual se le cambia la cantidad a devolver
+   */
   const onChangeQuantity = (quantityReturn: number, product: Product) => {
     const productsChange = productsSelected?.map((item) => {
       if (product?._id === item?.product?._id) {
@@ -64,7 +73,7 @@ const RenderStep2 = ({
   }, [currentStep]);
 
   /**
-   * Columna de productos de la factura
+   * Columna de productos del pedido
    */
   const columns: ColumnsType<DetailOrder> = [
     {

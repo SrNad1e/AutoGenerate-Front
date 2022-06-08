@@ -1,18 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import type {
-  Customer,
-  FiltersOrdersInput,
-  Order,
-  OrdersQuery,
-  ResponseOrders,
-  Shop,
-  SummaryOrder,
-} from '@/graphql/graphql';
 import {
   CalendarOutlined,
   DollarCircleOutlined,
   IdcardOutlined,
   InteractionOutlined,
+  LoadingOutlined,
   NumberOutlined,
   SearchOutlined,
   SelectOutlined,
@@ -39,14 +31,24 @@ import type {
   SorterResult,
   TablePaginationConfig,
 } from 'antd/es/table/interface';
+import type {
+  Customer,
+  FiltersOrdersInput,
+  Order,
+  OrdersQuery,
+  ResponseOrders,
+  Shop,
+  SummaryOrder,
+} from '@/graphql/graphql';
 import numeral from 'numeral';
 import { useState } from 'react';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-
-import styles from '../styles';
-import AlertInformation from '@/components/Alerts/AlertInformation';
 import moment from 'moment';
 import type { Moment } from 'moment';
+
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+
+import styles from '../styles';
 
 const { Text } = Typography;
 const FormItem = Form.Item;
@@ -61,10 +63,11 @@ type FormValues = {
 type Props = {
   selectOrder: (record: Order) => void;
   onSearch: (params: FiltersOrdersInput) => void;
-  data: OrdersQuery;
+  data?: OrdersQuery;
+  loading: boolean;
 };
 
-const RenderStep1 = ({ selectOrder, data, onSearch }: Props) => {
+const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -73,6 +76,10 @@ const RenderStep1 = ({ selectOrder, data, onSearch }: Props) => {
 
   const [form] = Form.useForm();
 
+  /**
+   * @description funcion usada para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
   const messageError = (message: string) => {
     setPropsAlertInformation({
       message,
@@ -81,6 +88,9 @@ const RenderStep1 = ({ selectOrder, data, onSearch }: Props) => {
     });
   };
 
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
   const closeAlertInformation = () => {
     setPropsAlertInformation({
       message: '',
@@ -89,6 +99,10 @@ const RenderStep1 = ({ selectOrder, data, onSearch }: Props) => {
     });
   };
 
+  /**
+   * @description se encarga de realizar el proceso de busqueda con los filtros y formatear las fechas
+   * @param props filtros seleccionados en el formulario
+   */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
     try {
       const params: any = {
@@ -111,6 +125,11 @@ const RenderStep1 = ({ selectOrder, data, onSearch }: Props) => {
     }
   };
 
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
+   */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filters: Record<string, FilterValue | null>,
@@ -192,7 +211,7 @@ const RenderStep1 = ({ selectOrder, data, onSearch }: Props) => {
         </Text>
       ),
       dataIndex: 'summary',
-      align: 'right',
+      align: 'center',
       render: (value: SummaryOrder) => numeral(value.total).format('$ 0,0'),
     },
     {
@@ -242,7 +261,7 @@ const RenderStep1 = ({ selectOrder, data, onSearch }: Props) => {
             </FormItem>
           </Col>
           <Col xs={24} md={7} lg={8}>
-            <FormItem label="Fechas" colon={false} name="dates">
+            <FormItem label="Fechas" name="dates">
               <RangePicker style={styles.allWidth} placeholder={['Fecha Inicial', 'Fecha Final']} />
             </FormItem>
           </Col>
@@ -250,7 +269,7 @@ const RenderStep1 = ({ selectOrder, data, onSearch }: Props) => {
             <FormItem label=" " colon={false}>
               <Button
                 style={styles.borderR}
-                icon={<SearchOutlined />}
+                icon={loading ? <LoadingOutlined /> : <SearchOutlined />}
                 type="primary"
                 htmlType="submit"
               >
