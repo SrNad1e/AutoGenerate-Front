@@ -118,6 +118,9 @@ export const typesAccess = {
   '/invoicing/closings/closingZ': {
     access: ['READ_INVOICING_CLOSESZ'],
   },
+  '/invoicing/return': {
+    access: ['READ_INVOICING_RETURNS'],
+  },
   //POS
   '/pos': {
     access: ['ACCESS_POS'],

@@ -32,7 +32,7 @@ import type { ColumnsType, FilterValue, SorterResult } from 'antd/es/table/inter
 import moment from 'moment';
 import type { Moment } from 'moment';
 import type { Location } from 'umi';
-import { useHistory, useLocation } from 'umi';
+import { useHistory, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
 import { useEffect, useState, useRef } from 'react';
 import type {
@@ -44,18 +44,18 @@ import type {
   FiltersReturnsOrderInput,
   Coupon,
 } from '@/graphql/graphql';
-import { useGetReturnsOrder } from '@/hooks/return-order.hooks';
 import { useReactToPrint } from 'react-to-print';
 
+import { useGetReturnsOrder } from '@/hooks/return-order.hooks';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import FormReturn from '../form';
 import SelectShop from '@/components/SelectShop';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import Filters from '@/components/Filters';
-
-import styles from './styles';
 import ReportCoupon from '../reports/coupon';
 import ReportReturn from '../reports/return/return';
+
+import styles from './styles';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -85,6 +85,11 @@ const ReturnList = () => {
 
   const reportRef = useRef(null);
   const reportRef1 = useRef(null);
+
+  const { returns } = useAccess();
+
+  const allowCreate = returns?.canCreate;
+  const allowPrint = returns?.canPrint;
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
@@ -386,22 +391,19 @@ const ReturnList = () => {
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
-      render: (_, returns) => {
+      render: (_, record) => {
         return (
           <Space>
             <Tooltip title="Imprimir Devolución">
-              <Button
-                type="primary"
-                onClick={() => printReturn(returns)}
-                icon={<PrinterFilled />}
-              />
+              <Button type="primary" onClick={() => printReturn(record)} icon={<PrinterFilled />} />
             </Tooltip>
             <Space>
               <Tooltip title="Imprimir Cupon">
                 <Button
                   type="ghost"
-                  onClick={() => printCoupon(returns.coupon)}
+                  onClick={() => printCoupon(record.coupon)}
                   icon={<PrinterFilled />}
+                  disabled={!allowPrint}
                 />
               </Tooltip>
             </Space>
@@ -465,6 +467,7 @@ const ReturnList = () => {
               icon={<PlusOutlined />}
               shape="round"
               type="primary"
+              disabled={!allowCreate}
             >
               Nuevo
             </Button>
