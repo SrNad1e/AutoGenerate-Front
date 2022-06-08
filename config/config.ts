@@ -322,11 +322,19 @@ export default defineConfig({
           name: 'Configuraciones',
           path: '/configurations',
           icon: 'setting',
+          access: 'allowOption',
           routes: [
             {
               name: 'Usuarios',
               path: '/configurations/users',
               component: './configurations/users/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Roles',
+              path: '/configurations/roles',
+              component: './configurations/roles/list',
+              access: 'allowOption',
             },
           ],
         },

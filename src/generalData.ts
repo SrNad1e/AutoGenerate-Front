@@ -118,6 +118,15 @@ export const typesAccess = {
   '/invoicing/closings/closingZ': {
     access: ['READ_INVOICING_CLOSESZ'],
   },
+  '/configurations': {
+    access: ['ACCESS_CONFIGURATION_ROLES', 'ACCESS_CONFIGURATION_USERS'],
+  },
+  '/configurations/users': {
+    access: ['READ_CONFIGURATION_USERS'],
+  },
+  '/configurations/roles': {
+    access: ['READ_CONFIGURATION_ROLES'],
+  },
   //POS
   '/pos': {
     access: ['ACCESS_POS'],
