@@ -295,7 +295,6 @@ export default defineConfig({
               path: '/invoicing/return',
               component: './invoicing/return/list',
               access: 'allowOption',
-              routes: [{ path: '/invoicing/return/:id', component: './invoicing/return/form' }],
             },
             {
               name: 'Cierres',
