@@ -26,7 +26,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { useReactToPrint } from 'react-to-print';
-import { useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import numeral from 'numeral';
 import type { Location } from 'umi';
@@ -66,6 +66,10 @@ const AdjustmentList = () => {
     type: 'error',
     visible: false,
   });
+
+  const {
+    adjustment: { canPrint },
+  } = useAccess();
 
   const [form] = Form.useForm();
 
@@ -308,6 +312,7 @@ const AdjustmentList = () => {
                   style={{ backgroundColor: 'white' }}
                   onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
+                  disabled={!canPrint}
                 />
               </Tooltip>
             </Space>

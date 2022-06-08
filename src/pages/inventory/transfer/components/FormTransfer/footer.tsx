@@ -8,11 +8,10 @@ type Props = {
   transfer: Partial<StockTransfer> | undefined;
   saveTransfer: (status?: string) => void;
   details: Partial<DetailTransfer & { action: string }>[];
+  allowEdit: boolean;
 };
 
-const Footer = ({ transfer, saveTransfer, details }: Props) => {
-  const allowEdit = transfer?.status === 'open';
-
+const Footer = ({ transfer, saveTransfer, details, allowEdit }: Props) => {
   const renderResumen = () => (
     <Space className={styles.centerFooter}>
       <Title level={3}>

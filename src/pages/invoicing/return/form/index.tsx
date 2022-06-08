@@ -2,7 +2,7 @@
 import { Button, Modal, Steps } from 'antd';
 import type { DetailOrder, DetailReturnInput, FiltersOrdersInput, Order } from '@/graphql/graphql';
 import { useGetOrders } from '@/hooks/order.hooks';
-import { useCreateReturnInvoice } from '@/hooks/return-invoice.hooks';
+import { useCreateReturnOrder } from '@/hooks/return-order.hooks';
 import { useEffect, useState } from 'react';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -32,7 +32,7 @@ const FormReturn = ({ visible, onCancel }: Props) => {
     visible: false,
   });
 
-  const [createReturnOrder, paramsCreate] = useCreateReturnInvoice();
+  const [createReturnOrder, paramsCreate] = useCreateReturnOrder();
   const [getOrders, { data, loading }] = useGetOrders();
 
   /**

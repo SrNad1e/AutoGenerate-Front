@@ -12,12 +12,11 @@ export type Props = {
   adjustment: Partial<StockAdjustment> | undefined;
   setObservation: (value: string) => void;
   observation: string;
+  allowEdit: boolean;
 };
 
-const Header = ({ adjustment, setObservation, observation }: Props) => {
+const Header = ({ adjustment, setObservation, observation, allowEdit }: Props) => {
   const { initialState } = useModel('@@initialState');
-
-  const allowEdit = adjustment?.status === 'open';
 
   return (
     <Card>

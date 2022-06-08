@@ -14,16 +14,15 @@ type Props = {
   transfer: Partial<StockTransfer> | undefined;
   setObservation: (value: string) => void;
   observation: string;
+  allowEdit: boolean;
 };
 
-const Header = ({ transfer, setObservation, observation }: Props) => {
+const Header = ({ transfer, setObservation, observation, allowEdit }: Props) => {
   const [showSelectRequests, setShowSelectRequests] = useState(false);
   const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
   const [requests, setRequests] = useState<StockRequest[]>([]);
 
   const { initialState } = useModel('@@initialState');
-
-  const allowEdit = transfer?.status === 'open';
 
   const closeModalSelectRequests = () => {
     setShowSelectRequests(false);

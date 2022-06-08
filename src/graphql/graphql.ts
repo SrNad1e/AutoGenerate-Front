@@ -1056,6 +1056,11 @@ export type DocumentType = {
   user: User;
 };
 
+export enum DocumentTypesRuler {
+  Categories = 'CATEGORIES',
+  Customertypes = 'CUSTOMERTYPES',
+}
+
 /** Egreso de dinero */
 export type Expense = {
   __typename?: 'Expense';
@@ -3288,6 +3293,17 @@ export type Role = {
   user: User;
 };
 
+/** Reglas para el descuento */
+export type Rule = {
+  __typename?: 'Rule';
+  /** Identificador de los documentos */
+  documentIds: Scalars['String'][];
+  /** Tipo de documento para validar el descuento */
+  documentType: DocumentTypesRuler;
+  /** Tipo de regla que deben cumplir los documentos */
+  type: Scalars['String'][];
+};
+
 /** Datos de medidas para el envío de los productos */
 export type Shipping = {
   __typename?: 'Shipping';
@@ -5258,9 +5274,10 @@ export type LoginMutation = {
     access_token: string;
     user: {
       __typename?: 'User';
+      _id: string;
       username: string;
       name: string;
-      _id: string;
+      pointOfSale?: { __typename?: 'PointOfSale'; _id: string } | null;
       shop: {
         __typename?: 'Shop';
         _id: string;
@@ -5270,7 +5287,7 @@ export type LoginMutation = {
       role: {
         __typename?: 'Role';
         name: string;
-        permissions: { __typename?: 'Permission'; name: string }[];
+        permissions: { __typename?: 'Permission'; action: Permissions }[];
       };
     };
   };
@@ -6549,7 +6566,7 @@ export type CurrentUserQuery = {
     role: {
       __typename?: 'Role';
       name: string;
-      permissions: { __typename?: 'Permission'; name: string }[];
+      permissions: { __typename?: 'Permission'; action: Permissions }[];
     };
   };
 };
@@ -10233,8 +10250,17 @@ export const LoginDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                        },
+                      },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'shop' },
@@ -10270,14 +10296,13 @@ export const LoginDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'action' } },
                                 ],
                               },
                             },
                           ],
                         },
                       },
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                     ],
                   },
                 },
@@ -14352,7 +14377,7 @@ export const CurrentUserDocument = {
                         name: { kind: 'Name', value: 'permissions' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'action' } }],
                         },
                       },
                     ],

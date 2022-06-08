@@ -10,11 +10,10 @@ export type Props = {
   output: Partial<StockOutput> | undefined;
   saveOutput: (status?: string) => void;
   details: Partial<DetailOutput & { action: string }>[];
+  allowEdit: boolean;
 };
 
-const Footer = ({ output, saveOutput, details }: Props) => {
-  const allowEdit = output?.status === 'open';
-
+const Footer = ({ output, saveOutput, details, allowEdit }: Props) => {
   const renderResumen = () => {
     return (
       <Space align="center" className={styles.alignCenter}>

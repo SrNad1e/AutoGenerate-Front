@@ -26,7 +26,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import moment from 'moment';
 import type { Location } from 'umi';
-import { history, useLocation } from 'umi';
+import { history, useLocation, useAccess } from 'umi';
 import CreateColors from '@/components/CreateColor';
 import type { Color, FiltersColorsInput } from '@/graphql/graphql';
 
@@ -52,6 +52,10 @@ const ColorsList = () => {
   const { Text } = Typography;
   const [form] = Form.useForm();
   const location: Location = useLocation();
+
+  const {
+    color: { canCreate, canEdit },
+  } = useAccess();
 
   const [getColors, { data, loading }] = useGetColors();
 
@@ -336,6 +340,7 @@ const ColorsList = () => {
       render: (_: string, colorID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            disabled={!canEdit}
             onClick={() => visibleModal(colorID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -361,6 +366,7 @@ const ColorsList = () => {
           <Row gutter={[0, 20]}>
             <Col span={12}>
               <Button
+                disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"

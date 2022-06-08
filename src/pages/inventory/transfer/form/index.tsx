@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
-import { useHistory, useModel, useParams } from 'umi';
+import { useHistory, useModel, useParams, useAccess } from 'umi';
 import { useReactToPrint } from 'react-to-print';
 
 import type { StockTransfer, Warehouse } from '@/graphql/graphql';
@@ -50,6 +50,17 @@ const Form = () => {
   const [getWarehouseId] = useGetWarehouseId();
 
   const isNew = !id;
+
+  const {
+    transfer: { canPrint, canEdit },
+  } = useAccess();
+
+  const allowEdit =
+    transfer?.status === 'open' &&
+    (!transfer?.warehouseOrigin?._id ||
+      transfer?.warehouseOrigin?._id === initialState?.currentUser?.shop?.defaultWarehouse?._id) &&
+    initialState?.currentUser?._id === transfer?.userOrigin?._id &&
+    canEdit;
 
   /**
    * @description se encarga de abrir aviso de información
@@ -151,7 +162,9 @@ const Form = () => {
           />
         );
       case 1:
-        return <FormTransfer transfer={transfer} setCurrentStep={setCurrentStep} />;
+        return (
+          <FormTransfer allowEdit={allowEdit} transfer={transfer} setCurrentStep={setCurrentStep} />
+        );
       default:
         return <ErrorStep />;
     }
@@ -177,7 +190,12 @@ const Form = () => {
               Traslado No. {transfer?.number}
               <Divider type="vertical" />
               <Tooltip title="Imprimir">
-                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+                <Button
+                  type="primary"
+                  icon={<PrinterOutlined />}
+                  onClick={() => handlePrint()}
+                  disabled={!canPrint}
+                />
               </Tooltip>
             </>
           )}
@@ -202,7 +220,7 @@ const Form = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormTransfer transfer={transfer} setCurrentStep={setCurrentStep} />
+        <FormTransfer allowEdit={allowEdit} transfer={transfer} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </PageContainer>

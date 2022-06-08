@@ -30,7 +30,7 @@ import type { Moment } from 'moment';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import type { Location } from 'umi';
-import { useHistory, useLocation, useModel } from 'umi';
+import { useHistory, useLocation, useModel, useAccess } from 'umi';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
@@ -71,6 +71,10 @@ const RequestList = () => {
   });
 
   const { initialState } = useModel('@@initialState');
+
+  const {
+    request: { canAutoCreate, canPrint },
+  } = useAccess();
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -340,14 +344,17 @@ const RequestList = () => {
                 onClick={() => history.push(`/inventory/request/${_id}`)}
               />
             </Tooltip>
-            <Tooltip title="Imprimir">
-              <Button
-                type="ghost"
-                style={{ backgroundColor: 'white' }}
-                onClick={() => printPage(record)}
-                icon={<PrinterFilled />}
-              />
-            </Tooltip>
+            <Space>
+              <Tooltip title="Imprimir">
+                <Button
+                  type="ghost"
+                  disabled={!canPrint}
+                  style={{ backgroundColor: 'white' }}
+                  onClick={() => printPage(record)}
+                  icon={<PrinterFilled />}
+                />
+              </Tooltip>
+            </Space>
           </Space>
         );
       },
@@ -360,7 +367,7 @@ const RequestList = () => {
         <Space>
           <Title level={4}>Lista de solicitudes</Title>
           <Divider type="vertical" />
-          <Button shape="round" type="primary" onClick={autoRequest}>
+          <Button shape="round" type="primary" onClick={autoRequest} disabled={!canAutoCreate}>
             AutoGenerar
           </Button>
         </Space>
@@ -428,7 +435,7 @@ const RequestList = () => {
             <Text strong>Páginas: </Text> {data?.stockRequests?.page} /{' '}
             {data?.stockRequests?.totalPages || 0}
           </Col>
-          <Col>
+          <Col span={24}>
             <Table
               columns={columns}
               dataSource={data?.stockRequests?.docs as any}

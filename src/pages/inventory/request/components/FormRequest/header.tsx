@@ -12,12 +12,11 @@ export type Props = {
   request: Partial<StockRequest> | undefined;
   setObservation: (value: string) => void;
   observation: string;
+  allowEdit: boolean;
 };
 
-const Header = ({ request, setObservation, observation }: Props) => {
+const Header = ({ request, setObservation, observation, allowEdit }: Props) => {
   const { initialState } = useModel('@@initialState');
-
-  const allowEdit = request?.status === 'open';
 
   return (
     <Card>

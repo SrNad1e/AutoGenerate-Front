@@ -17,7 +17,7 @@ import {
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
-import { useLocation, useHistory } from 'umi';
+import { useLocation, useHistory, useAccess } from 'umi';
 import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -53,6 +53,10 @@ const AttribsList = () => {
 
   const location: Location = useLocation();
   const history = useHistory();
+
+  const {
+    attrib: { canCreate, canEdit },
+  } = useAccess();
 
   const [getAttribs, { data, loading }] = useGetAttribs();
 
@@ -317,6 +321,7 @@ const AttribsList = () => {
       render: (_: string, AttribID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            disabled={!canEdit}
             onClick={() => visibleModal(AttribID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -340,6 +345,7 @@ const AttribsList = () => {
           <Row gutter={[0, 20]} align="middle">
             <Col span={12}>
               <Button
+                disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"

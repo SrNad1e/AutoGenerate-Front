@@ -16,7 +16,7 @@ query currentUser {
     role {
       name
       permissions {
-        name
+        action
       }
     }
   }

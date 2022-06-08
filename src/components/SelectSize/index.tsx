@@ -45,7 +45,7 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
         },
       },
     });
-  }, []);
+  }, [!!value]);
 
   return (
     <>

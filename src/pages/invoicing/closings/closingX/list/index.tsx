@@ -38,7 +38,7 @@ import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
 import { useEffect, useRef, useState } from 'react';
 import type { Location } from 'umi';
-import { useLocation, useHistory } from 'umi';
+import { useLocation, useHistory, useAccess } from 'umi';
 
 import CloseDay from '../components/DayClose';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -77,6 +77,10 @@ const ClosingXList = () => {
   const location: Location = useLocation();
 
   const reportRef = useRef(null);
+
+  const {
+    closingX: { canCreate, canPrint },
+  } = useAccess();
 
   const [getCloses, { data, loading }] = useGetClosesXInvoicing();
 
@@ -293,7 +297,12 @@ const ClosingXList = () => {
       fixed: 'right',
       render: (_: string, record) => (
         <Tooltip title="Imprimir" placement="topLeft">
-          <Button onClick={() => printPage(record)} type="primary" icon={<PrinterFilled />} />
+          <Button
+            onClick={() => printPage(record)}
+            type="primary"
+            icon={<PrinterFilled />}
+            disabled={!canPrint}
+          />
         </Tooltip>
       ),
     },
@@ -337,6 +346,7 @@ const ClosingXList = () => {
         <Row>
           <Col xs={12} md={12} lg={12}>
             <Button
+              disabled={!canCreate}
               icon={<PlusOutlined />}
               onClick={() => setVisible(true)}
               shape="round"

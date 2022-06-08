@@ -38,9 +38,10 @@ const { Text } = Typography;
 export type Props = {
   request?: Partial<StockRequest>;
   setCurrentStep: (step: number) => void;
+  allowEdit: boolean;
 };
 
-const FormRequest = ({ request, setCurrentStep }: Props) => {
+const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
   const { initialState } = useModel('@@initialState');
 
   const [details, setDetails] = useState<Partial<DetailRequest & { action: string }>[]>([]);
@@ -65,8 +66,6 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
 
   const [createRequest, paramsCreate] = useCreateRequest();
   const [updateRequest, paramsUpdate] = useUpdateRequest();
-
-  const allowEdit = request?.status === 'open';
 
   /**
    * @description se encarga de abrir aviso de información
@@ -385,7 +384,12 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
 
   return (
     <>
-      <Header request={request} setObservation={setObservation} observation={observation} />
+      <Header
+        allowEdit={allowEdit}
+        request={request}
+        setObservation={setObservation}
+        observation={observation}
+      />
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
@@ -403,7 +407,12 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
           pagination={{ size: 'small' }}
         />
       </Card>
-      <Footer request={request} saveRequest={showAlertSave} details={details} />
+      <Footer
+        allowEdit={allowEdit}
+        request={request}
+        saveRequest={showAlertSave}
+        details={details}
+      />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading
         visible={paramsCreate?.loading || paramsUpdate?.loading}

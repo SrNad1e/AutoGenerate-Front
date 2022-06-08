@@ -18,7 +18,7 @@ import {
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
-import { useLocation, useHistory } from 'umi';
+import { useLocation, useHistory, useAccess } from 'umi';
 import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -54,6 +54,10 @@ const SizesList = () => {
 
   const location: Location = useLocation();
   const history = useHistory();
+
+  const {
+    size: { canCreate, canEdit },
+  } = useAccess();
 
   const [getSizes, { data, loading }] = useGetSizes();
 
@@ -323,6 +327,7 @@ const SizesList = () => {
       render: (_: string, SizeID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            disabled={!canEdit}
             onClick={() => visibleModal(SizeID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -346,6 +351,7 @@ const SizesList = () => {
           <Row gutter={[0, 20]} align="middle">
             <Col span={12}>
               <Button
+                disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"

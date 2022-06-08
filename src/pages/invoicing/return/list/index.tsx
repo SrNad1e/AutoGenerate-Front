@@ -44,7 +44,7 @@ import type {
   FiltersReturnsOrderInput,
   Coupon,
 } from '@/graphql/graphql';
-import { useGetReturnsInvoice } from '@/hooks/return-invoice.hooks';
+import { useGetReturnsOrder } from '@/hooks/return-order.hooks';
 import { useReactToPrint } from 'react-to-print';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -111,7 +111,7 @@ const ReturnList = () => {
     handlePrintReturn();
   };
 
-  const [getReturns, { data, loading }] = useGetReturnsInvoice();
+  const [getReturns, { data, loading }] = useGetReturnsOrder();
 
   /**
    * @description se encarga de cerrar el modal de creacion

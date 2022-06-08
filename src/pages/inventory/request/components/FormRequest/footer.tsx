@@ -10,11 +10,10 @@ export type Props = {
   request: Partial<StockRequest> | undefined;
   saveRequest: (status?: string) => void;
   details: Partial<DetailRequest & { action: string }>[];
+  allowEdit: boolean;
 };
 
-const Footer = ({ request, saveRequest, details }: Props) => {
-  const allowEdit = request?.status === 'open';
-
+const Footer = ({ request, saveRequest, details, allowEdit }: Props) => {
   /**
    * @description genera la vista del resumen
    * @returns componente para la vista de resumen

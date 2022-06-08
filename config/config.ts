@@ -10,7 +10,7 @@ export default defineConfig({
   define: {
     API_URL: API_URL || 'http://192.168.70.254:8080',
     CDN_URL: CDN_URL || 'https://toulouse-storage.s3.amazonaws.com',
-    COMPANY_ID: COMPANY_ID || '628633058a91abf6053e6e24',
+    COMPANY_ID: COMPANY_ID || '629facb5e4251f089ecd274f',
     FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD',
   },
@@ -60,16 +60,31 @@ export default defineConfig({
       path: '/pos',
       component: '../layouts/POSLayout',
       layout: false,
+      access: 'allowOption',
       routes: [
         {
-          path: '/pos',
+          path: '/pos/sales',
           name: 'POS',
           icon: 'shop',
           component: './pos/list',
+          access: 'allowOption',
         },
         {
-          path: '/pos/:id',
+          name: 'Cierre X',
+          path: '/pos/closes/closingX',
+          component: './invoicing/closings/closingX/list',
+          access: 'allowOption',
+        },
+        {
+          name: 'Cierre Z',
+          path: '/pos/closes/closingZ',
+          component: './invoicing/closings/closingZ/list',
+          access: 'allowOption',
+        },
+        {
+          path: '/pos/sales/:id',
           component: './pos/new',
+          access: 'allowOption',
         },
       ],
     },
@@ -82,152 +97,183 @@ export default defineConfig({
           path: '/inventory',
           name: 'Inventario',
           icon: 'dashboard',
+          access: 'allowOption',
           routes: [
             {
               name: 'Solicitudes',
               path: '/inventory/request',
+              access: 'allowOption',
               routes: [
                 {
                   name: 'Lista',
                   path: '/inventory/request/list',
                   component: './inventory/request/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Nueva',
                   path: '/inventory/request/new',
                   component: './inventory/request/form',
+                  access: 'allowOption',
                 },
                 {
                   path: '/inventory/request/:id',
                   component: './inventory/request/form',
+                  access: 'allowOption',
                 },
               ],
             },
             {
               name: 'Ajustes',
               path: '/inventory/adjustment',
+              access: 'allowOption',
               routes: [
                 {
                   name: 'Lista',
                   path: '/inventory/adjustment/list',
                   component: './inventory/adjustment/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Nueva',
                   path: '/inventory/adjustment/new',
                   component: './inventory/adjustment/form',
+                  access: 'allowOption',
                 },
                 {
                   path: '/inventory/adjustment/:id',
                   component: './inventory/adjustment/form',
+                  access: 'allowOption',
                 },
               ],
             },
             {
               name: 'Entradas',
               path: '/inventory/input',
+              access: 'allowOption',
               routes: [
                 {
                   name: 'Lista',
                   path: '/inventory/input/list',
                   component: './inventory/input/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Nueva',
                   path: '/inventory/input/new',
                   component: './inventory/input/form',
+                  access: 'allowOption',
                 },
                 {
                   path: '/inventory/input/:id',
                   component: './inventory/input/form',
+                  access: 'allowOption',
                 },
               ],
             },
             {
               name: 'Salidas',
               path: '/inventory/output',
+              access: 'allowOption',
               routes: [
                 {
                   name: 'Lista',
                   path: '/inventory/output/list',
                   component: './inventory/output/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Nueva',
                   path: '/inventory/output/new',
                   component: './inventory/output/form',
+                  access: 'allowOption',
                 },
                 {
                   path: '/inventory/output/:id',
                   component: './inventory/output/form',
+                  access: 'allowOption',
                 },
               ],
             },
             {
               name: 'Configuraciones',
               path: '/inventory/configurations',
+              access: 'allowOption',
               routes: [
                 {
                   name: 'Referencias',
                   path: '/inventory/configurations/reference',
                   component: './inventory/configurations/reference/list',
+                  access: 'allowOption',
+                },
+                {
+                  path: '/inventory/configurations/reference/new',
+                  component: './inventory/configurations/reference/form',
+                  access: 'allowOption',
+                },
+                {
+                  path: '/inventory/configurations/reference/:id',
+                  component: './inventory/configurations/reference/form',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Colores',
                   path: '/inventory/configurations/color',
                   component: './inventory/configurations/color/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Categorias',
                   path: '/inventory/configurations/categories',
                   component: './inventory/configurations/categories/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Tallas',
                   path: '/inventory/configurations/size',
                   component: './inventory/configurations/size/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Atributos',
                   path: '/inventory/configurations/attribs',
                   component: './inventory/configurations/attribs/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Marcas',
                   path: '/inventory/configurations/brand',
                   component: './inventory/configurations/brand/list',
-                },
-                {
-                  path: '/inventory/configurations/reference/new',
-                  component: './inventory/configurations/reference/form',
-                },
-                {
-                  path: '/inventory/configurations/reference/:id',
-                  component: './inventory/configurations/reference/form',
+                  access: 'allowOption',
                 },
               ],
             },
             {
               name: 'Traslados',
               path: '/inventory/transfer',
+              access: 'allowOption',
               routes: [
                 {
                   name: 'Lista',
                   path: '/inventory/transfer/list',
                   component: './inventory/transfer/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Nuevo',
                   path: '/inventory/transfer/new',
                   component: './inventory/transfer/form',
+                  access: 'allowOption',
                 },
                 {
                   path: '/inventory/transfer/confirm/:id',
                   component: './inventory/transfer/confirm',
+                  access: 'allowOption',
                 },
                 {
                   path: '/inventory/transfer/:id',
                   component: './inventory/transfer/form',
+                  access: 'allowOption',
                 },
               ],
             },
@@ -237,26 +283,36 @@ export default defineConfig({
           name: 'Facturación',
           path: '/invoicing',
           icon: 'container',
+          access: 'allowOption',
           routes: [
+            {
+              name: 'POS',
+              path: '/pos/sales',
+              access: 'allowOption',
+            },
             {
               name: 'Devoluciones',
               path: '/invoicing/return',
               component: './invoicing/return/list',
+              access: 'allowOption',
               routes: [{ path: '/invoicing/return/:id', component: './invoicing/return/form' }],
             },
             {
               name: 'Cierres',
               path: '/invoicing/closings',
+              access: 'allowOption',
               routes: [
                 {
                   name: 'Cierre X',
                   path: '/invoicing/closings/closingX',
                   component: './invoicing/closings/closingX/list',
+                  access: 'allowOption',
                 },
                 {
                   name: 'Cierre Z',
                   path: '/invoicing/closings/closingZ',
                   component: './invoicing/closings/closingZ/list',
+                  access: 'allowOption',
                 },
               ],
             },

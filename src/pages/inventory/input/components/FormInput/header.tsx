@@ -12,12 +12,11 @@ export type Props = {
   input: Partial<StockInput> | undefined;
   setObservation: (value: string) => void;
   observation: string;
+  allowEdit: boolean;
 };
 
-const Header = ({ input, setObservation, observation }: Props) => {
+const Header = ({ input, setObservation, observation, allowEdit }: Props) => {
   const { initialState } = useModel('@@initialState');
-
-  const allowEdit = input?.status === 'open';
 
   return (
     <Card>

@@ -25,7 +25,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import type { Location } from 'umi';
-import { useHistory, useLocation } from 'umi';
+import { useHistory, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
@@ -80,6 +80,9 @@ const InputList = () => {
     content: () => reportRef?.current,
   });
 
+  const {
+    input: { canPrint },
+  } = useAccess();
   /**
    * @description funcion usada por los hook para mostrar los errores
    * @param message mensaje de error a mostrar
@@ -308,6 +311,7 @@ const InputList = () => {
                   style={{ backgroundColor: 'white' }}
                   onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
+                  disabled={!canPrint}
                 />
               </Tooltip>
             </Space>
