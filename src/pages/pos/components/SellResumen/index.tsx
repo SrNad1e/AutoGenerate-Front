@@ -1,12 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  DollarOutlined,
-  PrinterOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import { Button, Card, Col, Divider, Empty, List, Row, Tag, Tooltip, Typography } from 'antd';
+import { DollarOutlined, PrinterOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Card, Col, Divider, Empty, List, Row, Tag, Typography } from 'antd';
 import numeral from 'numeral';
 import { useParams } from 'umi';
 import { useEffect, useState } from 'react';
@@ -107,15 +101,6 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
                 </Col>
                 <Col span={24}>
                   <Tag color="volcano">{data?.orderId?.customer?.customerType?.name}</Tag>
-                  <Tooltip title={data?.orderId?.customer?.active ? 'Activo' : 'Inactivo'}>
-                    <Tag color={data?.orderId?.customer?.active ? '#87d068' : 'red'}>
-                      {data?.orderId?.customer?.active ? (
-                        <CheckCircleOutlined />
-                      ) : (
-                        <CloseCircleOutlined />
-                      )}
-                    </Tag>
-                  </Tooltip>
                 </Col>
               </Row>
             </Col>
@@ -126,24 +111,24 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
           <Row>
             <Col span={12}>
               <Title style={styles.titleLine} level={4}>
-                Total:
-              </Title>
-              <Title style={styles.titleLine} level={4}>
                 Subtotal:
               </Title>
               <Title style={styles.titleLine} level={4}>
                 Descuento:
               </Title>
+              <Title style={styles.titleLine} level={4}>
+                Total:
+              </Title>
             </Col>
             <Col span={12} style={styles.titleLineRight}>
-              <Title style={styles.titleLine} level={4}>
-                {numeral(data?.orderId?.summary?.total).format('$ 0,0')}
-              </Title>
               <Title style={styles.titleLine} level={4}>
                 {numeral(data?.orderId?.summary?.subtotal).format('$ 0,0')}
               </Title>
               <Title style={styles.titleLine} level={4}>
                 {numeral(data?.orderId?.summary?.discount).format('$ 0,0')}
+              </Title>
+              <Title style={styles.titleLine} level={4}>
+                {numeral(data?.orderId?.summary?.total).format('$ 0,0')}
               </Title>
             </Col>
           </Row>
