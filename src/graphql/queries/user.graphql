@@ -21,3 +21,20 @@ query currentUser {
     }
   }
 }
+
+query users($input: FiltersUsersInput!) {
+  users(filtersUsersInput: $input) {
+    _id
+    createdAt
+    updatedAt
+    name
+    role {
+      name
+    }
+    shop {
+      name
+    }
+    status
+    username
+  }
+}

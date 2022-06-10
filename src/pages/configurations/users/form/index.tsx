@@ -1,3 +1,4 @@
+/*import { useCreateUser } from '@/hooks/user.hooks';*/
 import { UserOutlined } from '@ant-design/icons';
 import { Form, Input, Modal, Switch, Typography } from 'antd';
 const FormItem = Form.Item;
@@ -9,6 +10,8 @@ type Props = {
 };
 
 const UsersForm = ({ visible, onCancel }: Props) => {
+  /* const [createUser, { data }] = useCreateUser();*/
+
   return (
     <Modal
       visible={visible}
@@ -20,6 +23,7 @@ const UsersForm = ({ visible, onCancel }: Props) => {
     >
       <Form layout="vertical">
         <FormItem
+          name="name"
           label={
             <>
               {' '}
@@ -29,7 +33,7 @@ const UsersForm = ({ visible, onCancel }: Props) => {
         >
           <Input />
         </FormItem>
-        <FormItem label="E-Mail">
+        <FormItem name="" label="E-Mail">
           <Input />
         </FormItem>
         <FormItem label="Rol">

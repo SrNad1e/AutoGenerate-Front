@@ -25,3 +25,17 @@ mutation login($input: LoginUserInput!) {
     access_token
   }
 }
+
+mutation createUser($input: CreateUserInput!) {
+  createUser(createUserInput: $input) {
+    _id
+    username
+  }
+}
+
+mutation updateUser($id: String!, $input: UpdateUserInput!) {
+  updateUser(id: $id, updateUserInput: $input) {
+    _id
+    username
+  }
+}
