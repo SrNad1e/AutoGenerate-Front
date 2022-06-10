@@ -20,6 +20,8 @@ import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 
 import type { DetailTransfer, Product, StockRequest, StockTransfer } from '@/graphql/graphql';
+import { ActionDetailTransfer } from '@/graphql/graphql';
+import { StatusStockTransfer } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
@@ -43,7 +45,9 @@ export type Props = {
 
 const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
   const [requests, setRequests] = useState<StockRequest[]>([]);
-  const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
+  const [details, setDetails] = useState<
+    Partial<DetailTransfer & { action: ActionDetailTransfer }>[]
+  >([]);
   const [observation, setObservation] = useState('');
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
@@ -54,7 +58,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     type: TYPES;
     visible: boolean;
     message: string;
-    status?: string;
+    status?: StatusStockTransfer;
   }>({
     visible: false,
     message: '',
@@ -96,9 +100,13 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @description se encarga de mostrar la alerta de guardado y cancelar
    * @param status estado actual de la solicitud
    */
-  const showAlertSave = (status?: string) => {
-    if (details.length > 0 || status === 'cancelled' || observation !== transfer?.observation) {
-      if (status === 'cancelled') {
+  const showAlertSave = (status?: StatusStockTransfer) => {
+    if (
+      details.length > 0 ||
+      status === StatusStockTransfer.Cancelled ||
+      observation !== transfer?.observation
+    ) {
+      if (status === StatusStockTransfer.Cancelled) {
         setPropsAlertSave({
           status,
           visible: true,
@@ -122,7 +130,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @description se encarga de guardar el traslado
    * @param status se usa para definir el estado del traslado
    */
-  const saveTransfer = async (status?: string) => {
+  const saveTransfer = async (status?: StatusStockTransfer) => {
     try {
       if (id) {
         const detailsFilter = details.filter((detail) => detail?.action);
@@ -130,7 +138,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         const newDetails = detailsFilter.map((detail) => ({
           productId: detail?.product?._id || '',
           quantity: detail?.quantity || 1,
-          action: detail?.action || '',
+          action: detail?.action as ActionDetailTransfer,
         }));
         if (newDetails.length > 0 || status || observation !== transfer?.observation) {
           const props = {
@@ -157,7 +165,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           onShowInformation('El traslado no tiene cambios a realizar');
         }
       } else {
-        if (status === 'cancelled') {
+        if (status === StatusStockTransfer.Cancelled) {
           setCurrentStep(0);
         } else {
           const newDetails = details.map((detail) => ({
@@ -212,7 +220,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
             if (detail?.product?._id === _id) {
               return {
                 ...detail,
-                action: 'delete',
+                action: ActionDetailTransfer.Delete,
               };
             }
             return detail;
@@ -234,7 +242,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           return {
             ...detail,
             quantity: quantity || 0,
-            action: detail?.action ?? 'update',
+            action: detail?.action ?? ActionDetailTransfer.Update,
           };
         }
         return detail;
@@ -248,7 +256,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad del producto
    */
   const createDetail = (product: Product, quantity: number) => {
-    setDetails([...details, { product, quantity, action: 'create' }]);
+    setDetails([...details, { product, quantity, action: ActionDetailTransfer.Create }]);
   };
 
   /**
@@ -403,12 +411,19 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== 'delete') as any}
+          dataSource={
+            details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
+          }
           scroll={{ x: 800, y: 200 }}
           pagination={{ size: 'small' }}
         />
       </Card>
-      <Footer transfer={transfer} saveTransfer={showAlertSave} details={details} />
+      <Footer
+        allowEdit={allowEdit}
+        transfer={transfer}
+        saveTransfer={showAlertSave}
+        details={details}
+      />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading
         visible={paramsCreate?.loading || paramsUpdate?.loading}

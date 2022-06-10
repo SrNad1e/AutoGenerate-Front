@@ -12,6 +12,7 @@ import { useHistory, useModel, useParams, useAccess } from 'umi';
 import { useReactToPrint } from 'react-to-print';
 
 import type { StockTransfer, Warehouse } from '@/graphql/graphql';
+import { StatusStockTransfer } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import FormTransfer from '../components/FormTransfer';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
@@ -32,7 +33,7 @@ const Form = () => {
     visible: false,
   });
   const [transfer, setTransfer] = useState<Partial<StockTransfer>>({
-    status: 'open',
+    status: StatusStockTransfer.Open,
   });
 
   const { initialState } = useModel('@@initialState');
@@ -55,12 +56,14 @@ const Form = () => {
     transfer: { canPrint, canEdit },
   } = useAccess();
 
-  const allowEdit =
-    transfer?.status === 'open' &&
-    (!transfer?.warehouseOrigin?._id ||
-      transfer?.warehouseOrigin?._id === initialState?.currentUser?.shop?.defaultWarehouse?._id) &&
-    initialState?.currentUser?._id === transfer?.userOrigin?._id &&
-    canEdit;
+  const allowEdit = isNew
+    ? true
+    : transfer?.status === StatusStockTransfer.Open &&
+      (!transfer?.warehouseOrigin?._id ||
+        transfer?.warehouseOrigin?._id ===
+          initialState?.currentUser?.shop?.defaultWarehouse?._id) &&
+      initialState?.currentUser?._id === transfer?.userOrigin?._id &&
+      canEdit;
 
   /**
    * @description se encarga de abrir aviso de información

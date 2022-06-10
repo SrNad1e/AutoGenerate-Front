@@ -7,6 +7,7 @@ import type {
   StatusStockInput,
   StatusStockOutput,
   StatusStockRequest,
+  StatusStockTransfer,
 } from '@/graphql/graphql';
 
 import { useStyle } from '../styles';
@@ -22,9 +23,15 @@ export type Props = {
     | ((status?: StatusStockRequest) => void)
     | ((status?: StatusStockAdjustment) => void)
     | ((status?: StatusStockInput) => void)
-    | ((status?: StatusStockOutput) => void);
+    | ((status?: StatusStockOutput) => void)
+    | ((status?: StatusStockTransfer) => void);
   onCancel: () => void;
-  status?: StatusStockRequest | StatusStockAdjustment | StatusStockInput | StatusStockOutput;
+  status?:
+    | StatusStockRequest
+    | StatusStockAdjustment
+    | StatusStockInput
+    | StatusStockOutput
+    | StatusStockTransfer;
 };
 
 /**

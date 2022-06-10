@@ -39,6 +39,8 @@ import { useReactToPrint } from 'react-to-print';
 import type { ColumnsType } from 'antd/es/table/interface';
 
 import type { DetailTransfer, Product } from '@/graphql/graphql';
+import { ActionDetailTransfer } from '@/graphql/graphql';
+import { StatusDetailTransfer, StatusStockTransfer } from '@/graphql/graphql';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { StatusType } from '../tranfer.data';
@@ -55,7 +57,9 @@ const { TextArea } = Input;
 
 const ConfirmTransfer = () => {
   const [observation, setObservation] = useState('');
-  const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
+  const [details, setDetails] = useState<
+    Partial<DetailTransfer & { action: ActionDetailTransfer }>[]
+  >([]);
   const [error, setError] = useState('');
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
@@ -66,7 +70,7 @@ const ConfirmTransfer = () => {
     type: TYPES;
     visible: boolean;
     message: string;
-    status?: string;
+    status?: StatusStockTransfer;
   }>({
     visible: false,
     message: '',
@@ -97,13 +101,13 @@ const ConfirmTransfer = () => {
   } = useAccess();
 
   const allowConfirm =
-    data?.stockTransferId?.status === 'sent' &&
+    data?.stockTransferId?.status === StatusStockTransfer.Open &&
     initialState?.currentUser?.shop?.defaultWarehouse?._id ===
       data?.stockTransferId?.warehouseDestination?._id &&
     canConfirm;
 
   const allowConfirmTransfer = !data?.stockTransferId?.details?.find(
-    (item) => item.status === 'new',
+    (item) => item.status === StatusDetailTransfer.New,
   );
 
   /**
@@ -154,7 +158,7 @@ const ConfirmTransfer = () => {
       if (response?.data?.stockTransferId) {
         setDetails(
           response?.data?.stockTransferId?.details as Partial<
-            DetailTransfer & { action: string }
+            DetailTransfer & { action: ActionDetailTransfer }
           >[],
         );
       }
@@ -172,10 +176,13 @@ const ConfirmTransfer = () => {
       const index = newDetails.findIndex((item) => item?.product?.barcode === values.barcode);
 
       if (index >= 0) {
-        if (newDetails[index]?.status === 'new' || newDetails[index]?.quantityConfirmed === 0) {
+        if (
+          newDetails[index]?.status === StatusDetailTransfer.New ||
+          newDetails[index]?.quantityConfirmed === 0
+        ) {
           newDetails[index] = {
             ...newDetails[index],
-            status: 'new',
+            status: StatusDetailTransfer.New,
             quantityConfirmed: (newDetails[index]?.quantityConfirmed || 0) + 1,
           };
           setError(
@@ -201,7 +208,7 @@ const ConfirmTransfer = () => {
       if (item?.product?._id === _id) {
         return {
           ...item,
-          status: 'confirmed',
+          status: StatusDetailTransfer.Confirmed,
           quantityConfirmed: 0,
         };
       }
@@ -213,8 +220,8 @@ const ConfirmTransfer = () => {
   const confirmProducts = () => {
     const productsConfirm = details.filter(
       (item) =>
-        ((item?.status === 'new' && item?.quantityConfirmed) || 0) > 0 ||
-        (item?.status === 'confirmed' && item?.quantityConfirmed === 0),
+        ((item?.status === StatusDetailTransfer.New && item?.quantityConfirmed) || 0) > 0 ||
+        (item?.status === StatusDetailTransfer.Confirmed && item?.quantityConfirmed === 0),
     );
 
     if (productsConfirm.length > 0) {
@@ -229,23 +236,23 @@ const ConfirmTransfer = () => {
   };
 
   const confirmTransfer = () => {
-    const productsConfirm = details.find((item) => item?.status !== 'confirmed');
+    const productsConfirm = details.find((item) => item?.status !== StatusDetailTransfer.Confirmed);
 
     if (!productsConfirm) {
       setPropsAlertSave({
         visible: true,
         message: 'Se enviaran las unidades confirmadas a la bodega, ¿Está Seguro?',
         type: 'warning',
-        status: 'confirmed',
+        status: StatusStockTransfer.Confirmed,
       });
     } else {
       onShowError('Debe confirmar todos los productos');
     }
   };
 
-  const saveTransfer = async (status?: string) => {
-    if (status === 'confirmed') {
-      const confirm = !details?.find((item) => item?.status === 'sent');
+  const saveTransfer = async (status?: StatusStockTransfer) => {
+    if (status === StatusStockTransfer.Confirmed) {
+      const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.Sent);
 
       if (!confirm) {
         onShowError('Debe confirmar todos los productos antes de enviar');
@@ -273,8 +280,8 @@ const ConfirmTransfer = () => {
     } else {
       const newDetails = details.filter(
         (item) =>
-          (item?.status === 'new' && (item?.quantityConfirmed || 0) > 0) ||
-          (item?.status === 'confirmed' && (item?.quantityConfirmed || 0) === 0),
+          (item?.status === StatusDetailTransfer.New && (item?.quantityConfirmed || 0) > 0) ||
+          (item?.status === StatusDetailTransfer.Confirmed && (item?.quantityConfirmed || 0) === 0),
       );
 
       if (id) {
@@ -376,7 +383,7 @@ const ConfirmTransfer = () => {
           fixed: 'right',
           render: ({ _id = '' }: Product, record) => (
             <Popconfirm
-              disabled={!allowConfirm || record?.status === 'confirmed'}
+              disabled={!allowConfirm || record?.status === StatusDetailTransfer.Confirmed}
               title="¿Desea confirmar en 0?"
               okText="Si, confirmar"
               cancelText="Cancelar"
@@ -386,7 +393,7 @@ const ConfirmTransfer = () => {
                 <Button
                   icon={<StopOutlined />}
                   type="primary"
-                  disabled={!allowConfirm || record?.status === 'confirmed'}
+                  disabled={!allowConfirm || record?.status === StatusDetailTransfer.Confirmed}
                   danger
                 />
               </Tooltip>
@@ -499,7 +506,9 @@ const ConfirmTransfer = () => {
           <Col span={24}>
             <Table
               columns={columns}
-              dataSource={details.filter((detail) => detail?.action !== 'delete') as any}
+              dataSource={
+                details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
+              }
               scroll={{ x: 800 }}
               pagination={{ size: 'small' }}
             />
@@ -517,11 +526,12 @@ const ConfirmTransfer = () => {
                   textAlign: 'center',
                 }}
               >
-                REFERENCIAS: {details.filter((detail) => detail?.action !== 'delete').length}
+                REFERENCIAS:{' '}
+                {details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete).length}
                 <Divider type="vertical" />
                 PRODUCTOS:{' '}
                 {details
-                  .filter((detail) => detail?.action !== 'delete')
+                  .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
                   .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
               </Title>
             </Col>
