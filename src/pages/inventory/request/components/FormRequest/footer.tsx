@@ -1,6 +1,7 @@
 import { Affix, Card, Col, Row, Space, Button, Typography, Divider } from 'antd';
 
 import type { DetailRequest, StockRequest } from '@/graphql/graphql';
+import { StatusStockRequest } from '@/graphql/graphql';
 
 import styles from '../styles.less';
 
@@ -8,7 +9,7 @@ const { Title } = Typography;
 
 export type Props = {
   request: Partial<StockRequest> | undefined;
-  saveRequest: (status?: string) => void;
+  saveRequest: (status?: StatusStockRequest) => void;
   details: Partial<DetailRequest & { action: string }>[];
   allowEdit: boolean;
 };
@@ -42,7 +43,7 @@ const Footer = ({ request, saveRequest, details, allowEdit }: Props) => {
               disabled={!allowEdit}
               type={request?._id ? 'primary' : 'default'}
               danger={!!request?._id}
-              onClick={() => saveRequest('cancelled')}
+              onClick={() => saveRequest(StatusStockRequest.Cancelled)}
             >
               Cancelar
             </Button>
@@ -55,7 +56,11 @@ const Footer = ({ request, saveRequest, details, allowEdit }: Props) => {
               <Button disabled={!allowEdit} onClick={() => saveRequest()}>
                 Guardar
               </Button>
-              <Button type="primary" disabled={!allowEdit} onClick={() => saveRequest('pending')}>
+              <Button
+                type="primary"
+                disabled={!allowEdit}
+                onClick={() => saveRequest(StatusStockRequest.Pending)}
+              >
                 Enviar
               </Button>
             </Space>

@@ -42,6 +42,7 @@ import ReportRequest from '../reports/request';
 import type {
   DetailRequest,
   FiltersStockRequestsInput,
+  StatusStockRequest,
   StockRequest,
   Warehouse,
 } from '@/graphql/graphql';
@@ -55,7 +56,7 @@ const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockRequest;
   number?: number;
   warehouseId?: string;
   dates?: Moment[];
