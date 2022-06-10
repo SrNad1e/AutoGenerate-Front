@@ -2,7 +2,11 @@ import { Button, Col, Modal, Row, Space, Typography } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined } from '@ant-design/icons';
 
 import { TypesAlert } from '../alert.data';
-import type { StatusStockAdjustment, StatusStockRequest } from '@/graphql/graphql';
+import type {
+  StatusStockAdjustment,
+  StatusStockInput,
+  StatusStockRequest,
+} from '@/graphql/graphql';
 
 import { useStyle } from '../styles';
 import styles from './index.less';
@@ -13,9 +17,12 @@ export type Props = {
   message: string;
   visible: boolean;
   type: TYPES;
-  onOk: ((status?: StatusStockRequest) => void) | ((status?: StatusStockAdjustment) => void);
+  onOk:
+    | ((status?: StatusStockRequest) => void)
+    | ((status?: StatusStockAdjustment) => void)
+    | ((status?: StatusStockInput) => void);
   onCancel: () => void;
-  status?: StatusStockRequest | StatusStockAdjustment;
+  status?: StatusStockRequest | StatusStockAdjustment | StatusStockInput;
 };
 
 /**

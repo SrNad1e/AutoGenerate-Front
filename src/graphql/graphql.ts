@@ -5873,7 +5873,7 @@ export type StockInputQuery = {
         size: { __typename?: 'Size'; value: string };
       };
     }[];
-    user: { __typename?: 'User'; name: string };
+    user: { __typename?: 'User'; _id: string; name: string };
     warehouse: { __typename?: 'Warehouse'; _id: string; name: string };
   };
 };
@@ -6160,7 +6160,7 @@ export type StockOutputQuery = {
         size: { __typename?: 'Size'; value: string };
       };
     }[];
-    user: { __typename?: 'User'; name: string };
+    user: { __typename?: 'User'; _id: string; name: string };
     warehouse: { __typename?: 'Warehouse'; _id: string; name: string };
   };
 };
@@ -6671,7 +6671,7 @@ export type StockTransferIdQuery = {
     }[];
     requests?: { __typename?: 'StockRequest'; _id: string; number: number }[] | null;
     userDestination?: { __typename?: 'User'; name: string } | null;
-    userOrigin: { __typename?: 'User'; name: string };
+    userOrigin: { __typename?: 'User'; _id: string; name: string };
     warehouseDestination: { __typename?: 'Warehouse'; _id: string; name: string };
     warehouseOrigin: { __typename?: 'Warehouse'; _id: string; name: string };
   };
@@ -11773,7 +11773,10 @@ export const StockInputDocument = {
                   name: { kind: 'Name', value: 'user' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
                 {
@@ -12703,7 +12706,10 @@ export const StockOutputDocument = {
                   name: { kind: 'Name', value: 'user' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
                 {
@@ -14420,7 +14426,10 @@ export const StockTransferIdDocument = {
                   name: { kind: 'Name', value: 'userOrigin' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
                 {

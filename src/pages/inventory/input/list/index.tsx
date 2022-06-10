@@ -39,6 +39,7 @@ import ReportInput from '../reports/input';
 import type {
   DetailInput,
   FiltersStockInputsInput,
+  StatusStockInput,
   StockInput,
   Warehouse,
 } from '@/graphql/graphql';
@@ -51,7 +52,7 @@ const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockInput;
   number?: number;
   warehouseId?: string;
   dates?: Moment[];
