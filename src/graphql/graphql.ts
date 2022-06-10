@@ -2470,6 +2470,7 @@ export type QueryProductsArgs = {
 
 export type QueryReferenceIdArgs = {
   id: Scalars['String'];
+  productsStatus?: InputMaybe<Scalars['String']>;
 };
 
 export type QueryReferencesArgs = {

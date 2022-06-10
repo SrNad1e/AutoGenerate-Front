@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import ImageAdmin from '@/components/ImageAdmin';
 import SelectColor from '@/components/SelectColor';
 import SelectSize from '@/components/SelectSize';
-import type { Image, Product, UpdateProductInput } from '@/graphql/graphql';
+import { Image, Product, StatusProduct, UpdateProductInput } from '@/graphql/graphql';
 import { StatusType } from '../../product.data';
 import { useUpdateProduct } from '@/hooks/product.hooks';
 
@@ -119,6 +119,14 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
       if (values?.images?.length > 0) {
         values.imagesId = values?.images?.map((image: Image) => image?._id);
       }
+
+      console.log(values);
+      console.log(StatusProduct[values?.status]);
+
+      /* if (values?.status) {
+        values.status = StatusProduct[values?.status];
+      }*/
+
       delete values?.images;
       const response = await saveProduct(values, current?._id);
       if (response?.data?.updateProduct) {
@@ -182,13 +190,13 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
           <Col xs={24} md={10} lg={6}>
             <FormItem
               name="status"
-              label="Activo"
+              label="Estado"
               rules={[{ required: true, message: 'Obligatorio' }]}
             >
               <Select disabled={loading}>
-                {StatusType.map((status) => (
-                  <Option key={status.name} value={status.name}>
-                    {status.title}
+                {Object.keys(StatusType).map((name) => (
+                  <Option key={name} value={name}>
+                    {StatusType[name].title}
                   </Option>
                 ))}
               </Select>
