@@ -15,6 +15,53 @@ export type Scalars = {
   DateTime: any;
 };
 
+export enum ActionDetailInput {
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Update = 'UPDATE',
+}
+
+export enum ActionDetailOutput {
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Update = 'UPDATE',
+}
+
+export enum ActionDetailRequest {
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Update = 'UPDATE',
+}
+
+export enum ActionDetailTransfer {
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Update = 'UPDATE',
+}
+
+export enum ActionPaymentsOrder {
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Update = 'UPDATE',
+}
+
+/** Opción del permiso */
+export type ActionPermission = {
+  __typename?: 'ActionPermission';
+  /** Identificador del permiso */
+  _id: Scalars['String'];
+  /** Descripción del permiso */
+  description: Scalars['String'];
+  /** Nombre de la acción del permiso */
+  name: Scalars['String'];
+};
+
+export enum ActionProductsOrder {
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Update = 'UPDATE',
+}
+
 /** Datos para agregar medios de pago al pedido */
 export type AddPaymentsOrderInput = {
   /** Id del pedido que se requiere agreagar o editar productos */
@@ -578,8 +625,8 @@ export type CreateCustomerInput = {
 
 /** Datos para crear el pedido */
 export type CreateOrderInput = {
-  /** Estado del pedido (open, pending ,cancelled, closed, sent, invoiced) */
-  status: Scalars['String'];
+  /** Estado del pedido */
+  status: StatusOrder;
 };
 
 /** Datos para crear un producto */
@@ -639,6 +686,18 @@ export type CreateReturnOrderInput = {
   orderId: Scalars['String'];
 };
 
+/** Datos para la creación de un rol */
+export type CreateRoleInput = {
+  /** Estado del rol */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Habilita para que el usuario pueda consulta cualquier bodega */
+  changeWarehouse?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre del rol */
+  name: Scalars['String'];
+  /** Identificadores de los permisos asignados */
+  permissionIds: Scalars['String'][];
+};
+
 /** Datos para crear una talla */
 export type CreateSizeInput = {
   /** Valor asignado a la talla */
@@ -653,8 +712,8 @@ export type CreateStockAdjustmentInput = {
   details: DetailStockAdjustmentCreateInput[];
   /** Observación del que realiza el ajuste */
   observation?: InputMaybe<Scalars['String']>;
-  /** Estado del ajuste (open, confirmed, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado del ajuste */
+  status?: InputMaybe<StatusStockAdjustment>;
   /** Identificador de la bodega para el ajuste */
   warehouseId: Scalars['String'];
 };
@@ -665,8 +724,8 @@ export type CreateStockInputInput = {
   details: DetailStockInputCreateInput[];
   /** Observación del que realiza la entrada */
   observation?: InputMaybe<Scalars['String']>;
-  /** Estado de la entrada (open, confirmed, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la entrada */
+  status?: InputMaybe<StatusStockInput>;
   /** Identificador de la bodega para la entrada */
   warehouseId: Scalars['String'];
 };
@@ -677,8 +736,8 @@ export type CreateStockOutputInput = {
   details: DetailStockOutputCreateInput[];
   /** Observación del que realiza la salida */
   observation?: InputMaybe<Scalars['String']>;
-  /** Estado de la salida (open, confirmed, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la salida */
+  status?: InputMaybe<StatusStockOutput>;
   /** Identificador de la bodega para la salida */
   warehouseId: Scalars['String'];
 };
@@ -689,8 +748,8 @@ export type CreateStockRequestInput = {
   details: DetailStockRequestCreateInput[];
   /** Observación de la solicitud */
   observation?: InputMaybe<Scalars['String']>;
-  /** Estado de la solicitud (open, pending, used, cancelled ) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la solicitud */
+  status?: InputMaybe<StatusStockRequest>;
   /** Identificador de la bodega de destino de la solicitud */
   warehouseDestinationId: Scalars['String'];
   /** Identificador de la bodega de origen de la solicitud */
@@ -705,12 +764,32 @@ export type CreateStockTransferInput = {
   observationOrigin?: InputMaybe<Scalars['String']>;
   /** Solicitudes usadas */
   requests?: InputMaybe<Scalars['String'][]>;
-  /** Estado del traslado (open, sent, confirmed, incomplete, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado del traslado */
+  status?: InputMaybe<StatusStockTransfer>;
   /** Identificador de la bodega de destino del traslado */
   warehouseDestinationId: Scalars['String'];
   /** Identificador de la bodega de origen del traslado */
   warehouseOriginId: Scalars['String'];
+};
+
+/** Datos para la creación de un usuario */
+export type CreateUserInput = {
+  /** Identificador de la empresa a la que pertenece el usuario */
+  companyId?: InputMaybe<Scalars['String']>;
+  /** Identificador del cliente asignado al usuario */
+  customerId?: InputMaybe<Scalars['String']>;
+  /** Nombre del usuario */
+  name: Scalars['String'];
+  /** Contraseña de usuario */
+  password: Scalars['String'];
+  /** Identificador del punto de venta asignado al usuario */
+  pointOfSaleId?: InputMaybe<Scalars['String']>;
+  /** Identificador del rol del usuario */
+  roleId: Scalars['String'];
+  /** Identificador de la tienda asignada al usuario */
+  shopId: Scalars['String'];
+  /** Usuario registrado */
+  username: Scalars['String'];
 };
 
 /** Cliente */
@@ -769,8 +848,8 @@ export type CustomerType = {
 
 /** Producto que se va a agregar */
 export type DetailAddProductsOrderInput = {
-  /** Acción a realizar con el producto (create, update, delete) */
-  action: Scalars['String'];
+  /** Acción a realizar con el producto */
+  action: ActionProductsOrder;
   /** Identificador Producto agregado al pedido */
   productId: Scalars['String'];
   /** Cantidad de producto agregado */
@@ -839,7 +918,7 @@ export type DetailOrder = {
   product: Product;
   /** Cantidad de productos en el pedido */
   quantity: Scalars['Float'];
-  /** Estado del producto (new, confirmed) */
+  /** Estado del producto */
   status: Scalars['String'];
   /** Fecha de actualizado del producto al pedido */
   updatedAt: Scalars['DateTime'];
@@ -899,7 +978,7 @@ export type DetailStockAdjustmentCreateInput = {
 
 /** Detalle del ajuste de productos */
 export type DetailStockAdjustmentInput = {
-  /** Acción a efectuar con el producto (delete, update, create) */
+  /** Acción a efectuar con el producto */
   action: Scalars['String'];
   /** Identificador de mongo del producto */
   productId: Scalars['String'];
@@ -917,8 +996,8 @@ export type DetailStockInputCreateInput = {
 
 /** Detalle de la entrada de productos */
 export type DetailStockInputInput = {
-  /** Acción a efectuar con el producto (delete, update, create) */
-  action: Scalars['String'];
+  /** Acción a efectuar con el producto */
+  action: ActionDetailInput;
   /** Identificador de mongo del producto */
   productId: Scalars['String'];
   /** Cantidad de productos */
@@ -935,8 +1014,8 @@ export type DetailStockOutputCreateInput = {
 
 /** Detalle de la salida de productos */
 export type DetailStockOutputInput = {
-  /** Acción a efectuar con el producto (delete, update, create) */
-  action: Scalars['String'];
+  /** Acción a efectuar con el producto */
+  action: ActionDetailOutput;
   /** Identificador de mongo del producto */
   productId: Scalars['String'];
   /** Cantidad de productos */
@@ -953,8 +1032,8 @@ export type DetailStockRequestCreateInput = {
 
 /** Detalle de la solicitud de productos */
 export type DetailStockRequestInput = {
-  /** Acción a efectuar con el producto (delete, update, create) */
-  action: Scalars['String'];
+  /** Acción a efectuar con el producto */
+  action: ActionDetailRequest;
   /** Identificador de mongo del producto */
   productId: Scalars['String'];
   /** Cantidad de productos */
@@ -971,8 +1050,8 @@ export type DetailStockTransferCreateInput = {
 
 /** Detalle del traslado de productos */
 export type DetailStockTransferInput = {
-  /** Acción a efectuar con el producto (delete, update, create) */
-  action: Scalars['String'];
+  /** Acción a efectuar con el producto */
+  action: ActionDetailTransfer;
   /** Identificador de mongo del producto */
   productId: Scalars['String'];
   /** Cantidad de productos */
@@ -990,8 +1069,8 @@ export type DetailTransfer = {
   quantity: Scalars['Float'];
   /** Cantidad del productos confirmados en el traslado */
   quantityConfirmed?: Maybe<Scalars['Float']>;
-  /** Estado del producto (confirmed, new, sent) */
-  status: Scalars['String'];
+  /** Estado del producto */
+  status: StatusDetailTransfer;
   /** Fecha de actualizacion el producto */
   updatedAt: Scalars['DateTime'];
 };
@@ -1013,6 +1092,11 @@ export type DocumentType = {
   user: User;
 };
 
+export enum DocumentTypesRuler {
+  Categories = 'CATEGORIES',
+  Customertypes = 'CUSTOMERTYPES',
+}
+
 /** Egreso de dinero */
 export type Expense = {
   __typename?: 'Expense';
@@ -1029,7 +1113,7 @@ export type Expense = {
   /** Consecutivo del egreso */
   number: Scalars['Float'];
   /** Estado del egreso */
-  status: Scalars['String'];
+  status: StatusExpense;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el egreso */
@@ -1240,12 +1324,14 @@ export type FiltersOrdersInput = {
   limit?: InputMaybe<Scalars['Float']>;
   /** Número consecutivo del pedido */
   number?: InputMaybe<Scalars['Float']>;
+  /** Trae los pedidos POS solamente */
+  orderPOS?: InputMaybe<Scalars['Boolean']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortOrder>;
   /** Estado del pedido */
-  status?: InputMaybe<Scalars['String']>;
+  status?: InputMaybe<StatusOrder>;
 };
 
 /** Filtros para obtener el listado de tipos de medios de pago */
@@ -1341,6 +1427,8 @@ export type FiltersReferencesInput = {
   changeable?: InputMaybe<Scalars['Boolean']>;
   /** Costo para la busqueda de referencias */
   cost?: InputMaybe<Scalars['Float']>;
+  /** Identificador del cliente para validar descuentos */
+  customerId?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Comodín para la busqueda de las referencias */
@@ -1363,10 +1451,28 @@ export type FiltersReturnsOrderInput = {
   dateInitial?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
+  /** Número de la devolución */
+  number?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
+  /** Identificador de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortReturnOrder>;
+};
+
+/** Filtros para consultar los roles */
+export type FiltersRolesInput = {
+  /** El rol se encuentra activo */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Nombre del rol */
+  name?: InputMaybe<Scalars['String']>;
+  /** Página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortRole>;
 };
 
 /** Filtros usados para consultar las tiendas */
@@ -1391,8 +1497,8 @@ export type FiltersShopsInput = {
   phone?: InputMaybe<Scalars['String']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortShop>;
-  /** Estado de la tienda (active, inactive, suspend) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la tienda */
+  status?: InputMaybe<StatusShop>;
 };
 
 /** Filtros para la lista de tallas */
@@ -1425,8 +1531,8 @@ export type FiltersStockAdjustmentsInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortStockAdjustment>;
-  /** Estado del ajuste (open, confirmed, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado del ajuste */
+  status?: InputMaybe<StatusStockAdjustment>;
   /** Valor total de la entrada */
   total?: InputMaybe<Scalars['Float']>;
   /** Id de la bodega */
@@ -1447,8 +1553,8 @@ export type FiltersStockInputsInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortStockInput>;
-  /** Estado de la entrada (open, confirmed, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la entrada */
+  status?: InputMaybe<StatusStockInput>;
   /** Valor total de la entrada */
   total?: InputMaybe<Scalars['Float']>;
   /** Id de la bodega */
@@ -1469,8 +1575,8 @@ export type FiltersStockOutputsInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortStockOutput>;
-  /** Estado de la salida (open, confirmed, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la salida */
+  status?: InputMaybe<StatusStockOutput>;
   /** Valor total de la entrada */
   total?: InputMaybe<Scalars['Float']>;
   /** Id de la bodega */
@@ -1491,8 +1597,8 @@ export type FiltersStockRequestsInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortStockRequest>;
-  /** Estado de la solicitud (open, pending, cancelled, used) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la solicitud */
+  status?: InputMaybe<StatusStockRequest>;
   /** Id de la bodega de destino */
   warehouseDestinationId?: InputMaybe<Scalars['String']>;
   /** Id de la bodega de origen */
@@ -1513,8 +1619,8 @@ export type FiltersStockTransfersInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortStockTransfer>;
-  /** Estado del traslado (open, sent, confirmed, incomplete, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado del traslado */
+  status?: InputMaybe<StatusStockTransfer>;
   /** Id de la bodega de destino */
   warehouseDestinationId?: InputMaybe<Scalars['String']>;
   /** Id de la bodega de origen */
@@ -1535,8 +1641,8 @@ export type FiltersUsersInput = {
   roleId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortUser>;
-  /** Estado del usuario (active, inactive, suspend) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado del usuario */
+  status?: InputMaybe<StatusUser>;
 };
 
 /** Filtros de las bodegas */
@@ -1665,6 +1771,8 @@ export type Mutation = {
   createReference: Reference;
   /** Se encarga de crear la devolución del pedido */
   createReturnOrder: ReturnOrder;
+  /** Crea una rol */
+  createRole: Role;
   /** Crear una talla */
   createSize: Size;
   /** Crea un ajuste de productos */
@@ -1677,6 +1785,7 @@ export type Mutation = {
   createStockRequest: StockRequest;
   /** Crea una traslado de productos */
   createStockTransfer: StockTransfer;
+  createUser: User;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
@@ -1699,6 +1808,8 @@ export type Mutation = {
   updateProduct: Product;
   /** Actualiza una referencia */
   updateReference: Reference;
+  /** Actualiza un rol */
+  updateRole: Role;
   /** Actualizar la talla */
   updateSize: Size;
   /** Actualiza un ajuste de productos */
@@ -1771,6 +1882,10 @@ export type MutationCreateReturnOrderArgs = {
   createReturnOrderInput: CreateReturnOrderInput;
 };
 
+export type MutationCreateRoleArgs = {
+  createRoleInput: CreateRoleInput;
+};
+
 export type MutationCreateSizeArgs = {
   createSizeInput: CreateSizeInput;
 };
@@ -1793,6 +1908,10 @@ export type MutationCreateStockRequestArgs = {
 
 export type MutationCreateStockTransferArgs = {
   createStockTransferInput: CreateStockTransferInput;
+};
+
+export type MutationCreateUserArgs = {
+  createUserInput: CreateUserInput;
 };
 
 export type MutationGenerateStockRequestArgs = {
@@ -1847,6 +1966,11 @@ export type MutationUpdateReferenceArgs = {
   updateReferenceInput: UpdateReferenceInput;
 };
 
+export type MutationUpdateRoleArgs = {
+  id: Scalars['String'];
+  updateRoleInput: UpdateRoleInput;
+};
+
 export type MutationUpdateSizeArgs = {
   id: Scalars['String'];
   updateSizeInput: UpdateSizeInput;
@@ -1882,6 +2006,15 @@ export type MutationUpdateUserArgs = {
   updateUserInput: UpdateUserInput;
 };
 
+/** Opción del permiso */
+export type OptionPermission = {
+  __typename?: 'OptionPermission';
+  /** Acciones a realizan en la opción */
+  actions: ActionPermission[];
+  /** Nombre de la opción */
+  name: Scalars['String'];
+};
+
 /** Pedido de productos */
 export type Order = {
   __typename?: 'Order';
@@ -1903,14 +2036,16 @@ export type Order = {
   invoice?: Maybe<Invoice>;
   /** Número de pedido */
   number: Scalars['Float'];
+  /** Pedido de POS */
+  orderPos: Scalars['Boolean'];
   /** Métodos de pago usados en el pedido */
   payments?: Maybe<PaymentOrder[]>;
   /** Punto de venta asigando */
   pointOfSale: PointOfSale;
   /** Tienda donde se solicita el pedido */
   shop: Shop;
-  /** Estado del pedido (open, pending, cancelled, closed, sent, invoiced) */
-  status: Scalars['String'];
+  /** Estado del pedido */
+  status: StatusOrder;
   /** Resumen de los pagosy totales */
   summary: SummaryOrder;
   /** Fecha de actualización */
@@ -1934,8 +2069,8 @@ export type Payment = {
   logo?: Maybe<Image>;
   /** Nombre del medio de pago */
   name: Scalars['String'];
-  /** Tipo de medio de pago (cash, bank, credit, bonus) */
-  type: Scalars['String'];
+  /** Tipo de medio de pago */
+  type: TypePayment;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el medio de pago */
@@ -1979,8 +2114,8 @@ export type PaymentOrderClose = {
 
 /** Medio de pago que se va a agregar */
 export type PaymentsOrderInput = {
-  /** Acción a realizar con el medio de pago (create, update, delete) */
-  action: Scalars['String'];
+  /** Acción a realizar con el medio de pago */
+  action: ActionPaymentsOrder;
   /** Identificador medio de pago agregado al pedido */
   paymentId: Scalars['String'];
   /** Valor total agregado */
@@ -2004,8 +2139,19 @@ export type Permission = {
   option: Scalars['String'];
 };
 
+/** Permiso */
+export type PermissionData = {
+  __typename?: 'PermissionData';
+  /** Nombre del módulo */
+  module: Scalars['String'];
+  /** Opciones del módulo */
+  options: OptionPermission[];
+};
+
 export enum Permissions {
   AccessConfigurationConveyors = 'ACCESS_CONFIGURATION_CONVEYORS',
+  AccessConfigurationRoles = 'ACCESS_CONFIGURATION_ROLES',
+  AccessConfigurationUsers = 'ACCESS_CONFIGURATION_USERS',
   AccessCrmCities = 'ACCESS_CRM_CITIES',
   AccessCrmCustomers = 'ACCESS_CRM_CUSTOMERS',
   AccessErp = 'ACCESS_ERP',
@@ -2027,6 +2173,8 @@ export enum Permissions {
   AccessPos = 'ACCESS_POS',
   AutogenerateInventoryRequest = 'AUTOGENERATE_INVENTORY_REQUEST',
   ConfirmInventoryTransfer = 'CONFIRM_INVENTORY_TRANSFER',
+  CreateConfigurationRole = 'CREATE_CONFIGURATION_ROLE',
+  CreateConfigurationUser = 'CREATE_CONFIGURATION_USER',
   CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
   CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
   CreateInventoryAttrib = 'CREATE_INVENTORY_ATTRIB',
@@ -2054,6 +2202,8 @@ export enum Permissions {
   PrintInvoicingReturn = 'PRINT_INVOICING_RETURN',
   ReadConfigurationConveyors = 'READ_CONFIGURATION_CONVEYORS',
   ReadConfigurationImages = 'READ_CONFIGURATION_IMAGES',
+  ReadConfigurationPermissions = 'READ_CONFIGURATION_PERMISSIONS',
+  ReadConfigurationRoles = 'READ_CONFIGURATION_ROLES',
   ReadConfigurationShops = 'READ_CONFIGURATION_SHOPS',
   ReadConfigurationUsers = 'READ_CONFIGURATION_USERS',
   ReadConfigurationWarehouses = 'READ_CONFIGURATION_WAREHOUSES',
@@ -2078,6 +2228,7 @@ export enum Permissions {
   ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
   ReadInvoicingReturns = 'READ_INVOICING_RETURNS',
   ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
+  UpdateConfigurationRole = 'UPDATE_CONFIGURATION_ROLE',
   UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
   UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
   UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
@@ -2135,8 +2286,8 @@ export type Product = {
   reference: Reference;
   /** Talla del producto */
   size: Size;
-  /** Estado del producto (active, inactive) */
-  status: Scalars['String'];
+  /** Estado del producto */
+  status: StatusProduct;
   /** Inventario del producto por bodegas */
   stock?: Maybe<Stock[]>;
   /** Fecha de actualización del producto */
@@ -2183,6 +2334,8 @@ export type Query = {
   ordersByPointOfSale: Order[];
   /** Se encarga de listar los metodos de pago */
   payments: ResponsePayments;
+  /** Se encarga de listar los permisos */
+  permissions: PermissionData[];
   /** Lista de puntos de venta */
   pointOfSales: ResponsePointOfSales;
   /** Obtiene un producto */
@@ -2195,6 +2348,10 @@ export type Query = {
   references: ResponseReferences;
   /** Lista de devoluciones de pedidos */
   returnsOrder: ResponseReturnsOrder;
+  /** Obtiene el rol por el identificador */
+  roleId: Role;
+  /** Listado de las roles */
+  roles: ResponseRoles;
   /** Se encarga de listar las tiendas */
   shops: ResponseShops;
   /** Listar las tallas */
@@ -2320,6 +2477,14 @@ export type QueryReturnsOrderArgs = {
   filtersReturnsOrder?: InputMaybe<FiltersReturnsOrderInput>;
 };
 
+export type QueryRoleIdArgs = {
+  id: Scalars['String'];
+};
+
+export type QueryRolesArgs = {
+  filtersRolesInput?: InputMaybe<FiltersRolesInput>;
+};
+
 export type QueryShopsArgs = {
   filtersShopsInput?: InputMaybe<FiltersShopsInput>;
 };
@@ -2398,7 +2563,7 @@ export type Receipt = {
   /** Método de pago del recibo de caja */
   payment: Payment;
   /** Estado del recibo de caja */
-  status: Scalars['String'];
+  status: StatusReceipt;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el recibo de caja */
@@ -2906,6 +3071,30 @@ export type ResponseReturnsOrder = {
   totalPages: Scalars['Float'];
 };
 
+/** Respuesta a la consulta de roles */
+export type ResponseRoles = {
+  __typename?: 'ResponseRoles';
+  /** Lista de roles */
+  docs: Role[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta a la consulta de tiendas */
 export type ResponseShops = {
   __typename?: 'ResponseShops';
@@ -3117,6 +3306,8 @@ export type ReturnOrder = {
   number: Scalars['Float'];
   /** Pedido de la devolución */
   order: Order;
+  /** Tienda */
+  shop: Shop;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
@@ -3142,6 +3333,17 @@ export type Role = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o modificó el rol */
   user: User;
+};
+
+/** Reglas para el descuento */
+export type Rule = {
+  __typename?: 'Rule';
+  /** Identificador de los documentos */
+  documentIds: Scalars['String'][];
+  /** Tipo de documento para validar el descuento */
+  documentType: DocumentTypesRuler;
+  /** Tipo de regla que deben cumplir los documentos */
+  type: Scalars['String'][];
 };
 
 /** Datos de medidas para el envío de los productos */
@@ -3185,8 +3387,8 @@ export type Shop = {
   name: Scalars['String'];
   /** Teléfono de la tienda */
   phone?: Maybe<Scalars['String']>;
-  /** Estado de la tienda (active, inactive, suspend) */
-  status: Scalars['String'];
+  /** Estado de la tienda */
+  status: StatusShop;
   /** Fecha de creación */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la tienda */
@@ -3413,6 +3615,15 @@ export type SortReturnOrder = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento para el listado de roles */
+export type SortRole = {
+  active?: InputMaybe<Scalars['Float']>;
+  changeWarehouse?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento de la tienda */
 export type SortShop = {
   address?: InputMaybe<Scalars['Float']>;
@@ -3530,6 +3741,82 @@ export type SortWarehouse = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+export enum StatusDetailTransfer {
+  Confirmed = 'CONFIRMED',
+  New = 'NEW',
+  Sent = 'SENT',
+}
+
+export enum StatusExpense {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+}
+
+export enum StatusOrder {
+  Cancelled = 'CANCELLED',
+  Closed = 'CLOSED',
+  Invoiced = 'INVOICED',
+  Open = 'OPEN',
+  Pending = 'PENDING',
+  Sent = 'SENT',
+}
+
+export enum StatusProduct {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+}
+
+export enum StatusReceipt {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+}
+
+export enum StatusShop {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  Suspend = 'SUSPEND',
+}
+
+export enum StatusStockAdjustment {
+  Cancelled = 'CANCELLED',
+  Confirmed = 'CONFIRMED',
+  Open = 'OPEN',
+}
+
+export enum StatusStockInput {
+  Cancelled = 'CANCELLED',
+  Confirmed = 'CONFIRMED',
+  Open = 'OPEN',
+}
+
+export enum StatusStockOutput {
+  Cancelled = 'CANCELLED',
+  Confirmed = 'CONFIRMED',
+  Open = 'OPEN',
+}
+
+export enum StatusStockRequest {
+  Cancelled = 'CANCELLED',
+  Open = 'OPEN',
+  Pending = 'PENDING',
+  Used = 'USED',
+}
+
+export enum StatusStockTransfer {
+  Cancelled = 'CANCELLED',
+  Confirmed = 'CONFIRMED',
+  Incomplete = 'INCOMPLETE',
+  Open = 'OPEN',
+  Sent = 'SENT',
+  Verified = 'VERIFIED',
+}
+
+export enum StatusUser {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  Suspend = 'SUSPEND',
+}
+
 /** Inventario por bodegas del producto */
 export type Stock = {
   __typename?: 'Stock';
@@ -3560,8 +3847,8 @@ export type StockAdjustment = {
   number: Scalars['Float'];
   /** Observación de la entrada */
   observation?: Maybe<Scalars['String']>;
-  /** Estado del ajuste (open, confirmed, cancelled) */
-  status: Scalars['String'];
+  /** Estado del ajuste */
+  status: StatusStockAdjustment;
   /** Costo total del ajuste */
   total: Scalars['Float'];
   /** Fecha de la última actulización de la entrada */
@@ -3587,8 +3874,8 @@ export type StockInput = {
   number: Scalars['Float'];
   /** Observación de la entrada */
   observation?: Maybe<Scalars['String']>;
-  /** Estado de la entrada (open, confirmed, cancelled) */
-  status: Scalars['String'];
+  /** Estado de la entrada */
+  status: StatusStockInput;
   /** Costo total de la entrada */
   total: Scalars['Float'];
   /** Fecha de la última actulización de la entrada */
@@ -3614,8 +3901,8 @@ export type StockOutput = {
   number: Scalars['Float'];
   /** Observación de la entrada */
   observation?: Maybe<Scalars['String']>;
-  /** Estado de la salida (open, confirmed, cancelled) */
-  status: Scalars['String'];
+  /** Estado de la salida */
+  status: StatusStockOutput;
   /** Costo total de la salida */
   total: Scalars['Float'];
   /** Fecha de la última actulización de la salida */
@@ -3646,8 +3933,8 @@ export type StockRequest = {
   number: Scalars['Float'];
   /** Observación de la solicitud */
   observation?: Maybe<Scalars['String']>;
-  /** Estado de la solicitud (open, pending, used, cancelled ) */
-  status: Scalars['String'];
+  /** Estado de la solicitud */
+  status: StatusStockRequest;
   /** Fecha de la última actulización de la solicitud */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la solicitud */
@@ -3679,8 +3966,8 @@ export type StockTransfer = {
   observationOrigin?: Maybe<Scalars['String']>;
   /** Solicitudes usadas */
   requests?: Maybe<StockRequest[]>;
-  /** Estado del traslado (open, sent, confirmed, incomplete, cancelled, verified ) */
-  status: Scalars['String'];
+  /** Estado del traslado */
+  status: StatusStockTransfer;
   /** Fecha de actualización del traslado */
   updatedAt: Scalars['DateTime'];
   /** Usuario de destino del traslado */
@@ -3739,6 +4026,13 @@ export type SummaryOrderClose = {
   /** Valor de las ordenes finalizadas */
   value: Scalars['Float'];
 };
+
+export enum TypePayment {
+  Bank = 'BANK',
+  Bonus = 'BONUS',
+  Cash = 'CASH',
+  Credit = 'CREDIT',
+}
 
 /** Datos para actualizar el atributo */
 export type UpdateAttribInput = {
@@ -3814,8 +4108,8 @@ export type UpdateOrderInput = {
   conveyorId?: InputMaybe<Scalars['String']>;
   /** Identificación del cliente */
   customerId?: InputMaybe<Scalars['String']>;
-  /** Estado del pedido (open, pending ,cancelled, closed, sent, invoiced) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado del pedido */
+  status?: InputMaybe<StatusOrder>;
 };
 
 /** Datos para actualizar el producto */
@@ -3828,8 +4122,8 @@ export type UpdateProductInput = {
   imagesId?: InputMaybe<Scalars['String'][]>;
   /** Identificador de la talla */
   sizeId?: InputMaybe<Scalars['String']>;
-  /** Estado del producto (active, inactive) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado del producto */
+  status?: InputMaybe<StatusProduct>;
 };
 
 /** Datos para actualizar referencia */
@@ -3868,6 +4162,18 @@ export type UpdateReferenceInput = {
   width?: InputMaybe<Scalars['Float']>;
 };
 
+/** Datos para actualizar el rol */
+export type UpdateRoleInput = {
+  /** Estado del rol */
+  active: Scalars['Boolean'];
+  /** Puede el usuario cambiar su bodega */
+  changeWarehouse: Scalars['Boolean'];
+  /** Nombre del rol */
+  name: Scalars['String'];
+  /** Identificadores de los permisos seleccionados */
+  permissionIds?: InputMaybe<Scalars['String'][]>;
+};
+
 /** Datos para actualizar la talla */
 export type UpdateSizeInput = {
   /** Se encuentra activa la talla */
@@ -3884,8 +4190,8 @@ export type UpdateStockAdjustmentInput = {
   details?: InputMaybe<DetailStockAdjustmentInput[]>;
   /** Observación del ajuste */
   observation?: InputMaybe<Scalars['String']>;
-  /** Estado del ajuste (open, confirmed, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado del ajuste */
+  status?: InputMaybe<StatusStockAdjustment>;
 };
 
 /** Datos para actualizar la entrada de productos */
@@ -3894,8 +4200,8 @@ export type UpdateStockInputInput = {
   details?: InputMaybe<DetailStockInputInput[]>;
   /** Observación de la entrada */
   observation?: InputMaybe<Scalars['String']>;
-  /** Estado de la entrada (open, confirmed, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la entrada */
+  status?: InputMaybe<StatusStockInput>;
 };
 
 /** Datos para actualizar la salida de productos */
@@ -3904,8 +4210,8 @@ export type UpdateStockOutputInput = {
   details?: InputMaybe<DetailStockOutputInput[]>;
   /** Observación de la salida */
   observation?: InputMaybe<Scalars['String']>;
-  /** Estado de la salida (open, confirmed, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la salida */
+  status?: InputMaybe<StatusStockOutput>;
 };
 
 /** Datos para actualizar la solicitud de productos */
@@ -3914,8 +4220,8 @@ export type UpdateStockRequestInput = {
   details?: InputMaybe<DetailStockRequestInput[]>;
   /** Observación de la solicitud */
   observation?: InputMaybe<Scalars['String']>;
-  /** Estado de la solicitud (open, pending, used, cancelled ) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado de la solicitud */
+  status?: InputMaybe<StatusStockRequest>;
 };
 
 /** Datos para actualizar el traslado de productos */
@@ -3930,8 +4236,8 @@ export type UpdateStockTransferInput = {
   observationOrigin?: InputMaybe<Scalars['String']>;
   /** Solicitudes usadas */
   requests?: InputMaybe<Scalars['String'][]>;
-  /** Estado del traslado (open, sent, confirmed, incomplete, cancelled) */
-  status?: InputMaybe<Scalars['String']>;
+  /** Estado del traslado */
+  status?: InputMaybe<StatusStockTransfer>;
 };
 
 /** Datos para actualizar el usuario */
@@ -3951,7 +4257,7 @@ export type UpdateUserInput = {
   /** Identificador de la tienda asignada al usuario */
   shopId?: InputMaybe<Scalars['String']>;
   /** Estado del usuario */
-  status?: InputMaybe<Scalars['String']>;
+  status?: InputMaybe<StatusUser>;
   /** Usuario registrado */
   username?: InputMaybe<Scalars['String']>;
 };
@@ -3988,8 +4294,8 @@ export type User = {
   role: Role;
   /** Tienda a la que se encuentra asignado el usuario */
   shop: Shop;
-  /** Estado del usuario (active, inactive, suspend) */
-  status: Scalars['String'];
+  /** Estado del usuario */
+  status: StatusUser;
   /** Nombre de usuario */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó el usuario */
@@ -4042,7 +4348,7 @@ export type UpdateStockAdjustmentMutation = {
     _id: string;
     number: number;
     observation?: string | null;
-    status: string;
+    status: StatusStockAdjustment;
     total: number;
     company: { __typename?: 'Company'; _id: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
@@ -4258,7 +4564,7 @@ export type CreateCloseXInvoicingMutation = {
           __typename?: 'PaymentOrderClose';
           quantity: number;
           value: number;
-          payment: { __typename?: 'Payment'; type: string; name: string };
+          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
         }[]
       | null;
     user: { __typename?: 'User'; name: string };
@@ -4314,7 +4620,7 @@ export type CreateCloseZInvoicingMutation = {
           __typename?: 'PaymentOrderClose';
           quantity: number;
           value: number;
-          payment: { __typename?: 'Payment'; type: string; name: string };
+          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
         }[]
       | null;
     user: { __typename?: 'User'; name: string };
@@ -4401,7 +4707,7 @@ export type UpdateStockInputMutation = {
     updatedAt: any;
     number: number;
     observation?: string | null;
-    status: string;
+    status: StatusStockInput;
     total: number;
     details: {
       __typename?: 'DetailInput';
@@ -4469,7 +4775,7 @@ export type UpdateOrderMutation = {
             __typename?: 'Product';
             _id: string;
             barcode: string;
-            status: string;
+            status: StatusProduct;
             reference: {
               __typename?: 'Reference';
               name: string;
@@ -4585,7 +4891,7 @@ export type AddPaymentsOrderMutation = {
             __typename?: 'Product';
             _id: string;
             barcode: string;
-            status: string;
+            status: StatusProduct;
             reference: {
               __typename?: 'Reference';
               name: string;
@@ -4655,7 +4961,7 @@ export type AddProductsOrderMutation = {
             __typename?: 'Product';
             _id: string;
             barcode: string;
-            status: string;
+            status: StatusProduct;
             reference: {
               __typename?: 'Reference';
               name: string;
@@ -4720,7 +5026,7 @@ export type UpdateStockOutputMutation = {
     updatedAt: any;
     number: number;
     observation?: string | null;
-    status: string;
+    status: StatusStockOutput;
     total: number;
     details: {
       __typename?: 'DetailOutput';
@@ -4761,7 +5067,7 @@ export type UpdateProductMutation = {
     __typename?: 'Product';
     _id: string;
     barcode: string;
-    status: string;
+    status: StatusProduct;
     color: { __typename?: 'Color'; _id: string; name: string };
     size: { __typename?: 'Size'; _id: string; value: string };
     images?:
@@ -4787,7 +5093,7 @@ export type CreateProductMutation = {
     __typename?: 'Product';
     _id: string;
     barcode: string;
-    status: string;
+    status: StatusProduct;
     color: { __typename?: 'Color'; _id: string; name: string };
     size: { __typename?: 'Size'; _id: string; value: string };
     images?:
@@ -4874,7 +5180,7 @@ export type UpdateStockRequestMutation = {
     __typename?: 'StockRequest';
     _id: string;
     number: number;
-    status: string;
+    status: StatusStockRequest;
     createdAt: any;
     updatedAt: any;
     observation?: string | null;
@@ -4915,6 +5221,39 @@ export type GenerateStockRequestMutationVariables = Exact<{
 export type GenerateStockRequestMutation = {
   __typename?: 'Mutation';
   generateStockRequest: { __typename?: 'StockRequest'; _id: string; number: number };
+};
+
+export type CreateRoleMutationVariables = Exact<{
+  input: CreateRoleInput;
+}>;
+
+export type CreateRoleMutation = {
+  __typename?: 'Mutation';
+  createRole: {
+    __typename?: 'Role';
+    _id: string;
+    active: boolean;
+    changeWarehouse: boolean;
+    name: string;
+    permissions: { __typename?: 'Permission'; _id: string }[];
+  };
+};
+
+export type UpdateRoleMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateRoleInput;
+}>;
+
+export type UpdateRoleMutation = {
+  __typename?: 'Mutation';
+  updateRole: {
+    __typename?: 'Role';
+    _id: string;
+    active: boolean;
+    changeWarehouse: boolean;
+    name: string;
+    permissions: { __typename?: 'Permission'; _id: string }[];
+  };
 };
 
 export type CreateSizeMutationVariables = Exact<{
@@ -4966,7 +5305,7 @@ export type CreateStockTransferMutation = {
     observation?: string | null;
     observationDestination?: string | null;
     observationOrigin?: string | null;
-    status: string;
+    status: StatusStockTransfer;
     updatedAt: any;
     details: {
       __typename?: 'DetailTransfer';
@@ -5005,7 +5344,7 @@ export type UpdateStockTransferMutation = {
     observation?: string | null;
     observationDestination?: string | null;
     observationOrigin?: string | null;
-    status: string;
+    status: StatusStockTransfer;
     updatedAt: any;
     details: {
       __typename?: 'DetailTransfer';
@@ -5043,7 +5382,7 @@ export type ConfirmProductsStockTransferMutation = {
       __typename?: 'DetailTransfer';
       quantity: number;
       quantityConfirmed?: number | null;
-      status: string;
+      status: StatusDetailTransfer;
       product: {
         __typename?: 'Product';
         _id: string;
@@ -5098,7 +5437,7 @@ export type StockAdjustmentQuery = {
     _id: string;
     number: number;
     observation?: string | null;
-    status: string;
+    status: StatusStockAdjustment;
     total: number;
     createdAt: any;
     updatedAt: any;
@@ -5111,7 +5450,7 @@ export type StockAdjustmentQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        status: string;
+        status: StatusProduct;
         reference: { __typename?: 'Reference'; cost: number; description: string; name: string };
         size: { __typename?: 'Size'; value: string };
         color: {
@@ -5149,7 +5488,7 @@ export type StockAdjustmentsQuery = {
       _id: string;
       number: number;
       observation?: string | null;
-      status: string;
+      status: StatusStockAdjustment;
       total: number;
       createdAt: any;
       updatedAt: any;
@@ -5344,7 +5683,7 @@ export type ClosesXInvoicingQuery = {
             __typename?: 'PaymentOrderClose';
             quantity: number;
             value: number;
-            payment: { __typename?: 'Payment'; type: string; name: string };
+            payment: { __typename?: 'Payment'; type: TypePayment; name: string };
           }[]
         | null;
       user: { __typename?: 'User'; name: string };
@@ -5406,7 +5745,7 @@ export type ClosesZInvoicingQuery = {
             __typename?: 'PaymentOrderClose';
             quantity: number;
             value: number;
-            payment: { __typename?: 'Payment'; type: string; name: string };
+            payment: { __typename?: 'Payment'; type: TypePayment; name: string };
           }[]
         | null;
       user: { __typename?: 'User'; name: string };
@@ -5511,7 +5850,7 @@ export type StockInputQuery = {
     createdAt: any;
     updatedAt: any;
     total: number;
-    status: string;
+    status: StatusStockInput;
     observation?: string | null;
     number: number;
     details: {
@@ -5558,7 +5897,7 @@ export type StockInputsQuery = {
       __typename?: 'StockInput';
       _id: string;
       number: number;
-      status: string;
+      status: StatusStockInput;
       total: number;
       createdAt: any;
       updatedAt: any;
@@ -5639,7 +5978,7 @@ export type OrderIdQuery = {
     __typename?: 'Order';
     _id: string;
     number: number;
-    status: string;
+    status: StatusOrder;
     customer: {
       __typename?: 'Customer';
       document: string;
@@ -5659,7 +5998,7 @@ export type OrderIdQuery = {
             __typename?: 'Product';
             _id: string;
             barcode: string;
-            status: string;
+            status: StatusProduct;
             reference: {
               __typename?: 'Reference';
               name: string;
@@ -5688,7 +6027,7 @@ export type OrderIdQuery = {
       | {
           __typename?: 'PaymentOrder';
           total: number;
-          payment: { __typename?: 'Payment'; name: string; type: string };
+          payment: { __typename?: 'Payment'; name: string; type: TypePayment };
         }[]
       | null;
     summary: {
@@ -5736,7 +6075,7 @@ export type StockOutputQuery = {
     createdAt: any;
     updatedAt: any;
     total: number;
-    status: string;
+    status: StatusStockOutput;
     observation?: string | null;
     number: number;
     details: {
@@ -5785,7 +6124,7 @@ export type StockOutputsQuery = {
       createdAt: any;
       number: number;
       updatedAt: any;
-      status: string;
+      status: StatusStockOutput;
       total: number;
       user: { __typename?: 'User'; name: string };
       warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
@@ -5822,7 +6161,7 @@ export type PaymentsQuery = {
       __typename?: 'Payment';
       _id: string;
       name: string;
-      type: string;
+      type: TypePayment;
       color?: string | null;
       logo?: {
         __typename?: 'Image';
@@ -5833,6 +6172,26 @@ export type PaymentsQuery = {
       } | null;
     }[];
   };
+};
+
+export type PermissionsQueryVariables = Exact<Record<string, never>>;
+
+export type PermissionsQuery = {
+  __typename?: 'Query';
+  permissions: {
+    __typename?: 'PermissionData';
+    module: string;
+    options: {
+      __typename?: 'OptionPermission';
+      name: string;
+      actions: {
+        __typename?: 'ActionPermission';
+        _id: string;
+        description: string;
+        name: string;
+      }[];
+    }[];
+  }[];
 };
 
 export type PointOfSalesQueryVariables = Exact<{
@@ -5900,7 +6259,7 @@ export type ProductQuery = {
     __typename?: 'Product';
     _id: string;
     barcode: string;
-    status: string;
+    status: StatusProduct;
     stock?: { __typename?: 'Stock'; quantity: number }[] | null;
     color: {
       __typename?: 'Color';
@@ -5960,7 +6319,7 @@ export type ReferenceIdQuery = {
       __typename?: 'Product';
       _id: string;
       barcode: string;
-      status: string;
+      status: StatusProduct;
       images?:
         | {
             __typename?: 'Image';
@@ -6029,7 +6388,7 @@ export type StockRequestQuery = {
     createdAt: any;
     number: number;
     observation?: string | null;
-    status: string;
+    status: StatusStockRequest;
     updatedAt: any;
     details: {
       __typename?: 'DetailRequest';
@@ -6077,7 +6436,7 @@ export type StockRequestsQuery = {
       _id: string;
       number: number;
       observation?: string | null;
-      status: string;
+      status: StatusStockRequest;
       createdAt: any;
       updatedAt: any;
       warehouseOrigin: { __typename?: 'Warehouse'; _id: string; name: string };
@@ -6107,6 +6466,45 @@ export type StockRequestsQuery = {
         };
       }[];
       user: { __typename?: 'User'; name: string };
+    }[];
+  };
+};
+
+export type RoleIdQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+export type RoleIdQuery = {
+  __typename?: 'Query';
+  roleId: {
+    __typename?: 'Role';
+    _id: string;
+    name: string;
+    changeWarehouse: boolean;
+    active: boolean;
+    user: { __typename?: 'User'; name: string };
+    permissions: { __typename?: 'Permission'; _id: string }[];
+  };
+};
+
+export type RolesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersRolesInput>;
+}>;
+
+export type RolesQuery = {
+  __typename?: 'Query';
+  roles: {
+    __typename?: 'ResponseRoles';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Role';
+      _id: string;
+      changeWarehouse: boolean;
+      name: string;
+      active: boolean;
+      permissions: { __typename?: 'Permission'; description: string }[];
     }[];
   };
 };
@@ -6165,7 +6563,7 @@ export type StockTransfersQuery = {
       __typename?: 'StockTransfer';
       _id: string;
       number: number;
-      status: string;
+      status: StatusStockTransfer;
       updatedAt: any;
       details: { __typename?: 'DetailTransfer'; quantity: number }[];
       warehouseDestination: { __typename?: 'Warehouse'; name: string };
@@ -6188,13 +6586,13 @@ export type StockTransferIdQuery = {
     observation?: string | null;
     observationDestination?: string | null;
     observationOrigin?: string | null;
-    status: string;
+    status: StatusStockTransfer;
     updatedAt: any;
     details: {
       __typename?: 'DetailTransfer';
       quantity: number;
       quantityConfirmed?: number | null;
-      status: string;
+      status: StatusDetailTransfer;
       product: {
         __typename?: 'Product';
         _id: string;
@@ -9258,6 +9656,125 @@ export const GenerateStockRequestDocument = {
     },
   ],
 } as unknown as DocumentNode<GenerateStockRequestMutation, GenerateStockRequestMutationVariables>;
+export const CreateRoleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createRole' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateRoleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createRole' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createRoleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'permissions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateRoleMutation, CreateRoleMutationVariables>;
+export const UpdateRoleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateRole' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateRoleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateRole' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateRoleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'permissions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateRoleMutation, UpdateRoleMutationVariables>;
 export const CreateSizeDocument = {
   kind: 'Document',
   definitions: [
@@ -12197,6 +12714,53 @@ export const PaymentsDocument = {
     },
   ],
 } as unknown as DocumentNode<PaymentsQuery, PaymentsQueryVariables>;
+export const PermissionsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'permissions' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'permissions' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'module' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'options' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'actions' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PermissionsQuery, PermissionsQueryVariables>;
 export const PointOfSalesDocument = {
   kind: 'Document',
   definitions: [
@@ -13156,6 +13720,131 @@ export const StockRequestsDocument = {
     },
   ],
 } as unknown as DocumentNode<StockRequestsQuery, StockRequestsQueryVariables>;
+export const RoleIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'roleId' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'roleId' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'user' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'permissions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RoleIdQuery, RoleIdQueryVariables>;
+export const RolesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'roles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersRolesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'roles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersRolesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'permissions' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RolesQuery, RolesQueryVariables>;
 export const ShopsDocument = {
   kind: 'Document',
   definitions: [

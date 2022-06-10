@@ -333,8 +333,26 @@ export default defineConfig({
             {
               name: 'Roles',
               path: '/configurations/roles',
-              component: './configurations/roles/list',
               access: 'allowOption',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/configurations/roles/list',
+                  component: './configurations/roles/list',
+                  access: 'allowOption',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/configurations/roles/new',
+                  component: './configurations/roles/form',
+                  access: 'allowOption',
+                },
+                {
+                  path: '/configurations/roles/:id',
+                  component: './configurations/roles/form',
+                  access: 'allowOption',
+                },
+              ],
             },
           ],
         },

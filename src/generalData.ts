@@ -125,7 +125,16 @@ export const typesAccess = {
     access: ['READ_CONFIGURATION_USERS'],
   },
   '/configurations/roles': {
+    access: ['ACCESS_CONFIGURATION_ROLES'],
+  },
+  '/configurations/roles/list': {
     access: ['READ_CONFIGURATION_ROLES'],
+  },
+  '/configurations/roles/new': {
+    access: ['CREATE_CONFIGURATION_ROLE'],
+  },
+  '/configurations/roles/:id': {
+    access: ['UPDATE_CONFIGURATION_ROLE'],
   },
   //POS
   '/pos': {
