@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 import numeral from 'numeral';
 import moment from 'moment';
 import { useReactToPrint } from 'react-to-print';
+import type { RangePickerProps } from 'antd/lib/date-picker';
 
 import type { CashRegister } from '@/graphql/graphql';
+import { TypePayment } from '@/graphql/graphql';
 import SelectPointOfSale from '@/components/SelectPointOfSale';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useCreateCloseXInvoicing } from '@/hooks/closeXInvoicing.hooks';
@@ -14,7 +16,6 @@ import ReportCloseX from '../../reports/closeX';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
-import { RangePickerProps } from 'antd/lib/date-picker';
 
 const { Text, Title } = Typography;
 const { Step } = Steps;
@@ -52,7 +53,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
   const getTotalCash = () => {
     return (
       data?.createCloseXInvoicing?.payments?.reduce(
-        (sum, payment) => sum + (payment?.payment?.type === 'cash' ? payment?.value : 0),
+        (sum, payment) => sum + (payment?.payment?.type === TypePayment.Cash ? payment?.value : 0),
         0,
       ) || 0
     );
@@ -67,7 +68,8 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
   const getTotalBank = () => {
     return (
       data?.createCloseXInvoicing?.payments?.reduce(
-        (sum, payment) => sum + (payment?.payment?.type === 'bank' ? payment?.quantity : 0),
+        (sum, payment) =>
+          sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
         0,
       ) || 0
     );

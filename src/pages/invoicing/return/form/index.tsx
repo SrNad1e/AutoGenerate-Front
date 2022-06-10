@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Modal, Steps } from 'antd';
 import type { DetailOrder, DetailReturnInput, FiltersOrdersInput, Order } from '@/graphql/graphql';
+import { StatusOrder } from '@/graphql/graphql';
 import { useGetOrders } from '@/hooks/order.hooks';
 import { useCreateReturnOrder } from '@/hooks/return-order.hooks';
 import { useEffect, useState } from 'react';
@@ -90,7 +91,7 @@ const FormReturn = ({ visible, onCancel }: Props) => {
     getOrders({
       variables: {
         input: {
-          status: 'closed',
+          status: StatusOrder.Closed,
           ...params,
         },
       },
