@@ -20,6 +20,8 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import OrderReport from '../../reports/order/Order';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 
+import styles from '../styles';
+
 const { Title } = Typography;
 
 export type Params = {
@@ -88,6 +90,10 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     });
   };
 
+  /**
+   * @description gestiona los pagos
+   * @param payment tipo de pago
+   */
   const setPayment = (payment: PaymentModel) => {
     setPayments(
       payments.concat({
@@ -140,7 +146,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
         if (response) {
           setOrder(response);
           handlePrint();
-          showSuccess(`Peidido ${response?.number} generado correctamente`);
+          showSuccess(`Pedido ${response?.number} generado correctamente`);
         } else {
           showError(response?.message);
         }
@@ -205,62 +211,26 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
           </Divider>
           <Row>
             <Col span={12}>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
                 Total pagos:
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
                 Saldo:
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
                 Cambio:
               </Title>
             </Col>
-            <Col
-              span={12}
-              style={{
-                textAlign: 'right',
-                lineHeight: 0,
-              }}
-            >
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+            <Col span={12} style={styles.payTextRight}>
+              <Title style={styles.payStyle} level={4}>
                 {numeral(totalPayments).format('$ 0,0')}
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
                 {numeral(
                   summary?.total > totalPayments ? summary?.total - totalPayments : 0,
                 ).format('$ 0,0')}
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
                 {numeral(
                   totalPayments > summary?.total ? totalPayments - summary?.total : 0,
                 ).format('$ 0,0')}

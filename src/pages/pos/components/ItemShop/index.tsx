@@ -7,6 +7,8 @@ import type { Product } from '@/graphql/graphql';
 
 import DefaultImage from '@/assets/default.webp';
 
+import styles from '../styles';
+
 const { Text, Title } = Typography;
 
 export type Params = {
@@ -23,46 +25,24 @@ const ShopItem = ({ product, addProductOrder }: Params) => {
   };
 
   return (
-    <Card
-      style={{
-        width: 370,
-        borderRadius: 10,
-      }}
-      bodyStyle={{
-        padding: 0,
-      }}
-    >
+    <Card style={styles.cardItem} bodyStyle={styles.cardNoPadding}>
       <Row gutter={12}>
         <Col span={13}>
           <Image
-            style={{
-              borderTopLeftRadius: 10,
-              borderBottomLeftRadius: 10,
-            }}
+            style={styles.borderStyle}
             preview={false}
             fallback={DefaultImage}
             src={`${CDN_URL}/${images && images[0]?.urls?.webp?.medium}`}
           />
         </Col>
-        <Col span={11} style={{ margin: '20px 0' }}>
+        <Col span={11} style={styles.marginItem}>
           <Row gutter={12}>
             <Col span={24}>
               <Space size={1} direction="vertical">
-                <Title
-                  style={{
-                    lineHeight: 1,
-                    marginBottom: 0,
-                  }}
-                  level={4}
-                >
+                <Title style={styles.lineMargin} level={4}>
                   {reference?.description}
                 </Title>
-                <Text
-                  style={{
-                    lineHeight: 1,
-                  }}
-                  italic
-                >
+                <Text style={styles.linePlus} italic>
                   {reference?.name}
                 </Text>
               </Space>
@@ -107,42 +87,24 @@ const ShopItem = ({ product, addProductOrder }: Params) => {
             <Col span={24}>
               <Row>
                 <Col span={24}>
-                  <Title
-                    style={{
-                      textAlign: 'center',
-                    }}
-                    level={3}
-                  >
+                  <Title style={styles.textCenter} level={3}>
                     Inventario
                   </Title>
                 </Col>
                 <Col span={24}>
-                  <Title
-                    style={{
-                      textAlign: 'center',
-                    }}
-                    level={2}
-                  >
+                  <Title style={styles.textCenter} level={2}>
                     {stock ? stock[0]?.quantity : 0}
                   </Title>
                 </Col>
               </Row>
             </Col>
             <Col span={24}>
-              <Space
-                style={{
-                  width: '100%',
-                }}
-                align="center"
-                direction="vertical"
-              >
+              <Space style={styles.maxWidth} align="center" direction="vertical">
                 <InputNumber
                   value={quantity}
                   controls={false}
                   min={1}
-                  style={{
-                    fontSize: 25,
-                  }}
+                  style={styles.inputNumberSize}
                   onChange={(e) => setQuantity(e)}
                 />
                 <Button disabled={false} type="primary" onClick={onClick}>

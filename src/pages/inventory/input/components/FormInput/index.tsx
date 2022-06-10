@@ -36,9 +36,10 @@ const { Text } = Typography;
 export type Props = {
   input?: Partial<StockInput>;
   setCurrentStep: (step: number) => void;
+  allowEdit: boolean;
 };
 
-const FormInput = ({ input, setCurrentStep }: Props) => {
+const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
   const [details, setDetails] = useState<Partial<DetailInput & { action: string }>[]>([]);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
@@ -64,8 +65,6 @@ const FormInput = ({ input, setCurrentStep }: Props) => {
 
   const [createInput, paramsCreate] = useCreateInput();
   const [updateInput, paramsUpdate] = useUpdateInput();
-
-  const allowEdit = input?.status === 'open';
 
   /**
    * @description se encarga de abrir aviso de información
@@ -363,7 +362,6 @@ const FormInput = ({ input, setCurrentStep }: Props) => {
           min={1}
           onChange={(value) => updateDetail(product || {}, value)}
           disabled={!allowEdit}
-          style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
     },
@@ -387,7 +385,12 @@ const FormInput = ({ input, setCurrentStep }: Props) => {
 
   return (
     <>
-      <Header input={input} setObservation={setObservation} observation={observation} />
+      <Header
+        allowEdit={allowEdit}
+        input={input}
+        setObservation={setObservation}
+        observation={observation}
+      />
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
@@ -405,7 +408,7 @@ const FormInput = ({ input, setCurrentStep }: Props) => {
           pagination={{ size: 'small' }}
         />
       </Card>
-      <Footer input={input} saveInput={showAlertSave} details={details} />
+      <Footer allowEdit={allowEdit} input={input} saveInput={showAlertSave} details={details} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading visible={paramsUpdate?.loading} message="Guardando Entrada" />
       <AlertLoading visible={paramsCreate?.loading} message="Creando Entrada" />
