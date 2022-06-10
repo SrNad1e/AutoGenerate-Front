@@ -1,3 +1,4 @@
+import SelectRole from '@/components/SelectRole';
 import { EditOutlined, PlusOutlined, SearchOutlined, ShopFilled } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -8,7 +9,6 @@ import {
   Form,
   Input,
   Row,
-  Select,
   Space,
   Table,
   Tooltip,
@@ -20,7 +20,6 @@ import UsersForm from '../form';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
-const { Option } = Select;
 
 const UsersList = () => {
   const [visibleCreate, setVisibleCreate] = useState(false);
@@ -114,11 +113,7 @@ const UsersList = () => {
             </Col>
             <Col xs={24} md={7} lg={7} xl={6}>
               <FormItem label="Rol">
-                <Select allowClear showSearch placeholder="Seleccione Rol">
-                  <Option value="Cajero">Cajero</Option>
-                  <Option value="Admin">Administrador</Option>
-                  <Option value="Distribuidor">Distribuidor</Option>
-                </Select>
+                <SelectRole disabled={false} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={6}>
