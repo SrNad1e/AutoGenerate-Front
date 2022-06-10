@@ -4,8 +4,10 @@ import { useState } from 'react';
 import type {
   ActionDetailAdjustment,
   ActionDetailInput,
+  ActionDetailOutput,
   DetailAdjustment,
   DetailInput,
+  DetailOutput,
   DetailRequest,
   Product,
 } from '@/graphql/graphql';
@@ -17,8 +19,8 @@ const FormItem = Form.Item;
 export type Props = {
   validateStock?: boolean;
   details?: Partial<
-    (DetailRequest | DetailAdjustment | DetailInput) & {
-      action: ActionDetailAdjustment | ActionDetailInput;
+    (DetailRequest | DetailAdjustment | DetailInput | DetailOutput) & {
+      action: ActionDetailAdjustment | ActionDetailInput | ActionDetailOutput;
     }
   >[];
   warehouseId: string | undefined;

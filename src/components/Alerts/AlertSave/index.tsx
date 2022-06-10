@@ -5,6 +5,7 @@ import { TypesAlert } from '../alert.data';
 import type {
   StatusStockAdjustment,
   StatusStockInput,
+  StatusStockOutput,
   StatusStockRequest,
 } from '@/graphql/graphql';
 
@@ -20,9 +21,10 @@ export type Props = {
   onOk:
     | ((status?: StatusStockRequest) => void)
     | ((status?: StatusStockAdjustment) => void)
-    | ((status?: StatusStockInput) => void);
+    | ((status?: StatusStockInput) => void)
+    | ((status?: StatusStockOutput) => void);
   onCancel: () => void;
-  status?: StatusStockRequest | StatusStockAdjustment | StatusStockInput;
+  status?: StatusStockRequest | StatusStockAdjustment | StatusStockInput | StatusStockOutput;
 };
 
 /**

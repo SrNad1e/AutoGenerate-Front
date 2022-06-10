@@ -1,6 +1,8 @@
 import { Affix, Button, Card, Col, Divider, Row, Space, Typography } from 'antd';
 
 import type { DetailOutput, StockOutput } from '@/graphql/graphql';
+import { StatusStockOutput } from '@/graphql/graphql';
+import { ActionDetailOutput } from '@/graphql/graphql';
 
 import styles from '../styles.less';
 
@@ -8,8 +10,8 @@ const { Title } = Typography;
 
 export type Props = {
   output: Partial<StockOutput> | undefined;
-  saveOutput: (status?: string) => void;
-  details: Partial<DetailOutput & { action: string }>[];
+  saveOutput: (status?: StatusStockOutput) => void;
+  details: Partial<DetailOutput & { action: ActionDetailOutput }>[];
   allowEdit: boolean;
 };
 
@@ -18,11 +20,12 @@ const Footer = ({ output, saveOutput, details, allowEdit }: Props) => {
     return (
       <Space align="center" className={styles.alignCenter}>
         <Title level={3}>
-          REFERENCIAS: {details.filter((detail) => detail?.action !== 'delete').length}
+          REFERENCIAS:{' '}
+          {details.filter((detail) => detail?.action !== ActionDetailOutput.Delete).length}
           <Divider type="vertical" />
           PRODUCTOS:{' '}
           {details
-            .filter((detail) => detail?.action !== 'delete')
+            .filter((detail) => detail?.action !== ActionDetailOutput.Delete)
             .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
         </Title>
       </Space>
@@ -38,7 +41,7 @@ const Footer = ({ output, saveOutput, details, allowEdit }: Props) => {
               disabled={!allowEdit}
               type={output?._id ? 'primary' : 'default'}
               danger={!!output?._id}
-              onClick={() => saveOutput('cancelled')}
+              onClick={() => saveOutput(StatusStockOutput.Cancelled)}
             >
               Cancelar
             </Button>
@@ -51,7 +54,11 @@ const Footer = ({ output, saveOutput, details, allowEdit }: Props) => {
               <Button disabled={!allowEdit} onClick={() => saveOutput()}>
                 Guardar
               </Button>
-              <Button type="primary" disabled={!allowEdit} onClick={() => saveOutput('confirmed')}>
+              <Button
+                type="primary"
+                disabled={!allowEdit}
+                onClick={() => saveOutput(StatusStockOutput.Confirmed)}
+              >
                 Enviar
               </Button>
             </Space>

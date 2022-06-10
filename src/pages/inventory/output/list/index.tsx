@@ -24,7 +24,8 @@ import type {
 import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import { Location, useAccess } from 'umi';
+import type { Location } from 'umi';
+import { useAccess } from 'umi';
 import { useHistory, useLocation } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import numeral from 'numeral';
@@ -39,6 +40,7 @@ import ReportOutput from '../reports/output';
 import type {
   DetailOutput,
   FiltersStockOutputsInput,
+  StatusStockOutput,
   StockOutput,
   Warehouse,
 } from '@/graphql/graphql';
@@ -51,7 +53,7 @@ const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockOutput;
   number?: number;
   warehouseId?: string;
   dates?: Moment[];
