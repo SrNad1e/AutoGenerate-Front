@@ -1,7 +1,12 @@
 import { Card, Col, Form, InputNumber, Row } from 'antd';
 import { useState } from 'react';
 
-import type { DetailRequest, Product } from '@/graphql/graphql';
+import type {
+  ActionDetailAdjustment,
+  DetailAdjustment,
+  DetailRequest,
+  Product,
+} from '@/graphql/graphql';
 import SearchProducts from '../SearchProducts';
 import WithCode from '../WithCode';
 
@@ -9,10 +14,10 @@ const FormItem = Form.Item;
 
 export type Props = {
   validateStock?: boolean;
-  details?: Partial<DetailRequest & { action: string }>[];
+  details?: Partial<(DetailRequest | DetailAdjustment) & { action: ActionDetailAdjustment }>[];
   warehouseId: string | undefined;
-  createDetail: (product: Partial<Product>, quantity: number) => void;
-  updateDetail: (product: Partial<Product>, quantity: number) => void;
+  createDetail: (product: Product, quantity: number) => void;
+  updateDetail: (product: Product, quantity: number) => void;
   deleteDetail: (productId: string) => void;
 };
 

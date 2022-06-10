@@ -15,6 +15,12 @@ export type Scalars = {
   DateTime: any;
 };
 
+export enum ActionDetailAdjustment {
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Update = 'UPDATE',
+}
+
 export enum ActionDetailInput {
   Create = 'CREATE',
   Delete = 'DELETE',
@@ -977,7 +983,7 @@ export type DetailStockAdjustmentCreateInput = {
 /** Detalle del ajuste de productos */
 export type DetailStockAdjustmentInput = {
   /** Acción a efectuar con el producto */
-  action: Scalars['String'];
+  action: ActionDetailAdjustment;
   /** Identificador de mongo del producto */
   productId: Scalars['String'];
   /** Cantidad de productos */
@@ -5431,7 +5437,7 @@ export type StockAdjustmentQuery = {
     total: number;
     createdAt: any;
     updatedAt: any;
-    user: { __typename?: 'User'; name: string };
+    user: { __typename?: 'User'; _id: string; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
     details: {
       __typename?: 'DetailAdjustment';
@@ -10484,7 +10490,10 @@ export const StockAdjustmentDocument = {
                   name: { kind: 'Name', value: 'user' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
                 {

@@ -18,6 +18,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import ReportAdjustment from '../reports/adjustment';
 import FormAdjustment from '../components/FormAdjustment';
 import type { StockAdjustment, Warehouse } from '@/graphql/graphql';
+import { StatusStockAdjustment } from '@/graphql/graphql';
 import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
@@ -32,7 +33,7 @@ const AdjustmentForm = () => {
     visible: false,
   });
   const [adjustment, setAdjustment] = useState<Partial<StockAdjustment>>({
-    status: 'open',
+    status: StatusStockAdjustment.Open,
   });
 
   const { initialState } = useModel('@@initialState');
@@ -52,11 +53,11 @@ const AdjustmentForm = () => {
   } = useAccess();
 
   const isNew = !id;
-  const allowEdit =
-    initialState?.currentUser?._id === adjustment?.user?._id &&
-    adjustment?.status === 'open' &&
-    canEdit;
-
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === adjustment?.user?._id &&
+      adjustment?.status === StatusStockAdjustment.Open &&
+      canEdit;
   const [getAdjustment, { loading, data }] = useGetAdjustment();
   const [getWarehouseId] = useGetWarehouseId();
 

@@ -140,19 +140,13 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
           action: detail.action as ActionDetailRequest,
         }));
 
-        console.log(details);
-        console.log(detailsFilter);
-        console.log(newDetails);
-
         if (newDetails.length > 0 || status || observation !== request?.observation) {
           const props = {
             details: newDetails,
             observation,
+            status,
           };
-
-          if (status) {
-            props['status'] = StatusStockRequest[status];
-          }
+          console.log(props);
 
           const response = await updateRequest({
             variables: {
