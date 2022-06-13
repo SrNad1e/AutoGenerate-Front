@@ -99,7 +99,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     setPayments(
       payments.concat({
         payment,
-        total: payment?.type !== TypePayment.Cash ? summary?.total : 0,
+        total: payment?.type !== TypePayment.Cash ? summary?.total - totalPayments : 0,
       } as PaymentOrder),
     );
   };
@@ -165,6 +165,8 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     });
   }, []);
 
+  console.log(totalPayments);
+
   return (
     <Modal
       centered
@@ -201,7 +203,10 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
                 deletePayment={deletePayment}
                 setQuantityPayment={setQuantityPayment}
                 max={paymentOrder?.payment?.type !== TypePayment.Cash ? summary?.total : undefined}
-                total={paymentOrder?.payment?.type !== TypePayment.Cash ? summary?.total : 0}
+                total={
+                  payments.find((payment) => payment?.payment?._id === paymentOrder.payment?._id)
+                    ?.total || 0
+                }
                 paymentOrder={paymentOrder}
                 key={paymentOrder?.payment?._id}
               />
@@ -213,6 +218,9 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
           <Row>
             <Col span={12}>
               <Title style={styles.payStyle} level={4}>
+                Total Pedido:
+              </Title>
+              <Title style={styles.payStyle} level={4}>
                 Total pagos:
               </Title>
               <Title style={styles.payStyle} level={4}>
@@ -223,6 +231,9 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
               </Title>
             </Col>
             <Col span={12} style={styles.payTextRight}>
+              <Title style={styles.payStyle} level={4}>
+                {numeral(summary.total).format('$ 0,0')}
+              </Title>
               <Title style={styles.payStyle} level={4}>
                 {numeral(totalPayments).format('$ 0,0')}
               </Title>
