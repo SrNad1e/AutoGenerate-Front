@@ -23,6 +23,8 @@ const ItemResume = ({
   addProductOrder,
 }: Params) => {
   const onChange = (value: number) => {
+    console.log('Ejecutando');
+
     if (value && value !== quantity) {
       addProductOrder(product, value - quantity);
     }

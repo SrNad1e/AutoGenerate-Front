@@ -12,6 +12,7 @@ import type {
   SummaryOrder,
   UpdateOrderInput,
 } from '@/graphql/graphql';
+import { ActionPaymentsOrder, StatusOrder, TypePayment } from '@/graphql/graphql';
 import Item from './item';
 import { useGetPayments } from '@/hooks/payment.hooks';
 import Payment from './payment';
@@ -74,7 +75,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     setAlertInformation({
       message,
       type: 'success',
-      redirect: '/pos',
+      redirect: '/pos/sales',
       visible: true,
     });
   };
@@ -98,7 +99,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     setPayments(
       payments.concat({
         payment,
-        total: payment?.type !== 'cash' ? summary?.total : 0,
+        total: payment?.type !== TypePayment.Cash ? summary?.total : 0,
       } as PaymentOrder),
     );
   };
@@ -130,7 +131,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
             orderId: id || '',
             payments: payments.map((paymentOrder) => ({
               paymentId: paymentOrder?.payment?._id,
-              action: 'create',
+              action: ActionPaymentsOrder.Create,
               total: paymentOrder?.total,
             })),
           },
@@ -139,7 +140,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
       if (responsePayments.data?.addPaymentsOrder) {
         setLoading(true);
         const response: any = await editOrder({
-          status: 'closed',
+          status: StatusOrder.Closed,
         });
 
         setLoading(false);
@@ -199,8 +200,8 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
               <Payment
                 deletePayment={deletePayment}
                 setQuantityPayment={setQuantityPayment}
-                max={paymentOrder?.payment?.type !== 'cash' ? summary?.total : undefined}
-                total={paymentOrder?.payment?.type !== 'cash' ? summary?.total : 0}
+                max={paymentOrder?.payment?.type !== TypePayment.Cash ? summary?.total : undefined}
+                total={paymentOrder?.payment?.type !== TypePayment.Cash ? summary?.total : 0}
                 paymentOrder={paymentOrder}
                 key={paymentOrder?.payment?._id}
               />

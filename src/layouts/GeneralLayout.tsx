@@ -49,7 +49,7 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
         visible: true,
       });
     } else if (!allowERP) {
-      history.push('/pos');
+      history.push('/pos/sales');
     }
   }, []);
 

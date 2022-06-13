@@ -4,6 +4,7 @@ import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Popconfirm, Row 
 import { useModel, useHistory } from 'umi';
 
 import type { FiltersProductsInput, Product, UpdateOrderInput } from '@/graphql/graphql';
+import { StatusOrder, StatusProduct } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import ShopItem from '../ItemShop';
 import { useState } from 'react';
@@ -54,7 +55,7 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
     return getProducts({
       variables: {
         input: {
-          status: 'active',
+          status: StatusProduct.Active,
           ...filters,
           warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
           limit: 20,
@@ -91,7 +92,7 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
 
   const cancelOrder = async () => {
     try {
-      await editOrder({ status: 'cancelled' });
+      await editOrder({ status: StatusOrder.Cancelled });
       history.push('/pos/sales');
     } catch (e: any) {
       showError(e?.error);
