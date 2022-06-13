@@ -232,7 +232,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
             </Col>
             <Col span={12} style={styles.payTextRight}>
               <Title style={styles.payStyle} level={4}>
-                {numeral(summary.total).format('$ 0,0')}
+                {numeral(summary?.total).format('$ 0,0')}
               </Title>
               <Title style={styles.payStyle} level={4}>
                 {numeral(totalPayments).format('$ 0,0')}
