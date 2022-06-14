@@ -15,6 +15,12 @@ export type Scalars = {
   DateTime: any;
 };
 
+export enum ActionDetailAdjustment {
+  Create = 'CREATE',
+  Delete = 'DELETE',
+  Update = 'UPDATE',
+}
+
 export enum ActionDetailInput {
   Create = 'CREATE',
   Delete = 'DELETE',
@@ -792,6 +798,35 @@ export type CreateUserInput = {
   username: Scalars['String'];
 };
 
+/** Crédito del cliente */
+export type Credit = {
+  __typename?: 'Credit';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Monto habilitado para el crédito */
+  amount: Scalars['Float'];
+  /** Monto disponible para el crédito */
+  available: Scalars['Float'];
+  /** Monto usado del crédito */
+  balance: Scalars['Float'];
+  /** Compañía a la que pertenece el crédito */
+  company: Scalars['String'];
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Cliente al que pertenece el crédito */
+  customer: Customer;
+  /** Detalle de la afectación del crédito */
+  details?: Maybe<DetailCredit[]>;
+  /** Monto congelado que no ha sido finalizado */
+  frozenAmount: Scalars['Float'];
+  /** Estado del crédito */
+  status: StatusCredit;
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó la cartera */
+  user: User;
+};
+
 /** Cliente */
 export type Customer = {
   __typename?: 'Customer';
@@ -871,12 +906,21 @@ export type DetailAdjustment = {
 
 /** Producto a confirmar en el traslado */
 export type DetailConfirmStockTransferInput = {
-  /** Acción a efectuar con el producto (delete, update, create) */
-  action: Scalars['String'];
   /** Identificador de mongo del producto */
   productId: Scalars['String'];
   /** Cantidad de productos */
   quantity: Scalars['Float'];
+};
+
+/** Detalle del crédito */
+export type DetailCredit = {
+  __typename?: 'DetailCredit';
+  /** Monto pendiente en el pedido */
+  balance: Scalars['Float'];
+  /** Pedido que reporta el crédito */
+  orderId: Scalars['String'];
+  /** Monto total del pedido en crédito */
+  total: Scalars['Float'];
 };
 
 /** Detalle de la salida de productos */
@@ -979,7 +1023,7 @@ export type DetailStockAdjustmentCreateInput = {
 /** Detalle del ajuste de productos */
 export type DetailStockAdjustmentInput = {
   /** Acción a efectuar con el producto */
-  action: Scalars['String'];
+  action: ActionDetailAdjustment;
   /** Identificador de mongo del producto */
   productId: Scalars['String'];
   /** Cantidad de productos */
@@ -2377,7 +2421,7 @@ export type Query = {
   /** Obtiene listado de traslados de productos entre bodegas */
   stockTransfers: ResponseStockTransfers;
   /** Consulta todos los usuarios con base a los filtros */
-  users: User[];
+  users: ResponseUsers;
   /** Se encarga de traer bodega por identificador */
   warehouseId: Warehouse;
   /** Se encarga de listar las bodegas */
@@ -2466,6 +2510,7 @@ export type QueryProductsArgs = {
 
 export type QueryReferenceIdArgs = {
   id: Scalars['String'];
+  productsStatus?: InputMaybe<Scalars['String']>;
 };
 
 export type QueryReferencesArgs = {
@@ -2534,7 +2579,7 @@ export type QueryStockTransfersArgs = {
 };
 
 export type QueryUsersArgs = {
-  filtersUsersInput: FiltersUsersInput;
+  filtersUsersInput?: InputMaybe<FiltersUsersInput>;
 };
 
 export type QueryWarehouseIdArgs = {
@@ -3263,6 +3308,30 @@ export type ResponseStockTransfers = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de usuarios */
+export type ResponseUsers = {
+  __typename?: 'ResponseUsers';
+  /** Lista de usuarios */
+  docs: User[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta a la consulta de bodegas */
 export type ResponseWarehouses = {
   __typename?: 'ResponseWarehouses';
@@ -3740,6 +3809,12 @@ export type SortWarehouse = {
   name?: InputMaybe<Scalars['Float']>;
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
+
+export enum StatusCredit {
+  Active = 'ACTIVE',
+  Finish = 'FINISH',
+  Suspend = 'SUSPEND',
+}
 
 export enum StatusDetailTransfer {
   Confirmed = 'CONFIRMED',
@@ -6672,15 +6747,22 @@ export type UsersQueryVariables = Exact<{
 export type UsersQuery = {
   __typename?: 'Query';
   users: {
-    __typename?: 'User';
-    _id: string;
-    createdAt: any;
-    updatedAt: any;
-    name: string;
-    status: StatusUser;
-    username: string;
-    role: { __typename?: 'Role'; name: string };
-  }[];
+    __typename?: 'ResponseUsers';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'User';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+      status: StatusUser;
+      username: string;
+      role: { __typename?: 'Role'; name: string };
+      shop: { __typename?: 'Shop'; name: string };
+    }[];
+  };
 };
 
 export type WarehousesQueryVariables = Exact<{
@@ -14475,20 +14557,40 @@ export const UsersDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'role' },
+                  name: { kind: 'Name', value: 'docs' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'role' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                    ],
                   },
                 },
-                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
               ],
             },
           },

@@ -1,7 +1,17 @@
-/*import SelectRole from '@/components/SelectRole';
-import type { FiltersUsersInput, User } from '@/graphql/graphql';
+/* eslint-disable react-hooks/exhaustive-deps */
+import SelectRole from '@/components/SelectRole';
+import type { FiltersUsersInput, Role, Shop /*User*/ } from '@/graphql/graphql';
 import { useGetUsers } from '@/hooks/user.hooks';
-import { EditOutlined, PlusOutlined, SearchOutlined, ShopFilled } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  CrownOutlined,
+  EditOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  ShopFilled,
+  UserAddOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -16,15 +26,17 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import type { TablePaginationConfig } from 'antd';
+//import type { TablePaginationConfig } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import UsersForm from '../form';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useHistory, useLocation } from 'umi';
 import type { Location } from 'umi';
-import type { SorterResult } from 'antd/es/table/interface';
+//import type { SorterResult } from 'antd/es/table/interface';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+//import { ColumnsType } from 'antd/lib/table';
+import { StatusTypeUser } from '../users.data';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -63,7 +75,6 @@ const UsersList = () => {
    * @description funcion usada para mostrar los errores
    * @param message mensaje de error a mostrar
    */
-/*
   const showError = (message: string) => {
     setAlertInformation({
       message,
@@ -74,7 +85,7 @@ const UsersList = () => {
 
   /**
    * @description se encarga de cerrar la alerta informativa
-   */ /*
+   */
   const closeAlertInformation = () => {
     setAlertInformation({
       message: '',
@@ -90,7 +101,7 @@ const UsersList = () => {
   /**
    * @description se encarga de señalar los datos a la query
    * @param values valores para enviar a la query
-   */ /*
+   */
   const setQueryParams = (values?: FiltersUsersInput) => {
     try {
       const valuesForm = form.getFieldsValue();
@@ -116,7 +127,7 @@ const UsersList = () => {
   /**
    * @description esta funcion evalua los paramametros del formulario y ejecuta la busqueda
    * @param value valores del formulario
-   */ /*
+   */
   const onFinish = (value: FormValues, pageCurrent?: number) => {
     const filters = { ...filterTable };
 
@@ -142,8 +153,8 @@ const UsersList = () => {
    * @param paginationLocal eventos de la páginacion
    * @param sorter ordenamiento de la tabla
    * @param filterArg filtros de la tabla
-   */ /*
-  const handleChangeTable = (
+   */
+  /*const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filterArg: Record<string, any>,
     sorter: SorterResult<Partial<User>> | any,
@@ -177,17 +188,17 @@ const UsersList = () => {
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
-   */ /*
-  const onClear = () => {
+   */
+  /*const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
     onSearch({});
     setFilterTable({});
-  };
+  };*/
 
   /**
    * @description se encarga de cargar los datos con base a la query
-   */ /*
+   */
   const loadingData = () => {
     const queryParams: any = location?.query;
 
@@ -211,49 +222,40 @@ const UsersList = () => {
     loadingData();
   }, []);
 
-  const column = [
+  const column /*ColumnsType<User>*/ = [
     {
-      title: 'Nombre',
+      title: <Text>{<UserOutlined />} Nombre</Text>,
       dataIndex: 'name',
-    },
-    {
-      title: 'Usuario',
-      dataIndex: 'username',
-    },
-    {
-      title: 'Rol',
-      dataIndex: 'rol',
-    },
-    {
-      title: 'Tienda',
-      dataIndex: 'shop',
-      render: (shop: string) => (
-        <Text>
-          {<ShopFilled />} {shop}
-        </Text>
-      ),
-    },
-    {
-      title: 'Activo',
-      dataIndex: 'active',
       align: 'center',
-      render: (active: boolean) => {
-        return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
-      },
-      filterMultiple: false,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
     },
     {
-      title: 'Fecha',
+      title: <Text>{<UserAddOutlined />} Usuario</Text>,
+      dataIndex: 'username',
+      align: 'center',
+    },
+    {
+      title: <Text>{<CrownOutlined />} Rol</Text>,
+      dataIndex: 'role',
+      align: 'center',
+      render: (role: Role) => <Text>{role?.name}</Text>,
+    },
+    {
+      title: <Text>{<ShopFilled />} Tienda</Text>,
+      dataIndex: 'shop',
+      align: 'center',
+      render: (shop: Shop) => <Text>{shop?.name}</Text>,
+    },
+    {
+      title: 'Estado',
+      dataIndex: 'status',
+      align: 'center',
+      render: (status: string) => {
+        const { color, label } = StatusTypeUser[status || ''];
+        return <Badge text={label} color={color} />;
+      },
+    },
+    {
+      title: <Text>{<CalendarOutlined />} Fecha Actualización</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
@@ -299,12 +301,7 @@ const UsersList = () => {
               </FormItem>
             </Col>
             <Col span={12}>
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                shape="round"
-                onClick={() => setVisibleCreate(true)}
-              >
+              <Button icon={<PlusOutlined />} type="primary" shape="round" onClick={() => {}}>
                 Nuevo
               </Button>
             </Col>
@@ -315,8 +312,8 @@ const UsersList = () => {
             <Col span={24}>
               <Table
                 columns={column}
-                dataSource={data?.users}
-                scroll={{ x: 'auto' }}
+                dataSource={data?.users.docs}
+                scroll={{ x: 1000 }}
                 pagination={{
                   current: data?.users?.page,
                   total: data?.users?.totalDocs,
@@ -332,4 +329,4 @@ const UsersList = () => {
   );
 };
 
-export default UsersList;*/ export default <></>;
+export default UsersList;

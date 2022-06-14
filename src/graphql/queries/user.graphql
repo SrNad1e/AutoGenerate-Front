@@ -24,17 +24,22 @@ query currentUser {
 
 query users($input: FiltersUsersInput!) {
   users(filtersUsersInput: $input) {
-    _id
-    createdAt
-    updatedAt
-    name
-    role {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      createdAt
+      updatedAt
       name
+      role {
+        name
+      }
+      shop {
+        name
+      }
+      status
+      username
     }
-    shop {
-      name
-    }
-    status
-    username
   }
 }
