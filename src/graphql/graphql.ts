@@ -4686,7 +4686,7 @@ export type CreateCustomerMutationVariables = Exact<{
 
 export type CreateCustomerMutation = {
   __typename?: 'Mutation';
-  createCustomer: { __typename?: 'Customer'; _id: string };
+  createCustomer: { __typename?: 'Customer'; _id: string; firstName: string; lastName: string };
 };
 
 export type CreateStockInputMutationVariables = Exact<{
@@ -4809,7 +4809,7 @@ export type UpdateOrderMutation = {
       | {
           __typename?: 'PaymentOrder';
           total: number;
-          payment: { __typename?: 'Payment'; name: string };
+          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
         }[]
       | null;
     summary: {
@@ -4818,6 +4818,7 @@ export type UpdateOrderMutation = {
       subtotal: number;
       total: number;
       totalPaid: number;
+      change: number;
     };
     invoice?: {
       __typename?: 'Invoice';
@@ -4925,7 +4926,7 @@ export type AddPaymentsOrderMutation = {
       | {
           __typename?: 'PaymentOrder';
           total: number;
-          payment: { __typename?: 'Payment'; name: string };
+          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
         }[]
       | null;
     summary: {
@@ -6073,7 +6074,13 @@ export type OrdersByPosQuery = {
           };
         }[]
       | null;
-    summary: { __typename?: 'SummaryOrder'; total: number };
+    summary: {
+      __typename?: 'SummaryOrder';
+      discount: number;
+      subtotal: number;
+      total: number;
+      totalPaid: number;
+    };
   }[];
 };
 
@@ -7804,7 +7811,11 @@ export const CreateCustomerDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+              ],
             },
           },
         ],
@@ -8257,7 +8268,10 @@ export const UpdateOrderDocument = {
                         name: { kind: 'Name', value: 'payment' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
                         },
                       },
                     ],
@@ -8273,6 +8287,7 @@ export const UpdateOrderDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'change' } },
                     ],
                   },
                 },
@@ -8609,7 +8624,10 @@ export const AddPaymentsOrderDocument = {
                         name: { kind: 'Name', value: 'payment' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
                         },
                       },
                     ],
@@ -12409,7 +12427,12 @@ export const OrdersByPosDocument = {
                   name: { kind: 'Name', value: 'summary' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'total' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
+                    ],
                   },
                 },
               ],

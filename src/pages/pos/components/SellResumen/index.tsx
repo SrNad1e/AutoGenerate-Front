@@ -1,6 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { DollarOutlined, PrinterOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Divider, Empty, List, Row, Tag, Typography } from 'antd';
+import {
+  CheckOutlined,
+  CloseCircleOutlined,
+  DollarOutlined,
+  PrinterOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import { Button, Card, Col, Divider, Empty, List, Row, Space, Tag, Typography } from 'antd';
 import numeral from 'numeral';
 import { useParams } from 'umi';
 import { useEffect, useState } from 'react';
@@ -100,7 +106,16 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
                   </Button>
                 </Col>
                 <Col span={24}>
-                  <Tag color="volcano">{data?.orderId?.customer?.customerType?.name}</Tag>
+                  <Space>
+                    <Tag color="volcano">{data?.orderId?.customer?.customerType?.name}</Tag>
+                    <Tag color="success">
+                      {data?.orderId?.customer?.active ? (
+                        <CheckOutlined />
+                      ) : (
+                        <CloseCircleOutlined />
+                      )}
+                    </Tag>
+                  </Space>
                 </Col>
               </Row>
             </Col>
