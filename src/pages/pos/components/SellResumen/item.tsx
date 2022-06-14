@@ -1,6 +1,7 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Image, InputNumber, List, Row, Tooltip, Typography } from 'antd';
 import numeral from 'numeral';
+import { useState } from 'react';
 
 import type { DetailOrder, Product } from '@/graphql/graphql';
 
@@ -22,11 +23,13 @@ const ItemResume = ({
   number,
   addProductOrder,
 }: Params) => {
-  const onChange = (value: number) => {
-    console.log('Ejecutando');
+  const [disabled, setDisabled] = useState(false);
 
+  const onChange = async (value: number) => {
     if (value && value !== quantity) {
-      addProductOrder(product, value - quantity);
+      setDisabled(true);
+      await addProductOrder(product, value - quantity);
+      setDisabled(false);
     }
   };
 
@@ -82,6 +85,7 @@ const ItemResume = ({
           </Col>
           <Col lg={6}>
             <InputNumber
+              disabled={disabled}
               onChange={onChange}
               value={quantity}
               style={styles.inputNumberWidth}
