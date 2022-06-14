@@ -131,8 +131,8 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
                 </FormItem>
               </Col>
               <Col span={3}>
-                <FormItem valuePropName="checked" name="withStock">
-                  <Checkbox disabled={loading} defaultChecked={false}>
+                <FormItem valuePropName="checked" name="withStock" initialValue={true}>
+                  <Checkbox disabled={loading} defaultChecked>
                     Con Stock
                   </Checkbox>
                 </FormItem>

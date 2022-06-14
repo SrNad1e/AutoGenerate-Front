@@ -87,7 +87,6 @@ const PosNew = () => {
             input: params,
           },
         });
-        setModalCustomerVisible(false);
         return response?.data?.updateOrder;
       }
     } catch (e: any) {

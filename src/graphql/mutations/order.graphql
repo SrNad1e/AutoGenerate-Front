@@ -55,6 +55,7 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
     payments {
       total
       payment {
+        type
         name
       }
     }
@@ -63,6 +64,7 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
       subtotal
       total
       totalPaid
+      change
     }
     invoice{
       authorization{
@@ -172,6 +174,7 @@ mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
     payments {
       total
       payment {
+        type
         name
       }
     }
