@@ -4,12 +4,14 @@ import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Popconfirm, Row 
 import { useModel, useHistory } from 'umi';
 
 import type { FiltersProductsInput, Product, UpdateOrderInput } from '@/graphql/graphql';
+import { StatusOrder, StatusProduct } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import ShopItem from '../ItemShop';
 import { useState } from 'react';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import validateCodeBar from '@/libs/validateCodeBar';
 
 const FormItem = Form.Item;
 
@@ -51,13 +53,17 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
    * @param filters filtros para obtener los productos
    */
   const onSearch = async (filters: FiltersProductsInput) => {
+    const barcode = filters?.name && validateCodeBar(filters?.name);
+
     return getProducts({
       variables: {
         input: {
-          status: 'active',
-          ...filters,
+          status: StatusProduct.Active,
           warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
           limit: 20,
+          withStock: true,
+          ...filters,
+          name: barcode,
         },
       },
     });
@@ -91,8 +97,8 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
 
   const cancelOrder = async () => {
     try {
-      await editOrder({ status: 'cancelled' });
-      history.push('/pos');
+      await editOrder({ status: StatusOrder.Cancelled });
+      history.push('/pos/sales');
     } catch (e: any) {
       showError(e?.error);
     }
@@ -130,8 +136,8 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
                 </FormItem>
               </Col>
               <Col span={3}>
-                <FormItem valuePropName="checked" name="withStock">
-                  <Checkbox disabled={loading} defaultChecked={false}>
+                <FormItem valuePropName="checked" name="withStock" initialValue={true}>
+                  <Checkbox disabled={loading} defaultChecked>
                     Con Stock
                   </Checkbox>
                 </FormItem>

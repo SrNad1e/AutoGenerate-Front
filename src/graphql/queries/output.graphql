@@ -37,6 +37,7 @@ query stockOutput($id: String!) {
       }
     }
     user {
+      _id
       name
     }
     warehouse {

@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useCreateOrder, useGetOrdersByPos } from '@/hooks/order.hooks';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Order } from '@/graphql/graphql';
+import { StatusOrder } from '@/graphql/graphql';
 import SaveOrder from '../components/SaveOrder';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
@@ -57,7 +58,7 @@ const PosList = () => {
       const response = await createOrder({
         variables: {
           input: {
-            status: 'open',
+            status: StatusOrder.Open,
           },
         },
       });

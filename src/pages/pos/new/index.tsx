@@ -4,6 +4,7 @@ import { Col, Row } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import type { Product, UpdateOrderInput } from '@/graphql/graphql';
+import { ActionProductsOrder, StatusOrder } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SearchProduct from '../components/SearchForm';
 import Resumen from '../components/SellResumen';
@@ -86,7 +87,6 @@ const PosNew = () => {
             input: params,
           },
         });
-        setModalCustomerVisible(false);
         return response?.data?.updateOrder;
       }
     } catch (e: any) {
@@ -114,7 +114,12 @@ const PosNew = () => {
             details: [
               {
                 productId: product?._id || '',
-                action: quantity === 0 ? 'delete' : productExist ? 'update' : 'create',
+                action:
+                  quantity === 0
+                    ? ActionProductsOrder.Delete
+                    : productExist
+                    ? ActionProductsOrder.Update
+                    : ActionProductsOrder.Create,
                 quantity: productExist ? productExist?.quantity + quantity : quantity,
               },
             ],
@@ -138,8 +143,8 @@ const PosNew = () => {
         },
       });
 
-      if (response?.data?.orderId?.status && response?.data?.orderId?.status !== 'open') {
-        showErrorRedirect(`El pedido ya se encuentra finalizado`, '/pos');
+      if (response?.data?.orderId?.status && response?.data?.orderId?.status !== StatusOrder.Open) {
+        showErrorRedirect(`El pedido ya se encuentra finalizado`, '/pos/sales');
       }
     }
   };
@@ -150,7 +155,7 @@ const PosNew = () => {
 
   useEffect(() => {
     if (error) {
-      showErrorRedirect(`Error al cargar el pedido, ${error.message}`, '/pos');
+      showErrorRedirect(`Error al cargar el pedido, ${error.message}`, '/pos/sales');
     }
   }, [error]);
 

@@ -19,4 +19,7 @@ export default {
   dividerMargin: {
     marginTop: 40,
   },
+  borderR: {
+    borderRadius: 5,
+  },
 };

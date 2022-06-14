@@ -4,8 +4,7 @@ import moment from 'moment';
 import numeral from 'numeral';
 import Barcode from 'react-barcode';
 
-import style from './styles.css';
-import { TypePayment } from '@/graphql/graphql';
+import './styles.css';
 
 const classes = {
   content: {
@@ -56,15 +55,6 @@ const classes = {
     alignItems: 'flex-end',
     lineHeight: 1.5,
   },
-  lineItems: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  spaceItems: {
-    fontWeight: 'bold',
-    marginRight: 90,
-  },
 };
 
 export default class OrderProduction extends React.PureComponent {
@@ -75,27 +65,24 @@ export default class OrderProduction extends React.PureComponent {
       <div style={classes.content}>
         <div style={classes.header}>
           <img src="/logo.svg" alt="logo" width="50%" style={{ marginBottom: -25 }} />
-          <Barcode value={data?.number} height={50} text={`No. ${data?.number}`} fontSize={12} />
+          <Barcode
+            value={data?.number}
+            height={50}
+            text={`Pedido No. ${data?.order?.number}`}
+            fontSize={12}
+          />
           <div style={classes.text}>
-            <div style={classes.title}>TICKET DE VENTA</div>
+            <div style={classes.title}>Devolución</div>
             Fecha: {moment(data?.createdAt).format('YYYY/MM/DD HH:mm:ss')}
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>
             <div style={classes.text}>
-              <span style={classes.textBold}>Nombre:</span>
-              {data?.customer?.firstName} {data?.customer?.lastName}
-            </div>
-            <div style={classes.text}>
-              <span style={classes.textBold}>DNI/NIF:</span>
-              {data?.customer?.document}
-            </div>
-            <div style={classes.text}>
-              <span style={classes.textBold}>Teléfono:</span>
-              {data?.customer?.phone}
-            </div>
-            <div style={classes.text}>
-              <span style={classes.textBold}>Vendedor:</span>
+              <span style={classes.textBold}>Usuario:</span>
               {data?.user?.name}
+            </div>
+            <div style={classes.text}>
+              <span style={classes.textBold}>Tienda:</span>
+              {data?.shop?.name}
             </div>
           </div>
           <div style={classes.body}>
@@ -104,7 +91,7 @@ export default class OrderProduction extends React.PureComponent {
               <div
                 style={{
                   ...classes.text,
-                  width: data?.summary?.discount > 0 ? '7%' : '11%',
+                  width: data?.order?.summary?.discount > 0 ? '7%' : '11%',
                   textAlign: 'center',
                 }}
               >
@@ -113,20 +100,17 @@ export default class OrderProduction extends React.PureComponent {
               <div
                 style={{
                   ...classes.text,
-                  width: data?.summary?.discount > 0 ? '17%' : '30%',
+                  width: data?.order?.summary?.discount > 0 ? '17%' : '30%',
                   textAlign: 'end',
                 }}
               >
                 Val
               </div>
-              {data?.summary?.discount > 0 && (
-                <div style={{ ...classes.text, width: '17%', textAlign: 'end' }}>Desc</div>
-              )}
               <div style={{ ...classes.text, width: '20%', fontWeight: 'bold', textAlign: 'end' }}>
                 Total
               </div>
             </div>
-            {data?.details?.map(({ product, quantity, price, discount }) => (
+            {data?.details?.map(({ product, quantity, price }) => (
               <div key={product?._id} style={classes.bodyContent}>
                 <div style={{ ...classes.text, width: '39%' }}>
                   {product?.reference?.name} - {product?.color?.name} - {product?.size?.value}
@@ -134,7 +118,7 @@ export default class OrderProduction extends React.PureComponent {
                 <div
                   style={{
                     ...classes.text,
-                    width: discount > 0 ? '7%' : '11%',
+                    width: '11%',
                     textAlign: 'center',
                   }}
                 >
@@ -143,62 +127,23 @@ export default class OrderProduction extends React.PureComponent {
                 <div
                   style={{
                     ...classes.text,
-                    width: discount > 0 ? '17%' : '30%',
+                    width: '30%',
                     textAlign: 'end',
                   }}
                 >
-                  {numeral(price + discount).format('0,0')}
+                  {numeral(price).format('0,0')}
                 </div>
-                {discount > 0 && (
-                  <div style={{ ...classes.text, width: '17%', textAlign: 'end' }}>
-                    {numeral(discount).format('0,0')}
-                  </div>
-                )}
                 <div style={{ ...classes.text, width: '20%', textAlign: 'end' }}>
                   {numeral(price * quantity).format('0,0')}
                 </div>
               </div>
             ))}
           </div>
-          <span style={classes.title}>Medios de Pago</span>
-          <hr className={style.hr} />
-          {data?.payments?.map(({ payment, total }) => (
-            <div key={payment?._id} style={classes.lineItems}>
-              <div style={classes.text}>
-                <span style={classes.spaceItems}>{payment?.name}:</span>
-              </div>
-              {payment?.type === TypePayment.Cash
-                ? numeral(total + data?.summary?.change).format('$ 0,0')
-                : numeral(total).format('$ 0,0')}
-            </div>
-          ))}
           <div style={classes.footer}>
             <div style={classes.text}>
-              <span style={classes.textBold}>Subtotal:</span>
-              {numeral(data?.summary?.subtotal).format('$ 0,0')}
-            </div>
-            <div style={classes.text}>
-              <span style={classes.textBold}>Descuento:</span>
-              {numeral(data?.summary?.discount).format('$ 0,0')}
-            </div>
-            <div style={classes.text}>
               <span style={classes.textBold}>Total:</span>
-              {numeral(data?.summary?.total).format('$ 0,0')}
+              {numeral(data?.order?.summary?.total).format('$ 0,0')}
             </div>
-            {data?.summary?.change > 0 && (
-              <div style={classes.text}>
-                <span style={classes.textBold}>Cambio:</span>
-                {numeral(data?.summary?.change).format('$ 0,0')}
-              </div>
-            )}
-          </div>
-          <br />
-          <div style={classes.text}>
-            <div style={classes.text}>
-              <span style={classes.textBold}>Registrado por:</span>
-              {data?.user?.name}
-            </div>
-            Por protocolos de bioseguridad de COVID19 ninguna prenda tiene cambio
           </div>
         </div>
       </div>

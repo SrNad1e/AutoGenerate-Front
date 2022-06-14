@@ -18,6 +18,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import FormOutput from '../components/FormOutput';
 import ReportOutput from '../reports/output';
 import type { StockOutput, Warehouse } from '@/graphql/graphql';
+import { StatusStockOutput } from '@/graphql/graphql';
 import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
@@ -32,7 +33,7 @@ const OutputForm = () => {
     visible: false,
   });
   const [output, setOutput] = useState<Partial<StockOutput>>({
-    status: 'open',
+    status: StatusStockOutput.Open,
   });
   const { initialState } = useModel('@@initialState');
 
@@ -53,8 +54,12 @@ const OutputForm = () => {
   const {
     output: { canPrint, canEdit },
   } = useAccess();
-  const allowEdit =
-    initialState?.currentUser?._id === output?.user?._id && output?.status === 'open' && canEdit;
+
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === output?.user?._id &&
+      output?.status === StatusStockOutput.Open &&
+      canEdit;
   /**
    * @description se encarga de abrir aviso de información
    * @param error error de apollo

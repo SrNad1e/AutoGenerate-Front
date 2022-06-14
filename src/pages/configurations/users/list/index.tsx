@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import SelectRole from '@/components/SelectRole';
-import type { FiltersUsersInput, Role, Shop /*User*/ } from '@/graphql/graphql';
+import type { FiltersUsersInput, Role, Shop, User } from '@/graphql/graphql';
 import { useGetUsers } from '@/hooks/user.hooks';
 import {
   CalendarOutlined,
@@ -35,7 +35,7 @@ import { useHistory, useLocation } from 'umi';
 import type { Location } from 'umi';
 //import type { SorterResult } from 'antd/es/table/interface';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-//import { ColumnsType } from 'antd/lib/table';
+import type { ColumnsType } from 'antd/lib/table';
 import { StatusTypeUser } from '../users.data';
 
 const FormItem = Form.Item;
@@ -154,7 +154,7 @@ const UsersList = () => {
    * @param sorter ordenamiento de la tabla
    * @param filterArg filtros de la tabla
    */
-  /*const handleChangeTable = (
+  /* const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filterArg: Record<string, any>,
     sorter: SorterResult<Partial<User>> | any,
@@ -189,7 +189,7 @@ const UsersList = () => {
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
-  /*const onClear = () => {
+  /* const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
     onSearch({});
@@ -222,7 +222,7 @@ const UsersList = () => {
     loadingData();
   }, []);
 
-  const column /*ColumnsType<User>*/ = [
+  const column: ColumnsType<User> = [
     {
       title: <Text>{<UserOutlined />} Nombre</Text>,
       dataIndex: 'name',

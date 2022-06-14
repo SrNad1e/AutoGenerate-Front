@@ -29,6 +29,7 @@ import { useCreateOutput, useUpdateOutput } from '@/hooks/output.hooks';
 import Header from './header';
 import Footer from './footer';
 import type { DetailOutput, StockOutput, Product } from '@/graphql/graphql';
+import { ActionDetailOutput, StatusStockOutput } from '@/graphql/graphql';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -40,7 +41,9 @@ export type Props = {
 };
 
 const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
-  const [details, setDetails] = useState<Partial<DetailOutput & { action: string }>[]>([]);
+  const [details, setDetails] = useState<Partial<DetailOutput & { action: ActionDetailOutput }>[]>(
+    [],
+  );
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -51,7 +54,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
     type: TYPES;
     visible: boolean;
     message: string;
-    status?: string;
+    status?: StatusStockOutput;
   }>({
     visible: false,
     message: '',
@@ -94,13 +97,13 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @description se encarga de mostrar la alerta de guardado y cancelar
    * @param status estado actual de la salida
    */
-  const showAlertSave = (status?: string) => {
+  const showAlertSave = (status?: StatusStockOutput) => {
     if (
       details.length > 0 ||
-      status === 'cancelled' ||
+      status === StatusStockOutput.Cancelled ||
       observation !== (output?.observation || '')
     ) {
-      if (status === 'cancelled') {
+      if (status === StatusStockOutput.Cancelled) {
         setPropsAlertSave({
           status,
           visible: true,
@@ -126,7 +129,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @description se encarga de guardar el traslado
    * @param status se usa para definir el estado de la salida
    */
-  const saveOutput = async (status?: string) => {
+  const saveOutput = async (status?: StatusStockOutput) => {
     try {
       if (id) {
         const detailsFilter = details.filter((detail) => detail?.action);
@@ -134,7 +137,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
         const newDetails = detailsFilter.map((detail) => ({
           productId: detail?.product?._id || '',
           quantity: detail?.quantity || 1,
-          action: detail?.action || '',
+          action: detail?.action as ActionDetailOutput,
         }));
         if (newDetails.length > 0 || status || observation !== output?.observation) {
           const props = {
@@ -160,7 +163,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
           onShowInformation('La salida no tiene cambios a realizar');
         }
       } else {
-        if (status === 'cancelled') {
+        if (status === StatusStockOutput.Cancelled) {
           setCurrentStep(0);
         } else {
           const newDetails = details.map((detail) => ({
@@ -212,7 +215,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
             if (detail?.product?._id === _id) {
               return {
                 ...detail,
-                action: 'delete',
+                action: ActionDetailOutput.Delete,
               };
             }
             return detail;
@@ -240,7 +243,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
                 return {
                   ...detail,
                   quantity: quantity || 1,
-                  action: productFind ? 'update' : 'create',
+                  action: productFind ? ActionDetailOutput.Update : ActionDetailOutput.Create,
                 };
               }
               return detail;
@@ -270,7 +273,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
           if (findProduct) {
             updateDetail(product, quantity);
           } else {
-            setDetails([...details, { product, quantity, action: 'create' }]);
+            setDetails([...details, { product, quantity, action: ActionDetailOutput.Create }]);
           }
         } else {
           onShowInformation(
@@ -316,7 +319,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
   };
 
   const propsSelectProduct: PropsSelectProducts = {
-    details: details.filter((item) => item?.action !== 'delete'),
+    details: details.filter((item) => item?.action !== ActionDetailOutput.Delete),
     validateStock: true,
     warehouseId: output?.warehouse?._id,
     createDetail,
@@ -426,7 +429,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== 'delete')}
+          dataSource={details.filter((detail) => detail?.action !== ActionDetailOutput.Delete)}
           scroll={{ x: 1000 }}
           pagination={{ size: 'small' }}
         />

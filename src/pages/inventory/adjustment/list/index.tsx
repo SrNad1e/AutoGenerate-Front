@@ -39,6 +39,7 @@ import ReportAdjustment from '../reports/adjustment';
 import type {
   DetailAdjustment,
   FiltersStockAdjustmentsInput,
+  StatusStockAdjustment,
   StockAdjustment,
   Warehouse,
 } from '@/graphql/graphql';
@@ -52,7 +53,7 @@ const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockAdjustment;
   number?: number;
   warehouseId?: string;
   dates?: Moment[];
@@ -261,7 +262,7 @@ const AdjustmentList = () => {
       title: 'Estado',
       dataIndex: 'status',
       align: 'center',
-      render: (status: string) => {
+      render: (status: StatusStockAdjustment) => {
         const { color, label } = StatusTypeAdjustment[status || ''];
         return <Badge text={label} color={color} />;
       },

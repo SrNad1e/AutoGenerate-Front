@@ -18,6 +18,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetRequest } from '@/hooks/request.hooks';
 import ReportRequest from '../reports/request';
 import type { StockRequest, Warehouse } from '@/graphql/graphql';
+import { StatusStockRequest } from '@/graphql/graphql';
 import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
@@ -33,7 +34,7 @@ const RequestForm = () => {
     visible: false,
   });
   const [request, setRequest] = useState<Partial<StockRequest>>({
-    status: 'open',
+    status: StatusStockRequest.Open,
   });
 
   const { initialState } = useModel('@@initialState');
@@ -56,8 +57,11 @@ const RequestForm = () => {
     request: { canEdit, canPrint },
   } = useAccess();
 
-  const allowEdit =
-    initialState?.currentUser?._id === request?.user?._id && request?.status === 'open' && canEdit;
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === request?.user?._id &&
+      request?.status === StatusStockRequest.Open &&
+      canEdit;
 
   /**
    * @description se encarga de abrir aviso de información

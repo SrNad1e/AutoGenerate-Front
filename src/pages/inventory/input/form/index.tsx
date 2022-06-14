@@ -18,6 +18,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import FormInput from '../components/FormInput';
 import ReportInput from '../reports/input';
 import type { StockInput, Warehouse } from '@/graphql/graphql';
+import { StatusStockInput } from '@/graphql/graphql';
 import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
@@ -32,7 +33,7 @@ const InputForm = () => {
     visible: false,
   });
   const [input, setInput] = useState<Partial<StockInput>>({
-    status: 'open',
+    status: StatusStockInput.Open,
   });
 
   const { id } = useParams<Partial<{ id: string }>>();
@@ -55,8 +56,11 @@ const InputForm = () => {
     input: { canPrint, canEdit },
   } = useAccess();
 
-  const allowEdit =
-    initialState?.currentUser?._id === input?.user?._id && input?.status === 'open' && canEdit;
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === input?.user?._id &&
+      input?.status === StatusStockInput.Open &&
+      canEdit;
 
   /**
    * @description se encarga de abrir aviso de información

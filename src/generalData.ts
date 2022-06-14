@@ -135,21 +135,24 @@ export const typesAccess = {
   },
   '/configurations/roles/:id': {
     access: ['UPDATE_CONFIGURATION_ROLE'],
-  },
-  //POS
-  '/pos': {
-    access: ['ACCESS_POS'],
-  },
-  '/pos/sales': {
-    access: ['ACCESS_POS'],
-  },
-  '/pos/sales/:id': {
-    access: ['ACCESS_POS'],
-  },
-  '/pos/closes/closingX': {
-    access: ['READ_INVOICING_CLOSESX'],
-  },
-  '/pos/closes/closingZ': {
-    access: ['READ_INVOICING_CLOSESX'],
+    '/invoicing/return': {
+      access: ['READ_INVOICING_RETURNS'],
+    },
+    //POS
+    '/pos': {
+      access: ['ACCESS_POS'],
+    },
+    '/pos/sales': {
+      access: ['ACCESS_POS'],
+    },
+    '/pos/sales/:id': {
+      access: ['ACCESS_POS'],
+    },
+    '/pos/closes/closingX': {
+      access: ['READ_INVOICING_CLOSESX'],
+    },
+    '/pos/closes/closingZ': {
+      access: ['READ_INVOICING_CLOSESX'],
+    },
   },
 };

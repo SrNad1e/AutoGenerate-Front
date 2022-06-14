@@ -202,7 +202,6 @@ const FormReference = () => {
    */
   const saveReference = async () => {
     const values = await form.validateFields();
-    console.log(values);
 
     try {
       const params: UpdateReferenceInput = {};

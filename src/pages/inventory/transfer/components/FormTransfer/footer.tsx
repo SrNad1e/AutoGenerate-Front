@@ -1,4 +1,6 @@
+import { ActionDetailTransfer } from '@/graphql/graphql';
 import type { DetailTransfer, StockTransfer } from '@/graphql/graphql';
+import { StatusStockTransfer } from '@/graphql/graphql';
 import { Affix, Button, Card, Col, Divider, Row, Space, Typography } from 'antd';
 import styles from '../styles.less';
 
@@ -6,8 +8,8 @@ const { Title } = Typography;
 
 type Props = {
   transfer: Partial<StockTransfer> | undefined;
-  saveTransfer: (status?: string) => void;
-  details: Partial<DetailTransfer & { action: string }>[];
+  saveTransfer: (status?: StatusStockTransfer) => void;
+  details: Partial<DetailTransfer & { action: ActionDetailTransfer }>[];
   allowEdit: boolean;
 };
 
@@ -15,11 +17,12 @@ const Footer = ({ transfer, saveTransfer, details, allowEdit }: Props) => {
   const renderResumen = () => (
     <Space className={styles.centerFooter}>
       <Title level={3}>
-        REFERENCIAS: {details.filter((detail) => detail?.action !== 'delete').length}
+        REFERENCIAS:{' '}
+        {details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete).length}
         <Divider type="vertical" />
         PRODUCTOS:{' '}
         {details
-          .filter((detail) => detail?.action !== 'delete')
+          .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
           .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
       </Title>
     </Space>
@@ -34,7 +37,7 @@ const Footer = ({ transfer, saveTransfer, details, allowEdit }: Props) => {
               disabled={!allowEdit}
               type={transfer?._id ? 'primary' : 'default'}
               danger={!!transfer?._id}
-              onClick={() => saveTransfer('cancelled')}
+              onClick={() => saveTransfer(StatusStockTransfer.Cancelled)}
             >
               Cancelar
             </Button>
@@ -47,7 +50,11 @@ const Footer = ({ transfer, saveTransfer, details, allowEdit }: Props) => {
               <Button disabled={!allowEdit} onClick={() => saveTransfer()}>
                 Guardar
               </Button>
-              <Button type="primary" disabled={!allowEdit} onClick={() => saveTransfer('sent')}>
+              <Button
+                type="primary"
+                disabled={!allowEdit}
+                onClick={() => saveTransfer(StatusStockTransfer.Sent)}
+              >
                 Enviar
               </Button>
             </Space>

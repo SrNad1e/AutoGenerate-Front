@@ -7,4 +7,13 @@ export default {
     margin: 0,
     marginBottom: 20,
   },
+  borderR: {
+    borderRadius: 5,
+  },
+  texRigth: {
+    textAlign: 'right',
+  },
+  allWidth: {
+    width: '100%',
+  },
 };

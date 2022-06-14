@@ -1,18 +1,27 @@
 export const StatusType = {
-  OPEN: {
+  open: {
     color: 'green',
     text: 'Abierto',
   },
-  CANCELLED: {
+  cancelled: {
     color: 'red',
     text: 'Cancelado',
   },
-  SENT: {
+  sent: {
     color: 'blue',
     text: 'Enviado',
   },
-  CONFIRMED: {
+  invoiced: {
+    color: 'green',
+    text: 'Facturado',
+  },
+  pending: {
     color: 'yellow',
-    text: 'Confirmado',
+    text: 'Pendiente',
+  },
+
+  closed: {
+    color: 'red',
+    text: 'Cerrado',
   },
 };

@@ -36,6 +36,7 @@ query stockRequest($id: String!) {
     status
     updatedAt
     user {
+      _id
       name
     }
     observation

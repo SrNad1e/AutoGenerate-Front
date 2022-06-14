@@ -156,5 +156,13 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === 'CREATE_CONFIGURATION_ROLE',
       ),
     },
+    returns: {
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'PRINT_INVOICING_RETURN',
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === 'CREATE_INVOICING_RETURN',
+      ),
+    },
   };
 }

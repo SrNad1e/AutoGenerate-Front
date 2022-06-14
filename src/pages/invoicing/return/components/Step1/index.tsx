@@ -1,7 +1,17 @@
-import { Invoice } from '@/graphql/graphql';
-import { FileProtectOutlined, SearchOutlined, SelectOutlined } from '@ant-design/icons';
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
-  Badge,
+  CalendarOutlined,
+  DollarCircleOutlined,
+  IdcardOutlined,
+  InteractionOutlined,
+  LoadingOutlined,
+  NumberOutlined,
+  SearchOutlined,
+  SelectOutlined,
+  ShopOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import {
   Button,
   Card,
   Col,
@@ -13,112 +23,256 @@ import {
   Row,
   Table,
   Tag,
+  Typography,
 } from 'antd';
-import { ColumnsType } from 'antd/es/table/interface';
-import moment from 'moment';
+import type {
+  ColumnsType,
+  FilterValue,
+  SorterResult,
+  TablePaginationConfig,
+} from 'antd/es/table/interface';
+import type {
+  Customer,
+  FiltersOrdersInput,
+  Order,
+  OrdersQuery,
+  ResponseOrders,
+  Shop,
+  SummaryOrder,
+} from '@/graphql/graphql';
 import numeral from 'numeral';
+import { useState } from 'react';
+import moment from 'moment';
+import type { Moment } from 'moment';
+
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
 
+const { Text } = Typography;
 const FormItem = Form.Item;
+const { RangePicker } = DatePicker;
 
-type Props = {
-  selectInvoice: () => void;
+type FormValues = {
+  dates?: Moment[];
+  document?: string;
+  number?: number;
 };
 
-const RenderStep1 = ({ selectInvoice }: Props) => {
-  const columns: ColumnsType<Invoice> = [
+type Props = {
+  selectOrder: (record: Order) => void;
+  onSearch: (params: FiltersOrdersInput) => void;
+  data?: OrdersQuery;
+  loading: boolean;
+};
+
+const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
+  const [form] = Form.useForm();
+
+  /**
+   * @description funcion usada para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const messageError = (message: string) => {
+    setPropsAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  /**
+   * @description se encarga de realizar el proceso de busqueda con los filtros y formatear las fechas
+   * @param props filtros seleccionados en el formulario
+   */
+  const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
+    try {
+      const params: any = {
+        page: pageCurrent || 1,
+        limit: 10,
+        sort: sort || { createdAt: -1 },
+        ...props,
+      };
+
+      if (props.dates) {
+        const dateInitial = moment(props.dates[0]).format(FORMAT_DATE_API);
+        const dateFinal = moment(props.dates[1]).format(FORMAT_DATE_API);
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
+      }
+      delete params.dates;
+      onSearch(params);
+    } catch (e: any) {
+      messageError(e?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
+   */
+  const handleChangeTable = (
+    paginationLocal: TablePaginationConfig,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<ResponseOrders> | SorterResult<ResponseOrders>[] | any,
+  ) => {
+    const { current } = paginationLocal;
+    const params = form.getFieldsValue();
+
+    let sort = {};
+
+    if (sorter?.field) {
+      sort = {
+        [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
+      };
+    } else {
+      sort = {
+        createdAt: -1,
+      };
+    }
+
+    onFinish(params, sort, current);
+  };
+
+  const columns: ColumnsType<Order> = [
     {
-      title: 'Factura',
+      title: (
+        <Text>
+          <NumberOutlined /> Número
+        </Text>
+      ),
       dataIndex: 'number',
+      sorter: true,
+      showSorterTooltip: false,
       align: 'center',
-      render: (number: number, { authorization }) => (
-        <Tag color="blue">
-          <FileProtectOutlined />
-          {authorization?.prefix}
+      render: (number: number) => (
+        <Tag style={{ backgroundColor: 'white', color: '#dc9575', borderColor: '#dc9575' }}>
           {number}
         </Tag>
       ),
     },
     {
-      title: 'Tienda',
+      title: (
+        <Text>
+          <ShopOutlined /> Tienda
+        </Text>
+      ),
       dataIndex: 'shop',
       align: 'center',
+      render: (shop: Shop) => <>{shop?.name}</>,
     },
     {
-      title: 'Documento',
-      dataIndex: 'identification',
-      align: 'center',
-    },
-    {
-      title: 'Cliente',
+      title: (
+        <Text>
+          <IdcardOutlined /> Documento
+        </Text>
+      ),
       dataIndex: 'customer',
       align: 'center',
-      render: (customer: any) => (
+      render: (customer: Customer) => <>{customer?.document}</>,
+    },
+    {
+      title: (
+        <Text>
+          <UserOutlined /> Usuario
+        </Text>
+      ),
+      dataIndex: 'customer',
+      align: 'center',
+      render: (customer: Customer) => (
         <>
-          {customer.name} {customer.lastName}
+          {customer?.firstName} {customer?.lastName}
         </>
       ),
     },
     {
-      title: 'Total',
-      dataIndex: 'total',
-      sorter: true,
-      showSorterTooltip: false,
-      align: 'right',
-      render: (total: number) => numeral(total).format('$ 0,0'),
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Total
+        </Text>
+      ),
+      dataIndex: 'summary',
+      align: 'center',
+      render: (value: SummaryOrder) => numeral(value.total).format('$ 0,0'),
     },
     {
-      title: 'Fecha',
-      dataIndex: 'createdAt',
+      title: (
+        <Text>
+          <CalendarOutlined /> Fecha
+        </Text>
+      ),
+      dataIndex: 'updatedAt',
       sorter: true,
       showSorterTooltip: false,
       align: 'center',
-      render: (createdAt: Date) => moment(createdAt).format('DD/MM/YYYY HH:mm:ss'),
+      render: (updatedAt: Date) => moment(updatedAt).format('DD/MM/YYYY HH:mm:ss'),
     },
     {
-      title: 'Estado',
-      dataIndex: 'status',
-      align: 'center',
-      render: (status: string) => <Badge color={'green'} text={status} />,
-    },
-    {
-      title: 'Selecccionar',
+      title: (
+        <Text>
+          <InteractionOutlined /> Seleccionar
+        </Text>
+      ),
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
-      render: () => (
-        <Button disabled={false} onClick={selectInvoice} type="primary" icon={<SelectOutlined />} />
+      render: (_, Order: Order) => (
+        <Button
+          disabled={false}
+          onClick={() => selectOrder(Order)}
+          type="primary"
+          icon={<SelectOutlined />}
+        />
       ),
     },
   ];
 
   return (
     <>
-      <Form layout="inline">
+      <Form layout="inline" form={form} onFinish={onFinish}>
         <Row>
+          <Col xs={6} md={7} lg={6}>
+            <FormItem label="Número de Pedido" name="number">
+              <InputNumber autoFocus controls={false} placeholder="Ejem: 10" />
+            </FormItem>
+          </Col>
+          <Col xs={24} md={6} lg={7}>
+            <FormItem label="Documento" name="document">
+              <Input placeholder="Ejem: 1004512204" />
+            </FormItem>
+          </Col>
           <Col xs={24} md={7} lg={8}>
-            <FormItem label="Buscar">
-              <Input autoFocus placeholder="Documento, factura" />
+            <FormItem label="Fechas" name="dates">
+              <RangePicker style={styles.allWidth} placeholder={['Fecha Inicial', 'Fecha Final']} />
             </FormItem>
           </Col>
-          <Col xs={24} md={7} lg={7}>
+          <Col xs={18} md={4} lg={3}>
             <FormItem label=" " colon={false}>
-              <DatePicker style={styles.allWidth} placeholder="Seleccionar Fecha" />
-            </FormItem>
-          </Col>
-          <Col xs={6} md={5} lg={6}>
-            <FormItem label="Valor">
-              <InputNumber
-                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
-                step={100}
-              />
-            </FormItem>
-          </Col>
-          <Col xs={18} md={5} lg={3}>
-            <FormItem label=" " colon={false}>
-              <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
+              <Button
+                style={styles.borderR}
+                icon={loading ? <LoadingOutlined /> : <SearchOutlined />}
+                type="primary"
+                htmlType="submit"
+              >
                 Buscar
               </Button>
             </FormItem>
@@ -126,11 +280,17 @@ const RenderStep1 = ({ selectInvoice }: Props) => {
         </Row>
       </Form>
       <Divider orientation="left" style={styles.dividerMarginTop}>
-        Facturas
+        Pedidos
       </Divider>
       <Card bordered={false} bodyStyle={styles.bodyCardPadding}>
-        <Table columns={columns} scroll={{ x: 900 }} dataSource={test} />
+        <Table
+          columns={columns}
+          scroll={{ x: 900 }}
+          dataSource={data?.orders.docs as any}
+          onChange={handleChangeTable}
+        />
       </Card>
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </>
   );
 };
