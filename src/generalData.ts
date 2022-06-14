@@ -118,23 +118,41 @@ export const typesAccess = {
   '/invoicing/closings/closingZ': {
     access: ['READ_INVOICING_CLOSESZ'],
   },
-  '/invoicing/return': {
-    access: ['READ_INVOICING_RETURNS'],
+  '/configurations': {
+    access: ['ACCESS_CONFIGURATION_ROLES', 'ACCESS_CONFIGURATION_USERS'],
   },
-  //POS
-  '/pos': {
-    access: ['ACCESS_POS'],
+  '/configurations/users': {
+    access: ['READ_CONFIGURATION_USERS'],
   },
-  '/pos/sales': {
-    access: ['ACCESS_POS'],
+  '/configurations/roles': {
+    access: ['ACCESS_CONFIGURATION_ROLES'],
   },
-  '/pos/sales/:id': {
-    access: ['ACCESS_POS'],
+  '/configurations/roles/list': {
+    access: ['READ_CONFIGURATION_ROLES'],
   },
-  '/pos/closes/closingX': {
-    access: ['READ_INVOICING_CLOSESX'],
+  '/configurations/roles/new': {
+    access: ['CREATE_CONFIGURATION_ROLE'],
   },
-  '/pos/closes/closingZ': {
-    access: ['READ_INVOICING_CLOSESX'],
+  '/configurations/roles/:id': {
+    access: ['UPDATE_CONFIGURATION_ROLE'],
+    '/invoicing/return': {
+      access: ['READ_INVOICING_RETURNS'],
+    },
+    //POS
+    '/pos': {
+      access: ['ACCESS_POS'],
+    },
+    '/pos/sales': {
+      access: ['ACCESS_POS'],
+    },
+    '/pos/sales/:id': {
+      access: ['ACCESS_POS'],
+    },
+    '/pos/closes/closingX': {
+      access: ['READ_INVOICING_CLOSESX'],
+    },
+    '/pos/closes/closingZ': {
+      access: ['READ_INVOICING_CLOSESX'],
+    },
   },
 };

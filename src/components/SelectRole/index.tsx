@@ -2,7 +2,7 @@
 import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
-import { useGetPointOfSales } from '@/hooks/pointOfSale.hooks';
+import { useGetRoles } from '@/hooks/rol.hooks';
 
 const { Option } = Select;
 
@@ -10,21 +10,19 @@ export type Params = {
   onChange?: (id: string) => void;
   value?: string;
   disabled: boolean;
-  shopId?: string;
 };
 
-const SelectPointOfSale = ({ onChange, disabled, value, shopId }: Params) => {
-  const [getPointOfSales, { loading, data, error }] = useGetPointOfSales();
+const SelectRole = ({ onChange, disabled, value }: Params) => {
+  const [getRoles, { loading, data, error }] = useGetRoles();
 
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
   const onSearch = (name: string) => {
-    getPointOfSales({
+    getRoles({
       variables: {
         input: {
-          shopId: shopId,
           name,
           sort: {
             name: 1,
@@ -35,10 +33,9 @@ const SelectPointOfSale = ({ onChange, disabled, value, shopId }: Params) => {
   };
 
   useEffect(() => {
-    getPointOfSales({
+    getRoles({
       variables: {
         input: {
-          shopId: shopId,
           _id: value,
           sort: {
             name: 1,
@@ -46,7 +43,7 @@ const SelectPointOfSale = ({ onChange, disabled, value, shopId }: Params) => {
         },
       },
     });
-  }, [shopId]);
+  }, []);
 
   return (
     <>
@@ -54,17 +51,16 @@ const SelectPointOfSale = ({ onChange, disabled, value, shopId }: Params) => {
         style={{ width: '100%' }}
         showSearch
         loading={loading}
-        placeholder="Seleccione el punto de venta"
-        optionFilterProp="key"
+        placeholder="Seleccione el Rol"
+        optionFilterProp="children"
         onChange={onChange}
         onSearch={onSearch}
         disabled={disabled}
         value={value}
-        allowClear
       >
-        {data?.pointOfSales?.docs?.map(({ _id, name, shop }) => (
-          <Option key={name} value={_id}>
-            {shop.name} / {name}
+        {data?.roles?.docs?.map(({ _id, name }) => (
+          <Option key={_id} value={_id}>
+            {name}
           </Option>
         ))}
       </Select>
@@ -73,4 +69,4 @@ const SelectPointOfSale = ({ onChange, disabled, value, shopId }: Params) => {
   );
 };
 
-export default SelectPointOfSale;
+export default SelectRole;

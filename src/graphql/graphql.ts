@@ -780,22 +780,51 @@ export type CreateStockTransferInput = {
 
 /** Datos para la creación de un usuario */
 export type CreateUserInput = {
-  /** Identificador de la empresa a la que pertenece el usuario */
-  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Nombre del usuario */
   name: Scalars['String'];
   /** Contraseña de usuario */
-  password: Scalars['String'];
+  password?: InputMaybe<Scalars['String']>;
   /** Identificador del punto de venta asignado al usuario */
   pointOfSaleId?: InputMaybe<Scalars['String']>;
   /** Identificador del rol del usuario */
   roleId: Scalars['String'];
   /** Identificador de la tienda asignada al usuario */
   shopId: Scalars['String'];
+  /** Estado del usuario */
+  status?: InputMaybe<StatusUser>;
   /** Usuario registrado */
-  username: Scalars['String'];
+  username?: InputMaybe<Scalars['String']>;
+};
+
+/** Crédito del cliente */
+export type Credit = {
+  __typename?: 'Credit';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Monto habilitado para el crédito */
+  amount: Scalars['Float'];
+  /** Monto disponible para el crédito */
+  available: Scalars['Float'];
+  /** Monto usado del crédito */
+  balance: Scalars['Float'];
+  /** Compañía a la que pertenece el crédito */
+  company: Scalars['String'];
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Cliente al que pertenece el crédito */
+  customer: Customer;
+  /** Detalle de la afectación del crédito */
+  details?: Maybe<DetailCredit[]>;
+  /** Monto congelado que no ha sido finalizado */
+  frozenAmount: Scalars['Float'];
+  /** Estado del crédito */
+  status: StatusCredit;
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó la cartera */
+  user: User;
 };
 
 /** Cliente */
@@ -881,6 +910,17 @@ export type DetailConfirmStockTransferInput = {
   productId: Scalars['String'];
   /** Cantidad de productos */
   quantity: Scalars['Float'];
+};
+
+/** Detalle del crédito */
+export type DetailCredit = {
+  __typename?: 'DetailCredit';
+  /** Monto pendiente en el pedido */
+  balance: Scalars['Float'];
+  /** Pedido que reporta el crédito */
+  orderId: Scalars['String'];
+  /** Monto total del pedido en crédito */
+  total: Scalars['Float'];
 };
 
 /** Detalle de la salida de productos */
@@ -1467,6 +1507,8 @@ export type FiltersReturnsOrderInput = {
 
 /** Filtros para consultar los roles */
 export type FiltersRolesInput = {
+  /** Identificador del rol */
+  _id?: InputMaybe<Scalars['String']>;
   /** El rol se encuentra activo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
@@ -2381,7 +2423,7 @@ export type Query = {
   /** Obtiene listado de traslados de productos entre bodegas */
   stockTransfers: ResponseStockTransfers;
   /** Consulta todos los usuarios con base a los filtros */
-  users: User[];
+  users: ResponseUsers;
   /** Se encarga de traer bodega por identificador */
   warehouseId: Warehouse;
   /** Se encarga de listar las bodegas */
@@ -2539,7 +2581,7 @@ export type QueryStockTransfersArgs = {
 };
 
 export type QueryUsersArgs = {
-  filtersUsersInput: FiltersUsersInput;
+  filtersUsersInput?: InputMaybe<FiltersUsersInput>;
 };
 
 export type QueryWarehouseIdArgs = {
@@ -3268,6 +3310,30 @@ export type ResponseStockTransfers = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de usuarios */
+export type ResponseUsers = {
+  __typename?: 'ResponseUsers';
+  /** Lista de usuarios */
+  docs: User[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta a la consulta de bodegas */
 export type ResponseWarehouses = {
   __typename?: 'ResponseWarehouses';
@@ -3745,6 +3811,12 @@ export type SortWarehouse = {
   name?: InputMaybe<Scalars['Float']>;
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
+
+export enum StatusCredit {
+  Active = 'ACTIVE',
+  Finish = 'FINISH',
+  Suspend = 'SUSPEND',
+}
 
 export enum StatusDetailTransfer {
   Confirmed = 'CONFIRMED',
@@ -4247,8 +4319,6 @@ export type UpdateStockTransferInput = {
 
 /** Datos para actualizar el usuario */
 export type UpdateUserInput = {
-  /** Identificador de la empresa a la que pertenece el usuario */
-  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Nombre del usuario */
@@ -5254,6 +5324,39 @@ export type CreateReturnOrderMutation = {
   };
 };
 
+export type CreateRoleMutationVariables = Exact<{
+  input: CreateRoleInput;
+}>;
+
+export type CreateRoleMutation = {
+  __typename?: 'Mutation';
+  createRole: {
+    __typename?: 'Role';
+    _id: string;
+    active: boolean;
+    changeWarehouse: boolean;
+    name: string;
+    permissions: { __typename?: 'Permission'; _id: string }[];
+  };
+};
+
+export type UpdateRoleMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateRoleInput;
+}>;
+
+export type UpdateRoleMutation = {
+  __typename?: 'Mutation';
+  updateRole: {
+    __typename?: 'Role';
+    _id: string;
+    active: boolean;
+    changeWarehouse: boolean;
+    name: string;
+    permissions: { __typename?: 'Permission'; _id: string }[];
+  };
+};
+
 export type CreateSizeMutationVariables = Exact<{
   input: CreateSizeInput;
 }>;
@@ -5421,6 +5524,38 @@ export type LoginMutation = {
         permissions: { __typename?: 'Permission'; action: Permissions }[];
       };
     };
+  };
+};
+
+export type CreateUserMutationVariables = Exact<{
+  input: CreateUserInput;
+}>;
+
+export type CreateUserMutation = {
+  __typename?: 'Mutation';
+  createUser: {
+    __typename?: 'User';
+    _id: string;
+    username: string;
+    name: string;
+    password?: string | null;
+    pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
+  };
+};
+
+export type UpdateUserMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateUserInput;
+}>;
+
+export type UpdateUserMutation = {
+  __typename?: 'Mutation';
+  updateUser: {
+    __typename?: 'User';
+    _id: string;
+    username: string;
+    name: string;
+    pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
   };
 };
 
@@ -6240,6 +6375,26 @@ export type PaymentsQuery = {
   };
 };
 
+export type PermissionsQueryVariables = Exact<Record<string, never>>;
+
+export type PermissionsQuery = {
+  __typename?: 'Query';
+  permissions: {
+    __typename?: 'PermissionData';
+    module: string;
+    options: {
+      __typename?: 'OptionPermission';
+      name: string;
+      actions: {
+        __typename?: 'ActionPermission';
+        _id: string;
+        description: string;
+        name: string;
+      }[];
+    }[];
+  }[];
+};
+
 export type PointOfSalesQueryVariables = Exact<{
   input?: InputMaybe<FiltersPointOfSalesInput>;
 }>;
@@ -6571,6 +6726,45 @@ export type ReturnsOrderQuery = {
   };
 };
 
+export type RoleIdQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+export type RoleIdQuery = {
+  __typename?: 'Query';
+  roleId: {
+    __typename?: 'Role';
+    _id: string;
+    name: string;
+    changeWarehouse: boolean;
+    active: boolean;
+    user: { __typename?: 'User'; name: string };
+    permissions: { __typename?: 'Permission'; _id: string }[];
+  };
+};
+
+export type RolesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersRolesInput>;
+}>;
+
+export type RolesQuery = {
+  __typename?: 'Query';
+  roles: {
+    __typename?: 'ResponseRoles';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Role';
+      _id: string;
+      changeWarehouse: boolean;
+      name: string;
+      active: boolean;
+      permissions: { __typename?: 'Permission'; description: string }[];
+    }[];
+  };
+};
+
 export type ShopsQueryVariables = Exact<{
   input?: InputMaybe<FiltersShopsInput>;
 }>;
@@ -6706,6 +6900,32 @@ export type CurrentUserQuery = {
       name: string;
       permissions: { __typename?: 'Permission'; action: Permissions }[];
     };
+  };
+};
+
+export type UsersQueryVariables = Exact<{
+  input: FiltersUsersInput;
+}>;
+
+export type UsersQuery = {
+  __typename?: 'Query';
+  users: {
+    __typename?: 'ResponseUsers';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'User';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+      status: StatusUser;
+      username: string;
+      role: { __typename?: 'Role'; name: string; _id: string };
+      shop: { __typename?: 'Shop'; name: string; _id: string };
+      pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
+    }[];
   };
 };
 
@@ -9808,6 +10028,125 @@ export const CreateReturnOrderDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateReturnOrderMutation, CreateReturnOrderMutationVariables>;
+export const CreateRoleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createRole' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateRoleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createRole' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createRoleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'permissions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateRoleMutation, CreateRoleMutationVariables>;
+export const UpdateRoleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateRole' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateRoleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateRole' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateRoleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'permissions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateRoleMutation, UpdateRoleMutationVariables>;
 export const CreateSizeDocument = {
   kind: 'Document',
   definitions: [
@@ -10464,6 +10803,130 @@ export const LoginDocument = {
     },
   ],
 } as unknown as DocumentNode<LoginMutation, LoginMutationVariables>;
+export const CreateUserDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createUser' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateUserInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createUser' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createUserInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'password' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pointOfSale' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateUserMutation, CreateUserMutationVariables>;
+export const UpdateUserDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateUser' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateUserInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateUser' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateUserInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pointOfSale' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateUserMutation, UpdateUserMutationVariables>;
 export const StockAdjustmentDocument = {
   kind: 'Document',
   definitions: [
@@ -12969,6 +13432,53 @@ export const PaymentsDocument = {
     },
   ],
 } as unknown as DocumentNode<PaymentsQuery, PaymentsQueryVariables>;
+export const PermissionsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'permissions' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'permissions' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'module' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'options' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'actions' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PermissionsQuery, PermissionsQueryVariables>;
 export const PointOfSalesDocument = {
   kind: 'Document',
   definitions: [
@@ -14096,6 +14606,131 @@ export const ReturnsOrderDocument = {
     },
   ],
 } as unknown as DocumentNode<ReturnsOrderQuery, ReturnsOrderQueryVariables>;
+export const RoleIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'roleId' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'roleId' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'user' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'permissions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RoleIdQuery, RoleIdQueryVariables>;
+export const RolesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'roles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersRolesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'roles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersRolesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'permissions' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RolesQuery, RolesQueryVariables>;
 export const ShopsDocument = {
   kind: 'Document',
   definitions: [
@@ -14561,6 +15196,98 @@ export const CurrentUserDocument = {
     },
   ],
 } as unknown as DocumentNode<CurrentUserQuery, CurrentUserQueryVariables>;
+export const UsersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'users' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersUsersInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'users' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersUsersInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'role' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UsersQuery, UsersQueryVariables>;
 export const WarehousesDocument = {
   kind: 'Document',
   definitions: [

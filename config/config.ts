@@ -318,6 +318,44 @@ export default defineConfig({
           ],
         },
         {
+          name: 'Configuraciones',
+          path: '/configurations',
+          icon: 'setting',
+          access: 'allowOption',
+          routes: [
+            {
+              name: 'Usuarios',
+              path: '/configurations/users',
+              component: './configurations/users/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Roles',
+              path: '/configurations/roles',
+              access: 'allowOption',
+              routes: [
+                {
+                  name: 'Lista',
+                  path: '/configurations/roles/list',
+                  component: './configurations/roles/list',
+                  access: 'allowOption',
+                },
+                {
+                  name: 'Nueva',
+                  path: '/configurations/roles/new',
+                  component: './configurations/roles/form',
+                  access: 'allowOption',
+                },
+                {
+                  path: '/configurations/roles/:id',
+                  component: './configurations/roles/form',
+                  access: 'allowOption',
+                },
+              ],
+            },
+          ],
+        },
+        {
           layout: false,
           component: '404',
         },

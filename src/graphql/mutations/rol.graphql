@@ -1,0 +1,23 @@
+mutation createRole($input: CreateRoleInput!) {
+  createRole(createRoleInput: $input) {
+    _id
+    active
+    changeWarehouse
+    name
+    permissions {
+      _id
+    }
+  }
+}
+
+mutation updateRole($id: String!, $input: UpdateRoleInput!) {
+  updateRole(id: $id, updateRoleInput: $input) {
+    _id
+    active
+    changeWarehouse
+    name
+    permissions {
+      _id
+    }
+  }
+}
