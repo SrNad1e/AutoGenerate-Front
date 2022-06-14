@@ -11,6 +11,7 @@ import { useState } from 'react';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import validateCodeBar from '@/libs/validateCodeBar';
 
 const FormItem = Form.Item;
 
@@ -52,13 +53,17 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
    * @param filters filtros para obtener los productos
    */
   const onSearch = async (filters: FiltersProductsInput) => {
+    const barcode = filters?.name && validateCodeBar(filters?.name);
+
     return getProducts({
       variables: {
         input: {
           status: StatusProduct.Active,
-          ...filters,
           warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
           limit: 20,
+          withStock: true,
+          ...filters,
+          name: barcode,
         },
       },
     });
