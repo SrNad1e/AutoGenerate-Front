@@ -36,6 +36,7 @@ const SelectRole = ({ onChange, disabled, value }: Params) => {
     getRoles({
       variables: {
         input: {
+          _id: value,
           sort: {
             name: 1,
           },
@@ -47,7 +48,7 @@ const SelectRole = ({ onChange, disabled, value }: Params) => {
   return (
     <>
       <Select
-        style={{ width: 220 }}
+        style={{ width: '100%' }}
         showSearch
         loading={loading}
         placeholder="Seleccione el Rol"

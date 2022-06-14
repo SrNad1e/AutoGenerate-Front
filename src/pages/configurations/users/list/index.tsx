@@ -1,11 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import SelectRole from '@/components/SelectRole';
-import type { FiltersUsersInput, Role, Shop, User } from '@/graphql/graphql';
-import { useGetUsers } from '@/hooks/user.hooks';
 import {
   CalendarOutlined,
   CrownOutlined,
   EditOutlined,
+  FileSyncOutlined,
   PlusOutlined,
   SearchOutlined,
   ShopFilled,
@@ -26,17 +24,24 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-//import type { TablePaginationConfig } from 'antd';
-import moment from 'moment';
+import type { TablePaginationConfig } from 'antd';
+import type { SorterResult } from 'antd/es/table/interface';
+import type { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
-import UsersForm from '../form';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useHistory, useLocation } from 'umi';
 import type { Location } from 'umi';
-//import type { SorterResult } from 'antd/es/table/interface';
+import moment from 'moment';
+import { useGetUsers } from '@/hooks/user.hooks';
+import type { FiltersUsersInput, Role, Shop, User } from '@/graphql/graphql';
+
+import UsersForm from '@/components/CreateUser';
+import SelectRole from '@/components/SelectRole';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { ColumnsType } from 'antd/lib/table';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { StatusTypeUser } from '../users.data';
+
+import styles from './styles';
+import Filters from '@/components/Filters';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -54,13 +59,19 @@ const UsersList = () => {
   });
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
   const [visibleCreate, setVisibleCreate] = useState(false);
+  const [user, setUser] = useState<Partial<User>>({});
 
   const location: Location = useLocation();
 
   const [form] = Form.useForm();
   const history = useHistory();
+
   const [getUsers, { data }] = useGetUsers();
 
+  /**
+   * @description se encarga de ejecutar la funcion para obtener los usarios
+   * @param filters filtros necesarios para la busqueda
+   */
   const onSearch = (filters?: FiltersUsersInput) => {
     getUsers({
       variables: {
@@ -94,7 +105,16 @@ const UsersList = () => {
     });
   };
 
-  const closeModalCreate = () => {
+  const visibleModal = (userData: User) => {
+    setUser(userData || {});
+    setVisibleCreate(true);
+  };
+
+  /**
+   * @description cierra el modal de creacion
+   */
+  const closeModal = () => {
+    setUser({});
     setVisibleCreate(false);
   };
 
@@ -130,22 +150,14 @@ const UsersList = () => {
    */
   const onFinish = (value: FormValues, pageCurrent?: number) => {
     const filters = { ...filterTable };
-
     const params: FiltersUsersInput = {
       page: pageCurrent || 1,
       limit: 10,
       ...value,
     };
 
-    Object.keys(filters).forEach((i) => {
-      if (filters[i] === null) {
-        delete filters[i];
-      } else {
-        filters[i] = filters[i][0];
-      }
-    });
-    onSearch({ ...filters, ...params });
-    setQueryParams({ ...filters, ...value });
+    onSearch({ ...params, ...filters });
+    setQueryParams({ ...value, ...filters });
   };
 
   /**
@@ -154,7 +166,7 @@ const UsersList = () => {
    * @param sorter ordenamiento de la tabla
    * @param filterArg filtros de la tabla
    */
-  /* const handleChangeTable = (
+  const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filterArg: Record<string, any>,
     sorter: SorterResult<Partial<User>> | any,
@@ -189,12 +201,12 @@ const UsersList = () => {
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
-  /* const onClear = () => {
+  const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
     onSearch({});
     setFilterTable({});
-  };*/
+  };
 
   /**
    * @description se encarga de cargar los datos con base a la query
@@ -203,9 +215,7 @@ const UsersList = () => {
     const queryParams: any = location?.query;
 
     const params = {};
-    const tableFilters = {
-      active: queryParams.active ? [queryParams.active === 'true'] : null,
-    };
+
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
         params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
@@ -215,7 +225,6 @@ const UsersList = () => {
     });
     form.setFieldsValue(params);
     onFinish(params);
-    setFilterTable(tableFilters);
   };
 
   useEffect(() => {
@@ -227,11 +236,15 @@ const UsersList = () => {
       title: <Text>{<UserOutlined />} Nombre</Text>,
       dataIndex: 'name',
       align: 'center',
+      sorter: true,
+      showSorterTooltip: false,
     },
     {
       title: <Text>{<UserAddOutlined />} Usuario</Text>,
       dataIndex: 'username',
       align: 'center',
+      sorter: true,
+      showSorterTooltip: false,
     },
     {
       title: <Text>{<CrownOutlined />} Rol</Text>,
@@ -246,28 +259,51 @@ const UsersList = () => {
       render: (shop: Shop) => <Text>{shop?.name}</Text>,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
+      filteredValue: filterTable?.status || null,
       render: (status: string) => {
         const { color, label } = StatusTypeUser[status || ''];
         return <Badge text={label} color={color} />;
       },
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Activo',
+              value: 'ACTIVE',
+            },
+            {
+              text: 'Inactivo',
+              value: 'INACTIVE',
+            },
+            {
+              text: 'Suspendido',
+              value: 'SUSPEND',
+            },
+          ]}
+        />
+      ),
     },
     {
-      title: <Text>{<CalendarOutlined />} Fecha Actualización</Text>,
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
+      sorter: true,
+      showSorterTooltip: false,
       render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: 'Opciones',
       fixed: 'right',
+      dataIndex: '_id',
       align: 'center',
-      render: () => (
+      render: (_: string, userId) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
-            onClick={() => {}}
+            onClick={() => visibleModal(userId)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
           />
@@ -275,10 +311,11 @@ const UsersList = () => {
       ),
     },
   ];
+
   return (
     <PageContainer>
       <Card>
-        <Form>
+        <Form form={form} onFinish={onFinish}>
           <Row gutter={[20, 20]} align="middle">
             <Col xs={24} md={8} lg={9} xl={7}>
               <FormItem label="Nombre" name="name">
@@ -293,24 +330,37 @@ const UsersList = () => {
             <Col xs={24} md={8} lg={6}>
               <FormItem label=" " colon={false}>
                 <Space>
-                  <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
+                  <Button
+                    style={styles.buttonR}
+                    icon={<SearchOutlined />}
+                    type="primary"
+                    htmlType="submit"
+                  >
                     Buscar
                   </Button>
-                  <Button htmlType="button">Limpiar</Button>
+                  <Button style={styles.buttonR} htmlType="reset" onClick={() => onClear()}>
+                    Limpiar
+                  </Button>
                 </Space>
               </FormItem>
             </Col>
-            <Col span={12}>
-              <Button icon={<PlusOutlined />} type="primary" shape="round" onClick={() => {}}>
+            <Col span={8}>
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                shape="round"
+                onClick={() => setVisibleCreate(true)}
+              >
                 Nuevo
               </Button>
             </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
+            <Col span={16} style={styles.alignText}>
               <Text strong>Total Encontrados:</Text> {data?.users?.totalDocs}{' '}
               <Text strong>Páginas: </Text> {data?.users?.page} / {data?.users?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table
+                onChange={handleChangeTable}
                 columns={column}
                 dataSource={data?.users.docs}
                 scroll={{ x: 1000 }}
@@ -323,7 +373,7 @@ const UsersList = () => {
           </Row>
         </Form>
       </Card>
-      <UsersForm visible={visibleCreate} onCancel={closeModalCreate} />
+      <UsersForm user={user} visible={visibleCreate} onCancel={closeModal} />
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );

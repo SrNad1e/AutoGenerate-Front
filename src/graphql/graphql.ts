@@ -780,22 +780,22 @@ export type CreateStockTransferInput = {
 
 /** Datos para la creación de un usuario */
 export type CreateUserInput = {
-  /** Identificador de la empresa a la que pertenece el usuario */
-  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Nombre del usuario */
   name: Scalars['String'];
   /** Contraseña de usuario */
-  password: Scalars['String'];
+  password?: InputMaybe<Scalars['String']>;
   /** Identificador del punto de venta asignado al usuario */
   pointOfSaleId?: InputMaybe<Scalars['String']>;
   /** Identificador del rol del usuario */
   roleId: Scalars['String'];
   /** Identificador de la tienda asignada al usuario */
   shopId: Scalars['String'];
+  /** Estado del usuario */
+  status?: InputMaybe<StatusUser>;
   /** Usuario registrado */
-  username: Scalars['String'];
+  username?: InputMaybe<Scalars['String']>;
 };
 
 /** Crédito del cliente */
@@ -1507,6 +1507,8 @@ export type FiltersReturnsOrderInput = {
 
 /** Filtros para consultar los roles */
 export type FiltersRolesInput = {
+  /** Identificador del rol */
+  _id?: InputMaybe<Scalars['String']>;
   /** El rol se encuentra activo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
@@ -4317,8 +4319,6 @@ export type UpdateStockTransferInput = {
 
 /** Datos para actualizar el usuario */
 export type UpdateUserInput = {
-  /** Identificador de la empresa a la que pertenece el usuario */
-  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Nombre del usuario */
@@ -5533,7 +5533,14 @@ export type CreateUserMutationVariables = Exact<{
 
 export type CreateUserMutation = {
   __typename?: 'Mutation';
-  createUser: { __typename?: 'User'; _id: string; username: string };
+  createUser: {
+    __typename?: 'User';
+    _id: string;
+    username: string;
+    name: string;
+    password?: string | null;
+    pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
+  };
 };
 
 export type UpdateUserMutationVariables = Exact<{
@@ -5543,7 +5550,13 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: 'Mutation';
-  updateUser: { __typename?: 'User'; _id: string; username: string };
+  updateUser: {
+    __typename?: 'User';
+    _id: string;
+    username: string;
+    name: string;
+    pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
+  };
 };
 
 export type StockAdjustmentQueryVariables = Exact<{
@@ -6909,8 +6922,9 @@ export type UsersQuery = {
       name: string;
       status: StatusUser;
       username: string;
-      role: { __typename?: 'Role'; name: string };
-      shop: { __typename?: 'Shop'; name: string };
+      role: { __typename?: 'Role'; name: string; _id: string };
+      shop: { __typename?: 'Shop'; name: string; _id: string };
+      pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
     }[];
   };
 };
@@ -10824,6 +10838,19 @@ export const CreateUserDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'password' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pointOfSale' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -10880,6 +10907,18 @@ export const UpdateUserDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pointOfSale' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -15208,7 +15247,10 @@ export const UsersDocument = {
                         name: { kind: 'Name', value: 'role' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
                         },
                       },
                       {
@@ -15216,11 +15258,25 @@ export const UsersDocument = {
                         name: { kind: 'Name', value: 'shop' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },

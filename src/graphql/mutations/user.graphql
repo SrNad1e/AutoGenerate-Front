@@ -30,6 +30,12 @@ mutation createUser($input: CreateUserInput!) {
   createUser(createUserInput: $input) {
     _id
     username
+    name
+    password
+    pointOfSale {
+      name
+      _id
+    }
   }
 }
 
@@ -37,5 +43,6 @@ mutation updateUser($id: String!, $input: UpdateUserInput!) {
   updateUser(id: $id, updateUserInput: $input) {
     _id
     username
+    name
   }
 }

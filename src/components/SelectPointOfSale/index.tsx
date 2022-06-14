@@ -10,9 +10,10 @@ export type Params = {
   onChange?: (id: string) => void;
   value?: string;
   disabled: boolean;
+  shopId?: string;
 };
 
-const SelectPointOfSale = ({ onChange, disabled, value }: Params) => {
+const SelectPointOfSale = ({ onChange, disabled, value, shopId }: Params) => {
   const [getPointOfSales, { loading, data, error }] = useGetPointOfSales();
 
   /**
@@ -23,6 +24,7 @@ const SelectPointOfSale = ({ onChange, disabled, value }: Params) => {
     getPointOfSales({
       variables: {
         input: {
+          shopId: shopId,
           name,
           sort: {
             name: 1,
@@ -36,6 +38,7 @@ const SelectPointOfSale = ({ onChange, disabled, value }: Params) => {
     getPointOfSales({
       variables: {
         input: {
+          shopId: shopId,
           _id: value,
           sort: {
             name: 1,
@@ -43,12 +46,12 @@ const SelectPointOfSale = ({ onChange, disabled, value }: Params) => {
         },
       },
     });
-  }, []);
+  }, [shopId]);
 
   return (
     <>
       <Select
-        style={{ width: 220 }}
+        style={{ width: '100%' }}
         showSearch
         loading={loading}
         placeholder="Seleccione el punto de venta"
@@ -57,6 +60,7 @@ const SelectPointOfSale = ({ onChange, disabled, value }: Params) => {
         onSearch={onSearch}
         disabled={disabled}
         value={value}
+        allowClear
       >
         {data?.pointOfSales?.docs?.map(({ _id, name, shop }) => (
           <Option key={name} value={_id}>
