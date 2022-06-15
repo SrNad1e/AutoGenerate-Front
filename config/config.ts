@@ -135,7 +135,7 @@ export default defineConfig({
                   access: 'allowOption',
                 },
                 {
-                  name: 'Nueva',
+                  name: 'Nuevo',
                   path: '/inventory/adjustment/new',
                   component: './inventory/adjustment/form',
                   access: 'allowOption',
@@ -341,7 +341,7 @@ export default defineConfig({
                   access: 'allowOption',
                 },
                 {
-                  name: 'Nueva',
+                  name: 'Nuevo',
                   path: '/configurations/roles/new',
                   component: './configurations/roles/form',
                   access: 'allowOption',

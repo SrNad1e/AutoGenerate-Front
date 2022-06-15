@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useUpdateUser } from '@/hooks/user.hooks';
 import { Input, Modal, Form } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -56,6 +56,7 @@ const EditPassword = ({ visible, onCancelModal, userId }: Props) => {
     const value = await form.validateFields();
 
     delete value.password1;
+
     try {
       const response = await updateUser({
         variables: {
@@ -83,16 +84,19 @@ const EditPassword = ({ visible, onCancelModal, userId }: Props) => {
    * @description valida si los 2 campos de contraseña  son iguales
    */
   const matchPassword = async () => {
-    const first = await form.getFieldValue('password1');
-    const second = await form.getFieldValue('password');
+    const firstPassword = await form.getFieldValue('password1');
+    const secondPassword = await form.getFieldValue('password');
 
-    if (first != second) {
+    if (firstPassword != secondPassword) {
       showError('Las contraseñas no coinciden');
     } else {
       editPassword();
     }
   };
 
+  useEffect(() => {
+    form.resetFields();
+  }, [visible]);
   return (
     <Modal
       title="Cambiar Contraseña"
@@ -112,9 +116,19 @@ const EditPassword = ({ visible, onCancelModal, userId }: Props) => {
               required: true,
               message: 'Este campo no puede estar vacio',
             },
+            {
+              validator: (_, value) => {
+                if (value && value.length < 4) {
+                  return Promise.reject(
+                    new Error('Este campo debe contener 4 caracteres como minimo'),
+                  );
+                }
+                return Promise.resolve();
+              },
+            },
           ]}
         >
-          <Password placeholder="Ingrese Contraseña" autoFocus />
+          <Password placeholder="Ingrese Contraseña" autoFocus minLength={4} />
         </FormItem>
         <FormItem
           name="password"
@@ -124,9 +138,20 @@ const EditPassword = ({ visible, onCancelModal, userId }: Props) => {
               required: true,
               message: 'Este campo no puede estar vacio',
             },
+            {
+              validator: (_, value) => {
+                if (value && value.length < 4) {
+                  return Promise.reject(
+                    new Error('Este campo debe contener 4 caracteres como minimo'),
+                  );
+                }
+
+                return Promise.resolve();
+              },
+            },
           ]}
         >
-          <Password placeholder="Ingrese Contraseña" />
+          <Password placeholder="Ingrese Contraseña" minLength={4} />
         </FormItem>
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
