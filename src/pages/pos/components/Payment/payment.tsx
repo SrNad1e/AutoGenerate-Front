@@ -10,7 +10,7 @@ export type Params = {
   deletePayment: (payment: PaymentModel) => void;
   paymentOrder: PaymentOrder;
   total?: number;
-  max?: number;
+  max?: number | any;
 };
 
 const Payment = ({

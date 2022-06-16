@@ -7,6 +7,7 @@ import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
 
 import type {
+  Credit,
   Payment as PaymentModel,
   PaymentOrder,
   SummaryOrder,
@@ -30,9 +31,10 @@ export type Params = {
   onCancel: () => void;
   editOrder: (values: UpdateOrderInput) => void;
   summary: SummaryOrder;
+  credit?: Credit;
 };
 
-const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
+const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params) => {
   const [loading, setLoading] = useState(false);
   const [payments, setPayments] = useState<PaymentOrder[]>([]);
   const [order, setOrder] = useState({});
@@ -96,12 +98,36 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
    * @param payment tipo de pago
    */
   const setPayment = (payment: PaymentModel) => {
-    setPayments(
-      payments.concat({
-        payment,
-        total: payment?.type !== TypePayment.Cash ? summary?.total - totalPayments : 0,
-      } as PaymentOrder),
-    );
+    switch (payment?.type) {
+      case TypePayment.Bank:
+        setPayments(
+          payments.concat({
+            payment,
+            total: summary?.total - totalPayments,
+          } as PaymentOrder),
+        );
+        break;
+      case TypePayment.Cash:
+        setPayments(
+          payments.concat({
+            payment,
+            total: 0,
+          } as PaymentOrder),
+        );
+        break;
+      case TypePayment.Credit:
+        setPayments(
+          payments.concat({
+            payment,
+            total:
+              credit && credit?.available < summary.total
+                ? credit?.available
+                : summary.total - totalPayments,
+          } as PaymentOrder),
+        );
+      default:
+        break;
+    }
   };
 
   const setQuantityPayment = (payment: PaymentModel, total: number) => {
@@ -157,6 +183,16 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     }
   };
 
+  const validateMax = (paymentOrder: PaymentOrder) => {
+    if (paymentOrder?.payment?.type === TypePayment.Credit) {
+      return credit?.amount;
+    }
+    if (paymentOrder?.payment?.type !== TypePayment.Cash) {
+      return summary.total;
+    }
+    return undefined;
+  };
+
   useEffect(() => {
     getPayments({
       variables: {
@@ -164,8 +200,6 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
       },
     });
   }, []);
-
-  console.log(totalPayments);
 
   return (
     <Modal
@@ -183,16 +217,18 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
         <Col span={12}>
           <Title level={3}>Medios de pago</Title>
           <Row gutter={[24, 24]}>
-            {data?.payments?.docs?.map((payment) => (
-              <Col key={payment?._id}>
-                <Item
-                  disabled={summary?.total <= totalPayments}
-                  paymentsOrder={payments}
-                  payment={payment as PaymentModel}
-                  setPayment={setPayment}
-                />
-              </Col>
-            ))}
+            {data?.payments?.docs
+              ?.filter((payment) => (credit ? true : payment?.type !== TypePayment.Credit))
+              ?.map((payment) => (
+                <Col key={payment?._id}>
+                  <Item
+                    disabled={summary?.total <= totalPayments}
+                    paymentsOrder={payments}
+                    payment={payment as PaymentModel}
+                    setPayment={setPayment}
+                  />
+                </Col>
+              ))}
           </Row>
         </Col>
         <Col span={12}>
@@ -202,7 +238,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
               <Payment
                 deletePayment={deletePayment}
                 setQuantityPayment={setQuantityPayment}
-                max={paymentOrder?.payment?.type !== TypePayment.Cash ? summary?.total : undefined}
+                max={validateMax(paymentOrder)}
                 total={
                   payments.find((payment) => payment?.payment?._id === paymentOrder.payment?._id)
                     ?.total || 0
