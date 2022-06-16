@@ -15,7 +15,6 @@ import {
   Card,
   Col,
   DatePicker,
-  Divider,
   Form,
   Input,
   Row,
@@ -264,11 +263,10 @@ const ClosingZList = () => {
       ),
     },
     {
-      title: 'Cierre',
+      title: 'Fecha Cierre',
       dataIndex: 'closeDate',
       sorter: true,
       showSorterTooltip: false,
-      width: 105,
       render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE_API),
     },
     {
@@ -285,7 +283,7 @@ const ClosingZList = () => {
       render: (summary: SummaryOrderClose) => numeral(summary?.value).format('$ 0,0'),
     },
     {
-      title: 'Registrado',
+      title: 'Registrado Por',
       dataIndex: 'user',
       align: 'center',
       render: (user: User) => user?.name,
@@ -311,24 +309,24 @@ const ClosingZList = () => {
   return (
     <PageContainer>
       <Card bordered={false}>
-        <Form form={form} layout="inline" onFinish={onFinish} initialValues={filters}>
-          <Row gutter={[20, 10]}>
-            <Col xs={13} md={7} lg={5} xl={5}>
+        <Form form={form} onFinish={onFinish} initialValues={filters} style={{ marginBottom: 30 }}>
+          <Row gutter={[20, 15]} align="middle">
+            <Col xs={13} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">
-                <Input />
+                <Input style={{ width: '100%' }} />
               </FormItem>
             </Col>
-            <Col xs={11} md={9} lg={9} xl={9}>
+            <Col xs={11} md={7} lg={7} xl={7}>
               <FormItem label="Fecha de Cierre" name="date">
                 <DatePicker placeholder="Seleccione una fecha" style={{ width: '100%' }} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={8} xl={6} xxl={6}>
+            <Col xs={24} md={6} lg={6} xl={7} xxl={6}>
               <FormItem label="Tienda" name="shopId">
                 <SelectShop disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={8} xl={5} xxl={4}>
+            <Col xs={24} md={4} lg={4} xl={3} xxl={4}>
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button htmlType="submit" icon={<SearchOutlined />} type="primary">
@@ -342,9 +340,8 @@ const ClosingZList = () => {
             </Col>
           </Row>
         </Form>
-        <Divider />
-        <Row>
-          <Col xs={12} md={12} lg={12}>
+        <Row align="middle">
+          <Col span={8}>
             <Button
               disabled={!canCreate}
               icon={<PlusOutlined />}
@@ -355,7 +352,7 @@ const ClosingZList = () => {
               Registrar
             </Button>
           </Col>
-          <Col span={12} style={{ textAlign: 'right' }}>
+          <Col span={16} style={{ textAlign: 'right' }}>
             <Text strong>Total Encontrados:</Text> {data?.closesZInvoicing?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.closesZInvoicing?.page} /{' '}
             {data?.closesZInvoicing?.totalPages || 0}

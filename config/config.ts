@@ -52,7 +52,7 @@ export default defineConfig({
           component: './user/Login',
         },
         {
-          component: '404',
+          component: './exception/404',
         },
       ],
     },
@@ -356,10 +356,21 @@ export default defineConfig({
           ],
         },
         {
-          layout: false,
-          component: '404',
+          path: '/:id',
+          component: './exception/404',
+        },
+        {
+          path: '/:id/:id',
+          component: './exception/404',
+        },
+        {
+          path: '/:id/:id/:id',
+          component: './exception/404',
         },
       ],
+    },
+    {
+      component: './exception/404',
     },
   ],
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn

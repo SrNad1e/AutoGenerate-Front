@@ -192,6 +192,9 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
     if (id) {
       setCanSelectPos(true);
       setShoptId(id);
+      form.setFieldsValue({
+        pointOfSaleId: null,
+      });
     }
   };
 
@@ -205,6 +208,7 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
       shopId: user?.shop?._id,
       pointOfSaleId: user?.pointOfSale?._id,
     });
+    setShoptId(user?.shop?._id);
   }, [visible]);
   return (
     <Modal

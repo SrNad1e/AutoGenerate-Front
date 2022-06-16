@@ -182,8 +182,9 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
       footer={
         <>
           <Button loading={loading} onClick={onCancel}>
-            Cancelar
+            {currentStep !== 2 ? 'Cancelar' : 'Cerrar'}
           </Button>
+
           {visible &&
             (currentStep === 2 ? (
               <Button

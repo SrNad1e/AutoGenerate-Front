@@ -1,5 +1,6 @@
 import { typesAccess } from './generalData';
-import { Permissions, User } from './graphql/graphql';
+import type { User } from './graphql/graphql';
+import { Permissions } from './graphql/graphql';
 
 /**
  * @see https://umijs.org/zh-CN/plugins/plugin-access

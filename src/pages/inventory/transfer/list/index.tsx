@@ -40,7 +40,7 @@ import { useReactToPrint } from 'react-to-print';
 
 import { StatusType } from '../tranfer.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
+import { FiltersStockTransfersInput, StatusStockTransfer, StockTransfer } from '@/graphql/graphql';
 import { useGetTransfers } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import ReportTransfer from '../reports/transfer';
@@ -302,7 +302,7 @@ const TransferList = () => {
       render: (_id: string, record) => {
         return (
           <Space>
-            {record?.status === 'open' ? (
+            {record?.status === StatusStockTransfer.Open ? (
               <Tooltip title="Editar">
                 <Button
                   type="primary"
@@ -312,12 +312,18 @@ const TransferList = () => {
                 />
               </Tooltip>
             ) : (
-              <Tooltip title={record?.status === 'sent' ? 'Confirmar' : 'Ver'}>
+              <Tooltip title={record?.status === StatusStockTransfer.Sent ? 'Confirmar' : 'Ver'}>
                 <Button
                   type="primary"
-                  disabled={record.status === 'sent' && !canConfirm}
-                  danger={record?.status === 'sent'}
-                  icon={record?.status === 'sent' ? <FileDoneOutlined /> : <EyeOutlined />}
+                  disabled={record?.status === StatusStockTransfer.Sent && !canConfirm}
+                  danger={record?.status === StatusStockTransfer.Sent}
+                  icon={
+                    record?.status === StatusStockTransfer.Sent ? (
+                      <FileDoneOutlined />
+                    ) : (
+                      <EyeOutlined />
+                    )
+                  }
                   onClick={() => history.push(`/inventory/transfer/confirm/${_id}`)}
                 />
               </Tooltip>

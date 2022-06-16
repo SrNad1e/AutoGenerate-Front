@@ -49,6 +49,18 @@ const FormReturn = ({ visible, onCancel }: Props) => {
   };
 
   /**
+   * @description funcion usada para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const messageError = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
    * @description funcion encargada de seleccionar el pedido y pasar al siguiente paso
    * @param record record del pedido
    */
@@ -65,21 +77,24 @@ const FormReturn = ({ visible, onCancel }: Props) => {
       productId: detail?.product?._id || '',
       quantity: detail?.quantityReturn || 1,
     }));
-
-    const response = await createReturnOrder({
-      variables: {
-        input: {
-          details,
-          orderId: orderSelected?._id || '',
+    try {
+      const response = await createReturnOrder({
+        variables: {
+          input: {
+            details,
+            orderId: orderSelected?._id || '',
+          },
         },
-      },
-    });
-    if (response?.data?.createReturnOrder) {
-      setAlertInformation({
-        message: `Devolucion No.${response.data.createReturnOrder.number} creada correctamente`,
-        type: 'success',
-        visible: true,
       });
+      if (response?.data?.createReturnOrder) {
+        setAlertInformation({
+          message: `Devolucion No.${response.data.createReturnOrder.number} creada correctamente`,
+          type: 'success',
+          visible: true,
+        });
+      }
+    } catch (error: any) {
+      messageError(error.message);
     }
   };
 

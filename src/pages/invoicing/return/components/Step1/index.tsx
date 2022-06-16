@@ -288,6 +288,7 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
           scroll={{ x: 900 }}
           dataSource={data?.orders.docs as any}
           onChange={handleChangeTable}
+          pagination={false}
         />
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />

@@ -44,7 +44,7 @@ const RolesForm = () => {
 
   const [getPermissions, { data }] = useGetPermissions();
   const [getRol, paramsGet] = useGetRol();
-  const [updateRol] = useUpdateRol();
+  const [updateRol, paramsUpdate] = useUpdateRol();
   const [createRol, paramsCreate] = useCreateRol();
 
   const { id } = useParams<Partial<{ id: string }>>();
@@ -234,9 +234,10 @@ const RolesForm = () => {
             icon={isNew ? <PlusOutlined /> : <EditOutlined />}
             type="primary"
             style={styles.buttonR}
+            loading={isNew ? paramsCreate?.loading : paramsUpdate?.loading}
             onClick={() => (isNew ? createNewRol() : editRol())}
           >
-            {isNew ? 'Crear Rol' : 'Editar Rol'}
+            {isNew ? 'Crear Rol' : 'Actualizar Rol'}
           </Button>
         </Card>
       </Affix>
