@@ -1,5 +1,6 @@
 import { typesAccess } from './generalData';
 import type { User } from './graphql/graphql';
+import { Permissions } from './graphql/graphql';
 
 /**
  * @see https://umijs.org/zh-CN/plugins/plugin-access
@@ -162,6 +163,14 @@ export default function access(initialState: { currentUser?: User | undefined })
       ),
       canCreate: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === 'CREATE_INVOICING_RETURN',
+      ),
+    },
+    user: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateConfigurationUser,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateConfigurationUser,
       ),
     },
   };

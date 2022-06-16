@@ -1,158 +1,164 @@
+import { Permissions } from './graphql/graphql';
+
 export const typesAccess = {
   //ERP
   '/inventory': {
     access: [
-      'ACCESS_INVENTORY_ADJUSTMENTS',
-      'ACCESS_INVENTORY_INPUTS',
-      'ACCESS_INVENTORY_OUTPUTS',
-      'ACCESS_INVENTORY_REQUESTS',
-      'ACCESS_INVENTORY_TRANSFERS',
+      Permissions.AccessInventoryAdjustments,
+      Permissions.AccessInventoryInputs,
+      Permissions.AccessInventoryOutputs,
+      Permissions.AccessInventoryRequests,
+      Permissions.AccessInventoryTransfers,
     ],
   },
   '/inventory/request': {
-    access: ['ACCESS_INVENTORY_REQUESTS'],
+    access: [Permissions.AccessInventoryRequests],
   },
   '/inventory/request/list': {
-    access: ['READ_INVENTORY_REQUESTS'],
+    access: [Permissions.ReadInventoryRequests],
   },
   '/inventory/request/new': {
-    access: ['CREATE_INVENTORY_REQUEST'],
+    access: [Permissions.CreateInventoryRequest],
   },
   '/inventory/request/:id': {
-    access: ['UPDATE_INVENTORY_REQUEST'],
+    access: [Permissions.UpdateInventoryRequest],
   },
   '/inventory/adjustment': {
-    access: ['ACCESS_INVENTORY_ADJUSTMENTS'],
+    access: [Permissions.AccessInventoryAdjustments],
   },
   '/inventory/adjustment/list': {
-    access: ['READ_INVENTORY_ADJUSTMENTS'],
+    access: [Permissions.ReadInventoryAdjustments],
   },
   '/inventory/adjustment/new': {
-    access: ['CREATE_INVENTORY_ADJUSTMENT'],
+    access: [Permissions.CreateInventoryAdjustment],
   },
   '/inventory/adjustment/:id': {
-    access: ['UPDATE_INVENTORY_ADJUSTMENT'],
+    access: [Permissions.UpdateInventoryAdjustment],
   },
   '/inventory/input': {
-    access: ['ACCESS_INVENTORY_INPUTS'],
+    access: [Permissions.AccessInventoryInputs],
   },
   '/inventory/input/list': {
-    access: ['READ_INVENTORY_INPUTS'],
+    access: [Permissions.ReadInventoryInputs],
   },
   '/inventory/input/new': {
-    access: ['CREATE_INVENTORY_INPUT'],
+    access: [Permissions.CreateInventoryInput],
   },
   '/inventory/input/:id': {
-    access: ['UPDATE_INVENTORY_INPUT'],
+    access: [Permissions.UpdateInventoryInput],
   },
   '/inventory/output': {
-    access: ['ACCESS_INVENTORY_OUTPUTS'],
+    access: [Permissions.AccessInventoryOutputs],
   },
   '/inventory/output/list': {
-    access: ['READ_INVENTORY_OUTPUTS'],
+    access: [Permissions.ReadInventoryOutputs],
   },
   '/inventory/output/new': {
-    access: ['CREATE_INVENTORY_OUTPUT'],
+    access: [Permissions.CreateInventoryOutput],
   },
   '/inventory/output/:id': {
-    access: ['UPDATE_INVENTORY_OUTPUT'],
+    access: [Permissions.UpdateInventoryOutput],
   },
   '/inventory/configurations': {
     access: [
-      'ACCESS_INVENTORY_REFERENCES',
-      'ACCESS_INVENTORY_COLORS',
-      'ACCESS_INVENTORY_SIZES',
-      'ACCESS_INVENTORY_CATEGORIES',
-      'ACCESS_INVENTORY_ATTRIBS',
-      'ACCESS_INVENTORY_BRANDS',
+      Permissions.AccessInventoryReferences,
+      Permissions.AccessInventoryColors,
+      Permissions.AccessInventoryCategories,
+      Permissions.AccessInventorySizes,
+      Permissions.AccessInventoryAttribs,
+      Permissions.AccessInventoryBrands,
     ],
   },
   '/inventory/configurations/reference': {
-    access: ['READ_INVENTORY_REFERENCES'],
+    access: [Permissions.ReadInventoryReferences],
   },
   '/inventory/configurations/reference/new': {
-    access: ['CREATE_INVENTORY_REFERENCE'],
+    access: [Permissions.CreateInventoryReference],
   },
   '/inventory/configurations/reference/:id': {
-    access: ['UPDATE_INVENTORY_REFERENCE'],
+    access: [Permissions.UpdateInventoryReference],
   },
   '/inventory/configurations/color': {
-    access: ['READ_INVENTORY_COLORS'],
+    access: [Permissions.ReadInventoryColors],
   },
   '/inventory/configurations/categories': {
-    access: ['READ_INVENTORY_CATEGORIES'],
+    access: [Permissions.ReadInventoryCategories],
   },
   '/inventory/configurations/size': {
-    access: ['READ_INVENTORY_SIZES'],
+    access: [Permissions.ReadInventorySizes],
   },
   '/inventory/configurations/attribs': {
-    access: ['READ_INVENTORY_ATTRIBS'],
+    access: [Permissions.ReadInventoryAttribs],
   },
   '/inventory/configurations/brand': {
-    access: ['READ_INVENTORY_BRANDS'],
+    access: [Permissions.ReadInventoryBrands],
   },
   '/inventory/transfer': {
-    access: ['ACCESS_INVENTORY_TRANSFERS'],
+    access: [Permissions.AccessInventoryTransfers],
   },
   '/inventory/transfer/list': {
-    access: ['READ_INVENTORY_TRANSFERS'],
+    access: [Permissions.ReadInventoryTransfers],
   },
   '/inventory/transfer/new': {
-    access: ['CREATE_INVENTORY_TRANSFER'],
+    access: [Permissions.CreateInventoryTransfer],
   },
   '/inventory/transfer/confirm/:id': {
-    access: ['CONFIRM_INVENTORY_TRANSFER'],
+    access: [Permissions.ConfirmInventoryTransfer],
   },
   '/inventory/transfer/:id': {
-    access: ['UPDATE_INVENTORY_TRANSFER'],
+    access: [Permissions.UpdateInventoryTransfer],
   },
   '/invoicing': {
-    access: ['ACCESS_INVOICING_CLOSESX', 'ACCESS_INVOICING_CLOSESZ', 'ACCESS_INVOICING_RETURNS'],
+    access: [
+      Permissions.AccessInvoicingClosesx,
+      Permissions.AccessInvoicingClosesz,
+      Permissions.AccessInvoicingReturns,
+    ],
   },
   '/invoicing/closings': {
-    access: ['ACCESS_INVOICING_CLOSESX', 'ACCESS_INVOICING_CLOSESZ'],
+    access: [Permissions.AccessInvoicingClosesx, Permissions.AccessInvoicingClosesz],
   },
   '/invoicing/closings/closingX': {
-    access: ['READ_INVOICING_CLOSESX'],
+    access: [Permissions.ReadInvoicingClosesx],
   },
   '/invoicing/closings/closingZ': {
-    access: ['READ_INVOICING_CLOSESZ'],
+    access: [Permissions.ReadInvoicingClosesz],
   },
   '/configurations': {
-    access: ['ACCESS_CONFIGURATION_ROLES', 'ACCESS_CONFIGURATION_USERS'],
+    access: [Permissions.AccessConfigurationRoles, Permissions.AccessConfigurationUsers],
   },
   '/configurations/users': {
-    access: ['READ_CONFIGURATION_USERS'],
+    access: [Permissions.ReadConfigurationUsers],
   },
   '/configurations/roles': {
-    access: ['ACCESS_CONFIGURATION_ROLES'],
+    access: [Permissions.AccessConfigurationRoles],
   },
   '/configurations/roles/list': {
-    access: ['READ_CONFIGURATION_ROLES'],
+    access: [Permissions.ReadConfigurationRoles],
   },
   '/configurations/roles/new': {
-    access: ['CREATE_CONFIGURATION_ROLE'],
+    access: [Permissions.CreateConfigurationRole],
   },
   '/configurations/roles/:id': {
-    access: ['UPDATE_CONFIGURATION_ROLE'],
-    '/invoicing/return': {
-      access: ['READ_INVOICING_RETURNS'],
-    },
-    //POS
-    '/pos': {
-      access: ['ACCESS_POS'],
-    },
-    '/pos/sales': {
-      access: ['ACCESS_POS'],
-    },
-    '/pos/sales/:id': {
-      access: ['ACCESS_POS'],
-    },
-    '/pos/closes/closingX': {
-      access: ['READ_INVOICING_CLOSESX'],
-    },
-    '/pos/closes/closingZ': {
-      access: ['READ_INVOICING_CLOSESX'],
-    },
+    access: [Permissions.UpdateConfigurationRole],
+  },
+  '/invoicing/return': {
+    access: [Permissions.ReadInvoicingReturns],
+  },
+  //POS
+  '/pos': {
+    access: [Permissions.AccessPos],
+  },
+  '/pos/sales': {
+    access: [Permissions.AccessPos],
+  },
+  '/pos/sales/:id': {
+    access: [Permissions.AccessPos],
+  },
+  '/pos/closes/closingX': {
+    access: [Permissions.ReadInvoicingClosesx],
+  },
+  '/pos/closes/closingZ': {
+    access: [Permissions.ReadInvoicingClosesz],
   },
 };

@@ -101,7 +101,7 @@ const ConfirmTransfer = () => {
   } = useAccess();
 
   const allowConfirm =
-    data?.stockTransferId?.status === StatusStockTransfer.Open &&
+    data?.stockTransferId?.status === StatusStockTransfer.Sent &&
     initialState?.currentUser?.shop?.defaultWarehouse?._id ===
       data?.stockTransferId?.warehouseDestination?._id &&
     canConfirm;
@@ -272,7 +272,7 @@ const ConfirmTransfer = () => {
               message: 'Productos confirmados correctamente',
               visible: true,
               type: 'success',
-              redirect: '/transfer/list',
+              redirect: '/inventory/transfer/list',
             });
           }
         }
@@ -283,29 +283,31 @@ const ConfirmTransfer = () => {
           (item?.status === StatusDetailTransfer.New && (item?.quantityConfirmed || 0) > 0) ||
           (item?.status === StatusDetailTransfer.Confirmed && (item?.quantityConfirmed || 0) === 0),
       );
-
-      if (id) {
-        const response = await confirmProductsTransfer({
-          variables: {
-            id,
-            input: {
-              details:
-                newDetails.map((item) => ({
-                  productId: item?.product?._id || '',
-                  quantity: item?.quantityConfirmed || 0,
-                  action: 'update',
-                })) || [],
+      try {
+        if (id) {
+          const response = await confirmProductsTransfer({
+            variables: {
+              id,
+              input: {
+                details:
+                  newDetails.map((item) => ({
+                    productId: item?.product?._id || '',
+                    quantity: item?.quantityConfirmed || 0,
+                  })) || [],
+              },
             },
-          },
-        });
-
-        if (response?.data?.confirmProductsStockTransfer) {
-          setPropsAlert({
-            message: 'Productos confirmados correctamente',
-            visible: true,
-            type: 'success',
           });
+
+          if (response?.data?.confirmProductsStockTransfer) {
+            setPropsAlert({
+              message: 'Productos confirmados correctamente',
+              visible: true,
+              type: 'success',
+            });
+          }
         }
+      } catch (e: any) {
+        onShowError(e?.message);
       }
     }
   };

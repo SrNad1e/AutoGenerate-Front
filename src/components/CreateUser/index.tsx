@@ -110,20 +110,9 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
    */
   const editUser = async () => {
     const values = await form.validateFields();
-
     delete values.username;
-    try {
-      let errorLocal = 'No hay cambios para aplicar';
 
-      Object.keys(values).forEach((i) => {
-        if (values[i] !== (user && user[i])) {
-          errorLocal = '';
-          return;
-        }
-      });
-      if (errorLocal) {
-        setError(errorLocal);
-      }
+    try {
       const response = await updateUser({
         variables: {
           input: values,
@@ -142,6 +131,24 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
         showError(e?.message);
       }
     }
+  };
+
+  /**
+   * @description genera archivo de text plano donde se encuentra el usuario y la contraseña
+   * @param filename tipo de archivo que genera
+   * @param text contenido del archivo
+   */
+  const downloadData = (filename: string, text: string) => {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
   };
 
   /**
@@ -167,16 +174,27 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
           type: 'success',
           visible: true,
         });
+        downloadData(
+          'DatosUsuario.txt',
+          `Usuario: ${response?.data?.createUser?.username}\nContraseña:${response?.data?.createUser?.password}`,
+        );
       }
     } catch (e: any) {
       showError(e?.message);
     }
   };
 
+  /**
+   * @description se encarga de seleccionar el id de una tienda y almacenarlo
+   * @param id id de la tienda que selecciona
+   */
   const onChangeShop = (id: string) => {
     if (id) {
       setCanSelectPos(true);
       setShoptId(id);
+      form.setFieldsValue({
+        pointOfSaleId: null,
+      });
     }
   };
 
@@ -190,6 +208,7 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
       shopId: user?.shop?._id,
       pointOfSaleId: user?.pointOfSale?._id,
     });
+    setShoptId(user?.shop?._id);
   }, [visible]);
   return (
     <Modal
@@ -219,6 +238,12 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
               </FormItem>
             )}
             <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
               name="name"
               label={
                 <Space>
@@ -230,6 +255,12 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
               <Input placeholder="Ingrese nombre" />
             </FormItem>
             <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
               name="roleId"
               label={
                 <Space>
@@ -241,6 +272,12 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
               <SelectRole disabled={loading} />
             </FormItem>
             <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
               name="shopId"
               label={
                 <Space>
@@ -273,11 +310,8 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
             >
               <Select
                 style={styles.maxWidth}
-                loading={loading}
                 placeholder="Seleccione el Estado"
-                optionFilterProp="children"
                 disabled={loading}
-                allowClear
                 defaultValue={StatusUser.Active}
               >
                 {Object.keys(StatusTypeUser).map((status) => (

@@ -205,8 +205,8 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      <AlertLoading visible={paramsCreate?.loading} message="Creando Talla" />
-      <AlertLoading visible={paramsUpdate?.loading} message="Actualizando Talla" />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Color" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Actualizando Color" />
     </Modal>
   );
 };

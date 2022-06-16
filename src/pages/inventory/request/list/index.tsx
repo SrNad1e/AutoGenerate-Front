@@ -1,6 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { SearchOutlined, EyeOutlined, PrinterFilled } from '@ant-design/icons';
+import {
+  SearchOutlined,
+  EyeOutlined,
+  PrinterFilled,
+  FieldNumberOutlined,
+  MoreOutlined,
+  DropboxOutlined,
+  FileSyncOutlined,
+  CalendarOutlined,
+  NumberOutlined,
+  ClearOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -8,7 +19,6 @@ import {
   Card,
   Col,
   DatePicker,
-  Divider,
   Form,
   InputNumber,
   Row,
@@ -19,12 +29,14 @@ import {
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
+import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import type {
-  FilterValue,
-  SorterResult,
-  TableCurrentDataSource,
-  TablePaginationConfig,
-} from 'antd/es/table/interface';
+  DetailRequest,
+  FiltersStockRequestsInput,
+  StatusStockRequest,
+  StockRequest,
+  Warehouse,
+} from '@/graphql/graphql';
 import { useReactToPrint } from 'react-to-print';
 import type { Moment } from 'moment';
 import moment from 'moment';
@@ -39,16 +51,10 @@ import { useGenerateRequest, useGetRequests } from '@/hooks/request.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import ReportRequest from '../reports/request';
-import type {
-  DetailRequest,
-  FiltersStockRequestsInput,
-  StatusStockRequest,
-  StockRequest,
-  Warehouse,
-} from '@/graphql/graphql';
 
 import styles from './styles.less';
 import './styles.less';
+import style from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -104,15 +110,6 @@ const RequestList = () => {
   };
 
   /**
-   * @description Se encarga de imprimir una solicitud
-   * @param record
-   */
-  const printPage = async (record: Partial<StockRequest>) => {
-    await setRequestData(record);
-    handlePrint();
-  };
-
-  /**
    * @description se encarga de cerrar la alerta informativa
    */
   const closeAlertInformation = () => {
@@ -121,6 +118,15 @@ const RequestList = () => {
       type: 'error',
       visible: false,
     });
+  };
+
+  /**
+   * @description Se encarga de imprimir una solicitud
+   * @param record
+   */
+  const printPage = async (record: Partial<StockRequest>) => {
+    await setRequestData(record);
+    handlePrint();
   };
 
   /**
@@ -141,7 +147,7 @@ const RequestList = () => {
   };
 
   /**
-   * @description se encarga de realizar el proceso de busqueda con los filtros
+   * @description se encarga de realizar el proceso de busqueda con los filtros y setearlos en la url
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
@@ -189,9 +195,8 @@ const RequestList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    filters: Record<string, FilterValue | null>,
+    _: Record<string, FilterValue | null>,
     sorter: SorterResult<StockRequest> | SorterResult<StockRequest>[] | any,
-    _: TableCurrentDataSource<StockRequest>,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -277,14 +282,18 @@ const RequestList = () => {
 
   const columns: ColumnsType<StockRequest> = [
     {
-      title: 'Número',
+      title: (
+        <Text className={styles.iconTable}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: 'Origen',
+      title: <Text>{<DropboxOutlined />} Origen</Text>,
       dataIndex: 'warehouseOrigin',
       align: 'center',
       sorter: true,
@@ -292,7 +301,7 @@ const RequestList = () => {
       render: (warehouseOrigin: Warehouse) => warehouseOrigin?.name,
     },
     {
-      title: 'Destino',
+      title: <Text>{<DropboxOutlined />} Destino</Text>,
       dataIndex: 'warehouseDestination',
       align: 'center',
       sorter: true,
@@ -300,13 +309,17 @@ const RequestList = () => {
       render: (warehouseDestination: Warehouse) => warehouseDestination?.name,
     },
     {
-      title: 'Referencia',
+      title: (
+        <Text>
+          <NumberOutlined /> Referencia
+        </Text>
+      ),
       dataIndex: 'details',
       align: 'center',
       render: (details: DetailRequest[]) => details?.length,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
       render: (status: string) => {
@@ -315,15 +328,7 @@ const RequestList = () => {
       },
     },
     {
-      title: 'Creado',
-      dataIndex: 'createdAt',
-      align: 'center',
-      sorter: true,
-      showSorterTooltip: false,
-      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
-    },
-    {
-      title: 'Actualizado',
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -331,7 +336,7 @@ const RequestList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -363,28 +368,18 @@ const RequestList = () => {
   ];
 
   return (
-    <PageContainer
-      title={
-        <Space>
-          <Title level={4}>Lista de solicitudes</Title>
-          <Divider type="vertical" />
-          <Button shape="round" type="primary" onClick={autoRequest} disabled={!canAutoCreate}>
-            AutoGenerar
-          </Button>
-        </Space>
-      }
-    >
+    <PageContainer title={<Title level={4}>Lista de solicitudes</Title>}>
       <Card>
-        <Form form={form} layout="horizontal" className={styles.filters} onFinish={onFinish}>
-          <Row gutter={10} className={styles.form}>
-            <Col xs={24} md={4} lg={4} xl={3}>
+        <Form form={form} style={style.marginFilters} onFinish={onFinish}>
+          <Row gutter={[20, 0]} align="middle">
+            <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
-                <InputNumber controls={false} min={1} className={styles.item} disabled={loading} />
+                <InputNumber controls={false} min={1} style={style.maxWidth} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={5}>
+            <Col xs={24} md={6} lg={6} xl={6}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item} allowClear disabled={loading}>
+                <Select allowClear disabled={loading}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
                       <Badge text={StatusType[key].label} color={StatusType[key].color} />
@@ -393,36 +388,41 @@ const RequestList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={4}>
+            <Col xs={24} md={5} lg={5} xl={5}>
               <FormItem label="Tipo" name="type">
-                <Select className={styles.item} disabled={loading}>
+                <Select disabled={loading}>
                   <Option key="sent">Enviado</Option>
                   <Option key="received">Recibido</Option>
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={6}>
+            <Col xs={24} md={8} lg={8} xl={8}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={10} xl={6}>
+            <Col xs={24} md={9} lg={9} xl={8}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker className={styles.item} disabled={loading} />
+                <RangePicker disabled={loading} placeholder={['Fecha Inicial', 'Fecha Final']} />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={24}>
-              <FormItem>
-                <Space className={styles.buttons}>
+            <Col xs={24} md={7} lg={7} xl={7}>
+              <FormItem label=" " colon={false}>
+                <Space>
                   <Button
+                    style={style.buttonR}
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
-                    loading={loading}
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button
+                    icon={<ClearOutlined />}
+                    style={style.buttonR}
+                    htmlType="reset"
+                    onClick={() => onClear()}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -430,8 +430,13 @@ const RequestList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]}>
-          <Col span={24} className={styles.marginFilters}>
+        <Row gutter={[0, 20]} align="middle">
+          <Col span={8}>
+            <Button shape="round" type="primary" onClick={autoRequest} disabled={!canAutoCreate}>
+              AutoGenerar
+            </Button>
+          </Col>
+          <Col span={16} className={styles.alignText}>
             <Text strong>Total Encontrados:</Text> {data?.stockRequests?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.stockRequests?.page} /{' '}
             {data?.stockRequests?.totalPages || 0}

@@ -4,6 +4,7 @@ import {
   CrownOutlined,
   EditOutlined,
   FileSyncOutlined,
+  MoreOutlined,
   PlusOutlined,
   SearchOutlined,
   ShopFilled,
@@ -28,7 +29,7 @@ import type { TablePaginationConfig } from 'antd';
 import type { SorterResult } from 'antd/es/table/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation } from 'umi';
 import type { Location } from 'umi';
 import moment from 'moment';
 import { useGetUsers } from '@/hooks/user.hooks';
@@ -67,6 +68,10 @@ const UsersList = () => {
   const history = useHistory();
 
   const [getUsers, { data }] = useGetUsers();
+
+  const {
+    user: { canCreate, canEdit },
+  } = useAccess();
 
   /**
    * @description se encarga de ejecutar la funcion para obtener los usarios
@@ -296,13 +301,14 @@ const UsersList = () => {
       render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
       render: (_: string, userId) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            disabled={!canEdit}
             onClick={() => visibleModal(userId)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -346,6 +352,7 @@ const UsersList = () => {
             </Col>
             <Col span={8}>
               <Button
+                disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"

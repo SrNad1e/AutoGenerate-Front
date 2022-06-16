@@ -6,6 +6,7 @@ import {
   FieldNumberOutlined,
   MoreOutlined,
   RetweetOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -306,7 +307,12 @@ const RolesList = () => {
           </FormItem>
           <FormItem>
             <Space>
-              <Button type="primary" htmlType="submit" style={styles.buttonR}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                style={styles.buttonR}
+                icon={<SearchOutlined />}
+              >
                 Buscar
               </Button>
               <Button htmlType="reset" onClick={() => onClear()} style={styles.buttonR}>
