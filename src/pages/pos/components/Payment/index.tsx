@@ -12,6 +12,7 @@ import type {
   SummaryOrder,
   UpdateOrderInput,
 } from '@/graphql/graphql';
+import { ActionPaymentsOrder, StatusOrder, TypePayment } from '@/graphql/graphql';
 import Item from './item';
 import { useGetPayments } from '@/hooks/payment.hooks';
 import Payment from './payment';
@@ -19,6 +20,8 @@ import { useAddPaymentsOrder } from '@/hooks/order.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import OrderReport from '../../reports/order/Order';
 import AlertLoading from '@/components/Alerts/AlertLoading';
+
+import styles from '../styles';
 
 const { Title } = Typography;
 
@@ -72,7 +75,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     setAlertInformation({
       message,
       type: 'success',
-      redirect: '/pos',
+      redirect: '/pos/sales',
       visible: true,
     });
   };
@@ -88,11 +91,15 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     });
   };
 
+  /**
+   * @description gestiona los pagos
+   * @param payment tipo de pago
+   */
   const setPayment = (payment: PaymentModel) => {
     setPayments(
       payments.concat({
         payment,
-        total: payment?.type !== 'cash' ? summary?.total : 0,
+        total: payment?.type !== TypePayment.Cash ? summary?.total - totalPayments : 0,
       } as PaymentOrder),
     );
   };
@@ -124,7 +131,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
             orderId: id || '',
             payments: payments.map((paymentOrder) => ({
               paymentId: paymentOrder?.payment?._id,
-              action: 'create',
+              action: ActionPaymentsOrder.Create,
               total: paymentOrder?.total,
             })),
           },
@@ -133,25 +140,20 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
       if (responsePayments.data?.addPaymentsOrder) {
         setLoading(true);
         const response: any = await editOrder({
-          status: 'closed',
+          status: StatusOrder.Closed,
         });
 
         setLoading(false);
         if (response) {
-          console.log(response);
-
           setOrder(response);
           handlePrint();
-          showSuccess(`Peidido ${response?.number} generado correctamente`);
+          showSuccess(`Pedido ${response?.number} generado correctamente`);
         } else {
           showError(response?.message);
         }
       }
     } catch (e: any) {
-      console.log(e);
-      if (e?.message) {
-        showError(e?.message);
-      }
+      showError(e?.message);
     }
   };
 
@@ -162,6 +164,8 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
       },
     });
   }, []);
+
+  console.log(totalPayments);
 
   return (
     <Modal
@@ -198,8 +202,11 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
               <Payment
                 deletePayment={deletePayment}
                 setQuantityPayment={setQuantityPayment}
-                max={paymentOrder?.payment?.type !== 'cash' ? summary?.total : undefined}
-                total={paymentOrder?.payment?.type !== 'cash' ? summary?.total : 0}
+                max={paymentOrder?.payment?.type !== TypePayment.Cash ? summary?.total : undefined}
+                total={
+                  payments.find((payment) => payment?.payment?._id === paymentOrder.payment?._id)
+                    ?.total || 0
+                }
                 paymentOrder={paymentOrder}
                 key={paymentOrder?.payment?._id}
               />
@@ -210,62 +217,32 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
           </Divider>
           <Row>
             <Col span={12}>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
+                Total Pedido:
+              </Title>
+              <Title style={styles.payStyle} level={4}>
                 Total pagos:
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
                 Saldo:
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
                 Cambio:
               </Title>
             </Col>
-            <Col
-              span={12}
-              style={{
-                textAlign: 'right',
-                lineHeight: 0,
-              }}
-            >
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+            <Col span={12} style={styles.payTextRight}>
+              <Title style={styles.payStyle} level={4}>
+                {numeral(summary?.total).format('$ 0,0')}
+              </Title>
+              <Title style={styles.payStyle} level={4}>
                 {numeral(totalPayments).format('$ 0,0')}
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
                 {numeral(
                   summary?.total > totalPayments ? summary?.total - totalPayments : 0,
                 ).format('$ 0,0')}
               </Title>
-              <Title
-                style={{
-                  lineHeight: 0,
-                }}
-                level={4}
-              >
+              <Title style={styles.payStyle} level={4}>
                 {numeral(
                   totalPayments > summary?.total ? totalPayments - summary?.total : 0,
                 ).format('$ 0,0')}

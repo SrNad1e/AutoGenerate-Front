@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Form, Input, Modal, Switch } from 'antd';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -23,7 +23,7 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
     type: 'error',
     visible: false,
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const [form] = Form.useForm();
 
@@ -69,8 +69,8 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para actualizar una marca
    */
   const editBrand = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {
@@ -97,9 +97,7 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
         }
       }
     } catch (e: any) {
-      if (e?.message) {
-        showError(e?.message);
-      }
+      showError(e?.message);
     }
   };
 
@@ -107,8 +105,8 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para crear una nueva marca
    */
   const createNewBrand = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
       delete values.active;
       const response = await createBrands({
         variables: {
@@ -126,6 +124,10 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
       showError(e?.message);
     }
   };
+
+  useEffect(() => {
+    setError(null);
+  }, [modalVisible]);
 
   return (
     <Modal

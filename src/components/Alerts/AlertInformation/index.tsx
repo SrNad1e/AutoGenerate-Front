@@ -9,7 +9,7 @@ const { Title } = Typography;
 
 export type Props = {
   visible: boolean | undefined;
-  message: string | undefined;
+  message: string | undefined | React.ReactElement;
   type: TYPES;
   onCancel?: () => void;
   redirect?: string;

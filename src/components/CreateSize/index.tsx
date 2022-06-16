@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Form, Input, InputNumber, Modal, Switch } from 'antd';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -67,8 +67,8 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para actualizar una talla
    */
   const editSize = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {
@@ -95,9 +95,7 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
         }
       }
     } catch (e: any) {
-      if (e?.message) {
-        showError(e?.message);
-      }
+      showError(e?.message);
     }
   };
 
@@ -105,8 +103,8 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para crear una nueva talla
    */
   const createNewSize = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
       delete values.active;
       const response = await createSize({
         variables: {
@@ -124,6 +122,10 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
       showError(e?.message);
     }
   };
+
+  useEffect(() => {
+    setError(null);
+  }, [modalVisible]);
 
   return (
     <Modal

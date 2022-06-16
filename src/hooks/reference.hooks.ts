@@ -37,6 +37,9 @@ export const useUpdateReference = () => {
               return reference;
             });
           },
+          referenceId() {
+            return data?.updateReference;
+          },
         },
       });
     },

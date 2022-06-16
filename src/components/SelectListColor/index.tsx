@@ -38,10 +38,14 @@ const SelectListColor = ({ onChange, value, disabled }: Params) => {
   const onChangeLocal = (ids: string[]) => {
     const newIds = ids.filter((id) => !value?.find(({ _id }) => _id === id));
 
-    const newColors = data?.colors?.docs?.filter(({ _id }) => !!newIds.includes(_id));
+    const newColorsSelected = data?.colors?.docs?.filter(({ _id }) => !!newIds.includes(_id));
+
+    const newColors =
+      value?.concat(newColorsSelected).filter(({ _id }) => !!ids.includes(_id)) ||
+      newColorsSelected;
 
     if (onChange) {
-      onChange(value?.concat(newColors) || newColors || []);
+      onChange(newColors || []);
     }
   };
 
@@ -56,7 +60,7 @@ const SelectListColor = ({ onChange, value, disabled }: Params) => {
         showSearch
         loading={loading}
         placeholder="Seleccione Colores"
-        optionFilterProp="children"
+        optionFilterProp="name"
         onChange={onChangeLocal}
         onSearch={onSearch}
         disabled={disabled}

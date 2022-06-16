@@ -50,6 +50,20 @@ const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) 
     });
   }, [level]);
 
+  useEffect(() => {
+    getCategories({
+      variables: {
+        input: {
+          _id: value,
+          level,
+          sort: {
+            name: 1,
+          },
+        },
+      },
+    });
+  }, [!!value]);
+
   return (
     <>
       <Select
@@ -57,7 +71,7 @@ const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) 
         showSearch
         loading={loading}
         placeholder="Seleccione Categoría"
-        optionFilterProp="parentId"
+        optionFilterProp="children"
         onChange={onChange}
         onSearch={onSearch}
         disabled={disabled}

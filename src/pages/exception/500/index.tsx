@@ -1,18 +1,22 @@
-import { Link } from 'umi';
 import { Result, Button } from 'antd';
+import { useHistory } from 'umi';
 
-export default () => (
-  <Result
-    status="500"
-    title="500"
-    style={{
-      background: 'none',
-    }}
-    subTitle="Sorry, the server is reporting an error."
-    extra={
-      <Link to="/">
-        <Button type="primary">Back Home</Button>
-      </Link>
-    }
-  />
-);
+export default () => {
+  const history = useHistory();
+
+  return (
+    <Result
+      status="500"
+      title="500"
+      style={{
+        background: 'none',
+      }}
+      subTitle="Lo siento, Ha ocurrido un error en el servidor"
+      extra={
+        <Button type="primary" onClick={history.goBack}>
+          Regresar
+        </Button>
+      }
+    />
+  );
+};

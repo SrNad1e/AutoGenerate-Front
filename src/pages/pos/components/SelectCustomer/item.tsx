@@ -3,6 +3,8 @@ import { LoginOutlined } from '@ant-design/icons';
 
 import type { Customer, UpdateOrderInput } from '@/graphql/graphql';
 
+import styles from '../styles';
+
 const { Text } = Typography;
 
 export type Props = {
@@ -12,12 +14,8 @@ export type Props = {
 
 const Item = ({ customer, editOrder }: Props) => {
   return (
-    <Row
-      style={{
-        width: '100%',
-      }}
-    >
-      <Col span={18}>
+    <Row style={styles.maxWidth}>
+      <Col span={16}>
         <Row>
           <Col span={24}>
             <Text>
@@ -31,9 +29,16 @@ const Item = ({ customer, editOrder }: Props) => {
           </Col>
         </Row>
       </Col>
-      <Col span={6}>
+      <Col span={8}>
         <Row>
-          <Col span={24}>
+          <Col
+            span={24}
+            style={{
+              display: 'flex',
+              justifyContent: 'right',
+              alignItems: 'center',
+            }}
+          >
             <Tag color="volcano">{customer?.customerType?.name}</Tag>
             <Tooltip title="Agregar">
               <Button

@@ -1,0 +1,13 @@
+query permissions{
+  permissions {
+    module
+    options {
+      name
+      actions {
+        _id
+        description
+        name
+      }
+    }
+  }
+}

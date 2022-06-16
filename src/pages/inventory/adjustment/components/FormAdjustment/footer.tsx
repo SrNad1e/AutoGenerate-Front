@@ -1,6 +1,7 @@
 import { Affix, Button, Card, Col, Divider, Row, Space, Typography } from 'antd';
 
 import type { DetailAdjustment, StockAdjustment } from '@/graphql/graphql';
+import { StatusStockAdjustment } from '@/graphql/graphql';
 
 import styles from '../styles.less';
 
@@ -8,13 +9,12 @@ const { Title } = Typography;
 
 export type Props = {
   adjustment: Partial<StockAdjustment> | undefined;
-  saveAdjustment: (status?: string) => void;
+  saveAdjustment: (status?: StatusStockAdjustment) => void;
   details: Partial<DetailAdjustment & { action: string }>[];
+  allowEdit: boolean;
 };
 
-const Footer = ({ adjustment, saveAdjustment, details }: Props) => {
-  const allowEdit = adjustment?.status === 'open';
-
+const Footer = ({ adjustment, saveAdjustment, details, allowEdit }: Props) => {
   const renderResumen = () => {
     return (
       <Space align="center" className={styles.alignCenter}>
@@ -34,18 +34,20 @@ const Footer = ({ adjustment, saveAdjustment, details }: Props) => {
     <Affix offsetBottom={0}>
       <Card>
         <Row>
-          <Col span={4}>
+          <Col xs={24} md={3}>
             <Button
               disabled={!allowEdit}
               type={adjustment?._id ? 'primary' : 'default'}
               danger={!!adjustment?._id}
-              onClick={() => saveAdjustment('cancelled')}
+              onClick={() => saveAdjustment(StatusStockAdjustment.Cancelled)}
             >
               Cancelar
             </Button>
           </Col>
-          <Col span={16}>{renderResumen()}</Col>
-          <Col span={4}>
+          <Col xs={24} md={16}>
+            {renderResumen()}
+          </Col>
+          <Col xs={24} md={5}>
             <Space align="end" className={styles.alignRigth}>
               <Button disabled={!allowEdit} onClick={() => saveAdjustment()}>
                 Guardar
@@ -53,7 +55,7 @@ const Footer = ({ adjustment, saveAdjustment, details }: Props) => {
               <Button
                 type="primary"
                 disabled={!allowEdit}
-                onClick={() => saveAdjustment('confirmed')}
+                onClick={() => saveAdjustment(StatusStockAdjustment.Confirmed)}
               >
                 Enviar
               </Button>
