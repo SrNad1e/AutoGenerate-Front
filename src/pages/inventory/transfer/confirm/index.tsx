@@ -45,6 +45,7 @@ import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { StatusType } from '../tranfer.data';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import ReportTransfer from '../reports/transfer';
 //import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
@@ -479,6 +480,7 @@ const ConfirmTransfer = () => {
               <DescriptionsItem label="Observación">
                 {allowConfirm ? (
                   <TextArea
+                    defaultValue={data?.stockTransferId?.observationDestination || ''}
                     value={observation}
                     onChange={(e) => setObservation(e?.target?.value)}
                   />
@@ -559,6 +561,9 @@ const ConfirmTransfer = () => {
         message="Guardando traslado"
       />*/}
       <AlertSave {...propsAlertSaveFinal} />
+      <div style={{ display: 'none' }}>
+        <ReportTransfer ref={reportRef} data={data?.stockTransferId} />
+      </div>
     </PageContainer>
   );
 };
