@@ -398,6 +398,8 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         transfer={transfer}
         setObservation={setObservation}
         observation={observation}
+        setDetails={setDetails}
+        details={details}
       />
       {allowEdit && (
         <Card bordered={false} size="small">
