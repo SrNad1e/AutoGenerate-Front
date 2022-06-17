@@ -1,123 +1,127 @@
 mutation createOrder($input: CreateOrderInput!) {
   createOrder(createOrderInput: $input) {
-    _id
+    order {
+      _id
+    }
   }
 }
 
 mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
   updateOrder(id: $id, updateOrderInput: $input) {
+    order {
       _id
-    number
-    customer {
-      document
-      firstName
-      lastName
-      documentType {
-        abbreviation
-      }
-      customerType {
-        name
-      }
-    }
-    details {
-      discount
-      quantity
-      price
-      product {
-        _id
-        barcode
-        reference {
-          name
-          cost
-          description
-        }
-        size {
-          value
-        }
-        status
-        color {
-          html
-          name
-          image {
-            urls {
-              webp {
-                small
-              }
-            }
-          }
-          name_internal
-        }
-        stock {
-          quantity
-        }
-      }
-    }
-    payments {
-      total
-      payment {
-        type
-        name
-      }
-    }
-    summary {
-      discount
-      subtotal
-      total
-      totalPaid
-      change
-    }
-    invoice{
-      authorization{
-        prefix
-      }
-      createdAt
-      customer{
-        documentType{
-          abbreviation
-        }
+      number
+      customer {
         document
         firstName
         lastName
-        phone
-      }
-      details{
-        product{
-          barcode
-          color{
-            name
-          }
-          reference{
-            name
-            description
-          }
-          size{
-            value
-          }
+        documentType {
+          abbreviation
         }
-        quantity
-        price
-        discount
-      }
-      number
-      payments{
-        total
-        payment{
-          _id
+        customerType {
           name
         }
       }
-      shop{
-        name
-      }
-      summary{
-        total
-        subtotal
-        change
+      details {
         discount
-        totalPaid
+        quantity
+        price
+        product {
+          _id
+          barcode
+          reference {
+            name
+            cost
+            description
+          }
+          size {
+            value
+          }
+          status
+          color {
+            html
+            name
+            image {
+              urls {
+                webp {
+                  small
+                }
+              }
+            }
+            name_internal
+          }
+          stock {
+            quantity
+          }
+        }
       }
-      user{
-        name
+      payments {
+        total
+        payment {
+          type
+          name
+        }
+      }
+      summary {
+        discount
+        subtotal
+        total
+        totalPaid
+        change
+      }
+      invoice {
+        authorization {
+          prefix
+        }
+        createdAt
+        customer {
+          documentType {
+            abbreviation
+          }
+          document
+          firstName
+          lastName
+          phone
+        }
+        details {
+          product {
+            barcode
+            color {
+              name
+            }
+            reference {
+              name
+              description
+            }
+            size {
+              value
+            }
+          }
+          quantity
+          price
+          discount
+        }
+        number
+        payments {
+          total
+          payment {
+            _id
+            name
+          }
+        }
+        shop {
+          name
+        }
+        summary {
+          total
+          subtotal
+          change
+          discount
+          totalPaid
+        }
+        user {
+          name
+        }
       }
     }
   }
@@ -125,127 +129,131 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
 
 mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
   addPaymentsOrder(addPaymentsOrderInput: $input) {
-    _id
-    number
-    customer {
-      document
-      firstName
-      lastName
-      documentType {
-        abbreviation
-      }
-      customerType {
-        name
-      }
-    }
-    details {
-      discount
-      quantity
-      price
-      product {
-        _id
-        barcode
-        reference {
-          name
-          cost
-          description
+    order {
+      _id
+      number
+      customer {
+        document
+        firstName
+        lastName
+        documentType {
+          abbreviation
         }
-        size {
-          value
-        }
-        status
-        color {
-          html
+        customerType {
           name
-          image {
-            urls {
-              webp {
-                small
+        }
+      }
+      details {
+        discount
+        quantity
+        price
+        product {
+          _id
+          barcode
+          reference {
+            name
+            cost
+            description
+          }
+          size {
+            value
+          }
+          status
+          color {
+            html
+            name
+            image {
+              urls {
+                webp {
+                  small
+                }
               }
             }
+            name_internal
           }
-          name_internal
-        }
-        stock {
-          quantity
+          stock {
+            quantity
+          }
         }
       }
-    }
-    payments {
-      total
-      payment {
-        type
-        name
+      payments {
+        total
+        payment {
+          type
+          name
+        }
       }
-    }
-    summary {
-      discount
-      subtotal
-      total
-      totalPaid
+      summary {
+        discount
+        subtotal
+        total
+        totalPaid
+      }
     }
   }
 }
 
 mutation addProductsOrder($input: AddProductsOrderInput!) {
   addProductsOrder(addProductsOrderInput: $input) {
-    _id
-    number
-    customer {
-      document
-      firstName
-      lastName
-      documentType {
-        abbreviation
-      }
-      customerType {
-        name
-      }
-    }
-    details {
-      discount
-      quantity
-      price
-      product {
-        _id
-        barcode
-        reference {
-          name
-          cost
-          description
+    order {
+      _id
+      number
+      customer {
+        document
+        firstName
+        lastName
+        documentType {
+          abbreviation
         }
-        size {
-          value
-        }
-        status
-        color {
-          html
+        customerType {
           name
-          image {
-            urls {
-              webp {
-                small
+        }
+      }
+      details {
+        discount
+        quantity
+        price
+        product {
+          _id
+          barcode
+          reference {
+            name
+            cost
+            description
+          }
+          size {
+            value
+          }
+          status
+          color {
+            html
+            name
+            image {
+              urls {
+                webp {
+                  small
+                }
               }
             }
+            name_internal
           }
-          name_internal
-        }
-        stock {
-          quantity
+          stock {
+            quantity
+          }
         }
       }
-    }
-    payments {
-      total
-      payment {
-        name
+      payments {
+        total
+        payment {
+          name
+        }
       }
-    }
-    summary {
-      discount
-      subtotal
-      total
-      totalPaid
+      summary {
+        discount
+        subtotal
+        total
+        totalPaid
+      }
     }
   }
 }

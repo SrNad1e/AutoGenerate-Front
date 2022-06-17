@@ -280,6 +280,20 @@ export default defineConfig({
           ],
         },
         {
+          name: 'Tesoreria',
+          path: '/treasury',
+          icon: 'gold',
+          access: 'allowOption',
+          routes: [
+            {
+              name: 'Egresos',
+              path: '/treasury/expenses',
+              component: './treasury/expenses/list',
+              access: 'allowOption',
+            },
+          ],
+        },
+        {
           name: 'Facturación',
           path: '/invoicing',
           icon: 'container',
@@ -295,12 +309,7 @@ export default defineConfig({
               path: '/invoicing/return',
               component: './invoicing/return/list',
             },
-            {
-              name: 'Egresos',
-              path: '/invoicing/return',
-              component: './invoicing/return/list',
-              access: 'allowOption',
-            },
+
             {
               name: 'Cierres',
               path: '/invoicing/closings',

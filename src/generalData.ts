@@ -161,4 +161,11 @@ export const typesAccess = {
   '/pos/closes/closingZ': {
     access: [Permissions.ReadInvoicingClosesz],
   },
+  //Treasury
+  '/treasury': {
+    access: [Permissions.AccessTreasuryExpenses],
+  },
+  '/treasury/expenses': {
+    access: [Permissions.ReadTreasuryExpenses],
+  },
 };

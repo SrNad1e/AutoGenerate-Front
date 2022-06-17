@@ -1,0 +1,8 @@
+query boxes($input: FiltersBoxesInput) {
+  boxes(filtersBoxesInput: $input) {
+    docs {
+      _id
+      name
+    }
+  }
+}
