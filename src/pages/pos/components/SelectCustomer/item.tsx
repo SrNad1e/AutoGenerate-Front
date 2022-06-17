@@ -9,10 +9,10 @@ const { Text } = Typography;
 
 export type Props = {
   customer: Customer;
-  editOrder: (params: UpdateOrderInput) => void;
+  addCustomer: (params: UpdateOrderInput) => void;
 };
 
-const Item = ({ customer, editOrder }: Props) => {
+const Item = ({ customer, addCustomer }: Props) => {
   return (
     <Row style={styles.maxWidth}>
       <Col span={16}>
@@ -42,7 +42,7 @@ const Item = ({ customer, editOrder }: Props) => {
             <Tag color="volcano">{customer?.customerType?.name}</Tag>
             <Tooltip title="Agregar">
               <Button
-                onClick={() => editOrder({ customerId: customer?._id })}
+                onClick={() => addCustomer({ customerId: customer?._id })}
                 type="primary"
                 icon={<LoginOutlined />}
               />
