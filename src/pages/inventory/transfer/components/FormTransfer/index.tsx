@@ -284,7 +284,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     if (id) {
       setDetails(transfer?.details || []);
       setRequests(transfer?.requests || []);
-      setObservation(transfer?.observation || '');
+      setObservation(transfer?.observationOrigin || '');
     }
   }, [transfer, id]);
 
