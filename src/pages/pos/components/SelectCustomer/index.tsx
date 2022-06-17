@@ -136,6 +136,11 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
     }
   };
 
+  const addCustomer = async (params: UpdateOrderInput) => {
+    await editOrder(params);
+    onCancel();
+  };
+
   const renderSearchCustomer = () => (
     <Space direction="vertical" style={styles.maxWidth}>
       <Input.Search
@@ -149,7 +154,7 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
       <List style={styles.listCustomerStyle}>
         {data?.customers?.docs?.map((customer) => (
           <ListItem key={customer?._id}>
-            <Item editOrder={editOrder} customer={customer as Customer} />
+            <Item addCustomer={addCustomer} customer={customer as Customer} />
           </ListItem>
         ))}
       </List>
