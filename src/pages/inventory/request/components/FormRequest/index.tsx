@@ -303,7 +303,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
   };
 
   const propsSearchProduct: PropsSearchProduct = {
-    details,
+    details: details.filter((item) => item.action !== ActionDetailRequest.Delete),
     warehouseId: request?.warehouseOrigin?._id,
     createDetail,
     updateDetail,

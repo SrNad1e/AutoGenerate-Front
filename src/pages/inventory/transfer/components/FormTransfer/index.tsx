@@ -295,7 +295,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
   };
 
   const propsSearchProduct: PropsSearchProduct = {
-    details,
+    details: details.filter((item) => item.action !== ActionDetailTransfer.Delete),
     warehouseId:
       transfer?.warehouseOrigin?._id || initialState?.currentUser?.shop?.defaultWarehouse?._id,
     createDetail,
