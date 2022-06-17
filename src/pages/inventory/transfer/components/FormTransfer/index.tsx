@@ -155,11 +155,19 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
             },
           });
           if (response?.data?.updateStockTransfer) {
-            setPropsAlert({
-              message: `Traslado creado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
-              type: 'success',
-              visible: true,
-            });
+            if (response?.data?.updateStockTransfer?.status === StatusStockTransfer.Cancelled) {
+              setPropsAlert({
+                message: `Traslado cancelado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
+                type: 'warning',
+                visible: true,
+              });
+            } else {
+              setPropsAlert({
+                message: `Traslado actualizado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
+                type: 'success',
+                visible: true,
+              });
+            }
           }
         } else {
           onShowInformation('El traslado no tiene cambios a realizar');
