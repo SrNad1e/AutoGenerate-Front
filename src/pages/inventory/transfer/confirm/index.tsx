@@ -445,14 +445,14 @@ const ConfirmTransfer = () => {
                 {data?.stockTransferId?.warehouseOrigin?.name}
               </DescriptionsItem>
               <DescriptionsItem label="Usuario que envía" span={2}>
-                {data?.stockTransferId?.userOrigin?.name || initialState?.currentUser?.name}
+                {data?.stockTransferId?.userOrigin?.name}
               </DescriptionsItem>
               <DescriptionsItem label="Bodega de destino" span={1}>
                 {data?.stockTransferId?.warehouseDestination?.name ||
                   initialState?.currentUser?.shop?.defaultWarehouse?.name}
               </DescriptionsItem>
               <DescriptionsItem label="Usuario que recibe" span={2}>
-                {data?.stockTransferId?.userDestination?.name || initialState?.currentUser?.name}
+                {data?.stockTransferId?.userDestination?.name || '(Pendiente)'}
               </DescriptionsItem>
               <DescriptionsItem label="Número" span={1}>
                 {data?.stockTransferId?.number || '(Pendiente)'}
