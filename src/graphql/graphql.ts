@@ -535,6 +535,8 @@ export type Coupon = {
   message: Scalars['String'];
   /** Consecutivo del cupón */
   number: Scalars['Float'];
+  /** Estado del cupón */
+  status: StatusCoupon;
   /** Título del cupón */
   title: Scalars['String'];
   /** Fecha de actualización */
@@ -1304,6 +1306,14 @@ export type FiltersConveyorsInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortConveyor>;
+};
+
+/** Filtros para consultar un cupón */
+export type FiltersCouponInput = {
+  /** Código del cupón */
+  code?: InputMaybe<Scalars['String']>;
+  /** Estado del cupón */
+  status?: InputMaybe<StatusCoupon>;
 };
 
 /** Filtros de listado de clientes */
@@ -2135,6 +2145,8 @@ export type PaymentInvoice = {
 /** Medio de pago usado en el pedido */
 export type PaymentOrder = {
   __typename?: 'PaymentOrder';
+  /** Cupón solo válido para el medio de pago tipo coupon */
+  code?: Maybe<Scalars['String']>;
   /** Fecha de agregado del pago al pedido */
   createdAt: Scalars['DateTime'];
   /** Método de pago usado */
@@ -2162,6 +2174,8 @@ export type PaymentOrderClose = {
 export type PaymentsOrderInput = {
   /** Acción a realizar con el medio de pago */
   action: ActionPaymentsOrder;
+  /** Código del cupón, válido para medios de pago tipo coupon */
+  code?: InputMaybe<Scalars['String']>;
   /** Identificador medio de pago agregado al pedido */
   paymentId: Scalars['String'];
   /** Valor total agregado */
@@ -2199,6 +2213,7 @@ export enum Permissions {
   AccessConfigurationRoles = 'ACCESS_CONFIGURATION_ROLES',
   AccessConfigurationUsers = 'ACCESS_CONFIGURATION_USERS',
   AccessCrmCities = 'ACCESS_CRM_CITIES',
+  AccessCrmCoupons = 'ACCESS_CRM_COUPONS',
   AccessCrmCustomers = 'ACCESS_CRM_CUSTOMERS',
   AccessErp = 'ACCESS_ERP',
   AccessInventoryAdjustments = 'ACCESS_INVENTORY_ADJUSTMENTS',
@@ -2254,6 +2269,7 @@ export enum Permissions {
   ReadConfigurationUsers = 'READ_CONFIGURATION_USERS',
   ReadConfigurationWarehouses = 'READ_CONFIGURATION_WAREHOUSES',
   ReadCrmCities = 'READ_CRM_CITIES',
+  ReadCrmCoupons = 'READ_CRM_COUPONS',
   ReadCrmCustomers = 'READ_CRM_CUSTOMERS',
   ReadInventoryAdjustments = 'READ_INVENTORY_ADJUSTMENTS',
   ReadInventoryAttribs = 'READ_INVENTORY_ATTRIBS',
@@ -2362,6 +2378,8 @@ export type Query = {
   colors: ResponseColors;
   /** Lista de ajustes de productos */
   conveyors: ResponseConveyors;
+  /** Consultar cupón */
+  coupon: Coupon;
   /** Se encarga de obtener el usuario dependiendo del token enviado */
   currentUser: User;
   /** Listado de clientes */
@@ -2464,6 +2482,10 @@ export type QueryColorsArgs = {
 
 export type QueryConveyorsArgs = {
   filtersConveyorsInput?: InputMaybe<FiltersConveyorsInput>;
+};
+
+export type QueryCouponArgs = {
+  filtersCouponInput: FiltersCouponInput;
 };
 
 export type QueryCustomersArgs = {
@@ -3811,6 +3833,12 @@ export type SortWarehouse = {
   name?: InputMaybe<Scalars['Float']>;
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
+
+export enum StatusCoupon {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  Redeemed = 'REDEEMED',
+}
 
 export enum StatusCredit {
   Active = 'ACTIVE',
@@ -5550,13 +5578,7 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: 'Mutation';
-  updateUser: {
-    __typename?: 'User';
-    _id: string;
-    username: string;
-    name: string;
-    pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
-  };
+  updateUser: { __typename?: 'User'; _id: string; username: string; name: string };
 };
 
 export type StockAdjustmentQueryVariables = Exact<{
@@ -5916,6 +5938,15 @@ export type ColorsQuery = {
       } | null;
     }[];
   };
+};
+
+export type CouponQueryVariables = Exact<{
+  input: FiltersCouponInput;
+}>;
+
+export type CouponQuery = {
+  __typename?: 'Query';
+  coupon: { __typename?: 'Coupon'; expiration: any; status: StatusCoupon; value: number };
 };
 
 export type CustomersQueryVariables = Exact<{
@@ -10908,17 +10939,6 @@ export const UpdateUserDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'pointOfSale' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                    ],
-                  },
-                },
               ],
             },
           },
@@ -11930,6 +11950,50 @@ export const ColorsDocument = {
     },
   ],
 } as unknown as DocumentNode<ColorsQuery, ColorsQueryVariables>;
+export const CouponDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'coupon' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCouponInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'coupon' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCouponInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CouponQuery, CouponQueryVariables>;
 export const CustomersDocument = {
   kind: 'Document',
   definitions: [
