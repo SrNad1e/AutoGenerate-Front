@@ -1,0 +1,7 @@
+query coupon($input: FiltersCouponInput!){
+  coupon(filtersCouponInput:$input){
+    expiration
+    status
+    value
+  }
+}

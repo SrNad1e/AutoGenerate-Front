@@ -2,7 +2,6 @@
 import { Button, Col, Divider, Modal, Row, Typography } from 'antd';
 import { useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
 
@@ -12,6 +11,7 @@ import type {
   SummaryOrder,
   UpdateOrderInput,
 } from '@/graphql/graphql';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { ActionPaymentsOrder, StatusOrder, TypePayment } from '@/graphql/graphql';
 import Item from './item';
 import { useGetPayments } from '@/hooks/payment.hooks';
@@ -22,6 +22,7 @@ import OrderReport from '../../reports/order/Order';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 
 import styles from '../styles';
+import ModalBonus from './modalBonus';
 
 const { Title } = Typography;
 
@@ -41,7 +42,12 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     type: 'error',
     visible: false,
   });
-
+  const [showModalBonus, setShowModalBonus] = useState<{
+    visible: boolean;
+    payment?: PaymentModel;
+  }>({
+    visible: false,
+  });
   const orderRef = useRef(null);
 
   const { id } = useParams<Partial<{ id: string }>>();
@@ -91,17 +97,43 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     });
   };
 
+  const onCloseModaloupon = () => {
+    setShowModalBonus({
+      visible: false,
+    });
+  };
+
   /**
    * @description gestiona los pagos
    * @param payment tipo de pago
    */
   const setPayment = (payment: PaymentModel) => {
-    setPayments(
-      payments.concat({
-        payment,
-        total: payment?.type !== TypePayment.Cash ? summary?.total - totalPayments : 0,
-      } as PaymentOrder),
-    );
+    switch (payment.type) {
+      case TypePayment.Cash:
+        setPayments(
+          payments.concat({
+            payment,
+            total: 0,
+          } as PaymentOrder),
+        );
+        break;
+      case TypePayment.Bank:
+        setPayments(
+          payments.concat({
+            payment,
+            total: summary?.total - totalPayments,
+          } as PaymentOrder),
+        );
+        break;
+      case TypePayment.Bonus:
+        setShowModalBonus({
+          visible: true,
+          payment,
+        });
+        break;
+      default:
+        break;
+    }
   };
 
   const setQuantityPayment = (payment: PaymentModel, total: number) => {
@@ -133,6 +165,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
               paymentId: paymentOrder?.payment?._id,
               action: ActionPaymentsOrder.Create,
               total: paymentOrder?.total,
+              code: paymentOrder?.code,
             })),
           },
         },
@@ -165,8 +198,6 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     });
   }, []);
 
-  console.log(totalPayments);
-
   return (
     <Modal
       centered
@@ -198,19 +229,25 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
         <Col span={12}>
           <Title level={3}>Pagos</Title>
           <Row gutter={[16, 16]}>
-            {payments.map((paymentOrder) => (
-              <Payment
-                deletePayment={deletePayment}
-                setQuantityPayment={setQuantityPayment}
-                max={paymentOrder?.payment?.type !== TypePayment.Cash ? summary?.total : undefined}
-                total={
-                  payments.find((payment) => payment?.payment?._id === paymentOrder.payment?._id)
-                    ?.total || 0
-                }
-                paymentOrder={paymentOrder}
-                key={paymentOrder?.payment?._id}
-              />
-            ))}
+            {payments.map((paymentOrder) => {
+              const disabled = paymentOrder?.payment?.type === TypePayment.Bonus;
+              return (
+                <Payment
+                  deletePayment={deletePayment}
+                  setQuantityPayment={setQuantityPayment}
+                  disabled={disabled}
+                  max={
+                    paymentOrder?.payment?.type !== TypePayment.Cash ? summary?.total : undefined
+                  }
+                  total={
+                    payments.find((payment) => payment?.payment?._id === paymentOrder.payment?._id)
+                      ?.total || 0
+                  }
+                  paymentOrder={paymentOrder}
+                  key={paymentOrder?.payment?._id}
+                />
+              );
+            })}
           </Row>
           <Divider>
             <Title level={4}>Resumen</Title>
@@ -264,6 +301,12 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
       <AlertLoading
         visible={loading || dataPayments?.loading}
         message={dataPayments.loading ? 'Generando factura' : 'Guardando medios de pago'}
+      />
+      <ModalBonus
+        onCancel={onCloseModaloupon}
+        payments={payments}
+        setPayments={setPayments}
+        {...showModalBonus}
       />
       <div style={{ display: 'none' }}>
         <OrderReport data={order} ref={orderRef} />
