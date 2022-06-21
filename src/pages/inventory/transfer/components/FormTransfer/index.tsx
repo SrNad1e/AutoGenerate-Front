@@ -144,7 +144,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           const props = {
             details: newDetails,
             requests: requests?.map((request) => request?._id),
-            observation,
+            observationOrigin: observation,
             status,
           };
 
