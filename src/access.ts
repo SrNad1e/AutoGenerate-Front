@@ -184,5 +184,16 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.PrintTreasuryExpenses,
       ),
     },
+    receipt: {
+      canCancelled: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateTreasuryReceipt,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateTreasuryReceipt,
+      ),
+      /*  canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintTreasuryExpenses,
+      ),*/
+    },
   };
 }

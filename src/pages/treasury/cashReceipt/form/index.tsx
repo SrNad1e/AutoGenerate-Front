@@ -1,13 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   DollarCircleOutlined,
   FileProtectOutlined,
-  IdcardOutlined,
+  SearchOutlined,
   SolutionOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import {
+  Button,
   Col,
-  Descriptions,
+  Divider,
   Form,
   Input,
   InputNumber,
@@ -16,34 +18,65 @@ import {
   Space,
   Table,
   Tag,
-  Typography,
 } from 'antd';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import numeral from 'numeral';
 
 import styles from '../styles';
+import SearchCustomer from '@/components/SearchCustomer';
+import { useGetCredit } from '@/hooks/credit.hooks';
+import type { FiltersCreditInput } from '@/graphql/graphql';
+import Balance from '../components/balance';
+import SelectBox from '@/components/SelectBox';
+import SelectPayment from '@/components/SelectPayment';
 
 const { TextArea } = Input;
-const { Title } = Typography;
 
 const FormItem = Form.Item;
-const DescriptionItem = Descriptions.Item;
 
 type Props = {
   visible: boolean;
   onCancel: () => void;
 };
 const CashReceiptForm = ({ visible, onCancel }: Props) => {
-  const [customer, setCustomer] = useState<any>({});
+  const [customerId, setCustomerId] = useState('');
+  const [visibleBalance, setVisibleBalance] = useState(false);
+  const [getCredit, paramsGetCredit] = useGetCredit();
 
-  const setCustomerData = () => {
-    setCustomer({
-      name: 'Dio Brandon',
-      contact: 3104603499,
+  const closeVisibleCreditBalance = () => {
+    setVisibleBalance(false);
+  };
+
+  const currentBalance = paramsGetCredit.data?.credit.balance;
+  /**
+   * @description se encarga de ejecutar la funcion para obtener los colores
+   * @param filters Variables para ejecutar la consulta
+   */
+  const onSearch = (filters?: FiltersCreditInput) => {
+    getCredit({
+      variables: {
+        input: {
+          ...filters,
+          customerId: customerId,
+        },
+      },
     });
   };
 
+  /**
+   * @description se encarga de seleccionar el id de una tienda y almacenarlo
+   * @param id id de la tienda que selecciona
+   */
+  const onChangeCustomer = (id: string) => {
+    if (id) {
+      setCustomerId(id);
+    }
+  };
+
+  useEffect(() => {
+    onSearch();
+  }, [customerId]);
   const dataTest = [
     {
       number: 1,
@@ -56,6 +89,8 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
     },
   ];
 
+  console.log(currentBalance);
+
   const column = [
     {
       title: 'Numero',
@@ -66,7 +101,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
       dataIndex: 'invoice',
       render: (invoice: any) => (
         <Tag style={styles.tagStyle}>
-          {<FileProtectOutlined style={styles.iconColor} />}
+          {<FileProtectOutlined />}
           {invoice}
         </Tag>
       ),
@@ -81,11 +116,6 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
       title: 'Saldo',
       dataIndex: 'pending',
       render: (pending: number) => numeral(pending).format('$ 0,0'),
-    },
-    {
-      title: 'Vencimiento',
-      dataIndex: 'expiration',
-      render: (expiration: Date) => moment(expiration).format(FORMAT_DATE_API),
     },
     {
       title: 'Creación',
@@ -104,23 +134,27 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
       cancelText="Cancelar"
     >
       <Form layout="vertical">
-        <Row gutter={[0, 20]}>
+        <Row gutter={[20, 20]}>
           <Col span={14}>
-            <FormItem label={<Space>{<IdcardOutlined />} Documento </Space>}>
-              <Input onPressEnter={setCustomerData} style={styles.inputWidth} />
+            <FormItem label={<Space>{<UserOutlined />} Cliente </Space>} name="customerId">
+              <SearchCustomer onChange={(id) => onChangeCustomer(id)} disabled={false} />
             </FormItem>
           </Col>
-          <Col span={10}>
-            {customer?.name && (
-              <Descriptions layout="vertical">
-                <DescriptionItem label={<Space>{<UserOutlined />} Cliente </Space>}>
-                  <Title level={5}>
-                    {customer?.name} - {customer?.contact}
-                  </Title>
-                </DescriptionItem>
-              </Descriptions>
-            )}
+          <Col>
+            <FormItem label=" " colon={false}>
+              <Button
+                icon={<SearchOutlined />}
+                disabled={paramsGetCredit?.loading || customerId.length == 0}
+                type="primary"
+                htmlType="submit"
+                style={styles.buttonR}
+                onClick={() => setVisibleBalance(true)}
+              >
+                Buscar
+              </Button>
+            </FormItem>
           </Col>
+          <Divider>Pedidos</Divider>
           <Col span={24}>
             <Table
               rowSelection={{ type: 'checkbox' }}
@@ -142,7 +176,17 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
               )}
             />
           </Col>
-          <Col offset={16} span={8}>
+          <Col span={8}>
+            <FormItem label="Caja" name="boxId">
+              <SelectBox disabled={paramsGetCredit?.loading} />
+            </FormItem>
+          </Col>
+          <Col span={8}>
+            <FormItem label="Medio de pago" name="paymentId">
+              <SelectPayment disabled={paramsGetCredit?.loading} />
+            </FormItem>
+          </Col>
+          <Col span={8}>
             <FormItem
               label={
                 <Space>
@@ -154,7 +198,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
               <InputNumber
                 style={styles.inputNumberWidth}
                 min={0}
-                step={100}
+                controls={false}
                 formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
               />
@@ -162,6 +206,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
           </Col>
         </Row>
       </Form>
+      <Balance onCancel={closeVisibleCreditBalance} visible={visibleBalance} />
     </Modal>
   );
 };

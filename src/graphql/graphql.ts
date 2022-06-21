@@ -535,6 +535,8 @@ export type Coupon = {
   message: Scalars['String'];
   /** Consecutivo del cupón */
   number: Scalars['Float'];
+  /** Estado del cupón */
+  status: StatusCoupon;
   /** Título del cupón */
   title: Scalars['String'];
   /** Fecha de actualización */
@@ -668,9 +670,11 @@ export type CreateProductInput = {
 /** Datos para crear un recibo de caja */
 export type CreateReceiptInput = {
   /** Identificador de la caja que va a afectar */
-  boxId?: InputMaybe<Scalars['String']>;
+  boxId: Scalars['String'];
   /** Concepto del recibo */
   concept: Scalars['String'];
+  /** Pedidos a los que afecta el recibo */
+  details?: InputMaybe<DetailReceiptOrder[]>;
   /** Identificador del medio de pago */
   paymentId: Scalars['String'];
   /** Valor del recibo */
@@ -948,7 +952,7 @@ export type DetailCredit = {
   /** Monto pendiente en el pedido */
   balance: Scalars['Float'];
   /** Pedido que reporta el crédito */
-  orderId: Scalars['String'];
+  order: Order;
   /** Monto total del pedido en crédito */
   total: Scalars['Float'];
 };
@@ -1009,6 +1013,14 @@ export type DetailOutput = {
   quantity: Scalars['Float'];
   /** Fecha de actualización del detalle a la salida */
   updatedAt: Scalars['DateTime'];
+};
+
+/** Detalles de cruce de la cartera */
+export type DetailReceiptOrder = {
+  /** Monto para abonar al pedido */
+  amount: Scalars['Float'];
+  /** Identificador del pedido */
+  orderId: Scalars['String'];
 };
 
 export type DetailRequest = {
@@ -1348,6 +1360,20 @@ export type FiltersConveyorsInput = {
   sort?: InputMaybe<SortConveyor>;
 };
 
+/** Filtros para consultar un cupón */
+export type FiltersCouponInput = {
+  /** Código del cupón */
+  code?: InputMaybe<Scalars['String']>;
+  /** Estado del cupón */
+  status?: InputMaybe<StatusCoupon>;
+};
+
+/** Filtros para obtener un crédito */
+export type FiltersCreditInput = {
+  /** Cliente que tiene asignado el crédito */
+  customerId?: InputMaybe<Scalars['String']>;
+};
+
 /** Filtros para consultar los créditos de los clientes */
 export type FiltersCreditsInput = {
   /** Monto aprobado al cliente */
@@ -1550,7 +1576,7 @@ export type FiltersReceiptsInput = {
   /** Ordenamiento */
   sort?: InputMaybe<SortReceipt>;
   /** Estado del recibo */
-  status: StatusReceipt;
+  status?: InputMaybe<StatusReceipt>;
 };
 
 /** Filtros para la lista de referencias */
@@ -1916,7 +1942,7 @@ export type Mutation = {
   /** Crea un producto */
   createProduct: Product;
   /** Crea una recibo de caja */
-  createReceipt: Receipt;
+  createReceipt: ResponseReceipt;
   /** Crea una referencia */
   createReference: Reference;
   /** Se encarga de crear la devolución del pedido */
@@ -2272,6 +2298,8 @@ export type PaymentInvoice = {
 /** Medio de pago usado en el pedido */
 export type PaymentOrder = {
   __typename?: 'PaymentOrder';
+  /** Cupón solo válido para el medio de pago tipo coupon */
+  code?: Maybe<Scalars['String']>;
   /** Fecha de agregado del pago al pedido */
   createdAt: Scalars['DateTime'];
   /** Método de pago usado */
@@ -2299,6 +2327,8 @@ export type PaymentOrderClose = {
 export type PaymentsOrderInput = {
   /** Acción a realizar con el medio de pago */
   action: ActionPaymentsOrder;
+  /** Código del cupón, válido para medios de pago tipo coupon */
+  code?: InputMaybe<Scalars['String']>;
   /** Identificador medio de pago agregado al pedido */
   paymentId: Scalars['String'];
   /** Valor total agregado */
@@ -2337,6 +2367,7 @@ export enum Permissions {
   AccessConfigurationUsers = 'ACCESS_CONFIGURATION_USERS',
   AccessCredits = 'ACCESS_CREDITS',
   AccessCrmCities = 'ACCESS_CRM_CITIES',
+  AccessCrmCoupons = 'ACCESS_CRM_COUPONS',
   AccessCrmCustomers = 'ACCESS_CRM_CUSTOMERS',
   AccessErp = 'ACCESS_ERP',
   AccessInventoryAdjustments = 'ACCESS_INVENTORY_ADJUSTMENTS',
@@ -2401,6 +2432,7 @@ export enum Permissions {
   ReadConfigurationWarehouses = 'READ_CONFIGURATION_WAREHOUSES',
   ReadCredits = 'READ_CREDITS',
   ReadCrmCities = 'READ_CRM_CITIES',
+  ReadCrmCoupons = 'READ_CRM_COUPONS',
   ReadCrmCustomers = 'READ_CRM_CUSTOMERS',
   ReadInventoryAdjustments = 'READ_INVENTORY_ADJUSTMENTS',
   ReadInventoryAttribs = 'READ_INVENTORY_ATTRIBS',
@@ -2517,7 +2549,11 @@ export type Query = {
   colors: ResponseColors;
   /** Lista de ajustes de productos */
   conveyors: ResponseConveyors;
-  /** Creadito */
+  /** Consultar cupón */
+  coupon: Coupon;
+  /** Crédito */
+  credit: Credit;
+  /** Crédito */
   creditId: Credit;
   /** Lista de créditos */
   credits: ResponseCredits;
@@ -2631,6 +2667,14 @@ export type QueryColorsArgs = {
 
 export type QueryConveyorsArgs = {
   filtersConveyorsInput?: InputMaybe<FiltersConveyorsInput>;
+};
+
+export type QueryCouponArgs = {
+  filtersCouponInput: FiltersCouponInput;
+};
+
+export type QueryCreditArgs = {
+  filtersCreditInput: FiltersCreditInput;
 };
 
 export type QueryCreditIdArgs = {
@@ -2780,8 +2824,8 @@ export type Receipt = {
   __typename?: 'Receipt';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Método de pago del recibo de caja */
-  box: Box;
+  /** Caja afectada por el recibo si es efectivo */
+  box?: Maybe<Box>;
   /** Empresa a la que pertenece el recibo de caja */
   company: Company;
   /** Concepto del recibo de caja */
@@ -3332,6 +3376,15 @@ export type ResponseProducts = {
   totalDocs: Scalars['Float'];
   /** Total de páginas */
   totalPages: Scalars['Float'];
+};
+
+/** Resultado al crear un recibo de caja */
+export type ResponseReceipt = {
+  __typename?: 'ResponseReceipt';
+  /** Crédito afectado por el recibo de caja */
+  credit: Credit;
+  /** Recibo de caja generado */
+  receipt: Receipt;
 };
 
 /** Respuesta a la consulta de recibos de caja */
@@ -4141,6 +4194,12 @@ export type SortWarehouse = {
   name?: InputMaybe<Scalars['Float']>;
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
+
+export enum StatusCoupon {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  Redeemed = 'REDEEMED',
+}
 
 export enum StatusCredit {
   Active = 'ACTIVE',
@@ -5568,6 +5627,28 @@ export type CreateProductMutation = {
   };
 };
 
+export type CreateReceiptMutationVariables = Exact<{
+  input: CreateReceiptInput;
+}>;
+
+export type CreateReceiptMutation = {
+  __typename?: 'Mutation';
+  createReceipt: {
+    __typename?: 'ResponseReceipt';
+    receipt: { __typename?: 'Receipt'; number: number; _id: string };
+  };
+};
+
+export type UpdateReceiptMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateReceiptInput;
+}>;
+
+export type UpdateReceiptMutation = {
+  __typename?: 'Mutation';
+  updateReceipt: { __typename?: 'Receipt'; _id: string; number: number };
+};
+
 export type CreateReferenceMutationVariables = Exact<{
   input: CreateReferenceInput;
 }>;
@@ -6307,6 +6388,52 @@ export type ColorsQuery = {
   };
 };
 
+export type CouponQueryVariables = Exact<{
+  input: FiltersCouponInput;
+}>;
+
+export type CouponQuery = {
+  __typename?: 'Query';
+  coupon: {
+    __typename?: 'Coupon';
+    _id: string;
+    code: string;
+    title: string;
+    updatedAt: any;
+    createdAt: any;
+    expiration: any;
+    message: string;
+    number: number;
+    status: StatusCoupon;
+    value: number;
+  };
+};
+
+export type CreditQueryVariables = Exact<{
+  input: FiltersCreditInput;
+}>;
+
+export type CreditQuery = {
+  __typename?: 'Query';
+  credit: {
+    __typename?: 'Credit';
+    balance: number;
+    details?:
+      | {
+          __typename?: 'DetailCredit';
+          balance: number;
+          total: number;
+          order: {
+            __typename?: 'Order';
+            number: number;
+            updatedAt: any;
+            invoice?: { __typename?: 'Invoice'; number: number } | null;
+          };
+        }[]
+      | null;
+  };
+};
+
 export type CustomersQueryVariables = Exact<{
   input?: InputMaybe<FiltersCustomersInput>;
 }>;
@@ -6912,7 +7039,7 @@ export type ReceiptsQuery = {
       updatedAt: any;
       value: number;
       status: StatusReceipt;
-      box: { __typename?: 'Box'; name: string };
+      box?: { __typename?: 'Box'; name: string } | null;
       payment: { __typename?: 'Payment'; name: string; type: TypePayment };
     }[];
   };
@@ -10161,6 +10288,114 @@ export const CreateProductDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateProductMutation, CreateProductMutationVariables>;
+export const CreateReceiptDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createReceipt' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateReceiptInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createReceipt' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createReceiptInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'receipt' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateReceiptMutation, CreateReceiptMutationVariables>;
+export const UpdateReceiptDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateReceipt' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateReceiptInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateReceipt' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateReceiptInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateReceiptMutation, UpdateReceiptMutationVariables>;
 export const CreateReferenceDocument = {
   kind: 'Document',
   definitions: [
@@ -12634,6 +12869,131 @@ export const ColorsDocument = {
     },
   ],
 } as unknown as DocumentNode<ColorsQuery, ColorsQueryVariables>;
+export const CouponDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'coupon' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCouponInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'coupon' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCouponInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'code' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CouponQuery, CouponQueryVariables>;
+export const CreditDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'credit' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCreditInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'credit' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCreditInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'details' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'order' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'invoice' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreditQuery, CreditQueryVariables>;
 export const CustomersDocument = {
   kind: 'Document',
   definitions: [

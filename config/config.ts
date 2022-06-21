@@ -280,20 +280,6 @@ export default defineConfig({
           ],
         },
         {
-          name: 'Tesoreria',
-          path: '/treasury',
-          icon: 'gold',
-          access: 'allowOption',
-          routes: [
-            {
-              name: 'Egresos',
-              path: '/treasury/expenses',
-              component: './treasury/expenses/list',
-              access: 'allowOption',
-            },
-          ],
-        },
-        {
           name: 'Facturación',
           path: '/invoicing',
           icon: 'container',

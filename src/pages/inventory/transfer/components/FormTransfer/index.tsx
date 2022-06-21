@@ -144,7 +144,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           const props = {
             details: newDetails,
             requests: requests?.map((request) => request?._id),
-            observation,
+            observationOrigin: observation,
             status,
           };
 
@@ -408,6 +408,8 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         observation={observation}
         setDetails={setDetails}
         details={details}
+        requests={requests}
+        setRequests={setRequests}
       />
       {allowEdit && (
         <Card bordered={false} size="small">

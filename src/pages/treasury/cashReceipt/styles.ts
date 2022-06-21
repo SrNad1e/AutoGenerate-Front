@@ -2,18 +2,18 @@ export default {
   marginFilters: {
     marginTop: 40,
   },
-  inputNumberWidth: {
-    width: '80%',
+  buttonR: {
+    borderRadius: 5,
   },
-  inputWidth: {
-    width: '60%',
+  alingText: {
+    textAlign: 'right',
+  },
+  maxWidth: {
+    width: '100%',
   },
   tagStyle: {
-    backgroundColor: 'white',
-    color: '#dc9575',
     borderColor: '#dc9575',
-  },
-  iconColor: {
     color: '#dc9575',
+    backgroundColor: 'white',
   },
 };
