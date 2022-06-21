@@ -8,7 +8,7 @@ const FormItem = Form.Item;
 const FormShipping = () => {
   return (
     <Descriptions bordered size="small">
-      <DescriptionsItem label="Ancho">
+      <DescriptionsItem label="Ancho" span={1}>
         <FormItem
           name="width"
           style={styles.marginIntial}
@@ -17,7 +17,7 @@ const FormShipping = () => {
           <InputNumber min={0} addonAfter="cm" />
         </FormItem>
       </DescriptionsItem>
-      <DescriptionsItem label="Alto">
+      <DescriptionsItem label="Alto" span={2}>
         <FormItem
           style={styles.marginIntial}
           name="height"
@@ -26,7 +26,7 @@ const FormShipping = () => {
           <InputNumber min={0} addonAfter="cm" />
         </FormItem>
       </DescriptionsItem>
-      <DescriptionsItem label="Largo">
+      <DescriptionsItem label="Largo" span={1}>
         <FormItem
           style={styles.marginIntial}
           name="long"
@@ -35,7 +35,7 @@ const FormShipping = () => {
           <InputNumber min={0} addonAfter="cm" />
         </FormItem>
       </DescriptionsItem>
-      <DescriptionsItem label="Peso">
+      <DescriptionsItem label="Peso" span={2}>
         <FormItem
           name="weight"
           style={styles.marginIntial}

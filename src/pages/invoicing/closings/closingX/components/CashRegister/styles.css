@@ -1,0 +1,3 @@
+.cash-register .ant-input-number > * > input:not([type='range']) {
+  text-align: right;
+}

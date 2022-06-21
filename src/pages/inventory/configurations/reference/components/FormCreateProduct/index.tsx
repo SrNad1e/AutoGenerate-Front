@@ -41,9 +41,9 @@ const FormCreateProduct = ({ onFinish, form }: Params) => {
   };
 
   return (
-    <Row gutter={16} justify="center">
-      <Form form={form} onFinish={onFinish} layout="inline" style={{ width: '90%' }}>
-        <Col xs={24} md={10}>
+    <Form form={form} onFinish={onFinish} layout="horizontal" style={{ width: '90%' }}>
+      <Row gutter={[16, 10]} justify="center">
+        <Col xs={24} md={12}>
           <FormItem
             label={
               <>
@@ -87,15 +87,15 @@ const FormCreateProduct = ({ onFinish, form }: Params) => {
             <SelectListSize disabled={false} />
           </FormItem>
         </Col>
-        <Col xs={24} md={4}>
+        <Col xs={24} md={2}>
           <Button type="primary" htmlType="submit">
             Crear
           </Button>
         </Col>
-      </Form>
+      </Row>
       <CreateColors modalVisible={modalColorVisible} onCancel={closeModalColor} />
       <CreateSizes modalVisible={modalSizeVisible} onCancel={closeModalSize} />
-    </Row>
+    </Form>
   );
 };
 

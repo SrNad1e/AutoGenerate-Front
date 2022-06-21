@@ -70,8 +70,8 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para actualizar un color
    */
   const editColor = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {
@@ -112,9 +112,8 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para crear un nuevo color
    */
   const createNewColor = async () => {
+    const values = await form.validateFields();
     try {
-      form.getFieldsValue();
-      const values = await form.validateFields();
       delete values.active;
       if (values.image.length === 0) {
         delete values.image;
@@ -140,15 +139,13 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
         });
       }
     } catch (e: any) {
-      showError(e.message);
-      if (e.message === undefined) {
-        showError('Complete los campos');
-      }
+      showError(e?.message);
     }
   };
 
   useEffect(() => {
     form.resetFields();
+    setError(null);
     form.setFieldsValue({
       image: current?.image ? [current?.image] : [],
     });
@@ -175,7 +172,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           name="name"
           rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
         >
-          <Input placeholder="" />
+          <Input placeholder="" disabled={paramsCreate?.loading || paramsUpdate?.loading} />
         </FormItem>
         <FormItem
           labelCol={{ span: 8 }}
@@ -184,7 +181,11 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           name="name_internal"
           rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
         >
-          <Input placeholder="" autoFocus />
+          <Input
+            placeholder=""
+            autoFocus
+            disabled={paramsCreate?.loading || paramsUpdate?.loading}
+          />
         </FormItem>
         <FormItem
           labelCol={{ span: 8 }}
@@ -193,19 +194,19 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
           name="active"
           valuePropName="checked"
         >
-          <Switch defaultChecked />
+          <Switch defaultChecked disabled={paramsCreate?.loading || paramsUpdate?.loading} />
         </FormItem>
         <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Color" name="html">
-          <Input type="color" />
+          <Input type="color" disabled={paramsCreate?.loading || paramsUpdate?.loading} />
         </FormItem>
         <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Imagen" name="image">
-          <ImageAdmin limit={1} />
+          <ImageAdmin disabled={paramsCreate?.loading || paramsUpdate?.loading} limit={1} />
         </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      <AlertLoading visible={paramsCreate?.loading} message="Creando Talla" />
-      <AlertLoading visible={paramsUpdate?.loading} message="Actualizando Talla" />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Color" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Actualizando Color" />
     </Modal>
   );
 };

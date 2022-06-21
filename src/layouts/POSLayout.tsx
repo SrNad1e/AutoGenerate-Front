@@ -1,35 +1,70 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import type { BasicLayoutProps } from '@ant-design/pro-layout';
-import { useState } from 'react';
-import { history, Link, useModel } from 'umi';
+import { useEffect, useState } from 'react';
+import { history, Link, useAccess, useModel } from 'umi';
 import ProLayout from '@ant-design/pro-layout';
 
 import RightContent from '@/components/RightContent';
 //import Footer from '@/components/Footer';
 
 import logoNormal from '../assets/logo.svg';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { ApolloProvider } from '@apollo/client';
 import { client } from '@/services/apollo-client';
 
 import styles from './styles.less';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const loginPath = '/user/login';
 
 const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
   const [logo] = useState(logoNormal);
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
   const { initialState } = useModel('@@initialState');
+
+  const { allowPOS, allowERP } = useAccess();
+
+  /**
+   * oculta
+   */
+  const onCloseAlert = () => {
+    setPropsAlert({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+    history.push(loginPath);
+  };
+
+  useEffect(() => {
+    if (!allowERP && !allowPOS) {
+      setPropsAlert({
+        message: 'No tienes acceso, reporta tu problema al administrador',
+        type: 'error',
+        visible: true,
+      });
+    } else if (!allowPOS) {
+      history.push('/');
+    }
+  }, []);
 
   return (
     <ApolloProvider client={client}>
       <ProLayout
+        {...props}
+        disableContentMargin
+        headerHeight={48}
+        splitMenus={true}
         navTheme="light"
         layout="top"
         contentWidth="Fixed"
-        contentStyle={{ margin: 0 }}
         fixedHeader={false}
         fixSiderbar={true}
-        splitMenus={false}
         logo={logo}
-        {...props}
         rightContentRender={() => <RightContent />}
         title="TOULOUSE"
         onPageChange={() => {
@@ -48,7 +83,7 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
         breadcrumbRender={(routers = []) => [
           {
             path: '/',
-            breadcrumbName: 'ERP',
+            breadcrumbName: 'POS',
           },
           ...routers,
         ]}
@@ -67,6 +102,7 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
           </div>
         )}
       />
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </ApolloProvider>
   );
 };

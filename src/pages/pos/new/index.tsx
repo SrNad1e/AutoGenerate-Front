@@ -4,6 +4,7 @@ import { Col, Row } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 
 import type { Product, UpdateOrderInput } from '@/graphql/graphql';
+import { ActionProductsOrder, StatusOrder } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SearchProduct from '../components/SearchForm';
 import Resumen from '../components/SellResumen';
@@ -11,6 +12,8 @@ import { useAddProductsOrder, useGetOrder, useUpdateOrder } from '@/hooks/order.
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectCustomer from '../components/SelectCustomer';
+
+import styles from './styles';
 
 const PosNew = () => {
   const [modalCustomerVisible, setModalCustomerVisible] = useState(false);
@@ -71,6 +74,10 @@ const PosNew = () => {
     });
   };
 
+  /**
+   * @description ejecuta la mutation para actualizar la orden
+   * @param params datos para ejecutar la mutation
+   */
   const editOrder = async (params: UpdateOrderInput) => {
     try {
       if (id) {
@@ -80,7 +87,6 @@ const PosNew = () => {
             input: params,
           },
         });
-        setModalCustomerVisible(false);
         return response?.data?.updateOrder;
       }
     } catch (e: any) {
@@ -91,6 +97,11 @@ const PosNew = () => {
     }
   };
 
+  /**
+   * @description gestiona los productos que estan en la orden
+   * @param product producto para agregar a la orden
+   * @param quantity cantidad del producto para agregar
+   */
   const addProductOrder = async (product: Product, quantity: number) => {
     try {
       const productExist = data?.orderId?.details?.find(
@@ -103,7 +114,12 @@ const PosNew = () => {
             details: [
               {
                 productId: product?._id || '',
-                action: quantity === 0 ? 'delete' : productExist ? 'update' : 'create',
+                action:
+                  quantity === 0
+                    ? ActionProductsOrder.Delete
+                    : productExist
+                    ? ActionProductsOrder.Update
+                    : ActionProductsOrder.Create,
                 quantity: productExist ? productExist?.quantity + quantity : quantity,
               },
             ],
@@ -116,6 +132,9 @@ const PosNew = () => {
     }
   };
 
+  /**
+   * @description funcion usada para en listar las ordenes
+   */
   const order = async () => {
     if (id) {
       const response = await getOrder({
@@ -124,8 +143,8 @@ const PosNew = () => {
         },
       });
 
-      if (response?.data?.orderId?.status && response?.data?.orderId?.status !== 'open') {
-        showErrorRedirect(`El pedido ya se encuentra finalizado`, '/pos');
+      if (response?.data?.orderId?.status && response?.data?.orderId?.status !== StatusOrder.Open) {
+        showErrorRedirect(`El pedido ya se encuentra finalizado`, '/pos/sales');
       }
     }
   };
@@ -136,42 +155,20 @@ const PosNew = () => {
 
   useEffect(() => {
     if (error) {
-      showErrorRedirect(`Error al cargar el pedido, ${error.message}`, '/pos');
+      showErrorRedirect(`Error al cargar el pedido, ${error.message}`, '/pos/sales');
     }
   }, [error]);
 
   return (
-    <Row
-      style={{
-        height: '95vh',
-        overflow: 'hidden',
-      }}
-    >
-      <Col
-        xs={12}
-        md={8}
-        lg={8}
-        style={{
-          height: '100%',
-          borderRight: 'solid 1px black',
-        }}
-      >
+    <Row style={styles.rowScroll}>
+      <Col xs={12} md={8} lg={8} style={styles.colBorder}>
         <Resumen
           setModalCustomerVisible={setModalCustomerVisible}
           editOrder={editOrder}
           addProductOrder={addProductOrder}
         />
       </Col>
-      <Col
-        style={{
-          height: '100%',
-          overflowY: 'scroll',
-          overflowX: 'hidden',
-        }}
-        xs={12}
-        md={16}
-        lg={16}
-      >
+      <Col style={styles.colScroll} xs={12} md={16} lg={16}>
         <SearchProduct editOrder={editOrder} addProductOrder={addProductOrder} refCode={refCode} />
       </Col>
       <SelectCustomer

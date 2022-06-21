@@ -1,5 +1,6 @@
 query currentUser {
   currentUser {
+    _id
     username
     name
     pointOfSale {
@@ -16,7 +17,35 @@ query currentUser {
     role {
       name
       permissions {
+        action
+      }
+    }
+  }
+}
+
+query users($input: FiltersUsersInput!) {
+  users(filtersUsersInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      createdAt
+      updatedAt
+      name
+      role {
         name
+        _id
+      }
+      shop {
+        name
+        _id
+      }
+      status
+      username
+      pointOfSale {
+        name
+        _id
       }
     }
   }

@@ -13,6 +13,7 @@ import type {
   StockRequest,
   FiltersStockRequestsInput,
 } from '@/graphql/graphql';
+import { StatusStockRequest } from '@/graphql/graphql';
 import { StatusType } from '../../request/request.data';
 import moment from 'moment';
 
@@ -61,7 +62,7 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
     const filters: FiltersStockRequestsInput = {};
 
     if (!values?.all) {
-      filters.status = 'pending';
+      filters.status = StatusStockRequest.Pending;
     }
 
     delete values.all;
@@ -70,7 +71,7 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
   };
 
   useEffect(() => {
-    onSearch({ status: 'pending' });
+    onSearch({ status: StatusStockRequest.Pending });
   }, []);
 
   const rowSelection = {

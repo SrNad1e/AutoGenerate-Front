@@ -34,17 +34,22 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
-import { useHistory, useModel, useParams } from 'umi';
+import { useAccess, useHistory, useModel, useParams } from 'umi';
 import { useReactToPrint } from 'react-to-print';
 import type { ColumnsType } from 'antd/es/table/interface';
 
 import type { DetailTransfer, Product } from '@/graphql/graphql';
+import { ActionDetailTransfer } from '@/graphql/graphql';
+import { StatusDetailTransfer, StatusStockTransfer } from '@/graphql/graphql';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { StatusType } from '../tranfer.data';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import ReportTransfer from '../reports/transfer';
 //import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
+
+import styles from './styles.less';
 
 const { Text, Title } = Typography;
 const FormItem = Form.Item;
@@ -53,7 +58,9 @@ const { TextArea } = Input;
 
 const ConfirmTransfer = () => {
   const [observation, setObservation] = useState('');
-  const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
+  const [details, setDetails] = useState<
+    Partial<DetailTransfer & { action: ActionDetailTransfer }>[]
+  >([]);
   const [error, setError] = useState('');
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
@@ -64,7 +71,7 @@ const ConfirmTransfer = () => {
     type: TYPES;
     visible: boolean;
     message: string;
-    status?: string;
+    status?: StatusStockTransfer;
   }>({
     visible: false,
     message: '',
@@ -90,12 +97,18 @@ const ConfirmTransfer = () => {
   const [confirmProductsTransfer] = useConfirmProductsTransfer();
   const [updateTransfer] = useUpdateTransfer();
 
+  const {
+    transfer: { canPrint, canConfirm },
+  } = useAccess();
+
   const allowConfirm =
-    data?.stockTransferId?.status === 'sent' &&
+    data?.stockTransferId?.status === StatusStockTransfer.Sent &&
     initialState?.currentUser?.shop?.defaultWarehouse?._id ===
-      data?.stockTransferId?.warehouseDestination?._id;
+      data?.stockTransferId?.warehouseDestination?._id &&
+    canConfirm;
+
   const allowConfirmTransfer = !data?.stockTransferId?.details?.find(
-    (item) => item.status === 'new',
+    (item) => item.status === StatusDetailTransfer.New,
   );
 
   /**
@@ -146,7 +159,7 @@ const ConfirmTransfer = () => {
       if (response?.data?.stockTransferId) {
         setDetails(
           response?.data?.stockTransferId?.details as Partial<
-            DetailTransfer & { action: string }
+            DetailTransfer & { action: ActionDetailTransfer }
           >[],
         );
       }
@@ -164,10 +177,13 @@ const ConfirmTransfer = () => {
       const index = newDetails.findIndex((item) => item?.product?.barcode === values.barcode);
 
       if (index >= 0) {
-        if (newDetails[index]?.status === 'new' || newDetails[index]?.quantityConfirmed === 0) {
+        if (
+          newDetails[index]?.status === StatusDetailTransfer.New ||
+          newDetails[index]?.quantityConfirmed === 0
+        ) {
           newDetails[index] = {
             ...newDetails[index],
-            status: 'new',
+            status: StatusDetailTransfer.New,
             quantityConfirmed: (newDetails[index]?.quantityConfirmed || 0) + 1,
           };
           setError(
@@ -193,7 +209,7 @@ const ConfirmTransfer = () => {
       if (item?.product?._id === _id) {
         return {
           ...item,
-          status: 'confirmed',
+          status: StatusDetailTransfer.Confirmed,
           quantityConfirmed: 0,
         };
       }
@@ -205,8 +221,8 @@ const ConfirmTransfer = () => {
   const confirmProducts = () => {
     const productsConfirm = details.filter(
       (item) =>
-        ((item?.status === 'new' && item?.quantityConfirmed) || 0) > 0 ||
-        (item?.status === 'confirmed' && item?.quantityConfirmed === 0),
+        ((item?.status === StatusDetailTransfer.New && item?.quantityConfirmed) || 0) > 0 ||
+        (item?.status === StatusDetailTransfer.Confirmed && item?.quantityConfirmed === 0),
     );
 
     if (productsConfirm.length > 0) {
@@ -221,23 +237,23 @@ const ConfirmTransfer = () => {
   };
 
   const confirmTransfer = () => {
-    const productsConfirm = details.find((item) => item?.status !== 'confirmed');
+    const productsConfirm = details.find((item) => item?.status !== StatusDetailTransfer.Confirmed);
 
     if (!productsConfirm) {
       setPropsAlertSave({
         visible: true,
         message: 'Se enviaran las unidades confirmadas a la bodega, ¿Está Seguro?',
         type: 'warning',
-        status: 'confirmed',
+        status: StatusStockTransfer.Confirmed,
       });
     } else {
       onShowError('Debe confirmar todos los productos');
     }
   };
 
-  const saveTransfer = async (status?: string) => {
-    if (status === 'confirmed') {
-      const confirm = !details?.find((item) => item?.status === 'sent');
+  const saveTransfer = async (status?: StatusStockTransfer) => {
+    if (status === StatusStockTransfer.Confirmed) {
+      const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.Sent);
 
       if (!confirm) {
         onShowError('Debe confirmar todos los productos antes de enviar');
@@ -257,7 +273,7 @@ const ConfirmTransfer = () => {
               message: 'Productos confirmados correctamente',
               visible: true,
               type: 'success',
-              redirect: '/transfer/list',
+              redirect: '/inventory/transfer/list',
             });
           }
         }
@@ -265,32 +281,34 @@ const ConfirmTransfer = () => {
     } else {
       const newDetails = details.filter(
         (item) =>
-          (item?.status === 'new' && (item?.quantityConfirmed || 0) > 0) ||
-          (item?.status === 'confirmed' && (item?.quantityConfirmed || 0) === 0),
+          (item?.status === StatusDetailTransfer.New && (item?.quantityConfirmed || 0) > 0) ||
+          (item?.status === StatusDetailTransfer.Confirmed && (item?.quantityConfirmed || 0) === 0),
       );
-
-      if (id) {
-        const response = await confirmProductsTransfer({
-          variables: {
-            id,
-            input: {
-              details:
-                newDetails.map((item) => ({
-                  productId: item?.product?._id || '',
-                  quantity: item?.quantityConfirmed || 0,
-                  action: 'update',
-                })) || [],
+      try {
+        if (id) {
+          const response = await confirmProductsTransfer({
+            variables: {
+              id,
+              input: {
+                details:
+                  newDetails.map((item) => ({
+                    productId: item?.product?._id || '',
+                    quantity: item?.quantityConfirmed || 0,
+                  })) || [],
+              },
             },
-          },
-        });
-
-        if (response?.data?.confirmProductsStockTransfer) {
-          setPropsAlert({
-            message: 'Productos confirmados correctamente',
-            visible: true,
-            type: 'success',
           });
+
+          if (response?.data?.confirmProductsStockTransfer) {
+            setPropsAlert({
+              message: 'Productos confirmados correctamente',
+              visible: true,
+              type: 'success',
+            });
+          }
         }
+      } catch (e: any) {
+        onShowError(e?.message);
       }
     }
   };
@@ -368,8 +386,8 @@ const ConfirmTransfer = () => {
           fixed: 'right',
           render: ({ _id = '' }: Product, record) => (
             <Popconfirm
-              disabled={!allowConfirm || record?.status === 'confirmed'}
-              title="¿De<sea confirmar en 0?"
+              disabled={!allowConfirm || record?.status === StatusDetailTransfer.Confirmed}
+              title="¿Desea confirmar en 0?"
               okText="Si, confirmar"
               cancelText="Cancelar"
               onConfirm={() => confirmZero(_id)}
@@ -378,7 +396,7 @@ const ConfirmTransfer = () => {
                 <Button
                   icon={<StopOutlined />}
                   type="primary"
-                  disabled={!allowConfirm || record?.status === 'confirmed'}
+                  disabled={!allowConfirm || record?.status === StatusDetailTransfer.Confirmed}
                   danger
                 />
               </Tooltip>
@@ -408,7 +426,12 @@ const ConfirmTransfer = () => {
             <Text>Traslado No. {data?.stockTransferId?.number}</Text>
             <Divider type="vertical" />
             <Tooltip title="Imprimir">
-              <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+              <Button
+                type="primary"
+                icon={<PrinterOutlined />}
+                onClick={() => handlePrint()}
+                disabled={!canPrint}
+              />
             </Tooltip>
           </>
         </Space>
@@ -416,31 +439,23 @@ const ConfirmTransfer = () => {
       loading={loading}
     >
       <Card>
-        <Row gutter={[0, 2]}>
-          <Col lg={12} xs={24}>
+        <Row gutter={[0, 40]}>
+          <Col span={24}>
             <Descriptions bordered size="small">
-              <DescriptionsItem label="Bodega que traslada" span={3}>
+              <DescriptionsItem label="Bodega que traslada" span={1}>
                 {data?.stockTransferId?.warehouseOrigin?.name}
               </DescriptionsItem>
-              <DescriptionsItem label="Usuario que envía" span={3}>
-                {data?.stockTransferId?.userOrigin?.name || initialState?.currentUser?.name}
+              <DescriptionsItem label="Usuario que envía" span={2}>
+                {data?.stockTransferId?.userOrigin?.name}
               </DescriptionsItem>
-            </Descriptions>
-          </Col>
-          <Col lg={12} xs={24}>
-            <Descriptions bordered size="small">
-              <DescriptionsItem label="Bodega de destino" span={3}>
+              <DescriptionsItem label="Bodega de destino" span={1}>
                 {data?.stockTransferId?.warehouseDestination?.name ||
                   initialState?.currentUser?.shop?.defaultWarehouse?.name}
               </DescriptionsItem>
-              <DescriptionsItem label="Usuario que recibe" span={3}>
-                {data?.stockTransferId?.userDestination?.name || initialState?.currentUser?.name}
+              <DescriptionsItem label="Usuario que recibe" span={2}>
+                {data?.stockTransferId?.userDestination?.name || '(Pendiente)'}
               </DescriptionsItem>
-            </Descriptions>
-          </Col>
-          <Col lg={24} xs={24}>
-            <Descriptions bordered size="small">
-              <DescriptionsItem label="Número" span={2}>
+              <DescriptionsItem label="Número" span={1}>
                 {data?.stockTransferId?.number || '(Pendiente)'}
               </DescriptionsItem>
               <DescriptionsItem label="Estado" span={2}>
@@ -449,13 +464,13 @@ const ConfirmTransfer = () => {
                   text={StatusType[data?.stockTransferId?.status || 'open']?.text}
                 />
               </DescriptionsItem>
-              <DescriptionsItem label="Creado" span={2}>
+              <DescriptionsItem label="Creado" span={1}>
                 {moment(data?.stockTransferId?.createdAt).format(FORMAT_DATE)}
               </DescriptionsItem>
               <DescriptionsItem label="Actualizado" span={2}>
                 {moment(data?.stockTransferId?.updatedAt).format(FORMAT_DATE)}
               </DescriptionsItem>
-              <DescriptionsItem label="Solicitudes" span={2}>
+              <DescriptionsItem label="Solicitudes" span={1}>
                 {data?.stockTransferId?.requests?.map((request) => {
                   <Tag key={request?._id} color="volcano" icon={<CheckCircleOutlined />}>
                     {request?.number}
@@ -465,6 +480,7 @@ const ConfirmTransfer = () => {
               <DescriptionsItem label="Observación">
                 {allowConfirm ? (
                   <TextArea
+                    defaultValue={data?.stockTransferId?.observationDestination || ''}
                     value={observation}
                     onChange={(e) => setObservation(e?.target?.value)}
                   />
@@ -473,8 +489,6 @@ const ConfirmTransfer = () => {
                 )}
               </DescriptionsItem>
             </Descriptions>
-          </Col>
-          <Col span={24}>
             {allowConfirm && (
               <Form form={form} layout="vertical">
                 <FormItem
@@ -493,18 +507,22 @@ const ConfirmTransfer = () => {
               </Form>
             )}
           </Col>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={
+                details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
+              }
+              scroll={{ x: 800 }}
+              pagination={{ size: 'small' }}
+            />
+          </Col>
         </Row>
-        <Table
-          columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== 'delete') as any}
-          scroll={{ x: 800 }}
-          pagination={{ size: 'small' }}
-        />
       </Card>
       <Affix offsetBottom={0}>
         <Card bordered={false}>
           <Row justify="center" align="middle">
-            <Col offset={4} span={16}>
+            <Col xs={12} md={18} lg={20}>
               <Title
                 level={3}
                 style={{
@@ -512,19 +530,17 @@ const ConfirmTransfer = () => {
                   textAlign: 'center',
                 }}
               >
-                REFERENCIAS: {details.filter((detail) => detail?.action !== 'delete').length}
+                REFERENCIAS:{' '}
+                {details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete).length}
                 <Divider type="vertical" />
                 PRODUCTOS:{' '}
                 {details
-                  .filter((detail) => detail?.action !== 'delete')
+                  .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
                   .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
               </Title>
             </Col>
-            <Col span={4}>
-              <Space
-                align="end"
-                style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}
-              >
+            <Col xs={12} md={6} lg={4}>
+              <Space align="end" className={styles.alignRigth}>
                 {allowConfirmTransfer ? (
                   <Button onClick={confirmTransfer} type="primary" disabled={!allowConfirm}>
                     Confirmar Traslado
@@ -545,6 +561,9 @@ const ConfirmTransfer = () => {
         message="Guardando traslado"
       />*/}
       <AlertSave {...propsAlertSaveFinal} />
+      <div style={{ display: 'none' }}>
+        <ReportTransfer ref={reportRef} data={data?.stockTransferId} />
+      </div>
     </PageContainer>
   );
 };

@@ -1,0 +1,11 @@
+query shops($input: FiltersShopsInput) {
+  shops(filtersShopsInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      name
+    }
+  }
+}

@@ -7,14 +7,47 @@ query stockTransfers($input: FiltersStockTransfersInput) {
       _id
       details {
         quantity
+         product {
+        _id
+        barcode
+        color {
+          name
+          name_internal
+          html
+          image {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+        }
+        reference {
+          name
+          description
+        }
+        size {
+          value
+        }
+        stock {
+          quantity
+        }
+      }
       }
       number
       status
       updatedAt
+      createdAt
+      observation
+      observationOrigin
+      observationDestination
       warehouseDestination {
         name
       }
       warehouseOrigin {
+        name
+      }
+      userOrigin{
         name
       }
     }
@@ -70,6 +103,7 @@ query stockTransferId($id: String!) {
       name
     }
     userOrigin {
+      _id
       name
     }
     warehouseDestination {

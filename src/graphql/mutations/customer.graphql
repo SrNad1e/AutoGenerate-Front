@@ -1,5 +1,7 @@
 mutation createCustomer($input:CreateCustomerInput!){
   createCustomer(createCustomerInput:$input){
     _id
+    firstName
+    lastName
   }
 }

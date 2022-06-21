@@ -1,6 +1,7 @@
 import { Affix, Card, Col, Row, Space, Button, Typography, Divider } from 'antd';
 
 import type { DetailRequest, StockRequest } from '@/graphql/graphql';
+import { StatusStockRequest } from '@/graphql/graphql';
 
 import styles from '../styles.less';
 
@@ -8,13 +9,12 @@ const { Title } = Typography;
 
 export type Props = {
   request: Partial<StockRequest> | undefined;
-  saveRequest: (status?: string) => void;
+  saveRequest: (status?: StatusStockRequest) => void;
   details: Partial<DetailRequest & { action: string }>[];
+  allowEdit: boolean;
 };
 
-const Footer = ({ request, saveRequest, details }: Props) => {
-  const allowEdit = request?.status === 'open';
-
+const Footer = ({ request, saveRequest, details, allowEdit }: Props) => {
   /**
    * @description genera la vista del resumen
    * @returns componente para la vista de resumen
@@ -38,23 +38,29 @@ const Footer = ({ request, saveRequest, details }: Props) => {
     <Affix offsetBottom={0}>
       <Card>
         <Row>
-          <Col span={4}>
+          <Col xs={24} md={3}>
             <Button
               disabled={!allowEdit}
               type={request?._id ? 'primary' : 'default'}
               danger={!!request?._id}
-              onClick={() => saveRequest('cancelled')}
+              onClick={() => saveRequest(StatusStockRequest.Cancelled)}
             >
               Cancelar
             </Button>
           </Col>
-          <Col span={16}>{renderResumen()}</Col>
-          <Col span={4}>
-            <Space align="end" className={styles.alignRigth}>
+          <Col xs={24} md={16}>
+            {renderResumen()}
+          </Col>
+          <Col xs={24} md={5}>
+            <Space className={styles.alignRigth}>
               <Button disabled={!allowEdit} onClick={() => saveRequest()}>
                 Guardar
               </Button>
-              <Button type="primary" disabled={!allowEdit} onClick={() => saveRequest('pending')}>
+              <Button
+                type="primary"
+                disabled={!allowEdit}
+                onClick={() => saveRequest(StatusStockRequest.Pending)}
+              >
                 Enviar
               </Button>
             </Space>

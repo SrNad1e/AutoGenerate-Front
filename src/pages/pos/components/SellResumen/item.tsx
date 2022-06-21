@@ -1,10 +1,13 @@
 import { CloseOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Image, InputNumber, List, Row, Tooltip, Typography } from 'antd';
 import numeral from 'numeral';
+import { useState } from 'react';
 
 import type { DetailOrder, Product } from '@/graphql/graphql';
 
 import DefaultImage from '@/assets/default.webp';
+
+import styles from '../styles';
 
 const ListItem = List.Item;
 const { Text, Title } = Typography;
@@ -20,9 +23,13 @@ const ItemResume = ({
   number,
   addProductOrder,
 }: Params) => {
-  const onChange = (value: number) => {
+  const [disabled, setDisabled] = useState(false);
+
+  const onChange = async (value: number) => {
     if (value && value !== quantity) {
-      addProductOrder(product, value - quantity);
+      setDisabled(true);
+      await addProductOrder(product, value - quantity);
+      setDisabled(false);
     }
   };
 
@@ -32,20 +39,9 @@ const ItemResume = ({
 
   return (
     <ListItem>
-      <Card
-        bordered={false}
-        bodyStyle={{
-          padding: 0,
-        }}
-      >
-        <Row align="middle" gutter={6}>
-          <Col
-            span={24}
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-            }}
-          >
+      <Card bordered={false} bodyStyle={styles.cardNoPadding}>
+        <Row align="middle" gutter={3}>
+          <Col span={24} style={styles.colEnd}>
             <Tooltip title="Eliminar">
               <Button
                 onClick={deleteProduct}
@@ -56,10 +52,10 @@ const ItemResume = ({
               />
             </Tooltip>
           </Col>
-          <Col lg={2}>
+          <Col lg={1}>
             <Title level={4}>{number}</Title>
           </Col>
-          <Col lg={4}>
+          <Col lg={3}>
             <Image
               preview={false}
               fallback={DefaultImage}
@@ -67,9 +63,9 @@ const ItemResume = ({
               alt="Product"
             />
           </Col>
-          <Col lg={8}>
+          <Col lg={9}>
             <Row>
-              <Col span={24} style={{ lineHeight: 0 }}>
+              <Col span={24} style={styles.titleLine}>
                 <Text>{product?.reference?.name}</Text>
               </Col>
               <Col span={24}>
@@ -87,18 +83,24 @@ const ItemResume = ({
               </Col>
             </Row>
           </Col>
-          <Col lg={5}>
-            <InputNumber onChange={onChange} value={quantity} style={{ width: 70 }} min={1} />
+          <Col lg={6}>
+            <InputNumber
+              disabled={disabled}
+              onChange={onChange}
+              value={quantity}
+              style={styles.inputNumberWidth}
+              min={1}
+            />
           </Col>
           <Col lg={5}>
-            <Row style={{ lineHeight: 1, textAlign: 'right' }}>
+            <Row style={styles.rowStyle}>
               <Col span={24}>
-                <Text>{numeral(price * quantity - discount).format('$ 0,0')}</Text>
+                <Text>{numeral(price * quantity).format('$ 0,0')}</Text>
               </Col>
               <Col span={24}>
                 {discount > 0 && (
                   <Text italic delete>
-                    {numeral(price * quantity).format('$ 0,0')}
+                    {numeral((price + discount) * quantity).format('$ 0,0')}
                   </Text>
                 )}
               </Col>

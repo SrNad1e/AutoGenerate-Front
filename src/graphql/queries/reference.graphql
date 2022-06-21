@@ -60,7 +60,7 @@ query referenceId($id: String!) {
           }
         }
       }
-      size{
+      size {
         _id
         value
       }

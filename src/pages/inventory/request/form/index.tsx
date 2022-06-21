@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
-import { useParams, useHistory, useModel } from 'umi';
+import { useParams, useHistory, useModel, useAccess } from 'umi';
 import { useReactToPrint } from 'react-to-print';
 import { useEffect, useRef, useState } from 'react';
 
@@ -18,6 +18,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetRequest } from '@/hooks/request.hooks';
 import ReportRequest from '../reports/request';
 import type { StockRequest, Warehouse } from '@/graphql/graphql';
+import { StatusStockRequest } from '@/graphql/graphql';
 import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
@@ -33,7 +34,7 @@ const RequestForm = () => {
     visible: false,
   });
   const [request, setRequest] = useState<Partial<StockRequest>>({
-    status: 'open',
+    status: StatusStockRequest.Open,
   });
 
   const { initialState } = useModel('@@initialState');
@@ -52,9 +53,18 @@ const RequestForm = () => {
 
   const isNew = !id;
 
+  const {
+    request: { canEdit, canPrint },
+  } = useAccess();
+
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === request?.user?._id &&
+      request?.status === StatusStockRequest.Open &&
+      canEdit;
+
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
    */
   const onShowError = (message: string) => {
     setPropsAlert({
@@ -148,7 +158,9 @@ const RequestForm = () => {
           />
         );
       case 1:
-        return <FormRequest request={request} setCurrentStep={setCurrentStep} />;
+        return (
+          <FormRequest allowEdit={allowEdit} request={request} setCurrentStep={setCurrentStep} />
+        );
       default:
         return <></>;
     }
@@ -174,7 +186,12 @@ const RequestForm = () => {
               Solicitud No. {request?.number}
               <Divider type="vertical" />
               <Tooltip title="Imprimir">
-                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+                <Button
+                  type="primary"
+                  disabled={!canPrint}
+                  icon={<PrinterOutlined />}
+                  onClick={() => handlePrint()}
+                />
               </Tooltip>
             </>
           )}
@@ -199,7 +216,7 @@ const RequestForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormRequest request={request} setCurrentStep={setCurrentStep} />
+        <FormRequest allowEdit={allowEdit} request={request} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <div style={{ display: 'none' }}>

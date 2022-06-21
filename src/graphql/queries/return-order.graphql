@@ -1,0 +1,55 @@
+query returnsOrder($input: FiltersReturnsOrderInput) {
+  returnsOrder(filtersReturnsOrder: $input) {
+    totalPages
+    totalDocs
+    page
+    docs {
+      user {
+        name
+      }
+      coupon {
+        _id
+        code
+        createdAt
+        updatedAt
+        title
+        value
+        number
+        message
+        expiration
+      }
+      active
+      createdAt
+      updatedAt
+      _id
+      shop {
+        name
+      }
+      number
+      order {
+        number
+        summary{
+          discount
+          total
+        }
+      }
+      details {
+        price
+        product {
+          barcode
+          color {
+            name
+          }
+          size {
+            value
+          }
+          reference {
+            name
+            description
+          }
+        }
+        quantity
+      }
+    }
+  }
+}

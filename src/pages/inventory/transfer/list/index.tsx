@@ -15,7 +15,6 @@ import {
   Card,
   Col,
   DatePicker,
-  Divider,
   Form,
   InputNumber,
   Row,
@@ -35,19 +34,21 @@ import type {
   TablePaginationConfig,
 } from 'antd/es/table/interface';
 import type { Location } from 'umi';
-import { useHistory, useLocation } from 'umi';
+import { useHistory, useLocation, useAccess } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 
 import { StatusType } from '../tranfer.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
+import { StatusStockTransfer } from '@/graphql/graphql';
 import { useGetTransfers } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import ReportTransfer from '../reports/transfer';
 
 import styles from './styles.less';
 import './styles.less';
+import style from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -80,6 +81,10 @@ const TransferList = () => {
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
+
+  const {
+    transfer: { canPrint, canConfirm },
+  } = useAccess();
 
   const [getTransfers, { data, loading }] = useGetTransfers();
 
@@ -116,7 +121,7 @@ const TransferList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener las solicitudes
+   * @description se encarga de ejecutar la funcion para obtener los traslados
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersStockTransfersInput) => {
@@ -247,6 +252,8 @@ const TransferList = () => {
     {
       title: 'Número',
       dataIndex: 'number',
+      sorter: true,
+      showSorterTooltip: false,
       align: 'center',
       width: 100,
     },
@@ -282,11 +289,13 @@ const TransferList = () => {
     {
       title: 'Fecha',
       dataIndex: 'updatedAt',
+      sorter: true,
+      showSorterTooltip: false,
       align: 'center',
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Acciones',
+      title: 'Opciones',
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -294,7 +303,7 @@ const TransferList = () => {
       render: (_id: string, record) => {
         return (
           <Space>
-            {record?.status === 'open' ? (
+            {record?.status === StatusStockTransfer.Open ? (
               <Tooltip title="Editar">
                 <Button
                   type="primary"
@@ -304,11 +313,18 @@ const TransferList = () => {
                 />
               </Tooltip>
             ) : (
-              <Tooltip title={record?.status === 'sent' ? 'Confirmar' : 'Ver'}>
+              <Tooltip title={record?.status === StatusStockTransfer.Sent ? 'Confirmar' : 'Ver'}>
                 <Button
                   type="primary"
-                  danger={record?.status === 'sent'}
-                  icon={record?.status === 'sent' ? <FileDoneOutlined /> : <EyeOutlined />}
+                  disabled={record?.status === StatusStockTransfer.Sent && !canConfirm}
+                  danger={record?.status === StatusStockTransfer.Sent}
+                  icon={
+                    record?.status === StatusStockTransfer.Sent ? (
+                      <FileDoneOutlined />
+                    ) : (
+                      <EyeOutlined />
+                    )
+                  }
                   onClick={() => history.push(`/inventory/transfer/confirm/${_id}`)}
                 />
               </Tooltip>
@@ -316,7 +332,8 @@ const TransferList = () => {
             <Tooltip title="Imprimir">
               <Button
                 type="ghost"
-                style={{ backgroundColor: 'white' }}
+                disabled={!canPrint}
+                style={style.whiteColor}
                 onClick={() => printPage(record)}
                 icon={<PrinterFilled />}
               />
@@ -336,14 +353,14 @@ const TransferList = () => {
       }
     >
       <Card>
-        <Form form={form} layout="inline" className={styles.filters} onFinish={onFinish}>
-          <Row gutter={[20, 20]} className={styles.form}>
-            <Col xs={24} md={5} lg={5}>
+        <Form form={form} layout="horizontal" className={styles.filters} onFinish={onFinish}>
+          <Row gutter={20} className={styles.form}>
+            <Col xs={24} md={5} lg={5} xl={3}>
               <FormItem label="Número" name="number">
-                <InputNumber controls={false} />
+                <InputNumber controls={false} style={style.maxWidth} />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6}>
+            <Col xs={24} md={6} lg={6} xl={5}>
               <FormItem label="Estado" name="status">
                 <Select className={styles.item}>
                   {Object.keys(StatusType).map((key) => (
@@ -354,7 +371,7 @@ const TransferList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={5}>
+            <Col xs={24} md={6} lg={6} xl={4}>
               <FormItem label="Tipo" name="type">
                 <Select className={styles.item} disabled={loading}>
                   <Option key="sent">Enviados</Option>
@@ -362,17 +379,17 @@ const TransferList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7}>
+            <Col xs={24} md={7} lg={7} xl={6}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses />
               </FormItem>
             </Col>
-            <Col xs={24} md={12} lg={11}>
+            <Col xs={24} md={9} lg={9} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker disabled={loading} />
               </FormItem>
             </Col>
-            <Col span={10}>
+            <Col xs={24} md={7} lg={7} xl={24}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
@@ -386,35 +403,26 @@ const TransferList = () => {
             </Col>
           </Row>
         </Form>
-        <Divider />
-        <Row>
-          <Col
-            span={24}
-            style={{
-              textAlign: 'right',
-            }}
-          >
-            <Space align="end">
-              <Text strong>Total Encontrados:</Text>
-              <Text>{data?.stockTransfers?.totalDocs}</Text>
-              <Text strong>Páginas: </Text>
-              <Text>
-                {data?.stockTransfers?.page} / {data?.stockTransfers?.totalPages || 0}
-              </Text>
-            </Space>
+        <Row gutter={[0, 20]}>
+          <Col span={24} className={styles.marginFilters}>
+            <Text strong>Total Encontrados:</Text> {data?.stockTransfers?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.stockTransfers?.page} /{' '}
+            {data?.stockTransfers?.totalPages || 0}
+          </Col>
+          <Col span={24}>
+            <Table
+              scroll={{ x: 'auto' }}
+              columns={columns}
+              dataSource={data?.stockTransfers?.docs as any}
+              pagination={{
+                current: data?.stockTransfers?.page,
+                total: data?.stockTransfers?.totalDocs,
+              }}
+              onChange={handleChangeTable}
+              loading={loading}
+            />
           </Col>
         </Row>
-        <Table
-          scroll={{ x: 800 }}
-          columns={columns}
-          dataSource={data?.stockTransfers?.docs as any}
-          pagination={{
-            current: data?.stockTransfers?.page,
-            total: data?.stockTransfers?.totalDocs,
-          }}
-          onChange={handleChangeTable}
-          loading={loading}
-        />
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>

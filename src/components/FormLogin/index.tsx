@@ -49,18 +49,38 @@ const FormLogin = () => {
       });
 
       if (response?.data?.login) {
+        const allowPOS = !!response?.data?.login?.user?.role?.permissions.find(
+          (permission) => permission?.action === 'ACCESS_POS',
+        );
+
+        const allowERP = !!response?.data?.login?.user?.role?.permissions.find(
+          (permission) => permission?.action === 'ACCESS_ERP',
+        );
+
         if (response?.data?.login?.access_token) {
           localStorage.setItem('token', response?.data?.login?.access_token);
 
-          await setInitialState((s) => ({
-            ...s,
-            currentUser: response?.data?.login?.user,
-          }));
+          if (!allowERP && !allowPOS) {
+            setPropsAlert({
+              message: 'No tienes acceso, reporta tu problema al administrador',
+              type: 'error',
+              visible: true,
+            });
+          } else {
+            await setInitialState((s) => ({
+              ...s,
+              currentUser: response?.data?.login?.user,
+            }));
 
-          if (!history) return;
-          const { query } = history.location;
-          const { redirect } = query as { redirect: string };
-          history.push(redirect || '/');
+            if (!history) return;
+            if (!allowERP) {
+              history.push('/pos/sales');
+            } else {
+              const { query } = history.location;
+              const { redirect } = query as { redirect: string };
+              history.push(redirect || '/');
+            }
+          }
         }
       }
     } catch (error: any) {
