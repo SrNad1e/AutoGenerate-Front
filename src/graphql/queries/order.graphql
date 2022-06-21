@@ -1,5 +1,9 @@
 query orderId($id: String!) {
   orderId(id: $id) {
+    credit {
+      available
+      amount
+    }
     order {
       _id
       number

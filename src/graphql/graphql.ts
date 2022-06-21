@@ -5263,6 +5263,7 @@ export type UpdateOrderMutation = {
   __typename?: 'Mutation';
   updateOrder: {
     __typename?: 'ResponseOrder';
+    credit?: { __typename?: 'Credit'; amount: number; available: number } | null;
     order: {
       __typename?: 'Order';
       _id: string;
@@ -5383,6 +5384,7 @@ export type AddPaymentsOrderMutation = {
   __typename?: 'Mutation';
   addPaymentsOrder: {
     __typename?: 'ResponseOrder';
+    credit?: { __typename?: 'Credit'; amount: number; available: number } | null;
     order: {
       __typename?: 'Order';
       _id: string;
@@ -5456,6 +5458,7 @@ export type AddProductsOrderMutation = {
   __typename?: 'Mutation';
   addProductsOrder: {
     __typename?: 'ResponseOrder';
+    credit?: { __typename?: 'Credit'; amount: number; available: number } | null;
     order: {
       __typename?: 'Order';
       _id: string;
@@ -6649,6 +6652,7 @@ export type OrderIdQuery = {
   __typename?: 'Query';
   orderId: {
     __typename?: 'ResponseOrder';
+    credit?: { __typename?: 'Credit'; available: number; amount: number } | null;
     order: {
       __typename?: 'Order';
       _id: string;
@@ -9060,6 +9064,17 @@ export const UpdateOrderDocument = {
               selections: [
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'credit' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'order' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -9454,6 +9469,17 @@ export const AddPaymentsOrderDocument = {
               selections: [
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'credit' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'order' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -9678,6 +9704,17 @@ export const AddProductsOrderDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'credit' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'order' },
@@ -13721,6 +13758,17 @@ export const OrderIdDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'credit' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'order' },

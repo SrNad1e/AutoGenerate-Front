@@ -8,6 +8,10 @@ mutation createOrder($input: CreateOrderInput!) {
 
 mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
   updateOrder(id: $id, updateOrderInput: $input) {
+    credit {
+      amount
+      available
+    }
     order {
       _id
       number
@@ -129,6 +133,10 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
 
 mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
   addPaymentsOrder(addPaymentsOrderInput: $input) {
+    credit {
+      amount
+      available
+    }
     order {
       _id
       number
@@ -195,6 +203,10 @@ mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
 
 mutation addProductsOrder($input: AddProductsOrderInput!) {
   addProductsOrder(addProductsOrderInput: $input) {
+    credit {
+      amount
+      available
+    }
     order {
       _id
       number
