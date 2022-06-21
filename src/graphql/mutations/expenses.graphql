@@ -1,0 +1,18 @@
+mutation createExpense($input: CreateExpenseInput!) {
+  createExpense(createExpenseInput: $input) {
+    number
+    value
+    updatedAt
+    status
+  }
+}
+
+mutation updateExpense($id: String!, $input: UpdateExpenseInput!) {
+  updateExpense(id: $id, updateExpenseInput: $input) {
+    _id
+    concept
+    status
+    value
+    number
+  }
+}

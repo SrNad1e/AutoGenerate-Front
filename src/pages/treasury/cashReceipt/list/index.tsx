@@ -1,6 +1,10 @@
 import {
+  CalendarOutlined,
   CloseSquareFilled,
   DollarCircleOutlined,
+  GroupOutlined,
+  MoreOutlined,
+  NumberOutlined,
   PlusOutlined,
   PrinterFilled,
   SearchOutlined,
@@ -52,11 +56,19 @@ const CashReceiptList = () => {
 
   const column = [
     {
-      title: 'Numero',
+      title: (
+        <Text>
+          <NumberOutlined /> Número
+        </Text>
+      ),
       dataIndex: 'number',
     },
     {
-      title: 'Caja',
+      title: (
+        <Text>
+          <GroupOutlined /> Caja
+        </Text>
+      ),
       dataIndex: 'box',
     },
     {
@@ -70,7 +82,11 @@ const CashReceiptList = () => {
       ),
     },
     {
-      title: 'Valor',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Valor
+        </Text>
+      ),
       dataIndex: 'value',
       render: (value: number) => numeral(value).format('$ 0,0'),
     },
@@ -84,12 +100,20 @@ const CashReceiptList = () => {
       },
     },
     {
-      title: 'Fecha',
+      title: (
+        <Text>
+          <CalendarOutlined /> Fecha
+        </Text>
+      ),
       dataIndex: 'updatedAt',
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opción',
+      title: (
+        <Text>
+          <MoreOutlined /> Opciones
+        </Text>
+      ),
       dataIndex: '',
       fixed: 'right',
       render: () => (
@@ -143,7 +167,7 @@ const CashReceiptList = () => {
               shape="round"
               onClick={() => setVisibleModalCreate(true)}
             >
-              Nuevo
+              Abono de Cartera
             </Button>
           </Col>
           <Col xs={12} md={9} lg={8}>

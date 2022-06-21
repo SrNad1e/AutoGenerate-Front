@@ -1,66 +1,68 @@
 query orderId($id: String!) {
   orderId(id: $id) {
-    _id
-    number
-    customer {
-      document
-      firstName
-      lastName
-      active
-      documentType {
-        abbreviation
-      }
-      customerType {
-        name
-      }
-    }
-    details {
-      discount
-      quantity
-      price
-      product {
-        _id
-        barcode
-        reference {
-          name
-          cost
-          description
+    order {
+      _id
+      number
+      customer {
+        document
+        firstName
+        lastName
+        active
+        documentType {
+          abbreviation
         }
-        size {
-          value
-        }
-        status
-        color {
-          html
+        customerType {
           name
-          image {
-            urls {
-              webp {
-                small
+        }
+      }
+      details {
+        discount
+        quantity
+        price
+        product {
+          _id
+          barcode
+          reference {
+            name
+            cost
+            description
+          }
+          size {
+            value
+          }
+          status
+          color {
+            html
+            name
+            image {
+              urls {
+                webp {
+                  small
+                }
               }
             }
+            name_internal
           }
-          name_internal
-        }
-        stock {
-          quantity
+          stock {
+            quantity
+          }
         }
       }
-    }
-    payments {
-      total
-      payment {
-        name
-        type
+      payments {
+        total
+        payment {
+          name
+          type
+        }
       }
+      summary {
+        discount
+        subtotal
+        total
+        totalPaid
+      }
+      status
     }
-    summary {
-      discount
-      subtotal
-      total
-      totalPaid
-    }
-    status
   }
 }
 

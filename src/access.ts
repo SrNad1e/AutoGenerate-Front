@@ -173,5 +173,16 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateConfigurationUser,
       ),
     },
+    expense: {
+      canCancelled: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateTreasuryExpense,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateTreasuryExpense,
+      ),
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintTreasuryExpenses,
+      ),
+    },
   };
 }
