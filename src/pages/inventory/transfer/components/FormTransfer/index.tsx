@@ -140,7 +140,9 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           quantity: detail?.quantity || 1,
           action: detail?.action as ActionDetailTransfer,
         }));
-        if (newDetails.length > 0 || status || observation !== transfer?.observation) {
+        if (newDetails.length > 0 || status || observation !== transfer?.observationOrigin) {
+          console.log(observation);
+
           const props = {
             details: newDetails,
             requests: requests?.map((request) => request?._id),
