@@ -216,7 +216,7 @@ export default class ReportTransfer extends React.PureComponent {
                   fontWeight: 'bold',
                 }}
               >
-                Ultima fecha
+                Última fecha
               </div>
               <div
                 style={{
@@ -232,7 +232,7 @@ export default class ReportTransfer extends React.PureComponent {
               <div
                 style={{ ...styleBorders, width: '25%', borderRight: 'none', fontWeight: 'bold' }}
               >
-                Observiación Origen
+                Observación Origen
               </div>
               <div
                 style={{
