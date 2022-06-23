@@ -1,0 +1,17 @@
+query credit($input: FiltersCreditInput!) {
+  credit(filtersCreditInput: $input) {
+    balance
+    details {
+      balance
+      total
+      order {
+        _id
+        summary {
+          total
+        }
+        number
+        updatedAt
+      }
+    }
+  }
+}

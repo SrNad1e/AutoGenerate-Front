@@ -1,13 +1,21 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
+  CloseCircleOutlined,
   DollarCircleOutlined,
-  FileProtectOutlined,
-  IdcardOutlined,
+  FieldNumberOutlined,
+  GroupOutlined,
+  InteractionOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  SelectOutlined,
+  ShoppingOutlined,
   SolutionOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import {
+  Button,
   Col,
-  Descriptions,
+  Divider,
   Form,
   Input,
   InputNumber,
@@ -15,115 +23,402 @@ import {
   Row,
   Space,
   Table,
-  Tag,
   Typography,
 } from 'antd';
+import { useForm } from 'antd/lib/form/Form';
+import type { ColumnsType } from 'antd/es/table/interface';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import numeral from 'numeral';
+import { useCreateReceipts } from '@/hooks/receipt.hooks';
+import { useGetCredit } from '@/hooks/credit.hooks';
+import type { DetailCredit, DetailReceiptOrder, Order, ResponseReceipt } from '@/graphql/graphql';
+import { useModel } from 'umi';
+
+import SearchCustomer from '@/components/SearchCustomer';
+import Balance from '../components/balance';
+import SelectBox from '@/components/SelectBox';
+import SelectPayment from '@/components/SelectPayment';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import ReportReceipt from '../report/receipt';
 
 import styles from '../styles';
 
 const { TextArea } = Input;
-const { Title } = Typography;
-
 const FormItem = Form.Item;
-const DescriptionItem = Descriptions.Item;
+const { Text } = Typography;
 
 type Props = {
   visible: boolean;
   onCancel: () => void;
 };
 const CashReceiptForm = ({ visible, onCancel }: Props) => {
-  const [customer, setCustomer] = useState<any>({});
+  const [visibleBalance, setVisibleBalance] = useState<{
+    visible: boolean;
+    detail?: DetailReceiptOrder;
+  }>({
+    visible: false,
+  });
+  const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+  const [detailsCredit, setDetailsCredit] = useState<DetailReceiptOrder[]>([]);
+  const [canSelected, setCanSelected] = useState(true);
+  const [selectCustomer, setSelectCustomer] = useState(false);
+  const [allowData, setAllowData] = useState(false);
+  const [receipt, setReceipt] = useState({});
 
-  const setCustomerData = () => {
-    setCustomer({
-      name: 'Dio Brandon',
-      contact: 3104603499,
+  const [form] = useForm();
+  const { initialState } = useModel('@@initialState');
+
+  const canChangeBox = initialState?.currentUser?.role?.changeWarehouse;
+
+  const [getCredit, paramsGetCredit] = useGetCredit();
+  const [createReceipt, paramsCreateReceipt] = useCreateReceipts();
+
+  const reportRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
+
+  const printReceipt = async (record: ResponseReceipt) => {
+    await setReceipt(record);
+    handlePrint();
+  };
+
+  /**
+   * @description cierra el modal de saldo
+   */
+  const closeVisibleCreditBalance = () => {
+    const details = detailsCredit.filter((item) => item.orderId !== visibleBalance.detail?.orderId);
+    setDetailsCredit(details);
+    setVisibleBalance({ visible: false });
+  };
+
+  /**
+   * @description funcion usada para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showError = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'warning',
+      visible: true,
     });
   };
 
-  const dataTest = [
-    {
-      number: 1,
-      invoice: 18711,
-      createdAt: '2022-05-04T18:10:20.727Z',
-      expiration: '2022-05-04T18:10:20.727Z',
-      value: 100000,
-      pending: 1000000,
-    },
-  ];
+  /**
+   * @description funcion usada para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showSuccess = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'success',
+      visible: true,
+    });
+  };
 
-  const column = [
+  /**
+   * @description cierra la alerta y el modal
+   */
+  const closeAlertInformation = () => {
+    setAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+    onCancel();
+  };
+
+  /**
+   * @description funcion usada para elegir la caja del punto de venta asignado al usuario
+   */
+  const validateBox = () => {
+    if (!canChangeBox) {
+      if (initialState?.currentUser?.pointOfSale?._id) {
+        form.setFieldsValue({ boxId: initialState?.currentUser?.pointOfSale?.box?._id });
+      } else {
+        setAlertInformation({
+          message: 'El usuario no tiene punto de venta asignado',
+          type: 'warning',
+          visible: true,
+        });
+      }
+    }
+  };
+
+  /**
+   * @description funcion usada para eliminar el detalle del pedido
+   * @param id identificador del del detalle
+   */
+  const deleteDetail = (id: string) => {
+    const details = detailsCredit.filter((item) => item.orderId !== id);
+    setDetailsCredit(details);
+    form.setFieldsValue({
+      value: details.reduce((sum, det) => sum + det.amount, 0),
+      concept: details.reduce((str, dt) => {
+        const detailSelected = paramsGetCredit?.data?.credit?.details?.find(
+          (item) => item.order?._id === dt.orderId,
+        );
+
+        return `${str} Abono a pedido No. ${detailSelected?.order?.number}, `;
+      }, ''),
+    });
+  };
+
+  /**
+   * @description  funcion usada para setear el saldo confirmado y el concepto por defecto
+   */
+  const confirmBalance = () => {
+    const amount = form.getFieldValue('amount');
+    const details = detailsCredit.map((detail) => {
+      if (detail?.orderId === visibleBalance?.detail?.orderId) {
+        return {
+          ...detail,
+          amount,
+        };
+      }
+      return detail;
+    });
+    setDetailsCredit(details);
+    form.setFieldsValue({
+      value: details.reduce((sum, det) => sum + det.amount, 0),
+      concept: details.reduce((str, dt) => {
+        const detailSelected = paramsGetCredit?.data?.credit?.details?.find(
+          (item) => item.order?._id === dt.orderId,
+        );
+
+        return `${str} Abono a pedido No. ${detailSelected?.order?.number}, `;
+      }, ''),
+    });
+    setVisibleBalance({ visible: false });
+    setCanSelected(false);
+  };
+
+  /**
+   * @description abre el detalle del pedido seleccionado
+   * @param detail detalle del pedido para abrir
+   */
+  const orderBalance = (detail: DetailCredit) => {
+    setDetailsCredit([
+      ...detailsCredit,
+      {
+        orderId: detail?.order?._id,
+        amount: detail.balance,
+      },
+    ]);
+    form.setFieldsValue({
+      amount: detail.balance,
+    });
+    setVisibleBalance({
+      visible: true,
+      detail: {
+        orderId: detail?.order?._id,
+        amount: detail.balance,
+      },
+    });
+  };
+
+  /**
+   * @description se encarga de crear el recibo de caja e imprimirlo
+   */
+  const createNewReceipt = async () => {
+    const values = await form.validateFields();
+    const detailsCreate: DetailReceiptOrder[] = detailsCredit.map((detail) => ({
+      orderId: detail?.orderId,
+      amount: detail?.amount,
+    }));
+    try {
+      delete values.amount;
+      delete values.customerId;
+      const response = await createReceipt({
+        variables: {
+          input: {
+            ...values,
+            details: detailsCreate,
+          },
+        },
+      });
+      if (response) {
+        await printReceipt(response?.data?.createReceipt);
+        showSuccess(
+          `Recibo de Caja No. ${response?.data?.createReceipt?.receipt?.number} generado correctamente`,
+        );
+      }
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de ejecutar la funcion para obtener los creditos
+   */
+  const onSearch = async () => {
+    try {
+      const response = await getCredit({
+        variables: {
+          input: {
+            customerId: form.getFieldValue('customerId'),
+          },
+        },
+      });
+
+      if (response.data?.credit && !response.data?.credit?.details) {
+        setVisibleBalance({ visible: true });
+        setAllowData(false);
+      } else if (!response.data?.credit) {
+        showError('El cliente no tiene crédito habilitado');
+        setAllowData(false);
+      } else if (response.data?.credit?.balance <= 0) {
+        showError('El cliente no tiene crédito pendiente');
+        setAllowData(false);
+      }
+
+      setAllowData(true);
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
+  useEffect(() => {
+    form.resetFields(['ammount']);
+    if (canSelected === false) {
+      setCanSelected(false);
+    } else if (!confirmBalance) {
+      setCanSelected(true);
+    }
+  }, [visibleBalance]);
+
+  useEffect(() => {
+    form.resetFields();
+    setDetailsCredit([]);
+    validateBox();
+    setCanSelected(true);
+    setSelectCustomer(false);
+    setAllowData(false);
+  }, [visible]);
+
+  const column: ColumnsType<DetailCredit> = [
     {
-      title: 'Numero',
-      dataIndex: 'number',
-    },
-    {
-      title: 'Factura',
-      dataIndex: 'invoice',
-      render: (invoice: any) => (
-        <Tag style={{ backgroundColor: 'white', color: '#dc9575', borderColor: '#dc9575' }}>
-          {<FileProtectOutlined style={{ color: '#dc9575' }} />}
-          {invoice}
-        </Tag>
+      title: (
+        <Text style={{ fontSize: 20 }}>
+          <FieldNumberOutlined />
+        </Text>
       ),
+      dataIndex: 'order',
+      render: (order: Order) => order?.number,
     },
-
     {
       title: 'Total',
-      dataIndex: 'value',
-      render: (value: number) => numeral(value).format('$ 0,0'),
+      dataIndex: 'order',
+      render: (order: Order) => numeral(order?.summary?.total).format('$ 0,0'),
     },
     {
       title: 'Saldo',
-      dataIndex: 'pending',
-      render: (pending: number) => numeral(pending).format('$ 0,0'),
+      dataIndex: 'balance',
+      render: (balanceCredit: number) => numeral(balanceCredit).format('$ 0,0'),
     },
     {
-      title: 'Vencimiento',
-      dataIndex: 'expiration',
-      render: (expiration: Date) => moment(expiration).format(FORMAT_DATE_API),
+      title: 'Fecha',
+      dataIndex: 'order',
+      render: (order: Order) => moment(order.updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Creación',
-      dataIndex: 'createdAt',
-      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
+      title: (
+        <Text>
+          <InteractionOutlined /> Seleccionar
+        </Text>
+      ),
+      dataIndex: 'order',
+      align: 'center',
+      fixed: 'right',
+      render: ({ _id }: Order, detailOrder: DetailCredit) => (
+        <Space>
+          <Button
+            disabled={
+              canSelected === false
+                ? !!detailsCredit.find((detail) => detail.orderId === _id)
+                : false || paramsCreateReceipt?.loading
+            }
+            onClick={() => orderBalance(detailOrder)}
+            type="primary"
+            icon={<SelectOutlined />}
+          />
+          <Button
+            type="primary"
+            danger
+            icon={<CloseCircleOutlined />}
+            disabled={
+              canSelected
+                ? true
+                : !detailsCredit.find((detail) => detail.orderId === _id) ||
+                  paramsCreateReceipt?.loading
+            }
+            onClick={() => deleteDetail(_id)}
+          />
+        </Space>
+      ),
     },
   ];
 
   return (
     <Modal
-      title="Crear Recibo"
+      title="Abono de cartera"
       visible={visible}
       onCancel={onCancel}
+      onOk={createNewReceipt}
       width={750}
       okText="Crear"
       cancelText="Cancelar"
+      destroyOnClose
+      okButtonProps={{
+        loading: paramsCreateReceipt?.loading,
+        style: styles.buttonR,
+        icon: <PlusOutlined />,
+      }}
+      cancelButtonProps={{
+        loading: paramsCreateReceipt?.loading,
+        style: styles.buttonR,
+        disabled: paramsGetCredit?.loading || paramsCreateReceipt?.loading,
+      }}
     >
-      <Form layout="vertical">
-        <Row gutter={[0, 20]}>
-          <Col span={14}>
-            <FormItem label={<Space>{<IdcardOutlined />} Documento </Space>}>
-              <Input onPressEnter={setCustomerData} style={styles.inputWidth} />
+      <Form layout="vertical" form={form}>
+        <Row gutter={[20, 20]} justify="center" align="middle">
+          <Col span={11}>
+            <FormItem label={<Space>{<UserOutlined />} Cliente </Space>} name="customerId">
+              <SearchCustomer disabled={false} onChange={() => setSelectCustomer(true)} />
             </FormItem>
           </Col>
-          <Col span={10}>
-            {customer?.name && (
-              <Descriptions layout="vertical">
-                <DescriptionItem label={<Space>{<UserOutlined />} Cliente </Space>}>
-                  <Title level={5}>
-                    {customer?.name} - {customer?.contact}
-                  </Title>
-                </DescriptionItem>
-              </Descriptions>
-            )}
+          <Col>
+            <FormItem label=" " colon={false}>
+              <Button
+                icon={<SearchOutlined />}
+                disabled={
+                  paramsGetCredit?.loading ||
+                  paramsCreateReceipt?.loading ||
+                  !selectCustomer ||
+                  detailsCredit.length > 0
+                }
+                type="primary"
+                loading={paramsGetCredit?.loading}
+                style={styles.buttonR}
+                onClick={() => onSearch()}
+              >
+                Buscar Pedidos
+              </Button>
+            </FormItem>
           </Col>
+          <Divider style={{ marginTop: 0 }}>Pedidos</Divider>
           <Col span={24}>
             <Table
               columns={column}
-              dataSource={dataTest}
+              dataSource={allowData ? paramsGetCredit.data?.credit?.details : []}
               pagination={false}
               scroll={{ y: 200 }}
               footer={() => (
@@ -134,13 +429,50 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
                       Concepto
                     </Space>
                   }
+                  name="concept"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Este campo no puede estar vacio',
+                    },
+                  ]}
                 >
                   <TextArea />
                 </FormItem>
               )}
             />
           </Col>
-          <Col offset={16} span={8}>
+          <Col span={8}>
+            <FormItem
+              label={<Space>{<GroupOutlined />} Caja </Space>}
+              name="boxId"
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+            >
+              <SelectBox
+                disabled={paramsGetCredit?.loading || paramsCreateReceipt?.loading || !canChangeBox}
+              />
+            </FormItem>
+          </Col>
+          <Col span={9}>
+            <FormItem
+              label={<Space>{<ShoppingOutlined />} Medio de Pago </Space>}
+              name="paymentId"
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+            >
+              <SelectPayment disabled={paramsGetCredit?.loading || paramsCreateReceipt?.loading} />
+            </FormItem>
+          </Col>
+          <Col span={7}>
             <FormItem
               label={
                 <Space>
@@ -148,18 +480,25 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
                   Total de Pago
                 </Space>
               }
+              name="value"
             >
               <InputNumber
-                style={styles.inputNumberWidth}
+                style={styles.maxWidth}
                 min={0}
-                step={100}
+                disabled={true}
+                controls={false}
                 formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
               />
             </FormItem>
           </Col>
         </Row>
+        <Balance onOk={confirmBalance} onCancel={closeVisibleCreditBalance} {...visibleBalance} />
       </Form>
+      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <div style={{ display: 'none' }}>
+        <ReportReceipt data={receipt} ref={reportRef} />
+      </div>
     </Modal>
   );
 };

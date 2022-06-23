@@ -294,8 +294,8 @@ export default defineConfig({
               name: 'Devoluciones',
               path: '/invoicing/return',
               component: './invoicing/return/list',
-              access: 'allowOption',
             },
+
             {
               name: 'Cierres',
               path: '/invoicing/closings',
@@ -391,7 +391,6 @@ export default defineConfig({
         },
         {
           layout: false,
-          component: '404',
           path: '/:id',
           component: './exception/404',
         },
