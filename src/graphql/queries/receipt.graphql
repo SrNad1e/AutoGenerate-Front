@@ -4,11 +4,17 @@ query receipts($input: FiltersReceiptsInput) {
     totalPages
     page
     docs {
+      _id
       number
       updatedAt
+      createdAt
+      concept
       value
       status
       box {
+        name
+      }
+      user {
         name
       }
       payment {

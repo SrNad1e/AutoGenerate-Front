@@ -5,11 +5,12 @@ query credit($input: FiltersCreditInput!) {
       balance
       total
       order {
+        _id
+        summary {
+          total
+        }
         number
         updatedAt
-        invoice {
-          number
-        }
       }
     }
   }

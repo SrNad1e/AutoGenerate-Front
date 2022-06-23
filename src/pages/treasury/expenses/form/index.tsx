@@ -113,6 +113,11 @@ const ExpensesForm = ({ visible, onCancel }: Props) => {
       onOk={createNewExpense}
       okButtonProps={{
         loading: loading,
+        style: { borderRadius: 5 },
+      }}
+      cancelButtonProps={{
+        loading: loading,
+        style: { borderRadius: 5 },
       }}
     >
       <Form form={form} layout="vertical">

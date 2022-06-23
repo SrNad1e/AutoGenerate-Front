@@ -181,7 +181,7 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateTreasuryExpense,
       ),
       canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === Permissions.PrintTreasuryExpenses,
+        (permission) => permission?.action === Permissions.PrintTreasuryExpense,
       ),
     },
     receipt: {
@@ -191,9 +191,9 @@ export default function access(initialState: { currentUser?: User | undefined })
       canCreate: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === Permissions.CreateTreasuryReceipt,
       ),
-      /*  canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === Permissions.PrintTreasuryExpenses,
-      ),*/
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintTreasuryReceipt,
+      ),
     },
   };
 }

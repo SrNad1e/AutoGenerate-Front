@@ -2422,7 +2422,8 @@ export enum Permissions {
   PrintInvoicingClosex = 'PRINT_INVOICING_CLOSEX',
   PrintInvoicingClosez = 'PRINT_INVOICING_CLOSEZ',
   PrintInvoicingReturn = 'PRINT_INVOICING_RETURN',
-  PrintTreasuryExpenses = 'PRINT_TREASURY_EXPENSES',
+  PrintTreasuryExpense = 'PRINT_TREASURY_EXPENSE',
+  PrintTreasuryReceipt = 'PRINT_TREASURY_RECEIPT',
   ReadConfigurationConveyors = 'READ_CONFIGURATION_CONVEYORS',
   ReadConfigurationImages = 'READ_CONFIGURATION_IMAGES',
   ReadConfigurationPermissions = 'READ_CONFIGURATION_PERMISSIONS',
@@ -5638,7 +5639,24 @@ export type CreateReceiptMutation = {
   __typename?: 'Mutation';
   createReceipt: {
     __typename?: 'ResponseReceipt';
-    receipt: { __typename?: 'Receipt'; number: number; _id: string };
+    credit: {
+      __typename?: 'Credit';
+      available: number;
+      balance: number;
+      amount: number;
+      frozenAmount: number;
+      customer: { __typename?: 'Customer'; firstName: string; lastName: string; document: string };
+    };
+    receipt: {
+      __typename?: 'Receipt';
+      number: number;
+      _id: string;
+      createdAt: any;
+      concept?: string | null;
+      value: number;
+      box?: { __typename?: 'Box'; name: string } | null;
+      user: { __typename?: 'User'; name: string };
+    };
   };
 };
 
@@ -6428,9 +6446,10 @@ export type CreditQuery = {
           total: number;
           order: {
             __typename?: 'Order';
+            _id: string;
             number: number;
             updatedAt: any;
-            invoice?: { __typename?: 'Invoice'; number: number } | null;
+            summary: { __typename?: 'SummaryOrder'; total: number };
           };
         }[]
       | null;
@@ -7039,11 +7058,15 @@ export type ReceiptsQuery = {
     page: number;
     docs: {
       __typename?: 'Receipt';
+      _id: string;
       number: number;
       updatedAt: any;
+      createdAt: any;
+      concept?: string | null;
       value: number;
       status: StatusReceipt;
       box?: { __typename?: 'Box'; name: string } | null;
+      user: { __typename?: 'User'; name: string };
       payment: { __typename?: 'Payment'; name: string; type: TypePayment };
     }[];
   };
@@ -10360,12 +10383,56 @@ export const CreateReceiptDocument = {
               selections: [
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'credit' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'customer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'frozenAmount' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'receipt' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'concept' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'box' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                     ],
                   },
                 },
@@ -13005,18 +13072,19 @@ export const CreditDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'invoice' },
+                              name: { kind: 'Name', value: 'summary' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                                 ],
                               },
                             },
+                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                           ],
                         },
                       },
@@ -15038,13 +15106,24 @@ export const ReceiptsDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'concept' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'value' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'box' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],

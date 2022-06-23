@@ -32,7 +32,7 @@ import type { SorterResult } from 'antd/lib/table/interface';
 import type { FiltersReceiptsInput, Payment, Receipt } from '@/graphql/graphql';
 import { StatusReceipt } from '@/graphql/graphql';
 import { useGetReceipts, useUpdateReceipt } from '@/hooks/receipt.hooks';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import moment from 'moment';
 import numeral from 'numeral';
 import { useAccess, useHistory, useLocation } from 'umi';
@@ -46,6 +46,8 @@ import { StatusTypeReceipt } from '../receipt.data';
 import SelectPayment from '@/components/SelectPayment';
 
 import styles from '../styles';
+import ReportReceipt from '../report/receipt';
+import { useReactToPrint } from 'react-to-print';
 
 const FormItem = Form.Item;
 
@@ -54,7 +56,7 @@ const { Text } = Typography;
 type FormValues = {
   number?: number;
   paymentId?: string;
-  status: StatusReceipt;
+  status?: StatusReceipt;
 };
 
 const CashReceiptList = () => {
@@ -65,6 +67,7 @@ const CashReceiptList = () => {
     type: 'error',
     visible: false,
   });
+  const [dataReceipt, setDataReceipt] = useState<Partial<Receipt>>({});
 
   const [form] = Form.useForm();
   const history = useHistory();
@@ -72,11 +75,22 @@ const CashReceiptList = () => {
 
   //permisos
   const {
-    receipt: { canCreate, canCancelled },
+    receipt: { canCreate, canCancelled, canPrint },
   } = useAccess();
+
+  const reportRef = useRef(null);
 
   const [getReceipts, { data, loading }] = useGetReceipts();
   const [updateReceipt, paramsUpdate] = useUpdateReceipt();
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
+
+  const printReceipt = async (record: Partial<Receipt>) => {
+    await setDataReceipt(record);
+    handlePrint();
+  };
 
   /**
    * @description cierra el modal de creacion
@@ -117,7 +131,6 @@ const CashReceiptList = () => {
       variables: {
         input: {
           ...filters,
-          status: StatusReceipt.Active,
         },
       },
     });
@@ -179,7 +192,7 @@ const CashReceiptList = () => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
 
-    const filters = { ...filterArg, status: StatusReceipt.Active };
+    const filters = { ...filterArg };
 
     Object.keys(filters).forEach((i) => {
       if (filters[i] === null) {
@@ -209,7 +222,7 @@ const CashReceiptList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
-    onSearch({ status: StatusReceipt.Active });
+    onSearch({});
     setFilterTable({});
   };
 
@@ -245,7 +258,7 @@ const CashReceiptList = () => {
   const loadingData = () => {
     const queryParams: any = location?.query;
 
-    const params = { status: StatusReceipt.Active };
+    const params = {};
 
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
@@ -271,6 +284,8 @@ const CashReceiptList = () => {
       ),
       align: 'center',
       dataIndex: 'number',
+      sorter: true,
+      showSorterTooltip: false,
     },
     {
       title: (
@@ -290,6 +305,8 @@ const CashReceiptList = () => {
       ),
       align: 'center',
       dataIndex: 'value',
+      sorter: true,
+      showSorterTooltip: false,
       render: (value: number) => numeral(value).format('$ 0,0'),
     },
     {
@@ -325,6 +342,8 @@ const CashReceiptList = () => {
       ),
       align: 'center',
       dataIndex: 'updatedAt',
+      sorter: true,
+      showSorterTooltip: false,
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
@@ -333,12 +352,17 @@ const CashReceiptList = () => {
           <MoreOutlined /> Opciones
         </Text>
       ),
-      dataIndex: 'id',
+      dataIndex: '_id',
       fixed: 'right',
       render: (_, receiptId) => (
         <Space>
           <Tooltip title="Imprimir" placement="topLeft">
-            <Button disabled={false} type="primary" icon={<PrinterFilled />} />
+            <Button
+              disabled={!canPrint}
+              type="primary"
+              icon={<PrinterFilled />}
+              onClick={() => printReceipt(receiptId)}
+            />
           </Tooltip>
           <Tooltip title="Anular">
             <Popconfirm
@@ -365,13 +389,14 @@ const CashReceiptList = () => {
       ),
     },
   ];
+
   return (
     <PageContainer>
       <Card>
         <Form layout="horizontal" form={form} onFinish={onFinish}>
           <Row gutter={40}>
             <Col xs={24} sm={7} md={6} lg={5} xl={4}>
-              <FormItem label="Número" name="name">
+              <FormItem label="Número" name="number">
                 <InputNumber controls={false} style={styles.maxWidth} placeholder="Ejem: 10" />
               </FormItem>
             </Col>
@@ -437,6 +462,9 @@ const CashReceiptList = () => {
       </Card>
       <CashReceiptForm visible={visibleModalCreate} onCancel={closeModalCreate} />
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <div style={{ display: 'none' }}>
+        <ReportReceipt ref={reportRef} data={{ receipt: dataReceipt }} />
+      </div>
     </PageContainer>
   );
 };
