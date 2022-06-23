@@ -11,6 +11,8 @@ import {
   Typography,
   Card,
   Pagination,
+  Col,
+  Space,
 } from 'antd';
 
 import DefaultImage from '@/assets/default.webp';
@@ -88,20 +90,28 @@ const ModalSearchImage = ({ visible, onClose, selectImage, value, limit, deleteI
 
   return (
     <Modal visible={visible} width={1230} footer={false} onCancel={onClose} destroyOnClose>
-      <Form layout="inline" form={form} onFinish={onFinish}>
-        <FormItem label="Nombre" name="name">
-          <Input width="800px" />
-        </FormItem>
-        <FormItem colon={false}>
-          <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
-            Buscar
-          </Button>
-        </FormItem>
-        <FormItem colon={false}>
-          <Button type="default" icon={<ClearOutlined />} onClick={onClear}>
-            Limpiar
-          </Button>
-        </FormItem>
+      <Form layout="horizontal" form={form} onFinish={onFinish}>
+        <Row gutter={20} justify="center">
+          <Col xs={24} md={9} lg={9} xl={9}>
+            <FormItem label="Nombre" name="name">
+              <Input />
+            </FormItem>
+          </Col>
+          <Col xs={24} md={6}>
+            <Space>
+              <FormItem colon={false}>
+                <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
+                  Buscar
+                </Button>
+              </FormItem>
+              <FormItem colon={false}>
+                <Button type="default" icon={<ClearOutlined />} onClick={onClear}>
+                  Limpiar
+                </Button>
+              </FormItem>
+            </Space>
+          </Col>
+        </Row>
       </Form>
       <Divider>Imagenes</Divider>
       {data?.images?.totalDocs === 0 && (

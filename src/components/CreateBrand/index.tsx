@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Form, Input, Modal, Switch } from 'antd';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -23,7 +23,7 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
     type: 'error',
     visible: false,
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const [form] = Form.useForm();
 
@@ -124,6 +124,10 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
       showError(e?.message);
     }
   };
+
+  useEffect(() => {
+    setError(null);
+  }, [modalVisible]);
 
   return (
     <Modal

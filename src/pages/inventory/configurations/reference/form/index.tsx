@@ -104,6 +104,19 @@ const FormReference = () => {
     });
   };
 
+  /**
+   * @description funcion usada para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showSuccess = (message: string, redirect?: string) => {
+    setAlertInformation({
+      message,
+      type: 'success',
+      visible: true,
+      redirect,
+    });
+  };
+
   const onFinish = () => {
     setAlertSave({
       message: id
@@ -114,10 +127,13 @@ const FormReference = () => {
     });
   };
 
+  /**
+   * @description ejecuta la mutation para crear una referencia y valida las combinaciones para
+   *  crear productos
+   */
   const newReference = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
-
       if (!values?.name) {
         setActiveKey('1');
         return;
@@ -167,7 +183,8 @@ const FormReference = () => {
           },
         });
         if (response?.data?.createReference) {
-          history.push(
+          showSuccess(
+            `Referencia creada correctamente`,
             `/inventory/configurations/reference/${response?.data?.createReference?._id}`,
           );
         }
@@ -175,51 +192,40 @@ const FormReference = () => {
         showError('Debes agregar combinaciones para crear los productos');
       }
     } catch (e: any) {
-      if (e?.message) {
-        showError(e?.message);
-      }
+      showError(e?.message);
     }
   };
 
+  /**
+   * @description valida los valores en los campos y ejecuta la mutation para actualizar la
+   * referencia
+   */
   const saveReference = async () => {
-    try {
-      const values = await form.validateFields();
+    const values = await form.validateFields();
 
+    try {
       const params: UpdateReferenceInput = {};
 
       const categoriesId = values?.categoriesId?.split('-');
 
       if (categoriesId.length === 3) {
-        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
-          params.categoryLevel1Id = categoriesId[0];
-        }
-
-        if (categoriesId[1] !== data?.referenceId?.categoryLevel2?._id) {
-          params.categoryLevel2Id = categoriesId[1];
-        }
-
-        if (categoriesId[2] !== data?.referenceId?.categoryLevel3?._id) {
-          params.categoryLevel3Id = categoriesId[2];
-        }
+        params.categoryLevel1Id = categoriesId[0];
+        params.categoryLevel2Id = categoriesId[1];
+        params.categoryLevel3Id = categoriesId[2];
       }
 
       if (categoriesId.length === 2) {
-        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
-          params.categoryLevel1Id = categoriesId[0];
-        }
-
-        if (categoriesId[1] !== data?.referenceId?.categoryLevel2?._id) {
-          params.categoryLevel2Id = categoriesId[1];
-        }
+        params.categoryLevel1Id = categoriesId[0];
+        params.categoryLevel2Id = categoriesId[1];
       }
 
       if (categoriesId.length === 1) {
-        if (categoriesId[0] !== data?.referenceId?.categoryLevel1?._id) {
-          params.categoryLevel1Id = categoriesId[0];
-        }
+        params.categoryLevel1Id = categoriesId[0];
+        params.categoryLevel2Id = '';
+        params.categoryLevel3Id = '';
       }
 
-      if (values?.active) {
+      if (values?.active !== undefined) {
         params.active = values?.active;
       }
 
@@ -231,7 +237,7 @@ const FormReference = () => {
         params.brandId = values?.brandId;
       }
 
-      if (values?.changeable) {
+      if (values?.changeable !== undefined) {
         params.changeable = values?.changeable;
       }
 
@@ -271,21 +277,27 @@ const FormReference = () => {
         params.width = values?.width;
       }
 
-      delete values.categoriesId;
-
-      updateReference({
+      const response = await updateReference({
         variables: {
           id: id || '',
-          input: values,
+          input: params,
         },
       });
-    } catch (e: any) {
-      if (e?.message) {
-        showError(e?.message);
+
+      if (response?.data) {
+        showSuccess(
+          `La referencia ${response?.data?.updateReference?.name} ha sido actualizada correctamente`,
+        );
       }
+    } catch (e: any) {
+      showError(e?.message);
     }
   };
 
+  /**
+   * @description ejecuta la mutation para crear un producto
+   * @param values datos que recibe la mutation para crear un producto
+   */
   const addProduct = async (values: CreateProductInput) => {
     try {
       return createProduct({
@@ -298,7 +310,12 @@ const FormReference = () => {
     }
   };
 
-  const addProducts = ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
+  /**
+   * @description gestiona las combinaciones entre color y talla para la creacion de productos
+   * @param colors array de colores
+   * @param sizes array de tallas
+   */
+  const addProducts = async ({ colors, sizes }: { colors: Color[]; sizes: Size[] }) => {
     const newCombinations = [];
 
     for (let c = 0; c < colors.length; c++) {
@@ -312,7 +329,7 @@ const FormReference = () => {
         if (!combinationFind) {
           if (id) {
             try {
-              addProduct({
+              await addProduct({
                 referenceId: id,
                 colorId: color?._id,
                 sizeId: size?._id,
@@ -334,6 +351,9 @@ const FormReference = () => {
     formCreateProduct.resetFields();
   };
 
+  /**
+   * @description elimina la combinacion seleccionada
+   */
   const deleteProduct = ({ color, size }: Product) => {
     const newCombinations = combinations?.filter(
       (combination) =>
@@ -437,6 +457,7 @@ const FormReference = () => {
       title: 'Acciones',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, record) =>
         _id ? (
           <Tooltip title="Editar" placement="topLeft">
@@ -500,6 +521,7 @@ const FormReference = () => {
           columns={columns}
           pagination={false}
           bordered
+          scroll={{ x: 'auto' }}
         />
         <Affix offsetBottom={0}>
           <Card loading={loading} bodyStyle={styles.bodyStyle} size="small">
