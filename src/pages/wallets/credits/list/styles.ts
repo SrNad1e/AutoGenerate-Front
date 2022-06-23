@@ -13,4 +13,10 @@ export default {
   iconColor: {
     color: '#dc9575',
   },
+  buttonR: {
+    borderRadius: 5,
+  },
+  alignText: {
+    textAlign: 'right',
+  },
 };

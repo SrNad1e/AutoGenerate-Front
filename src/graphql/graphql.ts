@@ -861,6 +861,25 @@ export type Credit = {
   user: User;
 };
 
+/** Crédito del cliente */
+export type CreditHistory = {
+  __typename?: 'CreditHistory';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Valor del movimiento */
+  amount: Scalars['Float'];
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Crédito que genera el movimiento */
+  credit: Credit;
+  /** Tipo de movimiento de cartera */
+  type: TypeCreditHistory;
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o edito el historial */
+  user: User;
+};
+
 /** Cliente */
 export type Customer = {
   __typename?: 'Customer';
@@ -913,6 +932,16 @@ export type CustomerType = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el tipo de cliente */
   user: User;
+};
+
+/** Detalle para agregar al crédito */
+export type DetailAddCredit = {
+  /** Pedido que afecta la cartera */
+  orderId: Scalars['String'];
+  /** Valor que afecta la cartera */
+  total: Scalars['Float'];
+  /** Tipo de movimiento */
+  type: TypeCreditHistory;
 };
 
 /** Producto que se va a agregar */
@@ -1366,6 +1395,24 @@ export type FiltersCouponInput = {
   code?: InputMaybe<Scalars['String']>;
   /** Estado del cupón */
   status?: InputMaybe<StatusCoupon>;
+};
+
+/** Filtros para consultar los créditos de los clientes */
+export type FiltersCreditHistoryInput = {
+  /** Monto del movimiento */
+  amount?: InputMaybe<Scalars['Float']>;
+  /** Identificador del crédito */
+  creditId?: InputMaybe<Scalars['String']>;
+  /** Identificador del cliente */
+  customerId?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Página actual */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortCreditHistory>;
+  /** Tipo del histórico de movimiento */
+  type?: InputMaybe<TypeCreditHistory>;
 };
 
 /** Filtros para obtener un crédito */
@@ -2141,8 +2188,8 @@ export type MutationUpdateColorArgs = {
 };
 
 export type MutationUpdateCreditArgs = {
-  createCreditInput: CreateCreditInput;
   id: Scalars['String'];
+  updateCreditInput: UpdateCreditInput;
 };
 
 export type MutationUpdateCustomerArgs = {
@@ -2554,6 +2601,8 @@ export type Query = {
   coupon: Coupon;
   /** Crédito */
   credit: Credit;
+  /** Historico de crédito */
+  creditHistory: ResponseCreditHistory;
   /** Crédito */
   creditId: Credit;
   /** Lista de créditos */
@@ -2676,6 +2725,10 @@ export type QueryCouponArgs = {
 
 export type QueryCreditArgs = {
   filtersCreditInput: FiltersCreditInput;
+};
+
+export type QueryCreditHistoryArgs = {
+  FiltersCreditHistoryInput: FiltersCreditHistoryInput;
 };
 
 export type QueryCreditIdArgs = {
@@ -3135,6 +3188,30 @@ export type ResponseConveyors = {
   __typename?: 'ResponseConveyors';
   /** Lista de transportadoras */
   docs: Conveyor[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta al listado del historial de créditos */
+export type ResponseCreditHistory = {
+  __typename?: 'ResponseCreditHistory';
+  /** Lista del historial de créditos */
+  docs: CreditHistory[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3941,19 +4018,31 @@ export type SortConveyor = {
 /** Ordenamiento de los créditos */
 export type SortCredit = {
   /** Ordenamiento por monto aprobado */
-  amount: Scalars['Float'];
+  amount?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por monto disponible */
-  available: Scalars['Float'];
+  available?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por monto ocupado */
-  balance: Scalars['Float'];
+  balance?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por fecha de creación */
-  createdAt: Scalars['Float'];
+  createdAt?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por monto congelado */
-  frozenAmount: Scalars['Float'];
+  frozenAmount?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por estado */
-  status: Scalars['Float'];
+  status?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por fecha de actualización */
-  updatedAt: Scalars['Float'];
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento de los créditos */
+export type SortCreditHistory = {
+  /** Ordenamiento por monto aprobado */
+  amount?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** Tipo de historico de créditos */
+  type?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
 /** Ordenamiento del cliente */
@@ -4494,6 +4583,13 @@ export type SummaryOrderClose = {
   value: Scalars['Float'];
 };
 
+export enum TypeCreditHistory {
+  Credit = 'CREDIT',
+  Debit = 'DEBIT',
+  Frozen = 'FROZEN',
+  Thawed = 'THAWED',
+}
+
 export enum TypePayment {
   Bank = 'BANK',
   Bonus = 'BONUS',
@@ -4539,6 +4635,16 @@ export type UpdateColorInput = {
   name?: InputMaybe<Scalars['String']>;
   /** Nombre interno asignado al color */
   name_internal?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para actualizar un crédito */
+export type UpdateCreditInput = {
+  /** Monto aprobado para el crédito */
+  amount?: InputMaybe<Scalars['Float']>;
+  /** Detalles para agregar al crédito */
+  detailAddCredit?: InputMaybe<DetailAddCredit>;
+  /** Estado del crédito */
+  status?: InputMaybe<StatusCredit>;
 };
 
 /** Datos para actualizar un cliente */
@@ -5150,6 +5256,16 @@ export type UpdateColorMutation = {
       } | null;
     } | null;
   };
+};
+
+export type UpdateCreditMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateCreditInput;
+}>;
+
+export type UpdateCreditMutation = {
+  __typename?: 'Mutation';
+  updateCredit: { __typename?: 'Credit'; _id: string };
 };
 
 export type CreateCustomerMutationVariables = Exact<{
@@ -6453,6 +6569,57 @@ export type CreditQuery = {
           };
         }[]
       | null;
+  };
+};
+
+export type CreditsQueryVariables = Exact<{
+  input?: InputMaybe<FiltersCreditsInput>;
+}>;
+
+export type CreditsQuery = {
+  __typename?: 'Query';
+  credits: {
+    __typename?: 'ResponseCredits';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Credit';
+      _id: string;
+      amount: number;
+      available: number;
+      balance: number;
+      createdAt: any;
+      updatedAt: any;
+      status: StatusCredit;
+      customer: { __typename?: 'Customer'; document: string; firstName: string; lastName: string };
+      details?: { __typename?: 'DetailCredit'; balance: number; total: number }[] | null;
+    }[];
+  };
+};
+
+export type CreditHistoryQueryVariables = Exact<{
+  input: FiltersCreditHistoryInput;
+}>;
+
+export type CreditHistoryQuery = {
+  __typename?: 'Query';
+  creditHistory: {
+    __typename?: 'ResponseCreditHistory';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'CreditHistory';
+      type: TypeCreditHistory;
+      credit: {
+        __typename?: 'Credit';
+        amount: number;
+        available: number;
+        balance: number;
+        updatedAt: any;
+      };
+    }[];
   };
 };
 
@@ -8626,6 +8793,59 @@ export const UpdateColorDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateColorMutation, UpdateColorMutationVariables>;
+export const UpdateCreditDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateCredit' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateCreditInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateCredit' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateCreditInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateCreditMutation, UpdateCreditMutationVariables>;
 export const CreateCustomerDocument = {
   kind: 'Document',
   definitions: [
@@ -13099,6 +13319,153 @@ export const CreditDocument = {
     },
   ],
 } as unknown as DocumentNode<CreditQuery, CreditQueryVariables>;
+export const CreditsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'credits' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCreditsInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'credits' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCreditsInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'customer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'details' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreditsQuery, CreditsQueryVariables>;
+export const CreditHistoryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'creditHistory' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCreditHistoryInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'creditHistory' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'FiltersCreditHistoryInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'credit' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreditHistoryQuery, CreditHistoryQueryVariables>;
 export const CustomersDocument = {
   kind: 'Document',
   definitions: [

@@ -15,3 +15,46 @@ query credit($input: FiltersCreditInput!) {
     }
   }
 }
+
+query credits($input: FiltersCreditsInput) {
+  credits(filtersCreditsInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      amount
+      available
+      balance
+      createdAt
+      updatedAt
+      customer {
+        document
+        firstName
+        lastName
+      }
+      status
+      details {
+        balance
+        total
+      }
+    }
+  }
+}
+
+query creditHistory($input: FiltersCreditHistoryInput!) {
+  creditHistory(FiltersCreditHistoryInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      type
+      credit {
+        amount
+        available
+        balance
+        updatedAt
+      }
+    }
+  }
+}

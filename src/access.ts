@@ -195,5 +195,10 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.PrintTreasuryReceipt,
       ),
     },
+    credit: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCredit,
+      ),
+    },
   };
 }

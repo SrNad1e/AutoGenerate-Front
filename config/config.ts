@@ -332,11 +332,6 @@ export default defineConfig({
               path: '/treasury/cashReceipt',
               component: './treasury/cashReceipt/list',
             },
-            {
-              name: 'Carteras',
-              path: '/treasury/wallets',
-              component: './treasury/wallets/list',
-            },
           ],
         },
         {
@@ -386,6 +381,18 @@ export default defineConfig({
               name: 'Clientes',
               path: '/crm/customer',
               component: './crm/customers/list',
+            },
+          ],
+        },
+        {
+          name: 'Carteras',
+          path: '/wallets',
+          icon: 'wallet',
+          routes: [
+            {
+              name: 'Creditos',
+              path: '/wallets/credits',
+              component: './wallets/credits/list',
             },
           ],
         },
