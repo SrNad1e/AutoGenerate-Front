@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import ImageAdmin from '@/components/ImageAdmin';
 import SelectColor from '@/components/SelectColor';
 import SelectSize from '@/components/SelectSize';
-import type { Image, Product, UpdateProductInput } from '@/graphql/graphql';
+import { Image, Product, StatusProduct, UpdateProductInput } from '@/graphql/graphql';
 import { StatusType } from '../../product.data';
 import { useUpdateProduct } from '@/hooks/product.hooks';
 
@@ -119,6 +119,14 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
       if (values?.images?.length > 0) {
         values.imagesId = values?.images?.map((image: Image) => image?._id);
       }
+
+      console.log(values);
+      console.log(StatusProduct[values?.status]);
+
+      /* if (values?.status) {
+        values.status = StatusProduct[values?.status];
+      }*/
+
       delete values?.images;
       const response = await saveProduct(values, current?._id);
       if (response?.data?.updateProduct) {
@@ -154,14 +162,14 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
       width="80%"
       onCancel={onClose}
     >
-      <Row>
-        <Form form={form} layout="inline">
-          <Col xs={24} lg={6} md={7}>
+      <Form form={form} layout="horizontal">
+        <Row gutter={20}>
+          <Col xs={24} md={10} lg={6}>
             <FormItem label="EAN 13" name="barcode">
               <Input disabled={loading} autoFocus placeholder="" />
             </FormItem>
           </Col>
-          <Col xs={24} lg={8} md={7}>
+          <Col xs={24} md={11} lg={8}>
             <FormItem
               label="Color"
               rules={[{ required: true, message: 'Obligatorio' }]}
@@ -170,7 +178,7 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
               <SelectColor disabled={loading} />
             </FormItem>
           </Col>
-          <Col xs={24} lg={5} md={5}>
+          <Col xs={24} md={10} lg={4}>
             <FormItem
               label="Talla"
               rules={[{ required: true, message: 'Obligatorio' }]}
@@ -179,16 +187,16 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
               <SelectSize disabled={loading} />
             </FormItem>
           </Col>
-          <Col xs={24} lg={5} md={5}>
+          <Col xs={24} md={10} lg={6}>
             <FormItem
               name="status"
-              label="Activo"
+              label="Estado"
               rules={[{ required: true, message: 'Obligatorio' }]}
             >
               <Select disabled={loading}>
-                {StatusType.map((status) => (
-                  <Option key={status.name} value={status.name}>
-                    {status.title}
+                {Object.keys(StatusType).map((name) => (
+                  <Option key={name} value={name}>
+                    {StatusType[name].title}
                   </Option>
                 ))}
               </Select>
@@ -199,10 +207,10 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
               <ImageAdmin disabled={loading} limit={3} onCopyImage={copyImages} />
             </FormItem>
           </Col>
-        </Form>
-        {error && <Alert type="error" message={error} showIcon />}
-        {progress > 0 && <Progress strokeColor="primary.main" percent={progress} />}
-      </Row>
+        </Row>
+      </Form>
+      {error && <Alert type="error" message={error} showIcon />}
+      {progress > 0 && <Progress strokeColor="primary.main" percent={progress} />}
     </Modal>
   );
 };

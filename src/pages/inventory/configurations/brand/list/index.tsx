@@ -18,7 +18,7 @@ import {
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
-import { useHistory, useLocation } from 'umi';
+import { useHistory, useLocation, useAccess } from 'umi';
 import type { ColumnsType, SorterResult } from 'antd/es/table/interface';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -28,6 +28,7 @@ import CreateBrands from '@/components/CreateBrand';
 import type { Brand, FiltersBrandsInput } from '@/graphql/graphql';
 
 import styles from './styles.less';
+import Filters from '@/components/Filters';
 
 const FormItem = Form.Item;
 
@@ -53,6 +54,10 @@ const BrandsList = () => {
 
   const location: Location = useLocation();
   const history = useHistory();
+
+  const {
+    brand: { canCreate, canEdit },
+  } = useAccess();
 
   const [getBrands, { data, loading }] = useGetBrands();
 
@@ -239,23 +244,17 @@ const BrandsList = () => {
    */
   const renderFormSearch = () => (
     <Form layout="inline" onFinish={onFinish} form={form}>
-      <Row gutter={[8, 8]}>
-        <Col span={12}>
-          <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Nombre" autoComplete="off" />
-          </FormItem>
-        </Col>
-      </Row>
-      <Col span={12}>
-        <span className={styles.submitButtons}>
-          <Button type="primary" htmlType="submit">
-            Buscar
-          </Button>
-          <Button style={{ marginLeft: 8 }} onClick={onClear}>
-            Limpiar
-          </Button>
-        </span>
-      </Col>
+      <FormItem label="Nombre" name="name" style={{ width: 300 }}>
+        <Input placeholder="Nombre" autoComplete="off" />
+      </FormItem>
+      <span className={styles.submitButtons}>
+        <Button type="primary" htmlType="submit">
+          Buscar
+        </Button>
+        <Button style={{ marginLeft: 8 }} onClick={onClear}>
+          Limpiar
+        </Button>
+      </span>
     </Form>
   );
 
@@ -277,16 +276,21 @@ const BrandsList = () => {
       },
       filterMultiple: false,
       filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
     },
     {
       title: 'Fecha registro',
@@ -304,6 +308,7 @@ const BrandsList = () => {
       render: (_: string, BrandID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            disabled={!canEdit}
             onClick={() => visibleModal(BrandID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -317,18 +322,17 @@ const BrandsList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Marcas
-          </Title>
+          <Title level={4}>Marcas</Title>
         </Space>
       }
     >
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row>
-            <Col span={12} style={{ marginBottom: 10 }}>
+          <Row gutter={[0, 20]} align="middle">
+            <Col span={12}>
               <Button
+                disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
@@ -337,21 +341,23 @@ const BrandsList = () => {
                 Nuevo
               </Button>
             </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
+            <Col span={12} className={styles.alignRigth}>
               <Text strong>Total Encontrados:</Text> {data?.brands?.totalDocs}{' '}
               <Text strong>Páginas: </Text> {data?.brands?.page} / {data?.brands?.totalPages || 0}
             </Col>
+            <Col span={24}>
+              <Table
+                columns={columns}
+                dataSource={data?.brands?.docs}
+                pagination={{
+                  current: data?.brands?.page,
+                  total: data?.brands?.totalDocs,
+                }}
+                loading={loading}
+                onChange={handleChangeTable}
+              />
+            </Col>
           </Row>
-          <Table
-            columns={columns}
-            dataSource={data?.brands?.docs}
-            pagination={{
-              current: data?.brands?.page,
-              total: data?.brands?.totalDocs,
-            }}
-            loading={loading}
-            onChange={handleChangeTable}
-          />
         </div>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />

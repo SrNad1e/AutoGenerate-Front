@@ -4,7 +4,8 @@ import moment from 'moment';
 import numeral from 'numeral';
 import Barcode from 'react-barcode';
 
-import './styles.css';
+import style from './styles.css';
+import { TypePayment } from '@/graphql/graphql';
 
 const classes = {
   content: {
@@ -54,6 +55,15 @@ const classes = {
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
     lineHeight: 1.5,
+  },
+  lineItems: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  spaceItems: {
+    fontWeight: 'bold',
+    marginRight: 90,
   },
 };
 
@@ -145,28 +155,36 @@ export default class OrderProduction extends React.PureComponent {
                   </div>
                 )}
                 <div style={{ ...classes.text, width: '20%', textAlign: 'end' }}>
-                  {numeral(price).format('0,0')}
+                  {numeral(price * quantity).format('0,0')}
                 </div>
               </div>
             ))}
           </div>
+          <span style={classes.title}>Medios de Pago</span>
+          <hr className={style.hr} />
+          {data?.payments?.map(({ payment, total }) => (
+            <div key={payment?._id} style={classes.lineItems}>
+              <div style={classes.text}>
+                <span style={classes.spaceItems}>{payment?.name}:</span>
+              </div>
+              {payment?.type === TypePayment.Cash
+                ? numeral(total + data?.summary?.change).format('$ 0,0')
+                : numeral(total).format('$ 0,0')}
+            </div>
+          ))}
           <div style={classes.footer}>
+            <div style={classes.text}>
+              <span style={classes.textBold}>Subtotal:</span>
+              {numeral(data?.summary?.subtotal).format('$ 0,0')}
+            </div>
+            <div style={classes.text}>
+              <span style={classes.textBold}>Descuento:</span>
+              {numeral(data?.summary?.discount).format('$ 0,0')}
+            </div>
             <div style={classes.text}>
               <span style={classes.textBold}>Total:</span>
               {numeral(data?.summary?.total).format('$ 0,0')}
             </div>
-            {data?.payments?.map(({ payment, total }) => (
-              <div key={payment?._id} style={classes.text}>
-                <span style={classes.textBold}>{payment?.name}:</span>
-                {numeral(total).format('$ 0,0')}
-              </div>
-            ))}
-            {data?.summary?.discount > 0 && (
-              <div style={classes.text}>
-                <span style={classes.textBold}>Descuento:</span>
-                {numeral(data?.summary?.discount).format('$ 0,0')}
-              </div>
-            )}
             {data?.summary?.change > 0 && (
               <div style={classes.text}>
                 <span style={classes.textBold}>Cambio:</span>
@@ -174,6 +192,7 @@ export default class OrderProduction extends React.PureComponent {
               </div>
             )}
           </div>
+          <br />
           <div style={classes.text}>
             <div style={classes.text}>
               <span style={classes.textBold}>Registrado por:</span>

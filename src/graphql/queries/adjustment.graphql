@@ -8,6 +8,7 @@ query stockAdjustment($id: String!) {
     createdAt
     updatedAt
     user {
+      _id
       name
     }
     warehouse {

@@ -1,8 +1,8 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
+import type { Product } from '@/graphql/graphql';
 import {
   CreateProductDocument,
-  Product,
   ProductDocument,
   ProductsDocument,
   ReferenceIdDocument,

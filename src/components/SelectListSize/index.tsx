@@ -37,10 +37,13 @@ const SelectListSize = ({ onChange, disabled, value }: Params) => {
   const onChangeLocal = (ids: string[]) => {
     const newIds = ids.filter((id) => !value?.find(({ _id }) => _id === id));
 
-    const newSizes = data?.sizes?.docs?.filter(({ _id }) => !!newIds.includes(_id));
+    const newSizesSelected = data?.sizes?.docs?.filter(({ _id }) => !!newIds.includes(_id)) || [];
+
+    const newSizes =
+      value?.concat(newSizesSelected).filter(({ _id }) => !!ids.includes(_id)) || newSizesSelected;
 
     if (onChange) {
-      onChange(value?.concat(newSizes) || newSizes || []);
+      onChange(newSizes || []);
     }
   };
 

@@ -1,12 +1,31 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCreatecustomer, useGetCustomers } from '@/hooks/customer.hooks';
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, Col, Divider, Form, Input, List, Modal, Row, Select, Space } from 'antd';
+import { PlusOutlined, WhatsAppOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Checkbox,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  Input,
+  List,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Tooltip,
+} from 'antd';
 import { useEffect, useState } from 'react';
 
 import type { Customer, UpdateOrderInput } from '@/graphql/graphql';
 import { useGetDocumentTypes } from '@/hooks/documentType.hooks';
 import Item from './item';
+
+import styles from '../styles';
+import type { CheckboxChangeEvent } from 'antd/es/checkbox';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 export type Props = {
   visible: boolean;
@@ -19,7 +38,14 @@ const ListItem = List.Item;
 const { Option } = Select;
 
 const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+  const [isWhatsapp, setIsWhatsapp] = useState(false);
   const [search, setSearch] = useState(true);
+  const [disabledWhatsapp, setDisabledWatsapp] = useState(true);
 
   const [getCustomers, { data, loading }] = useGetCustomers();
   const [getDocumentTypes, dataDocumentTypes] = useGetDocumentTypes();
@@ -27,28 +53,75 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
 
   const [form] = Form.useForm();
 
-  const newCustomer = async () => {
-    try {
-      const values = await form.validateFields();
+  /**
+   * @description cierra la alerta y resetea el estado
+   */
+  const onCancelAlert = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+    setSearch(true);
+  };
 
+  /**
+   * @description funcion usada para mostar las alertas de error
+   * @param message mensaje de la alerta
+   */
+  const messageError = (message: string) => {
+    setPropsAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description valida los campos del formulario y ejecuta la mutation para la creacion del cliente
+   */
+  const newCustomer = async () => {
+    const values = await form.validateFields();
+    try {
       if (!values?.documentTypeId) {
         values.documentTypeId = dataDocumentTypes?.data?.documentTypes[0]?._id;
       }
 
       const response = await createCustomer({
         variables: {
-          input: { ...values },
+          input: { ...values, isWhatsapp: isWhatsapp },
         },
       });
 
       if (response?.data?.createCustomer) {
         editOrder({ customerId: response?.data?.createCustomer?._id });
+        setPropsAlertInformation({
+          message: `El cliente ${response?.data?.createCustomer?.firstName} ha sido creado correctamente`,
+          type: 'success',
+          visible: true,
+        });
       }
     } catch (error: any) {
-      console.log(error?.message);
+      messageError(error?.message);
     }
   };
 
+  /**
+   * @description se encarga de gestionar si tiene whatsapp o no
+   * @param e evento del checkbox
+   */
+  const onChangeCheck = (e: CheckboxChangeEvent) => {
+    if (e?.target?.checked) {
+      setIsWhatsapp(true);
+    } else {
+      setIsWhatsapp(false);
+    }
+  };
+
+  /**
+   * @description consulta el listado de clientes
+   * @param value filtro para consultar lista de clientes
+   */
   const onSearch = (value: string) => {
     try {
       getCustomers({
@@ -59,17 +132,17 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
         },
       });
     } catch (e: any) {
-      console.log(e);
+      messageError(e.message);
     }
   };
 
+  const addCustomer = async (params: UpdateOrderInput) => {
+    await editOrder(params);
+    onCancel();
+  };
+
   const renderSearchCustomer = () => (
-    <Space
-      direction="vertical"
-      style={{
-        width: '100%',
-      }}
-    >
+    <Space direction="vertical" style={styles.maxWidth}>
       <Input.Search
         enterButton="Buscar"
         size="large"
@@ -78,10 +151,10 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
         placeholder="Nombre o identificación"
         onSearch={onSearch}
       />
-      <List style={{ maxHeight: '50vh', overflow: 'scroll' }}>
+      <List style={styles.listCustomerStyle}>
         {data?.customers?.docs?.map((customer) => (
           <ListItem key={customer?._id}>
-            <Item editOrder={editOrder} customer={customer as Customer} />
+            <Item addCustomer={addCustomer} customer={customer as Customer} />
           </ListItem>
         ))}
       </List>
@@ -112,8 +185,17 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
         label="Documento"
         rules={[
           {
-            required: true,
-            message: '*Campo obligatorio',
+            validator: (_, value) => {
+              const number = parseInt(value);
+
+              if (!value) {
+                return Promise.reject(new Error('*Campo Obligatorio'));
+              }
+              if (!isNaN(number)) {
+                return Promise.resolve();
+              }
+              return Promise.reject(new Error('*Campo solo numerico'));
+            },
           },
         ]}
       >
@@ -143,8 +225,42 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
       >
         <Input size="large" />
       </FormItem>
-      <FormItem name="phone" label="Telefono">
-        <Input size="large" />
+      <FormItem label="Fecha de Nacimiento" name="birthday">
+        <DatePicker placeholder="Seleccione Fecha" size="large" style={styles.maxWidth} />
+      </FormItem>
+      <FormItem
+        name="phone"
+        label="Telefono"
+        rules={[
+          {
+            validator: (_, value) => {
+              const number = parseInt(value);
+
+              if (!value) {
+                return Promise.resolve();
+              }
+              if (!isNaN(number)) {
+                return Promise.resolve();
+              }
+              return Promise.reject();
+            },
+            message: '*Campo numerico',
+          },
+        ]}
+      >
+        <Input
+          size="large"
+          suffix={
+            <Tooltip title="Tiene whatsapp?">
+              <Checkbox disabled={disabledWhatsapp} onChange={(e) => onChangeCheck(e)}>
+                {<WhatsAppOutlined color="green" />}
+              </Checkbox>
+            </Tooltip>
+          }
+          onChange={(e) =>
+            e?.target?.value ? setDisabledWatsapp(false) : setDisabledWatsapp(true)
+          }
+        />
       </FormItem>
       <FormItem name="email" label="Correo">
         <Input size="large" />
@@ -155,7 +271,7 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
           <Button onClick={() => setSearch(true)}>Cancelar</Button>
         </Col>
         <Col span={4} offset={8}>
-          <Button onClick={newCustomer} type="primary" htmlType="submit">
+          <Button onClick={() => newCustomer()} type="primary" htmlType="submit">
             Registrar
           </Button>
         </Col>
@@ -169,6 +285,8 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
         input: {},
       },
     });
+    form.resetFields();
+    setSearch(true);
   }, [visible]);
 
   return (
@@ -180,6 +298,7 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
       destroyOnClose
     >
       {search ? renderSearchCustomer() : renderNewCustomer()}
+      <AlertInformation {...propsAlertInformation} onCancel={onCancelAlert} />
     </Modal>
   );
 };
