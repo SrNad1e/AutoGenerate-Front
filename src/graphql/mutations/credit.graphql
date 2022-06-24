@@ -1,0 +1,5 @@
+mutation updateCredit($id: String!, $input: UpdateCreditInput!) {
+  updateCredit(id: $id, updateCreditInput: $input) {
+    _id
+  }
+}

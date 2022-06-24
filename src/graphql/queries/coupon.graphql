@@ -1,6 +1,13 @@
-query coupon($input: FiltersCouponInput!){
-  coupon(filtersCouponInput:$input){
+query coupon($input: FiltersCouponInput!) {
+  coupon(filtersCouponInput: $input) {
+    _id
+    code
+    title
+    updatedAt
+    createdAt
     expiration
+    message
+    number
     status
     value
   }

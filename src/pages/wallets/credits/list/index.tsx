@@ -1,73 +1,60 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   CalendarOutlined,
+  CheckCircleOutlined,
   ClearOutlined,
-  CloseSquareFilled,
   DollarCircleOutlined,
-  FieldNumberOutlined,
+  FieldTimeOutlined,
+  FileSyncOutlined,
+  IdcardOutlined,
+  IssuesCloseOutlined,
   MoreOutlined,
-  PlusOutlined,
-  PrinterFilled,
   SearchOutlined,
-  ShoppingOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Form,
-  InputNumber,
-  Popconfirm,
-  Row,
-  Space,
-  Table,
-  Tag,
-  Tooltip,
-  Typography,
-} from 'antd';
-import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
-import type { SorterResult } from 'antd/lib/table/interface';
-import type { FiltersReceiptsInput, Payment, Receipt } from '@/graphql/graphql';
-import { StatusReceipt } from '@/graphql/graphql';
-import { useGetReceipts, useUpdateReceipt } from '@/hooks/receipt.hooks';
-import { useEffect, useRef, useState } from 'react';
+import { Badge, Button, Card, Col, Form, Row, Space, Table, Tag, Tooltip, Typography } from 'antd';
+import type {
+  ColumnsType,
+  FilterDropdownProps,
+  SorterResult,
+  TablePaginationConfig,
+} from 'antd/lib/table/interface';
+import type { Credit, Customer, FiltersCreditsInput } from '@/graphql/graphql';
+import { StatusCredit } from '@/graphql/graphql';
+import { useGetCredits, useGetHistoryCredits, useUpdateCredit } from '@/hooks/credit.hooks';
 import moment from 'moment';
 import numeral from 'numeral';
+import { useEffect, useState } from 'react';
 import { useAccess, useHistory, useLocation } from 'umi';
 import type { Location } from 'umi';
 
 import Filters from '@/components/Filters';
+import SearchCustomer from '@/components/SearchCustomer';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import CashReceiptForm from '../form';
-import { StatusTypeReceipt } from '../receipt.data';
-import SelectPayment from '@/components/SelectPayment';
+import CreditsHistorical from '../historical';
+import { StatusTypeWallet } from '../wallet.data';
 
-import styles from '../styles';
-import ReportReceipt from '../report/receipt';
-import { useReactToPrint } from 'react-to-print';
+import styles from './styles';
 
 const FormItem = Form.Item;
-
 const { Text } = Typography;
 
 type FormValues = {
-  number?: number;
-  paymentId?: string;
-  status?: StatusReceipt;
+  customerId?: string;
+  status?: StatusCredit;
 };
 
-const CashReceiptList = () => {
-  const [visibleModalCreate, setVisibleModalCreate] = useState(false);
-  const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
+const CreditsList = () => {
+  const [visibleHistorical, setVisibleHistorical] = useState(false);
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
-  const [dataReceipt, setDataReceipt] = useState<Partial<Receipt>>({});
+  const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
+  const [creditSelected, setCreditSelected] = useState<Partial<Credit>>({});
 
   const [form] = Form.useForm();
   const history = useHistory();
@@ -75,28 +62,18 @@ const CashReceiptList = () => {
 
   //permisos
   const {
-    receipt: { canCreate, canCancelled, canPrint },
+    credit: { canEdit },
   } = useAccess();
 
-  const reportRef = useRef(null);
-
-  const [getReceipts, { data, loading }] = useGetReceipts();
-  const [updateReceipt, paramsUpdate] = useUpdateReceipt();
-
-  const handlePrint = useReactToPrint({
-    content: () => reportRef?.current,
-  });
-
-  const printReceipt = async (record: Partial<Receipt>) => {
-    await setDataReceipt(record);
-    handlePrint();
-  };
+  const [getCredits, { data, loading }] = useGetCredits();
+  const [updateCredit, paramsUpdate] = useUpdateCredit();
+  const [getCreditsHistory, paramsGetHistory] = useGetHistoryCredits();
 
   /**
-   * @description cierra el modal de creacion
+   * @description cierra el modal del historico
    */
-  const closeModalCreate = () => {
-    setVisibleModalCreate(false);
+  const closeModalHistorical = () => {
+    setVisibleHistorical(false);
   };
 
   /**
@@ -123,11 +100,11 @@ const CashReceiptList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener los recibos de caja
+   * @description se encarga de ejecutar la funcion para obtener los creditos
    * @param filters Variables para ejecutar la consulta
    */
-  const onSearch = (filters?: FiltersReceiptsInput) => {
-    getReceipts({
+  const onSearch = async (filters?: FiltersCreditsInput) => {
+    getCredits({
       variables: {
         input: {
           ...filters,
@@ -140,7 +117,7 @@ const CashReceiptList = () => {
    * @description se encarga de señalar los datos a la query
    * @param values valores para enviar a la query
    */
-  const setQueryParams = (values?: FiltersReceiptsInput) => {
+  const setQueryParams = (values?: FiltersCreditsInput) => {
     try {
       const valuesForm = form.getFieldsValue();
 
@@ -168,7 +145,7 @@ const CashReceiptList = () => {
    */
   const onFinish = (value: FormValues, pageCurrent?: number) => {
     const filters = { ...filterTable };
-    const params: FiltersReceiptsInput = {
+    const params: FiltersCreditsInput = {
       page: pageCurrent || 1,
       limit: 10,
       ...value,
@@ -187,7 +164,7 @@ const CashReceiptList = () => {
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
     filterArg: Record<string, any>,
-    sorter: SorterResult<Partial<Receipt>> | any,
+    sorter: SorterResult<Partial<Credit>> | any,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
@@ -227,28 +204,37 @@ const CashReceiptList = () => {
   };
 
   /**
-   * @description actualiza el estado del recibo de caja
-   * @param id identificador del recibo de caja
+   * @description actualiza el estado del credito
+   * @param _id identificador del credito a actualizar
+   * @param statusUpdate estado al que se quiere cambiar
    */
-  const cancelReceipt = async (id: string) => {
-    try {
-      const response = await updateReceipt({
-        variables: {
-          input: { status: StatusReceipt.Cancelled },
-          id: id,
+  const updateCredits = (_id: string, statusUpdate: StatusCredit) => {
+    updateCredit({
+      variables: {
+        id: _id,
+        input: {
+          status: statusUpdate,
         },
-      });
-      if (response?.data?.updateReceipt) {
-        setAlertInformation({
-          message: `Recibo de caja No ${response?.data?.updateReceipt?.number} actualizado correctamente`,
-          type: 'success',
-          visible: true,
-        });
-      }
-    } catch (error: any) {
-      if (error?.message) {
-        showError(error?.message);
-      }
+      },
+    });
+  };
+
+  /**
+   * @description se trae el historico en base a la id del credito
+   * @param credit credito seleccionado
+   */
+  const getHistory = async (credit: Credit) => {
+    setCreditSelected(credit);
+    const response = await getCreditsHistory({
+      variables: {
+        input: {
+          creditId: credit?._id,
+          limit: 10,
+        },
+      },
+    });
+    if (response) {
+      setVisibleHistorical(true);
     }
   };
 
@@ -275,50 +261,68 @@ const CashReceiptList = () => {
     loadingData();
   }, []);
 
-  const column: ColumnsType<Receipt> = [
+  const column: ColumnsType<Credit> = [
     {
-      title: (
-        <Text style={{ fontSize: 20 }}>
-          <FieldNumberOutlined />
-        </Text>
-      ),
+      title: <Text>{<UserOutlined />} Cliente</Text>,
+      dataIndex: 'customer',
       align: 'center',
-      dataIndex: 'number',
-      sorter: true,
-      showSorterTooltip: false,
+      render: (customer: Customer) => (
+        <Space direction="vertical" size={1}>
+          <Text strong>
+            {customer?.firstName} {customer?.lastName}
+          </Text>
+          <Tag icon={<IdcardOutlined />} style={styles.tagStyle}>
+            {customer?.document}
+          </Tag>
+        </Space>
+      ),
     },
     {
       title: (
         <Text>
-          <ShoppingOutlined /> Método de Pago
+          <DollarCircleOutlined /> Cupo
         </Text>
       ),
-      dataIndex: 'payment',
+      dataIndex: 'amount',
       align: 'center',
-      render: (payment: Payment) => <Tag style={styles.tagStyle}>{payment.name}</Tag>,
+      sorter: true,
+      showSorterTooltip: false,
+      render: (amount: number) => numeral(amount).format('$ 0,0'),
     },
     {
       title: (
         <Text>
-          <DollarCircleOutlined /> Valor
+          <DollarCircleOutlined /> Deuda
         </Text>
       ),
+      dataIndex: 'balance',
       align: 'center',
-      dataIndex: 'value',
       sorter: true,
       showSorterTooltip: false,
-      render: (value: number) => numeral(value).format('$ 0,0'),
+      render: (balance: number) => numeral(balance).format('$ 0,0'),
     },
     {
-      title: 'Estado',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Saldo
+        </Text>
+      ),
+      dataIndex: 'available',
+      align: 'center',
+      sorter: true,
+      showSorterTooltip: false,
+      render: (available: number) => numeral(available).format('$ 0,0'),
+    },
+    {
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
       filteredValue: filterTable?.status || null,
       render: (status: string) => {
-        const { color, label } = StatusTypeReceipt[status || ''];
+        const { color, label } = StatusTypeWallet[status || ''];
         return <Badge text={label} color={color} />;
       },
-      filterDropdown: (props) => (
+      filterDropdown: (props: FilterDropdownProps) => (
         <Filters
           props={props}
           data={[
@@ -327,8 +331,8 @@ const CashReceiptList = () => {
               value: 'ACTIVE',
             },
             {
-              text: 'Cancelado',
-              value: 'CANCELLED',
+              text: 'Suspendido',
+              value: 'SUSPEND',
             },
           ]}
         />
@@ -340,8 +344,8 @@ const CashReceiptList = () => {
           <CalendarOutlined /> Fecha
         </Text>
       ),
-      align: 'center',
       dataIndex: 'updatedAt',
+      align: 'center',
       sorter: true,
       showSorterTooltip: false,
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
@@ -353,37 +357,42 @@ const CashReceiptList = () => {
         </Text>
       ),
       dataIndex: '_id',
+      align: 'center',
       fixed: 'right',
-      render: (_, receiptId) => (
-        <Space>
-          <Tooltip title="Imprimir" placement="topLeft">
+      render: (id, credit: Credit) => (
+        <Space size={5}>
+          <Tooltip title={credit.status === StatusCredit.Active ? 'Suspender' : 'Activar'}>
             <Button
-              disabled={!canPrint}
+              style={{ backgroundColor: 'white' }}
+              danger={credit.status === StatusCredit.Active ? true : false}
+              loading={paramsUpdate?.loading}
+              disabled={paramsUpdate?.loading || paramsGetHistory?.loading || !canEdit}
+              onClick={() =>
+                updateCredits(
+                  id,
+                  credit.status === StatusCredit.Active
+                    ? StatusCredit.Suspend
+                    : StatusCredit.Active,
+                )
+              }
               type="primary"
-              icon={<PrinterFilled />}
-              onClick={() => printReceipt(receiptId)}
+              icon={
+                credit.status === StatusCredit.Active ? (
+                  <IssuesCloseOutlined style={{ color: 'red' }} />
+                ) : (
+                  <CheckCircleOutlined style={{ color: 'green' }} />
+                )
+              }
             />
           </Tooltip>
-          <Tooltip title="Anular">
-            <Popconfirm
-              title="¿Esta seguro que desea anular?"
-              okText="Si"
-              cancelText="No"
-              disabled={receiptId.status === StatusReceipt.Cancelled}
-              onConfirm={() => cancelReceipt(receiptId._id)}
-            >
-              <Button
-                danger
-                loading={paramsUpdate?.loading}
-                disabled={
-                  paramsUpdate?.loading ||
-                  receiptId.status === StatusReceipt.Cancelled ||
-                  !canCancelled
-                }
-                type="primary"
-                icon={<CloseSquareFilled />}
-              />
-            </Popconfirm>
+          <Tooltip title="Historicos">
+            <Button
+              loading={paramsGetHistory?.loading}
+              disabled={paramsGetHistory?.loading || paramsUpdate?.loading}
+              onClick={() => getHistory(credit)}
+              type="primary"
+              icon={<FieldTimeOutlined />}
+            />
           </Tooltip>
         </Space>
       ),
@@ -393,35 +402,30 @@ const CashReceiptList = () => {
   return (
     <PageContainer>
       <Card>
-        <Form layout="horizontal" form={form} onFinish={onFinish}>
-          <Row gutter={40}>
-            <Col xs={24} sm={7} md={6} lg={5} xl={4}>
-              <FormItem label="Número" name="number">
-                <InputNumber controls={false} style={styles.maxWidth} placeholder="Ejem: 10" />
+        <Form form={form} onFinish={onFinish}>
+          <Row gutter={20}>
+            <Col xs={24} md={11} lg={10} xl={9}>
+              <FormItem label="Cliente" name="customerId">
+                <SearchCustomer disabled={loading || paramsUpdate?.loading} />
               </FormItem>
             </Col>
-            <Col xs={24} sm={7} md={8} lg={8} xl={7}>
-              <FormItem label="Medio de pago" name="paymentId">
-                <SelectPayment disabled={loading} />
-              </FormItem>
-            </Col>
-            <Col xs={24} sm={8} md={8} lg={8} xl={6}>
+            <Col xs={24} sm={8} md={7} lg={8}>
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button
+                    disabled={loading || paramsUpdate?.loading || paramsGetHistory?.loading}
+                    style={styles.buttonR}
                     icon={<SearchOutlined />}
-                    disabled={loading}
                     type="primary"
                     htmlType="submit"
-                    style={styles.buttonR}
                   >
                     Buscar
                   </Button>
                   <Button
                     style={styles.buttonR}
                     icon={<ClearOutlined />}
-                    disabled={loading}
                     onClick={onClear}
+                    disabled={loading || paramsUpdate?.loading || paramsGetHistory?.loading}
                   >
                     Limpiar
                   </Button>
@@ -430,43 +434,35 @@ const CashReceiptList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]} align="middle" style={styles.marginFilters}>
-          <Col xs={8} md={15} lg={16}>
-            <Button
-              icon={<PlusOutlined />}
-              type="primary"
-              shape="round"
-              disabled={!canCreate || loading}
-              onClick={() => setVisibleModalCreate(true)}
-            >
-              Abono de Cartera
-            </Button>
-          </Col>
-          <Col xs={16} md={9} lg={8} style={styles.alingText}>
-            <Text strong>Total Encontrados:</Text> {data?.receipts?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.receipts?.page} / {data?.receipts?.totalPages || 0}
+        <Row gutter={[0, 20]} align="middle">
+          <Col span={24} style={styles.alignText}>
+            <Text strong>Total Encontrados:</Text> {data?.credits?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.credits?.page} / {data?.credits?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
               columns={column}
-              dataSource={data?.receipts.docs}
-              scroll={{ x: 900 }}
+              dataSource={data?.credits?.docs}
+              scroll={{ x: 1000 }}
               onChange={handleChangeTable}
               pagination={{
-                current: data?.receipts?.page,
-                total: data?.receipts?.totalDocs,
+                current: data?.credits?.page,
+                total: data?.credits?.totalDocs,
               }}
             />
           </Col>
         </Row>
       </Card>
-      <CashReceiptForm visible={visibleModalCreate} onCancel={closeModalCreate} />
+      <CreditsHistorical
+        data={paramsGetHistory.data?.creditHistory}
+        credit={creditSelected}
+        creditHistory={paramsGetHistory?.data?.creditHistory?.docs}
+        visible={visibleHistorical}
+        onCancel={closeModalHistorical}
+      />
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
-      <div style={{ display: 'none' }}>
-        <ReportReceipt ref={reportRef} data={{ receipt: dataReceipt }} />
-      </div>
     </PageContainer>
   );
 };
 
-export default CashReceiptList;
+export default CreditsList;
