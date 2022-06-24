@@ -1,4 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Customer, FiltersCustomersInput } from '@/graphql/graphql';
+import { useGetCustomers } from '@/hooks/customer.hooks';
 import {
+  ClearOutlined,
   EditFilled,
   IdcardOutlined,
   PlusOutlined,
@@ -20,8 +24,9 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
+import type { ColumnsType } from 'antd/lib/table';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import EditCustomer from '../edit';
 import FormCustmer from '../form';
@@ -35,6 +40,18 @@ const { Text } = Typography;
 const CustomerList = () => {
   const [visibleForm, setVisibleForm] = useState(false);
   const [visibleEdit, setVisibleEdit] = useState(false);
+
+  const [getCustomers, paramsGetCustomers] = useGetCustomers();
+
+  const onSearch = (filters?: FiltersCustomersInput) => {
+    getCustomers({
+      variables: {
+        input: {
+          ...filters,
+        },
+      },
+    });
+  };
 
   /**
    * Cierra el modal de edicion
@@ -50,26 +67,22 @@ const CustomerList = () => {
     setVisibleForm(false);
   };
 
-  const datatest = [
-    {
-      customer: { name: 'Jotaro Kujo', document: 1001010010 },
-      email: 'jotarokujo@gmail.com',
-      active: true,
-      createdAt: '2022-05-04T18:10:20.727Z',
-    },
-  ];
+  useEffect(() => {
+    onSearch();
+  }, []);
 
-  const column = [
+  const column: ColumnsType<Customer> = [
     {
       title: 'Cliente',
       dataIndex: 'customer',
-      render: (customer: any) => (
+      align: 'center',
+      render: (_, customer: Customer) => (
         <Space direction="vertical" size={5}>
           <Text>
-            {<UserOutlined />} {customer.name}
+            {<UserOutlined />} {customer?.firstName} {customer?.lastName}
           </Text>
           <Text>
-            {<IdcardOutlined />} {customer.document}
+            {<IdcardOutlined />} {customer?.document}
           </Text>
         </Space>
       ),
@@ -77,10 +90,17 @@ const CustomerList = () => {
     {
       title: 'Correo',
       dataIndex: 'email',
+      align: 'center',
+    },
+    {
+      title: 'Tipo de cliente',
+      dataIndex: 'customerType',
+      align: 'center',
     },
     {
       title: 'Activo',
       dataIndex: 'active',
+      align: 'center',
       render: (active: boolean) => {
         return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
       },
@@ -99,11 +119,13 @@ const CustomerList = () => {
     {
       title: 'Fecha',
       dataIndex: 'createdAt',
+      align: 'center',
       render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
     },
     {
       title: 'Opción',
       dataIndex: '',
+      align: 'center',
       render: () => (
         <Tooltip title="Editar">
           <Button onClick={() => setVisibleEdit(true)} type="primary" icon={<EditFilled />} />
@@ -117,7 +139,7 @@ const CustomerList = () => {
       <Card>
         <Form>
           <Row gutter={30}>
-            <Col xs={24} md={9} lg={9}>
+            <Col xs={24} md={9} lg={9} xl={7}>
               <FormItem label="Nombre">
                 <Input placeholder="Correo, Telefono, Documento..." />
               </FormItem>
@@ -133,10 +155,17 @@ const CustomerList = () => {
             </Col>
             <Col xs={24} md={7} lg={7}>
               <Space>
-                <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
+                <Button
+                  style={{ borderRadius: 5 }}
+                  icon={<SearchOutlined />}
+                  type="primary"
+                  htmlType="submit"
+                >
                   Buscar
                 </Button>
-                <Button onClick={() => {}}>Limpiar</Button>
+                <Button style={{ borderRadius: 5 }} icon={<ClearOutlined />} onClick={() => {}}>
+                  Limpiar
+                </Button>
               </Space>
             </Col>
           </Row>
@@ -152,11 +181,15 @@ const CustomerList = () => {
               Nuevo
             </Button>
           </Col>
-          <Col xs={12} md={9} lg={8}>
+          <Col xs={12} md={9} lg={8} style={{ textAlign: 'right' }}>
             <Text strong>Total Encontrados:</Text> {1} <Text strong>Páginas: </Text> {1} / {1 || 0}
           </Col>
           <Col span={24}>
-            <Table columns={column} dataSource={datatest} scroll={{ x: 'auto' }} />
+            <Table
+              columns={column}
+              dataSource={paramsGetCustomers.data?.customers.docs}
+              scroll={{ x: 'auto' }}
+            />
           </Col>
         </Row>
       </Card>
