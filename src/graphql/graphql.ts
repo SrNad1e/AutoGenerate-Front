@@ -1315,6 +1315,8 @@ export type FiltersCategoriesLevelInput = {
 
 /** Filtros para obtener las ciudades */
 export type FiltersCitiesInput = {
+  /** Identificador de la ciudad */
+  _id?: InputMaybe<Scalars['String']>;
   /** Nombre del país */
   country?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
@@ -1437,6 +1439,18 @@ export type FiltersCreditsInput = {
   status?: InputMaybe<StatusCredit>;
 };
 
+/** Filtros para obtener los tipos de cliente */
+export type FiltersCustomerTypesInput = {
+  /** Identificador del tipo de documento */
+  _id?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Nombre comodín para la busqueda de tipos de cliente */
+  name?: InputMaybe<Scalars['String']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+};
+
 /** Filtros de listado de clientes */
 export type FiltersCustomersInput = {
   /** Si el cliente se encuentra activo */
@@ -1509,12 +1523,12 @@ export type FiltersInvoicesInput = {
 
 /** Filtros del listado de pedidos */
 export type FiltersOrdersInput = {
+  /** Identificador del cliente */
+  customerId?: InputMaybe<Scalars['String']>;
   /** Fecha final para la busqueda */
   dateFinal?: InputMaybe<Scalars['String']>;
   /** Fecha inicial para la busqueda */
   dateInitial?: InputMaybe<Scalars['String']>;
-  /** Documento del cliente que registra en el pedidod */
-  document?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Número consecutivo del pedido */
@@ -2482,6 +2496,7 @@ export enum Permissions {
   ReadCrmCities = 'READ_CRM_CITIES',
   ReadCrmCoupons = 'READ_CRM_COUPONS',
   ReadCrmCustomers = 'READ_CRM_CUSTOMERS',
+  ReadCrmCustomertypes = 'READ_CRM_CUSTOMERTYPES',
   ReadInventoryAdjustments = 'READ_INVENTORY_ADJUSTMENTS',
   ReadInventoryAttribs = 'READ_INVENTORY_ATTRIBS',
   ReadInventoryBrands = 'READ_INVENTORY_BRANDS',
@@ -2609,6 +2624,8 @@ export type Query = {
   credits: ResponseCredits;
   /** Se encarga de obtener el usuario dependiendo del token enviado */
   currentUser: User;
+  /** Listado de tipos de cliente */
+  customerTypes: ResponseCustomerTypes;
   /** Listado de clientes */
   customers: ResponseCustomers;
   /** Listado de tipos de documento */
@@ -2739,6 +2756,10 @@ export type QueryCreditsArgs = {
   filtersCreditsInput?: InputMaybe<FiltersCreditsInput>;
 };
 
+export type QueryCustomerTypesArgs = {
+  filtersCustomerTypesInput: FiltersCustomerTypesInput;
+};
+
 export type QueryCustomersArgs = {
   filtersCustomerInput?: InputMaybe<FiltersCustomersInput>;
 };
@@ -2765,10 +2786,6 @@ export type QueryOrderIdArgs = {
 
 export type QueryOrdersArgs = {
   filtersOrdersInput: FiltersOrdersInput;
-};
-
-export type QueryOrdersByPointOfSaleArgs = {
-  idPointOfSale: Scalars['String'];
 };
 
 export type QueryPaymentsArgs = {
@@ -3241,6 +3258,30 @@ export type ResponseCredits = {
   /** ¿Encuentra página anterior? */
   hasPrevPage: Scalars['Boolean'];
   /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta del listado de tipos de cliente */
+export type ResponseCustomerTypes = {
+  __typename?: 'ResponseCustomerTypes';
+  /** Lista de tipos de cliente */
+  docs: CustomerType[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de documentos solicitados */
   limit: Scalars['Float'];
   /** Página siguente */
   nextPage: Scalars['Float'];
@@ -4048,21 +4089,21 @@ export type SortCreditHistory = {
 /** Ordenamiento del cliente */
 export type SortCustomer = {
   /** ordernamiento por estado del cliente */
-  active: Scalars['Float'];
+  active?: InputMaybe<Scalars['Float']>;
   /** ordernamiento por documento */
-  document: Scalars['Float'];
+  document?: InputMaybe<Scalars['Float']>;
   /** ordernamiento por correo */
-  email: Scalars['Float'];
+  email?: InputMaybe<Scalars['Float']>;
   /** ordernamiento por nombre */
-  firstName: Scalars['Float'];
+  firstName?: InputMaybe<Scalars['Float']>;
   /** ordernamiento por si es por defecto */
-  isDefault: Scalars['Float'];
+  isDefault?: InputMaybe<Scalars['Float']>;
   /** ordernamiento por si tiene whatsapp */
-  isWhatsapp: Scalars['Float'];
+  isWhatsapp?: InputMaybe<Scalars['Float']>;
   /** ordernamiento por apellido */
-  lastName: Scalars['Float'];
+  lastName?: InputMaybe<Scalars['Float']>;
   /** ordernamiento por teléfono */
-  phone: Scalars['Float'];
+  phone?: InputMaybe<Scalars['Float']>;
 };
 
 /** Ordenamiento de los egresos */
@@ -4649,6 +4690,8 @@ export type UpdateCreditInput = {
 
 /** Datos para actualizar un cliente */
 export type UpdateCustomerInput = {
+  /** Cliente activo */
+  active?: InputMaybe<Scalars['Boolean']>;
   /** Direcciones del cliente */
   addresses?: InputMaybe<AddressInput[]>;
   /** Fecha de nacimiento */
@@ -6906,9 +6949,7 @@ export type OrderIdQuery = {
   };
 };
 
-export type OrdersByPosQueryVariables = Exact<{
-  id: Scalars['String'];
-}>;
+export type OrdersByPosQueryVariables = Exact<Record<string, never>>;
 
 export type OrdersByPosQuery = {
   __typename?: 'Query';
@@ -14406,29 +14447,12 @@ export const OrdersByPosDocument = {
       kind: 'OperationDefinition',
       operation: 'query',
       name: { kind: 'Name', value: 'OrdersByPos' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
-          },
-        },
-      ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ordersByPointOfSale' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'idPointOfSale' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [

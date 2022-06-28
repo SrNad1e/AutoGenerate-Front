@@ -70,8 +70,8 @@ query orderId($id: String!) {
   }
 }
 
-query OrdersByPos($id: String!) {
-  ordersByPointOfSale(idPointOfSale: $id) {
+query OrdersByPos {
+  ordersByPointOfSale{
     _id
     number
     shop {

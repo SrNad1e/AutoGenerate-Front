@@ -15,4 +15,8 @@ export const StatusType = {
     color: 'yellow',
     text: 'Pendiente',
   },
+  CLOSED: {
+    color: 'gray',
+    text: 'Finalizado',
+  },
 };
