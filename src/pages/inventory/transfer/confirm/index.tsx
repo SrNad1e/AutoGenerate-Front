@@ -172,27 +172,24 @@ const ConfirmTransfer = () => {
     try {
       const values = await form.validateFields();
 
-      const newDetails = [...details];
+      const newDetails = details.filter((item) => item?.product?.barcode !== values.barcode);
 
-      const index = newDetails.findIndex((item) => item?.product?.barcode === values.barcode);
+      const detail = newDetails.find((item) => item?.product?.barcode === values.barcode);
 
-      if (index >= 0) {
-        if (
-          newDetails[index]?.status === StatusDetailTransfer.New ||
-          newDetails[index]?.quantityConfirmed === 0
-        ) {
-          newDetails[index] = {
-            ...newDetails[index],
+      if (detail) {
+        if (detail?.status === StatusDetailTransfer.New || detail?.quantityConfirmed === 0) {
+          newDetails.push({
+            ...detail,
             status: StatusDetailTransfer.New,
-            quantityConfirmed: (newDetails[index]?.quantityConfirmed || 0) + 1,
-          };
+            quantityConfirmed: (detail.quantityConfirmed || 0) + 1,
+          });
           setError(
-            `Confirmado ${newDetails[index]?.product?.reference?.name} / ${newDetails[index]?.product?.color?.name} / ${newDetails[index]?.product?.size?.value}, cantidad: ${newDetails[index]?.quantityConfirmed}`,
+            `Confirmado ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${detail?.product?.size?.value}, cantidad: ${detail?.quantityConfirmed}`,
           );
           setDetails(newDetails);
         } else {
           setError(
-            `Producto ${newDetails[index]?.product?.reference?.name} / ${newDetails[index]?.product?.color?.name} / ${newDetails[index]?.product?.size?.value}, ya se encuentra confirmado`,
+            `Producto ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${detail?.product?.size?.value}, ya se encuentra confirmado`,
           );
         }
       } else {
@@ -511,7 +508,9 @@ const ConfirmTransfer = () => {
             <Table
               columns={columns}
               dataSource={
-                details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
+                details
+                  .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
+                  .reverse() as any
               }
               scroll={{ x: 800 }}
               pagination={{ size: 'small' }}
