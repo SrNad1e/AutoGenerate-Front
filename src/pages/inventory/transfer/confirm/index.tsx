@@ -172,9 +172,9 @@ const ConfirmTransfer = () => {
     try {
       const values = await form.validateFields();
 
-      const newDetails = details.filter((item) => item?.product?.barcode !== values.barcode);
+      const detail = details.find((item) => item?.product?.barcode === values.barcode);
 
-      const detail = newDetails.find((item) => item?.product?.barcode === values.barcode);
+      const newDetails = details.filter((item) => item?.product?.barcode !== values.barcode);
 
       if (detail) {
         if (detail?.status === StatusDetailTransfer.New || detail?.quantityConfirmed === 0) {
