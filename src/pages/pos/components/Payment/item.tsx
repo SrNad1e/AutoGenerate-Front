@@ -4,6 +4,8 @@ import type { Payment, PaymentOrder } from '@/graphql/graphql';
 
 import DefaultImage from '@/assets/default.webp';
 
+import styles from '../styles';
+
 const { Title } = Typography;
 
 export type Params = {
@@ -31,20 +33,9 @@ const Item = ({ payment, setPayment, paymentsOrder, disabled }: Params) => {
       type="text"
       onClick={() => setPayment(payment)}
     >
-      <Space
-        direction="vertical"
-        align="center"
-        style={{
-          width: '100%',
-        }}
-      >
+      <Space direction="vertical" align="center" style={styles.maxWidth}>
         <Image width={100} src={`${CDN_URL}/${logo?.urls?.webp?.small}`} fallback={DefaultImage} />
-        <Title
-          style={{
-            color: 'white',
-          }}
-          level={3}
-        >
+        <Title style={styles.whiteColor} level={3}>
           {name}
         </Title>
       </Space>

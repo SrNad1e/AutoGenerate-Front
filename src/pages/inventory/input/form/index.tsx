@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useHistory, useParams } from 'umi';
+import { useAccess, useHistory, useModel, useParams } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
 import {
@@ -18,6 +18,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import FormInput from '../components/FormInput';
 import ReportInput from '../reports/input';
 import type { StockInput, Warehouse } from '@/graphql/graphql';
+import { StatusStockInput } from '@/graphql/graphql';
 import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
@@ -32,7 +33,7 @@ const InputForm = () => {
     visible: false,
   });
   const [input, setInput] = useState<Partial<StockInput>>({
-    status: 'open',
+    status: StatusStockInput.Open,
   });
 
   const { id } = useParams<Partial<{ id: string }>>();
@@ -40,6 +41,8 @@ const InputForm = () => {
   const history = useHistory();
 
   const reportRef = useRef(null);
+
+  const { initialState } = useModel('@@initialState');
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
@@ -49,6 +52,15 @@ const InputForm = () => {
   const [getWarehouseId] = useGetWarehouseId();
 
   const isNew = !id;
+  const {
+    input: { canPrint, canEdit },
+  } = useAccess();
+
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === input?.user?._id &&
+      input?.status === StatusStockInput.Open &&
+      canEdit;
 
   /**
    * @description se encarga de abrir aviso de información
@@ -135,7 +147,7 @@ const InputForm = () => {
       case 0:
         return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
       case 1:
-        return <FormInput input={input} setCurrentStep={setCurrentStep} />;
+        return <FormInput allowEdit={allowEdit} input={input} setCurrentStep={setCurrentStep} />;
       default:
         return <></>;
     }
@@ -162,7 +174,12 @@ const InputForm = () => {
               {' '}
               Entrada No. {input?.number} <Divider type="vertical" />
               <Tooltip title="Imprimir">
-                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+                <Button
+                  type="primary"
+                  icon={<PrinterOutlined />}
+                  disabled={!canPrint}
+                  onClick={() => handlePrint()}
+                />
               </Tooltip>{' '}
             </>
           )}
@@ -187,7 +204,7 @@ const InputForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormInput input={input} setCurrentStep={setCurrentStep} />
+        <FormInput allowEdit={allowEdit} input={input} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <div style={{ display: 'none' }}>

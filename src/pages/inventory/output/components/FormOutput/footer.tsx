@@ -1,6 +1,8 @@
 import { Affix, Button, Card, Col, Divider, Row, Space, Typography } from 'antd';
 
 import type { DetailOutput, StockOutput } from '@/graphql/graphql';
+import { StatusStockOutput } from '@/graphql/graphql';
+import { ActionDetailOutput } from '@/graphql/graphql';
 
 import styles from '../styles.less';
 
@@ -8,22 +10,22 @@ const { Title } = Typography;
 
 export type Props = {
   output: Partial<StockOutput> | undefined;
-  saveOutput: (status?: string) => void;
-  details: Partial<DetailOutput & { action: string }>[];
+  saveOutput: (status?: StatusStockOutput) => void;
+  details: Partial<DetailOutput & { action: ActionDetailOutput }>[];
+  allowEdit: boolean;
 };
 
-const Footer = ({ output, saveOutput, details }: Props) => {
-  const allowEdit = output?.status === 'open';
-
+const Footer = ({ output, saveOutput, details, allowEdit }: Props) => {
   const renderResumen = () => {
     return (
       <Space align="center" className={styles.alignCenter}>
         <Title level={3}>
-          REFERENCIAS: {details.filter((detail) => detail?.action !== 'delete').length}
+          REFERENCIAS:{' '}
+          {details.filter((detail) => detail?.action !== ActionDetailOutput.Delete).length}
           <Divider type="vertical" />
           PRODUCTOS:{' '}
           {details
-            .filter((detail) => detail?.action !== 'delete')
+            .filter((detail) => detail?.action !== ActionDetailOutput.Delete)
             .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
         </Title>
       </Space>
@@ -34,23 +36,29 @@ const Footer = ({ output, saveOutput, details }: Props) => {
     <Affix offsetBottom={0}>
       <Card>
         <Row>
-          <Col span={4}>
+          <Col xs={24} md={3}>
             <Button
               disabled={!allowEdit}
               type={output?._id ? 'primary' : 'default'}
               danger={!!output?._id}
-              onClick={() => saveOutput('cancelled')}
+              onClick={() => saveOutput(StatusStockOutput.Cancelled)}
             >
               Cancelar
             </Button>
           </Col>
-          <Col span={16}>{renderResumen()}</Col>
-          <Col span={4}>
+          <Col xs={24} md={16}>
+            {renderResumen()}
+          </Col>
+          <Col xs={24} md={5}>
             <Space align="end" className={styles.alignRigth}>
               <Button disabled={!allowEdit} onClick={() => saveOutput()}>
                 Guardar
               </Button>
-              <Button type="primary" disabled={!allowEdit} onClick={() => saveOutput('confirmed')}>
+              <Button
+                type="primary"
+                disabled={!allowEdit}
+                onClick={() => saveOutput(StatusStockOutput.Confirmed)}
+              >
                 Enviar
               </Button>
             </Space>

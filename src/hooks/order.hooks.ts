@@ -7,10 +7,17 @@ import {
   UpdateOrderDocument,
   AddProductsOrderDocument,
   AddPaymentsOrderDocument,
+  OrdersDocument,
 } from '@/graphql/graphql';
 
 export const useGetOrder = () => {
   return useLazyQuery(OrderIdDocument, {
+    fetchPolicy: 'cache-first',
+  });
+};
+
+export const useGetOrders = () => {
+  return useLazyQuery(OrdersDocument, {
     fetchPolicy: 'cache-first',
   });
 };

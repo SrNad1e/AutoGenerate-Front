@@ -16,7 +16,7 @@ import {
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { Location } from 'umi';
-import { history, Link, useLocation } from 'umi';
+import { history, Link, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -29,6 +29,7 @@ import { useGetReferences } from '@/hooks/reference.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import style from './styles.less';
+import Filters from '@/components/Filters';
 
 const { Title, Text } = Typography;
 const FormItem = Form.Item;
@@ -51,6 +52,10 @@ const ReferenceList = () => {
 
   const [form] = Form.useForm();
 
+  const {
+    reference: { canEdit, canCreate },
+  } = useAccess();
+
   const [getReferences, { data, loading }] = useGetReferences();
 
   /**
@@ -61,7 +66,7 @@ const ReferenceList = () => {
     getReferences({
       variables: {
         id: COMPANY_ID,
-        input: { active: true, ...filters },
+        input: { ...filters },
       },
     });
   };
@@ -255,18 +260,22 @@ const ReferenceList = () => {
       dataIndex: 'active',
       width: 120,
       align: 'center',
-      filterMultiple: false,
       filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Activo',
+              value: true,
+            },
+            {
+              text: 'Inactivo',
+              value: false,
+            },
+          ]}
+        />
+      ),
       render: (active: boolean) => {
         return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
       },
@@ -276,18 +285,22 @@ const ReferenceList = () => {
       dataIndex: 'changeable',
       width: 120,
       align: 'center',
-      filterMultiple: false,
-      filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filteredValue: filterTable?.changeable || null,
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
       render: (changeable: boolean) => {
         return (
           <Badge status={changeable ? 'success' : 'default'} text={changeable ? 'Si' : 'No'} />
@@ -302,7 +315,7 @@ const ReferenceList = () => {
       width: 180,
       sortOrder: sorterTable?.field === 'updatedAt' ? sorterTable.order : undefined,
       showSorterTooltip: false,
-      render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: 'Acción',
@@ -313,7 +326,7 @@ const ReferenceList = () => {
       render: (id: string) => (
         <Tooltip title="Editar" placement="topLeft">
           <Link to={`/inventory/configurations/reference/${id}`}>
-            <Button type="primary" icon={<EditOutlined />} />
+            <Button type="primary" icon={<EditOutlined />} disabled={!canEdit} />
           </Link>
         </Tooltip>
       ),
@@ -329,19 +342,19 @@ const ReferenceList = () => {
       }
     >
       <Card>
-        <Form layout="inline" form={form} onReset={onClear} onFinish={onFinish}>
-          <Row gutter={[24, 18]}>
-            <Col span={8}>
+        <Form layout="horizontal" form={form} onReset={onClear} onFinish={onFinish}>
+          <Row gutter={[20, 0]}>
+            <Col xs={24} md={9} lg={9} xl={10}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Nombre, Descripción" autoComplete="off" disabled={loading} />
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={9} lg={9} xl={9}>
               <FormItem label="Marca" name="brandId">
                 <SelectBrand disabled={loading} />
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col xs={24} md={6} lg={6} xl={5}>
               <Space>
                 <Button type="primary" htmlType="submit" loading={loading}>
                   Buscar
@@ -351,11 +364,14 @@ const ReferenceList = () => {
                 </Button>
               </Space>
             </Col>
+          </Row>
+          <Row gutter={[0, 20]} align="middle">
             <Col span={12}>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                disabled={!canCreate}
                 onClick={() => history.push('/inventory/configurations/reference/new')}
               >
                 Nueva Referencia
@@ -368,20 +384,22 @@ const ReferenceList = () => {
                 {data?.references?.totalPages || 1}
               </Text>
             </Col>
+            <Col span={24}>
+              <Table
+                loading={loading}
+                dataSource={data?.references?.docs}
+                scroll={{ x: 1200 }}
+                pagination={{
+                  current: data?.references?.page,
+                  total: data?.references?.totalDocs,
+                  showSizeChanger: false,
+                }}
+                columns={columns}
+                onChange={handleChangeTable}
+              />
+            </Col>
           </Row>
         </Form>
-        <Table
-          loading={loading}
-          dataSource={data?.references?.docs}
-          scroll={{ x: 1200 }}
-          pagination={{
-            current: data?.references?.page,
-            total: data?.references?.totalDocs,
-            showSizeChanger: false,
-          }}
-          columns={columns}
-          onChange={handleChangeTable}
-        />
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       {<EditModal />}

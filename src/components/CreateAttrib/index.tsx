@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Form, Input, Modal, Switch } from 'antd';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -66,8 +66,8 @@ const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para actualizar un atributo
    */
   const editAttrib = async () => {
+    const values = await form.validateFields();
     try {
-      const values = form.getFieldsValue();
       let errorLocal = 'No hay cambios para aplicar';
 
       Object.keys(values).forEach((i) => {
@@ -103,8 +103,8 @@ const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {
    * @description ejecuta la mutation para crear un atributo
    */
   const createNewAttrib = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
       delete values.active;
       const response = await createAttrib({
         variables: {
@@ -122,6 +122,10 @@ const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {
       showError(e?.message);
     }
   };
+
+  useEffect(() => {
+    setError(null);
+  }, [modalVisible]);
 
   return (
     <Modal
@@ -150,7 +154,7 @@ const CreateAttrib = ({ current, modalVisible, onCancel }: Props) => {
           name="active"
           valuePropName="checked"
         >
-          <Switch />
+          <Switch defaultChecked />
         </FormItem>
         {error && <Alert type="error" message={error} showIcon />}
       </Form>

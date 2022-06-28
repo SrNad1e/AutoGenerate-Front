@@ -165,6 +165,7 @@ const ModalSearchProducts = ({
       title: 'Opciones',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, product) => {
         const detailFind = details?.find(
           (detail) => detail?.product?._id === _id && detail.action !== 'delete',
@@ -199,7 +200,7 @@ const ModalSearchProducts = ({
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => createDetail(product, 1)}
-              loading={
+              disabled={
                 validateStock ? !!(product.stock && product?.stock[0]?.quantity === 0) : false
               }
             />
@@ -210,28 +211,28 @@ const ModalSearchProducts = ({
   ];
 
   return (
-    <Modal visible={visible} footer={null} width="90%" onCancel={onCancel}>
+    <Modal visible={visible} footer={null} onCancel={onCancel} width="90%">
       <>
         <Row>
           <Col span={21}>
             <Form layout="vertical" autoComplete="off" onFinish={onFinish}>
               <Row gutter={[10, 10]}>
-                <Col lg={9} xs={24}>
+                <Col lg={9} md={9} xs={24}>
                   <FormItem label="Búsqueda" name="name">
                     <Input autoFocus placeholder="referencia, descripción, código" />
                   </FormItem>
                 </Col>
-                <Col lg={8} xs={24}>
+                <Col lg={8} md={8} xs={24}>
                   <Form.Item label="Color" name="colorId">
                     <SelectColor disabled={loading} />
                   </Form.Item>
                 </Col>
-                <Col lg={4} xs={24}>
+                <Col lg={5} md={5} xs={24}>
                   <Form.Item label="Talla" name="sizeId">
                     <SelectSize disabled={loading} />
                   </Form.Item>
                 </Col>
-                <Col xs={24} lg={2}>
+                <Col xs={24} md={2} lg={2}>
                   <Form.Item label=" " colon={false}>
                     <Button type="primary" htmlType="submit" loading={loading}>
                       Buscar
@@ -244,7 +245,7 @@ const ModalSearchProducts = ({
           <Col span={24}>
             {error && <Alert type="error" message={error} showIcon />}
             <Table
-              scroll={{ x: 1000 }}
+              scroll={{ x: 'auto' }}
               columns={columns}
               dataSource={data?.products?.docs as any}
               pagination={{

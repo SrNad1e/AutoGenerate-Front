@@ -7,7 +7,7 @@ import {
   FileTextOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-import { useHistory, useParams } from 'umi';
+import { useAccess, useHistory, useModel, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 
@@ -18,6 +18,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import FormOutput from '../components/FormOutput';
 import ReportOutput from '../reports/output';
 import type { StockOutput, Warehouse } from '@/graphql/graphql';
+import { StatusStockOutput } from '@/graphql/graphql';
 import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
@@ -32,8 +33,9 @@ const OutputForm = () => {
     visible: false,
   });
   const [output, setOutput] = useState<Partial<StockOutput>>({
-    status: 'open',
+    status: StatusStockOutput.Open,
   });
+  const { initialState } = useModel('@@initialState');
 
   const { id } = useParams<Partial<{ id: string }>>();
 
@@ -49,7 +51,15 @@ const OutputForm = () => {
   const [getWarehouseId] = useGetWarehouseId();
 
   const isNew = !id;
+  const {
+    output: { canPrint, canEdit },
+  } = useAccess();
 
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === output?.user?._id &&
+      output?.status === StatusStockOutput.Open &&
+      canEdit;
   /**
    * @description se encarga de abrir aviso de información
    * @param error error de apollo
@@ -135,7 +145,7 @@ const OutputForm = () => {
       case 0:
         return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
       case 1:
-        return <FormOutput output={output} setCurrentStep={setCurrentStep} />;
+        return <FormOutput allowEdit={allowEdit} output={output} setCurrentStep={setCurrentStep} />;
       default:
         return <></>;
     }
@@ -162,7 +172,12 @@ const OutputForm = () => {
               {' '}
               Salida No. {output?.number} <Divider type="vertical" />
               <Tooltip title="Imprimir">
-                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+                <Button
+                  disabled={!canPrint}
+                  type="primary"
+                  icon={<PrinterOutlined />}
+                  onClick={() => handlePrint()}
+                />
               </Tooltip>{' '}
             </>
           )}
@@ -187,7 +202,7 @@ const OutputForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormOutput output={output} setCurrentStep={setCurrentStep} />
+        <FormOutput allowEdit={allowEdit} output={output} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />

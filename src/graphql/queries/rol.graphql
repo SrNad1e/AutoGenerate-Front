@@ -1,0 +1,31 @@
+query roleId($id: String!) {
+  roleId(id: $id) {
+    _id
+    name
+    changeWarehouse
+    active
+    user {
+      name
+    }
+    permissions {
+      _id
+    }
+  }
+}
+
+query roles($input: FiltersRolesInput) {
+  roles(filtersRolesInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      changeWarehouse
+      name
+      active
+      permissions {
+        description
+      }
+    }
+  }
+}

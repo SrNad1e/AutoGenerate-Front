@@ -1,5 +1,6 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
+import type { Product } from '@/graphql/graphql';
 import {
   CreateProductDocument,
   ProductDocument,
@@ -21,7 +22,22 @@ export const useGetProduct = () => {
 };
 
 export const useUpdateProduct = () => {
-  return useMutation(UpdateProductDocument);
+  return useMutation(UpdateProductDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          products(existingProducts = []) {
+            return existingProducts?.docs?.map((product: Product) => {
+              if (product?._id === data?.updateProduct?._id) {
+                return data?.updateProduct;
+              }
+              return product;
+            });
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useCreateProduct = (id: string) => {

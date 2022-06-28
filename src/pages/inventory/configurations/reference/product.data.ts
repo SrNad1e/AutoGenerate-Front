@@ -1,10 +1,8 @@
-export const StatusType = [
-  {
-    name: 'active',
+export const StatusType = {
+  ACTIVE: {
     title: 'Activo',
   },
-  {
-    name: 'inactive',
+  INACTIVE: {
     title: 'Inactivo',
   },
-];
+};

@@ -17,20 +17,31 @@ export const useGetOutputs = () => {
 };
 
 export const useCreateOutput = () => {
-  return useMutation(CreateStockOutputDocument);
+  return useMutation(CreateStockOutputDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockOutputs(existingOutputs = []) {
+            return [data?.createStockOutput].concat(existingOutputs);
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useUpdateOutput = () => {
   return useMutation(UpdateStockOutputDocument, {
-    update: (store, response) => {
-      const dataInStore = store.readQuery({ query: StockOutputDocument });
-      store.writeQuery({
-        query: StockOutputDocument,
-        data: {
-          ...dataInStore,
-          stockOutputId: {
-            ...dataInStore?.stockOutputId,
-            ...(response?.data?.updateStockOutput as StockOutput),
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockOutputs(existingOutputs = []) {
+            return existingOutputs?.docs?.map((output: StockOutput) => {
+              if (output?._id === data?.updateStockOutput?._id) {
+                return data?.updateStockOutput;
+              }
+              return output;
+            });
           },
         },
       });

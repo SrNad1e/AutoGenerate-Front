@@ -17,20 +17,31 @@ export const useGetAdjustments = () => {
 };
 
 export const useCreateAdjustment = () => {
-  return useMutation(CreateStockAdjustmentDocument);
+  return useMutation(CreateStockAdjustmentDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockAdjustments(existingAdjustments = []) {
+            return [data?.createStockAdjustment].concat(existingAdjustments);
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useUpdateAdjustment = () => {
   return useMutation(UpdateStockAdjustmentDocument, {
-    update: (store, response) => {
-      const dataInStore = store.readQuery({ query: StockAdjustmentDocument });
-      store.writeQuery({
-        query: StockAdjustmentDocument,
-        data: {
-          ...dataInStore,
-          stockAdjustmentId: {
-            ...dataInStore?.stockAdjustmentId,
-            ...(response?.data?.updateStockAdjustment as StockAdjustment),
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockAdjustments(existingAdjustment = []) {
+            return existingAdjustment?.docs?.map((adjustment: StockAdjustment) => {
+              if (adjustment?._id === data?.updateStockAdjustment?._id) {
+                return data?.updateStockAdjustment;
+              }
+              return adjustment;
+            });
           },
         },
       });
