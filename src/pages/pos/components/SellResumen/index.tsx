@@ -33,7 +33,10 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
 
   const [getOrder, { data }] = useGetOrder();
 
-  const totalProducts = data?.orderId?.details?.reduce((sum, detail) => detail?.quantity + sum, 0);
+  const totalProducts = data?.orderId?.order?.details?.reduce(
+    (sum, detail) => detail?.quantity + sum,
+    0,
+  );
 
   /**
    * @description cierra el modal de pago
@@ -56,7 +59,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
     <Card bodyStyle={styles.bodyPadding}>
       <Row gutter={[12, 12]}>
         <Col offset={2} span={11}>
-          <Title level={4}>Productos: {data?.orderId?.details?.length || 0}</Title>
+          <Title level={4}>Productos: {data?.orderId?.order?.details?.length || 0}</Title>
         </Col>
         <Col span={11}>
           <Title level={4}>Total: {totalProducts}</Title>
@@ -64,7 +67,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
         <Col span={24}>
           <List size="small" style={styles.listResumenStyle}>
             {(totalProducts || 0) > 0 ? (
-              data?.orderId?.details?.map((detail, key) => (
+              data?.orderId?.order?.details?.map((detail, key) => (
                 <ItemResume
                   number={key + 1}
                   key={detail?.product?._id}
@@ -84,11 +87,12 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
                 Cliente:
               </Title>
               <Title level={5} style={styles.titleLineStyle}>
-                {data?.orderId?.customer?.firstName} {data?.orderId?.customer?.lastName}
+                {data?.orderId?.order?.customer?.firstName}{' '}
+                {data?.orderId?.order?.customer?.lastName}
               </Title>
               <Title level={5} style={styles.titleLine}>
-                {data?.orderId?.customer?.documentType?.abbreviation}{' '}
-                {data?.orderId?.customer?.document}
+                {data?.orderId?.order?.customer?.documentType?.abbreviation}{' '}
+                {data?.orderId?.order?.customer?.document}
               </Title>
             </Col>
             <Col md={8} lg={6}>
@@ -107,9 +111,9 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
                 </Col>
                 <Col span={24}>
                   <Space>
-                    <Tag color="volcano">{data?.orderId?.customer?.customerType?.name}</Tag>
+                    <Tag color="volcano">{data?.orderId?.order?.customer?.customerType?.name}</Tag>
                     <Tag color="success">
-                      {data?.orderId?.customer?.active ? (
+                      {data?.orderId?.order?.customer?.active ? (
                         <CheckOutlined />
                       ) : (
                         <CloseCircleOutlined />
@@ -137,13 +141,13 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
             </Col>
             <Col span={12} style={styles.titleLineRight}>
               <Title style={styles.titleLine} level={4}>
-                {numeral(data?.orderId?.summary?.subtotal).format('$ 0,0')}
+                {numeral(data?.orderId?.order?.summary?.subtotal).format('$ 0,0')}
               </Title>
               <Title style={styles.titleLine} level={4}>
-                {numeral(data?.orderId?.summary?.discount).format('$ 0,0')}
+                {numeral(data?.orderId?.order?.summary?.discount).format('$ 0,0')}
               </Title>
               <Title style={styles.titleLine} level={4}>
-                {numeral(data?.orderId?.summary?.total).format('$ 0,0')}
+                {numeral(data?.orderId?.order?.summary?.total).format('$ 0,0')}
               </Title>
             </Col>
           </Row>
@@ -155,7 +159,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
               <Button
                 icon={<DollarOutlined />}
                 type="primary"
-                disabled={(data?.orderId?.summary?.total || 0) <= 0}
+                disabled={(data?.orderId?.order?.summary?.total || 0) <= 0}
                 onClick={() => setModalPaymentVisible(true)}
                 style={styles.payButtonStyle}
               >
@@ -171,7 +175,8 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
         </Col>
       </Row>
       <ModalPayment
-        summary={data?.orderId?.summary as SummaryOrder}
+        credit={data?.orderId?.credit}
+        summary={data?.orderId?.order?.summary as SummaryOrder}
         editOrder={editOrder}
         visible={modalPaymentVisible}
         onCancel={onCloseModalPayment}

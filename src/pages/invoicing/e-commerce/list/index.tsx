@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   CaretRightOutlined,
   ClockCircleFilled,
@@ -27,9 +28,14 @@ import {
 import numeral from 'numeral';
 import moment from 'moment';
 import { history } from 'umi';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { ColumnsType } from 'antd/lib/table';
+
+import { useGetOrders } from '@/hooks/order.hooks';
+import type { Customer, FiltersOrdersInput, Order, StatusOrder } from '@/graphql/graphql';
 
 import styles from './styles';
+import { StatusType } from '../order.data';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -39,19 +45,20 @@ const { Text } = Typography;
 const EcommerceList = () => {
   const [visibleFilters, setVisibleFilters] = useState(false);
 
-  const dataTest = [
-    {
-      number: 1,
-      customer: { firstName: 'Dio', lastName: 'Brandon', identification: 1001203 },
-      shop: 'Belen la 76',
-      status: { color: 'green', name: 'Pagado' },
-      payments: { name: 'Efectivo', total: 100000 },
-      createdAt: '2022-05-04T18:10:20.727Z',
-      updatedAt: '2022-05-04T18:10:20.727Z',
-    },
-  ];
+  const [getOrders, { data, loading }] = useGetOrders();
 
-  const columns = [
+  const onSearch = (filters?: FiltersOrdersInput) => {
+    getOrders({
+      variables: {
+        input: {
+          orderPOS: false,
+          ...filters,
+        },
+      },
+    });
+  };
+
+  const columns: ColumnsType<Order> = [
     {
       title: 'Número',
       dataIndex: 'number',
@@ -60,7 +67,7 @@ const EcommerceList = () => {
       title: 'Cliente',
       dataIndex: 'customer',
       width: 200,
-      render: (customer: any) => (
+      render: (customer: Customer) => (
         <>
           <Space direction="vertical" size={1}>
             <Text strong>
@@ -79,7 +86,9 @@ const EcommerceList = () => {
     {
       title: 'Estado',
       dataIndex: 'status',
-      render: (status: any) => <Badge color={status.color} text={status.name} />,
+      render: (status: StatusOrder) => (
+        <Badge color={StatusType[status].color} text={StatusType[status].text} />
+      ),
     },
     {
       title: 'Formas de Pago',
@@ -138,6 +147,10 @@ const EcommerceList = () => {
     },
   ];
 
+  useEffect(() => {
+    onSearch();
+  }, []);
+
   return (
     <PageContainer>
       <Card bordered={false}>
@@ -145,17 +158,17 @@ const EcommerceList = () => {
           <Row gutter={15} align="middle">
             <Col xs={24} md={6} lg={5}>
               <FormItem label="Número">
-                <InputNumber style={styles.inputNumberWidth} controls={false} />
+                <InputNumber disabled={loading} style={styles.inputNumberWidth} controls={false} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={8}>
               <FormItem label="Cliente">
-                <Input />
+                <Input disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={9} lg={9}>
               <FormItem label="Estado">
-                <Select allowClear placeholder="Seleccione un estado">
+                <Select allowClear placeholder="Seleccione un estado" disabled={loading}>
                   <Option value="Completo">Cancelado</Option>
                   <Option value="Incompleto">Entregado</Option>
                   <Option value="Enviado">Enviado</Option>
@@ -177,7 +190,7 @@ const EcommerceList = () => {
               <>
                 <Col xs={24} md={10} lg={9} xl={10}>
                   <FormItem label="Formas de pago">
-                    <Select style={styles.selectWidth} allowClear showSearch>
+                    <Select disabled={loading} style={styles.selectWidth} allowClear showSearch>
                       <Option value="Efectivo">Efectivo</Option>
                       <Option value="Credito">Credito</Option>
                       <Option value="Bancolombia">Bancolombia</Option>
@@ -215,7 +228,7 @@ const EcommerceList = () => {
         </Space>
       </Card>
       <Card bordered={false} bodyStyle={styles.bodyPadding}>
-        <Table columns={columns} scroll={{ x: 1000 }} dataSource={dataTest} />
+        <Table columns={columns} scroll={{ x: 1000 }} dataSource={data?.orders?.docs} />
       </Card>
     </PageContainer>
   );
