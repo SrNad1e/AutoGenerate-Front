@@ -46,7 +46,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import { StatusType } from '../tranfer.data';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import ReportTransfer from '../reports/transfer';
-//import AlertLoading from '@/components/Alerts/AlertLoading';
+import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
 import styles from './styles.less';
@@ -94,8 +94,8 @@ const ConfirmTransfer = () => {
   });
 
   const [getTransfer, { loading, data }] = useGetTransfer();
-  const [confirmProductsTransfer] = useConfirmProductsTransfer();
-  const [updateTransfer] = useUpdateTransfer();
+  const [confirmProductsTransfer, paramsConfirmProducts] = useConfirmProductsTransfer();
+  const [updateTransfer, paramsUpdate] = useUpdateTransfer();
 
   const {
     transfer: { canPrint, canConfirm },
@@ -250,7 +250,7 @@ const ConfirmTransfer = () => {
 
   const saveTransfer = async (status?: StatusStockTransfer) => {
     if (status === StatusStockTransfer.Confirmed) {
-      const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.Sent);
+      const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.New);
 
       if (!confirm) {
         onShowError('Debe confirmar todos los productos antes de enviar');
@@ -555,10 +555,10 @@ const ConfirmTransfer = () => {
         </Card>
       </Affix>
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      {/* <AlertLoading
-        visible={paramsCreate?.loading || paramsUpdate?.loading}
-        message="Guardando traslado"
-      />*/}
+      <AlertLoading
+        visible={paramsConfirmProducts?.loading || paramsUpdate?.loading}
+        message="Actualizando traslado"
+      />
       <AlertSave {...propsAlertSaveFinal} />
       <div style={{ display: 'none' }}>
         <ReportTransfer ref={reportRef} data={data?.stockTransferId} />
