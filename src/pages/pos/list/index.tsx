@@ -72,11 +72,7 @@ const PosList = () => {
 
   useEffect(() => {
     if (initialState?.currentUser) {
-      getOrders({
-        variables: {
-          id: initialState?.currentUser?.pointOfSale?._id || '',
-        },
-      });
+      getOrders();
     }
   }, []);
 

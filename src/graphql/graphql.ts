@@ -2512,10 +2512,6 @@ export type QueryOrdersArgs = {
   filtersOrdersInput: FiltersOrdersInput;
 };
 
-export type QueryOrdersByPointOfSaleArgs = {
-  idPointOfSale: Scalars['String'];
-};
-
 export type QueryPaymentsArgs = {
   filtersPaymentsInput?: InputMaybe<FiltersPaymentsInput>;
 };
@@ -6204,9 +6200,7 @@ export type OrderIdQuery = {
   };
 };
 
-export type OrdersByPosQueryVariables = Exact<{
-  id: Scalars['String'];
-}>;
+export type OrdersByPosQueryVariables = Exact<Record<string, never>>;
 
 export type OrdersByPosQuery = {
   __typename?: 'Query';
@@ -12858,29 +12852,12 @@ export const OrdersByPosDocument = {
       kind: 'OperationDefinition',
       operation: 'query',
       name: { kind: 'Name', value: 'OrdersByPos' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
-          },
-        },
-      ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'ordersByPointOfSale' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'idPointOfSale' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
