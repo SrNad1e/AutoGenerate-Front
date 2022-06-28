@@ -260,7 +260,7 @@ const ConfirmTransfer = () => {
             variables: {
               id,
               input: {
-                observation,
+                observationDestination: observation,
                 status,
               },
             },
