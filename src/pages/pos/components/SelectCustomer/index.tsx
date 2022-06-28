@@ -191,10 +191,12 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
               if (!value) {
                 return Promise.reject(new Error('*Campo Obligatorio'));
               }
-              if (!isNaN(number)) {
+
+              if (!isNaN(number) && number == value) {
                 return Promise.resolve();
               }
-              return Promise.reject(new Error('*Campo solo numerico'));
+
+              return Promise.reject(new Error('*Solo números'));
             },
           },
         ]}
@@ -237,14 +239,15 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
               const number = parseInt(value);
 
               if (!value) {
+                return Promise.reject(new Error('*Campo Obligatorio'));
+              }
+
+              if (!isNaN(number) && number == value) {
                 return Promise.resolve();
               }
-              if (!isNaN(number)) {
-                return Promise.resolve();
-              }
-              return Promise.reject();
+
+              return Promise.reject(new Error('*Solo números'));
             },
-            message: '*Campo numerico',
           },
         ]}
       >
