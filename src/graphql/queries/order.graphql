@@ -71,7 +71,7 @@ query orderId($id: String!) {
 }
 
 query OrdersByPos($id: String!) {
-  ordersByPointOfSale(idPointOfSale: $id) {
+  ordersByPointOfSale {
     _id
     number
     shop {

@@ -1,13 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Customer, FiltersCustomersInput } from '@/graphql/graphql';
+import Filters from '@/components/Filters';
+import type { Customer, CustomerType, FiltersCustomersInput } from '@/graphql/graphql';
 import { useGetCustomers } from '@/hooks/customer.hooks';
 import {
+  CalendarOutlined,
   ClearOutlined,
   EditFilled,
   IdcardOutlined,
+  MailOutlined,
+  MoreOutlined,
   PlusOutlined,
   SearchOutlined,
   UserOutlined,
+  UserSwitchOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -18,35 +23,89 @@ import {
   Form,
   Input,
   Row,
-  Select,
   Space,
   Table,
+  Tag,
   Tooltip,
   Typography,
 } from 'antd';
-import type { ColumnsType } from 'antd/lib/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-import EditCustomer from '../edit';
-import FormCustmer from '../form';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import EditCustomer from '../form';
 
 import styles from './styles';
+import type { Location } from 'umi';
+import { useLocation, history } from 'umi';
+import type { SorterResult } from 'antd/lib/table/interface';
 
 const FormItem = Form.Item;
-const { Option } = Select;
 const { Text } = Typography;
 
+type FormValues = {
+  dato?: string;
+  active?: boolean;
+};
+
 const CustomerList = () => {
-  const [visibleForm, setVisibleForm] = useState(false);
   const [visibleEdit, setVisibleEdit] = useState(false);
+  const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
+  const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+  const [customerData, setCustomerData] = useState<Partial<Customer>>({});
+
+  const [form] = Form.useForm();
+  const location: Location = useLocation();
 
   const [getCustomers, paramsGetCustomers] = useGetCustomers();
+
+  /**
+   * @description funcion usada para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showError = (message: string) => {
+    setAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
+  const closeAlertInformation = () => {
+    setAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  /**
+   * Cierra el modal
+   */
+  const closeEditModal = () => {
+    setCustomerData({});
+    setVisibleEdit(false);
+  };
+
+  const visibleModalEdit = (customer?: Partial<Customer>) => {
+    setCustomerData(customer || { birthday: null });
+    setVisibleEdit(true);
+  };
 
   const onSearch = (filters?: FiltersCustomersInput) => {
     getCustomers({
       variables: {
         input: {
+          limit: 10,
           ...filters,
         },
       },
@@ -54,81 +113,211 @@ const CustomerList = () => {
   };
 
   /**
-   * Cierra el modal de edicion
+   * @description se encarga de señalar los datos a la query
+   * @param values valores para enviar a la query
    */
-  const closeEditModal = () => {
-    setVisibleEdit(false);
+  const setQueryParams = (values?: FiltersCustomersInput) => {
+    try {
+      const valuesForm = form.getFieldsValue();
+
+      const valuesNew = {
+        ...values,
+        ...valuesForm,
+      };
+      const datos = Object.keys(valuesNew)
+        .reduce(
+          (a, key) =>
+            valuesNew[key] !== undefined ? `${a}&${key}=${JSON.stringify(valuesNew[key])}` : a,
+          '',
+        )
+        .slice(1);
+
+      history.replace(`${location.pathname}?${datos}`);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
-   * Cierra el modal de creacion
+   * @description esta funcion evalua los paramametros del formulario y ejecuta la busqueda
+   * @param value valores del formulario
    */
-  const closeCreateModal = () => {
-    setVisibleForm(false);
+  const onFinish = (value: FormValues, pageCurrent?: number) => {
+    const filters = { ...filterTable };
+    const params: FiltersCustomersInput = {
+      page: pageCurrent || 1,
+      limit: 10,
+      ...value,
+    };
+
+    onSearch({ ...params, ...filters });
+    setQueryParams({ ...value, ...filters });
+  };
+
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
+   * @param filterArg filtros de la tabla
+   */
+  const handleChangeTable = (
+    paginationLocal: TablePaginationConfig,
+    filterArg: Record<string, any>,
+    sorter: SorterResult<Partial<Customer>> | any,
+  ) => {
+    const { current } = paginationLocal;
+    const prop = form.getFieldsValue();
+
+    const filters = { ...filterArg };
+
+    Object.keys(filters).forEach((i) => {
+      if (filters[i] === null) {
+        delete filters[i];
+      } else {
+        filters[i] = filters[i][0];
+      }
+    });
+
+    let sort = {};
+
+    if (sorter.field) {
+      if (['ascend', 'descend'].includes(sorter?.order || '')) {
+        sort = {
+          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+        };
+      }
+    }
+    setQueryParams(filters);
+    onSearch({ ...prop, sort, page: current, ...filters });
+    setFilterTable(filterArg);
+  };
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
+  const onClear = () => {
+    history.replace(location.pathname);
+    form.resetFields();
+    onSearch({});
+    setFilterTable({});
+  };
+
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const loadingData = () => {
+    const queryParams: any = location?.query;
+
+    const params = {};
+
+    Object.keys(queryParams).forEach((item) => {
+      if (item === 'active') {
+        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+      } else {
+        params[item] = JSON.parse(queryParams[item]);
+      }
+    });
+    form.setFieldsValue(params);
+    onFinish(params);
   };
 
   useEffect(() => {
-    onSearch();
+    loadingData();
   }, []);
 
   const column: ColumnsType<Customer> = [
     {
-      title: 'Cliente',
-      dataIndex: 'customer',
+      title: (
+        <>
+          <UserOutlined /> Cliente
+        </>
+      ),
+      dataIndex: 'firstName',
       align: 'center',
+      sorter: true,
+      showSorterTooltip: false,
       render: (_, customer: Customer) => (
         <Space direction="vertical" size={5}>
           <Text>
-            {<UserOutlined />} {customer?.firstName} {customer?.lastName}
+            {} {customer?.firstName} {customer?.lastName}
           </Text>
-          <Text>
+          <Tag style={styles.tagStyle}>
             {<IdcardOutlined />} {customer?.document}
-          </Text>
+          </Tag>
         </Space>
       ),
     },
     {
-      title: 'Correo',
+      title: (
+        <>
+          <MailOutlined /> Correo
+        </>
+      ),
       dataIndex: 'email',
       align: 'center',
+      sorter: true,
+      showSorterTooltip: false,
     },
     {
-      title: 'Tipo de cliente',
+      title: (
+        <>
+          <UserSwitchOutlined /> Tipo de Cliente
+        </>
+      ),
       dataIndex: 'customerType',
       align: 'center',
+      render: (customerType: CustomerType) => (
+        <Tag style={styles.tagStyle}>{customerType?.name}</Tag>
+      ),
     },
     {
       title: 'Activo',
       dataIndex: 'active',
-      align: 'center',
       render: (active: boolean) => {
         return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
       },
       filterMultiple: false,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filteredValue: filterTable?.active || null,
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
     },
     {
-      title: 'Fecha',
-      dataIndex: 'createdAt',
+      title: (
+        <>
+          <CalendarOutlined /> Fecha
+        </>
+      ),
+      dataIndex: 'updatedAt',
       align: 'center',
-      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
+      render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opción',
-      dataIndex: '',
+      title: (
+        <>
+          <MoreOutlined /> Opciones
+        </>
+      ),
+      dataIndex: '_id',
       align: 'center',
-      render: () => (
+      render: (_, customerId) => (
         <Tooltip title="Editar">
-          <Button onClick={() => setVisibleEdit(true)} type="primary" icon={<EditFilled />} />
+          <Button
+            onClick={() => visibleModalEdit(customerId)}
+            type="primary"
+            icon={<EditFilled />}
+          />
         </Tooltip>
       ),
     },
@@ -137,23 +326,14 @@ const CustomerList = () => {
   return (
     <PageContainer>
       <Card>
-        <Form>
+        <Form form={form} onFinish={onFinish}>
           <Row gutter={30}>
-            <Col xs={24} md={9} lg={9} xl={7}>
-              <FormItem label="Nombre">
-                <Input placeholder="Correo, Telefono, Documento..." />
+            <Col xs={24} md={9} lg={9} xl={9}>
+              <FormItem label="Dato" name="dato">
+                <Input placeholder="Correo, Nombre, Teléfono, Documento..." />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={8}>
-              <FormItem label="Tipo de Cliente">
-                <Select allowClear showSearch>
-                  <Option value="Mayorista">Mayorista</Option>
-                  <Option value="Distribuidor">Distribuidor</Option>
-                  <Option value="Detal">Detal</Option>
-                </Select>
-              </FormItem>
-            </Col>
-            <Col xs={24} md={7} lg={7}>
+            <Col xs={24} md={7} lg={7} xl={7}>
               <Space>
                 <Button
                   style={{ borderRadius: 5 }}
@@ -163,7 +343,7 @@ const CustomerList = () => {
                 >
                   Buscar
                 </Button>
-                <Button style={{ borderRadius: 5 }} icon={<ClearOutlined />} onClick={() => {}}>
+                <Button style={{ borderRadius: 5 }} icon={<ClearOutlined />} onClick={onClear}>
                   Limpiar
                 </Button>
               </Space>
@@ -176,25 +356,33 @@ const CustomerList = () => {
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
-              onClick={() => setVisibleForm(true)}
+              onClick={() => visibleModalEdit()}
             >
               Nuevo
             </Button>
           </Col>
           <Col xs={12} md={9} lg={8} style={{ textAlign: 'right' }}>
-            <Text strong>Total Encontrados:</Text> {1} <Text strong>Páginas: </Text> {1} / {1 || 0}
+            <Text strong>Total Encontrados:</Text> {paramsGetCustomers?.data?.customers?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {paramsGetCustomers?.data?.customers?.page} /{' '}
+            {paramsGetCustomers.data?.customers?.totalPages}
           </Col>
           <Col span={24}>
             <Table
+              onChange={handleChangeTable}
               columns={column}
-              dataSource={paramsGetCustomers.data?.customers.docs}
+              dataSource={paramsGetCustomers?.data?.customers?.docs}
               scroll={{ x: 'auto' }}
+              pagination={{
+                current: paramsGetCustomers?.data?.customers?.page,
+                total: paramsGetCustomers?.data?.customers?.totalDocs,
+                showSizeChanger: false,
+              }}
             />
           </Col>
         </Row>
       </Card>
-      <FormCustmer visible={visibleForm} onCancel={closeCreateModal} />
-      <EditCustomer visible={visibleEdit} onCancel={closeEditModal} />
+      <EditCustomer customerData={customerData} visible={visibleEdit} onCancel={closeEditModal} />
+      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );
 };
