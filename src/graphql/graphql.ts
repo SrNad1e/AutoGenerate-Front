@@ -1534,7 +1534,7 @@ export type FiltersOrdersInput = {
   /** Número consecutivo del pedido */
   number?: InputMaybe<Scalars['Float']>;
   /** Trae los pedidos POS solamente */
-  orderPos?: InputMaybe<Scalars['Boolean']>;
+  orderPOS?: InputMaybe<Scalars['Boolean']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
@@ -6597,8 +6597,12 @@ export type InvoicesQuery = {
       __typename?: 'Invoice';
       _id: string;
       active: boolean;
+      updatedAt: any;
       createdAt: any;
       authorization: { __typename?: 'AuthorizationDian'; prefix: string };
+      user: { __typename?: 'User'; name: string };
+      summary: { __typename?: 'SummaryInvoice'; total: number };
+      shop: { __typename?: 'Shop'; name: string };
       customer: {
         __typename?: 'Customer';
         firstName: string;
@@ -13022,6 +13026,31 @@ export const InvoicesDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'prefix' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'summary' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'total' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },

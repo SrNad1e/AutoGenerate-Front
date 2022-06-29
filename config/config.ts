@@ -315,6 +315,11 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              name: 'Facturas',
+              path: '/invoicing/invoice',
+              component: './invoicing/invoice/list',
+            },
           ],
         },
         {
