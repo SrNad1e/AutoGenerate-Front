@@ -184,7 +184,9 @@ const ConfirmTransfer = () => {
             quantityConfirmed: (detail.quantityConfirmed || 0) + 1,
           });
           setError(
-            `Confirmado ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${detail?.product?.size?.value}, cantidad: ${detail?.quantityConfirmed}`,
+            `Confirmado ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${
+              detail?.product?.size?.value
+            }, cantidad: ${(detail?.quantityConfirmed || 0) + 1}`,
           );
           setDetails(newDetails);
         } else {
