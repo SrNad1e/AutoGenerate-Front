@@ -68,7 +68,7 @@ export default class OrderProduction extends React.PureComponent {
           <Barcode
             value={data?.number}
             height={50}
-            text={`Pedido No. ${data?.order?.number}`}
+            text={`Devolución No. ${data?.number}`}
             fontSize={12}
           />
           <div style={classes.text}>
@@ -142,7 +142,9 @@ export default class OrderProduction extends React.PureComponent {
           <div style={classes.footer}>
             <div style={classes.text}>
               <span style={classes.textBold}>Total:</span>
-              {numeral(data?.order?.summary?.total).format('$ 0,0')}
+              {numeral(
+                data?.details?.reduce((sum, detail) => sum + detail.quantity * detail.price, 0),
+              ).format('$ 0,0')}
             </div>
           </div>
         </div>
