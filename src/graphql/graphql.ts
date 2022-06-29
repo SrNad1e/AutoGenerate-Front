@@ -1523,12 +1523,12 @@ export type FiltersInvoicesInput = {
 
 /** Filtros del listado de pedidos */
 export type FiltersOrdersInput = {
+  /** Identificador del cliente */
+  customerId?: InputMaybe<Scalars['String']>;
   /** Fecha final para la busqueda */
   dateFinal?: InputMaybe<Scalars['String']>;
   /** Fecha inicial para la busqueda */
   dateInitial?: InputMaybe<Scalars['String']>;
-  /** Documento del cliente que registra en el pedidod */
-  document?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Número consecutivo del pedido */
@@ -1537,6 +1537,8 @@ export type FiltersOrdersInput = {
   orderPOS?: InputMaybe<Scalars['Boolean']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
+  /** Identificador del medio de pago */
+  paymentId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortOrder>;
   /** Estado del pedido */
@@ -5445,10 +5447,13 @@ export type UpdateOrderMutation = {
     credit?: { __typename?: 'Credit'; amount: number; available: number } | null;
     order: {
       __typename?: 'Order';
+      updatedAt: any;
       _id: string;
       number: number;
+      user: { __typename?: 'User'; name: string };
       customer: {
         __typename?: 'Customer';
+        phone?: string | null;
         document: string;
         firstName: string;
         lastName: string;
@@ -5505,52 +5510,6 @@ export type UpdateOrderMutation = {
         totalPaid: number;
         change: number;
       };
-      invoice?: {
-        __typename?: 'Invoice';
-        createdAt: any;
-        number: number;
-        authorization: { __typename?: 'AuthorizationDian'; prefix: string };
-        customer: {
-          __typename?: 'Customer';
-          document: string;
-          firstName: string;
-          lastName: string;
-          phone?: string | null;
-          documentType: { __typename?: 'DocumentType'; abbreviation: string };
-        };
-        details?:
-          | {
-              __typename?: 'DetailInvoice';
-              quantity: number;
-              price: number;
-              discount: number;
-              product: {
-                __typename?: 'Product';
-                barcode: string;
-                color: { __typename?: 'Color'; name: string };
-                reference: { __typename?: 'Reference'; name: string; description: string };
-                size: { __typename?: 'Size'; value: string };
-              };
-            }[]
-          | null;
-        payments?:
-          | {
-              __typename?: 'PaymentInvoice';
-              total: number;
-              payment: { __typename?: 'Payment'; _id: string; name: string };
-            }[]
-          | null;
-        shop: { __typename?: 'Shop'; name: string };
-        summary: {
-          __typename?: 'SummaryInvoice';
-          total: number;
-          subtotal: number;
-          change: number;
-          discount: number;
-          totalPaid: number;
-        };
-        user: { __typename?: 'User'; name: string };
-      } | null;
     };
   };
 };
@@ -5566,13 +5525,16 @@ export type AddPaymentsOrderMutation = {
     credit?: { __typename?: 'Credit'; amount: number; available: number } | null;
     order: {
       __typename?: 'Order';
+      updatedAt: any;
       _id: string;
       number: number;
+      user: { __typename?: 'User'; name: string };
       customer: {
         __typename?: 'Customer';
         document: string;
         firstName: string;
         lastName: string;
+        phone?: string | null;
         documentType: { __typename?: 'DocumentType'; abbreviation: string };
         customerType: { __typename?: 'CustomerType'; name: string };
       };
@@ -7017,9 +6979,7 @@ export type OrderIdQuery = {
   };
 };
 
-export type OrdersByPosQueryVariables = Exact<{
-  id: Scalars['String'];
-}>;
+export type OrdersByPosQueryVariables = Exact<Record<string, never>>;
 
 export type OrdersByPosQuery = {
   __typename?: 'Query';
@@ -9530,14 +9490,24 @@ export const UpdateOrderDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'customer' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
@@ -9707,173 +9677,6 @@ export const UpdateOrderDocument = {
                           ],
                         },
                       },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'invoice' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'authorization' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
-                                ],
-                              },
-                            },
-                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'customer' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'documentType' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'abbreviation' },
-                                        },
-                                      ],
-                                    },
-                                  },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'document' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'details' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'product' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'color' },
-                                          selectionSet: {
-                                            kind: 'SelectionSet',
-                                            selections: [
-                                              {
-                                                kind: 'Field',
-                                                name: { kind: 'Name', value: 'name' },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'reference' },
-                                          selectionSet: {
-                                            kind: 'SelectionSet',
-                                            selections: [
-                                              {
-                                                kind: 'Field',
-                                                name: { kind: 'Name', value: 'name' },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: { kind: 'Name', value: 'description' },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'size' },
-                                          selectionSet: {
-                                            kind: 'SelectionSet',
-                                            selections: [
-                                              {
-                                                kind: 'Field',
-                                                name: { kind: 'Name', value: 'value' },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                      ],
-                                    },
-                                  },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'price' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
-                                ],
-                              },
-                            },
-                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'payments' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'payment' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                      ],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'shop' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'summary' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'change' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'user' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
                     ],
                   },
                 },
@@ -9935,8 +9738,17 @@ export const AddPaymentsOrderDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'customer' },
@@ -9946,6 +9758,7 @@ export const AddPaymentsOrderDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'documentType' },
@@ -14755,16 +14568,6 @@ export const OrdersByPosDocument = {
       kind: 'OperationDefinition',
       operation: 'query',
       name: { kind: 'Name', value: 'OrdersByPos' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
-          },
-        },
-      ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [

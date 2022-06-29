@@ -46,7 +46,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import { StatusType } from '../tranfer.data';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import ReportTransfer from '../reports/transfer';
-//import AlertLoading from '@/components/Alerts/AlertLoading';
+import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
 import styles from './styles.less';
@@ -94,8 +94,8 @@ const ConfirmTransfer = () => {
   });
 
   const [getTransfer, { loading, data }] = useGetTransfer();
-  const [confirmProductsTransfer] = useConfirmProductsTransfer();
-  const [updateTransfer] = useUpdateTransfer();
+  const [confirmProductsTransfer, paramsConfirmProducts] = useConfirmProductsTransfer();
+  const [updateTransfer, paramsUpdate] = useUpdateTransfer();
 
   const {
     transfer: { canPrint, canConfirm },
@@ -172,27 +172,24 @@ const ConfirmTransfer = () => {
     try {
       const values = await form.validateFields();
 
-      const newDetails = [...details];
+      const detail = details.find((item) => item?.product?.barcode === values.barcode);
 
-      const index = newDetails.findIndex((item) => item?.product?.barcode === values.barcode);
+      const newDetails = details.filter((item) => item?.product?.barcode !== values.barcode);
 
-      if (index >= 0) {
-        if (
-          newDetails[index]?.status === StatusDetailTransfer.New ||
-          newDetails[index]?.quantityConfirmed === 0
-        ) {
-          newDetails[index] = {
-            ...newDetails[index],
+      if (detail) {
+        if (detail?.status === StatusDetailTransfer.New || detail?.quantityConfirmed === 0) {
+          newDetails.push({
+            ...detail,
             status: StatusDetailTransfer.New,
-            quantityConfirmed: (newDetails[index]?.quantityConfirmed || 0) + 1,
-          };
+            quantityConfirmed: (detail.quantityConfirmed || 0) + 1,
+          });
           setError(
-            `Confirmado ${newDetails[index]?.product?.reference?.name} / ${newDetails[index]?.product?.color?.name} / ${newDetails[index]?.product?.size?.value}, cantidad: ${newDetails[index]?.quantityConfirmed}`,
+            `Confirmado ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${detail?.product?.size?.value}, cantidad: ${detail?.quantityConfirmed}`,
           );
           setDetails(newDetails);
         } else {
           setError(
-            `Producto ${newDetails[index]?.product?.reference?.name} / ${newDetails[index]?.product?.color?.name} / ${newDetails[index]?.product?.size?.value}, ya se encuentra confirmado`,
+            `Producto ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${detail?.product?.size?.value}, ya se encuentra confirmado`,
           );
         }
       } else {
@@ -253,7 +250,7 @@ const ConfirmTransfer = () => {
 
   const saveTransfer = async (status?: StatusStockTransfer) => {
     if (status === StatusStockTransfer.Confirmed) {
-      const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.Sent);
+      const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.New);
 
       if (!confirm) {
         onShowError('Debe confirmar todos los productos antes de enviar');
@@ -263,7 +260,7 @@ const ConfirmTransfer = () => {
             variables: {
               id,
               input: {
-                observation,
+                observationDestination: observation,
                 status,
               },
             },
@@ -511,7 +508,9 @@ const ConfirmTransfer = () => {
             <Table
               columns={columns}
               dataSource={
-                details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
+                details
+                  .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
+                  .reverse() as any
               }
               scroll={{ x: 800 }}
               pagination={{ size: 'small' }}
@@ -556,10 +555,10 @@ const ConfirmTransfer = () => {
         </Card>
       </Affix>
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      {/* <AlertLoading
-        visible={paramsCreate?.loading || paramsUpdate?.loading}
-        message="Guardando traslado"
-      />*/}
+      <AlertLoading
+        visible={paramsConfirmProducts?.loading || paramsUpdate?.loading}
+        message="Actualizando traslado"
+      />
       <AlertSave {...propsAlertSaveFinal} />
       <div style={{ display: 'none' }}>
         <ReportTransfer ref={reportRef} data={data?.stockTransferId} />
