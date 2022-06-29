@@ -6,6 +6,11 @@ query warehouses($input: FiltersWarehousesInput!) {
     docs {
       _id
       name
+      updatedAt
+      user {
+        name
+      }
+      active
     }
   }
 }

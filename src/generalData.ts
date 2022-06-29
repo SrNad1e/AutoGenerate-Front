@@ -142,6 +142,9 @@ export const typesAccess = {
   '/configurations/roles/:id': {
     access: [Permissions.UpdateConfigurationRole],
   },
+  '/configurations/warehouse': {
+    access: [Permissions.ReadConfigurationWarehouses],
+  },
   '/invoicing/return': {
     access: [Permissions.ReadInvoicingReturns],
   },
