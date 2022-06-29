@@ -6,6 +6,7 @@ import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
 
 import type {
+  Credit,
   Payment as PaymentModel,
   PaymentOrder,
   SummaryOrder,
@@ -31,9 +32,10 @@ export type Params = {
   onCancel: () => void;
   editOrder: (values: UpdateOrderInput) => void;
   summary: SummaryOrder;
+  credit?: Credit;
 };
 
-const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
+const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params) => {
   const [loading, setLoading] = useState(false);
   const [payments, setPayments] = useState<PaymentOrder[]>([]);
   const [order, setOrder] = useState({});
@@ -108,15 +110,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
    * @param payment tipo de pago
    */
   const setPayment = (payment: PaymentModel) => {
-    switch (payment.type) {
-      case TypePayment.Cash:
-        setPayments(
-          payments.concat({
-            payment,
-            total: 0,
-          } as PaymentOrder),
-        );
-        break;
+    switch (payment?.type) {
       case TypePayment.Bank:
         setPayments(
           payments.concat({
@@ -125,12 +119,24 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
           } as PaymentOrder),
         );
         break;
-      case TypePayment.Bonus:
-        setShowModalBonus({
-          visible: true,
-          payment,
-        });
+      case TypePayment.Cash:
+        setPayments(
+          payments.concat({
+            payment,
+            total: 0,
+          } as PaymentOrder),
+        );
         break;
+      case TypePayment.Credit:
+        setPayments(
+          payments.concat({
+            payment,
+            total:
+              credit && credit?.available < summary.total
+                ? credit?.available
+                : summary.total - totalPayments,
+          } as PaymentOrder),
+        );
       default:
         break;
     }
@@ -178,9 +184,9 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
 
         setLoading(false);
         if (response) {
-          setOrder(response);
+          setOrder(response?.order);
           handlePrint();
-          showSuccess(`Pedido ${response?.number} generado correctamente`);
+          showSuccess(`Pedido ${response?.order?.number} generado correctamente`);
         } else {
           showError(response?.message);
         }
@@ -188,6 +194,16 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
     } catch (e: any) {
       showError(e?.message);
     }
+  };
+
+  const validateMax = (paymentOrder: PaymentOrder) => {
+    if (paymentOrder?.payment?.type === TypePayment.Credit) {
+      return credit?.amount;
+    }
+    if (paymentOrder?.payment?.type !== TypePayment.Cash) {
+      return summary.total;
+    }
+    return undefined;
   };
 
   useEffect(() => {
@@ -214,40 +230,36 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary }: Params) => {
         <Col span={12}>
           <Title level={3}>Medios de pago</Title>
           <Row gutter={[24, 24]}>
-            {data?.payments?.docs?.map((payment) => (
-              <Col key={payment?._id}>
-                <Item
-                  disabled={summary?.total <= totalPayments}
-                  paymentsOrder={payments}
-                  payment={payment as PaymentModel}
-                  setPayment={setPayment}
-                />
-              </Col>
-            ))}
+            {data?.payments?.docs
+              ?.filter((payment) => (credit ? true : payment?.type !== TypePayment.Credit))
+              ?.map((payment) => (
+                <Col key={payment?._id}>
+                  <Item
+                    disabled={summary?.total <= totalPayments}
+                    paymentsOrder={payments}
+                    payment={payment as PaymentModel}
+                    setPayment={setPayment}
+                  />
+                </Col>
+              ))}
           </Row>
         </Col>
         <Col span={12}>
           <Title level={3}>Pagos</Title>
           <Row gutter={[16, 16]}>
-            {payments.map((paymentOrder) => {
-              const disabled = paymentOrder?.payment?.type === TypePayment.Bonus;
-              return (
-                <Payment
-                  deletePayment={deletePayment}
-                  setQuantityPayment={setQuantityPayment}
-                  disabled={disabled}
-                  max={
-                    paymentOrder?.payment?.type !== TypePayment.Cash ? summary?.total : undefined
-                  }
-                  total={
-                    payments.find((payment) => payment?.payment?._id === paymentOrder.payment?._id)
-                      ?.total || 0
-                  }
-                  paymentOrder={paymentOrder}
-                  key={paymentOrder?.payment?._id}
-                />
-              );
-            })}
+            {payments.map((paymentOrder) => (
+              <Payment
+                deletePayment={deletePayment}
+                setQuantityPayment={setQuantityPayment}
+                max={validateMax(paymentOrder)}
+                total={
+                  payments.find((payment) => payment?.payment?._id === paymentOrder.payment?._id)
+                    ?.total || 0
+                }
+                paymentOrder={paymentOrder}
+                key={paymentOrder?.payment?._id}
+              />
+            ))}
           </Row>
           <Divider>
             <Title level={4}>Resumen</Title>
