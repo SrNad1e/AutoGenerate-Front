@@ -1,13 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import type { Credit } from '@/graphql/graphql';
-import { useCreateCredit, useUpdateCredit } from '@/hooks/credit.hooks';
-import { PlusOutlined } from '@ant-design/icons';
-import { Badge, Button, Col, Divider, Form, InputNumber, Row, Select, Typography } from 'antd';
+import { Badge, Col, Divider, Form, InputNumber, Row, Select, Typography } from 'antd';
 import moment from 'moment';
 import numeral from 'numeral';
 import { StatusTypeCustomer } from '../customer.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useState } from 'react';
+import styles from '../styles';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -15,10 +15,10 @@ const { Option } = Select;
 
 type Props = {
   dataCredit: Credit[];
-  customerId: string;
+  setValuesFields: (value: any) => void;
 };
 
-const RenderCredit = ({ dataCredit, customerId }: Props) => {
+const RenderCredit = ({ dataCredit, setValuesFields }: Props) => {
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -34,18 +34,6 @@ const RenderCredit = ({ dataCredit, customerId }: Props) => {
       return target;
     });
 
-  /**
-   * @description funcion usada para mostrar los errores
-   * @param message mensaje de error a mostrar
-   */
-  const showError = (message: string) => {
-    setAlertInformation({
-      message,
-      type: 'warning',
-      visible: true,
-    });
-  };
-
   const closeAlertInformation = () => {
     setAlertInformation({
       message: '',
@@ -54,51 +42,10 @@ const RenderCredit = ({ dataCredit, customerId }: Props) => {
     });
   };
 
-  console.log(creditProps);
-  const [createCredit /*paramsCreateCredit*/] = useCreateCredit();
-  const [updateCredit /*paramsUpdateCredit*/] = useUpdateCredit();
-
-  const createNewCredit = async () => {
-    const values = await form.validateFields();
-
-    const response = await createCredit({
-      variables: {
-        input: {
-          amount: values.amount,
-          customerId: customerId,
-        },
-      },
-    });
-
-    if (response) {
-      setAlertInformation({
-        message: 'Credito Creado Correctamente',
-        type: 'success',
-        visible: true,
-      });
-    }
-  };
-
-  const updateNewCredit = async () => {
-    const values = await form.validateFields();
-
-    const response = await updateCredit({
-      variables: {
-        id: creditProps._id,
-        input: {
-          amount: values.amount,
-        },
-      },
-    });
-
-    if (response) {
-      setAlertInformation({
-        message: 'Credito Actualizado Correctamente',
-        type: 'success',
-        visible: true,
-      });
-      showError();
-    }
+  const onChangeAmount = (e?: any) => {
+    console.log(e);
+    const valuesCredit = form.getFieldsValue();
+    setValuesFields({ valuesCredit });
   };
 
   return (
@@ -111,6 +58,7 @@ const RenderCredit = ({ dataCredit, customerId }: Props) => {
           name="amount"
         >
           <InputNumber
+            onChange={(e) => onChangeAmount(e)}
             min={0}
             style={{ width: '100%' }}
             formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -119,7 +67,7 @@ const RenderCredit = ({ dataCredit, customerId }: Props) => {
         </FormItem>
         {dataCredit.length > 0 && (
           <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 14 }} label="Estado">
-            <Select defaultValue={creditProps?.status} style={{ width: '50%' }}>
+            <Select defaultValue={creditProps?.status} style={styles.midWidth}>
               {Object.keys(StatusTypeCustomer).map((status) => (
                 <Option key={status}>
                   <Badge
@@ -142,35 +90,22 @@ const RenderCredit = ({ dataCredit, customerId }: Props) => {
           <Col span={12}>
             <Text strong>Cupo disponible: </Text>
           </Col>
-          <Col span={12} style={{ display: 'flex', justifyContent: 'right' }}>
-            <Text style={{ textAlign: 'right' }}>
-              {numeral(creditProps?.available).format('$ 0,0')}
-            </Text>
+          <Col span={12} style={styles.flexR}>
+            <Text style={styles.textAlign}>{numeral(creditProps?.available).format('$ 0,0')}</Text>
           </Col>
           <Col span={12}>
             <Text strong>Cupo congelado: </Text>
           </Col>
-          <Col span={12} style={{ display: 'flex', justifyContent: 'right' }}>
-            <Text style={{ textAlign: 'right' }}>
+          <Col span={12} style={styles.flexR}>
+            <Text style={styles.textAlign}>
               {numeral(creditProps?.frozenAmount).format('$ 0,0')}
             </Text>
           </Col>
           <Col span={12}>
             <Text strong>Saldo por pagar: </Text>
           </Col>
-          <Col span={12} style={{ display: 'flex', justifyContent: 'right' }}>
-            <Text style={{ textAlign: 'right' }}>
-              {numeral(creditProps?.balance).format('$ 0,0')}
-            </Text>
-          </Col>
-          <Col span={8} offset={15}>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => (dataCredit.length > 0 ? updateNewCredit() : createNewCredit())}
-            >
-              {dataCredit.length > 0 ? 'Actualizar Credito' : 'Crear Credito'}
-            </Button>
+          <Col span={12} style={styles.flexR}>
+            <Text style={styles.textAlign}>{numeral(creditProps?.balance).format('$ 0,0')}</Text>
           </Col>
         </Row>
       </Form>

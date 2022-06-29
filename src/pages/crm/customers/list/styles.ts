@@ -7,4 +7,7 @@ export default {
     color: '#dc9575',
     backgroundColor: 'white',
   },
+  buttonR: {
+    borderRadius: 5,
+  },
 };

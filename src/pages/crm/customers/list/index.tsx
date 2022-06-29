@@ -1,7 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import Filters from '@/components/Filters';
-import type { Customer, CustomerType, FiltersCustomersInput } from '@/graphql/graphql';
-import { useGetCustomers } from '@/hooks/customer.hooks';
 import {
   CalendarOutlined,
   ClearOutlined,
@@ -30,17 +27,20 @@ import {
   Typography,
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
+import type { SorterResult } from 'antd/lib/table/interface';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import type { Customer, CustomerType, FiltersCustomersInput } from '@/graphql/graphql';
+import { useGetCustomers } from '@/hooks/customer.hooks';
+import type { Location } from 'umi';
+import { useLocation, history } from 'umi';
 
+import Filters from '@/components/Filters';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import EditCustomer from '../form';
 
 import styles from './styles';
-import type { Location } from 'umi';
-import { useLocation, history } from 'umi';
-import type { SorterResult } from 'antd/lib/table/interface';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -96,11 +96,19 @@ const CustomerList = () => {
     setVisibleEdit(false);
   };
 
+  /**
+   * @description abre el modal de edicion y setea el customer
+   * @param customer datos del cliente
+   */
   const visibleModalEdit = (customer?: Partial<Customer>) => {
     setCustomerData(customer || { birthday: null });
     setVisibleEdit(true);
   };
 
+  /**
+   * @description ejecuta la consulta para obtener los clientes
+   * @param filters filtros para realizar la consulta
+   */
   const onSearch = (filters?: FiltersCustomersInput) => {
     getCustomers({
       variables: {
@@ -191,6 +199,7 @@ const CustomerList = () => {
     onSearch({ ...prop, sort, page: current, ...filters });
     setFilterTable(filterArg);
   };
+
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
@@ -316,6 +325,7 @@ const CustomerList = () => {
           <Button
             onClick={() => visibleModalEdit(customerId)}
             type="primary"
+            disabled={paramsGetCustomers?.loading}
             icon={<EditFilled />}
           />
         </Tooltip>
@@ -336,14 +346,20 @@ const CustomerList = () => {
             <Col xs={24} md={7} lg={7} xl={7}>
               <Space>
                 <Button
-                  style={{ borderRadius: 5 }}
+                  style={styles.buttonR}
+                  disabled={paramsGetCustomers?.loading}
                   icon={<SearchOutlined />}
                   type="primary"
                   htmlType="submit"
                 >
                   Buscar
                 </Button>
-                <Button style={{ borderRadius: 5 }} icon={<ClearOutlined />} onClick={onClear}>
+                <Button
+                  style={styles.buttonR}
+                  disabled={paramsGetCustomers?.loading}
+                  icon={<ClearOutlined />}
+                  onClick={onClear}
+                >
                   Limpiar
                 </Button>
               </Space>
@@ -355,6 +371,7 @@ const CustomerList = () => {
             <Button
               icon={<PlusOutlined />}
               type="primary"
+              disabled={paramsGetCustomers?.loading}
               shape="round"
               onClick={() => visibleModalEdit()}
             >
