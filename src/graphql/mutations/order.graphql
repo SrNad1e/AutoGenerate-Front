@@ -13,9 +13,14 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
       available
     }
     order {
+      updatedAt
       _id
       number
+      user {
+        name
+      }
       customer {
+        phone
         document
         firstName
         lastName
@@ -73,60 +78,6 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
         totalPaid
         change
       }
-      invoice {
-        authorization {
-          prefix
-        }
-        createdAt
-        customer {
-          documentType {
-            abbreviation
-          }
-          document
-          firstName
-          lastName
-          phone
-        }
-        details {
-          product {
-            barcode
-            color {
-              name
-            }
-            reference {
-              name
-              description
-            }
-            size {
-              value
-            }
-          }
-          quantity
-          price
-          discount
-        }
-        number
-        payments {
-          total
-          payment {
-            _id
-            name
-          }
-        }
-        shop {
-          name
-        }
-        summary {
-          total
-          subtotal
-          change
-          discount
-          totalPaid
-        }
-        user {
-          name
-        }
-      }
     }
   }
 }
@@ -138,12 +89,17 @@ mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
       available
     }
     order {
+      updatedAt
       _id
       number
+      user {
+        name
+      }
       customer {
         document
         firstName
         lastName
+        phone
         documentType {
           abbreviation
         }
