@@ -171,9 +171,9 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
 
         setLoading(false);
         if (response) {
-          setOrder(response);
+          setOrder(response?.order);
           handlePrint();
-          showSuccess(`Pedido ${response?.number} generado correctamente`);
+          showSuccess(`Pedido ${response?.order?.number} generado correctamente`);
         } else {
           showError(response?.message);
         }
