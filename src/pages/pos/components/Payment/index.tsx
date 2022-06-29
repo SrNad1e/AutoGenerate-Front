@@ -127,6 +127,12 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
           } as PaymentOrder),
         );
         break;
+      case TypePayment.Bonus:
+        setShowModalBonus({
+          payment,
+          visible: true,
+        });
+        break;
       case TypePayment.Credit:
         setPayments(
           payments.concat({
@@ -251,6 +257,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
               <Payment
                 deletePayment={deletePayment}
                 setQuantityPayment={setQuantityPayment}
+                disabled={paymentOrder?.payment?.type === TypePayment.Bonus}
                 max={validateMax(paymentOrder)}
                 total={
                   payments.find((payment) => payment?.payment?._id === paymentOrder.payment?._id)
