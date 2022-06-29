@@ -125,7 +125,11 @@ export const typesAccess = {
     access: [Permissions.ReadInvoicingClosesz],
   },
   '/configurations': {
-    access: [Permissions.AccessConfigurationRoles, Permissions.AccessConfigurationUsers],
+    access: [
+      Permissions.AccessConfigurationRoles,
+      Permissions.AccessConfigurationUsers,
+      Permissions.AccessConfigurationShops,
+    ],
   },
   '/configurations/users': {
     access: [Permissions.ReadConfigurationUsers],
@@ -141,6 +145,9 @@ export const typesAccess = {
   },
   '/configurations/roles/:id': {
     access: [Permissions.UpdateConfigurationRole],
+  },
+  '/configurations/shop': {
+    access: [Permissions.ReadConfigurationShops],
   },
   '/invoicing/return': {
     access: [Permissions.ReadInvoicingReturns],

@@ -330,6 +330,12 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'Tiendas',
+              path: '/configurations/shop',
+              component: './configurations/shop/list',
+              access: 'allowOption',
+            },
+            {
               name: 'Roles',
               path: '/configurations/roles',
               access: 'allowOption',
