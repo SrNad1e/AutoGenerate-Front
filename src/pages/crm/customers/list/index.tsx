@@ -33,6 +33,7 @@ import { useEffect, useState } from 'react';
 import type { Customer, CustomerType, FiltersCustomersInput } from '@/graphql/graphql';
 import { useGetCustomers } from '@/hooks/customer.hooks';
 import type { Location } from 'umi';
+import { useAccess } from 'umi';
 import { useLocation, history } from 'umi';
 
 import Filters from '@/components/Filters';
@@ -62,6 +63,10 @@ const CustomerList = () => {
 
   const [form] = Form.useForm();
   const location: Location = useLocation();
+
+  const {
+    customer: { canCreate, canEdit },
+  } = useAccess();
 
   const [getCustomers, paramsGetCustomers] = useGetCustomers();
 
@@ -325,7 +330,7 @@ const CustomerList = () => {
           <Button
             onClick={() => visibleModalEdit(customerId)}
             type="primary"
-            disabled={paramsGetCustomers?.loading}
+            disabled={paramsGetCustomers?.loading || !canEdit}
             icon={<EditFilled />}
           />
         </Tooltip>
@@ -371,7 +376,7 @@ const CustomerList = () => {
             <Button
               icon={<PlusOutlined />}
               type="primary"
-              disabled={paramsGetCustomers?.loading}
+              disabled={paramsGetCustomers?.loading || !canCreate}
               shape="round"
               onClick={() => visibleModalEdit()}
             >
