@@ -5,6 +5,7 @@ import moment from 'moment';
 import { StatusType } from '../tranfer.data';
 
 import './style.css';
+import { StatusStockTransfer } from '@/graphql/graphql';
 
 const classes = {
   content: {
@@ -122,34 +123,16 @@ const columnsHeader = [
 export default class ReportTransfer extends React.PureComponent {
   render() {
     const { data } = this.props;
+
     return (
       <div style={classes.content}>
         <div style={classes.header}>
-          <div style={classes.title}>SOLICITUD DE MERCANCIA</div>
+          <div style={classes.title}>TRASLADO DE MERCANCIA</div>
           <div style={classes.title}>No. {data?.number}</div>
           <div style={classes.body}>
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
               <div
                 style={{ ...styleBorders, width: '25%', borderRight: 'none', fontWeight: 'bold' }}
-              >
-                Bodega que solicita
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  width: '25%',
-                }}
-              >
-                {data?.warehouseDestination?.name}
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  width: '25%',
-                  borderRight: 'none',
-                  borderLeft: 'none',
-                  fontWeight: 'bold',
-                }}
               >
                 Bodega de despacho
               </div>
@@ -160,6 +143,25 @@ export default class ReportTransfer extends React.PureComponent {
                 }}
               >
                 {data?.warehouseOrigin?.name}
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                  borderRight: 'none',
+                  borderLeft: 'none',
+                  fontWeight: 'bold',
+                }}
+              >
+                Bodega que recibe
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                }}
+              >
+                {data?.warehouseDestination?.name}
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
@@ -181,7 +183,7 @@ export default class ReportTransfer extends React.PureComponent {
                   width: '15%',
                 }}
               >
-                {StatusType[data?.status || '']?.label}
+                {StatusType[data?.status || '']?.text}
               </div>
               <div
                 style={{
@@ -214,7 +216,7 @@ export default class ReportTransfer extends React.PureComponent {
                   fontWeight: 'bold',
                 }}
               >
-                Ultima fecha
+                Última fecha
               </div>
               <div
                 style={{
@@ -224,6 +226,40 @@ export default class ReportTransfer extends React.PureComponent {
                 }}
               >
                 {moment(data?.updatedAt).format('YYYY/MM/DD HH:mm:ss')}
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+              <div
+                style={{ ...styleBorders, width: '25%', borderRight: 'none', fontWeight: 'bold' }}
+              >
+                Observación Origen
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                }}
+              >
+                {data?.observationOrigin}
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                  borderRight: 'none',
+                  borderLeft: 'none',
+                  fontWeight: 'bold',
+                }}
+              >
+                Observación Destino
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                }}
+              >
+                {data?.observationDestination}
               </div>
             </div>
           </div>
@@ -346,7 +382,7 @@ export default class ReportTransfer extends React.PureComponent {
               {data?.details?.reduce((sum, detail) => sum + detail?.quantity, 0)}
             </div>
           </div>
-          <div style={{ fontSize: 12, marginTop: 10 }}>Creado por: {data?.user?.name}</div>
+          <div style={{ fontSize: 12, marginTop: 10 }}>Creado por: {data?.userOrigin?.name}</div>
         </div>
       </div>
     );

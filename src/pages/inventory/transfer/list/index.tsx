@@ -40,7 +40,8 @@ import { useReactToPrint } from 'react-to-print';
 
 import { StatusType } from '../tranfer.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import { FiltersStockTransfersInput, StatusStockTransfer, StockTransfer } from '@/graphql/graphql';
+import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
+import { StatusStockTransfer } from '@/graphql/graphql';
 import { useGetTransfers } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import ReportTransfer from '../reports/transfer';

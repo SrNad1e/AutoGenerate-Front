@@ -19,6 +19,7 @@ import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 import { useGetTransfer } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import ReportTransfer from '../reports/transfer';
 
 import './styles.less';
 import styles from './styles.less';
@@ -226,6 +227,9 @@ const Form = () => {
         <FormTransfer allowEdit={allowEdit} transfer={transfer} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
+      <div style={{ display: 'none' }}>
+        <ReportTransfer ref={reportRef} data={data?.stockTransferId} />
+      </div>
     </PageContainer>
   );
 };

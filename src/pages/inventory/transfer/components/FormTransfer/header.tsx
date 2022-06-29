@@ -1,4 +1,10 @@
-import type { DetailTransfer, StockRequest, StockTransfer } from '@/graphql/graphql';
+import type {
+  ActionDetailTransfer,
+  DetailTransfer,
+  StockRequest,
+  StockTransfer,
+} from '@/graphql/graphql';
+import { ActionDetailRequest } from '@/graphql/graphql';
 import { CheckCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Badge, Button, Card, Descriptions, Input, Tag, Tooltip } from 'antd';
 import moment from 'moment';
@@ -15,12 +21,23 @@ type Props = {
   setObservation: (value: string) => void;
   observation: string;
   allowEdit: boolean;
+  details: Partial<DetailTransfer & { action: ActionDetailTransfer }>[];
+  setDetails: (details: Partial<DetailTransfer & { action: ActionDetailTransfer }>[]) => void;
+  requests: StockRequest[] | [];
+  setRequests: (requests: StockRequest[]) => void;
 };
 
-const Header = ({ transfer, setObservation, observation, allowEdit }: Props) => {
+const Header = ({
+  transfer,
+  setObservation,
+  observation,
+  allowEdit,
+  details,
+  setDetails,
+  requests,
+  setRequests,
+}: Props) => {
   const [showSelectRequests, setShowSelectRequests] = useState(false);
-  const [details, setDetails] = useState<Partial<DetailTransfer & { action: string }>[]>([]);
-  const [requests, setRequests] = useState<StockRequest[]>([]);
 
   const { initialState } = useModel('@@initialState');
 
@@ -59,18 +76,19 @@ const Header = ({ transfer, setObservation, observation, allowEdit }: Props) => 
               create[productFindLocal] = {
                 product: detail?.product,
                 quantity: detail?.quantity,
-                action: 'create',
+                action: ActionDetailRequest.Create,
               };
             } else {
               create.push({
                 product: detail?.product,
                 quantity: detail?.quantity,
-                action: 'create',
+                action: ActionDetailRequest.Create,
               });
             }
           }
         }
       }
+
       const newDetails = details.map((item) => {
         const find = update.find((detail) => detail?.product?._id === item?.product?._id);
         if (find) {

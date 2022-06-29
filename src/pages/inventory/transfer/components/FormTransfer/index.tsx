@@ -140,11 +140,13 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           quantity: detail?.quantity || 1,
           action: detail?.action as ActionDetailTransfer,
         }));
-        if (newDetails.length > 0 || status || observation !== transfer?.observation) {
+        if (newDetails.length > 0 || status || observation !== transfer?.observationOrigin) {
+          console.log(observation);
+
           const props = {
             details: newDetails,
             requests: requests?.map((request) => request?._id),
-            observation,
+            observationOrigin: observation,
             status,
           };
 
@@ -155,11 +157,19 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
             },
           });
           if (response?.data?.updateStockTransfer) {
-            setPropsAlert({
-              message: `Traslado creado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
-              type: 'success',
-              visible: true,
-            });
+            if (response?.data?.updateStockTransfer?.status === StatusStockTransfer.Cancelled) {
+              setPropsAlert({
+                message: `Traslado cancelado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
+                type: 'warning',
+                visible: true,
+              });
+            } else {
+              setPropsAlert({
+                message: `Traslado actualizado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
+                type: 'success',
+                visible: true,
+              });
+            }
           }
         } else {
           onShowInformation('El traslado no tiene cambios a realizar');
@@ -284,7 +294,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     if (id) {
       setDetails(transfer?.details || []);
       setRequests(transfer?.requests || []);
-      setObservation(transfer?.observation || '');
+      setObservation(transfer?.observationOrigin || '');
     }
   }, [transfer, id]);
 
@@ -295,7 +305,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
   };
 
   const propsSearchProduct: PropsSearchProduct = {
-    details,
+    details: details.filter((item) => item.action !== ActionDetailTransfer.Delete),
     warehouseId:
       transfer?.warehouseOrigin?._id || initialState?.currentUser?.shop?.defaultWarehouse?._id,
     createDetail,
@@ -398,6 +408,10 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         transfer={transfer}
         setObservation={setObservation}
         observation={observation}
+        setDetails={setDetails}
+        details={details}
+        requests={requests}
+        setRequests={setRequests}
       />
       {allowEdit && (
         <Card bordered={false} size="small">

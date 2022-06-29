@@ -2,7 +2,6 @@
 import { Button, Col, Divider, Modal, Row, Typography } from 'antd';
 import { useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
 
@@ -13,6 +12,7 @@ import type {
   SummaryOrder,
   UpdateOrderInput,
 } from '@/graphql/graphql';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { ActionPaymentsOrder, StatusOrder, TypePayment } from '@/graphql/graphql';
 import Item from './item';
 import { useGetPayments } from '@/hooks/payment.hooks';
@@ -23,6 +23,7 @@ import OrderReport from '../../reports/order/Order';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 
 import styles from '../styles';
+import ModalBonus from './modalBonus';
 
 const { Title } = Typography;
 
@@ -43,7 +44,12 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
     type: 'error',
     visible: false,
   });
-
+  const [showModalBonus, setShowModalBonus] = useState<{
+    visible: boolean;
+    payment?: PaymentModel;
+  }>({
+    visible: false,
+  });
   const orderRef = useRef(null);
 
   const { id } = useParams<Partial<{ id: string }>>();
@@ -89,6 +95,12 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
     setAlertInformation({
       message: '',
       type: 'error',
+      visible: false,
+    });
+  };
+
+  const onCloseModaloupon = () => {
+    setShowModalBonus({
       visible: false,
     });
   };
@@ -159,6 +171,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
               paymentId: paymentOrder?.payment?._id,
               action: ActionPaymentsOrder.Create,
               total: paymentOrder?.total,
+              code: paymentOrder?.code,
             })),
           },
         },
@@ -300,6 +313,12 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
       <AlertLoading
         visible={loading || dataPayments?.loading}
         message={dataPayments.loading ? 'Generando factura' : 'Guardando medios de pago'}
+      />
+      <ModalBonus
+        onCancel={onCloseModaloupon}
+        payments={payments}
+        setPayments={setPayments}
+        {...showModalBonus}
       />
       <div style={{ display: 'none' }}>
         <OrderReport data={order} ref={orderRef} />
