@@ -7734,7 +7734,11 @@ export type ShopsQuery = {
       updatedAt: any;
       address?: string | null;
       goal: number;
+      phone?: string | null;
+      isMain: boolean;
       user: { __typename?: 'User'; name: string };
+      defaultWarehouse: { __typename?: 'Warehouse'; name: string; _id: string };
+      warehouseMain?: { __typename?: 'Warehouse'; name: string; _id: string } | null;
     }[];
   };
 };
@@ -16881,6 +16885,30 @@ export const ShopsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'address' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'goal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'defaultWarehouse' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isMain' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'warehouseMain' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },

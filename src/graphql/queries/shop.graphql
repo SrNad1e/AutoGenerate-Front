@@ -13,6 +13,16 @@ query shops($input: FiltersShopsInput) {
       updatedAt
       address
       goal
+      phone
+      defaultWarehouse {
+        name
+        _id
+      }
+      isMain
+      warehouseMain {
+        name
+        _id
+      }
     }
   }
 }

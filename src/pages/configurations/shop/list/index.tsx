@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import Filters from '@/components/Filters';
 import {
   CalendarOutlined,
   ClearOutlined,
@@ -28,18 +27,20 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import AlertInformation from '@/components/Alerts/AlertInformation';
+import type { ColumnsType } from 'antd/lib/table';
+import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
+import type { FiltersShopsInput, ResponseWarehouses, Shop, User } from '@/graphql/graphql';
+import { useAccess, useHistory, useLocation } from 'umi';
+import type { Location } from 'umi';
+import { useGetShops } from '@/hooks/shop.hooks';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import Filters from '@/components/Filters';
+import { StatusTypeShop } from '../shop.data';
+import ShopForm from '../form';
 
 import styles from '../styles';
-import type { ColumnsType } from 'antd/lib/table';
-import type { FiltersShopsInput, ResponseWarehouses, Shop, User } from '@/graphql/graphql';
-import type { Location } from 'umi';
-import { useHistory, useLocation } from 'umi';
-import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
-import { StatusTypeShop } from '../shop.data';
-import { useGetShops } from '@/hooks/shop.hooks';
-import ShopForm from '../form';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -55,11 +56,16 @@ const ShopList = () => {
     type: 'error',
     visible: false,
   });
+  const [shopData, setShopData] = useState<Partial<Shop>>({});
   const [visible, setVisible] = useState(false);
 
   const [form] = Form.useForm();
   const history = useHistory();
   const location: Location = useLocation();
+
+  const {
+    shop: { canCreate, canEdit },
+  } = useAccess();
 
   const [getShops, paramsGetShops] = useGetShops();
 
@@ -67,10 +73,16 @@ const ShopList = () => {
    * @description se encarga de cerrar el modal de creacion
    */
   const closeModal = () => {
+    setShopData({});
     setVisible(false);
   };
 
-  const visibleModal = () => {
+  /**
+   * @description abre el modal de edicion y setea la tienda
+   * @param shop datos de la tienda
+   */
+  const visibleModal = (shop?: Shop) => {
+    setShopData(shop || {});
     setVisible(true);
   };
 
@@ -98,7 +110,7 @@ const ShopList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener las devoluciones
+   * @description se encarga de ejecutar la funcion para obtener las tiendas
    * @param values filtros necesarios para la busqueda
    */
   const onSearch = (values?: FiltersShopsInput) => {
@@ -106,6 +118,9 @@ const ShopList = () => {
       variables: {
         input: {
           limit: 10,
+          sort: {
+            createdAt: -1,
+          },
           ...values,
         },
       },
@@ -140,7 +155,7 @@ const ShopList = () => {
   };
 
   /**
-   * @description ejecuta la busqueda con base a los filtros del formulario y formatea las fechas
+   * @description ejecuta la busqueda con base a los filtros del formulario
    * @param props valores del formulario
    */
   const onFinish = (props: FormValues) => {
@@ -315,10 +330,15 @@ const ShopList = () => {
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
-      render: () => {
+      render: (_, shopId) => {
         return (
           <Tooltip title="Editar Tienda">
-            <Button type="primary" onClick={() => {}} icon={<EditOutlined />} />
+            <Button
+              type="primary"
+              onClick={() => visibleModal(shopId)}
+              icon={<EditOutlined />}
+              disabled={paramsGetShops?.loading || !canEdit}
+            />
           </Tooltip>
         );
       },
@@ -330,7 +350,7 @@ const ShopList = () => {
       <Card bordered={false}>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={30}>
-            <Col xs={24} md={7} lg={5} xl={5}>
+            <Col xs={24} md={9} lg={9} xl={7}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Ejem: Mayoristas" />
               </FormItem>
@@ -341,6 +361,7 @@ const ShopList = () => {
                   <Button
                     icon={<SearchOutlined />}
                     type="primary"
+                    disabled={paramsGetShops?.loading}
                     htmlType="submit"
                     style={styles.buttonR}
                   >
@@ -348,6 +369,7 @@ const ShopList = () => {
                   </Button>
                   <Button
                     htmlType="reset"
+                    disabled={paramsGetShops?.loading}
                     onClick={onClear}
                     style={styles.buttonR}
                     icon={<ClearOutlined />}
@@ -365,8 +387,8 @@ const ShopList = () => {
               onClick={() => visibleModal()}
               icon={<PlusOutlined />}
               shape="round"
+              disabled={paramsGetShops?.loading || !canCreate}
               type="primary"
-              disabled={false}
             >
               Nuevo
             </Button>
@@ -397,7 +419,7 @@ const ShopList = () => {
         </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
-      <ShopForm visible={visible} onCancel={closeModal} />
+      <ShopForm shop={shopData} visible={visible} onCancel={closeModal} />
     </PageContainer>
   );
 };

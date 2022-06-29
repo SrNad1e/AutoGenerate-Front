@@ -208,5 +208,13 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateCrmCustomer,
       ),
     },
+    shop: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateConfigurationShop,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateConfigurationShop,
+      ),
+    },
   };
 }
