@@ -383,6 +383,11 @@ export default defineConfig({
               path: '/crm/customer',
               component: './crm/customers/list',
             },
+            {
+              name: 'Ciudades',
+              path: '/crm/cities',
+              component: './crm/cities/list',
+            },
           ],
         },
         {

@@ -738,6 +738,24 @@ export type CreateRoleInput = {
   permissionIds: Scalars['String'][];
 };
 
+/** Datos para la creación de la tienda */
+export type CreateShopInput = {
+  /** Dirección de la tienda */
+  address: Scalars['String'];
+  /** Identificador de la bodega predeterminada para la tienda */
+  defaultWarehouseId: Scalars['String'];
+  /** Meta asiganda a la tienda */
+  goal?: InputMaybe<Scalars['Float']>;
+  /** Es centro de distribución */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre de la tienda */
+  name: Scalars['String'];
+  /** Teléfono de la tienda */
+  phone?: InputMaybe<Scalars['String']>;
+  /** Identificador de la bodega de centro de distribución asignado */
+  warehouseMainId?: InputMaybe<Scalars['String']>;
+};
+
 /** Datos para crear una talla */
 export type CreateSizeInput = {
   /** Valor asignado a la talla */
@@ -830,6 +848,16 @@ export type CreateUserInput = {
   status?: InputMaybe<StatusUser>;
   /** Usuario registrado */
   username?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para la creacion de una bodega */
+export type CreateWarehouseInput = {
+  /** Inventario máximo de productos */
+  max: Scalars['Float'];
+  /** Inventario mínimo de productos */
+  min: Scalars['Float'];
+  /** Nombre de la bodega */
+  name: Scalars['String'];
 };
 
 /** Crédito del cliente */
@@ -2012,6 +2040,8 @@ export type Mutation = {
   createReturnOrder: ReturnOrder;
   /** Crea una rol */
   createRole: Role;
+  /** Crea una tienda */
+  createShop: Shop;
   /** Crear una talla */
   createSize: Size;
   /** Crea un ajuste de productos */
@@ -2025,6 +2055,8 @@ export type Mutation = {
   /** Crea una traslado de productos */
   createStockTransfer: StockTransfer;
   createUser: User;
+  /** Crea una bodega */
+  createWarehouse: Warehouse;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
@@ -2055,6 +2087,8 @@ export type Mutation = {
   updateReference: Reference;
   /** Actualiza un rol */
   updateRole: Role;
+  /** Actualiza una tienda */
+  updateShop: Shop;
   /** Actualizar la talla */
   updateSize: Size;
   /** Actualiza un ajuste de productos */
@@ -2068,6 +2102,8 @@ export type Mutation = {
   /** Actualiza traslado */
   updateStockTransfer: StockTransfer;
   updateUser: User;
+  /** Actualiza una bodega */
+  updateWarehouse: Warehouse;
 };
 
 export type MutationAddPaymentsOrderArgs = {
@@ -2143,6 +2179,10 @@ export type MutationCreateRoleArgs = {
   createRoleInput: CreateRoleInput;
 };
 
+export type MutationCreateShopArgs = {
+  createShopInput: CreateShopInput;
+};
+
 export type MutationCreateSizeArgs = {
   createSizeInput: CreateSizeInput;
 };
@@ -2169,6 +2209,10 @@ export type MutationCreateStockTransferArgs = {
 
 export type MutationCreateUserArgs = {
   createUserInput: CreateUserInput;
+};
+
+export type MutationCreateWarehouseArgs = {
+  createWarehouseInput: CreateWarehouseInput;
 };
 
 export type MutationGenerateStockRequestArgs = {
@@ -2243,6 +2287,11 @@ export type MutationUpdateRoleArgs = {
   updateRoleInput: UpdateRoleInput;
 };
 
+export type MutationUpdateShopArgs = {
+  id: Scalars['String'];
+  updateShopInput: UpdateShopInput;
+};
+
 export type MutationUpdateSizeArgs = {
   id: Scalars['String'];
   updateSizeInput: UpdateSizeInput;
@@ -2276,6 +2325,11 @@ export type MutationUpdateStockTransferArgs = {
 export type MutationUpdateUserArgs = {
   id: Scalars['String'];
   updateUserInput: UpdateUserInput;
+};
+
+export type MutationUpdateWarehouseArgs = {
+  id: Scalars['String'];
+  updateWarehouseInput: UpdateWarehouseInput;
 };
 
 /** Opción del permiso */
@@ -2427,7 +2481,9 @@ export type PermissionData = {
 export enum Permissions {
   AccessConfigurationConveyors = 'ACCESS_CONFIGURATION_CONVEYORS',
   AccessConfigurationRoles = 'ACCESS_CONFIGURATION_ROLES',
+  AccessConfigurationShops = 'ACCESS_CONFIGURATION_SHOPS',
   AccessConfigurationUsers = 'ACCESS_CONFIGURATION_USERS',
+  AccessConfigurationWarehouses = 'ACCESS_CONFIGURATION_WAREHOUSES',
   AccessCredits = 'ACCESS_CREDITS',
   AccessCrmCities = 'ACCESS_CRM_CITIES',
   AccessCrmCoupons = 'ACCESS_CRM_COUPONS',
@@ -2456,7 +2512,9 @@ export enum Permissions {
   AutogenerateInventoryRequest = 'AUTOGENERATE_INVENTORY_REQUEST',
   ConfirmInventoryTransfer = 'CONFIRM_INVENTORY_TRANSFER',
   CreateConfigurationRole = 'CREATE_CONFIGURATION_ROLE',
+  CreateConfigurationShop = 'CREATE_CONFIGURATION_SHOP',
   CreateConfigurationUser = 'CREATE_CONFIGURATION_USER',
+  CreateConfigurationWarehouse = 'CREATE_CONFIGURATION_WAREHOUSE',
   CreateCredit = 'CREATE_CREDIT',
   CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
   CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
@@ -2484,6 +2542,7 @@ export enum Permissions {
   PrintInventoryTransfer = 'PRINT_INVENTORY_TRANSFER',
   PrintInvoicingClosex = 'PRINT_INVOICING_CLOSEX',
   PrintInvoicingClosez = 'PRINT_INVOICING_CLOSEZ',
+  PrintInvoicingOrder = 'PRINT_INVOICING_ORDER',
   PrintInvoicingReturn = 'PRINT_INVOICING_RETURN',
   PrintTreasuryExpense = 'PRINT_TREASURY_EXPENSE',
   PrintTreasuryReceipt = 'PRINT_TREASURY_RECEIPT',
@@ -2522,7 +2581,9 @@ export enum Permissions {
   ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
   ReadTreasuryReceipts = 'READ_TREASURY_RECEIPTS',
   UpdateConfigurationRole = 'UPDATE_CONFIGURATION_ROLE',
+  UpdateConfigurationShop = 'UPDATE_CONFIGURATION_SHOP',
   UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
+  UpdateConfigurationWarehouse = 'UPDATE_CONFIGURATION_WAREHOUSE',
   UpdateCredit = 'UPDATE_CREDIT',
   UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
   UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
@@ -2666,6 +2727,8 @@ export type Query = {
   roleId: Role;
   /** Listado de las roles */
   roles: ResponseRoles;
+  /** Obtiene la tienda por el identificador */
+  shopId: Shop;
   /** Se encarga de listar las tiendas */
   shops: ResponseShops;
   /** Listar las tallas */
@@ -2830,6 +2893,10 @@ export type QueryRoleIdArgs = {
 
 export type QueryRolesArgs = {
   filtersRolesInput?: InputMaybe<FiltersRolesInput>;
+};
+
+export type QueryShopIdArgs = {
+  id: Scalars['String'];
 };
 
 export type QueryShopsArgs = {
@@ -3559,7 +3626,7 @@ export type ResponseReferences = {
 /** Lista de devoluciones de ordenes */
 export type ResponseReturnsOrder = {
   __typename?: 'ResponseReturnsOrder';
-  /** Lista de ajustes */
+  /** Lista de devoluci0nes */
   docs: ReturnOrder[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
@@ -4804,6 +4871,28 @@ export type UpdateRoleInput = {
   permissionIds?: InputMaybe<Scalars['String'][]>;
 };
 
+/** Datos para actualizar la tienda */
+export type UpdateShopInput = {
+  /** Dirección de la tienda */
+  address?: InputMaybe<Scalars['String']>;
+  /** Identificador de la empresa para la tienda */
+  companyId?: InputMaybe<Scalars['String']>;
+  /** Identificador de la bodega predeterminada para la tienda */
+  defaultWarehouseId?: InputMaybe<Scalars['String']>;
+  /** Meta asiganda a la tienda */
+  goal?: InputMaybe<Scalars['Float']>;
+  /** Es centro de distribución */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre de la tienda */
+  name?: InputMaybe<Scalars['String']>;
+  /** Teléfono de la tienda */
+  phone?: InputMaybe<Scalars['String']>;
+  /** Estado de la tienda */
+  status?: InputMaybe<StatusShop>;
+  /** Identificador de la bodega de centro de distribución asignado */
+  warehouseMainId?: InputMaybe<Scalars['String']>;
+};
+
 /** Datos para actualizar la talla */
 export type UpdateSizeInput = {
   /** Se encuentra activa la talla */
@@ -4888,6 +4977,18 @@ export type UpdateUserInput = {
   status?: InputMaybe<StatusUser>;
   /** Usuario registrado */
   username?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para actualizar  */
+export type UpdateWarehouseInput = {
+  /** Estado de la bodega */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Inventario máximo de productos */
+  max?: InputMaybe<Scalars['Float']>;
+  /** Inventario mínimo de productos */
+  min?: InputMaybe<Scalars['Float']>;
+  /** Nombre de la bodega */
+  name?: InputMaybe<Scalars['String']>;
 };
 
 /** Enlaces de diferences tipos */
@@ -6401,7 +6502,18 @@ export type CitiesQuery = {
   __typename?: 'Query';
   cities: {
     __typename?: 'ResponseCities';
-    docs: { __typename?: 'City'; _id: string; country: string; name: string; state: string }[];
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'City';
+      _id: string;
+      country: string;
+      name: string;
+      state: string;
+      updatedAt: any;
+      user: { __typename?: 'User'; name: string };
+    }[];
   };
 };
 
@@ -12837,6 +12949,9 @@ export const CitiesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -12847,6 +12962,15 @@ export const CitiesDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'country' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                     ],
                   },
                 },
