@@ -43,6 +43,7 @@ import type { ApolloError } from '@apollo/client';
 import type { Location } from 'umi';
 import { useHistory, useLocation } from 'umi';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
+import WarehouseForm from '../form';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -59,11 +60,17 @@ const WarehouseList = () => {
     type: 'error',
     visible: false,
   });
+  const [visible, setVisible] = useState(false);
+  const [warehouseData, setWarehouseData] = useState<Partial<Warehouse>>({});
 
   const [form] = Form.useForm();
   const history = useHistory();
   const location: Location = useLocation();
 
+  /**
+   * @description controla el error de permisos en las bodegas
+   * @param e Error de apollo
+   */
   const onError = (e: ApolloError) => {
     const { statusCode } = e?.graphQLErrors[0]?.extensions?.response as any;
 
@@ -87,9 +94,15 @@ const WarehouseList = () => {
   /**
    * @description se encarga de cerrar el modal de creacion
    */
-  /* const closeModal = () => {
+  const closeModal = () => {
+    setWarehouseData({});
     setVisible(false);
-  };*/
+  };
+
+  const visibleModal = (warehouse?: Warehouse) => {
+    setWarehouseData(warehouse || {});
+    setVisible(true);
+  };
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -328,10 +341,14 @@ const WarehouseList = () => {
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
-      render: () => {
+      render: (_, warehouse) => {
         return (
           <Tooltip title="Editar Bodega">
-            <Button type="primary" onClick={() => {}} icon={<EditOutlined />} />
+            <Button
+              type="primary"
+              onClick={() => visibleModal(warehouse)}
+              icon={<EditOutlined />}
+            />
           </Tooltip>
         );
       },
@@ -375,7 +392,7 @@ const WarehouseList = () => {
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
           <Col xs={8} md={15} lg={15}>
             <Button
-              onClick={() => {}}
+              onClick={() => visibleModal()}
               icon={<PlusOutlined />}
               shape="round"
               type="primary"
@@ -410,6 +427,7 @@ const WarehouseList = () => {
         </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
+      <WarehouseForm visible={visible} onCancel={closeModal} warehouseData={warehouseData} />
     </PageContainer>
   );
 };

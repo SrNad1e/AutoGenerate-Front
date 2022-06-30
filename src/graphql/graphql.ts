@@ -850,6 +850,16 @@ export type CreateUserInput = {
   username?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para la creacion de una bodega */
+export type CreateWarehouseInput = {
+  /** Inventario máximo de productos */
+  max: Scalars['Float'];
+  /** Inventario mínimo de productos */
+  min: Scalars['Float'];
+  /** Nombre de la bodega */
+  name: Scalars['String'];
+};
+
 /** Crédito del cliente */
 export type Credit = {
   __typename?: 'Credit';
@@ -2045,6 +2055,8 @@ export type Mutation = {
   /** Crea una traslado de productos */
   createStockTransfer: StockTransfer;
   createUser: User;
+  /** Crea una bodega */
+  createWarehouse: Warehouse;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
@@ -2090,6 +2102,8 @@ export type Mutation = {
   /** Actualiza traslado */
   updateStockTransfer: StockTransfer;
   updateUser: User;
+  /** Actualiza una bodega */
+  updateWarehouse: Warehouse;
 };
 
 export type MutationAddPaymentsOrderArgs = {
@@ -2195,6 +2209,10 @@ export type MutationCreateStockTransferArgs = {
 
 export type MutationCreateUserArgs = {
   createUserInput: CreateUserInput;
+};
+
+export type MutationCreateWarehouseArgs = {
+  createWarehouseInput: CreateWarehouseInput;
 };
 
 export type MutationGenerateStockRequestArgs = {
@@ -2307,6 +2325,11 @@ export type MutationUpdateStockTransferArgs = {
 export type MutationUpdateUserArgs = {
   id: Scalars['String'];
   updateUserInput: UpdateUserInput;
+};
+
+export type MutationUpdateWarehouseArgs = {
+  id: Scalars['String'];
+  updateWarehouseInput: UpdateWarehouseInput;
 };
 
 /** Opción del permiso */
@@ -2460,6 +2483,7 @@ export enum Permissions {
   AccessConfigurationRoles = 'ACCESS_CONFIGURATION_ROLES',
   AccessConfigurationShops = 'ACCESS_CONFIGURATION_SHOPS',
   AccessConfigurationUsers = 'ACCESS_CONFIGURATION_USERS',
+  AccessConfigurationWarehouses = 'ACCESS_CONFIGURATION_WAREHOUSES',
   AccessCredits = 'ACCESS_CREDITS',
   AccessCrmCities = 'ACCESS_CRM_CITIES',
   AccessCrmCoupons = 'ACCESS_CRM_COUPONS',
@@ -2490,6 +2514,7 @@ export enum Permissions {
   CreateConfigurationRole = 'CREATE_CONFIGURATION_ROLE',
   CreateConfigurationShop = 'CREATE_CONFIGURATION_SHOP',
   CreateConfigurationUser = 'CREATE_CONFIGURATION_USER',
+  CreateConfigurationWarehouse = 'CREATE_CONFIGURATION_WAREHOUSE',
   CreateCredit = 'CREATE_CREDIT',
   CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
   CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
@@ -2557,6 +2582,7 @@ export enum Permissions {
   UpdateConfigurationRole = 'UPDATE_CONFIGURATION_ROLE',
   UpdateConfigurationShop = 'UPDATE_CONFIGURATION_SHOP',
   UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
+  UpdateConfigurationWarehouse = 'UPDATE_CONFIGURATION_WAREHOUSE',
   UpdateCredit = 'UPDATE_CREDIT',
   UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
   UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
@@ -3599,7 +3625,7 @@ export type ResponseReferences = {
 /** Lista de devoluciones de ordenes */
 export type ResponseReturnsOrder = {
   __typename?: 'ResponseReturnsOrder';
-  /** Lista de ajustes */
+  /** Lista de devoluci0nes */
   docs: ReturnOrder[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
@@ -4952,6 +4978,18 @@ export type UpdateUserInput = {
   username?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para actualizar  */
+export type UpdateWarehouseInput = {
+  /** Estado de la bodega */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Inventario máximo de productos */
+  max?: InputMaybe<Scalars['Float']>;
+  /** Inventario mínimo de productos */
+  min?: InputMaybe<Scalars['Float']>;
+  /** Nombre de la bodega */
+  name?: InputMaybe<Scalars['String']>;
+};
+
 /** Enlaces de diferences tipos */
 export type Urls = {
   __typename?: 'Urls';
@@ -6138,6 +6176,25 @@ export type UpdateUserMutationVariables = Exact<{
 export type UpdateUserMutation = {
   __typename?: 'Mutation';
   updateUser: { __typename?: 'User'; _id: string; username: string; name: string };
+};
+
+export type CreateWarehouseMutationVariables = Exact<{
+  input: CreateWarehouseInput;
+}>;
+
+export type CreateWarehouseMutation = {
+  __typename?: 'Mutation';
+  createWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
+};
+
+export type UpdateWarehouseMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateWarehouseInput;
+}>;
+
+export type UpdateWarehouseMutation = {
+  __typename?: 'Mutation';
+  updateWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
 };
 
 export type StockAdjustmentQueryVariables = Exact<{
@@ -11519,6 +11576,105 @@ export const UpdateUserDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateUserMutation, UpdateUserMutationVariables>;
+export const CreateWarehouseDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createWarehouse' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateWarehouseInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createWarehouse' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createWarehouseInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateWarehouseMutation, CreateWarehouseMutationVariables>;
+export const UpdateWarehouseDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateWarehouse' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateWarehouseInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateWarehouse' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateWarehouseInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateWarehouseMutation, UpdateWarehouseMutationVariables>;
 export const StockAdjustmentDocument = {
   kind: 'Document',
   definitions: [

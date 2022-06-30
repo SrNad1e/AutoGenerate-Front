@@ -21,4 +21,8 @@ export default {
     color: '#dc9575',
     backgroundColor: 'white',
   },
+  centerForm: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
 };
