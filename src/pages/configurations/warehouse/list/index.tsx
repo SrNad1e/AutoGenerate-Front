@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import Filters from '@/components/Filters';
 import {
   CalendarOutlined,
   ClearOutlined,
@@ -25,12 +24,7 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import moment from 'moment';
-import { useEffect, useState } from 'react';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-
-import styles from '../styles';
+import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import type {
   FiltersWarehousesInput,
@@ -38,12 +32,20 @@ import type {
   User,
   Warehouse,
 } from '@/graphql/graphql';
+import type { Location } from 'umi';
+import { useAccess } from 'umi';
+import { useHistory, useLocation } from 'umi';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
 import { useGetWarehouses } from '@/hooks/warehouse.hooks';
 import type { ApolloError } from '@apollo/client';
-import type { Location } from 'umi';
-import { useHistory, useLocation } from 'umi';
-import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
+
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import Filters from '@/components/Filters';
 import WarehouseForm from '../form';
+
+import styles from '../styles';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -66,6 +68,10 @@ const WarehouseList = () => {
   const [form] = Form.useForm();
   const history = useHistory();
   const location: Location = useLocation();
+
+  const {
+    warehouse: { canCreate, canEdit },
+  } = useAccess();
 
   /**
    * @description controla el error de permisos en las bodegas
@@ -128,7 +134,7 @@ const WarehouseList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener las devoluciones
+   * @description se encarga de ejecutar la funcion para obtener las bodegas
    * @param values filtros necesarios para la busqueda
    */
   const onSearch = (values?: FiltersWarehousesInput) => {
@@ -170,7 +176,7 @@ const WarehouseList = () => {
   };
 
   /**
-   * @description ejecuta la busqueda con base a los filtros del formulario y formatea las fechas
+   * @description ejecuta la busqueda con base a los filtros del formulario
    * @param props valores del formulario
    */
   const onFinish = (props: FormValues) => {
@@ -335,7 +341,7 @@ const WarehouseList = () => {
     {
       title: (
         <Text>
-          <MoreOutlined /> Opciones
+          <MoreOutlined /> Opción
         </Text>
       ),
       fixed: 'right',
@@ -346,6 +352,7 @@ const WarehouseList = () => {
           <Tooltip title="Editar Bodega">
             <Button
               type="primary"
+              disabled={paramsGetWarehouse?.loading || !canEdit}
               onClick={() => visibleModal(warehouse)}
               icon={<EditOutlined />}
             />
@@ -360,7 +367,7 @@ const WarehouseList = () => {
       <Card bordered={false}>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={30}>
-            <Col xs={24} md={7} lg={5} xl={5}>
+            <Col xs={24} md={8} lg={8} xl={7}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Ejem: Mayoristas" style={styles.allWidth} />
               </FormItem>
@@ -373,6 +380,7 @@ const WarehouseList = () => {
                     type="primary"
                     htmlType="submit"
                     style={styles.borderR}
+                    disabled={paramsGetWarehouse?.loading}
                   >
                     Buscar
                   </Button>
@@ -380,6 +388,7 @@ const WarehouseList = () => {
                     htmlType="reset"
                     onClick={onClear}
                     style={styles.borderR}
+                    disabled={paramsGetWarehouse?.loading}
                     icon={<ClearOutlined />}
                   >
                     Limpiar
@@ -389,14 +398,14 @@ const WarehouseList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
+        <Row gutter={[0, 15]} align="middle" style={styles.marginFilters}>
           <Col xs={8} md={15} lg={15}>
             <Button
               onClick={() => visibleModal()}
               icon={<PlusOutlined />}
               shape="round"
               type="primary"
-              disabled={false}
+              disabled={paramsGetWarehouse?.loading || !canCreate}
             >
               Nuevo
             </Button>

@@ -7958,6 +7958,8 @@ export type WarehousesQuery = {
     totalPages: number;
     docs: {
       __typename?: 'Warehouse';
+      max: number;
+      min: number;
       _id: string;
       name: string;
       updatedAt: any;
@@ -17709,6 +17711,8 @@ export const WarehousesDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'max' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'min' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },

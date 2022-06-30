@@ -1,11 +1,14 @@
-import type { Warehouse } from '@/graphql/graphql';
-import { DropboxOutlined, NumberOutlined } from '@ant-design/icons';
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Col, Form, Input, InputNumber, Modal, Row, Space, Switch, Typography } from 'antd';
-import { useState } from 'react';
-import styles from '../styles';
+import { DropboxOutlined, NumberOutlined } from '@ant-design/icons';
+import type { Warehouse } from '@/graphql/graphql';
+import { useEffect, useState } from 'react';
+import { useCreateWarehouse, useUpdateWarehouse } from '@/hooks/warehouse.hooks';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { useCreateWarehouse } from '@/hooks/warehouse.hooks';
+
+import styles from '../styles';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -13,7 +16,7 @@ const { Text } = Typography;
 type Props = {
   visible: boolean;
   onCancel: () => void;
-  warehouseData: Partial<Warehouse>;
+  warehouseData?: Partial<Warehouse>;
 };
 
 const WarehouseForm = ({ onCancel, visible, warehouseData }: Props) => {
@@ -22,11 +25,13 @@ const WarehouseForm = ({ onCancel, visible, warehouseData }: Props) => {
     type: 'error',
     visible: false,
   });
-  const isNew = !warehouseData._id;
 
+  const isNew = !warehouseData?._id;
   const [form] = Form.useForm();
 
-  const [createWarehouse /*paramsCreateWarehouse*/] = useCreateWarehouse();
+  const [updateWarehouse, paramsUpdateWarehouse] = useUpdateWarehouse();
+  const [createWarehouse, paramsCreateWarehouse] = useCreateWarehouse();
+
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
    */
@@ -60,7 +65,33 @@ const WarehouseForm = ({ onCancel, visible, warehouseData }: Props) => {
   };
 
   /**
-   * @description ejecuta la mutation para crear una nueva talla
+   * @description funcion ejecutada para actualizar la bodega
+   */
+  const editWarehouse = async () => {
+    const values = await form.validateFields();
+    try {
+      const response = await updateWarehouse({
+        variables: {
+          id: warehouseData?._id,
+          input: {
+            ...values,
+          },
+        },
+      });
+      if (response?.data?.updateWarehouse) {
+        setAlertInformation({
+          message: `Bodega ${response?.data?.updateWarehouse?.name} actualizada correctamente`,
+          type: 'success',
+          visible: true,
+        });
+      }
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
+  /**
+   * @description ejecuta la mutation para crear una nueva bodega
    */
   const createNewWarehouse = async () => {
     const values = await form.validateFields();
@@ -82,20 +113,34 @@ const WarehouseForm = ({ onCancel, visible, warehouseData }: Props) => {
     }
   };
 
+  useEffect(() => {
+    form.setFieldsValue({
+      ...warehouseData,
+      max: warehouseData?.max,
+      min: warehouseData?.min,
+    });
+  }, [visible]);
+
   return (
     <Modal
       visible={visible}
       width={400}
       okText={isNew ? 'Crear' : 'Actualizar'}
       onCancel={closeAndClear}
-      onOk={isNew ? () => createNewWarehouse() : () => {}}
+      onOk={isNew ? () => createNewWarehouse() : () => editWarehouse()}
       cancelText="Cancelar"
       destroyOnClose
       title={isNew ? 'Crear Bodega' : 'Actualizar Bodega'}
       cancelButtonProps={{
-        style: { borderRadius: 5 },
+        style: styles.borderR,
+        disabled: paramsCreateWarehouse?.loading || paramsUpdateWarehouse?.loading,
+        loading: paramsCreateWarehouse?.loading || paramsUpdateWarehouse?.loading,
       }}
-      okButtonProps={{ style: { borderRadius: 5 } }}
+      okButtonProps={{
+        style: styles.borderR,
+        disabled: paramsCreateWarehouse?.loading || paramsUpdateWarehouse?.loading,
+        loading: paramsCreateWarehouse?.loading || paramsUpdateWarehouse?.loading,
+      }}
     >
       <Form form={form} layout="vertical" style={styles.centerForm}>
         <Row>
@@ -115,7 +160,10 @@ const WarehouseForm = ({ onCancel, visible, warehouseData }: Props) => {
                 </Space>
               }
             >
-              <Input placeholder="Ingrese nombre" />
+              <Input
+                placeholder="Ingrese nombre"
+                disabled={paramsCreateWarehouse?.loading || paramsCreateWarehouse?.loading}
+              />
             </FormItem>
             <FormItem
               rules={[
@@ -132,7 +180,11 @@ const WarehouseForm = ({ onCancel, visible, warehouseData }: Props) => {
                 </Space>
               }
             >
-              <InputNumber controls={false} min={1} />
+              <InputNumber
+                controls={false}
+                min={1}
+                disabled={paramsCreateWarehouse?.loading || paramsCreateWarehouse?.loading}
+              />
             </FormItem>
             <FormItem
               rules={[
@@ -149,11 +201,18 @@ const WarehouseForm = ({ onCancel, visible, warehouseData }: Props) => {
                 </Space>
               }
             >
-              <InputNumber controls={false} min={1} />
+              <InputNumber
+                controls={false}
+                min={1}
+                disabled={paramsCreateWarehouse?.loading || paramsCreateWarehouse?.loading}
+              />
             </FormItem>
             {!isNew && (
               <FormItem valuePropName="checked" name="active" label="Activo">
-                <Switch checked />
+                <Switch
+                  checked={warehouseData?.active}
+                  disabled={paramsCreateWarehouse?.loading || paramsCreateWarehouse?.loading}
+                />
               </FormItem>
             )}
           </Col>

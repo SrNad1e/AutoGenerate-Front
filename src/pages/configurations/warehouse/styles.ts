@@ -25,4 +25,7 @@ export default {
     display: 'flex',
     justifyContent: 'center',
   },
+  marginFilters: {
+    marginTop: 20,
+  },
 };
