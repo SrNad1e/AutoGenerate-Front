@@ -296,7 +296,12 @@ export default defineConfig({
               component: './invoicing/return/list',
               access: 'allowOption',
             },
-
+            {
+              name: 'Pedidos',
+              path: '/invoicing/order',
+              component: './invoicing/order/list',
+              access: 'allowOption',
+            },
             {
               name: 'Cierres',
               path: '/invoicing/closings',

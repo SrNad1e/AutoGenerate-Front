@@ -115,6 +115,10 @@ export const typesAccess = {
       Permissions.AccessInvoicingReturns,
     ],
   },
+
+  '/invoicing/order': {
+    access: [Permissions.ReadInvoicingOrders],
+  },
   '/invoicing/closings': {
     access: [Permissions.AccessInvoicingClosesx, Permissions.AccessInvoicingClosesz],
   },
