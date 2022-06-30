@@ -1,0 +1,8 @@
+query customerTypes($input: FiltersCustomerTypesInput!) {
+  customerTypes(filtersCustomerTypesInput: $input) {
+    docs {
+      _id
+      name
+    }
+  }
+}

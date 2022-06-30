@@ -1,0 +1,13 @@
+mutation createShop($input: CreateShopInput!) {
+  createShop(createShopInput: $input) {
+    name
+    _id
+  }
+}
+
+mutation updateShop($id: String!, $input: UpdateShopInput!) {
+  updateShop(id: $id, updateShopInput: $input) {
+    name
+    _id
+  }
+}
