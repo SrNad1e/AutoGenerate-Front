@@ -1,0 +1,21 @@
+query expenses($input: FiltersExpensesInput) {
+  expenses(filtersExpensesInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      number
+      value
+      status
+      concept
+      user {
+        name
+      }
+      box {
+        _id
+        name
+      }
+    }
+  }
+}

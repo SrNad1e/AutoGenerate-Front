@@ -296,6 +296,7 @@ export default defineConfig({
               component: './invoicing/return/list',
               access: 'allowOption',
             },
+
             {
               name: 'Cierres',
               path: '/invoicing/closings',
@@ -314,6 +315,23 @@ export default defineConfig({
                   access: 'allowOption',
                 },
               ],
+            },
+          ],
+        },
+        {
+          name: 'Tesoreria',
+          path: '/treasury',
+          icon: 'gold',
+          routes: [
+            {
+              name: 'Egresos',
+              path: '/treasury/expenses',
+              component: './treasury/expenses/list',
+            },
+            {
+              name: 'Recibo de Cajas',
+              path: '/treasury/cashReceipt',
+              component: './treasury/cashReceipt/list',
             },
           ],
         },
@@ -356,6 +374,31 @@ export default defineConfig({
           ],
         },
         {
+          name: 'CRM',
+          path: '/crm',
+          icon: 'radarChart',
+          routes: [
+            {
+              name: 'Clientes',
+              path: '/crm/customer',
+              component: './crm/customers/list',
+            },
+          ],
+        },
+        {
+          name: 'Carteras',
+          path: '/wallets',
+          icon: 'wallet',
+          routes: [
+            {
+              name: 'Creditos',
+              path: '/wallets/credits',
+              component: './wallets/credits/list',
+            },
+          ],
+        },
+        {
+          layout: false,
           path: '/:id',
           component: './exception/404',
         },

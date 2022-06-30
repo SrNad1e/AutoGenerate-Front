@@ -1,0 +1,26 @@
+query receipts($input: FiltersReceiptsInput) {
+  receipts(filtersReceiptsInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      number
+      updatedAt
+      createdAt
+      concept
+      value
+      status
+      box {
+        name
+      }
+      user {
+        name
+      }
+      payment {
+        name
+        type
+      }
+    }
+  }
+}
