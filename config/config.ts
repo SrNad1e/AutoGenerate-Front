@@ -297,6 +297,11 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'Medios de Pago',
+              path: '/invoicing/paymentMethods',
+              component: './invoicing/paymentMethods/list',
+            },
+            {
               name: 'Cierres',
               path: '/invoicing/closings',
               access: 'allowOption',
