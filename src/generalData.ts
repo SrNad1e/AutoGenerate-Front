@@ -180,9 +180,12 @@ export const typesAccess = {
   },
   //crm
   '/crm': {
-    access: [Permissions.AccessCrmCustomers],
+    access: [Permissions.AccessCrmCustomers, Permissions.AccessCrmCities],
   },
   '/crm/customer': {
     access: [Permissions.ReadCrmCustomers],
+  },
+  '/crm/cities': {
+    access: [Permissions.ReadCrmCities],
   },
 };

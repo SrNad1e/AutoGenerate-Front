@@ -1,0 +1,13 @@
+mutation createCity($input: CreateCityInput!) {
+  createCity(createCityInput: $input) {
+    _id
+    name
+  }
+}
+
+mutation updateCity($id: String!, $input: UpadteCityInput!) {
+  updateCity(id: $id, updateCityInput: $input) {
+    _id
+    name
+  }
+}

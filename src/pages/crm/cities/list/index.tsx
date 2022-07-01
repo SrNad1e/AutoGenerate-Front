@@ -1,30 +1,31 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   CalendarOutlined,
-  CrownOutlined,
+  ClearOutlined,
   EditOutlined,
+  GlobalOutlined,
   MoreOutlined,
   PlusOutlined,
+  ScheduleOutlined,
   SearchOutlined,
-  ShopFilled,
-  UserAddOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Button, Card, Col, Form, Input, Row, Space, Table, Tooltip, Typography } from 'antd';
+import { Button, Card, Col, Form, Input, Row, Space, Table, Tag, Tooltip, Typography } from 'antd';
 import type { TablePaginationConfig } from 'antd';
 import type { SorterResult } from 'antd/es/table/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation } from 'umi';
 import type { Location } from 'umi';
 import moment from 'moment';
-import type { FiltersCitiesInput, FiltersUsersInput, Role, User } from '@/graphql/graphql';
+import type { City, FiltersCitiesInput, FiltersUsersInput, User } from '@/graphql/graphql';
+import { useGetCities } from '@/hooks/cities.hooks';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import CitiesForm from '../form';
 
-import { useGetCities } from '@/hooks/cities.hooks';
 import styles from '../styles';
 
 const FormItem = Form.Item;
@@ -42,18 +43,36 @@ const CitiesList = () => {
     type: 'error',
     visible: false,
   });
-  const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
+  const [visibleForm, setVisibleForm] = useState(false);
+  const [cityData, setCityData] = useState({});
 
   const location: Location = useLocation();
 
   const [form] = Form.useForm();
   const history = useHistory();
 
-  const [getCities, { data }] = useGetCities();
+  const [getCities, { data, loading }] = useGetCities();
 
-  /*const {
-    user: { canCreate, canEdit },
-  } = useAccess();*/
+  const {
+    city: { canCreate, canEdit },
+  } = useAccess();
+
+  /**
+   * @description Cierra el modal y resetea el estado de la datacity
+   */
+  const closeForm = () => {
+    setVisibleForm(false);
+    setCityData({});
+  };
+
+  /**
+   *  @description abre el modal y setea la data de la city
+   * @param city ciudad
+   */
+  const openForm = (city?: City) => {
+    setCityData(city || {});
+    setVisibleForm(true);
+  };
 
   /**
    * @description se encarga de ejecutar la funcion para obtener las ciudades
@@ -63,6 +82,7 @@ const CitiesList = () => {
     getCities({
       variables: {
         input: {
+          limit: 10,
           ...filters,
         },
       },
@@ -123,40 +143,28 @@ const CitiesList = () => {
    * @param value valores del formulario
    */
   const onFinish = (value: FormValues, pageCurrent?: number) => {
-    const filters = { ...filterTable };
     const params: FiltersUsersInput = {
       page: pageCurrent || 1,
       limit: 10,
       ...value,
     };
 
-    onSearch({ ...params, ...filters });
-    setQueryParams({ ...value, ...filters });
+    onSearch({ ...params });
+    setQueryParams({ ...value });
   };
 
   /**
    * @description se encarga de manejar eventos de tabla
    * @param paginationLocal eventos de la páginacion
    * @param sorter ordenamiento de la tabla
-   * @param filterArg filtros de la tabla
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    filterArg: Record<string, any>,
+    _: Record<string, any>,
     sorter: SorterResult<Partial<User>> | any,
   ) => {
     const { current } = paginationLocal;
     const prop = form.getFieldsValue();
-
-    const filters = { ...filterArg };
-
-    Object.keys(filters).forEach((i) => {
-      if (filters[i] === null) {
-        delete filters[i];
-      } else {
-        filters[i] = filters[i][0];
-      }
-    });
 
     let sort = {};
 
@@ -167,9 +175,7 @@ const CitiesList = () => {
         };
       }
     }
-    setQueryParams(filters);
-    onSearch({ ...prop, sort, page: current, ...filters });
-    setFilterTable(filterArg);
+    onSearch({ ...prop, sort, page: current });
   };
 
   /**
@@ -179,7 +185,6 @@ const CitiesList = () => {
     history.replace(location.pathname);
     form.resetFields();
     onSearch({});
-    setFilterTable({});
   };
 
   /**
@@ -191,11 +196,7 @@ const CitiesList = () => {
     const params = {};
 
     Object.keys(queryParams).forEach((item) => {
-      if (item === 'active') {
-        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
-      } else {
-        params[item] = JSON.parse(queryParams[item]);
-      }
+      params[item] = JSON.parse(queryParams[item]);
     });
     form.setFieldsValue(params);
     onFinish(params);
@@ -205,32 +206,33 @@ const CitiesList = () => {
     loadingData();
   }, []);
 
-  const column: ColumnsType<User> = [
+  const column: ColumnsType<City> = [
     {
-      title: <Text>{<UserOutlined />} Nombre</Text>,
+      title: <Text>{<ScheduleOutlined />} Nombre</Text>,
       dataIndex: 'name',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: <Text>{<UserAddOutlined />} Pais</Text>,
-      dataIndex: 'username',
+      title: <Text>{<GlobalOutlined />} Pais</Text>,
+      dataIndex: 'country',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: <Text>{<CrownOutlined />} Estado</Text>,
-      dataIndex: 'role',
+      title: <Text>{<ScheduleOutlined />} Departamento</Text>,
+      dataIndex: 'state',
       align: 'center',
-      render: (role: Role) => <Text>{role?.name}</Text>,
+      sorter: true,
+      showSorterTooltip: false,
     },
     {
-      title: <Text>{<ShopFilled />} Creado Por</Text>,
+      title: <Text>{<UserOutlined />} Creado Por</Text>,
       dataIndex: 'user',
       align: 'center',
-      render: (user: User) => <Text>{user?.name}</Text>,
+      render: (user: User) => <Tag style={styles.tagStyle}>{user?.name}</Tag>,
     },
     {
       title: <Text>{<CalendarOutlined />} Fecha</Text>,
@@ -245,11 +247,11 @@ const CitiesList = () => {
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
-      render: () => (
+      render: (_, cityId) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
-            disabled={false}
-            onClick={() => {}}
+            disabled={loading || !canEdit}
+            onClick={() => openForm(cityId)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
           />
@@ -265,17 +267,17 @@ const CitiesList = () => {
           <Row gutter={[20, 20]} align="middle">
             <Col xs={24} md={8} lg={9} xl={6}>
               <FormItem label="Nombre" name="name">
-                <Input placeholder="Nombre de la ciudad" />
+                <Input placeholder="Nombre de la ciudad" disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={9} xl={6}>
               <FormItem label="Pais" name="country">
-                <Input placeholder="Nombre del pais" />
+                <Input placeholder="Nombre del pais" disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={9} xl={6}>
               <FormItem label="Estado" name="state">
-                <Input placeholder="Nombre del departamento" />
+                <Input placeholder="Nombre del departamento" disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={6}>
@@ -286,10 +288,17 @@ const CitiesList = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
+                    disabled={loading}
                   >
                     Buscar
                   </Button>
-                  <Button style={styles.buttonR} htmlType="reset" onClick={() => onClear()}>
+                  <Button
+                    style={styles.buttonR}
+                    icon={<ClearOutlined />}
+                    htmlType="reset"
+                    disabled={loading}
+                    onClick={() => onClear()}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -297,11 +306,11 @@ const CitiesList = () => {
             </Col>
             <Col span={8}>
               <Button
-                disabled={false}
+                disabled={loading || !canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
-                onClick={() => {}}
+                onClick={() => openForm()}
               >
                 Nuevo
               </Button>
@@ -315,7 +324,7 @@ const CitiesList = () => {
                 onChange={handleChangeTable}
                 columns={column}
                 dataSource={data?.cities.docs}
-                scroll={{ x: 1000 }}
+                scroll={{ x: 'auto' }}
                 pagination={{
                   current: data?.cities?.page,
                   total: data?.cities?.totalDocs,
@@ -326,6 +335,7 @@ const CitiesList = () => {
         </Form>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <CitiesForm visible={visibleForm} onCancel={closeForm} cityData={cityData} />
     </PageContainer>
   );
 };
