@@ -303,7 +303,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
   };
 
   const propsSearchProduct: PropsSearchProduct = {
-    details,
+    details: details.filter((item) => item.action !== ActionDetailRequest.Delete),
     warehouseId: request?.warehouseOrigin?._id,
     createDetail,
     updateDetail,
@@ -350,18 +350,19 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
-      render: ({ stock = [] }: Product) =>
-        stock?.length ||
-        (0 > 0 && (
+      render: ({ stock = [] }: Product, record) =>
+        record?.__typename ? (
           <Badge
             overflowCount={99999}
-            count={stock && stock[0]?.quantity}
+            count={(stock && stock[0]?.quantity) || 0}
             style={{
               backgroundColor: ((stock && stock[0]?.quantity) || 0) > 0 ? '#dc9575' : 'red',
             }}
             showZero
           />
-        )),
+        ) : (
+          'Pendiente'
+        ),
     },
     {
       title: 'Cantidad',

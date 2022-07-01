@@ -136,6 +136,11 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
     }
   };
 
+  const addCustomer = async (params: UpdateOrderInput) => {
+    await editOrder(params);
+    onCancel();
+  };
+
   const renderSearchCustomer = () => (
     <Space direction="vertical" style={styles.maxWidth}>
       <Input.Search
@@ -149,7 +154,7 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
       <List style={styles.listCustomerStyle}>
         {data?.customers?.docs?.map((customer) => (
           <ListItem key={customer?._id}>
-            <Item editOrder={editOrder} customer={customer as Customer} />
+            <Item addCustomer={addCustomer} customer={customer as Customer} />
           </ListItem>
         ))}
       </List>
@@ -186,10 +191,12 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
               if (!value) {
                 return Promise.reject(new Error('*Campo Obligatorio'));
               }
-              if (!isNaN(number)) {
+
+              if (!isNaN(number) && number == value) {
                 return Promise.resolve();
               }
-              return Promise.reject(new Error('*Campo solo numerico'));
+
+              return Promise.reject(new Error('*Solo números'));
             },
           },
         ]}
@@ -232,14 +239,15 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
               const number = parseInt(value);
 
               if (!value) {
+                return Promise.reject(new Error('*Campo Obligatorio'));
+              }
+
+              if (!isNaN(number) && number == value) {
                 return Promise.resolve();
               }
-              if (!isNaN(number)) {
-                return Promise.resolve();
-              }
-              return Promise.reject();
+
+              return Promise.reject(new Error('*Solo números'));
             },
-            message: '*Campo numerico',
           },
         ]}
       >

@@ -63,7 +63,7 @@ const PosList = () => {
         },
       });
       if (response?.data?.createOrder) {
-        history.push(`/pos/sales/${response?.data?.createOrder?._id}`);
+        history.push(`/pos/sales/${response?.data?.createOrder?.order._id}`);
       }
     } catch (e: any) {
       showError(e?.message);
@@ -72,11 +72,7 @@ const PosList = () => {
 
   useEffect(() => {
     if (initialState?.currentUser) {
-      getOrders({
-        variables: {
-          id: initialState?.currentUser?.pointOfSale?._id || '',
-        },
-      });
+      getOrders();
     }
   }, []);
 

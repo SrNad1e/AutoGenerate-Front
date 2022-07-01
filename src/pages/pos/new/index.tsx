@@ -87,6 +87,7 @@ const PosNew = () => {
             input: params,
           },
         });
+        setModalCustomerVisible(false);
         return response?.data?.updateOrder;
       }
     } catch (e: any) {
@@ -104,7 +105,7 @@ const PosNew = () => {
    */
   const addProductOrder = async (product: Product, quantity: number) => {
     try {
-      const productExist = data?.orderId?.details?.find(
+      const productExist = data?.orderId?.order?.details?.find(
         (detail) => detail?.product?._id === product?._id,
       );
       await addproducts({
@@ -143,7 +144,10 @@ const PosNew = () => {
         },
       });
 
-      if (response?.data?.orderId?.status && response?.data?.orderId?.status !== StatusOrder.Open) {
+      if (
+        response?.data?.orderId?.order?.status &&
+        response?.data?.orderId?.order?.status !== StatusOrder.Open
+      ) {
         showErrorRedirect(`El pedido ya se encuentra finalizado`, '/pos/sales');
       }
     }

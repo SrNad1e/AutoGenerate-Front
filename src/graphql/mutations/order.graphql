@@ -8,10 +8,19 @@ mutation createOrder($input: CreateOrderInput!) {
 
 mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
   updateOrder(id: $id, updateOrderInput: $input) {
+    credit {
+      amount
+      available
+    }
     order {
+      updatedAt
       _id
       number
+      user {
+        name
+      }
       customer {
+        phone
         document
         firstName
         lastName
@@ -129,13 +138,22 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
 
 mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
   addPaymentsOrder(addPaymentsOrderInput: $input) {
+    credit {
+      amount
+      available
+    }
     order {
+      updatedAt
       _id
       number
+      user {
+        name
+      }
       customer {
         document
         firstName
         lastName
+        phone
         documentType {
           abbreviation
         }
@@ -195,6 +213,10 @@ mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
 
 mutation addProductsOrder($input: AddProductsOrderInput!) {
   addProductsOrder(addProductsOrderInput: $input) {
+    credit {
+      amount
+      available
+    }
     order {
       _id
       number

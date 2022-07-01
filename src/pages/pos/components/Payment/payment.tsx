@@ -11,6 +11,7 @@ export type Params = {
   paymentOrder: PaymentOrder;
   total?: number;
   max?: number;
+  disabled: boolean;
 };
 
 const Payment = ({
@@ -19,6 +20,7 @@ const Payment = ({
   deletePayment,
   total = 0,
   max,
+  disabled,
 }: Params) => {
   return (
     <>
@@ -30,6 +32,7 @@ const Payment = ({
           <InputNumber
             autoFocus
             max={max}
+            disabled={disabled}
             controls={false}
             defaultValue={total}
             formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
