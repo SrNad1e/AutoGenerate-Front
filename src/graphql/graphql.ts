@@ -569,6 +569,16 @@ export type CreateCategoryInput = {
   parentId?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para crear una ciudad */
+export type CreateCityInput = {
+  /** Nombre del país */
+  country: Scalars['String'];
+  /** Nombre de la ciudad */
+  name: Scalars['String'];
+  /** Nombre del departamento */
+  state: Scalars['String'];
+};
+
 /** Datos para crear un cierre X */
 export type CreateCloseXInvoicingInput = {
   /** Listado de cash reportado */
@@ -2028,6 +2038,8 @@ export type Mutation = {
   createBrand: Brand;
   /** Crea una categoría */
   createCategory: CategoryLevel1;
+  /** Crea una ciudad */
+  createCity: City;
   /** Crea un cierre X de facturación */
   createCloseXInvoicing: CloseXInvoicing;
   /** Crea un cierre Z de facturación */
@@ -2083,6 +2095,8 @@ export type Mutation = {
   updateBrand: Brand;
   /** Actualiza la categoría */
   updateCategory: CategoryLevel1;
+  /** Actualiza una ciudad */
+  updateCity: City;
   /** Actualiza el color */
   updateColor: Color;
   /** Actualiza el crédito de un cliente */
@@ -2145,6 +2159,10 @@ export type MutationCreateBrandArgs = {
 
 export type MutationCreateCategoryArgs = {
   createCategoryInput: CreateCategoryInput;
+};
+
+export type MutationCreateCityArgs = {
+  createCityInput: CreateCityInput;
 };
 
 export type MutationCreateCloseXInvoicingArgs = {
@@ -2260,6 +2278,11 @@ export type MutationUpdateBrandArgs = {
 export type MutationUpdateCategoryArgs = {
   id: Scalars['String'];
   updateCategoryInput: UpdateCategoryInput;
+};
+
+export type MutationUpdateCityArgs = {
+  id: Scalars['String'];
+  updateCityInput: UpadteCityInput;
 };
 
 export type MutationUpdateColorArgs = {
@@ -2541,6 +2564,7 @@ export enum Permissions {
   CreateConfigurationUser = 'CREATE_CONFIGURATION_USER',
   CreateConfigurationWarehouse = 'CREATE_CONFIGURATION_WAREHOUSE',
   CreateCredit = 'CREATE_CREDIT',
+  CreateCrmCity = 'CREATE_CRM_CITY',
   CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
   CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
   CreateInventoryAttrib = 'CREATE_INVENTORY_ATTRIB',
@@ -2611,6 +2635,7 @@ export enum Permissions {
   UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
   UpdateConfigurationWarehouse = 'UPDATE_CONFIGURATION_WAREHOUSE',
   UpdateCredit = 'UPDATE_CREDIT',
+  UpdateCrmCity = 'UPDATE_CRM_CITY',
   UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
   UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
   UpdateInventoryAttrib = 'UPDATE_INVENTORY_ATTRIB',
@@ -4734,6 +4759,16 @@ export enum TypePayment {
   Credit = 'CREDIT',
 }
 
+/** Datos para actualizar la ciudad */
+export type UpadteCityInput = {
+  /** Nombre del país */
+  country?: InputMaybe<Scalars['String']>;
+  /** Nombre de la ciudad */
+  name?: InputMaybe<Scalars['String']>;
+  /** Nombre del departamento */
+  state?: InputMaybe<Scalars['String']>;
+};
+
 /** Datos para actualizar el atributo */
 export type UpdateAttribInput = {
   /** Se encuentra activa el atributo */
@@ -5904,6 +5939,25 @@ export type UpdateStockOutputMutation = {
     user: { __typename?: 'User'; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
   };
+};
+
+export type CreatePaymentMutationVariables = Exact<{
+  input: CreatePaymentInput;
+}>;
+
+export type CreatePaymentMutation = {
+  __typename?: 'Mutation';
+  createPayment: { __typename?: 'Payment'; _id: string; name: string };
+};
+
+export type UpdatePaymentMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdatePaymentInput;
+}>;
+
+export type UpdatePaymentMutation = {
+  __typename?: 'Mutation';
+  updatePayment: { __typename?: 'Payment'; _id: string; name: string };
 };
 
 export type UpdateProductMutationVariables = Exact<{
@@ -10779,6 +10833,105 @@ export const UpdateStockOutputDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateStockOutputMutation, UpdateStockOutputMutationVariables>;
+export const CreatePaymentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createPayment' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreatePaymentInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createPayment' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createPaymentInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreatePaymentMutation, CreatePaymentMutationVariables>;
+export const UpdatePaymentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updatePayment' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdatePaymentInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updatePayment' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updatePaymentInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdatePaymentMutation, UpdatePaymentMutationVariables>;
 export const UpdateProductDocument = {
   kind: 'Document',
   definitions: [

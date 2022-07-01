@@ -296,12 +296,6 @@ export default defineConfig({
               component: './invoicing/return/list',
               access: 'allowOption',
             },
-
-            {
-              name: 'Medios de Pago',
-              path: '/invoicing/paymentMethods',
-              component: './invoicing/paymentMethods/list',
-            },
             {
               name: 'Cierres',
               path: '/invoicing/closings',
@@ -337,6 +331,11 @@ export default defineConfig({
               name: 'Recibo de Cajas',
               path: '/treasury/cashReceipt',
               component: './treasury/cashReceipt/list',
+            },
+            {
+              name: 'Medios de Pago',
+              path: '/treasury/paymentMethods',
+              component: './treasury/paymentMethods/list',
             },
           ],
         },
