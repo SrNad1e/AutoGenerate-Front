@@ -224,5 +224,16 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateTreasuryPayment,
       ),
     },
+    coupon: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCrmCoupon,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateCrmCoupon,
+      ),
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintCrmCoupon,
+      ),
+    },
   };
 }

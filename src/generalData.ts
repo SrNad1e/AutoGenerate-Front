@@ -194,9 +194,12 @@ export const typesAccess = {
   },
   //crm
   '/crm': {
-    access: [Permissions.AccessCrmCustomers],
+    access: [Permissions.AccessCrmCustomers, Permissions.AccessCrmCoupons],
   },
   '/crm/customer': {
     access: [Permissions.ReadCrmCustomers],
+  },
+  '/crm/coupon': {
+    access: [Permissions.ReadCrmCoupons],
   },
 };

@@ -179,8 +179,16 @@ export type AuthorizationDian = {
   __typename?: 'AuthorizationDian';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Compañía a la que pertenece la autorización */
+  company: Scalars['String'];
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
   /** Prefijo de autorización */
   prefix: Scalars['String'];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó la autorización de facturación */
+  user: User;
 };
 
 /** Caja donde se deposita el dinero */
@@ -550,6 +558,22 @@ export type Coupon = {
 /** Datos para crear un atributo */
 export type CreateAttribInput = {
   /** Nombre del atributo */
+  name: Scalars['String'];
+};
+
+/** Datos para la creación de una autorización */
+export type CreateAuthorizationInput = {
+  /** Prefijo de facturación */
+  prefix: Scalars['String'];
+};
+
+/** Datos para crear la caja */
+export type CreateBoxInput = {
+  /** Cantidad de la base para la caja */
+  base: Scalars['Float'];
+  /** Es caja principal de la compañía */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre de la caja */
   name: Scalars['String'];
 };
 
@@ -1331,6 +1355,18 @@ export type FiltersAttribsInput = {
   sort?: InputMaybe<SortAttrib>;
 };
 
+/** Filtros para consultar las autorizaciones */
+export type FiltersAuthorizationInput = {
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Prefijo de facturación */
+  prefix?: InputMaybe<Scalars['String']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortAuthorization>;
+};
+
 /** Filtros para consultar la cajas */
 export type FiltersBoxesInput = {
   /** Identificador de la caja */
@@ -2092,6 +2128,10 @@ export type Mutation = {
   confirmProductsStockTransfer: StockTransfer;
   /** Crea un atributo */
   createAttrib: Attrib;
+  /** Crea una autorización de facturación */
+  createAuthorization: AuthorizationDian;
+  /** Crea una caja */
+  createBox: Box;
   /** Crea una marca */
   createBrand: Brand;
   /** Crea una categoría */
@@ -2153,6 +2193,8 @@ export type Mutation = {
   signup: LoginResponse;
   /** Actualiza un atributo */
   updateAttrib: Attrib;
+  /** Actualiza una caja */
+  updateBox: Box;
   /** Actualiza la marca */
   updateBrand: Brand;
   /** Actualiza la categoría */
@@ -2217,6 +2259,14 @@ export type MutationConfirmProductsStockTransferArgs = {
 
 export type MutationCreateAttribArgs = {
   createAttribInput: CreateAttribInput;
+};
+
+export type MutationCreateAuthorizationArgs = {
+  createAuthorization?: InputMaybe<CreateAuthorizationInput>;
+};
+
+export type MutationCreateBoxArgs = {
+  createBoxInput: CreateBoxInput;
 };
 
 export type MutationCreateBrandArgs = {
@@ -2342,6 +2392,11 @@ export type MutationSignupArgs = {
 export type MutationUpdateAttribArgs = {
   id: Scalars['String'];
   updateAttribInput: UpdateAttribInput;
+};
+
+export type MutationUpdateBoxArgs = {
+  id: Scalars['String'];
+  updateBoxInput: UpdateBoxInput;
 };
 
 export type MutationUpdateBrandArgs = {
@@ -2633,6 +2688,7 @@ export enum Permissions {
   AccessInventoryRequests = 'ACCESS_INVENTORY_REQUESTS',
   AccessInventorySizes = 'ACCESS_INVENTORY_SIZES',
   AccessInventoryTransfers = 'ACCESS_INVENTORY_TRANSFERS',
+  AccessInvoicingAuthorizations = 'ACCESS_INVOICING_AUTHORIZATIONS',
   AccessInvoicingClosesx = 'ACCESS_INVOICING_CLOSESX',
   AccessInvoicingClosesz = 'ACCESS_INVOICING_CLOSESZ',
   AccessInvoicingReturns = 'ACCESS_INVOICING_RETURNS',
@@ -2663,13 +2719,16 @@ export enum Permissions {
   CreateInventoryRequest = 'CREATE_INVENTORY_REQUEST',
   CreateInventorySize = 'CREATE_INVENTORY_SIZE',
   CreateInventoryTransfer = 'CREATE_INVENTORY_TRANSFER',
+  CreateInvoicingAuthorization = 'CREATE_INVOICING_AUTHORIZATION',
   CreateInvoicingClosex = 'CREATE_INVOICING_CLOSEX',
   CreateInvoicingClosez = 'CREATE_INVOICING_CLOSEZ',
   CreateInvoicingOrder = 'CREATE_INVOICING_ORDER',
   CreateInvoicingReturn = 'CREATE_INVOICING_RETURN',
+  CreateTreasuryBox = 'CREATE_TREASURY_BOX',
   CreateTreasuryExpense = 'CREATE_TREASURY_EXPENSE',
   CreateTreasuryPayment = 'CREATE_TREASURY_PAYMENT',
   CreateTreasuryReceipt = 'CREATE_TREASURY_RECEIPT',
+  PrintCrmCoupon = 'PRINT_CRM_COUPON',
   PrintInventoryAdjustment = 'PRINT_INVENTORY_ADJUSTMENT',
   PrintInventoryInput = 'PRINT_INVENTORY_INPUT',
   PrintInventoryOutput = 'PRINT_INVENTORY_OUTPUT',
@@ -2705,6 +2764,7 @@ export enum Permissions {
   ReadInventoryRequests = 'READ_INVENTORY_REQUESTS',
   ReadInventorySizes = 'READ_INVENTORY_SIZES',
   ReadInventoryTransfers = 'READ_INVENTORY_TRANSFERS',
+  ReadInvoicingAuthorizations = 'READ_INVOICING_AUTHORIZATIONS',
   ReadInvoicingClosesx = 'READ_INVOICING_CLOSESX',
   ReadInvoicingClosesz = 'READ_INVOICING_CLOSESZ',
   ReadInvoicingInvoices = 'READ_INVOICING_INVOICES',
@@ -2735,7 +2795,9 @@ export enum Permissions {
   UpdateInventoryRequest = 'UPDATE_INVENTORY_REQUEST',
   UpdateInventorySize = 'UPDATE_INVENTORY_SIZE',
   UpdateInventoryTransfer = 'UPDATE_INVENTORY_TRANSFER',
+  UpdateInvoicingAuthorization = 'UPDATE_INVOICING_AUTHORIZATION',
   UpdateInvoicingOrder = 'UPDATE_INVOICING_ORDER',
+  UpdateTreasuryBox = 'UPDATE_TREASURY_BOX',
   UpdateTreasuryExpense = 'UPDATE_TREASURY_EXPENSE',
   UpdateTreasuryPayment = 'UPDATE_TREASURY_PAYMENT',
   UpdateTreasuryReceipt = 'UPDATE_TREASURY_RECEIPT',
@@ -2795,6 +2857,8 @@ export type Query = {
   __typename?: 'Query';
   /** Listado de atributos */
   attribs: ResponseAttribs;
+  /** Lista de autorizaciones */
+  authorizations: ResponseAuthorizations;
   /** Se encarga de listar las cajas */
   boxes: ResponseBoxes;
   /** Listado de marcas */
@@ -2818,7 +2882,7 @@ export type Query = {
   /** Consultar cupón */
   coupon: Coupon;
   /** Consultar cupones */
-  coupons: Coupon;
+  coupons: ResponseCoupons;
   /** Crédito */
   credit: Credit;
   /** Historico de crédito */
@@ -2905,6 +2969,10 @@ export type Query = {
 
 export type QueryAttribsArgs = {
   filtersAttribsInput?: InputMaybe<FiltersAttribsInput>;
+};
+
+export type QueryAuthorizationsArgs = {
+  filtersAuthorizations?: InputMaybe<FiltersAuthorizationInput>;
 };
 
 export type QueryBoxesArgs = {
@@ -3251,6 +3319,30 @@ export type ResponseAttribs = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de autorizaciones de facturación */
+export type ResponseAuthorizations = {
+  __typename?: 'ResponseAuthorizations';
+  /** Lista de autorización de facturación */
+  docs: AuthorizationDian[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta a la consulta de cajas */
 export type ResponseBoxes = {
   __typename?: 'ResponseBoxes';
@@ -3448,6 +3540,30 @@ export type ResponseConveyors = {
   __typename?: 'ResponseConveyors';
   /** Lista de transportadoras */
   docs: Conveyor[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta del listado de cupones */
+export type ResponseCoupons = {
+  __typename?: 'ResponseCoupons';
+  /** Lista de cupones */
+  docs: Coupon[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4227,6 +4343,12 @@ export type SortAttrib = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de las autorizaciones */
+export type SortAuthorization = {
+  /** Ordenamiento por prefijo */
+  prefix?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento para el listado de marcas */
 export type SortBrand = {
   active?: InputMaybe<Scalars['Float']>;
@@ -4924,6 +5046,16 @@ export type UpdateAttribInput = {
   /** Se encuentra activa el atributo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Valor asignado al atributo */
+  name?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para actualizar caja */
+export type UpdateBoxInput = {
+  /** Cantidad de la base para la caja */
+  base?: InputMaybe<Scalars['Float']>;
+  /** Es caja principal de la compañía */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre de la caja */
   name?: InputMaybe<Scalars['String']>;
 };
 
@@ -5650,6 +5782,25 @@ export type UpdateColorMutation = {
       } | null;
     } | null;
   };
+};
+
+export type CreateCouponMutationVariables = Exact<{
+  input: CreateCouponInput;
+}>;
+
+export type CreateCouponMutation = {
+  __typename?: 'Mutation';
+  createCoupon: { __typename?: 'Coupon'; _id: string; number: number };
+};
+
+export type UpdateCouponMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateCouponInput;
+}>;
+
+export type UpdateCouponMutation = {
+  __typename?: 'Mutation';
+  updateCoupon: { __typename?: 'Coupon'; _id: string; number: number };
 };
 
 export type UpdateCreditMutationVariables = Exact<{
@@ -7012,6 +7163,31 @@ export type CouponQuery = {
     number: number;
     status: StatusCoupon;
     value: number;
+  };
+};
+
+export type CouponsQueryVariables = Exact<{
+  input: FiltersCouponsInput;
+}>;
+
+export type CouponsQuery = {
+  __typename?: 'Query';
+  coupons: {
+    __typename?: 'ResponseCoupons';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Coupon';
+      _id: string;
+      number: number;
+      title: string;
+      status: StatusCoupon;
+      value: number;
+      code: string;
+      expiration: any;
+      updatedAt: any;
+    }[];
   };
 };
 
@@ -9316,6 +9492,105 @@ export const UpdateColorDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateColorMutation, UpdateColorMutationVariables>;
+export const CreateCouponDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createCoupon' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateCouponInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createCoupon' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createCouponInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateCouponMutation, CreateCouponMutationVariables>;
+export const UpdateCouponDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateCoupon' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateCouponInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateCoupon' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateCustomerInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateCouponMutation, UpdateCouponMutationVariables>;
 export const UpdateCreditDocument = {
   kind: 'Document',
   definitions: [
@@ -14133,6 +14408,67 @@ export const CouponDocument = {
     },
   ],
 } as unknown as DocumentNode<CouponQuery, CouponQueryVariables>;
+export const CouponsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'coupons' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCouponsInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'coupons' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCouponsInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'code' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CouponsQuery, CouponsQueryVariables>;
 export const CreditDocument = {
   kind: 'Document',
   definitions: [
