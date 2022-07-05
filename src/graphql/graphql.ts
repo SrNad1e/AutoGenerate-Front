@@ -615,6 +615,34 @@ export type CreateColorInput = {
   name_internal: Scalars['String'];
 };
 
+/** Datos para crear empresa */
+export type CreateCompanyInput = {
+  /** Dirección de la empresa */
+  address: Scalars['String'];
+  /** Documento de la empresa */
+  document: Scalars['String'];
+  /** Url del logo de la empresa */
+  logo: Scalars['String'];
+  /** Nombre de la empresa */
+  name: Scalars['String'];
+  /** Teléfono de la empresa */
+  phone: Scalars['String'];
+  /** Si pertenece al régimen simplificado */
+  regimenSimplify?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** Datos para la creación del cupón */
+export type CreateCouponInput = {
+  /** Fecha de expiración para el cupón */
+  expiration: Scalars['DateTime'];
+  /** Mensaje del cupón */
+  message: Scalars['String'];
+  /** Titulo del cupón */
+  title: Scalars['String'];
+  /** Monto para crear el cupón */
+  value: Scalars['Float'];
+};
+
 /** Datos para crear un crédito */
 export type CreateCreditInput = {
   /** Monto de crédigo aprobado */
@@ -670,7 +698,7 @@ export type CreatePaymentInput = {
   /** Color en html que representa el método de pago  */
   color?: InputMaybe<Scalars['String']>;
   /** Identificador de la imagen del método de pago */
-  logo?: InputMaybe<Scalars['String']>;
+  logoId?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name: Scalars['String'];
   /** Tipo de método de pago */
@@ -1429,6 +1457,20 @@ export type FiltersColorsInput = {
   sort?: InputMaybe<SortColor>;
 };
 
+/** Filtros para obtener listado de compañías */
+export type FiltersCompaniesInput = {
+  /** Estado de la compañía */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Comódin para buscar por nombre o documento */
+  name?: InputMaybe<Scalars['String']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortCompany>;
+};
+
 /** Filtros para obtener listado de transportadoras */
 export type FiltersConveyorsInput = {
   /** Cantidad de registros */
@@ -2046,6 +2088,10 @@ export type Mutation = {
   createCloseZInvoicing: CloseZInvoicing;
   /** Crea un color */
   createColor: Color;
+  /** Crea una compañía */
+  createCompany: Company;
+  /** Se encarga crear un cupón */
+  createCoupon: Coupon;
   /** Asigna el crédito a un cliente */
   createCredit: Credit;
   /** Se encarga crear un cliente */
@@ -2099,6 +2145,10 @@ export type Mutation = {
   updateCity: City;
   /** Actualiza el color */
   updateColor: Color;
+  /** Actualiza una compañía */
+  updateCompany: Company;
+  /** Se encarga actualizar un cupón */
+  updateCoupon: Coupon;
   /** Actualiza el crédito de un cliente */
   updateCredit: Credit;
   /** Se encarga actualizar un cliente */
@@ -2175,6 +2225,14 @@ export type MutationCreateCloseZInvoicingArgs = {
 
 export type MutationCreateColorArgs = {
   createColorInput: CreateColorInput;
+};
+
+export type MutationCreateCompanyArgs = {
+  createCompanyInput: CreateCompanyInput;
+};
+
+export type MutationCreateCouponArgs = {
+  createCouponInput: CreateCouponInput;
 };
 
 export type MutationCreateCreditArgs = {
@@ -2288,6 +2346,16 @@ export type MutationUpdateCityArgs = {
 export type MutationUpdateColorArgs = {
   id: Scalars['String'];
   updateColorInput: UpdateColorInput;
+};
+
+export type MutationUpdateCompanyArgs = {
+  id: Scalars['String'];
+  updateCompanyInput: UpdateCompanyInput;
+};
+
+export type MutationUpdateCouponArgs = {
+  id: Scalars['String'];
+  updateCustomerInput: UpdateCouponInput;
 };
 
 export type MutationUpdateCreditArgs = {
@@ -2565,6 +2633,7 @@ export enum Permissions {
   CreateConfigurationWarehouse = 'CREATE_CONFIGURATION_WAREHOUSE',
   CreateCredit = 'CREATE_CREDIT',
   CreateCrmCity = 'CREATE_CRM_CITY',
+  CreateCrmCoupon = 'CREATE_CRM_COUPON',
   CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
   CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
   CreateInventoryAttrib = 'CREATE_INVENTORY_ATTRIB',
@@ -2636,6 +2705,7 @@ export enum Permissions {
   UpdateConfigurationWarehouse = 'UPDATE_CONFIGURATION_WAREHOUSE',
   UpdateCredit = 'UPDATE_CREDIT',
   UpdateCrmCity = 'UPDATE_CRM_CITY',
+  UpdateCrmCoupon = 'UPDATE_CRM_COUPON',
   UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
   UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
   UpdateInventoryAttrib = 'UPDATE_INVENTORY_ATTRIB',
@@ -2725,6 +2795,8 @@ export type Query = {
   closesZInvoicing: ResponseClosesZInvoicing;
   /** Lista los colores */
   colors: ResponseColors;
+  /** Listado de las compañías */
+  companies: ResponseCompanies;
   /** Lista de ajustes de productos */
   conveyors: ResponseConveyors;
   /** Consultar cupón */
@@ -2847,6 +2919,10 @@ export type QueryClosesZInvoicingArgs = {
 
 export type QueryColorsArgs = {
   filtersColorsInput?: InputMaybe<FiltersColorsInput>;
+};
+
+export type QueryCompaniesArgs = {
+  filtersCompaniesInput?: InputMaybe<FiltersCompaniesInput>;
 };
 
 export type QueryConveyorsArgs = {
@@ -3302,6 +3378,30 @@ export type ResponseColors = {
   __typename?: 'ResponseColors';
   /** Lista de colores */
   docs: Color[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Lista de compañías */
+export type ResponseCompanies = {
+  __typename?: 'ResponseCompanies';
+  /** Lista de compañías */
+  docs: Company[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4168,6 +4268,20 @@ export type SortColor = {
 };
 
 /** Ordenamiento de la trasnportadora */
+export type SortCompany = {
+  /** Ordenamiento por nombre */
+  active?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por nombre */
+  name?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por nombre */
+  regimenSimplify?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de creación */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento de la trasnportadora */
 export type SortConveyor = {
   /** Ordenamiento por fecha de creación */
   createdAt?: InputMaybe<Scalars['Float']>;
@@ -4809,6 +4923,28 @@ export type UpdateColorInput = {
   name_internal?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para actualizar la compañía */
+export type UpdateCompanyInput = {
+  /** Dirección de la empresa */
+  address?: InputMaybe<Scalars['String']>;
+  /** Documento de la empresa */
+  document?: InputMaybe<Scalars['String']>;
+  /** Url del logo de la empresa */
+  logo?: InputMaybe<Scalars['String']>;
+  /** Nombre de la empresa */
+  name?: InputMaybe<Scalars['String']>;
+  /** Teléfono de la empresa */
+  phone?: InputMaybe<Scalars['String']>;
+  /** Si pertenece al régimen simplificado */
+  regimenSimplify?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** Datos para actualizar el cupón */
+export type UpdateCouponInput = {
+  /** Estado del cupón */
+  status?: InputMaybe<StatusCoupon>;
+};
+
 /** Datos para actualizar un crédito */
 export type UpdateCreditInput = {
   /** Monto aprobado para el crédito */
@@ -4872,7 +5008,7 @@ export type UpdatePaymentInput = {
   /** Color en html que representa el método de pago  */
   color?: InputMaybe<Scalars['String']>;
   /** Identificador de la imagen del método de pago */
-  logo?: InputMaybe<Scalars['String']>;
+  logoId?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name?: InputMaybe<Scalars['String']>;
   /** Tipo de método de pago */

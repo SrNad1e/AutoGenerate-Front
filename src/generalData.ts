@@ -170,13 +170,20 @@ export const typesAccess = {
   },
   //Treasury
   '/treasury': {
-    access: [Permissions.AccessTreasuryExpenses, Permissions.AccessTreasuryReceipts],
+    access: [
+      Permissions.AccessTreasuryExpenses,
+      Permissions.AccessTreasuryReceipts,
+      Permissions.AccessTreasuryPayments,
+    ],
   },
   '/treasury/expenses': {
     access: [Permissions.ReadTreasuryExpenses],
   },
   '/treasury/receipt': {
     access: [Permissions.ReadTreasuryReceipts],
+  },
+  '/treasury/paymentMethods': {
+    access: [Permissions.ReadTreasuryPayments],
   },
   //Wallets
   '/wallets': {

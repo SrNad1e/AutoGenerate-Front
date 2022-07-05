@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useGetPayments } from '@/hooks/payment.hooks';
 import {
   CalendarOutlined,
+  ClearOutlined,
   DollarOutlined,
   EditOutlined,
   MoreOutlined,
@@ -24,18 +24,22 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import { useEffect, useState } from 'react';
-import styles from '../styles';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import type { ColumnsType } from 'antd/lib/table';
-import type { FiltersPaymentsInput, Payment, ResponsePayments, User } from '@/graphql/graphql';
-import moment from 'moment';
-import Filters from '@/components/Filters';
-import type { Location } from 'umi';
-import { useHistory, useLocation } from 'umi';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
+import type { ColumnsType } from 'antd/lib/table';
+import { useEffect, useState } from 'react';
+import { useGetPayments } from '@/hooks/payment.hooks';
+import type { FiltersPaymentsInput, Payment, ResponsePayments, User } from '@/graphql/graphql';
+import { useHistory, useLocation } from 'umi';
+import type { Location } from 'umi';
+import { useAccess } from 'umi';
+import moment from 'moment';
+
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import Filters from '@/components/Filters';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 import PaymentMethodsForm from '../form';
+
+import styles from '../styles';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -59,6 +63,10 @@ const PaymentsMethodsList = () => {
   const history = useHistory();
   const location: Location = useLocation();
 
+  const {
+    paymentMethod: { canCreate, canEdit },
+  } = useAccess();
+
   const [getPayments, paramsGetPayments] = useGetPayments();
 
   /**
@@ -72,11 +80,18 @@ const PaymentsMethodsList = () => {
     });
   };
 
+  /**
+   * @description cierra el formulario y reinicia la data del payment
+   */
   const closeForm = () => {
     setPaymentMethodData({});
     setVisibleForm(false);
   };
 
+  /**
+   * @description abre el formulario y setea la data del payment
+   * @param paymentData data del pago
+   */
   const openForm = (paymentData?: Payment) => {
     setPaymentMethodData(paymentData || {});
     setVisibleForm(true);
@@ -95,7 +110,7 @@ const PaymentsMethodsList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener los medios de pago+
+   * @description se encarga de ejecutar la funcion para obtener los medios de pago
    * @param values filtros necesarios para la busqueda
    */
   const onSearch = (values?: FiltersPaymentsInput) => {
@@ -295,7 +310,7 @@ const PaymentsMethodsList = () => {
       render: (_: string, paymentId) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
-            disabled={false}
+            disabled={paramsGetPayments?.loading || !canEdit}
             onClick={() => openForm(paymentId)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -312,7 +327,10 @@ const PaymentsMethodsList = () => {
           <Row gutter={[20, 20]} align="middle">
             <Col xs={24} md={8} lg={9} xl={7}>
               <FormItem label="Nombre" name="name">
-                <Input placeholder="Nombre del medio de pago" />
+                <Input
+                  placeholder="Nombre del medio de pago"
+                  disabled={paramsGetPayments?.loading}
+                />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={6}>
@@ -323,10 +341,17 @@ const PaymentsMethodsList = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
+                    disabled={paramsGetPayments?.loading}
                   >
                     Buscar
                   </Button>
-                  <Button style={styles.buttonR} htmlType="reset" onClick={onClear}>
+                  <Button
+                    disabled={paramsGetPayments?.loading}
+                    style={styles.buttonR}
+                    htmlType="reset"
+                    onClick={onClear}
+                    icon={<ClearOutlined />}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -336,7 +361,7 @@ const PaymentsMethodsList = () => {
           <Row gutter={[0, 20]} align="middle" style={styles?.marginFilters}>
             <Col span={8}>
               <Button
-                disabled={false}
+                disabled={paramsGetPayments.loading || !canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
