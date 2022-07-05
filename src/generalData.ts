@@ -125,7 +125,11 @@ export const typesAccess = {
     access: [Permissions.ReadInvoicingClosesz],
   },
   '/configurations': {
-    access: [Permissions.AccessConfigurationRoles, Permissions.AccessConfigurationUsers],
+    access: [
+      Permissions.AccessConfigurationRoles,
+      Permissions.AccessConfigurationUsers,
+      Permissions.AccessConfigurationShops,
+    ],
   },
   '/configurations/users': {
     access: [Permissions.ReadConfigurationUsers],
@@ -141,6 +145,9 @@ export const typesAccess = {
   },
   '/configurations/roles/:id': {
     access: [Permissions.UpdateConfigurationRole],
+  },
+  '/configurations/shop': {
+    access: [Permissions.ReadConfigurationShops],
   },
   '/invoicing/return': {
     access: [Permissions.ReadInvoicingReturns],
@@ -160,5 +167,36 @@ export const typesAccess = {
   },
   '/pos/closes/closingZ': {
     access: [Permissions.ReadInvoicingClosesz],
+  },
+  //Treasury
+  '/treasury': {
+    access: [
+      Permissions.AccessTreasuryExpenses,
+      Permissions.AccessTreasuryReceipts,
+      Permissions.AccessTreasuryPayments,
+    ],
+  },
+  '/treasury/expenses': {
+    access: [Permissions.ReadTreasuryExpenses],
+  },
+  '/treasury/receipt': {
+    access: [Permissions.ReadTreasuryReceipts],
+  },
+  '/treasury/paymentMethods': {
+    access: [Permissions.ReadTreasuryPayments],
+  },
+  //Wallets
+  '/wallets': {
+    access: [Permissions.AccessCredits],
+  },
+  '/wallets/credits': {
+    access: [Permissions.ReadCredits],
+  },
+  //crm
+  '/crm': {
+    access: [Permissions.AccessCrmCustomers],
+  },
+  '/crm/customer': {
+    access: [Permissions.ReadCrmCustomers],
   },
 };

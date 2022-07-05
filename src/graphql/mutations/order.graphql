@@ -78,6 +78,60 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
         totalPaid
         change
       }
+      invoice {
+        authorization {
+          prefix
+        }
+        createdAt
+        customer {
+          documentType {
+            abbreviation
+          }
+          document
+          firstName
+          lastName
+          phone
+        }
+        details {
+          product {
+            barcode
+            color {
+              name
+            }
+            reference {
+              name
+              description
+            }
+            size {
+              value
+            }
+          }
+          quantity
+          price
+          discount
+        }
+        number
+        payments {
+          total
+          payment {
+            _id
+            name
+          }
+        }
+        shop {
+          name
+        }
+        summary {
+          total
+          subtotal
+          change
+          discount
+          totalPaid
+        }
+        user {
+          name
+        }
+      }
     }
   }
 }
