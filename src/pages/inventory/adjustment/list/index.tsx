@@ -26,7 +26,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { useReactToPrint } from 'react-to-print';
-import { useAccess, useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import numeral from 'numeral';
 import type { Location } from 'umi';
@@ -79,6 +79,10 @@ const AdjustmentList = () => {
 
   const reportRef = useRef(null);
 
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
+
   const [getAdjustments, { data, loading }] = useGetAdjustments();
 
   const handlePrint = useReactToPrint({
@@ -129,6 +133,7 @@ const AdjustmentList = () => {
             createdAt: -1,
           },
           ...params,
+          warehouseId: canChangeWarehouse ? params?.warehouseId : defaultWarehouse,
         },
       },
     });
