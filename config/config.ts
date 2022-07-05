@@ -330,6 +330,11 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'Compañias',
+              path: '/configurations/companies',
+              component: './configurations/companies/list',
+            },
+            {
               name: 'Roles',
               path: '/configurations/roles',
               access: 'allowOption',
