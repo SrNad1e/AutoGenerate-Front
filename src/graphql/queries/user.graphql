@@ -16,6 +16,7 @@ query currentUser {
     }
     role {
       name
+      changeWarehouse
       permissions {
         action
       }

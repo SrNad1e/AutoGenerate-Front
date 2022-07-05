@@ -179,8 +179,16 @@ export type AuthorizationDian = {
   __typename?: 'AuthorizationDian';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Compañía a la que pertenece la autorización */
+  company: Scalars['String'];
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
   /** Prefijo de autorización */
   prefix: Scalars['String'];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó la autorización de facturación */
+  user: User;
 };
 
 /** Caja donde se deposita el dinero */
@@ -553,6 +561,22 @@ export type CreateAttribInput = {
   name: Scalars['String'];
 };
 
+/** Datos para la creación de una autorización */
+export type CreateAuthorizationInput = {
+  /** Prefijo de facturación */
+  prefix: Scalars['String'];
+};
+
+/** Datos para crear la caja */
+export type CreateBoxInput = {
+  /** Cantidad de la base para la caja */
+  base: Scalars['Float'];
+  /** Es caja principal de la compañía */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre de la caja */
+  name: Scalars['String'];
+};
+
 /** Datos para crear una marca */
 export type CreateBrandInput = {
   /** Nombre de la marca */
@@ -567,6 +591,16 @@ export type CreateCategoryInput = {
   name: Scalars['String'];
   /** Identificador de la categoría padre */
   parentId?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para crear una ciudad */
+export type CreateCityInput = {
+  /** Nombre del país */
+  country: Scalars['String'];
+  /** Nombre de la ciudad */
+  name: Scalars['String'];
+  /** Nombre del departamento */
+  state: Scalars['String'];
 };
 
 /** Datos para crear un cierre X */
@@ -603,6 +637,34 @@ export type CreateColorInput = {
   name: Scalars['String'];
   /** Nombre interno asignado al color */
   name_internal: Scalars['String'];
+};
+
+/** Datos para crear empresa */
+export type CreateCompanyInput = {
+  /** Dirección de la empresa */
+  address: Scalars['String'];
+  /** Documento de la empresa */
+  document: Scalars['String'];
+  /** Url del logo de la empresa */
+  logo: Scalars['String'];
+  /** Nombre de la empresa */
+  name: Scalars['String'];
+  /** Teléfono de la empresa */
+  phone: Scalars['String'];
+  /** Si pertenece al régimen simplificado */
+  regimenSimplify?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** Datos para la creación del cupón */
+export type CreateCouponInput = {
+  /** Fecha de expiración para el cupón */
+  expiration: Scalars['DateTime'];
+  /** Mensaje del cupón */
+  message: Scalars['String'];
+  /** Titulo del cupón */
+  title: Scalars['String'];
+  /** Monto para crear el cupón */
+  value: Scalars['Float'];
 };
 
 /** Datos para crear un crédito */
@@ -653,6 +715,30 @@ export type CreateExpenseInput = {
 export type CreateOrderInput = {
   /** Estado del pedido */
   status: StatusOrder;
+};
+
+/** Datos para crear un método de pago */
+export type CreatePaymentInput = {
+  /** Color en html que representa el método de pago  */
+  color?: InputMaybe<Scalars['String']>;
+  /** Identificador de la imagen del método de pago */
+  logoId?: InputMaybe<Scalars['String']>;
+  /** Nombre del método de pago */
+  name: Scalars['String'];
+  /** Tipo de método de pago */
+  type: TypePayment;
+};
+
+/** Datos para crear un punto de venta */
+export type CreatePointOfSaleInput = {
+  /** Identificador de la autorización de facturación */
+  autorizationId: Scalars['String'];
+  /** Identificador de la caja asignada */
+  boxId: Scalars['String'];
+  /** Nombre del punto de venta */
+  name: Scalars['String'];
+  /** Identificador de la tienda a la que pertence */
+  shopId: Scalars['String'];
 };
 
 /** Datos para crear un producto */
@@ -736,6 +822,24 @@ export type CreateRoleInput = {
   name: Scalars['String'];
   /** Identificadores de los permisos asignados */
   permissionIds: Scalars['String'][];
+};
+
+/** Datos para la creación de la tienda */
+export type CreateShopInput = {
+  /** Dirección de la tienda */
+  address: Scalars['String'];
+  /** Identificador de la bodega predeterminada para la tienda */
+  defaultWarehouseId: Scalars['String'];
+  /** Meta asiganda a la tienda */
+  goal?: InputMaybe<Scalars['Float']>;
+  /** Es centro de distribución */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre de la tienda */
+  name: Scalars['String'];
+  /** Teléfono de la tienda */
+  phone?: InputMaybe<Scalars['String']>;
+  /** Identificador de la bodega de centro de distribución asignado */
+  warehouseMainId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para crear una talla */
@@ -830,6 +934,16 @@ export type CreateUserInput = {
   status?: InputMaybe<StatusUser>;
   /** Usuario registrado */
   username?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para la creacion de una bodega */
+export type CreateWarehouseInput = {
+  /** Inventario máximo de productos */
+  max: Scalars['Float'];
+  /** Inventario mínimo de productos */
+  min: Scalars['Float'];
+  /** Nombre de la bodega */
+  name: Scalars['String'];
 };
 
 /** Crédito del cliente */
@@ -1253,6 +1367,18 @@ export type FiltersAttribsInput = {
   sort?: InputMaybe<SortAttrib>;
 };
 
+/** Filtros para consultar las autorizaciones */
+export type FiltersAuthorizationInput = {
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Prefijo de facturación */
+  prefix?: InputMaybe<Scalars['String']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortAuthorization>;
+};
+
 /** Filtros para consultar la cajas */
 export type FiltersBoxesInput = {
   /** Identificador de la caja */
@@ -1379,6 +1505,20 @@ export type FiltersColorsInput = {
   sort?: InputMaybe<SortColor>;
 };
 
+/** Filtros para obtener listado de compañías */
+export type FiltersCompaniesInput = {
+  /** Estado de la compañía */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Comódin para buscar por nombre o documento */
+  name?: InputMaybe<Scalars['String']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortCompany>;
+};
+
 /** Filtros para obtener listado de transportadoras */
 export type FiltersConveyorsInput = {
   /** Cantidad de registros */
@@ -1395,6 +1535,22 @@ export type FiltersConveyorsInput = {
 export type FiltersCouponInput = {
   /** Código del cupón */
   code?: InputMaybe<Scalars['String']>;
+  /** Estado del cupón */
+  status?: InputMaybe<StatusCoupon>;
+};
+
+/** Filtros para consultar los cupones */
+export type FiltersCouponsInput = {
+  /** Código del cupón */
+  code?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Número consecutivo del cupón */
+  number?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortCoupon>;
   /** Estado del cupón */
   status?: InputMaybe<StatusCoupon>;
 };
@@ -1534,7 +1690,7 @@ export type FiltersOrdersInput = {
   /** Número consecutivo del pedido */
   number?: InputMaybe<Scalars['Float']>;
   /** Trae los pedidos POS solamente */
-  orderPos?: InputMaybe<Scalars['Boolean']>;
+  orderPOS?: InputMaybe<Scalars['Boolean']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
@@ -1984,16 +2140,26 @@ export type Mutation = {
   confirmProductsStockTransfer: StockTransfer;
   /** Crea un atributo */
   createAttrib: Attrib;
+  /** Crea una autorización de facturación */
+  createAuthorization: AuthorizationDian;
+  /** Crea una caja */
+  createBox: Box;
   /** Crea una marca */
   createBrand: Brand;
   /** Crea una categoría */
   createCategory: CategoryLevel1;
+  /** Crea una ciudad */
+  createCity: City;
   /** Crea un cierre X de facturación */
   createCloseXInvoicing: CloseXInvoicing;
   /** Crea un cierre Z de facturación */
   createCloseZInvoicing: CloseZInvoicing;
   /** Crea un color */
   createColor: Color;
+  /** Crea una compañía */
+  createCompany: Company;
+  /** Se encarga crear un cupón */
+  createCoupon: Coupon;
   /** Asigna el crédito a un cliente */
   createCredit: Credit;
   /** Se encarga crear un cliente */
@@ -2002,6 +2168,10 @@ export type Mutation = {
   createExpense: Expense;
   /** Se encarga de crear el pedido */
   createOrder: ResponseOrder;
+  /** Crea un método de pago */
+  createPayment: Payment;
+  /** Se encarga de crear el punto de venta */
+  createPointOfSale: PointOfSale;
   /** Crea un producto */
   createProduct: Product;
   /** Crea una recibo de caja */
@@ -2012,6 +2182,8 @@ export type Mutation = {
   createReturnOrder: ReturnOrder;
   /** Crea una rol */
   createRole: Role;
+  /** Crea una tienda */
+  createShop: Shop;
   /** Crear una talla */
   createSize: Size;
   /** Crea un ajuste de productos */
@@ -2025,6 +2197,8 @@ export type Mutation = {
   /** Crea una traslado de productos */
   createStockTransfer: StockTransfer;
   createUser: User;
+  /** Crea una bodega */
+  createWarehouse: Warehouse;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
@@ -2033,12 +2207,20 @@ export type Mutation = {
   signup: LoginResponse;
   /** Actualiza un atributo */
   updateAttrib: Attrib;
+  /** Actualiza una caja */
+  updateBox: Box;
   /** Actualiza la marca */
   updateBrand: Brand;
   /** Actualiza la categoría */
   updateCategory: CategoryLevel1;
+  /** Actualiza una ciudad */
+  updateCity: City;
   /** Actualiza el color */
   updateColor: Color;
+  /** Actualiza una compañía */
+  updateCompany: Company;
+  /** Se encarga actualizar un cupón */
+  updateCoupon: Coupon;
   /** Actualiza el crédito de un cliente */
   updateCredit: Credit;
   /** Se encarga actualizar un cliente */
@@ -2047,6 +2229,10 @@ export type Mutation = {
   updateExpense: Expense;
   /** Se encarga actualizar un pedido */
   updateOrder: ResponseOrder;
+  /** Actualiza un método de pago */
+  updatePayment: Payment;
+  /** Se encarga actualizar un punto de venta */
+  updatePointOfSale: PointOfSale;
   /** Se encarga actualizar un producto */
   updateProduct: Product;
   /** Actualiza un recibo de caja */
@@ -2055,6 +2241,8 @@ export type Mutation = {
   updateReference: Reference;
   /** Actualiza un rol */
   updateRole: Role;
+  /** Actualiza una tienda */
+  updateShop: Shop;
   /** Actualizar la talla */
   updateSize: Size;
   /** Actualiza un ajuste de productos */
@@ -2068,6 +2256,8 @@ export type Mutation = {
   /** Actualiza traslado */
   updateStockTransfer: StockTransfer;
   updateUser: User;
+  /** Actualiza una bodega */
+  updateWarehouse: Warehouse;
 };
 
 export type MutationAddPaymentsOrderArgs = {
@@ -2087,12 +2277,24 @@ export type MutationCreateAttribArgs = {
   createAttribInput: CreateAttribInput;
 };
 
+export type MutationCreateAuthorizationArgs = {
+  createAuthorization?: InputMaybe<CreateAuthorizationInput>;
+};
+
+export type MutationCreateBoxArgs = {
+  createBoxInput: CreateBoxInput;
+};
+
 export type MutationCreateBrandArgs = {
   createBrandInput: CreateBrandInput;
 };
 
 export type MutationCreateCategoryArgs = {
   createCategoryInput: CreateCategoryInput;
+};
+
+export type MutationCreateCityArgs = {
+  createCityInput: CreateCityInput;
 };
 
 export type MutationCreateCloseXInvoicingArgs = {
@@ -2105,6 +2307,14 @@ export type MutationCreateCloseZInvoicingArgs = {
 
 export type MutationCreateColorArgs = {
   createColorInput: CreateColorInput;
+};
+
+export type MutationCreateCompanyArgs = {
+  createCompanyInput: CreateCompanyInput;
+};
+
+export type MutationCreateCouponArgs = {
+  createCouponInput: CreateCouponInput;
 };
 
 export type MutationCreateCreditArgs = {
@@ -2121,6 +2331,14 @@ export type MutationCreateExpenseArgs = {
 
 export type MutationCreateOrderArgs = {
   createOrderInput: CreateOrderInput;
+};
+
+export type MutationCreatePaymentArgs = {
+  createPaymentInput: CreatePaymentInput;
+};
+
+export type MutationCreatePointOfSaleArgs = {
+  createPointOfSaleInput: CreatePointOfSaleInput;
 };
 
 export type MutationCreateProductArgs = {
@@ -2141,6 +2359,10 @@ export type MutationCreateReturnOrderArgs = {
 
 export type MutationCreateRoleArgs = {
   createRoleInput: CreateRoleInput;
+};
+
+export type MutationCreateShopArgs = {
+  createShopInput: CreateShopInput;
 };
 
 export type MutationCreateSizeArgs = {
@@ -2171,6 +2393,10 @@ export type MutationCreateUserArgs = {
   createUserInput: CreateUserInput;
 };
 
+export type MutationCreateWarehouseArgs = {
+  createWarehouseInput: CreateWarehouseInput;
+};
+
 export type MutationGenerateStockRequestArgs = {
   shopId: Scalars['String'];
 };
@@ -2188,6 +2414,11 @@ export type MutationUpdateAttribArgs = {
   updateAttribInput: UpdateAttribInput;
 };
 
+export type MutationUpdateBoxArgs = {
+  id: Scalars['String'];
+  updateBoxInput: UpdateBoxInput;
+};
+
 export type MutationUpdateBrandArgs = {
   id: Scalars['String'];
   updateBrandInput: UpdateBrandInput;
@@ -2198,9 +2429,24 @@ export type MutationUpdateCategoryArgs = {
   updateCategoryInput: UpdateCategoryInput;
 };
 
+export type MutationUpdateCityArgs = {
+  id: Scalars['String'];
+  updateCityInput: UpadteCityInput;
+};
+
 export type MutationUpdateColorArgs = {
   id: Scalars['String'];
   updateColorInput: UpdateColorInput;
+};
+
+export type MutationUpdateCompanyArgs = {
+  id: Scalars['String'];
+  updateCompanyInput: UpdateCompanyInput;
+};
+
+export type MutationUpdateCouponArgs = {
+  id: Scalars['String'];
+  updateCustomerInput: UpdateCouponInput;
 };
 
 export type MutationUpdateCreditArgs = {
@@ -2223,6 +2469,16 @@ export type MutationUpdateOrderArgs = {
   updateOrderInput: UpdateOrderInput;
 };
 
+export type MutationUpdatePaymentArgs = {
+  id: Scalars['String'];
+  updatePaymentInput: UpdatePaymentInput;
+};
+
+export type MutationUpdatePointOfSaleArgs = {
+  id: Scalars['String'];
+  updatePointOfSaleInput: UpdatePointOfSaleInput;
+};
+
 export type MutationUpdateProductArgs = {
   id: Scalars['String'];
   updateProductInput: UpdateProductInput;
@@ -2241,6 +2497,11 @@ export type MutationUpdateReferenceArgs = {
 export type MutationUpdateRoleArgs = {
   id: Scalars['String'];
   updateRoleInput: UpdateRoleInput;
+};
+
+export type MutationUpdateShopArgs = {
+  id: Scalars['String'];
+  updateShopInput: UpdateShopInput;
 };
 
 export type MutationUpdateSizeArgs = {
@@ -2276,6 +2537,11 @@ export type MutationUpdateStockTransferArgs = {
 export type MutationUpdateUserArgs = {
   id: Scalars['String'];
   updateUserInput: UpdateUserInput;
+};
+
+export type MutationUpdateWarehouseArgs = {
+  id: Scalars['String'];
+  updateWarehouseInput: UpdateWarehouseInput;
 };
 
 /** Opción del permiso */
@@ -2427,7 +2693,9 @@ export type PermissionData = {
 export enum Permissions {
   AccessConfigurationConveyors = 'ACCESS_CONFIGURATION_CONVEYORS',
   AccessConfigurationRoles = 'ACCESS_CONFIGURATION_ROLES',
+  AccessConfigurationShops = 'ACCESS_CONFIGURATION_SHOPS',
   AccessConfigurationUsers = 'ACCESS_CONFIGURATION_USERS',
+  AccessConfigurationWarehouses = 'ACCESS_CONFIGURATION_WAREHOUSES',
   AccessCredits = 'ACCESS_CREDITS',
   AccessCrmCities = 'ACCESS_CRM_CITIES',
   AccessCrmCoupons = 'ACCESS_CRM_COUPONS',
@@ -2445,8 +2713,10 @@ export enum Permissions {
   AccessInventoryRequests = 'ACCESS_INVENTORY_REQUESTS',
   AccessInventorySizes = 'ACCESS_INVENTORY_SIZES',
   AccessInventoryTransfers = 'ACCESS_INVENTORY_TRANSFERS',
+  AccessInvoicingAuthorizations = 'ACCESS_INVOICING_AUTHORIZATIONS',
   AccessInvoicingClosesx = 'ACCESS_INVOICING_CLOSESX',
   AccessInvoicingClosesz = 'ACCESS_INVOICING_CLOSESZ',
+  AccessInvoicingPointofsales = 'ACCESS_INVOICING_POINTOFSALES',
   AccessInvoicingReturns = 'ACCESS_INVOICING_RETURNS',
   AccessPos = 'ACCESS_POS',
   AccessTreasuryBoxes = 'ACCESS_TREASURY_BOXES',
@@ -2456,8 +2726,12 @@ export enum Permissions {
   AutogenerateInventoryRequest = 'AUTOGENERATE_INVENTORY_REQUEST',
   ConfirmInventoryTransfer = 'CONFIRM_INVENTORY_TRANSFER',
   CreateConfigurationRole = 'CREATE_CONFIGURATION_ROLE',
+  CreateConfigurationShop = 'CREATE_CONFIGURATION_SHOP',
   CreateConfigurationUser = 'CREATE_CONFIGURATION_USER',
+  CreateConfigurationWarehouse = 'CREATE_CONFIGURATION_WAREHOUSE',
   CreateCredit = 'CREATE_CREDIT',
+  CreateCrmCity = 'CREATE_CRM_CITY',
+  CreateCrmCoupon = 'CREATE_CRM_COUPON',
   CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
   CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
   CreateInventoryAttrib = 'CREATE_INVENTORY_ATTRIB',
@@ -2471,12 +2745,17 @@ export enum Permissions {
   CreateInventoryRequest = 'CREATE_INVENTORY_REQUEST',
   CreateInventorySize = 'CREATE_INVENTORY_SIZE',
   CreateInventoryTransfer = 'CREATE_INVENTORY_TRANSFER',
+  CreateInvoicingAuthorization = 'CREATE_INVOICING_AUTHORIZATION',
   CreateInvoicingClosex = 'CREATE_INVOICING_CLOSEX',
   CreateInvoicingClosez = 'CREATE_INVOICING_CLOSEZ',
   CreateInvoicingOrder = 'CREATE_INVOICING_ORDER',
+  CreateInvoicingPointofsale = 'CREATE_INVOICING_POINTOFSALE',
   CreateInvoicingReturn = 'CREATE_INVOICING_RETURN',
+  CreateTreasuryBox = 'CREATE_TREASURY_BOX',
   CreateTreasuryExpense = 'CREATE_TREASURY_EXPENSE',
+  CreateTreasuryPayment = 'CREATE_TREASURY_PAYMENT',
   CreateTreasuryReceipt = 'CREATE_TREASURY_RECEIPT',
+  PrintCrmCoupon = 'PRINT_CRM_COUPON',
   PrintInventoryAdjustment = 'PRINT_INVENTORY_ADJUSTMENT',
   PrintInventoryInput = 'PRINT_INVENTORY_INPUT',
   PrintInventoryOutput = 'PRINT_INVENTORY_OUTPUT',
@@ -2484,6 +2763,7 @@ export enum Permissions {
   PrintInventoryTransfer = 'PRINT_INVENTORY_TRANSFER',
   PrintInvoicingClosex = 'PRINT_INVOICING_CLOSEX',
   PrintInvoicingClosez = 'PRINT_INVOICING_CLOSEZ',
+  PrintInvoicingOrder = 'PRINT_INVOICING_ORDER',
   PrintInvoicingReturn = 'PRINT_INVOICING_RETURN',
   PrintTreasuryExpense = 'PRINT_TREASURY_EXPENSE',
   PrintTreasuryReceipt = 'PRINT_TREASURY_RECEIPT',
@@ -2511,6 +2791,7 @@ export enum Permissions {
   ReadInventoryRequests = 'READ_INVENTORY_REQUESTS',
   ReadInventorySizes = 'READ_INVENTORY_SIZES',
   ReadInventoryTransfers = 'READ_INVENTORY_TRANSFERS',
+  ReadInvoicingAuthorizations = 'READ_INVOICING_AUTHORIZATIONS',
   ReadInvoicingClosesx = 'READ_INVOICING_CLOSESX',
   ReadInvoicingClosesz = 'READ_INVOICING_CLOSESZ',
   ReadInvoicingInvoices = 'READ_INVOICING_INVOICES',
@@ -2522,8 +2803,12 @@ export enum Permissions {
   ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
   ReadTreasuryReceipts = 'READ_TREASURY_RECEIPTS',
   UpdateConfigurationRole = 'UPDATE_CONFIGURATION_ROLE',
+  UpdateConfigurationShop = 'UPDATE_CONFIGURATION_SHOP',
   UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
+  UpdateConfigurationWarehouse = 'UPDATE_CONFIGURATION_WAREHOUSE',
   UpdateCredit = 'UPDATE_CREDIT',
+  UpdateCrmCity = 'UPDATE_CRM_CITY',
+  UpdateCrmCoupon = 'UPDATE_CRM_COUPON',
   UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
   UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
   UpdateInventoryAttrib = 'UPDATE_INVENTORY_ATTRIB',
@@ -2537,8 +2822,12 @@ export enum Permissions {
   UpdateInventoryRequest = 'UPDATE_INVENTORY_REQUEST',
   UpdateInventorySize = 'UPDATE_INVENTORY_SIZE',
   UpdateInventoryTransfer = 'UPDATE_INVENTORY_TRANSFER',
+  UpdateInvoicingAuthorization = 'UPDATE_INVOICING_AUTHORIZATION',
   UpdateInvoicingOrder = 'UPDATE_INVOICING_ORDER',
+  UpdateInvoicingPointofsale = 'UPDATE_INVOICING_POINTOFSALE',
+  UpdateTreasuryBox = 'UPDATE_TREASURY_BOX',
   UpdateTreasuryExpense = 'UPDATE_TREASURY_EXPENSE',
+  UpdateTreasuryPayment = 'UPDATE_TREASURY_PAYMENT',
   UpdateTreasuryReceipt = 'UPDATE_TREASURY_RECEIPT',
 }
 
@@ -2553,6 +2842,8 @@ export type PointOfSale = {
   box: Box;
   /** Fecha de cierre */
   closeDate?: Maybe<Scalars['DateTime']>;
+  /** Compañia a la que pertenece el punto de venta */
+  company: Company;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Nombre del punto de venta */
@@ -2596,6 +2887,8 @@ export type Query = {
   __typename?: 'Query';
   /** Listado de atributos */
   attribs: ResponseAttribs;
+  /** Lista de autorizaciones */
+  authorizations: ResponseAuthorizations;
   /** Se encarga de listar las cajas */
   boxes: ResponseBoxes;
   /** Listado de marcas */
@@ -2612,10 +2905,14 @@ export type Query = {
   closesZInvoicing: ResponseClosesZInvoicing;
   /** Lista los colores */
   colors: ResponseColors;
+  /** Listado de las compañías */
+  companies: ResponseCompanies;
   /** Lista de ajustes de productos */
   conveyors: ResponseConveyors;
   /** Consultar cupón */
   coupon: Coupon;
+  /** Consultar cupones */
+  coupons: ResponseCoupons;
   /** Crédito */
   credit: Credit;
   /** Historico de crédito */
@@ -2666,6 +2963,8 @@ export type Query = {
   roleId: Role;
   /** Listado de las roles */
   roles: ResponseRoles;
+  /** Obtiene la tienda por el identificador */
+  shopId: Shop;
   /** Se encarga de listar las tiendas */
   shops: ResponseShops;
   /** Listar las tallas */
@@ -2702,6 +3001,10 @@ export type QueryAttribsArgs = {
   filtersAttribsInput?: InputMaybe<FiltersAttribsInput>;
 };
 
+export type QueryAuthorizationsArgs = {
+  filtersAuthorizations?: InputMaybe<FiltersAuthorizationInput>;
+};
+
 export type QueryBoxesArgs = {
   filtersBoxesInput?: InputMaybe<FiltersBoxesInput>;
 };
@@ -2734,12 +3037,20 @@ export type QueryColorsArgs = {
   filtersColorsInput?: InputMaybe<FiltersColorsInput>;
 };
 
+export type QueryCompaniesArgs = {
+  filtersCompaniesInput?: InputMaybe<FiltersCompaniesInput>;
+};
+
 export type QueryConveyorsArgs = {
   filtersConveyorsInput?: InputMaybe<FiltersConveyorsInput>;
 };
 
 export type QueryCouponArgs = {
   filtersCouponInput: FiltersCouponInput;
+};
+
+export type QueryCouponsArgs = {
+  filtersCouponsInput: FiltersCouponsInput;
 };
 
 export type QueryCreditArgs = {
@@ -2830,6 +3141,10 @@ export type QueryRoleIdArgs = {
 
 export type QueryRolesArgs = {
   filtersRolesInput?: InputMaybe<FiltersRolesInput>;
+};
+
+export type QueryShopIdArgs = {
+  id: Scalars['String'];
 };
 
 export type QueryShopsArgs = {
@@ -3034,6 +3349,30 @@ export type ResponseAttribs = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de autorizaciones de facturación */
+export type ResponseAuthorizations = {
+  __typename?: 'ResponseAuthorizations';
+  /** Lista de autorización de facturación */
+  docs: AuthorizationDian[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta a la consulta de cajas */
 export type ResponseBoxes = {
   __typename?: 'ResponseBoxes';
@@ -3202,11 +3541,59 @@ export type ResponseColors = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de compañías */
+export type ResponseCompanies = {
+  __typename?: 'ResponseCompanies';
+  /** Lista de compañías */
+  docs: Company[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Lista de traslados de transportadoras */
 export type ResponseConveyors = {
   __typename?: 'ResponseConveyors';
   /** Lista de transportadoras */
   docs: Conveyor[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta del listado de cupones */
+export type ResponseCoupons = {
+  __typename?: 'ResponseCoupons';
+  /** Lista de cupones */
+  docs: Coupon[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3559,7 +3946,7 @@ export type ResponseReferences = {
 /** Lista de devoluciones de ordenes */
 export type ResponseReturnsOrder = {
   __typename?: 'ResponseReturnsOrder';
-  /** Lista de ajustes */
+  /** Lista de devoluci0nes */
   docs: ReturnOrder[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
@@ -3986,6 +4373,12 @@ export type SortAttrib = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de las autorizaciones */
+export type SortAuthorization = {
+  /** Ordenamiento por prefijo */
+  prefix?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento para el listado de marcas */
 export type SortBrand = {
   active?: InputMaybe<Scalars['Float']>;
@@ -4049,12 +4442,40 @@ export type SortColor = {
 };
 
 /** Ordenamiento de la trasnportadora */
+export type SortCompany = {
+  /** Ordenamiento por nombre */
+  active?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por nombre */
+  name?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por nombre */
+  regimenSimplify?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de creación */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento de la trasnportadora */
 export type SortConveyor = {
   /** Ordenamiento por fecha de creación */
   createdAt?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por nombre */
   name?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento por fecha de creación */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento del ccupón */
+export type SortCoupon = {
+  /** ordernamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por fecha de expiración */
+  expiration?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por consecutivo */
+  number?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por estado */
+  status?: InputMaybe<Scalars['Float']>;
+  /** ordernamiento por fecha de actualización */
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
@@ -4640,11 +5061,31 @@ export enum TypePayment {
   Credit = 'CREDIT',
 }
 
+/** Datos para actualizar la ciudad */
+export type UpadteCityInput = {
+  /** Nombre del país */
+  country?: InputMaybe<Scalars['String']>;
+  /** Nombre de la ciudad */
+  name?: InputMaybe<Scalars['String']>;
+  /** Nombre del departamento */
+  state?: InputMaybe<Scalars['String']>;
+};
+
 /** Datos para actualizar el atributo */
 export type UpdateAttribInput = {
   /** Se encuentra activa el atributo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Valor asignado al atributo */
+  name?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para actualizar caja */
+export type UpdateBoxInput = {
+  /** Cantidad de la base para la caja */
+  base?: InputMaybe<Scalars['Float']>;
+  /** Es caja principal de la compañía */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre de la caja */
   name?: InputMaybe<Scalars['String']>;
 };
 
@@ -4678,6 +5119,28 @@ export type UpdateColorInput = {
   name?: InputMaybe<Scalars['String']>;
   /** Nombre interno asignado al color */
   name_internal?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para actualizar la compañía */
+export type UpdateCompanyInput = {
+  /** Dirección de la empresa */
+  address?: InputMaybe<Scalars['String']>;
+  /** Documento de la empresa */
+  document?: InputMaybe<Scalars['String']>;
+  /** Url del logo de la empresa */
+  logo?: InputMaybe<Scalars['String']>;
+  /** Nombre de la empresa */
+  name?: InputMaybe<Scalars['String']>;
+  /** Teléfono de la empresa */
+  phone?: InputMaybe<Scalars['String']>;
+  /** Si pertenece al régimen simplificado */
+  regimenSimplify?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** Datos para actualizar el cupón */
+export type UpdateCouponInput = {
+  /** Estado del cupón */
+  status?: InputMaybe<StatusCoupon>;
 };
 
 /** Datos para actualizar un crédito */
@@ -4734,6 +5197,26 @@ export type UpdateOrderInput = {
   customerId?: InputMaybe<Scalars['String']>;
   /** Estado del pedido */
   status?: InputMaybe<StatusOrder>;
+};
+
+/** Datos para actualizar método de pago */
+export type UpdatePaymentInput = {
+  /** Estado del método de pago */
+  active: Scalars['Boolean'];
+  /** Color en html que representa el método de pago  */
+  color?: InputMaybe<Scalars['String']>;
+  /** Identificador de la imagen del método de pago */
+  logoId?: InputMaybe<Scalars['String']>;
+  /** Nombre del método de pago */
+  name?: InputMaybe<Scalars['String']>;
+  /** Tipo de método de pago */
+  type?: InputMaybe<TypePayment>;
+};
+
+/** Datos para actualizar un punto de venta */
+export type UpdatePointOfSaleInput = {
+  /** Fecha de cierre del punto de venta */
+  closeDate?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para actualizar el producto */
@@ -4802,6 +5285,28 @@ export type UpdateRoleInput = {
   name: Scalars['String'];
   /** Identificadores de los permisos seleccionados */
   permissionIds?: InputMaybe<Scalars['String'][]>;
+};
+
+/** Datos para actualizar la tienda */
+export type UpdateShopInput = {
+  /** Dirección de la tienda */
+  address?: InputMaybe<Scalars['String']>;
+  /** Identificador de la empresa para la tienda */
+  companyId?: InputMaybe<Scalars['String']>;
+  /** Identificador de la bodega predeterminada para la tienda */
+  defaultWarehouseId?: InputMaybe<Scalars['String']>;
+  /** Meta asiganda a la tienda */
+  goal?: InputMaybe<Scalars['Float']>;
+  /** Es centro de distribución */
+  isMain?: InputMaybe<Scalars['Boolean']>;
+  /** Nombre de la tienda */
+  name?: InputMaybe<Scalars['String']>;
+  /** Teléfono de la tienda */
+  phone?: InputMaybe<Scalars['String']>;
+  /** Estado de la tienda */
+  status?: InputMaybe<StatusShop>;
+  /** Identificador de la bodega de centro de distribución asignado */
+  warehouseMainId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para actualizar la talla */
@@ -4888,6 +5393,18 @@ export type UpdateUserInput = {
   status?: InputMaybe<StatusUser>;
   /** Usuario registrado */
   username?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para actualizar  */
+export type UpdateWarehouseInput = {
+  /** Estado de la bodega */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Inventario máximo de productos */
+  max?: InputMaybe<Scalars['Float']>;
+  /** Inventario mínimo de productos */
+  min?: InputMaybe<Scalars['Float']>;
+  /** Nombre de la bodega */
+  name?: InputMaybe<Scalars['String']>;
 };
 
 /** Enlaces de diferences tipos */
@@ -7457,6 +7974,7 @@ export type CurrentUserQuery = {
     role: {
       __typename?: 'Role';
       name: string;
+      changeWarehouse: boolean;
       permissions: { __typename?: 'Permission'; action: Permissions }[];
     };
   };
@@ -15864,6 +16382,7 @@ export const CurrentUserDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'permissions' },

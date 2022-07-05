@@ -9,6 +9,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 
 import styles from './styles.less';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import { useModel } from 'umi';
 
 const { Option } = Select;
 
@@ -32,9 +33,10 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
     });
   };
 
+  const { initialState } = useModel('@@initialState');
+
   const onError = (e: ApolloError) => {
     const { statusCode } = e?.graphQLErrors[0]?.extensions?.response as any;
-
     if (statusCode == 403) {
       setPropsAlertInformation({
         message: 'No tiene acceso a consultar bodegas',
@@ -82,6 +84,7 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
         onSearch={(name) => onSearch({ name })}
         allowClear
         value={value}
+        disabled={!initialState?.currentUser?.role?.changeWarehouse}
       >
         {data?.warehouses?.docs.map((warehouse) => (
           <Option key={warehouse._id?.toString()}>{warehouse.name}</Option>
