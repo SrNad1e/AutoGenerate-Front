@@ -1,0 +1,35 @@
+mutation createReceipt($input: CreateReceiptInput!) {
+  createReceipt(createReceiptInput: $input) {
+    credit {
+      customer {
+        firstName
+        lastName
+        document
+      }
+      available
+      balance
+      amount
+      frozenAmount
+    }
+    receipt {
+      number
+      _id
+      createdAt
+      concept
+      value
+      box {
+        name
+      }
+      user {
+        name
+      }
+    }
+  }
+}
+
+mutation updateReceipt($id: String!, $input: UpdateReceiptInput!) {
+  updateReceipt(id: $id, updateReceiptInput: $input) {
+    _id
+    number
+  }
+}

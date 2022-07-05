@@ -318,6 +318,28 @@ export default defineConfig({
           ],
         },
         {
+          name: 'Tesoreria',
+          path: '/treasury',
+          icon: 'gold',
+          routes: [
+            {
+              name: 'Egresos',
+              path: '/treasury/expenses',
+              component: './treasury/expenses/list',
+            },
+            {
+              name: 'Recibo de Cajas',
+              path: '/treasury/cashReceipt',
+              component: './treasury/cashReceipt/list',
+            },
+            {
+              name: 'Medios de Pago',
+              path: '/treasury/paymentMethods',
+              component: './treasury/paymentMethods/list',
+            },
+          ],
+        },
+        {
           name: 'Configuraciones',
           path: '/configurations',
           icon: 'setting',
@@ -333,6 +355,12 @@ export default defineConfig({
               name: 'Compañias',
               path: '/configurations/companies',
               component: './configurations/companies/list',
+            },
+            {
+              name: 'Tiendas',
+              path: '/configurations/shop',
+              component: './configurations/shop/list',
+              access: 'allowOption',
             },
             {
               name: 'Roles',
@@ -361,6 +389,31 @@ export default defineConfig({
           ],
         },
         {
+          name: 'CRM',
+          path: '/crm',
+          icon: 'radarChart',
+          routes: [
+            {
+              name: 'Clientes',
+              path: '/crm/customer',
+              component: './crm/customers/list',
+            },
+          ],
+        },
+        {
+          name: 'Carteras',
+          path: '/wallets',
+          icon: 'wallet',
+          routes: [
+            {
+              name: 'Creditos',
+              path: '/wallets/credits',
+              component: './wallets/credits/list',
+            },
+          ],
+        },
+        {
+          layout: false,
           path: '/:id',
           component: './exception/404',
         },

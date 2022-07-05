@@ -173,5 +173,56 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateConfigurationUser,
       ),
     },
+    expense: {
+      canCancelled: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateTreasuryExpense,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateTreasuryExpense,
+      ),
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintTreasuryExpense,
+      ),
+    },
+    receipt: {
+      canCancelled: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateTreasuryReceipt,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateTreasuryReceipt,
+      ),
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintTreasuryReceipt,
+      ),
+    },
+    credit: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCredit,
+      ),
+    },
+    customer: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCrmCustomer,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateCrmCustomer,
+      ),
+    },
+    shop: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateConfigurationShop,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateConfigurationShop,
+      ),
+    },
+    paymentMethod: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateTreasuryPayment,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateTreasuryPayment,
+      ),
+    },
   };
 }
