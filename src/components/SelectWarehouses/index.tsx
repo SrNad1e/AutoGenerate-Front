@@ -84,6 +84,11 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
         onSearch={(name) => onSearch({ name })}
         allowClear
         value={value}
+        defaultValue={
+          initialState?.currentUser?.role?.changeWarehouse
+            ? undefined
+            : initialState?.currentUser?.shop.defaultWarehouse._id
+        }
         disabled={!initialState?.currentUser?.role?.changeWarehouse}
       >
         {data?.warehouses?.docs.map((warehouse) => (
