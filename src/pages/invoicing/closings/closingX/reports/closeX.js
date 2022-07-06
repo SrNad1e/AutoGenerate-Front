@@ -55,22 +55,22 @@ export default class ReportCloseX extends React.PureComponent {
     const totalPayments = data?.payments?.reduce((sum, payment) => sum + payment?.value, 0);
 
     const totalCash = data?.payments?.reduce(
-      (sum, payment) => sum + (payment?.payment?.type === 'cash' ? payment?.value : 0),
+      (sum, payment) => sum + (payment?.payment?.type === 'CASH' ? payment?.value : 0),
       0,
     );
 
     const totalBank = data?.payments?.reduce(
-      (sum, payment) => sum + (payment?.payment?.type === 'bank' ? payment?.value : 0),
+      (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.value : 0),
       0,
     );
 
     const quantityBank = data?.payments?.reduce(
-      (sum, payment) => sum + (payment?.payment?.type === 'bank' ? payment?.quantity : 0),
+      (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
       0,
     );
 
     const totalCredit = data?.payments?.reduce(
-      (sum, payment) => sum + (payment?.payment?.type === 'credit' ? payment?.value : 0),
+      (sum, payment) => sum + (payment?.payment?.type === 'CREDIT' ? payment?.value : 0),
       0,
     );
 
