@@ -355,6 +355,7 @@ export default defineConfig({
               name: 'Compañias',
               path: '/configurations/companies',
               component: './configurations/companies/list',
+              access: 'allowCompany',
             },
             {
               name: 'Tiendas',

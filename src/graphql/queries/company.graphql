@@ -1,0 +1,18 @@
+query companies($input: FiltersCompaniesInput) {
+  companies(filtersCompaniesInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      name
+      document
+      phone
+      address
+      regimenSimplify
+      active
+      updatedAt
+      _id
+      logo
+    }
+  }
+}

@@ -18,6 +18,7 @@ export default function access(initialState: { currentUser?: User | undefined })
         return false;
       }
     },
+    allowCompany: currentUser?.username === 'admin',
     allowERP: !!initialState?.currentUser?.role?.permissions.find(
       (permission) => permission?.action === 'ACCESS_ERP',
     ),
