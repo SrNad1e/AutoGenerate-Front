@@ -297,6 +297,12 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'Autorización Dian',
+              path: '/invoicing/authorizationDian',
+              component: './invoicing/authorizationDian/list',
+              access: 'allowOption',
+            },
+            {
               name: 'Cierres',
               path: '/invoicing/closings',
               access: 'allowOption',

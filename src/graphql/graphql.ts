@@ -2209,6 +2209,8 @@ export type Mutation = {
   signup: LoginResponse;
   /** Actualiza un atributo */
   updateAttrib: Attrib;
+  /** Actualiza una autorización de facturación */
+  updateAuthorization: AuthorizationDian;
   /** Actualiza una caja */
   updateBox: Box;
   /** Actualiza la marca */
@@ -2280,7 +2282,7 @@ export type MutationCreateAttribArgs = {
 };
 
 export type MutationCreateAuthorizationArgs = {
-  createAuthorization?: InputMaybe<CreateAuthorizationInput>;
+  createAuthorizationInput: CreateAuthorizationInput;
 };
 
 export type MutationCreateBoxArgs = {
@@ -2414,6 +2416,11 @@ export type MutationSignupArgs = {
 export type MutationUpdateAttribArgs = {
   id: Scalars['String'];
   updateAttribInput: UpdateAttribInput;
+};
+
+export type MutationUpdateAuthorizationArgs = {
+  id: Scalars['String'];
+  updateAuthorizationInput?: InputMaybe<UpdateAuthorizationInput>;
 };
 
 export type MutationUpdateBoxArgs = {
@@ -5091,6 +5098,12 @@ export type UpdateAttribInput = {
   name?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para actualizar la autorización */
+export type UpdateAuthorizationInput = {
+  /** Prefijo de facturación */
+  prefix?: InputMaybe<Scalars['String']>;
+};
+
 /** Datos para actualizar caja */
 export type UpdateBoxInput = {
   /** Cantidad de la base para la caja */
@@ -5566,6 +5579,25 @@ export type UpdateAttribMutation = {
     updatedAt: any;
     name: string;
   };
+};
+
+export type CreateAuthorizationMutationVariables = Exact<{
+  input: CreateAuthorizationInput;
+}>;
+
+export type CreateAuthorizationMutation = {
+  __typename?: 'Mutation';
+  createAuthorization: { __typename?: 'AuthorizationDian'; _id: string; prefix: string };
+};
+
+export type UpdateAuthorizationMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateAuthorizationInput;
+}>;
+
+export type UpdateAuthorizationMutation = {
+  __typename?: 'Mutation';
+  updateAuthorization: { __typename?: 'AuthorizationDian'; _id: string; prefix: string };
 };
 
 export type CreateBoxMutationVariables = Exact<{
@@ -6943,6 +6975,21 @@ export type AttribsQuery = {
       name: string;
       updatedAt: any;
     }[];
+  };
+};
+
+export type AuthorizationsQueryVariables = Exact<{
+  input?: InputMaybe<FiltersAuthorizationInput>;
+}>;
+
+export type AuthorizationsQuery = {
+  __typename?: 'Query';
+  authorizations: {
+    __typename?: 'ResponseAuthorizations';
+    totalDocs: number;
+    page: number;
+    totalPages: number;
+    docs: { __typename?: 'AuthorizationDian'; _id: string; updatedAt: any; prefix: string }[];
   };
 };
 
@@ -8849,6 +8896,105 @@ export const UpdateAttribDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateAttribMutation, UpdateAttribMutationVariables>;
+export const CreateAuthorizationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createAuthorization' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateAuthorizationInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createAuthorization' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createAuthorizationInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateAuthorizationMutation, CreateAuthorizationMutationVariables>;
+export const UpdateAuthorizationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateAuthorization' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateAuthorizationInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAuthorization' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateAuthorizationInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateAuthorizationMutation, UpdateAuthorizationMutationVariables>;
 export const CreateBoxDocument = {
   kind: 'Document',
   definitions: [
@@ -13835,6 +13981,59 @@ export const AttribsDocument = {
     },
   ],
 } as unknown as DocumentNode<AttribsQuery, AttribsQueryVariables>;
+export const AuthorizationsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'authorizations' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersAuthorizationInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'authorizations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersAuthorizations' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AuthorizationsQuery, AuthorizationsQueryVariables>;
 export const BoxesDocument = {
   kind: 'Document',
   definitions: [
