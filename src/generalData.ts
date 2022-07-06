@@ -174,7 +174,11 @@ export const typesAccess = {
       Permissions.AccessTreasuryExpenses,
       Permissions.AccessTreasuryReceipts,
       Permissions.AccessTreasuryPayments,
+      Permissions.AccessTreasuryBoxes,
     ],
+  },
+  '/treasury/boxes': {
+    access: [Permissions.ReadTreasuryBoxes],
   },
   '/treasury/expenses': {
     access: [Permissions.ReadTreasuryExpenses],

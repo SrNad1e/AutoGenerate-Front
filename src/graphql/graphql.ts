@@ -1389,6 +1389,8 @@ export type FiltersBoxesInput = {
   name?: InputMaybe<Scalars['String']>;
   /** Página actual */
   page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortBox>;
 };
 
 /** Filtros para la lista de marcas */
@@ -4379,6 +4381,16 @@ export type SortAuthorization = {
   prefix?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de las cajas */
+export type SortBox = {
+  base?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
+  isMain?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['Float']>;
+  total?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento para el listado de marcas */
 export type SortBrand = {
   active?: InputMaybe<Scalars['Float']>;
@@ -5554,6 +5566,25 @@ export type UpdateAttribMutation = {
     updatedAt: any;
     name: string;
   };
+};
+
+export type CreateBoxMutationVariables = Exact<{
+  input: CreateBoxInput;
+}>;
+
+export type CreateBoxMutation = {
+  __typename?: 'Mutation';
+  createBox: { __typename?: 'Box'; _id: string; name: string };
+};
+
+export type UpdateBoxMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateBoxInput;
+}>;
+
+export type UpdateBoxMutation = {
+  __typename?: 'Mutation';
+  updateBox: { __typename?: 'Box'; _id: string; name: string };
 };
 
 export type CreateBrandMutationVariables = Exact<{
@@ -6923,7 +6954,18 @@ export type BoxesQuery = {
   __typename?: 'Query';
   boxes: {
     __typename?: 'ResponseBoxes';
-    docs: { __typename?: 'Box'; _id: string; name: string }[];
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Box';
+      _id: string;
+      base: number;
+      updatedAt: any;
+      total: number;
+      name: string;
+      isMain: boolean;
+    }[];
   };
 };
 
@@ -8807,6 +8849,105 @@ export const UpdateAttribDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateAttribMutation, UpdateAttribMutationVariables>;
+export const CreateBoxDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createBox' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateBoxInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createBox' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createBoxInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateBoxMutation, CreateBoxMutationVariables>;
+export const UpdateBoxDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateBox' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateBoxInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateBox' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateBoxInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateBoxMutation, UpdateBoxMutationVariables>;
 export const CreateBrandDocument = {
   kind: 'Document',
   definitions: [
@@ -13724,6 +13865,9 @@ export const BoxesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -13731,7 +13875,11 @@ export const BoxesDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'base' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isMain' } },
                     ],
                   },
                 },

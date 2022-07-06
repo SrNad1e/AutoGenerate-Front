@@ -328,6 +328,11 @@ export default defineConfig({
               component: './treasury/expenses/list',
             },
             {
+              name: 'Cajas',
+              path: '/treasury/boxes',
+              component: './treasury/boxes/list',
+            },
+            {
               name: 'Recibo de Cajas',
               path: '/treasury/cashReceipt',
               component: './treasury/cashReceipt/list',
