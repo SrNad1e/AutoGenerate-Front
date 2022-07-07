@@ -24,7 +24,7 @@ import type {
 import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useHistory, useLocation } from 'umi';
 import { useEffect, useRef, useState } from 'react';
@@ -75,6 +75,10 @@ const OutputList = () => {
   const location: Location = useLocation();
 
   const reportRef = useRef(null);
+
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const [getOutputs, { data, loading }] = useGetOutputs();
 
@@ -130,6 +134,7 @@ const OutputList = () => {
             createdAt: -1,
           },
           ...params,
+          warehouseId: canChangeWarehouse ? params?.warehouseId : defaultWarehouse,
         },
       },
     });

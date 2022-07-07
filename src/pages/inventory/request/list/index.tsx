@@ -78,6 +78,8 @@ const RequestList = () => {
   });
 
   const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const {
     request: { canAutoCreate, canPrint },
@@ -141,6 +143,9 @@ const RequestList = () => {
             createdAt: -1,
           },
           ...params,
+          warehouseDestinationId: canChangeWarehouse
+            ? params?.warehouseDestinationId
+            : defaultWarehouse,
         },
       },
     });

@@ -34,6 +34,7 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
   };
 
   const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
 
   const onError = (e: ApolloError) => {
     const { statusCode } = e?.graphQLErrors[0]?.extensions?.response as any;
@@ -85,9 +86,7 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
         allowClear
         value={value}
         defaultValue={
-          initialState?.currentUser?.role?.changeWarehouse
-            ? undefined
-            : initialState?.currentUser?.shop.defaultWarehouse._id
+          initialState?.currentUser?.role?.changeWarehouse ? undefined : defaultWarehouse
         }
         disabled={!initialState?.currentUser?.role?.changeWarehouse}
       >

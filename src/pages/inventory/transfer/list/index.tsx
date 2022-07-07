@@ -34,6 +34,7 @@ import type {
   TablePaginationConfig,
 } from 'antd/es/table/interface';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useHistory, useLocation, useAccess } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
@@ -86,6 +87,10 @@ const TransferList = () => {
     transfer: { canPrint, canConfirm },
   } = useAccess();
 
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
+
   const [getTransfers, { data, loading }] = useGetTransfers();
 
   /**
@@ -132,6 +137,7 @@ const TransferList = () => {
             createdAt: -1,
           },
           ...params,
+          warehouseOriginId: canChangeWarehouse ? params?.warehouseOriginId : defaultWarehouse,
         },
       },
     });
