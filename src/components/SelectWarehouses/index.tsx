@@ -9,15 +9,17 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 
 import styles from './styles.less';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import { useModel } from 'umi';
 
 const { Option } = Select;
 
 export type Props = {
   onChange?: (warehouseId: string) => void;
   value?: string;
+  onClear?: () => void;
 };
 
-const SelectWarehouses = ({ onChange, value }: Props) => {
+const SelectWarehouses = ({ onChange, value, onClear }: Props) => {
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -32,9 +34,11 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
     });
   };
 
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+
   const onError = (e: ApolloError) => {
     const { statusCode } = e?.graphQLErrors[0]?.extensions?.response as any;
-
     if (statusCode == 403) {
       setPropsAlertInformation({
         message: 'No tiene acceso a consultar bodegas',
@@ -81,7 +85,12 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
         onChange={onChange}
         onSearch={(name) => onSearch({ name })}
         allowClear
+        onClear={onClear}
         value={value}
+        defaultValue={
+          initialState?.currentUser?.role?.changeWarehouse ? undefined : defaultWarehouse
+        }
+        disabled={!initialState?.currentUser?.role?.changeWarehouse}
       >
         {data?.warehouses?.docs.map((warehouse) => (
           <Option key={warehouse._id?.toString()}>{warehouse.name}</Option>
