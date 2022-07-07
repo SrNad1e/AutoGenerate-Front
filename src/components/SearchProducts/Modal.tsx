@@ -175,7 +175,7 @@ const ModalSearchProducts = ({
             <Space>
               <Space>
                 <InputNumber
-                  defaultValue={detailFind.quantity}
+                  value={detailFind.quantity}
                   min={1}
                   max={
                     validateStock ? (product.stock ? product?.stock[0]?.quantity : 0) : undefined

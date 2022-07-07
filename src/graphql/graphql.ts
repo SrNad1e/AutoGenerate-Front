@@ -1139,6 +1139,8 @@ export type DetailOrder = {
   product: Product;
   /** Cantidad de productos en el pedido */
   quantity: Scalars['Float'];
+  /** Cantidad de productos devueltos */
+  quantityReturn: Scalars['Float'];
   /** Estado del producto */
   status: Scalars['String'];
   /** Fecha de actualizado del producto al pedido */
@@ -5906,6 +5908,7 @@ export type UpdateOrderMutation = {
       updatedAt: any;
       _id: string;
       number: number;
+      status: StatusOrder;
       user: { __typename?: 'User'; name: string };
       customer: {
         __typename?: 'Customer';
@@ -7292,6 +7295,7 @@ export type OrdersQuery = {
             __typename?: 'DetailOrder';
             price: number;
             quantity: number;
+            quantityReturn: number;
             product: {
               __typename?: 'Product';
               _id: string;
@@ -9451,6 +9455,7 @@ export const UpdateOrderDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'user' },
@@ -14088,6 +14093,7 @@ export const OrdersDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantityReturn' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'product' },
@@ -14811,14 +14817,6 @@ export const ProductDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'stock' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'quantity' } }],
-                  },
-                },
-                {
-                  kind: 'Field',
                   name: { kind: 'Name', value: 'color' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -14865,14 +14863,6 @@ export const ProductDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                     ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'stock' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'quantity' } }],
                   },
                 },
                 {
