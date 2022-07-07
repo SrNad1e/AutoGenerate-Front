@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/dot-notation */
 import type { ColumnsType } from 'antd/lib/table';
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -291,7 +292,9 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(request?.details || []);
+      if (details?.length === 0) {
+        setDetails(request?.details || []);
+      }
       setObservation(request?.observation || '');
     }
   }, [request, id]);

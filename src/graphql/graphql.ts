@@ -1534,7 +1534,7 @@ export type FiltersOrdersInput = {
   /** Número consecutivo del pedido */
   number?: InputMaybe<Scalars['Float']>;
   /** Trae los pedidos POS solamente */
-  orderPos?: InputMaybe<Scalars['Boolean']>;
+  orderPOS?: InputMaybe<Scalars['Boolean']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
@@ -3559,7 +3559,7 @@ export type ResponseReferences = {
 /** Lista de devoluciones de ordenes */
 export type ResponseReturnsOrder = {
   __typename?: 'ResponseReturnsOrder';
-  /** Lista de ajustes */
+  /** Lista de devoluci0nes */
   docs: ReturnOrder[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
@@ -14293,14 +14293,6 @@ export const ProductDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'stock' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'quantity' } }],
-                  },
-                },
-                {
-                  kind: 'Field',
                   name: { kind: 'Name', value: 'color' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -14347,14 +14339,6 @@ export const ProductDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                     ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'stock' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'quantity' } }],
                   },
                 },
                 {
