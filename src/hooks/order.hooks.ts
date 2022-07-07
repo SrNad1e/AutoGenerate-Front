@@ -1,5 +1,6 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
+import type { Order } from '@/graphql/graphql';
 import {
   OrderIdDocument,
   OrdersByPosDocument,
@@ -8,7 +9,6 @@ import {
   AddProductsOrderDocument,
   AddPaymentsOrderDocument,
   OrdersDocument,
-  Order,
 } from '@/graphql/graphql';
 
 export const useGetOrder = () => {
@@ -39,11 +39,14 @@ export const useUpdateOrder = () => {
           orderId() {
             return data?.updateOrder;
           },
-          orders(existingOrders = {}) {
+          ordersByPos(existingOrders = {}) {
             if (data?.updateOrder?.order?.status === 'CANCELLED') {
-              return existingOrders?.docs?.filter(
-                (order: Order) => order?._id !== data?.updateOrder?.order?._id,
-              );
+              return {
+                ...existingOrders,
+                docs: existingOrders?.docs?.filter(
+                  (order: Order) => order?._id !== data?.updateOrder?.order?._id,
+                ),
+              };
             }
           },
         },
