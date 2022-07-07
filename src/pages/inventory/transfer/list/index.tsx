@@ -230,7 +230,9 @@ const TransferList = () => {
         warehouseId: defaultWarehouse,
       });
     }
-    setFilterType(false);
+    if (canChangeWarehouse) {
+      setFilterType(false);
+    }
   };
 
   /**
