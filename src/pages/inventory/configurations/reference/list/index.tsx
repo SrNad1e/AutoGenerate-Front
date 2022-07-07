@@ -344,12 +344,12 @@ const ReferenceList = () => {
       <Card>
         <Form layout="horizontal" form={form} onReset={onClear} onFinish={onFinish}>
           <Row gutter={[20, 0]}>
-            <Col xs={24} md={9} lg={9} xl={10}>
+            <Col xs={24} md={9} lg={9} xl={7}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Nombre, Descripción" autoComplete="off" disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={9} xl={9}>
+            <Col xs={24} md={9} lg={9} xl={7}>
               <FormItem label="Marca" name="brandId">
                 <SelectBrand disabled={loading} />
               </FormItem>
@@ -366,7 +366,7 @@ const ReferenceList = () => {
             </Col>
           </Row>
           <Row gutter={[0, 20]} align="middle">
-            <Col span={12}>
+            <Col span={15}>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
@@ -377,7 +377,7 @@ const ReferenceList = () => {
                 Nueva Referencia
               </Button>
             </Col>
-            <Col span={12} className={style.textRight}>
+            <Col span={9} className={style.textRight}>
               <Text>
                 <Text strong>Total Encontrados:</Text> {data?.references?.totalDocs}{' '}
                 <Text strong>Páginas:</Text> {data?.references.page} /{' '}
