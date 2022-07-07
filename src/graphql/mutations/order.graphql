@@ -16,6 +16,7 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
       updatedAt
       _id
       number
+      status
       user {
         name
       }

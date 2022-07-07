@@ -1534,7 +1534,7 @@ export type FiltersOrdersInput = {
   /** Número consecutivo del pedido */
   number?: InputMaybe<Scalars['Float']>;
   /** Trae los pedidos POS solamente */
-  orderPos?: InputMaybe<Scalars['Boolean']>;
+  orderPOS?: InputMaybe<Scalars['Boolean']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
@@ -3559,7 +3559,7 @@ export type ResponseReferences = {
 /** Lista de devoluciones de ordenes */
 export type ResponseReturnsOrder = {
   __typename?: 'ResponseReturnsOrder';
-  /** Lista de ajustes */
+  /** Lista de devoluci0nes */
   docs: ReturnOrder[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
@@ -5389,6 +5389,7 @@ export type UpdateOrderMutation = {
       updatedAt: any;
       _id: string;
       number: number;
+      status: StatusOrder;
       user: { __typename?: 'User'; name: string };
       customer: {
         __typename?: 'Customer';
@@ -8933,6 +8934,7 @@ export const UpdateOrderDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'user' },

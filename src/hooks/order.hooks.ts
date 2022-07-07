@@ -8,6 +8,7 @@ import {
   AddProductsOrderDocument,
   AddPaymentsOrderDocument,
   OrdersDocument,
+  Order,
 } from '@/graphql/graphql';
 
 export const useGetOrder = () => {
@@ -37,6 +38,13 @@ export const useUpdateOrder = () => {
         fields: {
           orderId() {
             return data?.updateOrder;
+          },
+          orders(existingOrders = {}) {
+            if (data?.updateOrder?.order?.status === 'CANCELLED') {
+              return existingOrders?.docs?.filter(
+                (order: Order) => order?._id !== data?.updateOrder?.order?._id,
+              );
+            }
           },
         },
       });
