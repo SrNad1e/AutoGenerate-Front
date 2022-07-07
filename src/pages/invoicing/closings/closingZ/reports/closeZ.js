@@ -69,6 +69,16 @@ export default class ReportCloseZ extends React.PureComponent {
       0,
     );
 
+    const totalBonus = data?.payments?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'BONUS' ? payment?.value : 0),
+      0,
+    );
+
+    const quantityBonus = data?.payments?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'BONUS' ? payment?.quantity : 0),
+      0,
+    );
+
     const totalCredit = data?.payments?.reduce(
       (sum, payment) => sum + (payment?.payment?.type === 'CREDIT' ? payment?.value : 0),
       0,
@@ -163,19 +173,13 @@ export default class ReportCloseZ extends React.PureComponent {
             <div style={classes.text}>
               <div style={classes.row}>
                 <div style={classes.col1}>Cantidad:</div>
-                <div style={classes.col2}>
-                  {data?.refunds?.reduce?.map((sum, refund) => sum + refund?.quantity, 0) || 0}
-                </div>
+                <div style={classes.col2}>{quantityBonus}</div>
               </div>
             </div>
             <div style={classes.text}>
               <div style={classes.row}>
                 <div style={classes.col1}> Valor:</div>
-                <div style={classes.col2}>
-                  {numeral(
-                    data?.refunds?.reduce?.map((sum, refund) => sum + refund?.value, 0),
-                  ).format('$ 0,0')}
-                </div>
+                <div style={classes.col2}>{numeral(totalBonus).format('$ 0,0')}</div>
               </div>
             </div>
             <div style={classes.title}>
