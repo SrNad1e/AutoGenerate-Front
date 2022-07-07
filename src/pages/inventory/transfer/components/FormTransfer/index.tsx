@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Avatar,
   Badge,
@@ -292,7 +293,9 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(transfer?.details || []);
+      if (details?.length === 0) {
+        setDetails(transfer?.details || []);
+      }
       setRequests(transfer?.requests || []);
       setObservation(transfer?.observationOrigin || '');
     }
@@ -400,6 +403,8 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       ),
     },
   ];
+
+  console.log(details);
 
   return (
     <>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Avatar,
   Badge,
@@ -286,7 +287,9 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(input?.details || []);
+      if (details?.length === 0) {
+        setDetails(input?.details || []);
+      }
       setObservation(input?.observation || '');
     }
   }, [input, id]);
