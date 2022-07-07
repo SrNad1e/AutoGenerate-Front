@@ -235,7 +235,9 @@ const RequestList = () => {
         warehouseId: defaultWarehouse,
       });
     }
-    setFilterType(false);
+    if (canChangeWarehouse) {
+      setFilterType(false);
+    }
   };
 
   /**
