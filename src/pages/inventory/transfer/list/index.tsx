@@ -71,6 +71,7 @@ const TransferList = () => {
     type: 'error',
     visible: false,
   });
+  const [filterType, setFilterType] = useState(false);
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -137,7 +138,6 @@ const TransferList = () => {
             createdAt: -1,
           },
           ...params,
-          warehouseOriginId: canChangeWarehouse ? params?.warehouseOriginId : defaultWarehouse,
         },
       },
     });
@@ -219,11 +219,40 @@ const TransferList = () => {
    */
   const onClear = () => {
     history.replace(location.pathname);
+    onSearch({});
     form.resetFields();
-    onSearch();
     form.setFieldsValue({
       type: 'sent',
     });
+    if (!canChangeWarehouse) {
+      onSearch({ warehouseOriginId: defaultWarehouse });
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+    }
+    setFilterType(false);
+  };
+
+  /**
+   * @description se encarga de mostar el filtro de tipo cuando se selecciona una bodega
+   * @param e evento del selector de bodega
+   */
+  const onChangeWarehouse = (e: any) => {
+    if (e) {
+      setFilterType(true);
+    } else if (e && filterType === true) {
+      setFilterType(false);
+    }
+  };
+
+  /**
+   * @description resetea el campo de seleccion de bodega y oculta el filtro de tipo
+   */
+  const onClearWarehouse = () => {
+    form.setFieldsValue({
+      warehouseId: undefined,
+    });
+    setFilterType(false);
   };
 
   /**
@@ -232,26 +261,39 @@ const TransferList = () => {
   const loadingData = () => {
     const queryParams: any = location?.query;
 
-    const newFilters = {};
+    const newFilters = {
+      warehouseOriginId: defaultWarehouse,
+    };
 
     Object.keys(queryParams).forEach((item) => {
       if (item === 'dates') {
         const dataItem = JSON.parse(queryParams[item]);
         newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      }
+      if (item === 'warehouseId') {
+        delete newFilters[item];
       } else {
         newFilters[item] = JSON.parse(queryParams[item]);
       }
     });
 
+    delete newFilters.type;
+
     form.setFieldsValue({
       type: 'sent',
     });
 
-    onFinish(newFilters);
+    onSearch({ ...newFilters });
   };
 
   useEffect(() => {
     loadingData();
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+      setFilterType(true);
+    }
   }, []);
 
   const columns: ColumnsType<StockTransfer> = [
@@ -377,19 +419,24 @@ const TransferList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={4}>
-              <FormItem label="Tipo" name="type">
-                <Select className={styles.item} disabled={loading}>
-                  <Option key="sent">Enviados</Option>
-                  <Option key="received">Recibidos</Option>
-                </Select>
-              </FormItem>
-            </Col>
             <Col xs={24} md={7} lg={7} xl={6}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses />
+                <SelectWarehouses
+                  onClear={onClearWarehouse}
+                  onChange={(e) => onChangeWarehouse(e)}
+                />
               </FormItem>
             </Col>
+            {filterType && (
+              <Col xs={24} md={6} lg={6} xl={4}>
+                <FormItem label="Tipo" name="type">
+                  <Select className={styles.item} disabled={loading}>
+                    <Option key="sent">Enviados</Option>
+                    <Option key="received">Recibidos</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+            )}
             <Col xs={24} md={9} lg={9} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker disabled={loading} />
@@ -401,7 +448,7 @@ const TransferList = () => {
                   <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
                     Buscar
                   </Button>
-                  <Button htmlType="reset" onClick={onClear} loading={loading}>
+                  <Button onClick={onClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>
