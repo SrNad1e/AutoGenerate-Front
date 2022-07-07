@@ -14295,14 +14295,6 @@ export const ProductDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'stock' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'quantity' } }],
-                  },
-                },
-                {
-                  kind: 'Field',
                   name: { kind: 'Name', value: 'color' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -14349,14 +14341,6 @@ export const ProductDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                     ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'stock' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'quantity' } }],
                   },
                 },
                 {
