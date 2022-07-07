@@ -5389,6 +5389,7 @@ export type UpdateOrderMutation = {
       updatedAt: any;
       _id: string;
       number: number;
+      status: StatusOrder;
       user: { __typename?: 'User'; name: string };
       customer: {
         __typename?: 'Customer';
@@ -8933,6 +8934,7 @@ export const UpdateOrderDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'user' },
