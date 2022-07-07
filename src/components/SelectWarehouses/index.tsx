@@ -16,9 +16,10 @@ const { Option } = Select;
 export type Props = {
   onChange?: (warehouseId: string) => void;
   value?: string;
+  onClear?: () => void;
 };
 
-const SelectWarehouses = ({ onChange, value }: Props) => {
+const SelectWarehouses = ({ onChange, value, onClear }: Props) => {
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -84,6 +85,7 @@ const SelectWarehouses = ({ onChange, value }: Props) => {
         onChange={onChange}
         onSearch={(name) => onSearch({ name })}
         allowClear
+        onClear={onClear}
         value={value}
         defaultValue={
           initialState?.currentUser?.role?.changeWarehouse ? undefined : defaultWarehouse
