@@ -1025,6 +1025,8 @@ export type DetailOrder = {
   product: Product;
   /** Cantidad de productos en el pedido */
   quantity: Scalars['Float'];
+  /** Cantidad de productos devueltos */
+  quantityReturn: Scalars['Float'];
   /** Estado del producto */
   status: Scalars['String'];
   /** Fecha de actualizado del producto al pedido */
@@ -6776,6 +6778,7 @@ export type OrdersQuery = {
             __typename?: 'DetailOrder';
             price: number;
             quantity: number;
+            quantityReturn: number;
             product: {
               __typename?: 'Product';
               _id: string;
@@ -13572,6 +13575,7 @@ export const OrdersDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantityReturn' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'product' },

@@ -101,6 +101,12 @@ const RenderStep2 = ({
       align: 'center',
     },
     {
+      title: 'Cantidad Disponible',
+      dataIndex: 'quantityReturn',
+      align: 'center',
+      render: (quantityReturn: number, { quantity }) => quantity - quantityReturn,
+    },
+    {
       title: 'Precio',
       dataIndex: 'price',
       render: (price: number) => numeral(price).format('$ 0,0'),
