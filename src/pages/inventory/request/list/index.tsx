@@ -143,9 +143,10 @@ const RequestList = () => {
             createdAt: -1,
           },
           ...params,
-          warehouseDestinationId: canChangeWarehouse
+          /* warehouseDestinationId: canChangeWarehouse
             ? params?.warehouseDestinationId
-            : defaultWarehouse,
+            : defaultWarehouse,*/
+          // warehouseOriginId: canChangeWarehouse ? params?.warehouseDestinationId : defaultWarehouse,
         },
       },
     });
@@ -231,6 +232,11 @@ const RequestList = () => {
     form.setFieldsValue({
       type: 'received',
     });
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+    }
   };
 
   /**
@@ -283,6 +289,11 @@ const RequestList = () => {
 
   useEffect(() => {
     loadingData();
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+    }
   }, []);
 
   const columns: ColumnsType<StockRequest> = [
@@ -422,12 +433,7 @@ const RequestList = () => {
                   >
                     Buscar
                   </Button>
-                  <Button
-                    icon={<ClearOutlined />}
-                    style={style.buttonR}
-                    htmlType="reset"
-                    onClick={() => onClear()}
-                  >
+                  <Button icon={<ClearOutlined />} style={style.buttonR} onClick={() => onClear()}>
                     Limpiar
                   </Button>
                 </Space>

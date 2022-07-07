@@ -137,7 +137,7 @@ const TransferList = () => {
             createdAt: -1,
           },
           ...params,
-          warehouseOriginId: canChangeWarehouse ? params?.warehouseOriginId : defaultWarehouse,
+          // warehouseOriginId: canChangeWarehouse ? params?.warehouseOriginId : defaultWarehouse,
         },
       },
     });
@@ -224,6 +224,11 @@ const TransferList = () => {
     form.setFieldsValue({
       type: 'sent',
     });
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+    }
   };
 
   /**
@@ -252,6 +257,11 @@ const TransferList = () => {
 
   useEffect(() => {
     loadingData();
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+    }
   }, []);
 
   const columns: ColumnsType<StockTransfer> = [
@@ -401,7 +411,7 @@ const TransferList = () => {
                   <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
                     Buscar
                   </Button>
-                  <Button htmlType="reset" onClick={onClear} loading={loading}>
+                  <Button onClick={onClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>
