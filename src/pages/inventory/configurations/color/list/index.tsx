@@ -241,24 +241,24 @@ const ColorsList = () => {
    * @description se encarga de renderizar la interfaz de busqueda
    */
   const renderFormSearch = () => (
-    <Form layout="inline" onFinish={onFinish} form={form}>
-      <Row gutter={[8, 8]}>
-        <Col span={12}>
-          <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Nombre del color" autoComplete="off" />
+    <Form onFinish={onFinish} form={form}>
+      <Row gutter={[8, 8]} align="middle">
+        <Col xs={24} md={13} lg={10}>
+          <FormItem label="Nombre" name="name">
+            <Input placeholder="Nombre del color" autoComplete="off" style={{ width: '100%' }} />
+          </FormItem>
+        </Col>
+        <Col xs={24} md={8}>
+          <FormItem label="">
+            <Button type="primary" htmlType="submit">
+              Buscar
+            </Button>
+            <Button style={{ marginLeft: 8 }} onClick={onClear}>
+              Limpiar
+            </Button>
           </FormItem>
         </Col>
       </Row>
-      <Col span={12}>
-        <span className={styles.submitButtons}>
-          <Button type="primary" htmlType="submit">
-            Buscar
-          </Button>
-          <Button style={{ marginLeft: 8 }} onClick={onClear}>
-            Limpiar
-          </Button>
-        </span>
-      </Col>
     </Form>
   );
 
@@ -363,7 +363,7 @@ const ColorsList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row gutter={[0, 20]}>
+          <Row gutter={[0, 20]} align="middle">
             <Col span={12}>
               <Button
                 disabled={!canCreate}

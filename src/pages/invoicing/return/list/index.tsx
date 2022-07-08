@@ -461,7 +461,7 @@ const ReturnList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
-          <Col xs={8} md={15} lg={15}>
+          <Col xs={12} md={15} lg={15}>
             <Button
               onClick={() => setVisible(true)}
               icon={<PlusOutlined />}
@@ -472,7 +472,7 @@ const ReturnList = () => {
               Nuevo
             </Button>
           </Col>
-          <Col xs={16} md={9} lg={9} style={styles.texRigth}>
+          <Col xs={24} md={9} lg={9} style={styles.texRigth}>
             <Space>
               <Text strong>Total Encontrados:</Text>
               <Text>{data?.returnsOrder?.totalDocs || 0}</Text>

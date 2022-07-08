@@ -483,12 +483,12 @@ const RequestList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 20]} align="middle">
-          <Col span={8}>
+          <Col span={9}>
             <Button shape="round" type="primary" onClick={autoRequest} disabled={!canAutoCreate}>
               AutoGenerar
             </Button>
           </Col>
-          <Col span={16} className={styles.alignText}>
+          <Col span={15} className={styles.alignText}>
             <Text strong>Total Encontrados:</Text> {data?.stockRequests?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.stockRequests?.page} /{' '}
             {data?.stockRequests?.totalPages || 0}
