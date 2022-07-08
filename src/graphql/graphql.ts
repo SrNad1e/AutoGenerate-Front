@@ -1139,8 +1139,6 @@ export type DetailOrder = {
   product: Product;
   /** Cantidad de productos en el pedido */
   quantity: Scalars['Float'];
-  /** Cantidad de productos devueltos */
-  quantityReturn: Scalars['Float'];
   /** Estado del producto */
   status: Scalars['String'];
   /** Fecha de actualizado del producto al pedido */
@@ -1391,6 +1389,8 @@ export type FiltersBoxesInput = {
   name?: InputMaybe<Scalars['String']>;
   /** Página actual */
   page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortBox>;
 };
 
 /** Filtros para la lista de marcas */
@@ -2209,6 +2209,8 @@ export type Mutation = {
   signup: LoginResponse;
   /** Actualiza un atributo */
   updateAttrib: Attrib;
+  /** Actualiza una autorización de facturación */
+  updateAuthorization: AuthorizationDian;
   /** Actualiza una caja */
   updateBox: Box;
   /** Actualiza la marca */
@@ -2280,7 +2282,7 @@ export type MutationCreateAttribArgs = {
 };
 
 export type MutationCreateAuthorizationArgs = {
-  createAuthorization?: InputMaybe<CreateAuthorizationInput>;
+  createAuthorizationInput: CreateAuthorizationInput;
 };
 
 export type MutationCreateBoxArgs = {
@@ -2414,6 +2416,11 @@ export type MutationSignupArgs = {
 export type MutationUpdateAttribArgs = {
   id: Scalars['String'];
   updateAttribInput: UpdateAttribInput;
+};
+
+export type MutationUpdateAuthorizationArgs = {
+  id: Scalars['String'];
+  updateAuthorizationInput?: InputMaybe<UpdateAuthorizationInput>;
 };
 
 export type MutationUpdateBoxArgs = {
@@ -4381,6 +4388,16 @@ export type SortAuthorization = {
   prefix?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de las cajas */
+export type SortBox = {
+  base?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
+  isMain?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['Float']>;
+  total?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento para el listado de marcas */
 export type SortBrand = {
   active?: InputMaybe<Scalars['Float']>;
@@ -5079,6 +5096,12 @@ export type UpdateAttribInput = {
   active?: InputMaybe<Scalars['Boolean']>;
   /** Valor asignado al atributo */
   name?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para actualizar la autorización */
+export type UpdateAuthorizationInput = {
+  /** Prefijo de facturación */
+  prefix?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para actualizar caja */
@@ -6175,6 +6198,25 @@ export type UpdateStockOutputMutation = {
     user: { __typename?: 'User'; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
   };
+};
+
+export type CreatePointOfSaleMutationVariables = Exact<{
+  input: CreatePointOfSaleInput;
+}>;
+
+export type CreatePointOfSaleMutation = {
+  __typename?: 'Mutation';
+  createPointOfSale: { __typename?: 'PointOfSale'; _id: string; name: string };
+};
+
+export type UpdatePointOfSaleMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdatePointOfSaleInput;
+}>;
+
+export type UpdatePointOfSaleMutation = {
+  __typename?: 'Mutation';
+  updatePointOfSale: { __typename?: 'PointOfSale'; _id: string; name: string };
 };
 
 export type UpdateProductMutationVariables = Exact<{
@@ -7295,7 +7337,6 @@ export type OrdersQuery = {
             __typename?: 'DetailOrder';
             price: number;
             quantity: number;
-            quantityReturn: number;
             product: {
               __typename?: 'Product';
               _id: string;
@@ -7461,7 +7502,10 @@ export type PointOfSalesQuery = {
       __typename?: 'PointOfSale';
       _id: string;
       name: string;
+      closeDate?: any | null;
+      updatedAt: any;
       shop: { __typename?: 'Shop'; name: string };
+      box: { __typename?: 'Box'; name: string };
     }[];
   };
 };
@@ -10349,6 +10393,105 @@ export const UpdateStockOutputDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateStockOutputMutation, UpdateStockOutputMutationVariables>;
+export const CreatePointOfSaleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createPointOfSale' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreatePointOfSaleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createPointOfSale' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createPointOfSaleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreatePointOfSaleMutation, CreatePointOfSaleMutationVariables>;
+export const UpdatePointOfSaleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updatePointOfSale' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdatePointOfSaleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updatePointOfSale' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updatePointOfSaleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdatePointOfSaleMutation, UpdatePointOfSaleMutationVariables>;
 export const UpdateProductDocument = {
   kind: 'Document',
   definitions: [
@@ -14093,7 +14236,6 @@ export const OrdersDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'quantityReturn' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'product' },
@@ -14628,6 +14770,16 @@ export const PointOfSalesDocument = {
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'box' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],

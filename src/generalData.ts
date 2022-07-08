@@ -113,7 +113,11 @@ export const typesAccess = {
       Permissions.AccessInvoicingClosesx,
       Permissions.AccessInvoicingClosesz,
       Permissions.AccessInvoicingReturns,
+      Permissions.AccessInvoicingPointofsales,
     ],
+  },
+  '/invoicing/pointOfSales': {
+    access: [Permissions.ReadInvoicingPointofsales],
   },
   '/invoicing/closings': {
     access: [Permissions.AccessInvoicingClosesx, Permissions.AccessInvoicingClosesz],

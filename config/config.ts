@@ -297,6 +297,12 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'Puntos de Venta',
+              path: '/invoicing/pointOfSale',
+              component: './invoicing/pointOfSales/list',
+              access: 'allowOption',
+            },
+            {
               name: 'Cierres',
               path: '/invoicing/closings',
               access: 'allowOption',

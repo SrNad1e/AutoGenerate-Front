@@ -173,5 +173,13 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateConfigurationUser,
       ),
     },
+    pointOfSales: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateInvoicingPointofsale,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateInvoicingPointofsale,
+      ),
+    },
   };
 }
