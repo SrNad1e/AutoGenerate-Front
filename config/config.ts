@@ -300,6 +300,11 @@ export default defineConfig({
               name: 'Puntos de Venta',
               path: '/invoicing/pointOfSale',
               component: './invoicing/pointOfSales/list',
+            },
+            {
+              name: 'Autorización Dian',
+              path: '/invoicing/authorizationDian',
+              component: './invoicing/authorizationDian/list',
               access: 'allowOption',
             },
             {
@@ -332,6 +337,11 @@ export default defineConfig({
               name: 'Egresos',
               path: '/treasury/expenses',
               component: './treasury/expenses/list',
+            },
+            {
+              name: 'Cajas',
+              path: '/treasury/boxes',
+              component: './treasury/boxes/list',
             },
             {
               name: 'Recibo de Cajas',

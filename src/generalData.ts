@@ -114,10 +114,14 @@ export const typesAccess = {
       Permissions.AccessInvoicingClosesz,
       Permissions.AccessInvoicingReturns,
       Permissions.AccessInvoicingPointofsales,
+      Permissions.AccessInvoicingAuthorizations,
     ],
   },
   '/invoicing/pointOfSale': {
     access: [Permissions.ReadInvoicingPointofsales],
+  },
+  '/invoicing/authorizationDian': {
+    access: [Permissions.ReadInvoicingAuthorizations],
   },
   '/invoicing/closings': {
     access: [Permissions.AccessInvoicingClosesx, Permissions.AccessInvoicingClosesz],
@@ -178,7 +182,11 @@ export const typesAccess = {
       Permissions.AccessTreasuryExpenses,
       Permissions.AccessTreasuryReceipts,
       Permissions.AccessTreasuryPayments,
+      Permissions.AccessTreasuryBoxes,
     ],
+  },
+  '/treasury/boxes': {
+    access: [Permissions.ReadTreasuryBoxes],
   },
   '/treasury/expenses': {
     access: [Permissions.ReadTreasuryExpenses],
