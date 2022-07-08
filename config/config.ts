@@ -297,6 +297,17 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'Puntos de Venta',
+              path: '/invoicing/pointOfSale',
+              component: './invoicing/pointOfSales/list',
+            },
+            {
+              name: 'Autorización Dian',
+              path: '/invoicing/authorizationDian',
+              component: './invoicing/authorizationDian/list',
+              access: 'allowOption',
+            },
+            {
               name: 'Cierres',
               path: '/invoicing/closings',
               access: 'allowOption',
@@ -318,6 +329,33 @@ export default defineConfig({
           ],
         },
         {
+          name: 'Tesoreria',
+          path: '/treasury',
+          icon: 'gold',
+          routes: [
+            {
+              name: 'Egresos',
+              path: '/treasury/expenses',
+              component: './treasury/expenses/list',
+            },
+            {
+              name: 'Cajas',
+              path: '/treasury/boxes',
+              component: './treasury/boxes/list',
+            },
+            {
+              name: 'Recibo de Cajas',
+              path: '/treasury/cashReceipt',
+              component: './treasury/cashReceipt/list',
+            },
+            {
+              name: 'Medios de Pago',
+              path: '/treasury/paymentMethods',
+              component: './treasury/paymentMethods/list',
+            },
+          ],
+        },
+        {
           name: 'Configuraciones',
           path: '/configurations',
           icon: 'setting',
@@ -327,6 +365,18 @@ export default defineConfig({
               name: 'Usuarios',
               path: '/configurations/users',
               component: './configurations/users/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Compañias',
+              path: '/configurations/companies',
+              component: './configurations/companies/list',
+              access: 'allowCompany',
+            },
+            {
+              name: 'Tiendas',
+              path: '/configurations/shop',
+              component: './configurations/shop/list',
               access: 'allowOption',
             },
             {
@@ -356,6 +406,31 @@ export default defineConfig({
           ],
         },
         {
+          name: 'CRM',
+          path: '/crm',
+          icon: 'radarChart',
+          routes: [
+            {
+              name: 'Clientes',
+              path: '/crm/customer',
+              component: './crm/customers/list',
+            },
+          ],
+        },
+        {
+          name: 'Carteras',
+          path: '/wallets',
+          icon: 'wallet',
+          routes: [
+            {
+              name: 'Creditos',
+              path: '/wallets/credits',
+              component: './wallets/credits/list',
+            },
+          ],
+        },
+        {
+          layout: false,
           path: '/:id',
           component: './exception/404',
         },

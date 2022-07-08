@@ -1,0 +1,13 @@
+mutation createCompany($input: CreateCompanyInput!) {
+  createCompany(createCompanyInput: $input) {
+    _id
+    name
+  }
+}
+
+mutation updateCompany($id: String!, $input: UpdateCompanyInput!) {
+  updateCompany(updateCompanyInput: $input, id: $id) {
+    _id
+    name
+  }
+}
