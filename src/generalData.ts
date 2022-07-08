@@ -116,7 +116,7 @@ export const typesAccess = {
       Permissions.AccessInvoicingPointofsales,
     ],
   },
-  '/invoicing/pointOfSales': {
+  '/invoicing/pointOfSale': {
     access: [Permissions.ReadInvoicingPointofsales],
   },
   '/invoicing/closings': {
