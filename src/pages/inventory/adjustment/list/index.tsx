@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
@@ -133,7 +134,6 @@ const AdjustmentList = () => {
             createdAt: -1,
           },
           ...params,
-          warehouseId: canChangeWarehouse ? params?.warehouseId : defaultWarehouse,
         },
       },
     });
@@ -213,8 +213,16 @@ const AdjustmentList = () => {
     onSearch({
       limit: 10,
       page: 1,
+      warehouseId: !canChangeWarehouse ? defaultWarehouse : null,
     });
-    setFilters({});
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+      setFilters({ warehouseId: defaultWarehouse });
+    } else {
+      setFilters({});
+    }
   };
 
   /**
@@ -234,6 +242,9 @@ const AdjustmentList = () => {
       }
     });
 
+    if (!canChangeWarehouse) {
+      newFilters['warehouseId'] = defaultWarehouse;
+    }
     onFinish(newFilters);
   };
 
@@ -366,7 +377,7 @@ const AdjustmentList = () => {
             </Col>
             <Col xs={24} md={10} lg={10} xl={5}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses />
+                <SelectWarehouses disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
             <Col xs={24} md={9} lg={9} xl={6}>

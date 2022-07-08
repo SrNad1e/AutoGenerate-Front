@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
@@ -71,6 +72,7 @@ export type FormValues = {
 
 const RequestList = () => {
   const [requestData, setRequestData] = useState<Partial<StockRequest>>({});
+  const [showFilterType, setShowFilterType] = useState(false);
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -98,7 +100,6 @@ const RequestList = () => {
 
   const [getRequests, { data, loading }] = useGetRequests();
   const [generateRequest, propsGenerate] = useGenerateRequest();
-  const [filterType, setFilterType] = useState(false);
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -154,7 +155,7 @@ const RequestList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouseId, dates, type = 'received' } = props;
+    const { status, number, warehouseId, dates, type = 'sent' } = props;
     try {
       const params: FiltersStockRequestsInput = {
         page: pageCurrent || 1,
@@ -224,42 +225,18 @@ const RequestList = () => {
    */
   const onClear = () => {
     history.replace(location.pathname);
-    onSearch({});
     form.resetFields();
     form.setFieldsValue({
-      type: 'received',
+      type: 'sent',
     });
+
     if (!canChangeWarehouse) {
-      onSearch({ warehouseDestinationId: defaultWarehouse });
-      form.setFieldsValue({
-        warehouseId: defaultWarehouse,
-      });
+      onFinish({ warehouseId: defaultWarehouse });
+      setShowFilterType(true);
+    } else {
+      onFinish({});
+      setShowFilterType(false);
     }
-    if (canChangeWarehouse) {
-      setFilterType(false);
-    }
-  };
-
-  /**
-   * @description se encarga de mostar el filtro de tipo cuando se selecciona una bodega
-   * @param e evento del selector de bodega
-   */
-  const onChangeWarehouse = (e: any) => {
-    if (e) {
-      setFilterType(true);
-    } else if (e && filterType === true) {
-      setFilterType(false);
-    }
-  };
-
-  /**
-   * @description resetea el campo de seleccion de bodega y oculta el filtro de tipo
-   */
-  const onClearWarehouse = () => {
-    form.setFieldsValue({
-      warehouseId: undefined,
-    });
-    setFilterType(false);
   };
 
   /**
@@ -291,15 +268,7 @@ const RequestList = () => {
    */
   const loadingData = () => {
     const queryParams: any = location?.query;
-    let newFilters = {};
-
-    if (!canChangeWarehouse) {
-      newFilters = {
-        warehouseDestinationId: defaultWarehouse,
-      };
-    } else {
-      newFilters = {};
-    }
+    const newFilters = {};
 
     Object.keys(queryParams).forEach((item) => {
       if (item === 'dates') {
@@ -313,23 +282,30 @@ const RequestList = () => {
       }
     });
 
-    delete newFilters.type;
-
     form.setFieldsValue({
-      type: 'received',
+      type: 'sent',
     });
 
-    onSearch({ ...newFilters });
+    if (!canChangeWarehouse) {
+      newFilters['warehouseId'] = defaultWarehouse;
+      setShowFilterType(true);
+    }
+
+    onFinish(newFilters);
+  };
+
+  const onChangeWarehouse = async () => {
+    const warehouseId = await form.getFieldValue('warehouseId');
+
+    if (warehouseId) {
+      setShowFilterType(true);
+    } else {
+      setShowFilterType(false);
+    }
   };
 
   useEffect(() => {
     loadingData();
-    if (!canChangeWarehouse) {
-      form.setFieldsValue({
-        warehouseId: defaultWarehouse,
-      });
-      setFilterType(true);
-    }
   }, []);
 
   const columns: ColumnsType<StockRequest> = [
@@ -442,13 +418,11 @@ const RequestList = () => {
             </Col>
             <Col xs={24} md={8} lg={8} xl={8}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses
-                  onClear={onClearWarehouse}
-                  onChange={(e) => onChangeWarehouse(e)}
-                />
+                <SelectWarehouses onChange={onChangeWarehouse} disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
-            {filterType && (
+
+            {showFilterType && (
               <Col xs={24} md={5} lg={5} xl={5}>
                 <FormItem label="Tipo" name="type">
                   <Select disabled={loading}>
@@ -458,6 +432,7 @@ const RequestList = () => {
                 </FormItem>
               </Col>
             )}
+
             <Col xs={24} md={9} lg={9} xl={8}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker disabled={loading} placeholder={['Fecha Inicial', 'Fecha Final']} />

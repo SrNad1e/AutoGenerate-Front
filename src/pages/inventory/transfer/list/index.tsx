@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import SelectWarehouses from '@/components/SelectWarehouses';
@@ -57,7 +58,7 @@ const { Text, Title } = Typography;
 const { RangePicker } = DatePicker;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockTransfer;
   number?: number;
   warehouseId?: string;
   dates?: Moment[];
@@ -66,6 +67,7 @@ export type FormValues = {
 
 const TransferList = () => {
   const [transferData, setTransferData] = useState<Partial<StockTransfer>>({});
+  const [showFilterType, setShowFilterType] = useState(false);
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -148,7 +150,7 @@ const TransferList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouseId, dates, type = 'sent' } = props;
+    const { status, number, warehouseId, dates, type = 'received' } = props;
     try {
       const params: FiltersStockTransfersInput = {
         page: pageCurrent || 1,
@@ -222,39 +224,15 @@ const TransferList = () => {
     onSearch({});
     form.resetFields();
     form.setFieldsValue({
-      type: 'sent',
+      type: 'received',
     });
     if (!canChangeWarehouse) {
-      onSearch({ warehouseOriginId: defaultWarehouse });
-      form.setFieldsValue({
-        warehouseId: defaultWarehouse,
-      });
+      onFinish({ warehouseId: defaultWarehouse });
+      setShowFilterType(true);
+    } else {
+      onFinish({});
+      setShowFilterType(false);
     }
-    if (canChangeWarehouse) {
-      setFilterType(false);
-    }
-  };
-
-  /**
-   * @description se encarga de mostar el filtro de tipo cuando se selecciona una bodega
-   * @param e evento del selector de bodega
-   */
-  const onChangeWarehouse = (e: any) => {
-    if (e) {
-      setFilterType(true);
-    } else if (e && filterType === true) {
-      setFilterType(false);
-    }
-  };
-
-  /**
-   * @description resetea el campo de seleccion de bodega y oculta el filtro de tipo
-   */
-  const onClearWarehouse = () => {
-    form.setFieldsValue({
-      warehouseId: undefined,
-    });
-    setFilterType(false);
   };
 
   /**
@@ -263,9 +241,7 @@ const TransferList = () => {
   const loadingData = () => {
     const queryParams: any = location?.query;
 
-    const newFilters = {
-      warehouseOriginId: defaultWarehouse,
-    };
+    const newFilters = {};
 
     Object.keys(queryParams).forEach((item) => {
       if (item === 'dates') {
@@ -279,13 +255,26 @@ const TransferList = () => {
       }
     });
 
-    delete newFilters.type;
-
     form.setFieldsValue({
-      type: 'sent',
+      type: 'received',
     });
 
-    onSearch({ ...newFilters });
+    if (!canChangeWarehouse) {
+      newFilters['warehouseId'] = defaultWarehouse;
+      setShowFilterType(true);
+    }
+
+    onFinish(newFilters);
+  };
+
+  const onChangeWarehouse = async () => {
+    const warehouseId = await form.getFieldValue('warehouseId');
+
+    if (warehouseId) {
+      setShowFilterType(true);
+    } else {
+      setShowFilterType(false);
+    }
   };
 
   useEffect(() => {
@@ -423,10 +412,7 @@ const TransferList = () => {
             </Col>
             <Col xs={24} md={7} lg={7} xl={6}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses
-                  onClear={onClearWarehouse}
-                  onChange={(e) => onChangeWarehouse(e)}
-                />
+                <SelectWarehouses onChange={onChangeWarehouse} disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
             {filterType && (

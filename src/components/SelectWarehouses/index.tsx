@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 import { useGetWarehouses } from '@/hooks/warehouse.hooks';
 import type { FiltersWarehousesInput } from '@/graphql/graphql';
 import type { ApolloError } from '@apollo/client';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from './styles.less';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import { useModel } from 'umi';
 
 const { Option } = Select;
 
@@ -17,9 +17,10 @@ export type Props = {
   onChange?: (warehouseId: string) => void;
   value?: string;
   onClear?: () => void;
+  disabled: boolean;
 };
 
-const SelectWarehouses = ({ onChange, value, onClear }: Props) => {
+const SelectWarehouses = ({ onChange, value, onClear, disabled }: Props) => {
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -33,9 +34,6 @@ const SelectWarehouses = ({ onChange, value, onClear }: Props) => {
       message: '',
     });
   };
-
-  const { initialState } = useModel('@@initialState');
-  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
 
   const onError = (e: ApolloError) => {
     const { statusCode } = e?.graphQLErrors[0]?.extensions?.response as any;
@@ -87,10 +85,7 @@ const SelectWarehouses = ({ onChange, value, onClear }: Props) => {
         allowClear
         onClear={onClear}
         value={value}
-        defaultValue={
-          initialState?.currentUser?.role?.changeWarehouse ? undefined : defaultWarehouse
-        }
-        disabled={!initialState?.currentUser?.role?.changeWarehouse}
+        disabled={disabled}
       >
         {data?.warehouses?.docs.map((warehouse) => (
           <Option key={warehouse._id?.toString()}>{warehouse.name}</Option>
