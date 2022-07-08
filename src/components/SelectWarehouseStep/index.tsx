@@ -6,11 +6,12 @@ export type Props = {
   changeCurrentStep: (value: string) => void;
   label: string;
   warehouseId?: string;
+  disabled: boolean;
 };
 
 const FormItem = Form.Item;
 
-const SelectWarehouseStep = ({ changeCurrentStep, label, warehouseId }: Props) => {
+const SelectWarehouseStep = ({ changeCurrentStep, label, warehouseId, disabled }: Props) => {
   return (
     <Form
       onFinish={(values) => {
@@ -36,7 +37,7 @@ const SelectWarehouseStep = ({ changeCurrentStep, label, warehouseId }: Props) =
               },
             ]}
           >
-            <SelectWarehouses />
+            <SelectWarehouses disabled={disabled} />
           </FormItem>
         </Col>
       </Row>
