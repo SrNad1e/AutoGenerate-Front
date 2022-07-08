@@ -1,0 +1,13 @@
+mutation createPayment($input: CreatePaymentInput!) {
+  createPayment(createPaymentInput: $input) {
+    _id
+    name
+  }
+}
+
+mutation updatePayment($id: String!, $input: UpdatePaymentInput!) {
+  updatePayment(id: $id, updatePaymentInput: $input) {
+    _id
+    name
+  }
+}
