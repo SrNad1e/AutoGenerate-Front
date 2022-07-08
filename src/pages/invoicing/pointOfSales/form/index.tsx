@@ -9,6 +9,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import { useCreatePointOfSale, useUpdatePointOfSale } from '@/hooks/pointOfSale.hooks';
 import SelectShop from '@/components/SelectShop';
 import SelectBox from '@/components/SelectBox';
+import SelectAuthorization from '../components/selectAuthorizaton';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -175,7 +176,7 @@ const PointOfSalesForm = ({ pointOfSale, onCancel, visible }: Props) => {
                   message: 'Este campo no puede estar vacio',
                 },
               ]}
-              name="authorizationId"
+              name="autorizationId"
               label={
                 <Space>
                   <FileSyncOutlined />
@@ -183,7 +184,9 @@ const PointOfSalesForm = ({ pointOfSale, onCancel, visible }: Props) => {
                 </Space>
               }
             >
-              <></>
+              <SelectAuthorization
+                disabled={paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading}
+              />
             </FormItem>
             <FormItem
               rules={[

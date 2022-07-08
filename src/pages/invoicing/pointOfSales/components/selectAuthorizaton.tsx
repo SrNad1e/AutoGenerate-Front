@@ -2,7 +2,7 @@
 import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
-import { useGetShops } from '@/hooks/shop.hooks';
+import { useGetAuthorizations } from '@/hooks/authorization.hooks';
 
 const { Option } = Select;
 
@@ -12,20 +12,20 @@ export type Params = {
   disabled: boolean;
 };
 
-const SelectShop = ({ onChange, disabled, value }: Params) => {
-  const [getShops, { loading, data, error }] = useGetShops();
+const SelectAuthorization = ({ onChange, disabled, value }: Params) => {
+  const [getAuthorizations, { loading, data, error }] = useGetAuthorizations();
 
   /**
    * @description se encarga de consultar con base a un comodín
-   * @param name comodín de coincidencia en el nombre
+   * @param prefix comodín de coincidencia en el nombre
    */
-  const onSearch = (name: string) => {
-    getShops({
+  const onSearch = (prefix: string) => {
+    getAuthorizations({
       variables: {
         input: {
-          name,
+          prefix,
           sort: {
-            name: 1,
+            prefix: 1,
           },
         },
       },
@@ -33,12 +33,12 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
   };
 
   useEffect(() => {
-    getShops({
+    getAuthorizations({
       variables: {
         input: {
-          _id: value,
+          prefix: value,
           sort: {
-            name: 1,
+            prefix: 1,
           },
         },
       },
@@ -51,16 +51,16 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
         style={{ width: '100%' }}
         showSearch
         loading={loading}
-        placeholder="Seleccione la tienda"
+        placeholder="Seleccione la autorización"
         optionFilterProp="children"
         onChange={onChange}
         onSearch={onSearch}
         disabled={disabled}
         value={value}
       >
-        {data?.shops?.docs?.map(({ _id, name }) => (
+        {data?.authorizations?.docs?.map(({ _id, prefix }) => (
           <Option key={_id} value={_id}>
-            {name}
+            {prefix}
           </Option>
         ))}
       </Select>
@@ -69,4 +69,4 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
   );
 };
 
-export default SelectShop;
+export default SelectAuthorization;
