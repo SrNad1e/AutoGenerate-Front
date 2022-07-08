@@ -1,15 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import type { PointOfSale } from '@/graphql/graphql';
-import { FileSyncOutlined, GroupOutlined, ProfileOutlined, ShopOutlined } from '@ant-design/icons';
-import { Col, Form, Input, Modal, Row, Space, Typography } from 'antd';
+import {
+  CalendarOutlined,
+  FileSyncOutlined,
+  GroupOutlined,
+  ProfileOutlined,
+  ShopOutlined,
+} from '@ant-design/icons';
+import { Col, DatePicker, Form, Input, Modal, Row, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
-import styles from '../styles';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useCreatePointOfSale, useUpdatePointOfSale } from '@/hooks/pointOfSale.hooks';
+import type { PointOfSale } from '@/graphql/graphql';
+import moment from 'moment';
+
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectShop from '@/components/SelectShop';
 import SelectBox from '@/components/SelectBox';
 import SelectAuthorization from '../components/selectAuthorizaton';
+
+import styles from '../styles';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -122,6 +131,7 @@ const PointOfSalesForm = ({ pointOfSale, onCancel, visible }: Props) => {
     form.resetFields();
     form.setFieldsValue({
       ...pointOfSale,
+      closeDate: moment(pointOfSale?.closeDate),
     });
   }, [visible]);
 
@@ -149,83 +159,104 @@ const PointOfSalesForm = ({ pointOfSale, onCancel, visible }: Props) => {
       <Form form={form} layout="vertical" style={styles.centerForm}>
         <Row>
           <Col span={24}>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="name"
-              label={
-                <Space>
-                  <ProfileOutlined />
-                  <Text>Nombre</Text>
-                </Space>
-              }
-            >
-              <Input
-                placeholder="Ingrese nombre"
-                disabled={paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading}
-              />
-            </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="autorizationId"
-              label={
-                <Space>
-                  <FileSyncOutlined />
-                  <Text>Autorización</Text>
-                </Space>
-              }
-            >
-              <SelectAuthorization
-                disabled={paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading}
-              />
-            </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="shopId"
-              label={
-                <Space>
-                  <ShopOutlined />
-                  <Text>Tienda</Text>
-                </Space>
-              }
-            >
-              <SelectShop
-                disabled={paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading}
-              />
-            </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="boxId"
-              label={
-                <Space>
-                  <GroupOutlined />
-                  <Text>Caja</Text>
-                </Space>
-              }
-            >
-              <SelectBox
-                disabled={paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading}
-              />
-            </FormItem>
+            {!isNew && (
+              <FormItem
+                name="closeDate"
+                label={
+                  <Space>
+                    <CalendarOutlined />
+                    <Text>Fecha de Cierre</Text>
+                  </Space>
+                }
+              >
+                <DatePicker format={FORMAT_DATE} placeholder="Selecciona Fecha" />
+              </FormItem>
+            )}
+            {isNew && (
+              <FormItem
+                rules={[
+                  {
+                    required: true,
+                    message: 'Este campo no puede estar vacio',
+                  },
+                ]}
+                name="name"
+                label={
+                  <Space>
+                    <ProfileOutlined />
+                    <Text>Nombre</Text>
+                  </Space>
+                }
+              >
+                <Input
+                  placeholder="Ingrese nombre"
+                  disabled={paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading}
+                />
+              </FormItem>
+            )}
+            {isNew && (
+              <FormItem
+                rules={[
+                  {
+                    required: true,
+                    message: 'Este campo no puede estar vacio',
+                  },
+                ]}
+                name="autorizationId"
+                label={
+                  <Space>
+                    <FileSyncOutlined />
+                    <Text>Autorización</Text>
+                  </Space>
+                }
+              >
+                <SelectAuthorization
+                  disabled={paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading}
+                />
+              </FormItem>
+            )}
+            {isNew && (
+              <FormItem
+                rules={[
+                  {
+                    required: true,
+                    message: 'Este campo no puede estar vacio',
+                  },
+                ]}
+                name="shopId"
+                label={
+                  <Space>
+                    <ShopOutlined />
+                    <Text>Tienda</Text>
+                  </Space>
+                }
+              >
+                <SelectShop
+                  disabled={paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading}
+                />
+              </FormItem>
+            )}
+            {isNew && (
+              <FormItem
+                rules={[
+                  {
+                    required: true,
+                    message: 'Este campo no puede estar vacio',
+                  },
+                ]}
+                name="boxId"
+                label={
+                  <Space>
+                    <GroupOutlined />
+                    <Text>Caja</Text>
+                  </Space>
+                }
+              >
+                <SelectBox
+                  disabled={paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading}
+                />
+              </FormItem>
+            )}
           </Col>
         </Row>
       </Form>

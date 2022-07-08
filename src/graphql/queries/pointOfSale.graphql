@@ -1,18 +1,24 @@
-query  pointOfSales($input: FiltersPointOfSalesInput){
-  pointOfSales(filtersPointOfSales:$input){
+query pointOfSales($input: FiltersPointOfSalesInput) {
+  pointOfSales(filtersPointOfSales: $input) {
     totalDocs
     totalPages
     page
-    docs{
+    docs {
       _id
       name
-      shop{
+      shop {
+        _id
         name
       }
       closeDate
       updatedAt
-      box{
+      box {
+        _id
         name
+      }
+      authorization {
+        _id
+        prefix
       }
     }
   }

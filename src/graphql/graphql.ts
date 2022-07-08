@@ -701,6 +701,22 @@ export type CreateCustomerInput = {
   phone?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para crear un descuento */
+export type CreateDiscountRuleInput = {
+  /** Fecha final para aplicar el descuento */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial para aplicar el descuento */
+  dateInitial: Scalars['String'];
+  /** Nombre del descuento */
+  name: Scalars['String'];
+  /** Porcentaje del descuento */
+  percent?: InputMaybe<Scalars['Float']>;
+  /** Reglas a aplicar */
+  rules: RuleInput[];
+  /** Valor del descuento */
+  value?: InputMaybe<Scalars['Float']>;
+};
+
 /** Datos para crear Egreso */
 export type CreateExpenseInput = {
   /** Identificador de la caja */
@@ -1139,6 +1155,8 @@ export type DetailOrder = {
   product: Product;
   /** Cantidad de productos en el pedido */
   quantity: Scalars['Float'];
+  /** Cantidad de productos devueltos */
+  quantityReturn: Scalars['Float'];
   /** Estado del producto */
   status: Scalars['String'];
   /** Fecha de actualizado del producto al pedido */
@@ -1304,6 +1322,33 @@ export type DetailTransfer = {
   updatedAt: Scalars['DateTime'];
 };
 
+/** Reglas de descuento */
+export type DiscountRule = {
+  __typename?: 'DiscountRule';
+  /** Identificación de mongo */
+  _id: Scalars['String'];
+  /** Descuenti activo */
+  active: Scalars['Boolean'];
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Fecha y hora del final del descuento */
+  dateFinal: Scalars['DateTime'];
+  /** Fecha y hora de inicio del descuento */
+  dateInitial: Scalars['DateTime'];
+  /** Nombre de la regla */
+  name: Scalars['String'];
+  /** Valor del porcentaje del descuento */
+  percent: Scalars['Float'];
+  /** Reglas para aplicar el descuento */
+  rules: Rule[];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó el descuento */
+  user: User;
+  /** Valor del descuento */
+  value: Scalars['Float'];
+};
+
 /** Tipo de documento de identificación */
 export type DocumentType = {
   __typename?: 'DocumentType';
@@ -1321,8 +1366,9 @@ export type DocumentType = {
   user: User;
 };
 
-export enum DocumentTypesRuler {
+export enum DocumentTypesRule {
   Categories = 'CATEGORIES',
+  Company = 'COMPANY',
   Customertypes = 'CUSTOMERTYPES',
 }
 
@@ -1621,6 +1667,24 @@ export type FiltersCustomersInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortCustomer>;
+};
+
+/** Filtros para consultar las reglas de descuentos */
+export type FiltersDiscountRulesInput = {
+  /** Si el descuento se encuentra activo */
+  active?: InputMaybe<Scalars['Boolean']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Comodín para el nombre de la regla */
+  name?: InputMaybe<Scalars['String']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Porcentaje del descuento */
+  percent?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortDiscountRule>;
+  /** Valor en cantidad del descuento */
+  value?: InputMaybe<Scalars['Float']>;
 };
 
 /** Filtros para los tipos de documento */
@@ -2166,6 +2230,8 @@ export type Mutation = {
   createCredit: Credit;
   /** Se encarga crear un cliente */
   createCustomer: Customer;
+  /** Se encarga crear un descuento */
+  createDiscountRule: DiscountRule;
   /** Crea un egreso */
   createExpense: Expense;
   /** Se encarga de crear el pedido */
@@ -2229,6 +2295,8 @@ export type Mutation = {
   updateCredit: Credit;
   /** Se encarga actualizar un cliente */
   updateCustomer: Customer;
+  /** Se encarga actualizar un descuento */
+  updateDiscountRule: DiscountRule;
   /** Actualiza un egreso */
   updateExpense: Expense;
   /** Se encarga actualizar un pedido */
@@ -2327,6 +2395,10 @@ export type MutationCreateCreditArgs = {
 
 export type MutationCreateCustomerArgs = {
   createCustomerInput: CreateCustomerInput;
+};
+
+export type MutationCreateDiscountRuleArgs = {
+  createDiscountRuleInput: CreateDiscountRuleInput;
 };
 
 export type MutationCreateExpenseArgs = {
@@ -2466,6 +2538,11 @@ export type MutationUpdateCreditArgs = {
 export type MutationUpdateCustomerArgs = {
   id: Scalars['String'];
   updateCustomerInput: UpdateCustomerInput;
+};
+
+export type MutationUpdateDiscountRuleArgs = {
+  id: Scalars['String'];
+  updateDiscountRuleInput: UpdateDiscountRuleInput;
 };
 
 export type MutationUpdateExpenseArgs = {
@@ -2709,6 +2786,7 @@ export enum Permissions {
   AccessCrmCities = 'ACCESS_CRM_CITIES',
   AccessCrmCoupons = 'ACCESS_CRM_COUPONS',
   AccessCrmCustomers = 'ACCESS_CRM_CUSTOMERS',
+  AccessCrmDiscountrules = 'ACCESS_CRM_DISCOUNTRULES',
   AccessErp = 'ACCESS_ERP',
   AccessInventoryAdjustments = 'ACCESS_INVENTORY_ADJUSTMENTS',
   AccessInventoryAttribs = 'ACCESS_INVENTORY_ATTRIBS',
@@ -2742,6 +2820,7 @@ export enum Permissions {
   CreateCrmCity = 'CREATE_CRM_CITY',
   CreateCrmCoupon = 'CREATE_CRM_COUPON',
   CreateCrmCustomer = 'CREATE_CRM_CUSTOMER',
+  CreateCrmDiscountrule = 'CREATE_CRM_DISCOUNTRULE',
   CreateInventoryAdjustment = 'CREATE_INVENTORY_ADJUSTMENT',
   CreateInventoryAttrib = 'CREATE_INVENTORY_ATTRIB',
   CreateInventoryBrand = 'CREATE_INVENTORY_BRAND',
@@ -2788,6 +2867,7 @@ export enum Permissions {
   ReadCrmCoupons = 'READ_CRM_COUPONS',
   ReadCrmCustomers = 'READ_CRM_CUSTOMERS',
   ReadCrmCustomertypes = 'READ_CRM_CUSTOMERTYPES',
+  ReadCrmDiscountrules = 'READ_CRM_DISCOUNTRULES',
   ReadInventoryAdjustments = 'READ_INVENTORY_ADJUSTMENTS',
   ReadInventoryAttribs = 'READ_INVENTORY_ATTRIBS',
   ReadInventoryBrands = 'READ_INVENTORY_BRANDS',
@@ -2819,6 +2899,7 @@ export enum Permissions {
   UpdateCrmCity = 'UPDATE_CRM_CITY',
   UpdateCrmCoupon = 'UPDATE_CRM_COUPON',
   UpdateCrmCustomer = 'UPDATE_CRM_CUSTOMER',
+  UpdateCrmDiscountrule = 'UPDATE_CRM_DISCOUNTRULE',
   UpdateInventoryAdjustment = 'UPDATE_INVENTORY_ADJUSTMENT',
   UpdateInventoryAttrib = 'UPDATE_INVENTORY_ATTRIB',
   UpdateInventoryBrand = 'UPDATE_INVENTORY_BRAND',
@@ -2936,6 +3017,8 @@ export type Query = {
   customerTypes: ResponseCustomerTypes;
   /** Listado de clientes */
   customers: ResponseCustomers;
+  /** Listado de descuentos */
+  discountRules: ResponseDiscountRules;
   /** Listado de tipos de documento */
   documentTypes: DocumentType[];
   /** Se encarga de listar los egresos */
@@ -3084,6 +3167,10 @@ export type QueryCustomerTypesArgs = {
 
 export type QueryCustomersArgs = {
   filtersCustomerInput?: InputMaybe<FiltersCustomersInput>;
+};
+
+export type QueryDiscountRulesArgs = {
+  filtersDiscountRulesInput?: InputMaybe<FiltersDiscountRulesInput>;
 };
 
 export type QueryDocumentTypesArgs = {
@@ -3718,6 +3805,30 @@ export type ResponseCustomers = {
   totalPages: Scalars['Float'];
 };
 
+/** Respuesta del listado de reglas de descuento */
+export type ResponseDiscountRules = {
+  __typename?: 'ResponseDiscountRules';
+  /** Lista de reglas de descuento */
+  docs: DiscountRule[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta a la consulta de egresos */
 export type ResponseExpenses = {
   __typename?: 'ResponseExpenses';
@@ -4270,7 +4381,17 @@ export type Rule = {
   /** Identificador de los documentos */
   documentIds: Scalars['String'][];
   /** Tipo de documento para validar el descuento */
-  documentType: DocumentTypesRuler;
+  documentType: DocumentTypesRule;
+  /** Tipo de regla que deben cumplir los documentos */
+  type: TypesRule[];
+};
+
+/** Regla de descuento */
+export type RuleInput = {
+  /** Identificador de los documentos */
+  documentIds: Scalars['String'][];
+  /** Tipo de documento para validar el descuento */
+  documentType: DocumentTypesRule;
   /** Tipo de regla que deben cumplir los documentos */
   type: Scalars['String'][];
 };
@@ -4546,6 +4667,18 @@ export type SortCustomer = {
   lastName?: InputMaybe<Scalars['Float']>;
   /** ordernamiento por teléfono */
   phone?: InputMaybe<Scalars['Float']>;
+};
+
+/** Datos para el ordenamiento */
+export type SortDiscountRule = {
+  active?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
+  dateFinal?: InputMaybe<Scalars['Float']>;
+  dateInitial?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['Float']>;
+  percent?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
+  value?: InputMaybe<Scalars['Float']>;
 };
 
 /** Ordenamiento de los egresos */
@@ -5080,6 +5213,14 @@ export enum TypePayment {
   Credit = 'CREDIT',
 }
 
+export enum TypesRule {
+  Equal = 'EQUAL',
+  Greater = 'GREATER',
+  Greaterthanorequal = 'GREATERTHANOREQUAL',
+  Less = 'LESS',
+  Lessthanorequal = 'LESSTHANOREQUAL',
+}
+
 /** Datos para actualizar la ciudad */
 export type UpadteCityInput = {
   /** Nombre del país */
@@ -5204,6 +5345,24 @@ export type UpdateCustomerInput = {
   lastName?: InputMaybe<Scalars['String']>;
   /** Número de teléfono */
   phone?: InputMaybe<Scalars['String']>;
+};
+
+/** Datos para actualizar el descuento */
+export type UpdateDiscountRuleInput = {
+  /** Estado del descuento */
+  active: Scalars['Boolean'];
+  /** Fecha final para aplicar el descuento */
+  dateFinal?: InputMaybe<Scalars['String']>;
+  /** Fecha inicial para aplicar el descuento */
+  dateInitial?: InputMaybe<Scalars['String']>;
+  /** Nombre del descuento */
+  name?: InputMaybe<Scalars['String']>;
+  /** Porcentaje del descuento */
+  percent?: InputMaybe<Scalars['Float']>;
+  /** Reglas a aplicar */
+  rules?: InputMaybe<RuleInput[]>;
+  /** Valor del descuento */
+  value?: InputMaybe<Scalars['Float']>;
 };
 
 /** Datos para actualizar el egreso */
@@ -7977,8 +8136,9 @@ export type PointOfSalesQuery = {
       name: string;
       closeDate?: any | null;
       updatedAt: any;
-      shop: { __typename?: 'Shop'; name: string };
-      box: { __typename?: 'Box'; name: string };
+      shop: { __typename?: 'Shop'; _id: string; name: string };
+      box: { __typename?: 'Box'; _id: string; name: string };
+      authorization: { __typename?: 'AuthorizationDian'; _id: string; prefix: string };
     }[];
   };
 };
@@ -16982,7 +17142,10 @@ export const PointOfSalesDocument = {
                         name: { kind: 'Name', value: 'shop' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
@@ -16992,7 +17155,21 @@ export const PointOfSalesDocument = {
                         name: { kind: 'Name', value: 'box' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'authorization' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                          ],
                         },
                       },
                     ],

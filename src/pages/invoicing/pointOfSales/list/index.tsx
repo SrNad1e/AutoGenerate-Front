@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import type { FiltersPointOfSalesInput, PointOfSale } from '@/graphql/graphql';
 import {
   CalendarOutlined,
   ClearOutlined,
@@ -11,22 +10,25 @@ import {
   SearchOutlined,
   ShopOutlined,
 } from '@ant-design/icons';
+import { Button, Card, Col, Form, Input, Row, Space, Tag, Tooltip, Typography } from 'antd';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Button, Card, Col, Form, Input, Row, Space, Tooltip, Typography } from 'antd';
-import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import Table from 'antd/lib/table';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import type { SorterResult } from 'antd/lib/table/interface';
+import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
+import type { Box, FiltersPointOfSalesInput, PointOfSale, Shop } from '@/graphql/graphql';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import styles from '../styles';
 import type { Location } from 'umi';
 import { useAccess } from 'umi';
 import { useLocation, history } from 'umi';
 import { useGetPointOfSales } from '@/hooks/pointOfSale.hooks';
-import type { SorterResult } from 'antd/lib/table/interface';
-import SelectShop from '@/components/SelectShop';
+
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import PointOfSalesForm from '../form';
+import SelectShop from '@/components/SelectShop';
+
+import styles from '../styles';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -154,7 +156,6 @@ const PointOfSalesList = () => {
    * @description se encarga de manejar eventos de tabla
    * @param paginationLocal eventos de la páginacion
    * @param sorter ordenamiento de la tabla
-   * @param filterArg filtros de la tabla
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
@@ -211,24 +212,27 @@ const PointOfSalesList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
+      render: (name) => <Tag style={styles.tagStyle}>{name}</Tag>,
     },
     {
       title: <Text>{<ShopOutlined />} Tienda</Text>,
-      dataIndex: 'phone',
+      dataIndex: 'shop',
       align: 'center',
+      render: (shop: Shop) => <Text>{shop?.name}</Text>,
     },
     {
       title: <Text>{<GroupOutlined />} Caja</Text>,
-      dataIndex: 'address',
+      dataIndex: 'box',
       align: 'center',
+      render: (box: Box) => <Text>{box?.name}</Text>,
     },
     {
       title: <Text>{<CalendarOutlined />} Fecha de Cierre</Text>,
-      dataIndex: 'updatedAt',
+      dataIndex: 'closeDate',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
+      render: (closeDate: Date) => moment(closeDate).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: <Text>{<CalendarOutlined />} Fecha</Text>,
@@ -236,7 +240,7 @@ const PointOfSalesList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
+      render: (updatedAt: Date) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: <Text>{<MoreOutlined />} Opciones</Text>,
