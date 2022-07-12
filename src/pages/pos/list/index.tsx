@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useCreateOrder, useGetOrdersByPos } from '@/hooks/order.hooks';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Order } from '@/graphql/graphql';
+import { StatusOrder } from '@/graphql/graphql';
 import SaveOrder from '../components/SaveOrder';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
@@ -57,12 +58,12 @@ const PosList = () => {
       const response = await createOrder({
         variables: {
           input: {
-            status: 'open',
+            status: StatusOrder.Open,
           },
         },
       });
       if (response?.data?.createOrder) {
-        history.push(`/pos/${response?.data?.createOrder?._id}`);
+        history.push(`/pos/sales/${response?.data?.createOrder?.order._id}`);
       }
     } catch (e: any) {
       showError(e?.message);
@@ -71,11 +72,7 @@ const PosList = () => {
 
   useEffect(() => {
     if (initialState?.currentUser) {
-      getOrders({
-        variables: {
-          id: initialState?.currentUser?.pointOfSale?._id || '',
-        },
-      });
+      getOrders();
     }
   }, []);
 

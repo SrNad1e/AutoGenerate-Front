@@ -1,5 +1,6 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
+import type { StockRequest } from '@/graphql/graphql';
 import {
   StockRequestDocument,
   StockRequestsDocument,
@@ -21,22 +22,46 @@ export const useGetRequests = () => {
 };
 
 export const useCreateRequest = () => {
-  return useMutation(CreateStockRequestDocument);
+  return useMutation(CreateStockRequestDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockRequests(existingRequests = []) {
+            return [data?.createStockRequest].concat(existingRequests);
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useGenerateRequest = () => {
-  return useMutation(GenerateStockRequestDocument);
+  return useMutation(GenerateStockRequestDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockRequests(existingRequests = []) {
+            return [data?.generateStockRequest].concat(existingRequests);
+          },
+        },
+      });
+    },
+  });
 };
 
 export const useUpdateRequest = () => {
   return useMutation(UpdateStockRequestDocument, {
-    update: (store, response) => {
-      const dataInStore = store.readQuery({ query: StockRequestDocument });
-      store.writeQuery({
-        query: StockRequestDocument,
-        data: {
-          ...dataInStore,
-          stockRequestId: { ...dataInStore?.stockRequestId, ...response.data?.updateStockRequest },
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockRequests(existingRequest = []) {
+            return existingRequest?.docs?.map((request: StockRequest) => {
+              if (request?._id === data?.updateStockRequest?._id) {
+                return data?.updateStockRequest;
+              }
+              return request;
+            });
+          },
         },
       });
     },

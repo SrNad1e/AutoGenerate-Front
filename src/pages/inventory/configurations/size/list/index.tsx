@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -17,7 +18,7 @@ import {
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
-import { useLocation, useHistory } from 'umi';
+import { useLocation, useHistory, useAccess } from 'umi';
 import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -27,6 +28,7 @@ import CreateSize from '@/components/CreateSize';
 import type { FiltersSizesInput, Size } from '@/graphql/graphql';
 
 import styles from './style.less';
+import Filters from '@/components/Filters';
 
 const FormItem = Form.Item;
 
@@ -52,6 +54,10 @@ const SizesList = () => {
 
   const location: Location = useLocation();
   const history = useHistory();
+
+  const {
+    size: { canCreate, canEdit },
+  } = useAccess();
 
   const [getSizes, { data, loading }] = useGetSizes();
 
@@ -87,6 +93,9 @@ const SizesList = () => {
       getSizes({
         variables: {
           input: {
+            sort: {
+              weight: 1,
+            },
             ...values,
           },
         },
@@ -150,11 +159,11 @@ const SizesList = () => {
       }
     });
 
-    onSearch({ ...filters, ...values });
     setQueryParams({
       ...values,
       ...filters,
     });
+    onSearch({ ...filters, ...values });
   };
 
   /**
@@ -192,8 +201,14 @@ const SizesList = () => {
     }
 
     setQueryParams(filters);
-    onSearch({ ...prop, sort, page: current, ...filters });
     setSorterTable(sorter);
+
+    if (sort['value']) {
+      sort['weight'] = sort['value'];
+      delete sort['value'];
+    }
+
+    onSearch({ ...prop, sort, page: current, ...filters });
     setFilterTable(filterArg);
   };
 
@@ -237,24 +252,24 @@ const SizesList = () => {
    * @description se encarga de renderizar la interfaz de busqueda
    */
   const renderFormSearch = () => (
-    <Form layout="inline" onFinish={onFinish} form={form}>
-      <Row gutter={[8, 8]}>
-        <Col span={12}>
-          <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Valor de la talla" autoComplete="off" />
+    <Form onFinish={onFinish} form={form}>
+      <Row gutter={[8, 8]} align="middle">
+        <Col xs={24} md={10} lg={8}>
+          <FormItem label="Nombre" name="name">
+            <Input placeholder="Valor de la talla" autoComplete="off" style={{ width: '100%' }} />
+          </FormItem>
+        </Col>
+        <Col xs={24} md={8}>
+          <FormItem label="">
+            <Button type="primary" htmlType="submit">
+              Buscar
+            </Button>
+            <Button style={{ marginLeft: 8 }} onClick={onClear}>
+              Limpiar
+            </Button>
           </FormItem>
         </Col>
       </Row>
-      <Col span={12}>
-        <span className={styles.submitButtons}>
-          <Button type="primary" htmlType="submit">
-            Buscar
-          </Button>
-          <Button style={{ marginLeft: 8 }} onClick={onClear}>
-            Limpiar
-          </Button>
-        </span>
-      </Col>
     </Form>
   );
 
@@ -276,16 +291,21 @@ const SizesList = () => {
       },
       filterMultiple: false,
       filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
     },
     {
       title: 'Fecha Creación',
@@ -309,9 +329,11 @@ const SizesList = () => {
       title: 'Acción',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_: string, SizeID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            disabled={!canEdit}
             onClick={() => visibleModal(SizeID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -325,18 +347,17 @@ const SizesList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Tallas
-          </Title>
+          <Title level={4}>Tallas</Title>
         </Space>
       }
     >
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row>
-            <Col span={12} style={{ marginBottom: 10 }}>
+          <Row gutter={[0, 20]} align="middle">
+            <Col span={11}>
               <Button
+                disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
@@ -345,21 +366,24 @@ const SizesList = () => {
                 Nuevo
               </Button>
             </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
+            <Col span={13} className={styles.alignRigth}>
               <Text strong>Total Encontrados:</Text> {data?.sizes?.totalDocs}{' '}
               <Text strong>Páginas: </Text> {data?.sizes?.page} / {data?.sizes?.totalPages || 0}
             </Col>
+            <Col span={24}>
+              <Table
+                columns={columns}
+                dataSource={data?.sizes?.docs}
+                pagination={{
+                  current: data?.sizes?.page,
+                  total: data?.sizes?.totalDocs,
+                }}
+                loading={loading}
+                onChange={handleChangeTable}
+                scroll={{ x: 'auto' }}
+              />
+            </Col>
           </Row>
-          <Table
-            columns={columns}
-            dataSource={data?.sizes?.docs}
-            pagination={{
-              current: data?.sizes?.page,
-              total: data?.sizes?.totalDocs,
-            }}
-            loading={loading}
-            onChange={handleChangeTable}
-          />
         </div>
       </Card>
       <CreateSize modalVisible={visible} onCancel={closeModal} current={size} />

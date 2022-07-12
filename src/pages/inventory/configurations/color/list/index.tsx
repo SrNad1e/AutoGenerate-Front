@@ -26,11 +26,12 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import moment from 'moment';
 import type { Location } from 'umi';
-import { history, useLocation } from 'umi';
+import { history, useLocation, useAccess } from 'umi';
 import CreateColors from '@/components/CreateColor';
 import type { Color, FiltersColorsInput } from '@/graphql/graphql';
 
 import styles from './styles.less';
+import Filters from '@/components/Filters';
 
 type FormData = {
   name?: string;
@@ -51,6 +52,10 @@ const ColorsList = () => {
   const { Text } = Typography;
   const [form] = Form.useForm();
   const location: Location = useLocation();
+
+  const {
+    color: { canCreate, canEdit },
+  } = useAccess();
 
   const [getColors, { data, loading }] = useGetColors();
 
@@ -236,24 +241,24 @@ const ColorsList = () => {
    * @description se encarga de renderizar la interfaz de busqueda
    */
   const renderFormSearch = () => (
-    <Form layout="inline" onFinish={onFinish} form={form}>
-      <Row gutter={[8, 8]}>
-        <Col span={12}>
-          <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="Nombre del color" autoComplete="off" />
+    <Form onFinish={onFinish} form={form}>
+      <Row gutter={[8, 8]} align="middle">
+        <Col xs={24} md={13} lg={10}>
+          <FormItem label="Nombre" name="name">
+            <Input placeholder="Nombre del color" autoComplete="off" style={{ width: '100%' }} />
+          </FormItem>
+        </Col>
+        <Col xs={24} md={8}>
+          <FormItem label="">
+            <Button type="primary" htmlType="submit">
+              Buscar
+            </Button>
+            <Button style={{ marginLeft: 8 }} onClick={onClear}>
+              Limpiar
+            </Button>
           </FormItem>
         </Col>
       </Row>
-      <Col span={12}>
-        <span className={styles.submitButtons}>
-          <Button type="primary" htmlType="submit">
-            Buscar
-          </Button>
-          <Button style={{ marginLeft: 8 }} onClick={onClear}>
-            Limpiar
-          </Button>
-        </span>
-      </Col>
     </Form>
   );
 
@@ -265,7 +270,7 @@ const ColorsList = () => {
       sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
       showSorterTooltip: false,
       render: (name: string, { image, html }) => (
-        <>
+        <Space>
           <Avatar
             style={{
               border: image ? 'solid 1px black' : '',
@@ -277,8 +282,8 @@ const ColorsList = () => {
             style={{ backgroundColor: html, border: 'solid 1px black', marginLeft: 10 }}
             shape="square"
           />
-          <Text style={{ marginLeft: 10 }}>{name}</Text>
-        </>
+          <Text>{name}</Text>
+        </Space>
       ),
     },
     {
@@ -293,16 +298,21 @@ const ColorsList = () => {
       },
       filterMultiple: false,
       filteredValue: filterTable?.active || null,
-      filters: [
-        {
-          text: 'Si',
-          value: true,
-        },
-        {
-          text: 'No',
-          value: false,
-        },
-      ],
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
     },
     {
       title: 'Fecha Creación',
@@ -326,9 +336,11 @@ const ColorsList = () => {
       title: 'Acción',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_: string, colorID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            disabled={!canEdit}
             onClick={() => visibleModal(colorID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -351,9 +363,10 @@ const ColorsList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row>
-            <Col span={12} style={{ marginBottom: 10 }}>
+          <Row gutter={[0, 20]} align="middle">
+            <Col span={12}>
               <Button
+                disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
@@ -362,22 +375,25 @@ const ColorsList = () => {
                 Nuevo
               </Button>
             </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
+            <Col span={12} className={styles.alignRigth}>
               <Text strong>Total Encontrados:</Text> {data?.colors.totalDocs}{' '}
               <Text strong>Páginas: </Text> {data?.colors.page} / {data?.colors.totalPages || 0}
             </Col>
+            <Col span={24}>
+              <Table
+                columns={columns}
+                dataSource={data?.colors.docs}
+                pagination={{
+                  current: data?.colors.page,
+                  total: data?.colors.totalDocs,
+                  showSizeChanger: false,
+                }}
+                loading={loading}
+                onChange={handleChangeTable}
+                scroll={{ x: 'auto' }}
+              />
+            </Col>
           </Row>
-          <Table
-            columns={columns}
-            dataSource={data?.colors.docs}
-            pagination={{
-              current: data?.colors.page,
-              total: data?.colors.totalDocs,
-              showSizeChanger: false,
-            }}
-            loading={loading}
-            onChange={handleChangeTable}
-          />
         </div>
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />

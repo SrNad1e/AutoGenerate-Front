@@ -1,23 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { EditOutlined, PlusOutlined, PlusSquareOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Form,
-  Input,
-  Row,
-  Space,
-  Table,
-  Tooltip,
-  Typography,
-} from 'antd';
+import { Button, Card, Col, Form, Input, Row, Space, Table, Tooltip, Typography } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
-import { useLocation, history } from 'umi';
+import { useLocation, history, useAccess } from 'umi';
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -59,6 +47,10 @@ const CategoryList = () => {
   const [form] = Form.useForm();
 
   const location: Location = useLocation();
+
+  const {
+    categories: { canEdit, canCreate },
+  } = useAccess();
 
   const [getCategories, { data, loading }] = useGetCategories();
 
@@ -274,24 +266,28 @@ const CategoryList = () => {
    * @description se encarga de renderizar la interfaz de busqueda
    */
   const renderFormSearch = () => (
-    <Form layout="inline" onFinish={onFinish} form={form}>
-      <Row gutter={[8, 8]}>
-        <Col span={12}>
-          <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-            <Input placeholder="" autoComplete="off" />
+    <Form onFinish={onFinish} form={form}>
+      <Row gutter={[8, 8]} align="middle">
+        <Col xs={24} md={10} lg={8}>
+          <FormItem label="Nombre" name="name">
+            <Input
+              placeholder="Nombre de la categoria"
+              autoComplete="off"
+              style={{ width: '100%' }}
+            />
+          </FormItem>
+        </Col>
+        <Col xs={24} md={8}>
+          <FormItem label="">
+            <Button type="primary" htmlType="submit">
+              Buscar
+            </Button>
+            <Button style={{ marginLeft: 8 }} onClick={onClear}>
+              Limpiar
+            </Button>
           </FormItem>
         </Col>
       </Row>
-      <Col span={12}>
-        <span className={styles.submitButtons}>
-          <Button type="primary" htmlType="submit">
-            Buscar
-          </Button>
-          <Button style={{ marginLeft: 8 }} onClick={onClear}>
-            Limpiar
-          </Button>
-        </span>
-      </Col>
     </Form>
   );
 
@@ -326,28 +322,28 @@ const CategoryList = () => {
       title: 'Accion',
       align: 'center',
       dataIndex: '__typename',
+      fixed: 'right',
       render: (val: string, categoryData) => (
-        <>
+        <Space>
           <Tooltip title="Editar" placement="topLeft">
             <Button
+              disabled={!canEdit}
               onClick={() => visibleModal(categoryData, false)}
               style={{ backgroundColor: '#dc9575' }}
               icon={<EditOutlined style={{ color: 'white' }} />}
             />
           </Tooltip>
           {val !== 'CategoryLevel3' && (
-            <>
-              <Divider type="vertical" />
-              <Tooltip title="Crear Subcategoria" placement="topLeft">
-                <Button
-                  onClick={() => visibleModal(categoryData, true)}
-                  style={{ backgroundColor: '#dc9575' }}
-                  icon={<PlusSquareOutlined style={{ color: 'white' }} />}
-                />
-              </Tooltip>
-            </>
+            <Tooltip title="Crear Subcategoria" placement="topLeft">
+              <Button
+                disabled={!canCreate}
+                onClick={() => visibleModal(categoryData, true)}
+                style={{ backgroundColor: '#dc9575' }}
+                icon={<PlusSquareOutlined style={{ color: 'white' }} />}
+              />
+            </Tooltip>
           )}
-        </>
+        </Space>
       ),
     },
   ];
@@ -356,49 +352,51 @@ const CategoryList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Categorias
-          </Title>
+          <Title level={4}>Categorias</Title>
         </Space>
       }
     >
       <Card className={styles.tableList}>
         <div className={styles.tableListForm}>{renderFormSearch()}</div>
-        <Row>
-          <Col span={12} style={{ marginBottom: 10 }}>
+        <Row gutter={[0, 20]} align="middle">
+          <Col span={12}>
             <Button
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
               onClick={() => visibleModal({ __typename: 'CategoryLevel1' }, true)}
+              disabled={!canCreate}
             >
               Nuevo
             </Button>
           </Col>
-          <Col span={12} style={{ textAlign: 'right' }}>
+          <Col span={12} className={styles.alignRigth}>
             <Text strong>Total Encontrados:</Text> {data?.categories.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.categories.page} /{' '}
             {data?.categories.totalPages || 0}
           </Col>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              rowKey="_id"
+              expandable={{
+                childrenColumnName: 'childs',
+                expandedRowClassName: (/*record, index, indent*/) => {
+                  return styles.prueba;
+                },
+              }}
+              loading={loading}
+              dataSource={data?.categories.docs}
+              pagination={{
+                current: data?.categories.page,
+                total: data?.categories.totalDocs,
+                showSizeChanger: false,
+              }}
+              onChange={handleChangeTable}
+              scroll={{ x: 'auto' }}
+            />
+          </Col>
         </Row>
-        <Table
-          columns={columns}
-          rowKey="_id"
-          expandable={{
-            childrenColumnName: 'childs',
-            expandedRowClassName: (/*record, index, indent*/) => {
-              return styles.prueba;
-            },
-          }}
-          loading={loading}
-          dataSource={data?.categories.docs}
-          pagination={{
-            current: data?.categories.page,
-            total: data?.categories.totalDocs,
-            showSizeChanger: false,
-          }}
-          onChange={handleChangeTable}
-        />
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       <CreateCategory

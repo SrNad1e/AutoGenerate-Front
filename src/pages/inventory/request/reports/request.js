@@ -293,6 +293,10 @@ export default class ReportRequest extends React.PureComponent {
               </div>
             ))}
           </div>
+          <div>
+            <div style={{ fontWeight: 'bold' }}>Observación: </div>
+            <div>{data?.observation} </div>
+          </div>
         </div>
         <div style={classes.footer}>
           <div

@@ -1,5 +1,6 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
+import type { Reference } from '@/graphql/graphql';
 import {
   CreateReferenceDocument,
   ReferenceIdDocument,
@@ -24,5 +25,23 @@ export const useCreateReference = () => {
 };
 
 export const useUpdateReference = () => {
-  return useMutation(UpdateReferenceDocument);
+  return useMutation(UpdateReferenceDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          references(existingReferences = []) {
+            return existingReferences?.docs?.map((reference: Reference) => {
+              if (reference?._id === data?.updateReference?._id) {
+                return data?.updateReference;
+              }
+              return reference;
+            });
+          },
+          referenceId() {
+            return data?.updateReference;
+          },
+        },
+      });
+    },
+  });
 };

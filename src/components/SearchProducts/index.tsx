@@ -7,7 +7,8 @@ import ModalSearchProducts from './Modal';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetProduct } from '@/hooks/product.hooks';
-import type { DetailRequest, Product } from '@/graphql/graphql';
+import type { DetailRequest, DetailTransfer, Product } from '@/graphql/graphql';
+import validateCodeBar from '@/libs/validateCodeBar';
 
 const { Search } = Input;
 
@@ -15,7 +16,7 @@ export type Props = {
   barcode?: boolean;
   validateStock?: boolean;
   quantity?: number;
-  details?: Partial<DetailRequest & { action: string }>[];
+  details?: Partial<(DetailRequest | DetailTransfer) & { action: string }>[];
   warehouseId: string | undefined;
   createDetail: (product: Product, quantity: number) => void;
   updateDetail: (product: Product, quantity: number) => void;
@@ -62,10 +63,12 @@ const SearchProducts = ({
    */
   const onPressEnter = async (e: any) => {
     setError(undefined);
+    const value = validateCodeBar(e?.target?.value);
     const response = await getProduct({
       variables: {
         input: {
-          barcode: e.target.value,
+          status: 'active',
+          barcode: value,
           warehouseId,
         },
       },
@@ -79,7 +82,7 @@ const SearchProducts = ({
         createDetail(response?.data?.product as Product, quantity || 1);
       }
     } else {
-      setError('Producto no existe');
+      setError('Producto no existe o no se encuentra activo');
     }
     searchRef?.current?.select();
   };

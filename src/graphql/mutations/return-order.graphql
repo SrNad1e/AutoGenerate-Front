@@ -1,0 +1,22 @@
+mutation createReturnOrder($input: CreateReturnOrderInput!) {
+  createReturnOrder(createReturnOrderInput: $input) {
+    number
+    coupon {
+      code
+      title
+      number
+      message
+      createdAt
+      updatedAt
+      expiration
+      value
+      _id
+    }
+    order {
+      number
+      shop {
+        name
+      }
+    }
+  }
+}

@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/dot-notation */
 import type { ColumnsType } from 'antd/lib/table';
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
@@ -27,6 +29,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import type { DetailRequest, Product, StockRequest } from '@/graphql/graphql';
+import { ActionDetailRequest, StatusStockRequest } from '@/graphql/graphql';
 import Footer from './footer';
 import Header from './header';
 
@@ -38,12 +41,15 @@ const { Text } = Typography;
 export type Props = {
   request?: Partial<StockRequest>;
   setCurrentStep: (step: number) => void;
+  allowEdit: boolean;
 };
 
-const FormRequest = ({ request, setCurrentStep }: Props) => {
+const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
   const { initialState } = useModel('@@initialState');
 
-  const [details, setDetails] = useState<Partial<DetailRequest & { action: string }>[]>([]);
+  const [details, setDetails] = useState<
+    Partial<DetailRequest & { action: ActionDetailRequest }>[]
+  >([]);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -53,7 +59,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
     type: TYPES;
     visible: boolean;
     message: string;
-    status?: string;
+    status?: StatusStockRequest;
   }>({
     visible: false,
     message: '',
@@ -65,8 +71,6 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
 
   const [createRequest, paramsCreate] = useCreateRequest();
   const [updateRequest, paramsUpdate] = useUpdateRequest();
-
-  const allowEdit = request?.status === 'open';
 
   /**
    * @description se encarga de abrir aviso de información
@@ -96,9 +100,13 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
    * @description se encarga de mostrar la alerta de guardado y cancelar
    * @param status estado actual de la solicitud
    */
-  const showAlertSave = (status?: string) => {
-    if (details.length > 0 || status === 'cancelled' || observation !== request?.observation) {
-      if (status === 'cancelled') {
+  const showAlertSave = (status?: StatusStockRequest) => {
+    if (
+      details.length > 0 ||
+      status === StatusStockRequest.Cancelled ||
+      observation !== request?.observation
+    ) {
+      if (status === StatusStockRequest.Cancelled) {
         setPropsAlertSave({
           status,
           visible: true,
@@ -122,7 +130,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
    * @description se encarga de guardar el traslado
    * @param status se usa para definir el estado de la solicitud
    */
-  const saveRequest = async (status?: string) => {
+  const saveRequest = async (status?: StatusStockRequest) => {
     try {
       if (id) {
         const detailsFilter = details.filter((detail) => detail?.action);
@@ -130,14 +138,16 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
         const newDetails = detailsFilter.map((detail) => ({
           productId: detail?.product?._id || '',
           quantity: detail?.quantity || 1,
-          action: detail?.action || '',
+          action: detail.action as ActionDetailRequest,
         }));
+
         if (newDetails.length > 0 || status || observation !== request?.observation) {
           const props = {
             details: newDetails,
             observation,
             status,
           };
+          console.log(props);
 
           const response = await updateRequest({
             variables: {
@@ -156,7 +166,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
           onShowInformation('La solicitud no tiene cambios a realizar');
         }
       } else {
-        if (status === 'cancelled') {
+        if (status === StatusStockRequest.Cancelled) {
           setCurrentStep(0);
         } else {
           const newDetails = details.map((detail) => ({
@@ -210,7 +220,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
             if (detail?.product?._id === _id) {
               return {
                 ...detail,
-                action: 'delete',
+                action: ActionDetailRequest.Delete,
               };
             }
             return detail;
@@ -226,14 +236,15 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Product, quantity: number) => {
+    const productFind = request?.details?.find((detail) => detail?.product?._id === product?._id);
     if (setDetails) {
       setDetails(
         details.map((detail) => {
           if (detail?.product?._id === product._id) {
             return {
               ...detail,
-              quantity: quantity || 0,
-              action: detail?.action ?? 'update',
+              quantity: quantity || 1,
+              action: productFind ? ActionDetailRequest.Update : ActionDetailRequest.Create,
             };
           }
           return detail;
@@ -248,8 +259,13 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
    * @param quantity cantidad del producto
    */
   const createDetail = (product: Product, quantity: number) => {
-    if (setDetails) {
-      setDetails([...details, { product, quantity, action: 'create' }]);
+    const findProduct = request?.details?.find((detail) => detail?.product?._id === product._id);
+    if (findProduct) {
+      updateDetail(product, quantity);
+    } else {
+      if (setDetails) {
+        setDetails([...details, { product, quantity, action: ActionDetailRequest.Create }]);
+      }
     }
   };
 
@@ -276,7 +292,9 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(request?.details || []);
+      if (details?.length === 0) {
+        setDetails(request?.details || []);
+      }
       setObservation(request?.observation || '');
     }
   }, [request, id]);
@@ -288,7 +306,7 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
   };
 
   const propsSearchProduct: PropsSearchProduct = {
-    details,
+    details: details.filter((item) => item.action !== ActionDetailRequest.Delete),
     warehouseId: request?.warehouseOrigin?._id,
     createDetail,
     updateDetail,
@@ -335,14 +353,18 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
-      render: ({ stock = [] }: Product) =>
-        stock?.length > 0 && (
+      render: ({ stock = [] }: Product, record) =>
+        record?.__typename ? (
           <Badge
             overflowCount={99999}
-            count={stock[0]?.quantity}
-            style={{ backgroundColor: (stock[0]?.quantity || 0) > 0 ? '#dc9575' : 'red' }}
+            count={(stock && stock[0]?.quantity) || 0}
+            style={{
+              backgroundColor: ((stock && stock[0]?.quantity) || 0) > 0 ? '#dc9575' : 'red',
+            }}
             showZero
           />
+        ) : (
+          'Pendiente'
         ),
     },
     {
@@ -356,7 +378,6 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
           max={product?.stock ? product?.stock[0]?.quantity : 0}
           onChange={(value) => updateDetail(product as Product, value)}
           disabled={!allowEdit}
-          style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
     },
@@ -380,7 +401,12 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
 
   return (
     <>
-      <Header request={request} setObservation={setObservation} observation={observation} />
+      <Header
+        allowEdit={allowEdit}
+        request={request}
+        setObservation={setObservation}
+        observation={observation}
+      />
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
@@ -393,12 +419,17 @@ const FormRequest = ({ request, setCurrentStep }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== 'delete')}
-          scroll={{ x: 1000 }}
+          dataSource={details.filter((detail) => detail?.action !== ActionDetailRequest.Delete)}
+          scroll={{ x: 800, y: 200 }}
           pagination={{ size: 'small' }}
         />
       </Card>
-      <Footer request={request} saveRequest={showAlertSave} details={details} />
+      <Footer
+        allowEdit={allowEdit}
+        request={request}
+        saveRequest={showAlertSave}
+        details={details}
+      />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertLoading
         visible={paramsCreate?.loading || paramsUpdate?.loading}

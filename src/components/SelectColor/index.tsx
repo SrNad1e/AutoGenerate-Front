@@ -46,7 +46,7 @@ const SelectColor = ({ onChange, value, disabled }: Props) => {
         },
       },
     });
-  }, []);
+  }, [!!value]);
 
   return (
     <>
@@ -54,7 +54,7 @@ const SelectColor = ({ onChange, value, disabled }: Props) => {
         showSearch
         loading={loading}
         placeholder="Seleccione Color"
-        optionFilterProp="children"
+        optionFilterProp="name"
         onChange={onChange}
         onSearch={onSearch}
         value={value}
