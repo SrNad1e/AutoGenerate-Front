@@ -233,6 +233,14 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateConfigurationShop,
       ),
     },
+    warehouse: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateConfigurationWarehouse,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateConfigurationWarehouse,
+      ),
+    },
     paymentMethod: {
       canEdit: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === Permissions.UpdateTreasuryPayment,

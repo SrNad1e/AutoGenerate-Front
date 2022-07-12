@@ -362,6 +362,12 @@ export default defineConfig({
           access: 'allowOption',
           routes: [
             {
+              name: 'Bodegas',
+              path: '/configurations/warehouse',
+              component: './configurations/warehouse/list',
+              access: 'allowOption',
+            },
+            {
               name: 'Usuarios',
               path: '/configurations/users',
               component: './configurations/users/list',

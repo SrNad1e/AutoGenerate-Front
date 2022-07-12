@@ -7097,6 +7097,25 @@ export type UpdateUserMutation = {
   updateUser: { __typename?: 'User'; _id: string; username: string; name: string };
 };
 
+export type CreateWarehouseMutationVariables = Exact<{
+  input: CreateWarehouseInput;
+}>;
+
+export type CreateWarehouseMutation = {
+  __typename?: 'Mutation';
+  createWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
+};
+
+export type UpdateWarehouseMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateWarehouseInput;
+}>;
+
+export type UpdateWarehouseMutation = {
+  __typename?: 'Mutation';
+  updateWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
+};
+
 export type StockAdjustmentQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
@@ -8866,7 +8885,16 @@ export type WarehousesQuery = {
     page: number;
     totalDocs: number;
     totalPages: number;
-    docs: { __typename?: 'Warehouse'; _id: string; name: string }[];
+    docs: {
+      __typename?: 'Warehouse';
+      max: number;
+      min: number;
+      _id: string;
+      name: string;
+      updatedAt: any;
+      active: boolean;
+      user: { __typename?: 'User'; name: string };
+    }[];
   };
 };
 
@@ -14282,6 +14310,105 @@ export const UpdateUserDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateUserMutation, UpdateUserMutationVariables>;
+export const CreateWarehouseDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createWarehouse' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateWarehouseInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createWarehouse' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createWarehouseInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateWarehouseMutation, CreateWarehouseMutationVariables>;
+export const UpdateWarehouseDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateWarehouse' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateWarehouseInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateWarehouse' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateWarehouseInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateWarehouseMutation, UpdateWarehouseMutationVariables>;
 export const StockAdjustmentDocument = {
   kind: 'Document',
   definitions: [
@@ -19760,8 +19887,20 @@ export const WarehousesDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'max' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'min' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                     ],
                   },
                 },
