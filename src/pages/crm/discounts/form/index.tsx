@@ -284,6 +284,12 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
           : [undefined, undefined],
       customerIds: discountData?.rules && [...discountData.rules[0].documentIds],
     });
+    if (discountData.percent > 0) {
+      setDisabledValue(true);
+    }
+    if (discountData.value > 0) {
+      setDisabledPercent(true);
+    }
 
     if (discountData?.rules) {
       if (discountData?.rules[0]?.documentType === 'CATEGORIES') {
