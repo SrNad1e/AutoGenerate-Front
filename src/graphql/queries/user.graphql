@@ -5,6 +5,10 @@ query currentUser {
     name
     pointOfSale {
       _id
+      box {
+        _id
+        
+      }
     }
     shop {
       _id
@@ -15,6 +19,7 @@ query currentUser {
       }
     }
     role {
+      changeWarehouse
       name
       changeWarehouse
       permissions {

@@ -21,36 +21,36 @@ const NewAddress = ({ visible, onCancel }: Props) => {
     >
       {' '}
       <Form layout="vertical">
-        <Row gutter={[0, 10]}>
+        <Row>
           <Col span={24}>
             <FormItem label="Dirección">
-              <Row align="middle">
-                <Col span={4}>
-                  <Input style={styles.inputWidth} />
+              <Row align="middle" gutter={[0, 20]}>
+                <Col span={5}>
+                  <Input placeholder="Carrera" style={styles.directionInput} />
                 </Col>
-                <Col span={1}>-</Col>
-                <Col span={4}>
-                  <Input style={styles.directionInput} />
+                <Col span={5}>
+                  <Input placeholder="52" style={styles.directionInput} />
                 </Col>
                 <Col span={1}>#</Col>
-                <Col span={4}>
-                  <Input style={styles.directionInput} />
+                <Col span={5}>
+                  <Input placeholder="84a" style={styles.directionInput} />
                 </Col>
                 <Col span={1}>-</Col>
-                <Col span={4}>
-                  <Input style={styles.directionInput} />
+                <Col span={5}>
+                  <Input placeholder="22" style={styles.directionInput} />
                 </Col>
-                <Col span={1}>-</Col>
+                <Col span={10}>
+                  <Input placeholder="Ejemplo: 2do Piso" style={styles.directionInput} />
+                </Col>
+                <Col span={10}>
+                  <Input placeholder="Ejemplo: El Guayabo" style={styles.directionInput} />
+                </Col>
                 <Col span={4}>
-                  <Input style={styles.directionInput} />
+                  <FormItem label="¿Es Principal?" colon={false}>
+                    <Checkbox />
+                  </FormItem>
                 </Col>
               </Row>
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem label="Barrio" labelCol={{ span: 4 }}>
-              {' '}
-              <Input style={styles.inputWidth} />
             </FormItem>
           </Col>
           <Col span={12}>
@@ -61,11 +61,6 @@ const NewAddress = ({ visible, onCancel }: Props) => {
           <Col span={12}>
             <FormItem label="Telefóno">
               <Input style={styles.inputWidth} />
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem label="Es Principal?" colon={false}>
-              <Checkbox />
             </FormItem>
           </Col>
         </Row>
