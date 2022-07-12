@@ -266,18 +266,28 @@ const CategoryList = () => {
    * @description se encarga de renderizar la interfaz de busqueda
    */
   const renderFormSearch = () => (
-    <Form layout="inline" onFinish={onFinish} form={form}>
-      <FormItem label="Nombre" name="name" style={{ width: 300 }}>
-        <Input placeholder="" autoComplete="off" />
-      </FormItem>
-      <span className={styles.submitButtons}>
-        <Button type="primary" htmlType="submit">
-          Buscar
-        </Button>
-        <Button style={{ marginLeft: 8 }} onClick={onClear}>
-          Limpiar
-        </Button>
-      </span>
+    <Form onFinish={onFinish} form={form}>
+      <Row gutter={[8, 8]} align="middle">
+        <Col xs={24} md={10} lg={8}>
+          <FormItem label="Nombre" name="name">
+            <Input
+              placeholder="Nombre de la categoria"
+              autoComplete="off"
+              style={{ width: '100%' }}
+            />
+          </FormItem>
+        </Col>
+        <Col xs={24} md={8}>
+          <FormItem label="">
+            <Button type="primary" htmlType="submit">
+              Buscar
+            </Button>
+            <Button style={{ marginLeft: 8 }} onClick={onClear}>
+              Limpiar
+            </Button>
+          </FormItem>
+        </Col>
+      </Row>
     </Form>
   );
 

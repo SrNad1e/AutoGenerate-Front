@@ -2,7 +2,7 @@
 import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
-import { useGetBox } from '@/hooks/box.hooks';
+import { useGetBoxes } from '@/hooks/box.hooks';
 
 const { Option } = Select;
 
@@ -13,7 +13,7 @@ export type Params = {
 };
 
 const SelectBox = ({ onChange, disabled, value }: Params) => {
-  const [getBoxes, { loading, data, error }] = useGetBox();
+  const [getBoxes, { loading, data, error }] = useGetBoxes();
 
   /**
    * @description se encarga de consultar con base a un comodín

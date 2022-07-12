@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
   Avatar,
@@ -307,7 +308,9 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(output?.details || []);
+      if (details?.length === 0) {
+        setDetails(output?.details || []);
+      }
       setObservation(output?.observation || '');
     }
   }, [output, id]);

@@ -320,7 +320,7 @@ const CustomerList = () => {
     {
       title: (
         <>
-          <MoreOutlined /> Opciones
+          <MoreOutlined /> Opción
         </>
       ),
       dataIndex: '_id',
