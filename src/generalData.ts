@@ -113,7 +113,15 @@ export const typesAccess = {
       Permissions.AccessInvoicingClosesx,
       Permissions.AccessInvoicingClosesz,
       Permissions.AccessInvoicingReturns,
+      Permissions.AccessInvoicingPointofsales,
+      Permissions.AccessInvoicingAuthorizations,
     ],
+  },
+  '/invoicing/pointOfSale': {
+    access: [Permissions.ReadInvoicingPointofsales],
+  },
+  '/invoicing/authorizationDian': {
+    access: [Permissions.ReadInvoicingAuthorizations],
   },
   '/invoicing/closings': {
     access: [Permissions.AccessInvoicingClosesx, Permissions.AccessInvoicingClosesz],
@@ -125,7 +133,11 @@ export const typesAccess = {
     access: [Permissions.ReadInvoicingClosesz],
   },
   '/configurations': {
-    access: [Permissions.AccessConfigurationRoles, Permissions.AccessConfigurationUsers],
+    access: [
+      Permissions.AccessConfigurationRoles,
+      Permissions.AccessConfigurationUsers,
+      Permissions.AccessConfigurationShops,
+    ],
   },
   '/configurations/users': {
     access: [Permissions.ReadConfigurationUsers],
@@ -141,6 +153,9 @@ export const typesAccess = {
   },
   '/configurations/roles/:id': {
     access: [Permissions.UpdateConfigurationRole],
+  },
+  '/configurations/shop': {
+    access: [Permissions.ReadConfigurationShops],
   },
   '/invoicing/return': {
     access: [Permissions.ReadInvoicingReturns],
@@ -160,5 +175,43 @@ export const typesAccess = {
   },
   '/pos/closes/closingZ': {
     access: [Permissions.ReadInvoicingClosesz],
+  },
+  //Treasury
+  '/treasury': {
+    access: [
+      Permissions.AccessTreasuryExpenses,
+      Permissions.AccessTreasuryReceipts,
+      Permissions.AccessTreasuryPayments,
+      Permissions.AccessTreasuryBoxes,
+    ],
+  },
+  '/treasury/boxes': {
+    access: [Permissions.ReadTreasuryBoxes],
+  },
+  '/treasury/expenses': {
+    access: [Permissions.ReadTreasuryExpenses],
+  },
+  '/treasury/receipt': {
+    access: [Permissions.ReadTreasuryReceipts],
+  },
+  '/treasury/paymentMethods': {
+    access: [Permissions.ReadTreasuryPayments],
+  },
+  //Wallets
+  '/wallets': {
+    access: [Permissions.AccessCredits],
+  },
+  '/wallets/credits': {
+    access: [Permissions.ReadCredits],
+  },
+  //crm
+  '/crm': {
+    access: [Permissions.AccessCrmCustomers, Permissions.AccessCrmDiscountrules],
+  },
+  '/crm/customer': {
+    access: [Permissions.ReadCrmCustomers],
+  },
+  '/crm/discount': {
+    access: [Permissions.ReadCrmDiscountrules],
   },
 };

@@ -1,0 +1,13 @@
+mutation createAuthorization($input: CreateAuthorizationInput!) {
+  createAuthorization(createAuthorizationInput: $input) {
+    _id
+    prefix
+  }
+}
+
+mutation updateAuthorization($id: String!, $input: UpdateAuthorizationInput!) {
+  updateAuthorization(id: $id, updateAuthorizationInput: $input) {
+    _id
+    prefix
+  }
+}

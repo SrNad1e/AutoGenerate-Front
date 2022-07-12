@@ -18,6 +18,7 @@ export default function access(initialState: { currentUser?: User | undefined })
         return false;
       }
     },
+    allowCompany: currentUser?.username === 'admin',
     allowERP: !!initialState?.currentUser?.role?.permissions.find(
       (permission) => permission?.action === 'ACCESS_ERP',
     ),
@@ -171,6 +172,89 @@ export default function access(initialState: { currentUser?: User | undefined })
       ),
       canCreate: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === Permissions.CreateConfigurationUser,
+      ),
+    },
+    pointOfSales: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateInvoicingPointofsale,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateInvoicingPointofsale,
+      ),
+    },
+    expense: {
+      canCancelled: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateTreasuryExpense,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateTreasuryExpense,
+      ),
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintTreasuryExpense,
+      ),
+    },
+    receipt: {
+      canCancelled: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateTreasuryReceipt,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateTreasuryReceipt,
+      ),
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintTreasuryReceipt,
+      ),
+    },
+    credit: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCredit,
+      ),
+    },
+    customer: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCrmCustomer,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateCrmCustomer,
+      ),
+    },
+    shop: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateConfigurationShop,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateConfigurationShop,
+      ),
+    },
+    paymentMethod: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateTreasuryPayment,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateTreasuryPayment,
+      ),
+    },
+    box: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateTreasuryBox,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateTreasuryBox,
+      ),
+    },
+    authorization: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateInvoicingAuthorization,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateInvoicingAuthorization,
+      ),
+    },
+    discount: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCrmDiscountrule,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateCrmDiscountrule,
       ),
     },
   };
