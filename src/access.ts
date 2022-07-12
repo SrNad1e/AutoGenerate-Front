@@ -217,6 +217,14 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateCrmCustomer,
       ),
     },
+    city: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCrmCity,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateCrmCity,
+      ),
+    },
     shop: {
       canEdit: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === Permissions.UpdateConfigurationShop,

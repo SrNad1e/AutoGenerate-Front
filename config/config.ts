@@ -409,11 +409,19 @@ export default defineConfig({
           name: 'CRM',
           path: '/crm',
           icon: 'radarChart',
+          access: 'allowOption',
           routes: [
             {
               name: 'Clientes',
               path: '/crm/customer',
               component: './crm/customers/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Ciudades',
+              path: '/crm/cities',
+              component: './crm/cities/list',
+              access: 'allowOption',
             },
             {
               name: 'Cupones',

@@ -209,11 +209,15 @@ export const typesAccess = {
     access: [
       Permissions.AccessCrmCustomers,
       Permissions.AccessCrmCoupons,
+      Permissions.AccessCrmCities,
       Permissions.AccessCrmDiscountrules,
     ],
   },
   '/crm/customer': {
     access: [Permissions.ReadCrmCustomers],
+  },
+  '/crm/cities': {
+    access: [Permissions.ReadCrmCities],
   },
   '/crm/coupon': {
     access: [Permissions.ReadCrmCoupons],
