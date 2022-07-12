@@ -301,25 +301,31 @@ const RolesList = () => {
   return (
     <PageContainer title="Lista de roles">
       <Card>
-        <Form layout="inline" form={form} onFinish={onFinish}>
-          <FormItem label="Nombre" name="name">
-            <Input placeholder="Nombre del rol" />
-          </FormItem>
-          <FormItem>
-            <Space>
-              <Button
-                type="primary"
-                htmlType="submit"
-                style={styles.buttonR}
-                icon={<SearchOutlined />}
-              >
-                Buscar
-              </Button>
-              <Button htmlType="reset" onClick={() => onClear()} style={styles.buttonR}>
-                Limpiar
-              </Button>
-            </Space>
-          </FormItem>
+        <Form form={form} onFinish={onFinish}>
+          <Row gutter={20}>
+            <Col xs={24} md={8} lg={8}>
+              <FormItem label="Nombre" name="name">
+                <Input placeholder="Nombre del rol" />
+              </FormItem>
+            </Col>
+            <Col xs={24} md={8} lg={8} xl={6}>
+              <FormItem>
+                <Space>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={styles.buttonR}
+                    icon={<SearchOutlined />}
+                  >
+                    Buscar
+                  </Button>
+                  <Button htmlType="reset" onClick={() => onClear()} style={styles.buttonR}>
+                    Limpiar
+                  </Button>
+                </Space>
+              </FormItem>
+            </Col>
+          </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={styles.marginFIlters}>
           <Col span={24} style={styles.alignText}>

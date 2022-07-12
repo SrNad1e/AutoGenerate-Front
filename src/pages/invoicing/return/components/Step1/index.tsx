@@ -250,7 +250,7 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
     <>
       <Form layout="inline" form={form} onFinish={onFinish}>
         <Row>
-          <Col xs={6} md={7} lg={6}>
+          <Col xs={24} md={7} lg={6}>
             <FormItem label="Número de Pedido" name="number">
               <InputNumber autoFocus controls={false} placeholder="Ejem: 10" />
             </FormItem>

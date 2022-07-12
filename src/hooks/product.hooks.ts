@@ -17,7 +17,8 @@ export const useGetProducts = () => {
 
 export const useGetProduct = () => {
   return useLazyQuery(ProductDocument, {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'cache-first',
   });
 };
 

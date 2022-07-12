@@ -297,6 +297,17 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'Puntos de Venta',
+              path: '/invoicing/pointOfSale',
+              component: './invoicing/pointOfSales/list',
+            },
+            {
+              name: 'Autorización Dian',
+              path: '/invoicing/authorizationDian',
+              component: './invoicing/authorizationDian/list',
+              access: 'allowOption',
+            },
+            {
               name: 'Cierres',
               path: '/invoicing/closings',
               access: 'allowOption',
@@ -328,6 +339,11 @@ export default defineConfig({
               component: './treasury/expenses/list',
             },
             {
+              name: 'Cajas',
+              path: '/treasury/boxes',
+              component: './treasury/boxes/list',
+            },
+            {
               name: 'Recibo de Cajas',
               path: '/treasury/cashReceipt',
               component: './treasury/cashReceipt/list',
@@ -350,6 +366,12 @@ export default defineConfig({
               path: '/configurations/users',
               component: './configurations/users/list',
               access: 'allowOption',
+            },
+            {
+              name: 'Compañias',
+              path: '/configurations/companies',
+              component: './configurations/companies/list',
+              access: 'allowCompany',
             },
             {
               name: 'Tiendas',
@@ -397,6 +419,11 @@ export default defineConfig({
               name: 'Cupones',
               path: '/crm/coupon',
               component: './crm/coupons/list',
+            },
+            {
+              name: 'Descuentos',
+              path: '/crm/discount',
+              component: './crm/discounts/list',
             },
           ],
         },

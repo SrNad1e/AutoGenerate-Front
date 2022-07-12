@@ -113,7 +113,15 @@ export const typesAccess = {
       Permissions.AccessInvoicingClosesx,
       Permissions.AccessInvoicingClosesz,
       Permissions.AccessInvoicingReturns,
+      Permissions.AccessInvoicingPointofsales,
+      Permissions.AccessInvoicingAuthorizations,
     ],
+  },
+  '/invoicing/pointOfSale': {
+    access: [Permissions.ReadInvoicingPointofsales],
+  },
+  '/invoicing/authorizationDian': {
+    access: [Permissions.ReadInvoicingAuthorizations],
   },
   '/invoicing/closings': {
     access: [Permissions.AccessInvoicingClosesx, Permissions.AccessInvoicingClosesz],
@@ -174,7 +182,11 @@ export const typesAccess = {
       Permissions.AccessTreasuryExpenses,
       Permissions.AccessTreasuryReceipts,
       Permissions.AccessTreasuryPayments,
+      Permissions.AccessTreasuryBoxes,
     ],
+  },
+  '/treasury/boxes': {
+    access: [Permissions.ReadTreasuryBoxes],
   },
   '/treasury/expenses': {
     access: [Permissions.ReadTreasuryExpenses],
@@ -194,12 +206,19 @@ export const typesAccess = {
   },
   //crm
   '/crm': {
-    access: [Permissions.AccessCrmCustomers, Permissions.AccessCrmCoupons],
+    access: [
+      Permissions.AccessCrmCustomers,
+      Permissions.AccessCrmCoupons,
+      Permissions.AccessCrmDiscountrules,
+    ],
   },
   '/crm/customer': {
     access: [Permissions.ReadCrmCustomers],
   },
   '/crm/coupon': {
     access: [Permissions.ReadCrmCoupons],
+  },
+  '/crm/discount': {
+    access: [Permissions.ReadCrmDiscountrules],
   },
 };
