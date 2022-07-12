@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import type { ColumnsType } from 'antd/lib/table';
 import Table from 'antd/lib/table';
 import {
@@ -291,7 +292,9 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(adjustment?.details || []);
+      if (details?.length === 0) {
+        setDetails(adjustment?.details || []);
+      }
       setObservation(adjustment?.observation || '');
     }
   }, [adjustment, id]);
