@@ -416,6 +416,11 @@ export default defineConfig({
               component: './crm/customers/list',
             },
             {
+              name: 'Cupones',
+              path: '/crm/coupon',
+              component: './crm/coupons/list',
+            },
+            {
               name: 'Descuentos',
               path: '/crm/discount',
               component: './crm/discounts/list',

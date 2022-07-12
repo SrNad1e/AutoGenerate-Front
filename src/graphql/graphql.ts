@@ -863,7 +863,7 @@ export type CreateSizeInput = {
   /** Valor asignado a la talla */
   value: Scalars['String'];
   /** Posición del ordenamiento */
-  weight: Scalars['String'];
+  weight: Scalars['Float'];
 };
 
 /** Datos para crear el ajuste de productos */
@@ -6061,6 +6061,25 @@ export type UpdateCompanyMutation = {
   updateCompany: { __typename?: 'Company'; _id: string; name: string };
 };
 
+export type CreateCouponMutationVariables = Exact<{
+  input: CreateCouponInput;
+}>;
+
+export type CreateCouponMutation = {
+  __typename?: 'Mutation';
+  createCoupon: { __typename?: 'Coupon'; _id: string; number: number };
+};
+
+export type UpdateCouponMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateCouponInput;
+}>;
+
+export type UpdateCouponMutation = {
+  __typename?: 'Mutation';
+  updateCoupon: { __typename?: 'Coupon'; _id: string; number: number };
+};
+
 export type UpdateCreditMutationVariables = Exact<{
   id: Scalars['String'];
   input: UpdateCreditInput;
@@ -7512,6 +7531,31 @@ export type CouponQuery = {
     number: number;
     status: StatusCoupon;
     value: number;
+  };
+};
+
+export type CouponsQueryVariables = Exact<{
+  input: FiltersCouponsInput;
+}>;
+
+export type CouponsQuery = {
+  __typename?: 'Query';
+  coupons: {
+    __typename?: 'ResponseCoupons';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Coupon';
+      _id: string;
+      number: number;
+      title: string;
+      status: StatusCoupon;
+      value: number;
+      code: string;
+      expiration: any;
+      updatedAt: any;
+    }[];
   };
 };
 
@@ -10148,6 +10192,105 @@ export const UpdateCompanyDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateCompanyMutation, UpdateCompanyMutationVariables>;
+export const CreateCouponDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createCoupon' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateCouponInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createCoupon' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createCouponInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateCouponMutation, CreateCouponMutationVariables>;
+export const UpdateCouponDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateCoupon' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateCouponInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateCoupon' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateCustomerInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateCouponMutation, UpdateCouponMutationVariables>;
 export const UpdateCreditDocument = {
   kind: 'Document',
   definitions: [
@@ -15283,6 +15426,67 @@ export const CouponDocument = {
     },
   ],
 } as unknown as DocumentNode<CouponQuery, CouponQueryVariables>;
+export const CouponsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'coupons' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCouponsInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'coupons' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCouponsInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'code' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CouponsQuery, CouponsQueryVariables>;
 export const CreditDocument = {
   kind: 'Document',
   definitions: [
