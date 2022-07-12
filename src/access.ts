@@ -249,5 +249,13 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateInvoicingAuthorization,
       ),
     },
+    discount: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCrmDiscountrule,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateCrmDiscountrule,
+      ),
+    },
   };
 }

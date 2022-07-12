@@ -1,0 +1,13 @@
+mutation createDiscountRule($input: CreateDiscountRuleInput!) {
+  createDiscountRule(createDiscountRuleInput: $input) {
+    _id
+    name
+  }
+}
+
+mutation updateDiscountRule($id: String!, $input: UpdateDiscountRuleInput!) {
+  updateDiscountRule(id: $id, updateDiscountRuleInput: $input) {
+    _id
+    name
+  }
+}

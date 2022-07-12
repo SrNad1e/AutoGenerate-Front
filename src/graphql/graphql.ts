@@ -4383,7 +4383,7 @@ export type Rule = {
   /** Tipo de documento para validar el descuento */
   documentType: DocumentTypesRule;
   /** Tipo de regla que deben cumplir los documentos */
-  type: TypesRule[];
+  type: TypesRule;
 };
 
 /** Regla de descuento */
@@ -4393,7 +4393,7 @@ export type RuleInput = {
   /** Tipo de documento para validar el descuento */
   documentType: DocumentTypesRule;
   /** Tipo de regla que deben cumplir los documentos */
-  type: Scalars['String'][];
+  type: TypesRule;
 };
 
 /** Datos de medidas para el envío de los productos */
@@ -6099,6 +6099,25 @@ export type UpdateCustomerMutation = {
   updateCustomer: { __typename?: 'Customer'; _id: string; firstName: string; lastName: string };
 };
 
+export type CreateDiscountRuleMutationVariables = Exact<{
+  input: CreateDiscountRuleInput;
+}>;
+
+export type CreateDiscountRuleMutation = {
+  __typename?: 'Mutation';
+  createDiscountRule: { __typename?: 'DiscountRule'; _id: string; name: string };
+};
+
+export type UpdateDiscountRuleMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateDiscountRuleInput;
+}>;
+
+export type UpdateDiscountRuleMutation = {
+  __typename?: 'Mutation';
+  updateDiscountRule: { __typename?: 'DiscountRule'; _id: string; name: string };
+};
+
 export type CreateExpenseMutationVariables = Exact<{
   input: CreateExpenseInput;
 }>;
@@ -7627,6 +7646,37 @@ export type CustomerTypesQuery = {
   customerTypes: {
     __typename?: 'ResponseCustomerTypes';
     docs: { __typename?: 'CustomerType'; _id: string; name: string }[];
+  };
+};
+
+export type DiscountRulesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersDiscountRulesInput>;
+}>;
+
+export type DiscountRulesQuery = {
+  __typename?: 'Query';
+  discountRules: {
+    __typename?: 'ResponseDiscountRules';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'DiscountRule';
+      _id: string;
+      active: boolean;
+      updatedAt: any;
+      dateFinal: any;
+      dateInitial: any;
+      name: string;
+      percent: number;
+      value: number;
+      rules: {
+        __typename?: 'Rule';
+        documentType: DocumentTypesRule;
+        documentIds: string[];
+        type: TypesRule;
+      }[];
+    }[];
   };
 };
 
@@ -10292,6 +10342,105 @@ export const UpdateCustomerDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+export const CreateDiscountRuleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createDiscountRule' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateDiscountRuleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createDiscountRule' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createDiscountRuleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateDiscountRuleMutation, CreateDiscountRuleMutationVariables>;
+export const UpdateDiscountRuleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateDiscountRule' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateDiscountRuleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateDiscountRule' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateDiscountRuleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateDiscountRuleMutation, UpdateDiscountRuleMutationVariables>;
 export const CreateExpenseDocument = {
   kind: 'Document',
   definitions: [
@@ -15519,6 +15668,76 @@ export const CustomerTypesDocument = {
     },
   ],
 } as unknown as DocumentNode<CustomerTypesQuery, CustomerTypesQueryVariables>;
+export const DiscountRulesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'discountRules' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersDiscountRulesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'discountRules' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersDiscountRulesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dateFinal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dateInitial' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'percent' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'rules' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'documentType' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'documentIds' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DiscountRulesQuery, DiscountRulesQueryVariables>;
 export const DocumentTypesDocument = {
   kind: 'Document',
   definitions: [

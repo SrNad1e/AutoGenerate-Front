@@ -415,6 +415,11 @@ export default defineConfig({
               path: '/crm/customer',
               component: './crm/customers/list',
             },
+            {
+              name: 'Descuentos',
+              path: '/crm/discount',
+              component: './crm/discounts/list',
+            },
           ],
         },
         {
