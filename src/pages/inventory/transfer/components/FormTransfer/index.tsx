@@ -142,8 +142,6 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           action: detail?.action as ActionDetailTransfer,
         }));
         if (newDetails.length > 0 || status || observation !== transfer?.observationOrigin) {
-          console.log(observation);
-
           const props = {
             details: newDetails,
             requests: requests?.map((request) => request?._id),
@@ -163,12 +161,18 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
                 message: `Traslado cancelado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
                 type: 'warning',
                 visible: true,
+                redirect: '/inventory/transfer/list',
               });
             } else {
               setPropsAlert({
                 message: `Traslado actualizado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
                 type: 'success',
                 visible: true,
+                redirect: [StatusStockTransfer.Sent, StatusStockTransfer.Confirmed].includes(
+                  response?.data?.updateStockTransfer?.status,
+                )
+                  ? '/inventory/transfer/list'
+                  : undefined,
               });
             }
           }
@@ -205,7 +209,10 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
               message: `Traslado creado correctamente No. ${response?.data?.createStockTransfer?.number}`,
               type: 'success',
               visible: true,
-              redirect: `/inventory/transfer/${response?.data?.createStockTransfer?._id}`,
+              redirect:
+                status === StatusStockTransfer.Sent
+                  ? '/inventory/transfer/list'
+                  : `/inventory/transfer/${response?.data?.createStockTransfer?._id}`,
             });
           }
         }

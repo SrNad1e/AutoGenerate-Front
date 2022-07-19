@@ -158,6 +158,10 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
               message: `Salida actualizada correctamente No. ${response?.data?.updateStockOutput?.number}`,
               type: 'success',
               visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
             });
           }
         } else {
@@ -190,7 +194,10 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
               message: `Salida creada correctamente No. ${response?.data?.createStockOutput?.number}`,
               type: 'success',
               visible: true,
-              redirect: `/inventory/output/${response?.data?.createStockOutput?._id}`,
+              redirect:
+                status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : `/inventory/output/${response?.data?.createStockOutput?._id}`,
             });
           }
         }
