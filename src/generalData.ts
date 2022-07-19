@@ -9,6 +9,12 @@ export const typesAccess = {
       Permissions.AccessInventoryOutputs,
       Permissions.AccessInventoryRequests,
       Permissions.AccessInventoryTransfers,
+      Permissions.AccessInventoryReferences,
+      Permissions.AccessInventoryColors,
+      Permissions.AccessInventoryCategories,
+      Permissions.AccessInventorySizes,
+      Permissions.AccessInventoryAttribs,
+      Permissions.AccessInventoryBrands,
     ],
   },
   '/inventory/request': {
