@@ -115,7 +115,11 @@ export const typesAccess = {
       Permissions.AccessInvoicingReturns,
       Permissions.AccessInvoicingPointofsales,
       Permissions.AccessInvoicingAuthorizations,
+      Permissions.AccessPos,
     ],
+  },
+  '/invoicing/pos': {
+    access: [Permissions.AccessPos],
   },
   '/invoicing/pointOfSale': {
     access: [Permissions.ReadInvoicingPointofsales],
