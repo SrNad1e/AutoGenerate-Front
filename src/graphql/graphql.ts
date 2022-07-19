@@ -449,11 +449,6 @@ export type Color = {
   createdAt: Scalars['DateTime'];
   /** Color en formato html */
   html: Scalars['String'];
-  /**
-   * Identificador del color mysql
-   * @deprecated Campo para migración de mysql
-   */
-  id?: Maybe<Scalars['Float']>;
   /** Imagen del color */
   image?: Maybe<Image>;
   /** Nombre del color */
@@ -503,6 +498,14 @@ export type Company = {
   user: User;
 };
 
+/** Datos para confirmar productos */
+export type ConfirmProductsOrderInput = {
+  /** Productos a confirmar */
+  details: DetailsConfirm[];
+  /** Identificador del pedido a confirmar productos */
+  orderId: Scalars['String'];
+};
+
 /** Datos para confirmar los productos del traslado */
 export type ConfirmStockTransferInput = {
   /** Productos para confirmar */
@@ -518,12 +521,27 @@ export type Conveyor = {
   createdAt: Scalars['DateTime'];
   /** Logo de la tranportadora */
   logo: Image;
+  /** Mensaje para el usuario */
+  message?: Maybe<Scalars['String']>;
   /** Nombre de la transportadora */
   name: Scalars['String'];
   /** Fecha de actualización de la transportadora */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la transportadora */
   user: User;
+};
+
+/** Transportadora que realiza el envio */
+export type ConveyorOrder = {
+  __typename?: 'ConveyorOrder';
+  /** Datos del transportista */
+  conveyor: Conveyor;
+  /** Código de la guia del transportista */
+  guideCode?: Maybe<Scalars['String']>;
+  /** Fecha en el que se realiza el envío */
+  shippingDate?: Maybe<Scalars['DateTime']>;
+  /** Valor del envío */
+  value: Scalars['Float'];
 };
 
 /** Cupones para pagos */
@@ -1054,8 +1072,6 @@ export type CustomerType = {
   _id: Scalars['String'];
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
-  /** Descuento al tipo de cliente */
-  discount: Scalars['Float'];
   /** Nombre del tipo de cliente */
   name: Scalars['String'];
   /** Fecha de actualización */
@@ -1158,7 +1174,7 @@ export type DetailOrder = {
   /** Cantidad de productos devueltos */
   quantityReturn: Scalars['Float'];
   /** Estado del producto */
-  status: Scalars['String'];
+  status: StatusOrderDetail;
   /** Fecha de actualizado del producto al pedido */
   updatedAt: Scalars['DateTime'];
 };
@@ -1320,6 +1336,14 @@ export type DetailTransfer = {
   status: StatusDetailTransfer;
   /** Fecha de actualizacion el producto */
   updatedAt: Scalars['DateTime'];
+};
+
+/** Producto para confirmar en el pedido */
+export type DetailsConfirm = {
+  /** Producto a confirmar */
+  productId: Scalars['String'];
+  /** Estado del producto, si es diferente a confirm */
+  status?: InputMaybe<StatusOrderDetail>;
 };
 
 /** Reglas de descuento */
@@ -1756,7 +1780,7 @@ export type FiltersOrdersInput = {
   /** Número consecutivo del pedido */
   number?: InputMaybe<Scalars['Float']>;
   /** Trae los pedidos POS solamente */
-  orderPOS?: InputMaybe<Scalars['Boolean']>;
+  orderPos?: InputMaybe<Scalars['Boolean']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
@@ -2202,6 +2226,10 @@ export type Mutation = {
   addPaymentsOrder: ResponseOrder;
   /** Se encarga de agregar productos a un pedido */
   addProductsOrder: ResponseOrder;
+  /** Se encarga de cambiar la clave al usuario con base al tokenu */
+  changePasswordToken: LoginResponse;
+  /** Se encarga de confirmar o desconfirmar productos de un pedido */
+  confirmProductsOrder: ResponseOrder;
   /** Confirma los productos del traslado */
   confirmProductsStockTransfer: StockTransfer;
   /** Crea un atributo */
@@ -2271,6 +2299,8 @@ export type Mutation = {
   generateStockRequest: StockRequest;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
   login: LoginResponse;
+  /** Se encarga de enviar correo de recuperación de contraseña */
+  recoveryPassword: Scalars['Boolean'];
   /** Se encarga de crear el usuario desde aplicaciones externas */
   signup: LoginResponse;
   /** Actualiza un atributo */
@@ -2338,6 +2368,15 @@ export type MutationAddPaymentsOrderArgs = {
 
 export type MutationAddProductsOrderArgs = {
   addProductsOrderInput: AddProductsOrderInput;
+};
+
+export type MutationChangePasswordTokenArgs = {
+  password: Scalars['String'];
+  token: Scalars['String'];
+};
+
+export type MutationConfirmProductsOrderArgs = {
+  confirmProductsOrderInput: ConfirmProductsOrderInput;
 };
 
 export type MutationConfirmProductsStockTransferArgs = {
@@ -2479,6 +2518,10 @@ export type MutationGenerateStockRequestArgs = {
 
 export type MutationLoginArgs = {
   loginUserInput: LoginUserInput;
+};
+
+export type MutationRecoveryPasswordArgs = {
+  email: Scalars['String'];
 };
 
 export type MutationSignupArgs = {
@@ -2649,7 +2692,7 @@ export type Order = {
   /** Empresa a la que perteneces el pedido */
   company: Company;
   /** Trasportadora */
-  conveyor?: Maybe<Conveyor>;
+  conveyorOrder?: Maybe<ConveyorOrder>;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Cliente que solicita el pedido */
@@ -2997,8 +3040,10 @@ export type Query = {
   colors: ResponseColors;
   /** Listado de las compañías */
   companies: ResponseCompanies;
-  /** Lista de ajustes de productos */
+  /** Lista de transportadoras */
   conveyors: ResponseConveyors;
+  /** Lista de transportadoras para el pedido */
+  conveyorsOrder: ConveyorOrder[];
   /** Consultar cupón */
   coupon: Coupon;
   /** Consultar cupones */
@@ -3135,6 +3180,10 @@ export type QueryCompaniesArgs = {
 
 export type QueryConveyorsArgs = {
   filtersConveyorsInput?: InputMaybe<FiltersConveyorsInput>;
+};
+
+export type QueryConveyorsOrderArgs = {
+  orderId: Scalars['String'];
 };
 
 export type QueryCouponArgs = {
@@ -4927,10 +4976,14 @@ export enum StatusExpense {
 export enum StatusOrder {
   Cancelled = 'CANCELLED',
   Closed = 'CLOSED',
-  Invoiced = 'INVOICED',
   Open = 'OPEN',
   Pending = 'PENDING',
   Sent = 'SENT',
+}
+
+export enum StatusOrderDetail {
+  Confirmed = 'CONFIRMED',
+  New = 'NEW',
 }
 
 export enum StatusProduct {
@@ -8315,7 +8368,7 @@ export type ProductsQuery = {
           } | null;
         } | null;
       };
-      size: { __typename?: 'Size'; value: string };
+      size: { __typename?: 'Size'; value: string; weight: number };
       stock?: { __typename?: 'Stock'; quantity: number }[] | null;
     }[];
   };
@@ -17975,7 +18028,10 @@ export const ProductsDocument = {
                         name: { kind: 'Name', value: 'size' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'value' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'weight' } },
+                          ],
                         },
                       },
                       {
