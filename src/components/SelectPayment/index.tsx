@@ -3,6 +3,7 @@ import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetPayments } from '@/hooks/payment.hooks';
+import { TypePayment } from '@/graphql/graphql';
 
 const { Option } = Select;
 
@@ -10,9 +11,10 @@ export type Params = {
   onChange?: (id: string) => void;
   value?: string;
   disabled: boolean;
+  bonus?: boolean;
 };
 
-const SelectPayment = ({ onChange, disabled, value }: Params) => {
+const SelectPayment = ({ onChange, disabled, value, bonus = false }: Params) => {
   const [getPayments, { loading, data, error }] = useGetPayments();
 
   /**
@@ -37,6 +39,10 @@ const SelectPayment = ({ onChange, disabled, value }: Params) => {
     });
   }, []);
 
+  const dataSource = bonus
+    ? data?.payments?.docs
+    : data?.payments?.docs.filter((payment) => payment.type !== TypePayment.Bonus);
+
   return (
     <>
       <Select
@@ -51,7 +57,7 @@ const SelectPayment = ({ onChange, disabled, value }: Params) => {
         disabled={disabled}
         value={value}
       >
-        {data?.payments?.docs?.map(({ _id, name }) => (
+        {dataSource?.map(({ _id, name }) => (
           <Option key={_id} value={_id}>
             {name}
           </Option>
