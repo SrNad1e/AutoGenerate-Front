@@ -15,6 +15,7 @@ import styles from '../styles';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
+const { TextArea } = Input;
 
 type Props = {
   visible: boolean;
@@ -145,7 +146,11 @@ const CouponForm = ({ visible, onCancel }: Props) => {
                 </Space>
               }
             >
-              <Input placeholder="Ingrese mensaje" disabled={paramsCreateCoupon?.loading} />
+              <TextArea
+                placeholder="Ingrese mensaje"
+                rows={3}
+                disabled={paramsCreateCoupon?.loading}
+              />
             </FormItem>
             <FormItem
               rules={[

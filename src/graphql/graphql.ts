@@ -7654,6 +7654,7 @@ export type CouponsQuery = {
       title: string;
       status: StatusCoupon;
       value: number;
+      message: string;
       code: string;
       expiration: any;
       updatedAt: any;
@@ -15794,6 +15795,7 @@ export const CouponsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'title' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'code' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },

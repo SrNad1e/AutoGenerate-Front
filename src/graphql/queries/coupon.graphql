@@ -24,6 +24,7 @@ query coupons($input: FiltersCouponsInput!) {
       title
       status
       value
+      message
       code
       expiration
       updatedAt
