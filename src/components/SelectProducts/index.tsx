@@ -35,7 +35,7 @@ type FormValues = {
 };
 
 const SelectProducts = (props: Props) => {
-  const [withCode, setWithCode] = useState(true);
+  const [withCode, setWithCode] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
   const onValuesChange = (values: FormValues) => {
