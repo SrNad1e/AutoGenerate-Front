@@ -12,9 +12,10 @@ export type Params = {
   value?: string;
   disabled: boolean;
   bonus?: boolean;
+  credit?: boolean;
 };
 
-const SelectPayment = ({ onChange, disabled, value, bonus = false }: Params) => {
+const SelectPayment = ({ onChange, disabled, value, bonus = false, credit = false }: Params) => {
   const [getPayments, { loading, data, error }] = useGetPayments();
 
   /**
@@ -39,9 +40,13 @@ const SelectPayment = ({ onChange, disabled, value, bonus = false }: Params) => 
     });
   }, []);
 
-  const dataSource = bonus
+  let dataSource = bonus
     ? data?.payments?.docs
     : data?.payments?.docs.filter((payment) => payment.type !== TypePayment.Bonus);
+
+  dataSource = credit
+    ? dataSource
+    : dataSource?.filter((payment) => payment.type !== TypePayment.Credit);
 
   return (
     <>
