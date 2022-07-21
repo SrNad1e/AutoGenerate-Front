@@ -42,8 +42,7 @@ const RenderCredit = ({ dataCredit, setValuesFields }: Props) => {
     });
   };
 
-  const onChangeAmount = (e?: any) => {
-    console.log(e);
+  const onChangeAmount = () => {
     const valuesCredit = form.getFieldsValue();
     setValuesFields({ valuesCredit });
   };
@@ -58,7 +57,7 @@ const RenderCredit = ({ dataCredit, setValuesFields }: Props) => {
           name="amount"
         >
           <InputNumber
-            onChange={(e) => onChangeAmount(e)}
+            onChange={() => onChangeAmount()}
             min={0}
             style={{ width: '100%' }}
             formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
