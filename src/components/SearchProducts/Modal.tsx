@@ -210,6 +210,25 @@ const ModalSearchProducts = ({
     },
   ];
 
+  const dataSource = data?.products?.docs
+    ?.slice()
+    .sort((a, b) => {
+      return a?.size?.weight - b?.size?.weight;
+    })
+    .sort((a, b) => {
+      const nameA = a?.color?.name?.toUpperCase();
+      const nameB = b?.color?.name?.toUpperCase();
+
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+
+      return 0;
+    }) as any;
+
   return (
     <Modal visible={visible} footer={null} onCancel={onCancel} width="90%">
       <>
@@ -247,7 +266,7 @@ const ModalSearchProducts = ({
             <Table
               scroll={{ x: 'auto' }}
               columns={columns}
-              dataSource={data?.products?.docs as any}
+              dataSource={dataSource}
               pagination={{
                 current: data?.products?.page,
                 total: data?.products?.totalDocs,
