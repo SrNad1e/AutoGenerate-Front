@@ -127,6 +127,9 @@ const CouponList = () => {
     getCoupons({
       variables: {
         input: {
+          sort: {
+            createdAt: -1,
+          },
           limit: 10,
           ...filters,
         },
