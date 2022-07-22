@@ -130,10 +130,11 @@ const CashReceiptList = () => {
     getReceipts({
       variables: {
         input: {
+          ...filters,
           sort: {
             createdAt: -1,
+            ...filters.sort,
           },
-          ...filters,
         },
       },
     });
