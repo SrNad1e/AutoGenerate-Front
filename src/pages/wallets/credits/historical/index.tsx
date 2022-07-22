@@ -1,27 +1,29 @@
-import { Descriptions, Divider, Modal, Table, Tag } from 'antd';
-import type { ColumnsType } from 'antd/lib/table';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { Button, Descriptions, Divider, Modal, Table, Tag } from 'antd';
+import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import type {
   Credit,
   CreditHistory,
-  ResponseCreditHistory,
+  FiltersCreditHistoryInput,
   TypeCreditHistory,
 } from '@/graphql/graphql';
 import moment from 'moment';
 import numeral from 'numeral';
 
 import styles from './styles';
+import { useGetHistoryCredits } from '@/hooks/credit.hooks';
+import { useEffect } from 'react';
 
 const DescriptionItem = Descriptions.Item;
 
 type Props = {
-  visible: boolean;
   onCancel: () => void;
-  creditHistory: CreditHistory;
-  credit: Credit;
-  data: ResponseCreditHistory;
+  credit: Credit | null;
 };
 
-const CreditsHistorical = ({ visible, onCancel, creditHistory, credit, data }: Props) => {
+const CreditsHistorical = ({ onCancel, credit }: Props) => {
+  const [getCreditsHistory, { data, loading }] = useGetHistoryCredits();
+
   const column: ColumnsType<CreditHistory> = [
     {
       title: 'Tipo',
@@ -50,12 +52,49 @@ const CreditsHistorical = ({ visible, onCancel, creditHistory, credit, data }: P
     },
   ];
 
+  /**
+   * @description se trae el historico en base a la id del credito
+   * @param credit credito seleccionado
+   */
+  const getHistory = async (params?: FiltersCreditHistoryInput) => {
+    getCreditsHistory({
+      variables: {
+        input: {
+          creditId: credit?._id,
+          limit: 10,
+          sort: {
+            createdAt: -1,
+          },
+          ...params,
+        },
+      },
+    });
+  };
+
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   */
+  const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
+    const { current } = paginationLocal;
+
+    getHistory({ page: current });
+  };
+
+  useEffect(() => {
+    getHistory();
+  }, [credit]);
+
   return (
     <Modal
       title="Historico"
-      visible={visible}
+      visible={!!credit}
+      footer={[
+        <Button key={0} onClick={onCancel}>
+          Cerrar
+        </Button>,
+      ]}
       onCancel={onCancel}
-      onOk={onCancel}
       width={700}
       okText="Aceptar"
       cancelText="Cancelar"
@@ -74,10 +113,14 @@ const CreditsHistorical = ({ visible, onCancel, creditHistory, credit, data }: P
       <Divider>Detalles</Divider>
       <Table
         columns={column}
-        dataSource={creditHistory}
+        loading={loading}
+        dataSource={data?.creditHistory?.docs || []}
         scroll={{ x: 'auto', y: 200 }}
+        onChange={handleChangeTable}
         pagination={{
-          current: data?.page,
+          current: data?.creditHistory?.page,
+          total: data?.creditHistory?.totalDocs,
+          pageSize: 10,
         }}
       />
     </Modal>
