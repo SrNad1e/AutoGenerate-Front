@@ -1,4 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useGetOrder } from '@/hooks/order.hooks';
 import {
+  ArrowLeftOutlined,
   CloseCircleOutlined,
   HomeOutlined,
   PhoneOutlined,
@@ -7,21 +10,78 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Affix, Badge, Button, Card, Col, Divider, Row, Space, Tag, Typography } from 'antd';
+import {
+  Affix,
+  Badge,
+  Button,
+  Card,
+  Col,
+  Divider,
+  Row,
+  Space,
+  Tag,
+  Tooltip,
+  Typography,
+} from 'antd';
 import moment from 'moment';
 import numeral from 'numeral';
+import { useEffect } from 'react';
+import { useParams } from 'react-router';
+import { useHistory } from 'umi';
 
 import Tabs from '../components/Tabs';
+import { StatusType } from '../e-commerce.data';
 
 import styles from './styles';
 
 const { Text, Title } = Typography;
 const { Grid } = Card;
 
-const EcommerceEdit = () => {
+const EcommerceForm = () => {
+  const { id } = useParams<Partial<{ id: string }>>();
+  const history = useHistory();
+
+  const [getOrder, paramsGetOrder] = useGetOrder();
+
+  const total = paramsGetOrder?.data?.orderId?.order?.summary?.total || 0;
+  const totalPaid = paramsGetOrder?.data?.orderId.order.summary.totalPaid || 0;
+  const balance = total - totalPaid;
+  const change = totalPaid - total;
+
+  const onSearchOrder = () => {
+    getOrder({
+      variables: {
+        id: id || '',
+      },
+    });
+  };
+
+  useEffect(() => {
+    onSearchOrder();
+  }, []);
+
   return (
-    <PageContainer title="E-Commerce">
-      <Card title={<Title level={3}>Pedido #1</Title>} bordered={false}>
+    <PageContainer
+      title={
+        <Space align="center">
+          {' '}
+          <Tooltip title="Atrás">
+            <Button
+              type="primary"
+              ghost
+              icon={<ArrowLeftOutlined />}
+              onClick={() => history.goBack()}
+            />
+          </Tooltip>
+          <Divider type="vertical" />
+          <> E-Commerce</>
+        </Space>
+      }
+    >
+      <Card
+        title={<Title level={3}>Pedido #{paramsGetOrder?.data?.orderId?.order?.number}</Title>}
+        bordered={false}
+      >
         <Grid hoverable={false} style={styles.firstGrid}>
           <Row align="middle" justify="center" gutter={[0, 5]} style={styles.rowFGrid}>
             <Col>
@@ -34,7 +94,10 @@ const EcommerceEdit = () => {
               </Text>
             </Col>
             <Col xs={24} md={16} lg={17} xl={12}>
-              <Badge color="green" text="Pagado" />
+              <Badge
+                color={StatusType[paramsGetOrder?.data?.orderId?.order?.status || '']?.color}
+                text={StatusType[paramsGetOrder?.data?.orderId?.order?.status || '']?.text}
+              />
             </Col>
             <Col xs={24} md={10} lg={9} xl={12}>
               <Text strong style={styles.textSize}>
@@ -43,7 +106,7 @@ const EcommerceEdit = () => {
             </Col>
             <Col xs={24} md={14} lg={15} xl={12}>
               <Tag style={styles.tagStyle}>
-                {moment('2022-05-04T18:10:20.727Z').format(FORMAT_DATE)}
+                {moment(paramsGetOrder?.data?.orderId?.order?.createdAt).format(FORMAT_DATE)}
               </Tag>
             </Col>
             <Col xs={24} md={12} lg={12} xl={12}>
@@ -53,7 +116,7 @@ const EcommerceEdit = () => {
             </Col>
             <Col xs={24} md={12} lg={12} xl={12}>
               <Tag style={styles.tagStyle}>
-                {moment('2022-05-04T18:10:20.727Z').format(FORMAT_DATE)}
+                {moment(paramsGetOrder?.data?.orderId?.order?.updatedAt).format(FORMAT_DATE)}
               </Tag>
             </Col>
           </Row>
@@ -73,7 +136,7 @@ const EcommerceEdit = () => {
                 </Col>
                 <Col span={24}>
                   <Text strong style={styles.textSize}>
-                    Saldo:
+                    {totalPaid > total ? ' Cambio:' : 'Saldo:'}
                   </Text>
                 </Col>
                 <Col span={24}>
@@ -86,13 +149,15 @@ const EcommerceEdit = () => {
             <Col span={12} style={styles.textRight}>
               <Row gutter={[0, 6]}>
                 <Col span={24}>
-                  <Text strong>{numeral(1000000).format('$ 0,0')}</Text>
+                  <Text strong>{numeral(total).format('$ 0,0')}</Text>
                 </Col>
                 <Col span={24}>
-                  <Text strong>{numeral(10000).format('$ 0,0')}</Text>
+                  <Text strong>
+                    {numeral(totalPaid > total ? change : balance).format('$ 0,0')}
+                  </Text>
                 </Col>
                 <Col span={24}>
-                  <Text strong>{numeral(10000).format('$ 0,0')}</Text>
+                  <Text strong>{numeral(totalPaid).format('$ 0,0')}</Text>
                 </Col>
               </Row>
             </Col>
@@ -109,24 +174,41 @@ const EcommerceEdit = () => {
             </Col>
             <Col xs={24} md={20} lg={20} xl={16}>
               <Text strong style={styles.textSize}>
-                {'Jotaro Kujo'}
+                {paramsGetOrder?.data?.orderId?.order?.customer?.firstName}{' '}
+                {paramsGetOrder?.data?.orderId?.order?.customer?.lastName}
               </Text>
             </Col>
             <Col xs={24} md={4} lg={4} xl={8}>
               {<HomeOutlined style={styles.iconStyle} />}
             </Col>
             <Col xs={24} md={20} lg={20} xl={16}>
-              <Text strong style={styles.textSize}>
-                {'Calle 20 No. 22-62'}
-              </Text>
-              <Text strong> {' Medellin, Antioquia'}</Text>
+              <Space>
+                {paramsGetOrder.data?.orderId?.order?.address ? (
+                  <Text strong key={1} style={styles.textSize}>
+                    {' '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.field1}{' '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.number1}
+                    {' # '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.loteNumber}
+                    {' - '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.number2}
+                  </Text>
+                ) : (
+                  <Text strong key={1} style={styles.textSize}>
+                    No registra Dirección
+                  </Text>
+                )}
+                <Text key={2} strong style={styles.textSize}>
+                  {paramsGetOrder?.data?.orderId?.order?.address?.city?.name}
+                </Text>
+              </Space>
             </Col>
-            <Col xs={24} md={4} lg={4} xl={8}>
+            <Col xs={24} md={4} lg={4} xl={8} style={{ marginBottom: 22 }}>
               {<PhoneOutlined style={styles.iconStyle} />}
             </Col>
-            <Col xs={24} md={20} lg={20} xl={16}>
+            <Col xs={24} md={20} lg={20} xl={16} style={{ marginBottom: 22 }}>
               <Text strong style={styles.textSize}>
-                {310017244}
+                {paramsGetOrder.data?.orderId?.order?.customer?.phone || 'No registra Teléfono'}
               </Text>
             </Col>
           </Row>
@@ -134,7 +216,7 @@ const EcommerceEdit = () => {
         <Divider />
       </Card>
       <Row gutter={[0, 10]} justify="center">
-        <Col>{<Tabs />}</Col>
+        <Col style={{ width: '100%' }}>{<Tabs order={paramsGetOrder?.data?.orderId?.order} />}</Col>
         <Col>
           <Affix offsetBottom={10}>
             <Card size="small" style={styles.affixStyle}>
@@ -157,4 +239,4 @@ const EcommerceEdit = () => {
   );
 };
 
-export default EcommerceEdit;
+export default EcommerceForm;

@@ -5,10 +5,53 @@ query orderId($id: String!) {
       amount
     }
     order {
+      user {
+        name
+      }
+      status
       _id
       number
+      updatedAt
+      createdAt
+      address {
+        contact
+        extra
+        field1
+        isMain
+        loteNumber
+        neighborhood
+        number1
+        number2
+        phone
+        city {
+          name
+        }
+      }
+      shop {
+        defaultWarehouse {
+          _id
+        }
+      }
       customer {
+        _id
+        addresses {
+          city {
+            _id
+            name
+            state
+          }
+          extra
+          field1
+          isMain
+          loteNumber
+          neighborhood
+          number1
+          number2
+          contact
+          phone
+        }
         document
+        phone
         firstName
         lastName
         active
@@ -26,10 +69,20 @@ query orderId($id: String!) {
         product {
           _id
           barcode
+          images {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
           reference {
             name
             cost
             description
+            _id
+            price
+            cost
           }
           size {
             value
@@ -53,13 +106,18 @@ query orderId($id: String!) {
         }
       }
       payments {
+        createdAt
+        updatedAt
         total
         payment {
+          _id
           name
           type
+          active
         }
       }
       summary {
+        change
         discount
         subtotal
         total
@@ -71,7 +129,7 @@ query orderId($id: String!) {
 }
 
 query OrdersByPos {
-  ordersByPointOfSale{
+  ordersByPointOfSale {
     _id
     number
     shop {

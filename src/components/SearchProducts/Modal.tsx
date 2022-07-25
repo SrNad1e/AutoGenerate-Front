@@ -44,6 +44,7 @@ export type Props = {
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
   warehouseId: string | undefined;
+  order?: any;
 };
 
 export type FormValues = {
@@ -53,6 +54,7 @@ export type FormValues = {
 };
 
 const ModalSearchProducts = ({
+  order,
   visible,
   validateStock,
   details = [],
@@ -110,6 +112,11 @@ const ModalSearchProducts = ({
     const { current } = paginationLocal;
     setFilters({ ...filters, page: current });
     onSearch({ ...filters, page: current });
+  };
+
+  const createAndClose = (product: Product) => {
+    createDetail(product, 1);
+    onCancel();
   };
 
   const columns: ColumnsType<Product> = [
@@ -199,7 +206,7 @@ const ModalSearchProducts = ({
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => createDetail(product, 1)}
+              onClick={order ? () => createAndClose(product) : () => createDetail(product, 1)}
               disabled={
                 validateStock ? !!(product.stock && product?.stock[0]?.quantity === 0) : false
               }

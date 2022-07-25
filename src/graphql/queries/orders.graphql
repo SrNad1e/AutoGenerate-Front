@@ -4,6 +4,12 @@ query Orders($input: FiltersOrdersInput!) {
     totalPages
     page
     docs {
+      payments {
+        total
+        payment {
+          name
+        }
+      }
       _id
       createdAt
       updatedAt
@@ -23,7 +29,6 @@ query Orders($input: FiltersOrdersInput!) {
       details {
         price
         quantity
-        quantityReturn
         product {
           _id
           barcode

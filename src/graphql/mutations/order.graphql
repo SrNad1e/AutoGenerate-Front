@@ -226,3 +226,19 @@ mutation addProductsOrder($input: AddProductsOrderInput!) {
     }
   }
 }
+
+mutation confirmProductsOrder($input: ConfirmProductsOrderInput!) {
+  confirmProductsOrder(confirmProductsOrderInput: $input) {
+    order {
+      details {
+        product {
+          _id
+          barcode
+          reference {
+            name
+          }
+        }
+      }
+    }
+  }
+}

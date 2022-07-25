@@ -5,23 +5,21 @@ import numeral from 'numeral';
 
 import Payments from '../Payments';
 import Products from '../Products';
-import Address from '@/components/Address';
 
 import styles from '../styles';
+import type { Order } from '@/graphql/graphql';
+import AddressDelivery from '@/components/Address';
 
 const DescriptionItem = Descriptions.Item;
 const { Option } = Select;
 const { Text } = Typography;
 
-const Tabs = () => {
-  const [activeTabKey, setActiveTabKey] = useState('1');
+type Props = {
+  order: Order;
+};
 
-  const deliveryAddressTest = {
-    name: 'Dio Brandon',
-    city: 'Guayabo',
-    phone: 3104349851,
-    isMain: true,
-  };
+const Tabs = ({ order }: Props) => {
+  const [activeTabKey, setActiveTabKey] = useState('1');
 
   const onTabChange = (key: any) => {
     setActiveTabKey(key);
@@ -43,11 +41,11 @@ const Tabs = () => {
   ];
 
   const contentTab = {
-    1: <Products />,
-    2: <Payments />,
+    1: <Products orderdata={order} />,
+    2: <Payments orderData={order} />,
     3: (
       <>
-        <Address deliveryAddress={deliveryAddressTest} />
+        <AddressDelivery deliveryAddress={order?.customer?.addresses} customer={order?.customer} />
         <Divider>Métodos de Envío</Divider>
         <Row>
           <Col>

@@ -1,5 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ClockCircleFilled, EditFilled, IdcardFilled, SearchOutlined } from '@ant-design/icons';
+import {
+  BankOutlined,
+  ClearOutlined,
+  ClockCircleFilled,
+  EditFilled,
+  FieldNumberOutlined,
+  FileSyncOutlined,
+  IdcardFilled,
+  MoreOutlined,
+  ScheduleOutlined,
+  SearchOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -27,13 +39,21 @@ import { useEffect, useState } from 'react';
 import type { ColumnsType } from 'antd/lib/table';
 
 import { useGetOrders } from '@/hooks/order.hooks';
-import type { Customer, FiltersOrdersInput, Order, StatusOrder } from '@/graphql/graphql';
+import type {
+  Customer,
+  FiltersOrdersInput,
+  Order,
+  PaymentOrder,
+  StatusOrder,
+} from '@/graphql/graphql';
 import { StatusType } from '../e-commerce.data';
 import SearchCustomer from '@/components/SearchCustomer';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectPayment from '@/components/SelectPayment';
+import 'moment/locale/es'; // without this line it didn't work
 
+moment.locale('es');
 import styles from './styles';
 
 const FormItem = Form.Item;
@@ -92,7 +112,7 @@ const EcommerceList = () => {
     getOrders({
       variables: {
         input: {
-          orderPOS: false,
+          orderPos: false,
           sort: {
             createdAt: -1,
           },
@@ -212,49 +232,69 @@ const EcommerceList = () => {
 
   const columns: ColumnsType<Order> = [
     {
-      title: 'Número',
+      title: (
+        <Text style={{ fontSize: 20 }}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
     },
     {
-      title: 'Cliente',
+      title: <Text>{<UserOutlined />} Cliente</Text>,
       dataIndex: 'customer',
       width: 200,
       render: (customer: Customer) => (
         <>
           <Space direction="vertical" size={1}>
-            <Text strong>
+            <Text>
               {customer?.firstName} {customer?.lastName}{' '}
               <Tag title="Tipo de cliente" style={styles.tagStyle}>
                 {'Mayorista'}
               </Tag>
             </Text>
             <Text title="Documento" style={styles.textStyle}>
-              <IdcardFilled /> {customer.document !== '0' ? customer.document : 'N/A'}
+              <IdcardFilled style={styles.tagStyle} />{' '}
+              {customer.document !== '0' ? customer.document : 'N/A'}
             </Text>
           </Space>
         </>
       ),
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       render: (status: StatusOrder) => (
         <Badge color={StatusType[status].color} text={StatusType[status].text} />
       ),
     },
     {
-      title: 'Formas de Pago',
+      title: <Text>{<BankOutlined />} Formas de Pago</Text>,
       dataIndex: 'payments',
-      width: 150,
+      width: 180,
       align: 'left',
-      render: (payments: any) => (
+      render: (payments: PaymentOrder[]) => (
         <>
-          {payments.name}: <Text strong>{numeral(payments.total).format('$ 0,0')}</Text>
+          {payments.length > 0
+            ? payments.map(({ total, payment }) => (
+                <>
+                  {' '}
+                  {payment?.name}:{' '}
+                  <Text>
+                    {numeral(total).format('$ 0,0')}
+                    <br />
+                  </Text>
+                </>
+              ))
+            : '(PENDIENTE)'}
         </>
       ),
     },
     {
-      title: 'Creado',
+      title: (
+        <Text>
+          <ScheduleOutlined /> Creado
+        </Text>
+      ),
       dataIndex: 'createdAt',
       sorter: true,
       showSorterTooltip: false,
@@ -268,10 +308,15 @@ const EcommerceList = () => {
       ),
     },
     {
-      title: 'Actualizado',
+      title: (
+        <Text>
+          <ScheduleOutlined /> Actualizado
+        </Text>
+      ),
       dataIndex: 'updatedAt',
       sorter: true,
       showSorterTooltip: false,
+      width: 150,
       render: (updatedAt: string) => (
         <>
           {moment(updatedAt).format(FORMAT_DATE)}
@@ -283,7 +328,7 @@ const EcommerceList = () => {
       ),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -303,18 +348,18 @@ const EcommerceList = () => {
     <PageContainer>
       <Card bordered={false}>
         <Form form={form} initialValues={filters} onFinish={onFinish}>
-          <Row gutter={15} align="middle">
-            <Col xs={24} md={5} lg={4}>
+          <Row gutter={25} align="middle">
+            <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
                 <InputNumber disabled={loading} style={styles.inputNumberWidth} controls={false} />
               </FormItem>
             </Col>
-            <Col xs={24} md={12} lg={12}>
+            <Col xs={24} md={10} lg={10} xl={7}>
               <FormItem label="Cliente" name="customerId">
                 <SearchCustomer disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6}>
+            <Col xs={24} md={7} lg={7} xl={5}>
               <FormItem label="Estado" name="status">
                 <Select allowClear disabled={loading}>
                   {Object.keys(StatusType).map((key) => (
@@ -325,13 +370,12 @@ const EcommerceList = () => {
                 </Select>
               </FormItem>
             </Col>
-
-            <Col xs={24} md={10} lg={9} xl={10}>
+            <Col xs={24} md={8} lg={9} xl={8}>
               <FormItem label="Formas de pago" name="paymentId">
                 <SelectPayment disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={8} xl={8}>
+            <Col xs={24} md={8} lg={8} xl={9}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker
                   style={styles.dateWidth}
@@ -339,20 +383,27 @@ const EcommerceList = () => {
                 />
               </FormItem>
             </Col>
-            <Col span={24}>
+            <Col span={4}>
               <FormItem colon={false}>
                 <Space>
-                  <Button htmlType="submit" icon={<SearchOutlined />} type="primary">
+                  <Button
+                    htmlType="submit"
+                    icon={<SearchOutlined />}
+                    style={styles.buttonR}
+                    type="primary"
+                  >
                     Buscar
                   </Button>
-                  <Button onClick={onClear}>Limpiar</Button>
+                  <Button icon={<ClearOutlined />} style={styles.buttonR} onClick={onClear}>
+                    Limpiar
+                  </Button>
                 </Space>
               </FormItem>
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]}>
-          <Col span={24}>
+        <Row gutter={[0, 20]} style={{ marginTop: 20 }}>
+          <Col span={24} style={styles.textRight}>
             <Text strong>Total Encontrados:</Text> {data?.orders?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.orders?.page} / {data?.orders?.totalPages || 0}
           </Col>

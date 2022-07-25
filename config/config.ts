@@ -293,7 +293,16 @@ export default defineConfig({
             {
               name: 'E-Commerce',
               path: '/invoicing/e-commerce',
-              component: './invoicing/e-commerce/list',
+              routes: [
+                {
+                  path: '/invoicing/e-commerce',
+                  component: './invoicing/e-commerce/list',
+                },
+                {
+                  path: '/invoicing/e-commerce/:id',
+                  component: './invoicing/e-commerce/form',
+                },
+              ],
             },
             {
               name: 'Devoluciones',
@@ -327,6 +336,7 @@ export default defineConfig({
           name: 'Tesoreria',
           path: '/treasury',
           icon: 'gold',
+          access: 'allowOption',
           routes: [
             {
               name: 'Egresos',
