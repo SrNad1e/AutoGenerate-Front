@@ -24,9 +24,61 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
 
   const [form] = useForm();
 
-  const closeCreate = () => {
-    setVisibleCreate(false);
+  /*const setNewAddress = () => {
+    setAllowEdit(true);
+    setIndexSelected(null);
+    form.resetFields();
   };
+
+  const saveAddress = async () => {
+    const values = await form.validateFields();
+    setAddresses([...addresses, values]);
+    form.resetFields();
+  };
+
+  const updateAddress = async () => {
+    const values = await form.validateFields();
+    setAddresses(
+      addresses.map((item, key) => {
+        if (key.toString() === indexSelected) {
+          return {
+            ...item,
+            ...values,
+          };
+        }
+        return item;
+      }),
+    );
+  };
+
+  const onChangeSelect = (key: string) => {
+    form.setFieldsValue(addresses[parseInt(key)]);
+    setIndexSelected(key);
+    setAllowEdit(false);
+  };
+
+  const renderButtonOptions = () => {
+    if (!indexSelected) {
+      return (
+        <Button disabled={canSave === 0} type="primary" onClick={saveAddress}>
+          Guardar
+        </Button>
+      );
+    }
+
+    if (!allowEdit) {
+      return (
+        <Button onClick={() => setAllowEdit(true)} type="primary">
+          Editar
+        </Button>
+      );
+    }
+    return (
+      <Button onClick={updateAddress} type="primary">
+        Actualizar
+      </Button>
+    );
+  };*/
 
   let num = -1;
 

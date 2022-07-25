@@ -22,8 +22,8 @@ export const useUpdateCustomer = () => {
     update: (cache, { data }) => {
       cache.modify({
         fields: {
-          customer(customers = []) {
-            return customers?.docs?.map((customer: Customer) => {
+          customers(existingCustomers = []) {
+            return existingCustomers?.docs?.map((customer: Customer) => {
               if (customer?._id === data?.updateCustomer?._id) {
                 return data?.updateCustomer;
               }

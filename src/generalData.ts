@@ -178,4 +178,14 @@ export const typesAccess = {
   '/wallets/credits': {
     access: [Permissions.ReadCredits],
   },
+  //crm
+  '/crm': {
+    access: [Permissions.AccessCrmCustomers, Permissions.AccessCrmCities],
+  },
+  '/crm/customer': {
+    access: [Permissions.ReadCrmCustomers],
+  },
+  '/crm/cities': {
+    access: [Permissions.ReadCrmCities],
+  },
 };

@@ -1,4 +1,5 @@
 import type { Credit } from '@/graphql/graphql';
+import { CreateCreditDocument } from '@/graphql/graphql';
 import { CreditHistoryDocument } from '@/graphql/graphql';
 import { CreditDocument, CreditsDocument, UpdateCreditDocument } from '@/graphql/graphql';
 import { useLazyQuery, useMutation } from '@apollo/client';
@@ -9,6 +10,10 @@ export const useGetCredit = () => {
 
 export const useGetCredits = () => {
   return useLazyQuery(CreditsDocument, { fetchPolicy: 'cache-first' });
+};
+
+export const useCreateCredit = () => {
+  return useMutation(CreateCreditDocument);
 };
 
 export const useUpdateCredit = () => {

@@ -200,5 +200,21 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.UpdateCredit,
       ),
     },
+    customer: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCrmCustomer,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateCrmCustomer,
+      ),
+    },
+    city: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateCrmCity,
+      ),
+      canCreate: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.CreateCrmCity,
+      ),
+    },
   };
 }

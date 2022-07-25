@@ -1,0 +1,17 @@
+query cities($input: FiltersCitiesInput) {
+  cities(filtersCitiesInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      country
+      name
+      state
+      updatedAt
+      user {
+        name
+      }
+    }
+  }
+}
