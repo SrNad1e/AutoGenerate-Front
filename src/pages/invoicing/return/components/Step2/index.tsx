@@ -104,7 +104,7 @@ const RenderStep2 = ({
       title: 'Cantidad Disponible',
       dataIndex: 'quantityReturn',
       align: 'center',
-      render: (quantityReturn: number, { quantity }) => quantity - quantityReturn,
+      render: (quantityReturn: number, { quantity }) => quantity - (quantityReturn || 0),
     },
     {
       title: 'Precio',
