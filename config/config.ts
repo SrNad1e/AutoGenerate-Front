@@ -443,13 +443,13 @@ export default defineConfig({
         },
         {
           name: 'Carteras',
-          path: '/wallets',
+          path: '/credits',
           icon: 'wallet',
           routes: [
             {
               name: 'Creditos',
-              path: '/wallets/credits',
-              component: './wallets/credits/list',
+              path: '/credits/list',
+              component: './credits/list',
             },
           ],
         },

@@ -1192,6 +1192,15 @@ export type DetailOutput = {
   updatedAt: Scalars['DateTime'];
 };
 
+/** Detalles del recibo */
+export type DetailReceipt = {
+  __typename?: 'DetailReceipt';
+  /** Monto para abonar al pedido */
+  amount: Scalars['Float'];
+  /** Identificador del pedido */
+  orderId: Scalars['String'];
+};
+
 /** Detalles de cruce de la cartera */
 export type DetailReceiptOrder = {
   /** Monto para abonar al pedido */
@@ -3365,6 +3374,8 @@ export type Receipt = {
   concept?: Maybe<Scalars['String']>;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
+  /** Detalle del cruce del recibo */
+  details: DetailReceipt[];
   /** Consecutivo del recibo de caja */
   number: Scalars['Float'];
   /** Método de pago del recibo de caja */
@@ -7728,6 +7739,7 @@ export type CreditHistoryQuery = {
     docs: {
       __typename?: 'CreditHistory';
       type: TypeCreditHistory;
+      amount: number;
       credit: {
         __typename?: 'Credit';
         amount: number;
@@ -16008,6 +16020,7 @@ export const CreditHistoryDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'credit' },

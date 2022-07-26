@@ -32,8 +32,8 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
     },
     {
       title: 'Movimiento',
-      dataIndex: 'credit',
-      render: (credits: Credit) => numeral(credits?.amount).format('$ 0,0'),
+      dataIndex: 'amount',
+      render: (amount: number) => numeral(amount).format('$ 0,0'),
     },
     {
       title: 'Saldo',

@@ -33,8 +33,8 @@ import Filters from '@/components/Filters';
 import SearchCustomer from '@/components/SearchCustomer';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import CreditsHistorical from '../historical';
-import { StatusTypeWallet } from '../wallet.data';
+import CreditsHistorical from '../components/historical';
+import { StatusTypeCredit } from '../credit.data';
 
 import styles from './styles';
 
@@ -305,7 +305,7 @@ const CreditsList = () => {
       align: 'center',
       filteredValue: filterTable?.status || null,
       render: (status: string) => {
-        const { color, label } = StatusTypeWallet[status || ''];
+        const { color, label } = StatusTypeCredit[status || ''];
         return <Badge text={label} color={color} />;
       },
       filterDropdown: (props: FilterDropdownProps) => (
