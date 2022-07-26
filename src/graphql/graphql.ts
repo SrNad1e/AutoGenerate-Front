@@ -2852,7 +2852,7 @@ export enum Permissions {
   AccessTreasuryBoxes = 'ACCESS_TREASURY_BOXES',
   AccessTreasuryExpenses = 'ACCESS_TREASURY_EXPENSES',
   AccessTreasuryPayments = 'ACCESS_TREASURY_PAYMENTS',
-  AccessTreasuryReceipts = 'ACCESS_TREASURY_RECEIPTS',
+  AccessTreasuryReceipt = 'ACCESS_TREASURY_RECEIPT',
   AutogenerateInventoryRequest = 'AUTOGENERATE_INVENTORY_REQUEST',
   ConfirmInventoryTransfer = 'CONFIRM_INVENTORY_TRANSFER',
   CreateConfigurationRole = 'CREATE_CONFIGURATION_ROLE',
