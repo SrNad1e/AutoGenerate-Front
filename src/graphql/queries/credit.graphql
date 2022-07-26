@@ -49,6 +49,7 @@ query creditHistory($input: FiltersCreditHistoryInput!) {
     page
     docs {
       type
+      amount
       credit {
         amount
         available
