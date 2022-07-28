@@ -7866,6 +7866,7 @@ export type ExpensesQuery = {
       value: number;
       status: StatusExpense;
       concept?: string | null;
+      createdAt: any;
       user: { __typename?: 'User'; name: string };
       box: { __typename?: 'Box'; _id: string; name: string };
     }[];
@@ -16381,6 +16382,7 @@ export const ExpensesDocument = {
                           ],
                         },
                       },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                     ],
                   },
                 },
