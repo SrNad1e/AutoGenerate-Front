@@ -340,11 +340,11 @@ const ExpensesList = () => {
           <CalendarOutlined /> Fecha
         </Text>
       ),
-      dataIndex: 'updatedAt',
+      dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
+      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
     },
     {
       title: (
