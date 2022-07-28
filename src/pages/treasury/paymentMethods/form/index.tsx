@@ -106,6 +106,8 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
     try {
       if (values?.logoId?.length > 0) {
         values.logoId = values?.logoId[0]?._id;
+      } else {
+        delete values?.logoId;
       }
 
       const response = await createPayment({
