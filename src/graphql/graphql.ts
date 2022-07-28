@@ -8300,6 +8300,7 @@ export type PaymentsQuery = {
       user: { __typename?: 'User'; name: string };
       logo?: {
         __typename?: 'Image';
+        _id: string;
         urls?: {
           __typename?: 'Urls';
           webp?: { __typename?: 'ImageTypes'; small: string } | null;
@@ -17777,6 +17778,7 @@ export const PaymentsDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'urls' },
