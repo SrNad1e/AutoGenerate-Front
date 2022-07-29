@@ -1,6 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { GlobalOutlined, ScheduleOutlined } from '@ant-design/icons';
-import { Col, Form, Input, Modal, Row, Space } from 'antd';
+import {
+  CarOutlined,
+  GlobalOutlined,
+  MailOutlined,
+  PushpinOutlined,
+  ScheduleOutlined,
+} from '@ant-design/icons';
+import { Col, Form, Input, Modal, Row, Select, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import type { City } from '@/graphql/graphql';
 import { useCreateCities, useUpdateCity } from '@/hooks/cities.hooks';
@@ -9,8 +15,10 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import { Zones } from '../cities.data';
 
 const FormItem = Form.Item;
+const { Option } = Select;
 
 type Props = {
   visible: boolean;
@@ -115,6 +123,8 @@ const CitiesForm = ({ cityData, onCancel, visible }: Props) => {
     form.resetFields();
     form.setFieldsValue({
       ...cityData,
+      countryPrefix: cityData?.country?.prefix,
+      countryName: cityData?.country?.name,
     });
   }, [visible]);
 
@@ -152,25 +162,53 @@ const CitiesForm = ({ cityData, onCancel, visible }: Props) => {
               label={<Space>{<ScheduleOutlined />} Nombre</Space>}
             >
               <Input
-                placeholder="Ingrese nombre"
+                placeholder="ITAGÜÍ"
+                autoFocus
                 disabled={paramsCreateCities.loading || paramsUpdateCity.loading}
               />
             </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="country"
-              label={<Space>{<GlobalOutlined />} Pais</Space>}
-            >
-              <Input
-                placeholder="Ingrese pais"
-                disabled={paramsCreateCities.loading || paramsUpdateCity.loading}
-              />
-            </FormItem>
+            <Row>
+              <Col span={4}>
+                <FormItem
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Este campo no puede estar vacio',
+                    },
+                  ]}
+                  name="countryPrefix"
+                  label={<Space>{<GlobalOutlined />} País</Space>}
+                >
+                  <Input
+                    placeholder="CO"
+                    disabled={paramsCreateCities.loading || paramsUpdateCity.loading}
+                  />
+                </FormItem>
+              </Col>
+              <Col span={20}>
+                <FormItem
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Este campo no puede estar vacio',
+                    },
+                  ]}
+                  name="countryName"
+                  label=" "
+                  colon={false}
+                  noStyle
+                >
+                  <Input
+                    placeholder="Colombia"
+                    style={{
+                      marginTop: 30,
+                      borderLeft: 'none',
+                    }}
+                    disabled={paramsCreateCities.loading || paramsUpdateCity.loading}
+                  />
+                </FormItem>
+              </Col>
+            </Row>
             <FormItem
               rules={[
                 {
@@ -182,9 +220,67 @@ const CitiesForm = ({ cityData, onCancel, visible }: Props) => {
               label={<Space>{<ScheduleOutlined />} Departamento</Space>}
             >
               <Input
-                placeholder="Ingrese departamento"
+                placeholder="ANTIOQUIA"
                 disabled={paramsCreateCities.loading || paramsUpdateCity.loading}
               />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+                {
+                  len: 8,
+                  message: 'Código Dane incorrecto',
+                },
+              ]}
+              name="code"
+              label={<Space>{<PushpinOutlined />} Código Dane</Space>}
+            >
+              <Input
+                placeholder="00250012"
+                disabled={paramsCreateCities.loading || paramsUpdateCity.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+                {
+                  len: 6,
+                  message: 'Código postal no es correcto',
+                },
+              ]}
+              name="defaultPostalCode"
+              label={<Space>{<MailOutlined />} Código postal</Space>}
+            >
+              <Input
+                placeholder="0000521"
+                disabled={paramsCreateCities.loading || paramsUpdateCity.loading}
+              />
+            </FormItem>
+
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="zone"
+              label={<Space>{<CarOutlined />} Zona de cobro</Space>}
+            >
+              <Select
+                placeholder="Zona de cobro"
+                disabled={paramsCreateCities.loading || paramsUpdateCity.loading}
+              >
+                {Zones.map((item) => (
+                  <Option key={item.zone}>{item.name}</Option>
+                ))}
+              </Select>
             </FormItem>
           </Col>
         </Row>
