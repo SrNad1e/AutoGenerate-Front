@@ -1,11 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import SelectPayment from '@/components/SelectPayment';
-import { Input, message as messages } from 'antd';
-import type { Order, PaymentOrder, PaymentsOrderInput } from '@/graphql/graphql';
-import { ActionPaymentsOrder, TypePayment } from '@/graphql/graphql';
-import { useAddPaymentsOrder } from '@/hooks/order.hooks';
+import { Badge, Input, message as messages } from 'antd';
 import {
   BankOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
   DeleteOutlined,
   DollarCircleOutlined,
   EditOutlined,
@@ -30,15 +28,23 @@ import {
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
+import { useForm } from 'antd/lib/form/Form';
 import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useState } from 'react';
+import { useGetPayments } from '@/hooks/payment.hooks';
+import { useModel } from 'umi';
+import type { Order, PaymentOrder, PaymentsOrderInput } from '@/graphql/graphql';
+import { StatusOrder, StatusOrderDetail } from '@/graphql/graphql';
+import { ActionPaymentsOrder, TypePayment } from '@/graphql/graphql';
+import { useAddPaymentsOrder, useConfirmPaymentOrder } from '@/hooks/order.hooks';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import SelectPayment from '@/components/SelectPayment';
 
 import styles from '../styles';
-import { useForm } from 'antd/lib/form/Form';
-import { useGetPayments } from '@/hooks/payment.hooks';
+import './style.less';
 
 const { Text } = Typography;
 const FormItem = Form.Item;
@@ -51,62 +57,59 @@ const Payments = ({ orderData }: Props) => {
   const [visiblePayment, setVisiblePayment] = useState(false);
   const [canEditTotal, setCanEditTotal] = useState(false);
   const [editPayments, setEditPayments] = useState<PaymentsOrderInput[]>([]);
-  const [addPayments, setAddPayments] = useState<PaymentOrder[]>([...orderData?.payments]);
+  const [addPayments, setAddPayments] = useState<PaymentOrder[]>(
+    orderData?.payments?.map((i) => ({
+      total: i.total,
+      updatedAt: i.updatedAt,
+      createdAt: i.createdAt,
+      status: i.status,
+      payment: {
+        _id: i.payment._id,
+        name: i.payment.name,
+        type: i.payment.type,
+      },
+    })),
+  );
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
+  const [productsDelete, setProductsDelete] = useState([]);
   const [visibleField, setVisibleField] = useState(false);
   const [isCoupon, setIsCoupon] = useState(false);
   const [editingKey, setEditingKey] = useState('');
+  const [paymentBankTotal, setPaymentBankTotal] = useState(0);
 
   const [addPayment, paramsAddPayment] = useAddPaymentsOrder();
   const [getPayments, { data }] = useGetPayments();
+  const [confirmPayment, paramsConfirmPayment] = useConfirmPaymentOrder();
 
   const [form] = useForm();
 
-  const isEditing = (detail: PaymentOrder) => detail?.payment?._id === editingKey;
-
-  const edit = (detail: PaymentOrder) => {
-    setEditingKey(detail.payment._id);
-    setCanEditTotal(canEditTotal ? false : true);
-  };
+  const { initialState } = useModel('@@initialState');
 
   const total = orderData?.summary?.total || 0;
-
   const totalPaid = orderData?.summary?.totalPaid || 0;
-
   const balance = total - totalPaid;
-
   const change = totalPaid - total;
-
   const couponId = data?.payments.docs.filter((payment) => payment?.name === 'Bono');
-
-  //TODO: Cuando se seleccione el medio de pago credito, banco setear el total del saldo
-
-  //TODO: programar funcionalidada para confirmar pagos
-
-  //TODO: Programar medio de pago bono
+  const bankId = data?.payments.docs.filter((payment) => payment?.name === 'Bancolombia');
 
   /**
-   *@description funcion usada para mostrar mensaje de éxito
-   * @param mensaje mensaje a mostrar
+   * @description funcion usada para identificar el medio de pago que se esta editando
+   * @param detail identificador del pago que se quiere editar
+   * @returns retorna un boolean
    */
-  const alertSuccess = (mensaje: string) => {
-    messages.success({
-      content: mensaje,
-    });
-  };
+  const isEditing = (detail: PaymentOrder) => detail?.payment?._id === editingKey;
 
   /**
-   *@description funcion usada para mostrar mensaje de éxito
-   * @param mensaje mensaje a mostrar
+   * @description funcion usada para seleccionar el medio de pago que se quiere editar
+   * @param detail identificador del pago que se quiere editar
    */
-  const alertWarning = (mensaje: string) => {
-    messages.warning({
-      content: mensaje,
-    });
+  const edit = (detail: PaymentOrder) => {
+    setEditingKey(detail?.payment?._id);
+    setCanEditTotal(canEditTotal ? false : true);
   };
 
   /**
@@ -132,11 +135,101 @@ const Payments = ({ orderData }: Props) => {
     });
   };
 
+  /**
+   *@description funcion usada para mostrar mensaje de éxito
+   * @param mensaje mensaje a mostrar
+   */
+  const alertSuccess = (mensaje: string) => {
+    messages.success({
+      content: mensaje,
+    });
+  };
+
+  /**
+   *@description funcion usada para mostrar mensaje de éxito
+   * @param mensaje mensaje a mostrar
+   */
+  const alertWarning = (mensaje: string) => {
+    messages.warning({
+      content: mensaje,
+    });
+  };
+
+  /**
+   * @description funcion usada para reversar pagos
+   * @param paymentId identificador del pago a reversar
+   */
+  const reversePaymentOrder = async (paymentId: string) => {
+    for (let i = 0; i < addPayments.length; i++) {
+      if (paymentId === addPayments[i].payment._id) {
+        addPayments[i].status = StatusOrderDetail.New;
+      }
+    }
+    try {
+      confirmPayment({
+        variables: {
+          input: {
+            orderId: orderData._id,
+            payments: [
+              {
+                paymentId: paymentId,
+                status: StatusOrderDetail.New,
+              },
+            ],
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
+  /**
+   * @description funcion usada para confirmar el medio de pago en el pedido
+   * @param paymentId identificador del pago a confirmar
+   */
+  const confirmPaymentOrder = (paymentId: string) => {
+    for (let i = 0; i < addPayments.length; i++) {
+      if (paymentId === addPayments[i].payment._id) {
+        addPayments[i].status = StatusOrderDetail.Confirmed;
+      }
+    }
+    try {
+      confirmPayment({
+        variables: {
+          input: {
+            orderId: orderData._id,
+            payments: [
+              {
+                paymentId: paymentId,
+                status: StatusOrderDetail.Confirmed,
+              },
+            ],
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
+  /**
+   * @description funcion usada para controlar el cambio de medio de pago
+   * @param e Id del medio de pago seleccionado
+   */
   const onSelectPayment = (e: string) => {
-    if (e === couponId[0]?._id) {
+    if (bankId && e === bankId[0]?._id) {
+      setPaymentBankTotal(balance);
+    } else {
+      form.setFieldsValue({
+        total: undefined,
+      });
+      setPaymentBankTotal(0);
+    }
+    if (couponId && e === couponId[0]?._id) {
       setIsCoupon(true);
       setVisibleField(false);
-    } else if (e && e !== couponId[0]?._id) {
+    } else if (couponId && e && e !== couponId[0]?._id) {
       setIsCoupon(false);
       setVisibleField(true);
     } else {
@@ -145,17 +238,17 @@ const Payments = ({ orderData }: Props) => {
     }
   };
 
-  //TODO: Programar funcionalidad para los botones de guardar pagos y reversar pagos en todo caso de que sea necesario hacerlo en el paso extra
   /**
    * @description funcion usada para guardar los detalles de los pagos en el estado
    */
-  const onAddPayment = () => {
-    const values = form.getFieldsValue();
+  const onAddPayment = async () => {
+    const values = await form.validateFields();
     const payment: PaymentOrder = {
       action: ActionPaymentsOrder.Update,
       total: values.total || 0,
       createdAt: orderData?.createdAt,
       updatedAt: orderData?.updatedAt,
+      status: StatusOrderDetail.New,
       payment: {
         _id: values.paymentId || '',
         name: '',
@@ -171,6 +264,9 @@ const Payments = ({ orderData }: Props) => {
     } else if (values.paymentId === '629fc27ee4251f089ecd275c') {
       payment.payment.name = 'Crédito';
       payment.payment.type = TypePayment.Credit;
+    } else if (values.paymentId === '629fc27ee4251f089ecd275e') {
+      payment.payment.name = 'Bono';
+      payment.payment.type = TypePayment.Bonus;
     }
 
     if (values.total && values.total > 0) {
@@ -178,98 +274,85 @@ const Payments = ({ orderData }: Props) => {
         if (values.total && values.paymentId === addPayments[i]?.payment._id) {
           addPayments[i].total += values.total;
           setAddPayments([...addPayments]);
+          form.resetFields();
+          setVisiblePayment(false);
           break;
         }
         if (values.total && values.paymentId !== addPayments[i]?.payment._id) {
           if (values.paymentId === addPayments[i]?.payment._id) {
             addPayments[i].total += values.total;
             setAddPayments([...addPayments]);
+            form.resetFields();
+            setVisiblePayment(false);
           } else if (values.paymentId !== addPayments[i]?.payment._id) {
             setAddPayments([...addPayments, payment]);
+            form.resetFields();
+            setVisiblePayment(false);
           } else {
-            console.log('Error');
+            showError('Error');
           }
         }
       }
     } else {
-      console.log('Cantidad no puede estar en 0');
+      showError('Cantidad no puede estar en 0');
     }
   };
 
-  const deleteDetailPayment = (arrComparison: PaymentOrder[]) => {
+  /**
+   * @description funcion usada para eliminar los medios de pago del estado
+   * @param arrComparison array con los medios de pagos que estan en el estado
+   * @param paymentId Identificador del pago a eliminar del estado
+   */
+  const deleteDetailPayment = (arrComparison: PaymentOrder[], paymentId: string) => {
+    const productDelete = {
+      action: ActionPaymentsOrder.Delete,
+      paymentId: paymentId,
+      total: 1,
+    };
     for (let index = 0; index < arrComparison?.length; index++) {
-      const newPayments = addPayments.filter(
-        (pay) => pay?.payment?._id !== arrComparison[index]?.payment?._id,
-      );
-      if (newPayments[index]?.payment?._id !== arrComparison[index]?.payment?._id) {
-        setAddPayments([...newPayments]);
+      const newPayments = addPayments.filter((pay) => pay?.payment?._id !== paymentId);
+      if (newPayments.length === 0) {
+        alertWarning('El pedido no puede quedar sin medios de pago');
+        break;
       }
+      setProductsDelete([...productsDelete, productDelete]);
+      setAddPayments([...newPayments]);
     }
   };
 
+  /**
+   * @description funcion usada para actualizar los medios de pago
+   */
   const updatePayment = async () => {
+    const values = addPayments.map((i) => ({
+      action: ActionPaymentsOrder.Update,
+      paymentId: i.payment._id,
+      total: i.total,
+    }));
     try {
-      const response = await addPayment({
-        variables: {
-          input: {
-            orderId: orderData?._id,
-            payments: editPayments,
-          },
-        },
-      });
-      setCanEditTotal(canEditTotal ? false : true);
-      setEditingKey('');
-      if (response?.data) {
-        alertSuccess('Pago actualizado correctamente');
-      }
-    } catch (error: any) {
-      showError(error?.message);
-    }
-  };
-
-  /* const deletePayment = async (paymentId: string) => {
-    try {
-      const response = await addPayment({
-        variables: {
-          input: {
-            orderId: orderData?._id,
-            payments: [
-              {
-                action: ActionPaymentsOrder.Delete,
-                paymentId: paymentId,
-                total: 1,
+      if (orderData?.payments) {
+        for (let index = 0; index < orderData?.payments?.length; index++) {
+          if (orderData?.payments[index].payment._id === values[index].paymentId) {
+            setEditPayments([...values]);
+          }
+          if (editPayments.length > 0) {
+            const response = await addPayment({
+              variables: {
+                input: {
+                  orderId: orderData?._id,
+                  payments: editPayments,
+                },
               },
-            ],
-          },
-        },
-      });
-      if (response?.data) {
-        alertSuccess('Pago eliminado correctamente');
-      }
-    } catch (error: any) {
-      showError(error?.message);
-    }
-  };*/
-
-  const createPayment = async () => {
-    const values = await form.validateFields();
-    try {
-      const response = await addPayment({
-        variables: {
-          input: {
-            orderId: orderData?._id,
-            payments: [
-              {
-                action: ActionPaymentsOrder.Create,
-                paymentId: values.paymentId,
-                total: values.total,
-              },
-            ],
-          },
-        },
-      });
-      if (response?.data) {
-        alertSuccess('Pago agregado correctamente');
+            });
+            setCanEditTotal(canEditTotal ? false : true);
+            setEditingKey('');
+            setVisiblePayment(false);
+            if (response?.data) {
+              alertSuccess('Pago actualizado correctamente');
+            }
+            break;
+          }
+        }
       }
     } catch (error: any) {
       showError(error?.message);
@@ -277,30 +360,106 @@ const Payments = ({ orderData }: Props) => {
   };
 
   /**
-   * @description funcion usada para guardar los detalles de los pagos en el estado
-   * @param totalPayment total ingresado
-   * @param paymentId identificador del pago al cual se le cambiara el total
+   * @description funcion usada para eliminar los pagos del pedido
    */
-  const onChangeTotalPayment = (totalPayment?: number, paymentId?: string) => {
-    const payment: PaymentsOrderInput = {
-      action: ActionPaymentsOrder.Update,
-      total: totalPayment || 0,
-      paymentId: paymentId || '',
-    };
+  const deletePayment = async () => {
+    try {
+      if (orderData?.payments && addPayments.length < orderData?.payments?.length) {
+        if (productsDelete.length > 0) {
+          const response = await addPayment({
+            variables: {
+              input: {
+                orderId: orderData?._id,
+                payments: productsDelete,
+              },
+            },
+          });
+          if (response?.data) {
+            alertSuccess('Pagos eliminados correctamente');
+            setProductsDelete([]);
+          }
+        }
+      }
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
 
+  /**
+   * @description funcion usada para agregar los medios de pago al pedido
+   */
+  const createPayment = async () => {
+    const values = addPayments.map((i) => ({
+      action: ActionPaymentsOrder.Create,
+      paymentId: i.payment._id,
+      total: i.total,
+    }));
+    try {
+      if (orderData.payments) {
+        for (let index = 0; index < addPayments.length; index++) {
+          if (orderData?.payments[index]?.payment?._id === addPayments[index]?.payment?._id) {
+            if (editPayments.length > 0) {
+              updatePayment();
+            }
+          }
+          if (orderData?.payments[index]?.payment?._id !== values[index]?.paymentId) {
+            const response = await addPayment({
+              variables: {
+                input: {
+                  orderId: orderData?._id,
+                  payments: [values[index]],
+                },
+              },
+            });
+            if (response?.data) {
+              alertSuccess('Pago agregado correctamente');
+            }
+          }
+        }
+      }
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
+  /**
+   * @description funcion usada para actualizar la cantidad del abonado de los medios de pago en el estado
+   * @param totalPayment cantidad ingresada para actualizar
+   * @param paymentId identificador del medio de pago
+   */
+  const onChangeTotalDetailPayment = (totalPayment?: number, paymentId?: string) => {
+    const values = addPayments.map((i) => ({
+      action: ActionPaymentsOrder.Update,
+      paymentId: i.payment._id,
+      total: i.total,
+    }));
+    if (orderData?.payments) {
+      for (let index = 0; index < addPayments.length; index++) {
+        if (values[index]?.paymentId !== orderData?.payments[index]?.payment?._id) {
+          values[index].action = ActionPaymentsOrder.Create;
+          setEditPayments([...values]);
+        }
+      }
+    }
+    for (let index = 0; index < addPayments.length; index++) {
+      if (paymentId !== values[index]?.paymentId) {
+        setEditPayments([...editPayments, values[index]]);
+      } else {
+        values[index].total = totalPayment;
+        setEditPayments([...values]);
+        break;
+      }
+    }
     if (totalPayment && totalPayment > 0) {
-      for (let i = -1; i < editPayments.length; i++) {
-        if (totalPayment && paymentId === editPayments[i]?.paymentId) {
-          editPayments[i].total = totalPayment;
-          setEditPayments([...editPayments]);
+      for (let i = -1; i < addPayments.length; i++) {
+        if (totalPayment && paymentId === addPayments[i]?.payment?._id) {
+          addPayments[i].total = totalPayment;
+          setAddPayments([...addPayments]);
           break;
         }
-        if (totalPayment && paymentId !== editPayments[i]?.paymentId) {
-          if (paymentId === editPayments[i]?.paymentId) {
-            editPayments[i].total = totalPayment;
-            setEditPayments([...editPayments]);
-          } else if (paymentId !== editPayments[i]?.paymentId) {
-            setEditPayments([...editPayments, payment]);
+        if (totalPayment && paymentId !== addPayments[i]?.payment?._id) {
+          if (paymentId !== addPayments[i]?.payment?._id) {
+            setAddPayments([...addPayments]);
           } else {
             showError('Error');
           }
@@ -309,6 +468,25 @@ const Payments = ({ orderData }: Props) => {
     } else {
       alertWarning('Cantidad no puede estar en 0');
     }
+  };
+
+  /**
+   * @description funcion usada para deshabilitar el boton de agregar pagos si no se han confirmado con anterioirdad los  productos
+   * @returns retorna un boolean
+   */
+  const disabledButtonAddPay = () => {
+    let countConfirm = 0;
+    if (orderData?.details)
+      for (let index = 0; index < orderData?.details.length; index++) {
+        if (orderData.details[index].status === StatusOrderDetail.Confirmed) countConfirm++;
+      }
+
+    if (countConfirm === orderData.details?.length) {
+      return false;
+    } else if (countConfirm !== orderData.details?.length) {
+      return true;
+    }
+    return;
   };
 
   useEffect(() => {
@@ -320,8 +498,10 @@ const Payments = ({ orderData }: Props) => {
   }, []);
 
   useEffect(() => {
-    console.log(addPayments);
-  }, [addPayments]);
+    if (paymentBankTotal > 0) {
+      form.setFieldsValue({ total: paymentBankTotal });
+    }
+  }, [paymentBankTotal]);
 
   const column: ColumnsType<PaymentOrder> = [
     {
@@ -375,20 +555,64 @@ const Payments = ({ orderData }: Props) => {
       dataIndex: 'payment',
       align: 'center',
       render: (_, detail) => {
-        const detailsPayment = detail?.payment;
         const editable = isEditing(detail);
 
         return editable ? (
-          <InputNumber
-            min={0}
-            formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
-            controls={false}
-            defaultValue={numeral(detail?.total).format('$ 0,0')}
-            onChange={(e) => onChangeTotalPayment(e, detailsPayment?._id)}
-          />
+          <Row>
+            <Col span={4} style={{ bottom: 2 }}>
+              <Tooltip
+                title={
+                  detail.status === StatusOrderDetail.New ? 'Pago Sin Confirmar' : 'Pago Confirmado'
+                }
+              >
+                <Badge
+                  title={
+                    detail.status === StatusOrderDetail.New
+                      ? 'Pago Sin Confirmar'
+                      : 'Pago Confirmado'
+                  }
+                  count={
+                    detail.status === StatusOrderDetail.New ? (
+                      <ClockCircleOutlined style={{ color: '#f5222d' }} />
+                    ) : (
+                      <CheckCircleOutlined style={{ color: 'green' }} />
+                    )
+                  }
+                />{' '}
+              </Tooltip>
+            </Col>
+            <Col span={18}>
+              <InputNumber
+                min={0}
+                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
+                controls={false}
+                defaultValue={numeral(detail?.total).format('$ 0,0')}
+                onChange={(e) => onChangeTotalDetailPayment(e, detail?.payment?._id)}
+              />
+            </Col>
+          </Row>
         ) : (
-          numeral(detail?.total).format('$ 0,0')
+          <Row>
+            <Col span={4} style={{ bottom: 2 }}>
+              <Tooltip
+                title={
+                  detail.status === StatusOrderDetail.New ? 'Pago Sin Confirmar' : 'Pago Confirmado'
+                }
+              >
+                <Badge
+                  count={
+                    detail.status === StatusOrderDetail.New ? (
+                      <ClockCircleOutlined style={{ color: '#f5222d' }} />
+                    ) : (
+                      <CheckCircleOutlined style={{ color: 'green' }} />
+                    )
+                  }
+                />
+              </Tooltip>
+            </Col>{' '}
+            <Col span={18}> {numeral(detail?.total).format('$ 0,0')}</Col>
+          </Row>
         );
       },
     },
@@ -402,11 +626,48 @@ const Payments = ({ orderData }: Props) => {
 
         return (
           <Space>
-            <Tooltip title="Confirmar Pago" placement="topLeft">
-              <Button onClick={() => {}} type="primary" icon={<DollarCircleOutlined />} />
+            {initialState?.currentUser?.role?.name === 'Administrador' && (
+              <Tooltip title="Reversar Pago">
+                <Button
+                  disabled={
+                    detail.status === StatusOrderDetail.New ||
+                    orderData?.status === StatusOrder.Sent ||
+                    orderData?.status === StatusOrder.Closed ||
+                    orderData?.status === StatusOrder.Cancelled
+                  }
+                  loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                  style={styles.inputBorder}
+                  icon={<RetweetOutlined />}
+                  onClick={() => reversePaymentOrder(detail?.payment?._id)}
+                />
+              </Tooltip>
+            )}
+            <Tooltip title="Confirmar pago">
+              <Button
+                disabled={
+                  detail?.status === StatusOrderDetail.Confirmed ||
+                  balance > 0 ||
+                  orderData?.status === StatusOrder.Sent ||
+                  orderData?.status === StatusOrder.Closed ||
+                  orderData?.status === StatusOrder.Cancelled ||
+                  disabledButtonAddPay()
+                }
+                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                onClick={() => confirmPaymentOrder(detail?.payment?._id)}
+                type="primary"
+                icon={<DollarCircleOutlined />}
+                style={styles.inputBorder}
+              />
             </Tooltip>
             <Tooltip title={editable ? 'Guardar Valor' : 'Editar Valor'} placement="topLeft">
               <Button
+                disabled={
+                  detail.status === StatusOrderDetail.Confirmed ||
+                  orderData?.status === StatusOrder.Sent ||
+                  orderData?.status === StatusOrder.Closed ||
+                  orderData?.status === StatusOrder.Cancelled
+                }
+                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
                 onClick={editable ? () => updatePayment() : () => edit(detail)}
                 type="primary"
                 ghost
@@ -415,10 +676,16 @@ const Payments = ({ orderData }: Props) => {
             </Tooltip>
             <Tooltip title="Eliminar">
               <Button
+                disabled={
+                  detail.status === StatusOrderDetail.Confirmed ||
+                  orderData?.status === StatusOrder.Sent ||
+                  orderData?.status === StatusOrder.Closed ||
+                  orderData?.status === StatusOrder.Cancelled
+                }
                 danger
                 type="primary"
-                loading={paramsAddPayment?.loading}
-                onClick={() => deleteDetailPayment(addPayments)}
+                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                onClick={() => deleteDetailPayment(addPayments, detail?.payment?._id)}
                 icon={<DeleteOutlined />}
               />
             </Tooltip>
@@ -434,13 +701,34 @@ const Payments = ({ orderData }: Props) => {
         <Row gutter={[0, 20]}>
           <Col span={24}>
             <Space size={20}>
-              <Button style={styles.inputBorder} type="primary" icon={<SaveOutlined />}>
+              <Button
+                style={styles.inputBorder}
+                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                disabled={
+                  orderData?.status === StatusOrder.Sent ||
+                  orderData?.status === StatusOrder.Closed ||
+                  orderData?.status === StatusOrder.Cancelled
+                }
+                type="primary"
+                icon={<SaveOutlined />}
+                onClick={
+                  orderData?.payments && addPayments.length < orderData?.payments?.length
+                    ? () => deletePayment()
+                    : () => createPayment()
+                }
+              >
                 Guardar Pagos
               </Button>
-              <Button style={styles.inputBorder} type="primary" icon={<RetweetOutlined />}>
-                Reversar Pagos
-              </Button>
               <Button
+                disabled={
+                  balance === 0 ||
+                  change > 0 ||
+                  orderData?.status === StatusOrder.Sent ||
+                  orderData?.status === StatusOrder.Closed ||
+                  orderData?.status === StatusOrder.Cancelled ||
+                  disabledButtonAddPay()
+                }
+                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
                 style={styles.inputBorder}
                 onClick={() => setVisiblePayment(visiblePayment ? false : true)}
                 type="primary"
@@ -452,35 +740,64 @@ const Payments = ({ orderData }: Props) => {
           </Col>
           <Col span={12}>
             {visiblePayment && (
-              <Form form={form}>
-                <FormItem label="Medio de Pago" name="paymentId" required>
+              <Form form={form} layout="horizontal">
+                <FormItem
+                  label="Medio de Pago"
+                  name="paymentId"
+                  rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
+                >
                   <SelectPayment onChange={(e) => onSelectPayment(e)} disabled={false} />
                 </FormItem>
                 {visibleField && (
                   <>
-                    <FormItem label="Valor" name="total" required>
+                    <FormItem
+                      label="Valor"
+                      name="total"
+                      rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
+                    >
                       <InputNumber
+                        step={100}
+                        autoFocus
                         min={1}
                         formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                         parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
                         controls={false}
+                        addonAfter={
+                          <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            disabled={
+                              orderData?.status === StatusOrder.Sent ||
+                              orderData?.status === StatusOrder.Closed ||
+                              orderData?.status === StatusOrder.Cancelled
+                            }
+                            loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                            onClick={() => onAddPayment()}
+                          />
+                        }
                       />
                     </FormItem>
-                    <Divider type="vertical" />
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => onAddPayment()} />
                   </>
                 )}
                 {isCoupon && (
                   <>
                     <FormItem label="Código" name="code">
-                      <Input />
+                      <Input
+                        addonAfter={
+                          <Button
+                            loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                            disabled={
+                              orderData?.status === StatusOrder.Sent ||
+                              orderData?.status === StatusOrder.Closed ||
+                              orderData?.status === StatusOrder.Cancelled
+                            }
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={() => onAddPayment()}
+                          />
+                        }
+                      />
                     </FormItem>
-                    <Divider type="vertical" />
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      onClick={() => createPayment()}
-                    />
                   </>
                 )}
               </Form>
@@ -501,7 +818,7 @@ const Payments = ({ orderData }: Props) => {
           <Col span={12}>
             <Text strong>Envío</Text>
           </Col>
-          <Col span={12}>{numeral(0).format('$ 0,0')}</Col>
+          <Col span={12}>{numeral(orderData?.conveyorOrder?.value).format('$ 0,0')}</Col>
           <Col span={12}>
             <Text strong>Total</Text>
           </Col>

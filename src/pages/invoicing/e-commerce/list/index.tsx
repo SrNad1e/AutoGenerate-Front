@@ -29,15 +29,14 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
+import type { ColumnsType } from 'antd/lib/table';
+import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import numeral from 'numeral';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import type { Location } from 'umi';
 import { useHistory, useLocation } from 'umi';
-import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import { useEffect, useState } from 'react';
-import type { ColumnsType } from 'antd/lib/table';
-
 import { useGetOrders } from '@/hooks/order.hooks';
 import type {
   Customer,
@@ -46,20 +45,21 @@ import type {
   PaymentOrder,
   StatusOrder,
 } from '@/graphql/graphql';
+import 'moment/locale/es';
+
 import { StatusType } from '../e-commerce.data';
 import SearchCustomer from '@/components/SearchCustomer';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectPayment from '@/components/SelectPayment';
-import 'moment/locale/es'; // without this line it didn't work
 
-moment.locale('es');
 import styles from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
+moment.locale('es');
 
 type FormValues = {
   number?: number;
@@ -108,18 +108,26 @@ const EcommerceList = () => {
     });
   };
 
+  /**
+   * @description funcion ejecutada para obtener los pedidos
+   * @param params filtros para consultar los pedidos
+   */
   const onSearch = (params?: FiltersOrdersInput) => {
-    getOrders({
-      variables: {
-        input: {
-          orderPos: false,
-          sort: {
-            createdAt: -1,
+    try {
+      getOrders({
+        variables: {
+          input: {
+            orderPos: false,
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
   };
 
   /*
@@ -136,28 +144,22 @@ const EcommerceList = () => {
         number,
         sort: sort || { createdAt: -1 },
       };
-
       if (dates) {
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
-
       if (customerId) {
         params.customerId = customerId;
       }
-
       if (paymentId) {
-        params.customerId = paymentId;
+        params.paymentId = paymentId;
       }
-
       onSearch(params);
-
       const datos = Object.keys(props)
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
-
       form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
     } catch (error: any) {
@@ -189,7 +191,6 @@ const EcommerceList = () => {
         createdAt: -1,
       };
     }
-
     onFinish(params, sort, current);
   };
 
@@ -222,7 +223,6 @@ const EcommerceList = () => {
         newFilters[item] = JSON.parse(queryParams[item]);
       }
     });
-
     onFinish(newFilters);
   };
 
@@ -233,7 +233,7 @@ const EcommerceList = () => {
   const columns: ColumnsType<Order> = [
     {
       title: (
-        <Text style={{ fontSize: 20 }}>
+        <Text style={styles.iconFontSize}>
           <FieldNumberOutlined />
         </Text>
       ),
@@ -402,14 +402,14 @@ const EcommerceList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]} style={{ marginTop: 20 }}>
+        <Row gutter={[0, 20]} style={styles.marginFilters}>
           <Col span={24} style={styles.textRight}>
             <Text strong>Total Encontrados:</Text> {data?.orders?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.orders?.page} / {data?.orders?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
-              columns={columns}
+              columns={columns as any}
               onChange={handleChangeTable}
               scroll={{ x: 1000 }}
               dataSource={data?.orders?.docs}

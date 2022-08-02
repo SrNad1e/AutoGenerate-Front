@@ -18,8 +18,7 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import numeral from 'numeral';
-import { useState } from 'react';
+import type { ColumnsType } from 'antd/es/table/interface';
 import Icon, {
   BarcodeOutlined,
   DeleteOutlined,
@@ -30,9 +29,11 @@ import Icon, {
   SaveOutlined,
 } from '@ant-design/icons';
 import { useForm } from 'antd/lib/form/Form';
-import type { ColumnsType } from 'antd/es/table/interface';
-import { useAddProductsOrder } from '@/hooks/order.hooks';
+import numeral from 'numeral';
+import { useEffect, useState } from 'react';
 import type { DetailAddProductsOrderInput, DetailOrder, Order, Product } from '@/graphql/graphql';
+import { useAddProductsOrder, useConfirmProductOrder } from '@/hooks/order.hooks';
+import { StatusOrder } from '@/graphql/graphql';
 import { StatusOrderDetail } from '@/graphql/graphql';
 import { ActionProductsOrder } from '@/graphql/graphql';
 
@@ -60,22 +61,20 @@ const Products = ({ orderdata }: Props) => {
     type: 'error',
     visible: false,
   });
-  const [editingKey, setEditingKey] = useState([]);
-  const [quantityConfirm, setQuantityConfirm] = useState(0);
+  const [productsQuantityConfirm, setProductsQuantityConfirm] = useState<any[]>([]);
+  const [productsConfirm, setProductsConfirm] = useState<any[]>([]);
 
   const [form] = useForm();
 
   const [addProduct, paramsAddProduct] = useAddProductsOrder();
-  //const [confirmProductQuantity, paramsConfirmProductQuantity] = useConfirmProductOrder();
+  const [confirmProductQuantity, paramsConfirmProductQuantity] = useConfirmProductOrder();
 
-  const isEditing = (detail: DetailOrder) => {
-    const found = editingKey.find((i) => i === detail.product.barcode);
-    if (found !== undefined) {
-      return true;
-    } else {
-      return false;
-    }
-  };
+  /**
+   * @description array con los detalles del pedido almacenados de forma descendente
+   */
+  const sortedDesc = orderdata?.details?.slice().sort(function (a, b) {
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
 
   /**
    * @description funcion usada para mostrar los errores
@@ -102,66 +101,95 @@ const Products = ({ orderdata }: Props) => {
 
   /**
    *@description funcion usada para mostrar mensaje de éxito
-   * @param mensaje mensaje a mostrar
+   * @param message mensaje a mostrar
    */
-  const alertSuccess = (mensaje: string) => {
+  const alertSuccess = (message: string) => {
     messages.success({
-      content: mensaje,
+      content: message,
     });
   };
 
   /**
    *@description funcion usada para mostrar mensaje de cuidado
-   * @param mensaje mensaje a mostrar
+   * @param message mensaje a mostrar
    */
-  const alertWarning = (mensaje: string) => {
+  const alertWarning = (message: string) => {
     messages.warning({
-      content: mensaje,
+      content: message,
     });
   };
 
-  //TODO: Confirmacion de cantidad de los productos
-  const confirmQuantity = async () => {
-    const values = await form.validateFields();
-
-    if (values) {
-      for (let i = -1; i < editingKey.length; i++) {
-        if (values.barcode === editingKey[i]) {
-          setEditingKey([...editingKey]);
-          setQuantityConfirm(quantityConfirm + 1);
-          break;
-        }
-        if (values.barcode !== editingKey[i]) {
-          if (values.barcode === editingKey[i]) {
-            setEditingKey([...editingKey]);
-            setQuantityConfirm(quantityConfirm + 1);
-          } else if (values.barcode !== editingKey[i]) {
-            setEditingKey([...editingKey, values.barcode]);
-            setQuantityConfirm(quantityConfirm + 1);
-          } else {
-            showError('Error');
-          }
-        }
+  /**
+   * @description funcion usada para reversar la cantidad confirmada  en los productos
+   */
+  const resetConfirmQuantity = () => {
+    for (let index = 0; index < productsQuantityConfirm.length; index++) {
+      if (productsQuantityConfirm[index].quantityConfirm > 0) {
+        productsQuantityConfirm[index].quantityConfirm = 0;
+        setProductsQuantityConfirm([...productsQuantityConfirm]);
+        setProductsConfirm([]);
       }
-    } else {
-      alertWarning('No hay values');
     }
   };
 
-  // TODO : Confirmacion de productos
-  /* const confirmProductsFinal = () => {
-    confirmProductQuantity({
-      variables: {
-        input: {
-          orderId: orderdata?._id,
-          //details:
-        },
-      },
-    });
-  };*/
+  /**
+   * @description funcion usada para confirmar la cantidad de los productos
+   */
+  const confirmQuantity = async () => {
+    const values = await form.validateFields();
+    if (values.barcode) {
+      for (let i = 0; i < productsQuantityConfirm.length; i++) {
+        if (values.barcode === productsQuantityConfirm[i].barcode) {
+          if (productsQuantityConfirm[i].quantityConfirm >= productsQuantityConfirm[i].quantity) {
+            alertWarning('Esta intentado agregar más produtos de los registrados en el pedido');
+            break;
+          } else {
+            productsQuantityConfirm[i].quantityConfirm++;
+            setProductsQuantityConfirm([...productsQuantityConfirm]);
+            if (
+              productsQuantityConfirm[i]?.quantityConfirm === productsQuantityConfirm[i]?.quantity
+            ) {
+              if (productsQuantityConfirm[i]?.productId === productsConfirm[i]?.productId) {
+                setProductsConfirm([...productsConfirm]);
+              }
+              if (productsQuantityConfirm[i]?.productId !== productsConfirm[i]?.productId) {
+                setProductsConfirm([...productsConfirm, productsQuantityConfirm[i]]);
+              }
+            }
+            alertSuccess('Producto confirmado correctamente');
+            break;
+          }
+        }
+      }
+    }
+  };
 
   /**
-   * @description funcion usada para actualizar la cantidad de un producto
+   *@description funcion usada para confirmar los productos del pedido
+   */
+  const confirmProductsFinal = async () => {
+    for (let i = 0; i < productsConfirm.length; i++) {
+      delete productsConfirm[i].barcode;
+      delete productsConfirm[i].quantity;
+      delete productsConfirm[i].quantityConfirm;
+    }
+    try {
+      confirmProductQuantity({
+        variables: {
+          input: {
+            orderId: orderdata?._id,
+            details: productsConfirm,
+          },
+        },
+      });
+      setProductsConfirm([]);
+    } catch (error: any) {
+      showError(error.message);
+    }
+  };
+
+  /**
+   * @description funcion usada para actualizar las cantidades de los productos
    */
   const editQuantityProduct = async () => {
     setCanEdit(false);
@@ -304,6 +332,44 @@ const Products = ({ orderdata }: Props) => {
       showError(error?.message);
     }
   };
+
+  /**
+   * @description funcion usada para deshabilitar botones si todos los productos del pedido estan confirmados
+   * @returns retorna un boolean
+   */
+  const disabledEditQuantity = () => {
+    let countConfirmed = 0;
+    if (orderdata?.details) {
+      for (let index = 0; index < orderdata?.details?.length; index++) {
+        if (orderdata.details[index].status === StatusOrderDetail.Confirmed) {
+          countConfirmed++;
+        }
+      }
+    }
+    if (countConfirmed !== orderdata?.details?.length) {
+      return false;
+    } else if (countConfirmed === orderdata?.details?.length) {
+      return true;
+    }
+    return;
+  };
+
+  /**
+   * @description almacena los detalles del pedido en el estado
+   */
+  const controlOfSwitch = () => {
+    setProductsQuantityConfirm(
+      orderdata?.details?.map((i) => ({
+        productId: i.product._id,
+        barcode: i.product.barcode,
+        quantity: i.quantity,
+        quantityConfirm: 0,
+        status: StatusOrderDetail.Confirmed,
+      })),
+    );
+    setVisibleConfirmProduct(visibleConfirmProduct ? false : true);
+  };
+
   /**
    * Columna de productos
    */
@@ -316,7 +382,7 @@ const Products = ({ orderdata }: Props) => {
           preview={false}
           height={50}
           width={50}
-          src={details?.product?.images?.map((image) => image?.urls?.webp?.small)}
+          src={`${CDN_URL}/${details?.product?.images?.map((image) => image?.urls?.webp?.small)}`}
           fallback={DefaultImage}
         />
       ),
@@ -338,18 +404,23 @@ const Products = ({ orderdata }: Props) => {
     {
       title: 'Color',
       dataIndex: 'details',
+      width: 150,
       render: (_, detail) => (
-        <>
-          <Avatar
-            size={10}
-            style={{
-              backgroundColor: detail?.product?.color?.html,
-              border: 'solid 1px black',
-              marginRight: 10,
-            }}
-          />
-          <Text>{detail?.product?.color?.name}</Text>
-        </>
+        <Row align="middle">
+          <Col>
+            <Avatar
+              size={10}
+              style={{
+                backgroundColor: detail?.product?.color?.html,
+                border: 'solid 1px black',
+                marginRight: 10,
+              }}
+            />
+          </Col>
+          <Col>
+            <Text>{detail?.product?.color?.name}</Text>
+          </Col>
+        </Row>
       ),
     },
     {
@@ -383,6 +454,7 @@ const Products = ({ orderdata }: Props) => {
         <>
           {canEdit ? (
             <InputNumber
+              disabled={detail?.status === StatusOrderDetail.Confirmed}
               onChange={(e) => onChangeQuantity(e, detail?.product?._id)}
               min={0}
               defaultValue={quantity}
@@ -402,6 +474,12 @@ const Products = ({ orderdata }: Props) => {
         <Tooltip title="Eliminar">
           <Button
             danger
+            disabled={
+              detail?.status === StatusOrderDetail.Confirmed ||
+              orderdata?.status === StatusOrder.Sent ||
+              orderdata?.status === StatusOrder.Closed ||
+              orderdata?.status === StatusOrder.Cancelled
+            }
             type="primary"
             loading={paramsAddProduct?.loading}
             onClick={() => deleteProduct(detail?.product?._id)}
@@ -424,7 +502,7 @@ const Products = ({ orderdata }: Props) => {
           preview={false}
           height={50}
           width={50}
-          src={details?.product?.images?.map((image) => image?.urls?.webp?.small)}
+          src={`${CDN_URL}/${details?.product?.images?.map((image) => image?.urls?.webp?.small)}`}
           fallback={DefaultImage}
         />
       ),
@@ -446,6 +524,7 @@ const Products = ({ orderdata }: Props) => {
     {
       title: 'Color',
       dataIndex: 'details',
+      width: 150,
       render: (_, detail) => (
         <>
           <Avatar
@@ -489,19 +568,9 @@ const Products = ({ orderdata }: Props) => {
       dataIndex: '_id',
       align: 'center',
       render: (_id, detail) => {
-        const editable = isEditing(detail);
-        let bgColor;
-        let quantityProd = 0;
-
-        if (quantityProd === quantityConfirm) {
-          quantityProd += 1;
-        }
-
-        if (editable) {
-          bgColor = quantityProd === detail?.quantity ? '#52c41a' : 'red';
-        } else {
-          bgColor = 'red';
-        }
+        const bgColor =
+          productsQuantityConfirm?.find((i) => i?.barcode === detail?.product?.barcode)
+            ?.quantityConfirm == detail?.quantity && '#52c41a';
 
         return detail?.status === StatusOrderDetail?.Confirmed ? (
           <Tag color="orange">
@@ -511,8 +580,11 @@ const Products = ({ orderdata }: Props) => {
           <>
             <Badge
               showZero
-              style={{ backgroundColor: bgColor }}
-              count={editable ? quantityProd : 0}
+              style={{ backgroundColor: bgColor || 'red' }}
+              count={
+                productsQuantityConfirm.find((i) => i.barcode === detail.product.barcode)
+                  ?.quantityConfirm || 0
+              }
             />
           </>
         );
@@ -529,35 +601,75 @@ const Products = ({ orderdata }: Props) => {
     deleteDetail: deleteProduct,
   };
 
+  useEffect(() => {
+    form.resetFields();
+  }, [confirmQuantity()]);
+
   return (
     <>
       <Divider>
         <Switch
-          onClick={() => setVisibleConfirmProduct(visibleConfirmProduct ? false : true)}
+          onClick={() => controlOfSwitch()}
           checkedChildren="Confirmación de productos"
           unCheckedChildren="Resumen de productos"
         />
       </Divider>
-      <Form layout="vertical" form={form}>
+      <Form layout="vertical" form={form} onFinish={confirmQuantity}>
         <Row gutter={[0, 20]}>
           <Col span={24}>
             {visibleConfirmProduct ? (
               <>
-                <FormItem label="Código de barras :" name="barcode">
+                <FormItem
+                  label="Código de barras :"
+                  name="barcode"
+                  rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
+                >
                   <Space>
                     <Input style={styles.inputBorder} />
                     <Button
                       type="primary"
+                      htmlType="submit"
                       icon={<PlusOutlined />}
-                      onClick={() => confirmQuantity()}
+                      disabled={
+                        orderdata?.status === StatusOrder.Sent ||
+                        orderdata?.status === StatusOrder.Closed ||
+                        orderdata?.status === StatusOrder.Cancelled ||
+                        disabledEditQuantity()
+                      }
+                      loading={paramsConfirmProductQuantity?.loading}
                     />
                   </Space>
                 </FormItem>
                 <Space>
-                  <Button type="primary" icon={<SaveOutlined />} onClick={() => {}}>
+                  <Button
+                    loading={paramsConfirmProductQuantity?.loading || paramsAddProduct?.loading}
+                    type="primary"
+                    style={styles.buttonR}
+                    icon={<SaveOutlined />}
+                    disabled={
+                      disabledEditQuantity() ||
+                      orderdata?.status === StatusOrder.Sent ||
+                      orderdata?.status === StatusOrder.Closed ||
+                      orderdata?.status === StatusOrder.Cancelled ||
+                      productsConfirm.length === 0
+                    }
+                    onClick={() => confirmProductsFinal()}
+                  >
                     Aprobar productos confirmados
                   </Button>
-                  <Button type="primary" icon={<RetweetOutlined />} onClick={() => {}}>
+                  <Button
+                    loading={paramsConfirmProductQuantity?.loading}
+                    type="primary"
+                    style={styles.buttonR}
+                    disabled={
+                      disabledEditQuantity() ||
+                      orderdata?.status === StatusOrder.Sent ||
+                      orderdata?.status === StatusOrder.Closed ||
+                      orderdata?.status === StatusOrder.Cancelled
+                    }
+                    icon={<RetweetOutlined />}
+                    onClick={() => resetConfirmQuantity()}
+                  >
                     Reiniciar productos
                   </Button>
                 </Space>
@@ -566,10 +678,16 @@ const Products = ({ orderdata }: Props) => {
               <>
                 <Space>
                   <Button
-                    style={{ borderRadius: 5 }}
+                    style={styles.buttonR}
                     type="primary"
                     onClick={() =>
                       !canEdit ? setCanEdit(canEdit ? false : true) : editQuantityProduct()
+                    }
+                    disabled={
+                      disabledEditQuantity() ||
+                      orderdata?.status === StatusOrder.Sent ||
+                      orderdata?.status === StatusOrder.Closed ||
+                      orderdata?.status === StatusOrder.Cancelled
                     }
                     icon={canEdit ? <SaveOutlined /> : <EditOutlined />}
                     loading={paramsAddProduct?.loading}
@@ -577,12 +695,18 @@ const Products = ({ orderdata }: Props) => {
                     {canEdit ? 'Guardar Cantidades' : 'Editar Cantidades'}
                   </Button>
                   <Button
-                    style={{ borderRadius: 5 }}
+                    loading={paramsAddProduct?.loading}
+                    disabled={
+                      orderdata?.status === StatusOrder.Sent ||
+                      orderdata?.status === StatusOrder.Closed ||
+                      orderdata?.status === StatusOrder.Cancelled
+                    }
+                    style={styles.buttonR}
                     type="primary"
                     onClick={() => setAddProducts(addProducts ? false : true)}
                     icon={!addProducts ? <PlusOutlined /> : <MinusOutlined />}
                   >
-                    {!addProducts ? 'Agregar Productos' : 'Cerrar'}
+                    {'Agregar Productos'}
                   </Button>
                 </Space>
                 {addProducts && <SelectProducts order={orderdata} {...propsSelectProduct} />}
@@ -593,8 +717,8 @@ const Products = ({ orderdata }: Props) => {
             <Table
               pagination={false}
               columns={visibleConfirmProduct ? columnConfirm : column}
-              dataSource={orderdata?.details}
-              scroll={{ x: 1000, y: 700 }}
+              dataSource={sortedDesc}
+              scroll={{ x: 1000, y: 500 }}
             />
           </Col>
         </Row>

@@ -5,8 +5,88 @@ query orderId($id: String!) {
       amount
     }
     order {
+      invoice {
+        user {
+          name
+        }
+        createdAt
+        authorization {
+          prefix
+        }
+        customer {
+          document
+          firstName
+          lastName
+          addresses {
+            city {
+              _id
+              name
+              state
+            }
+            extra
+            field1
+            isMain
+            loteNumber
+            neighborhood
+            number1
+            number2
+            contact
+            phone
+          }
+        }
+        payments {
+          payment {
+            name
+          }
+          total
+        }
+        summary {
+          change
+          discount
+          total
+          totalPaid
+          tax
+          subtotal
+        }
+        shop {
+          name
+        }
+        details {
+          discount
+          price
+          quantity
+          product {
+            size {
+              value
+            }
+            reference {
+              description
+              name
+            }
+            color {
+              name
+            }
+          }
+        }
+      }
       user {
         name
+      }
+      conveyorOrder {
+        shippingDate
+        value
+        guideCode
+        conveyor {
+          _id
+          name
+          logo {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+        }
       }
       status
       _id
@@ -25,9 +105,11 @@ query orderId($id: String!) {
         phone
         city {
           name
+          state
         }
       }
       shop {
+        name
         defaultWarehouse {
           _id
         }
@@ -63,9 +145,12 @@ query orderId($id: String!) {
         }
       }
       details {
+        createdAt
+        updatedAt
         discount
         quantity
         price
+        status
         product {
           _id
           barcode
@@ -109,6 +194,7 @@ query orderId($id: String!) {
         createdAt
         updatedAt
         total
+        status
         payment {
           _id
           name

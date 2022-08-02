@@ -1,0 +1,18 @@
+query conveyors($input: FiltersConveyorsInput) {
+  conveyors(filtersConveyorsInput: $input) {
+    docs {
+      name
+      _id
+      message
+      updatedAt
+      createdAt
+      logo {
+        urls {
+          webp {
+            small
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,16 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import type { Address, Customer } from '@/graphql/graphql';
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Col, Divider, Form, Input, Row, Select, Checkbox } from 'antd';
+import { Button, Col, Divider, Form, Input, Row, Select, Checkbox, Typography } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
+import type { Address, Customer } from '@/graphql/graphql';
 import { useEffect, useState } from 'react';
 
+import SelectCity from '../SelectCity';
 import NewAddress from './new';
 
 import styles from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
+const { Title } = Typography;
 
 type Props = {
   deliveryAddress?: Address[];
@@ -24,75 +26,21 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
 
   const [form] = useForm();
 
-  /*const setNewAddress = () => {
-    setAllowEdit(true);
-    setIndexSelected(null);
-    form.resetFields();
-  };
-
-  const saveAddress = async () => {
-    const values = await form.validateFields();
-    setAddresses([...addresses, values]);
-    form.resetFields();
-  };
-
-  const updateAddress = async () => {
-    const values = await form.validateFields();
-    setAddresses(
-      addresses.map((item, key) => {
-        if (key.toString() === indexSelected) {
-          return {
-            ...item,
-            ...values,
-          };
-        }
-        return item;
-      }),
-    );
-  };
-
-  const onChangeSelect = (key: string) => {
-    form.setFieldsValue(addresses[parseInt(key)]);
-    setIndexSelected(key);
-    setAllowEdit(false);
-  };
-
-  const renderButtonOptions = () => {
-    if (!indexSelected) {
-      return (
-        <Button disabled={canSave === 0} type="primary" onClick={saveAddress}>
-          Guardar
-        </Button>
-      );
-    }
-
-    if (!allowEdit) {
-      return (
-        <Button onClick={() => setAllowEdit(true)} type="primary">
-          Editar
-        </Button>
-      );
-    }
-    return (
-      <Button onClick={updateAddress} type="primary">
-        Actualizar
-      </Button>
-    );
-  };*/
-
-  let num = -1;
-
+  /**
+   * @description renderizar una direccion
+   * @returns elemento jsx
+   */
   const renderAddress = () => (
     <Form layout="vertical" form={form}>
       <Row key={2}>
         <Col span={24}>
-          <Row align="middle" gutter={[0, 20]}>
+          <Row align="middle" gutter={[20, 20]}>
             <Col span={5}>
               <FormItem name="field1">
                 <Input
                   placeholder="Carrera"
                   style={styles.directionInput}
-                  defaultValue={deliveryAddress[count]?.field1}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.field1}
                 />
               </FormItem>
             </Col>
@@ -101,7 +49,7 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
                 <Input
                   placeholder="52"
                   style={styles.directionInput}
-                  defaultValue={deliveryAddress[count]?.number1}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.number1}
                 />
               </FormItem>
             </Col>
@@ -113,7 +61,7 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
                 <Input
                   placeholder="84a"
                   style={styles.directionInput}
-                  defaultValue={deliveryAddress[count]?.loteNumber}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.loteNumber}
                 />
               </FormItem>
             </Col>
@@ -125,26 +73,31 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
                 <Input
                   placeholder="22"
                   style={styles.directionInput}
-                  defaultValue={deliveryAddress[count]?.number2}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.number2}
                 />
               </FormItem>
             </Col>
-            <Col span={10}>
+            <Col span={7}>
               <FormItem name="extra">
                 <Input
                   placeholder="Ejemplo: 2do Piso"
                   style={styles.directionInput}
-                  defaultValue={deliveryAddress[count]?.extra}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.extra}
                 />
               </FormItem>
             </Col>
-            <Col span={10}>
+            <Col span={7}>
               <FormItem name="neighborhood">
                 <Input
                   placeholder="Ejemplo: El Guayabo"
                   style={styles.directionInput}
-                  defaultValue={deliveryAddress[count]?.neighborhood}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.neighborhood}
                 />
+              </FormItem>
+            </Col>
+            <Col span={6}>
+              <FormItem name="cityId">
+                <SelectCity style={styles.directionInput} disabled={false} />
               </FormItem>
             </Col>
             <Col span={4}>
@@ -152,7 +105,7 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
                 label="¿Es Principal?"
                 name="isMain"
                 colon={false}
-                defaultValue={deliveryAddress[count]?.isMain}
+                defaultValue={deliveryAddress && deliveryAddress[count]?.isMain}
               >
                 <Checkbox defaultChecked />
               </FormItem>
@@ -163,7 +116,7 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
           <FormItem
             label="Nombre del Contacto"
             name="contact"
-            defaultValue={deliveryAddress[count]?.contact}
+            defaultValue={deliveryAddress && deliveryAddress[count]?.contact}
           >
             <Input style={styles.inputWidth} />
           </FormItem>
@@ -172,7 +125,7 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
           <FormItem
             label="Telefóno del Contacto"
             name="phone"
-            defaultValue={deliveryAddress[count]?.phone}
+            defaultValue={deliveryAddress && deliveryAddress[count]?.phone}
           >
             <Input style={styles.inputWidth} />
           </FormItem>
@@ -181,10 +134,22 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
     </Form>
   );
 
+  /**
+   * @description indice aumenta dependiendo del numero de direcciones del cliente
+   */
+  let numberOfAddressesSave = -1;
+
+  /**
+   * @description funcion usada para re-renderizar la direccion cada vez que selecciona otra
+   */
   const reRender = () => {
     setVisibleAddress(visibleAddress ? false : true);
   };
 
+  /**
+   *@description funcion encargada de seleccionar el numero de la direccion y renderizarla
+   * @param e numero de direccion seleccionada de la lista de direcciones
+   */
   const onChangeAddress = async (e: number) => {
     if (e >= 0) {
       await reRender();
@@ -196,32 +161,52 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
   };
 
   useEffect(() => {
-    form.setFieldsValue({
-      contact: deliveryAddress[count].contact,
-      phone: deliveryAddress[count].phone,
-    });
-  }, []);
+    if (deliveryAddress !== null) {
+      form.setFieldsValue({
+        contact: deliveryAddress && deliveryAddress[count]?.contact,
+        phone: deliveryAddress && deliveryAddress[count]?.phone,
+        cityId: deliveryAddress && deliveryAddress[count]?.city._id,
+      });
+    }
+  }, [visibleAddress]);
 
   return (
     <>
       <Divider style={styles.dividerMargin}>
-        <Select defaultValue={0} onChange={(e) => onChangeAddress(e)}>
-          {deliveryAddress?.map(() => {
-            num++;
-            return (
-              <Option key={1} value={num}>
-                {`Direccion Guardada #${num}`}
-              </Option>
-            );
-          })}
-        </Select>
-        <Divider type="vertical" />
+        {deliveryAddress && deliveryAddress.length > 0 && (
+          <>
+            {' '}
+            <Select defaultValue={0} onChange={(e) => onChangeAddress(e)}>
+              {deliveryAddress?.map(() => {
+                numberOfAddressesSave++;
+                return (
+                  <Option key={1} value={numberOfAddressesSave}>
+                    {`Direccion Guardada #${numberOfAddressesSave}`}
+                  </Option>
+                );
+              })}
+            </Select>
+            <Divider type="vertical" />{' '}
+          </>
+        )}
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setVisibleCreate(true)}>
           Crear
         </Button>
       </Divider>
-      {visibleAddress && renderAddress()}
-      <NewAddress customer={customer} visible={visibleCreate} onCancel={closeCreate} />
+      {deliveryAddress && deliveryAddress?.length > 0 ? (
+        visibleAddress && renderAddress()
+      ) : (
+        <Row>
+          <Col offset={7} span={12}>
+            <Title level={1}>No Registra Direccción</Title>
+          </Col>
+        </Row>
+      )}
+      <NewAddress
+        customer={customer}
+        visible={visibleCreate}
+        onCancel={() => setVisibleCreate(false)}
+      />
     </>
   );
 };

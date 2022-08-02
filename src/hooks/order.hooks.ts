@@ -1,6 +1,7 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
 
 import type { Order } from '@/graphql/graphql';
+import { ConfirmPaymentsOrderDocument } from '@/graphql/graphql';
 import { ConfirmProductsOrderDocument } from '@/graphql/graphql';
 import {
   OrderIdDocument,
@@ -91,6 +92,20 @@ export const useConfirmProductOrder = () => {
         fields: {
           orderId() {
             return data?.confirmProductsOrder;
+          },
+        },
+      });
+    },
+  });
+};
+
+export const useConfirmPaymentOrder = () => {
+  return useMutation(ConfirmPaymentsOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.confirmPaymentsOrder;
           },
         },
       });

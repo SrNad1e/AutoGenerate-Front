@@ -242,3 +242,15 @@ mutation confirmProductsOrder($input: ConfirmProductsOrderInput!) {
     }
   }
 }
+
+mutation confirmPaymentsOrder($input: ConfirmPaymentsOrderInput!) {
+  confirmPaymentsOrder(confirmPaymentsOrderInput: $input) {
+    order {
+      payments {
+        payment {
+          name
+        }
+      }
+    }
+  }
+}

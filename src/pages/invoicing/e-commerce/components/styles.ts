@@ -19,4 +19,7 @@ export default {
   deliverySelect: {
     width: 200,
   },
+  buttonR: {
+    borderRadius: 5,
+  },
 };

@@ -37,8 +37,17 @@ export default {
     marginTop: 15,
   },
   affixStyle: {
-    width: 485,
+    width: 815,
     borderRadius: 10,
     borderColor: '#dc9575',
+  },
+  buttonR: {
+    borderRadius: 5,
+  },
+  widthMax: {
+    width: '100%',
+  },
+  marginB: {
+    marginBottom: 22,
   },
 };

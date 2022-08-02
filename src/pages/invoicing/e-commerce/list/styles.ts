@@ -32,4 +32,10 @@ export default {
   buttonR: {
     borderRadius: 5,
   },
+  marginFilters: {
+    marginTop: 20,
+  },
+  iconFontSize: {
+    fontSize: 20,
+  },
 };
