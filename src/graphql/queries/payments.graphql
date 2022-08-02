@@ -1,13 +1,22 @@
-query payments($input:FiltersPaymentsInput){
-  payments(filtersPaymentsInput:$input){
-    docs{
+query payments($input: FiltersPaymentsInput) {
+  payments(filtersPaymentsInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
       _id
+      active
+      updatedAt
+      user {
+        name
+      }
       name
       type
       color
-      logo{
-        urls{
-          webp{
+      logo {
+        _id
+        urls {
+          webp {
             small
           }
         }

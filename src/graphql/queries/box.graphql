@@ -1,8 +1,15 @@
 query boxes($input: FiltersBoxesInput) {
   boxes(filtersBoxesInput: $input) {
+    totalDocs
+    totalPages
+    page
     docs {
       _id
+      base
+      updatedAt
+      total
       name
+      isMain
     }
   }
 }

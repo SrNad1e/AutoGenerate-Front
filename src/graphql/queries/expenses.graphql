@@ -16,6 +16,7 @@ query expenses($input: FiltersExpensesInput) {
         _id
         name
       }
+      createdAt
     }
   }
 }

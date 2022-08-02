@@ -1,0 +1,12 @@
+query authorizations($input: FiltersAuthorizationInput) {
+  authorizations(filtersAuthorizations: $input) {
+    totalDocs
+    page
+    totalPages
+    docs {
+      _id
+      updatedAt
+      prefix
+    }
+  }
+}

@@ -323,7 +323,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Text>{data?.createCloseXInvoicing?.quantityBank}</Text>
+              <Text>{getTotalBank()}</Text>
             </Col>
             <Col span={20}>
               <Text strong>Transacciones reportadas:</Text>
@@ -335,7 +335,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Text>{getTotalBank()}</Text>
+              <Text>{data?.createCloseXInvoicing?.quantityBank}</Text>
             </Col>
             {getDifferenceBank() !== 0 && (
               <>

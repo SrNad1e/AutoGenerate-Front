@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Avatar,
   Badge,
@@ -158,6 +159,10 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
               message: `Entrada actualizada correctamente No. ${response?.data?.updateStockInput?.number}`,
               type: 'success',
               visible: true,
+              redirect:
+                response?.data?.updateStockInput?.status === StatusStockInput.Confirmed
+                  ? '/inventory/input/list'
+                  : undefined,
             });
           }
         } else {
@@ -188,7 +193,10 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
               message: `Entrada creada correctamente No. ${response?.data?.createStockInput?.number}`,
               type: 'success',
               visible: true,
-              redirect: `/inventory/input/${response?.data?.createStockInput?._id}`,
+              redirect:
+                status === StatusStockInput.Confirmed
+                  ? '/inventory/input/list'
+                  : `/inventory/input/${response?.data?.createStockInput?._id}`,
             });
           }
         }
@@ -286,7 +294,9 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(input?.details || []);
+      if (details?.length === 0) {
+        setDetails(input?.details || []);
+      }
       setObservation(input?.observation || '');
     }
   }, [input, id]);

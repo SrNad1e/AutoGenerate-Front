@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
@@ -26,7 +27,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { useReactToPrint } from 'react-to-print';
-import { useAccess, useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import numeral from 'numeral';
 import type { Location } from 'umi';
@@ -78,6 +79,10 @@ const AdjustmentList = () => {
   const location: Location = useLocation();
 
   const reportRef = useRef(null);
+
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const [getAdjustments, { data, loading }] = useGetAdjustments();
 
@@ -208,8 +213,16 @@ const AdjustmentList = () => {
     onSearch({
       limit: 10,
       page: 1,
+      warehouseId: !canChangeWarehouse ? defaultWarehouse : null,
     });
-    setFilters({});
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+      setFilters({ warehouseId: defaultWarehouse });
+    } else {
+      setFilters({});
+    }
   };
 
   /**
@@ -229,6 +242,9 @@ const AdjustmentList = () => {
       }
     });
 
+    if (!canChangeWarehouse) {
+      newFilters['warehouseId'] = defaultWarehouse;
+    }
     onFinish(newFilters);
   };
 
@@ -361,7 +377,7 @@ const AdjustmentList = () => {
             </Col>
             <Col xs={24} md={10} lg={10} xl={5}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses />
+                <SelectWarehouses disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
             <Col xs={24} md={9} lg={9} xl={6}>

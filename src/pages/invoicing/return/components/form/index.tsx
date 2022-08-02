@@ -7,8 +7,8 @@ import { useCreateReturnOrder } from '@/hooks/return-order.hooks';
 import { useEffect, useState } from 'react';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import RenderStep1 from '../components/Step1';
-import RenderStep2 from '../components/Step2';
+import RenderStep1 from '../Step1';
+import RenderStep2 from '../Step2';
 
 import styles from './styles';
 import AlertInformation from '@/components/Alerts/AlertInformation';

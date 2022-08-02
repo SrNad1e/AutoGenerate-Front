@@ -12,3 +12,22 @@ query coupon($input: FiltersCouponInput!) {
     value
   }
 }
+
+query coupons($input: FiltersCouponsInput!) {
+  coupons(filtersCouponsInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      number
+      title
+      status
+      value
+      message
+      code
+      expiration
+      updatedAt
+    }
+  }
+}

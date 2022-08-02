@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import type { ColumnsType } from 'antd/lib/table';
 import Table from 'antd/lib/table';
 import {
@@ -158,6 +159,10 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
               message: `Ajuste actualizado correctamente No. ${response?.data?.updateStockAdjustment?.number}`,
               type: 'success',
               visible: true,
+              redirect:
+                response?.data?.updateStockAdjustment?.status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : undefined,
             });
           }
         } else {
@@ -191,7 +196,10 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
               message: `Ajuste creado correctamente No. ${response?.data?.createStockAdjustment?.number}`,
               type: 'success',
               visible: true,
-              redirect: `/inventory/adjustment/${response?.data?.createStockAdjustment?._id}`,
+              redirect:
+                status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : `/inventory/adjustment/${response?.data?.createStockAdjustment?._id}`,
             });
           }
         }
@@ -291,7 +299,9 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(adjustment?.details || []);
+      if (details?.length === 0) {
+        setDetails(adjustment?.details || []);
+      }
       setObservation(adjustment?.observation || '');
     }
   }, [adjustment, id]);

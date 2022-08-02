@@ -113,11 +113,19 @@ export const typesAccess = {
       Permissions.AccessInvoicingClosesx,
       Permissions.AccessInvoicingClosesz,
       Permissions.AccessInvoicingReturns,
+      Permissions.AccessInvoicingPointofsales,
+      Permissions.AccessInvoicingAuthorizations,
     ],
   },
 
   '/invoicing/order': {
     access: [Permissions.ReadInvoicingOrders],
+  },
+  '/invoicing/pointOfSale': {
+    access: [Permissions.ReadInvoicingPointofsales],
+  },
+  '/invoicing/authorizationDian': {
+    access: [Permissions.ReadInvoicingAuthorizations],
   },
   '/invoicing/closings': {
     access: [Permissions.AccessInvoicingClosesx, Permissions.AccessInvoicingClosesz],
@@ -177,13 +185,24 @@ export const typesAccess = {
   },
   //Treasury
   '/treasury': {
-    access: [Permissions.AccessTreasuryExpenses, Permissions.AccessTreasuryReceipts],
+    access: [
+      Permissions.AccessTreasuryExpenses,
+      Permissions.AccessTreasuryReceipts,
+      Permissions.AccessTreasuryPayments,
+      Permissions.AccessTreasuryBoxes,
+    ],
+  },
+  '/treasury/boxes': {
+    access: [Permissions.ReadTreasuryBoxes],
   },
   '/treasury/expenses': {
     access: [Permissions.ReadTreasuryExpenses],
   },
   '/treasury/receipt': {
     access: [Permissions.ReadTreasuryReceipts],
+  },
+  '/treasury/paymentMethods': {
+    access: [Permissions.ReadTreasuryPayments],
   },
   //Wallets
   '/wallets': {
@@ -194,9 +213,23 @@ export const typesAccess = {
   },
   //crm
   '/crm': {
-    access: [Permissions.AccessCrmCustomers],
+    access: [
+      Permissions.AccessCrmCustomers,
+      Permissions.AccessCrmCoupons,
+      Permissions.AccessCrmCities,
+      Permissions.AccessCrmDiscountrules,
+    ],
   },
   '/crm/customer': {
     access: [Permissions.ReadCrmCustomers],
+  },
+  '/crm/cities': {
+    access: [Permissions.ReadCrmCities],
+  },
+  '/crm/coupon': {
+    access: [Permissions.ReadCrmCoupons],
+  },
+  '/crm/discount': {
+    access: [Permissions.ReadCrmDiscountrules],
   },
 };

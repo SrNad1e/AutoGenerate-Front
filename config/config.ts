@@ -300,6 +300,16 @@ export default defineConfig({
               name: 'Pedidos',
               path: '/invoicing/order',
               component: './invoicing/order/list',
+            },
+            {
+              name: 'Puntos de Venta',
+              path: '/invoicing/pointOfSale',
+              component: './invoicing/pointOfSales/list',
+            },
+            {
+              name: 'Autorización Dian',
+              path: '/invoicing/authorizationDian',
+              component: './invoicing/authorizationDian/list',
               access: 'allowOption',
             },
             {
@@ -334,9 +344,19 @@ export default defineConfig({
               component: './treasury/expenses/list',
             },
             {
+              name: 'Cajas',
+              path: '/treasury/boxes',
+              component: './treasury/boxes/list',
+            },
+            {
               name: 'Recibo de Cajas',
               path: '/treasury/cashReceipt',
               component: './treasury/cashReceipt/list',
+            },
+            {
+              name: 'Medios de Pago',
+              path: '/treasury/paymentMethods',
+              component: './treasury/paymentMethods/list',
             },
           ],
         },
@@ -357,6 +377,12 @@ export default defineConfig({
               path: '/configurations/users',
               component: './configurations/users/list',
               access: 'allowOption',
+            },
+            {
+              name: 'Compañias',
+              path: '/configurations/companies',
+              component: './configurations/companies/list',
+              access: 'allowCompany',
             },
             {
               name: 'Tiendas',
@@ -394,23 +420,41 @@ export default defineConfig({
           name: 'CRM',
           path: '/crm',
           icon: 'radarChart',
+          access: 'allowOption',
           routes: [
             {
               name: 'Clientes',
               path: '/crm/customer',
               component: './crm/customers/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Ciudades',
+              path: '/crm/cities',
+              component: './crm/cities/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Cupones',
+              path: '/crm/coupon',
+              component: './crm/coupons/list',
+            },
+            {
+              name: 'Descuentos',
+              path: '/crm/discount',
+              component: './crm/discounts/list',
             },
           ],
         },
         {
           name: 'Carteras',
-          path: '/wallets',
+          path: '/credits',
           icon: 'wallet',
           routes: [
             {
               name: 'Creditos',
-              path: '/wallets/credits',
-              component: './wallets/credits/list',
+              path: '/credits/list',
+              component: './credits/list',
             },
           ],
         },

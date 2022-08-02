@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import SelectWarehouses from '@/components/SelectWarehouses';
@@ -34,6 +35,7 @@ import type {
   TablePaginationConfig,
 } from 'antd/es/table/interface';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useHistory, useLocation, useAccess } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
@@ -56,7 +58,7 @@ const { Text, Title } = Typography;
 const { RangePicker } = DatePicker;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockTransfer;
   number?: number;
   warehouseId?: string;
   dates?: Moment[];
@@ -65,11 +67,13 @@ export type FormValues = {
 
 const TransferList = () => {
   const [transferData, setTransferData] = useState<Partial<StockTransfer>>({});
+  const [showFilterType, setShowFilterType] = useState(false);
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
+  const [filterType, setFilterType] = useState(false);
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -85,6 +89,10 @@ const TransferList = () => {
   const {
     transfer: { canPrint, canConfirm },
   } = useAccess();
+
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const [getTransfers, { data, loading }] = useGetTransfers();
 
@@ -142,7 +150,7 @@ const TransferList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouseId, dates, type = 'sent' } = props;
+    const { status, number, warehouseId, dates, type = 'received' } = props;
     try {
       const params: FiltersStockTransfersInput = {
         page: pageCurrent || 1,
@@ -213,11 +221,18 @@ const TransferList = () => {
    */
   const onClear = () => {
     history.replace(location.pathname);
+    onSearch({});
     form.resetFields();
-    onSearch();
     form.setFieldsValue({
-      type: 'sent',
+      type: 'received',
     });
+    if (!canChangeWarehouse) {
+      onFinish({ warehouseId: defaultWarehouse });
+      setShowFilterType(true);
+    } else {
+      onFinish({});
+      setShowFilterType(false);
+    }
   };
 
   /**
@@ -232,20 +247,44 @@ const TransferList = () => {
       if (item === 'dates') {
         const dataItem = JSON.parse(queryParams[item]);
         newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      }
+      if (item === 'warehouseId') {
+        delete newFilters[item];
       } else {
         newFilters[item] = JSON.parse(queryParams[item]);
       }
     });
 
     form.setFieldsValue({
-      type: 'sent',
+      type: 'received',
     });
+
+    if (!canChangeWarehouse) {
+      newFilters['warehouseId'] = defaultWarehouse;
+      setShowFilterType(true);
+    }
 
     onFinish(newFilters);
   };
 
+  const onChangeWarehouse = async () => {
+    const warehouseId = await form.getFieldValue('warehouseId');
+
+    if (warehouseId) {
+      setShowFilterType(true);
+    } else {
+      setShowFilterType(false);
+    }
+  };
+
   useEffect(() => {
     loadingData();
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+      setFilterType(true);
+    }
   }, []);
 
   const columns: ColumnsType<StockTransfer> = [
@@ -371,19 +410,21 @@ const TransferList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={4}>
-              <FormItem label="Tipo" name="type">
-                <Select className={styles.item} disabled={loading}>
-                  <Option key="sent">Enviados</Option>
-                  <Option key="received">Recibidos</Option>
-                </Select>
-              </FormItem>
-            </Col>
             <Col xs={24} md={7} lg={7} xl={6}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses />
+                <SelectWarehouses onChange={onChangeWarehouse} disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
+            {filterType && (
+              <Col xs={24} md={6} lg={6} xl={4}>
+                <FormItem label="Tipo" name="type">
+                  <Select className={styles.item} disabled={loading}>
+                    <Option key="sent">Enviados</Option>
+                    <Option key="received">Recibidos</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+            )}
             <Col xs={24} md={9} lg={9} xl={6}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker disabled={loading} />
@@ -395,7 +436,7 @@ const TransferList = () => {
                   <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
                     Buscar
                   </Button>
-                  <Button htmlType="reset" onClick={onClear} loading={loading}>
+                  <Button onClick={onClear} loading={loading}>
                     Limpiar
                   </Button>
                 </Space>

@@ -1,4 +1,4 @@
-export const StatusTypeWallet = {
+export const StatusTypeCredit = {
   ACTIVE: {
     label: 'Activo',
     color: '#22A55D',
