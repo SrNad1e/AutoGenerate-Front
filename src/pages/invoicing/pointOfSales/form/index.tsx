@@ -168,8 +168,14 @@ const PointOfSalesForm = ({ pointOfSale, onCancel, visible }: Props) => {
                     <Text>Fecha de Cierre</Text>
                   </Space>
                 }
+                rules={[
+                  {
+                    required: true,
+                    message: 'La fecha no puede estar vacía',
+                  },
+                ]}
               >
-                <DatePicker format={FORMAT_DATE} placeholder="Selecciona Fecha" />
+                <DatePicker format={FORMAT_DATE_API} placeholder="Selecciona Fecha" />
               </FormItem>
             )}
             {isNew && (
