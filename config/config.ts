@@ -458,7 +458,7 @@ export default defineConfig({
             {
               name: 'Creditos',
               path: '/credits/list',
-              component: './wallets/credits/list',
+              component: './credits/list',
               access: 'allowOption',
             },
           ],

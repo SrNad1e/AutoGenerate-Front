@@ -131,6 +131,10 @@ const CashReceiptList = () => {
       variables: {
         input: {
           ...filters,
+          sort: {
+            createdAt: -1,
+            ...filters.sort,
+          },
         },
       },
     });
@@ -402,7 +406,7 @@ const CashReceiptList = () => {
             </Col>
             <Col xs={24} sm={7} md={8} lg={8} xl={7}>
               <FormItem label="Medio de pago" name="paymentId">
-                <SelectPayment disabled={loading} />
+                <SelectPayment disabled={loading} bonus />
               </FormItem>
             </Col>
             <Col xs={24} sm={8} md={8} lg={8} xl={6}>

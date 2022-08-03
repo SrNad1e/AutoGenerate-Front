@@ -22,7 +22,7 @@ import type {
 } from 'antd/lib/table/interface';
 import type { Credit, Customer, FiltersCreditsInput } from '@/graphql/graphql';
 import { StatusCredit } from '@/graphql/graphql';
-import { useGetCredits, useGetHistoryCredits, useUpdateCredit } from '@/hooks/credit.hooks';
+import { useGetCredits, useUpdateCredit } from '@/hooks/credit.hooks';
 import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useState } from 'react';
@@ -33,8 +33,8 @@ import Filters from '@/components/Filters';
 import SearchCustomer from '@/components/SearchCustomer';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import CreditsHistorical from '../historical';
-import { StatusTypeWallet } from '../wallet.data';
+import CreditsHistorical from '../components/historical';
+import { StatusTypeCredit } from '../credit.data';
 
 import styles from './styles';
 
@@ -47,14 +47,13 @@ type FormValues = {
 };
 
 const CreditsList = () => {
-  const [visibleHistorical, setVisibleHistorical] = useState(false);
+  const [creditSelected, setCreditSelected] = useState<Credit | null>(null);
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
-  const [creditSelected, setCreditSelected] = useState<Partial<Credit>>({});
 
   const [form] = Form.useForm();
   const history = useHistory();
@@ -67,13 +66,12 @@ const CreditsList = () => {
 
   const [getCredits, { data, loading }] = useGetCredits();
   const [updateCredit, paramsUpdate] = useUpdateCredit();
-  const [getCreditsHistory, paramsGetHistory] = useGetHistoryCredits();
 
   /**
    * @description cierra el modal del historico
    */
   const closeModalHistorical = () => {
-    setVisibleHistorical(false);
+    setCreditSelected(null);
   };
 
   /**
@@ -85,6 +83,13 @@ const CreditsList = () => {
       type: 'error',
       visible: false,
     });
+  };
+
+  /**
+   * @description abre el historico
+   */
+  const onShowHistorical = (credit: Credit) => {
+    setCreditSelected(credit);
   };
 
   /**
@@ -220,25 +225,6 @@ const CreditsList = () => {
   };
 
   /**
-   * @description se trae el historico en base a la id del credito
-   * @param credit credito seleccionado
-   */
-  const getHistory = async (credit: Credit) => {
-    setCreditSelected(credit);
-    const response = await getCreditsHistory({
-      variables: {
-        input: {
-          creditId: credit?._id,
-          limit: 10,
-        },
-      },
-    });
-    if (response) {
-      setVisibleHistorical(true);
-    }
-  };
-
-  /**
    * @description se encarga de cargar los datos con base a la query
    */
   const loadingData = () => {
@@ -319,7 +305,7 @@ const CreditsList = () => {
       align: 'center',
       filteredValue: filterTable?.status || null,
       render: (status: string) => {
-        const { color, label } = StatusTypeWallet[status || ''];
+        const { color, label } = StatusTypeCredit[status || ''];
         return <Badge text={label} color={color} />;
       },
       filterDropdown: (props: FilterDropdownProps) => (
@@ -366,7 +352,7 @@ const CreditsList = () => {
               style={{ backgroundColor: 'white' }}
               danger={credit.status === StatusCredit.Active ? true : false}
               loading={paramsUpdate?.loading}
-              disabled={paramsUpdate?.loading || paramsGetHistory?.loading || !canEdit}
+              disabled={paramsUpdate?.loading || !canEdit}
               onClick={() =>
                 updateCredits(
                   id,
@@ -387,9 +373,9 @@ const CreditsList = () => {
           </Tooltip>
           <Tooltip title="Historicos">
             <Button
-              loading={paramsGetHistory?.loading}
-              disabled={paramsGetHistory?.loading || paramsUpdate?.loading}
-              onClick={() => getHistory(credit)}
+              loading={paramsUpdate?.loading}
+              disabled={paramsUpdate?.loading}
+              onClick={() => onShowHistorical(credit)}
               type="primary"
               icon={<FieldTimeOutlined />}
             />
@@ -413,7 +399,7 @@ const CreditsList = () => {
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button
-                    disabled={loading || paramsUpdate?.loading || paramsGetHistory?.loading}
+                    disabled={loading || paramsUpdate?.loading}
                     style={styles.buttonR}
                     icon={<SearchOutlined />}
                     type="primary"
@@ -425,7 +411,7 @@ const CreditsList = () => {
                     style={styles.buttonR}
                     icon={<ClearOutlined />}
                     onClick={onClear}
-                    disabled={loading || paramsUpdate?.loading || paramsGetHistory?.loading}
+                    disabled={loading || paramsUpdate?.loading}
                   >
                     Limpiar
                   </Button>
@@ -453,13 +439,7 @@ const CreditsList = () => {
           </Col>
         </Row>
       </Card>
-      <CreditsHistorical
-        data={paramsGetHistory.data?.creditHistory}
-        credit={creditSelected}
-        creditHistory={paramsGetHistory?.data?.creditHistory?.docs}
-        visible={visibleHistorical}
-        onCancel={closeModalHistorical}
-      />
+      <CreditsHistorical credit={creditSelected} onCancel={closeModalHistorical} />
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );

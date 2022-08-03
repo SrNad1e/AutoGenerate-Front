@@ -449,11 +449,6 @@ export type Color = {
   createdAt: Scalars['DateTime'];
   /** Color en formato html */
   html: Scalars['String'];
-  /**
-   * Identificador del color mysql
-   * @deprecated Campo para migración de mysql
-   */
-  id?: Maybe<Scalars['Float']>;
   /** Imagen del color */
   image?: Maybe<Image>;
   /** Nombre del color */
@@ -501,6 +496,14 @@ export type Company = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la compañia */
   user: User;
+};
+
+/** Datos para confirmar productos */
+export type ConfirmPaymentsOrderInput = {
+  /** Identificador del pedido a confirmar los pagos */
+  orderId: Scalars['String'];
+  /** Pagos a confirmar */
+  payments: PaymentConfirm[];
 };
 
 /** Datos para confirmar productos */
@@ -1197,6 +1200,15 @@ export type DetailOutput = {
   updatedAt: Scalars['DateTime'];
 };
 
+/** Detalles del recibo */
+export type DetailReceipt = {
+  __typename?: 'DetailReceipt';
+  /** Monto para abonar al pedido */
+  amount: Scalars['Float'];
+  /** Identificador del pedido */
+  orderId: Scalars['String'];
+};
+
 /** Detalles de cruce de la cartera */
 export type DetailReceiptOrder = {
   /** Monto para abonar al pedido */
@@ -1875,6 +1887,8 @@ export type FiltersProductsInput = {
 
 /** Filtros para consultar los recibos de caja */
 export type FiltersReceiptsInput = {
+  /** Caja que afecta el pago */
+  boxId?: InputMaybe<Scalars['String']>;
   /** Fecha final para la busqueda */
   dateFinal?: InputMaybe<Scalars['String']>;
   /** Fecha inicial para la busqueda */
@@ -2233,6 +2247,8 @@ export type Mutation = {
   addProductsOrder: ResponseOrder;
   /** Se encarga de cambiar la clave al usuario con base al tokenu */
   changePasswordToken: LoginResponse;
+  /** Se encarga de confirmar o desconfirmar pagos de un pedido */
+  confirmPaymentsOrder: ResponseOrder;
   /** Se encarga de confirmar o desconfirmar productos de un pedido */
   confirmProductsOrder: ResponseOrder;
   /** Confirma los productos del traslado */
@@ -2378,6 +2394,10 @@ export type MutationAddProductsOrderArgs = {
 export type MutationChangePasswordTokenArgs = {
   password: Scalars['String'];
   token: Scalars['String'];
+};
+
+export type MutationConfirmPaymentsOrderArgs = {
+  confirmPaymentsOrderInput: ConfirmPaymentsOrderInput;
 };
 
 export type MutationConfirmProductsOrderArgs = {
@@ -2749,6 +2769,14 @@ export type Payment = {
   user: User;
 };
 
+/** Producto para confirmar en el pedido */
+export type PaymentConfirm = {
+  /** Médio de pago a confirmar */
+  paymentId: Scalars['String'];
+  /** Estado del producto, si es diferente a confirm */
+  status?: InputMaybe<StatusOrderDetail>;
+};
+
 /** Medios de pago de la factura */
 export type PaymentInvoice = {
   __typename?: 'PaymentInvoice';
@@ -2769,6 +2797,8 @@ export type PaymentOrder = {
   payment: Payment;
   /** Total pagado */
   receipt?: Maybe<Receipt>;
+  /** Estado del pago */
+  status: StatusOrderDetail;
   /** Total pagado */
   total: Scalars['Float'];
   /** Fecha de actualizado del pago al pedido */
@@ -2857,7 +2887,7 @@ export enum Permissions {
   AccessTreasuryBoxes = 'ACCESS_TREASURY_BOXES',
   AccessTreasuryExpenses = 'ACCESS_TREASURY_EXPENSES',
   AccessTreasuryPayments = 'ACCESS_TREASURY_PAYMENTS',
-  AccessTreasuryReceipts = 'ACCESS_TREASURY_RECEIPTS',
+  AccessTreasuryReceipt = 'ACCESS_TREASURY_RECEIPT',
   AutogenerateInventoryRequest = 'AUTOGENERATE_INVENTORY_REQUEST',
   ConfirmInventoryTransfer = 'CONFIRM_INVENTORY_TRANSFER',
   CreateConfigurationRole = 'CREATE_CONFIGURATION_ROLE',
@@ -3370,6 +3400,8 @@ export type Receipt = {
   concept?: Maybe<Scalars['String']>;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
+  /** Detalle del cruce del recibo */
+  details: DetailReceipt[];
   /** Consecutivo del recibo de caja */
   number: Scalars['Float'];
   /** Método de pago del recibo de caja */
@@ -7659,6 +7691,7 @@ export type CouponsQuery = {
       title: string;
       status: StatusCoupon;
       value: number;
+      message: string;
       code: string;
       expiration: any;
       updatedAt: any;
@@ -7732,6 +7765,7 @@ export type CreditHistoryQuery = {
     docs: {
       __typename?: 'CreditHistory';
       type: TypeCreditHistory;
+      amount: number;
       credit: {
         __typename?: 'Credit';
         amount: number;
@@ -7858,6 +7892,7 @@ export type ExpensesQuery = {
       value: number;
       status: StatusExpense;
       concept?: string | null;
+      createdAt: any;
       user: { __typename?: 'User'; name: string };
       box: { __typename?: 'Box'; _id: string; name: string };
     }[];
@@ -8291,6 +8326,7 @@ export type PaymentsQuery = {
       user: { __typename?: 'User'; name: string };
       logo?: {
         __typename?: 'Image';
+        _id: string;
         urls?: {
           __typename?: 'Urls';
           webp?: { __typename?: 'ImageTypes'; small: string } | null;
@@ -8373,7 +8409,7 @@ export type ProductsQuery = {
           } | null;
         } | null;
       };
-      size: { __typename?: 'Size'; value: string };
+      size: { __typename?: 'Size'; value: string; weight: number };
       stock?: { __typename?: 'Stock'; quantity: number }[] | null;
     }[];
   };
@@ -15799,6 +15835,7 @@ export const CouponsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'title' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'code' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -16011,6 +16048,7 @@ export const CreditHistoryDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'credit' },
@@ -16371,6 +16409,7 @@ export const ExpensesDocument = {
                           ],
                         },
                       },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                     ],
                   },
                 },
@@ -17765,6 +17804,7 @@ export const PaymentsDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'urls' },
@@ -18033,7 +18073,10 @@ export const ProductsDocument = {
                         name: { kind: 'Name', value: 'size' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'value' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'weight' } },
+                          ],
                         },
                       },
                       {

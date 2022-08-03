@@ -22,6 +22,7 @@ query products($input: FiltersProductsInput!) {
       }
       size {
         value
+        weight
       }
       stock {
         quantity

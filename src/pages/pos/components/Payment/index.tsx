@@ -215,7 +215,9 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
   useEffect(() => {
     getPayments({
       variables: {
-        input: {},
+        input: {
+          active: true,
+        },
       },
     });
   }, []);

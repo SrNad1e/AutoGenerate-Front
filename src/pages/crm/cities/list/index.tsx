@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { useAccess, useHistory, useLocation } from 'umi';
 import type { Location } from 'umi';
 import moment from 'moment';
-import type { City, FiltersCitiesInput, FiltersUsersInput, User } from '@/graphql/graphql';
+import type { City, Country, FiltersCitiesInput, FiltersUsersInput, User } from '@/graphql/graphql';
 import { useGetCities } from '@/hooks/cities.hooks';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -220,6 +220,7 @@ const CitiesList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
+      render: (country: Country) => country.name,
     },
     {
       title: <Text>{<ScheduleOutlined />} Departamento</Text>,

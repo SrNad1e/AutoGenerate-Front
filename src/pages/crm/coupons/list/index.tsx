@@ -129,6 +129,10 @@ const CouponList = () => {
         input: {
           limit: 10,
           ...filters,
+          sort: {
+            ...filters?.sort,
+            createdAt: -1,
+          },
         },
       },
     });

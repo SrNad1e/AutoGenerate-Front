@@ -147,7 +147,6 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
             observation,
             status,
           };
-          console.log(props);
 
           const response = await updateRequest({
             variables: {
@@ -160,6 +159,10 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
               message: `Solicitud creada correctamente No. ${response?.data?.updateStockRequest?.number}`,
               type: 'success',
               visible: true,
+              redirect:
+                response?.data?.updateStockRequest?.status === StatusStockRequest.Pending
+                  ? '/inventory/request/list'
+                  : undefined,
             });
           }
         } else {
@@ -194,7 +197,10 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
               message: `Solicitud creada correctamente No. ${response?.data?.createStockRequest?.number}`,
               type: 'success',
               visible: true,
-              redirect: `/inventory/request/${response?.data?.createStockRequest?._id}`,
+              redirect:
+                status === StatusStockRequest.Pending
+                  ? '/inventory/request/list'
+                  : `/inventory/request/${response?.data?.createStockRequest?._id}`,
             });
           }
         }
