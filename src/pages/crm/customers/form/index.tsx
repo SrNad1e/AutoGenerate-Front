@@ -176,7 +176,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
             },
           },
         });
-      } else {
+      } else if (valuesFields?.valuesCredit?.amount) {
         await createCredit({
           variables: {
             input: {
