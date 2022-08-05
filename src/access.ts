@@ -27,63 +27,63 @@ export default function access(initialState: { currentUser?: User | undefined })
     ),
     request: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_REQUEST',
+        (permission) => permission?.action === Permissions.UpdateInventoryRequest,
       ),
       canAutoCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'AUTOGENERATE_INVENTORY_REQUEST',
+        (permission) => permission?.action === Permissions.AutogenerateInventoryRequest,
       ),
       canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'PRINT_INVENTORY_REQUEST',
+        (permission) => permission?.action === Permissions.PrintInventoryRequest,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_REQUEST',
+        (permission) => permission?.action === Permissions.CreateInventoryRequest,
       ),
     },
     adjustment: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_ADJUSTMENT',
+        (permission) => permission?.action === Permissions.UpdateInventoryAdjustment,
       ),
       canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'PRINT_INVENTORY_ADJUSTMENT',
+        (permission) => permission?.action === Permissions.PrintInventoryAdjustment,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_ADJUSTMENT',
+        (permission) => permission?.action === Permissions.CreateInventoryAdjustment,
       ),
     },
     input: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_INPUT',
+        (permission) => permission?.action === Permissions.UpdateInventoryInput,
       ),
       canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'PRINT_INVENTORY_INPUT',
+        (permission) => permission?.action === Permissions.PrintInventoryInput,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_INPUT',
+        (permission) => permission?.action === Permissions.CreateInventoryInput,
       ),
     },
     output: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_OUTPUT',
+        (permission) => permission?.action === Permissions.UpdateInventoryOutput,
       ),
       canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'PRINT_INVENTORY_OUTPUT',
+        (permission) => permission?.action === Permissions.PrintInventoryOutput,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_OUTPUT',
+        (permission) => permission?.action === Permissions.CreateInventoryOutput,
       ),
     },
     transfer: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_TRANSFER',
+        (permission) => permission?.action === Permissions.UpdateInventoryTransfer,
       ),
       canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'PRINT_INVENTORY_TRANSFER',
+        (permission) => permission?.action === Permissions.PrintInventoryTransfer,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_TRANSFER',
+        (permission) => permission?.action === Permissions.CreateInventoryTransfer,
       ),
       canConfirm: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CONFIRM_INVENTORY_TRANSFER',
+        (permission) => permission?.action === Permissions.ConfirmInventoryTransfer,
       ),
     },
     reference: {

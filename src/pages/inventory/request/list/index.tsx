@@ -10,7 +10,6 @@ import {
   DropboxOutlined,
   FileSyncOutlined,
   CalendarOutlined,
-  NumberOutlined,
   ClearOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -80,7 +79,7 @@ const RequestList = () => {
   });
 
   const { initialState } = useModel('@@initialState');
-  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const defaultWarehouse = initialState?.currentUser?.shop?.defaultWarehouse?._id;
   const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const {
@@ -138,16 +137,20 @@ const RequestList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersStockRequestsInput) => {
-    getRequests({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+    try {
+      getRequests({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -229,7 +232,6 @@ const RequestList = () => {
     form.setFieldsValue({
       type: 'sent',
     });
-
     if (!canChangeWarehouse) {
       onFinish({ warehouseId: defaultWarehouse });
       setShowFilterType(true);
@@ -294,9 +296,11 @@ const RequestList = () => {
     onFinish(newFilters);
   };
 
+  /**
+   * @description funcion usada para controlar el visible del filtro tipo
+   */
   const onChangeWarehouse = async () => {
     const warehouseId = await form.getFieldValue('warehouseId');
-
     if (warehouseId) {
       setShowFilterType(true);
     } else {
@@ -339,7 +343,7 @@ const RequestList = () => {
     {
       title: (
         <Text>
-          <NumberOutlined /> Referencia
+          <FieldNumberOutlined /> Referencias
         </Text>
       ),
       dataIndex: 'details',
@@ -375,6 +379,7 @@ const RequestList = () => {
               <Button
                 type="primary"
                 icon={<EyeOutlined />}
+                loading={loading}
                 onClick={() => history.push(`/inventory/request/${_id}`)}
               />
             </Tooltip>
@@ -383,6 +388,7 @@ const RequestList = () => {
                 <Button
                   type="ghost"
                   disabled={!canPrint}
+                  loading={loading}
                   style={{ backgroundColor: 'white' }}
                   onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
@@ -399,15 +405,15 @@ const RequestList = () => {
     <PageContainer title={<Title level={4}>Lista de solicitudes</Title>}>
       <Card>
         <Form form={form} style={style.marginFilters} onFinish={onFinish}>
-          <Row gutter={[20, 0]} align="middle">
+          <Row gutter={[40, 0]} align="middle">
             <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
                 <InputNumber controls={false} min={1} style={style.maxWidth} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={6}>
+            <Col xs={24} md={6} lg={5} xl={5}>
               <FormItem label="Estado" name="status">
-                <Select allowClear disabled={loading}>
+                <Select allowClear loading={loading}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
                       <Badge text={StatusType[key].label} color={StatusType[key].color} />
@@ -416,24 +422,22 @@ const RequestList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={8} xl={8}>
+            <Col xs={24} md={8} lg={7} xl={7}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses onChange={onChangeWarehouse} disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
-
             {showFilterType && (
-              <Col xs={24} md={5} lg={5} xl={5}>
+              <Col xs={24} md={5} lg={6} xl={6}>
                 <FormItem label="Tipo" name="type">
-                  <Select disabled={loading}>
+                  <Select loading={loading}>
                     <Option key="sent">Enviado</Option>
                     <Option key="received">Recibido</Option>
                   </Select>
                 </FormItem>
               </Col>
             )}
-
-            <Col xs={24} md={9} lg={9} xl={8}>
+            <Col xs={24} md={9} lg={7} xl={8}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker disabled={loading} placeholder={['Fecha Inicial', 'Fecha Final']} />
               </FormItem>
@@ -442,6 +446,7 @@ const RequestList = () => {
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button
+                    loading={loading}
                     style={style.buttonR}
                     icon={<SearchOutlined />}
                     type="primary"
@@ -449,7 +454,12 @@ const RequestList = () => {
                   >
                     Buscar
                   </Button>
-                  <Button icon={<ClearOutlined />} style={style.buttonR} onClick={() => onClear()}>
+                  <Button
+                    icon={<ClearOutlined />}
+                    loading={loading}
+                    style={style.buttonR}
+                    onClick={() => onClear()}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -459,11 +469,17 @@ const RequestList = () => {
         </Form>
         <Row gutter={[0, 20]} align="middle">
           <Col span={9}>
-            <Button shape="round" type="primary" onClick={autoRequest} disabled={!canAutoCreate}>
+            <Button
+              shape="round"
+              type="primary"
+              loading={propsGenerate?.loading || loading}
+              onClick={autoRequest}
+              disabled={!canAutoCreate}
+            >
               AutoGenerar
             </Button>
           </Col>
-          <Col span={15} className={styles.alignText}>
+          <Col span={14} className={styles.alignText}>
             <Text strong>Total Encontrados:</Text> {data?.stockRequests?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.stockRequests?.page} /{' '}
             {data?.stockRequests?.totalPages || 0}

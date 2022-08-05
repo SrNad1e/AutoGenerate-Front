@@ -168,6 +168,9 @@ const ConfirmTransfer = () => {
     }
   };
 
+  /**
+   * @description funcion usada para confirmar un producto y su cantidad
+   */
   const confirmProduct = async () => {
     try {
       const values = await form.validateFields();
@@ -203,6 +206,10 @@ const ConfirmTransfer = () => {
     }
   };
 
+  /**
+   * @description funcion usada para confirmar un producto con la cantidad en 0
+   * @param _id identificador del producto
+   */
   const confirmZero = (_id: string) => {
     const newDetails = details.map((item) => {
       if (item?.product?._id === _id) {
@@ -217,6 +224,9 @@ const ConfirmTransfer = () => {
     setDetails(newDetails);
   };
 
+  /**
+   * @description funcion usada para confirmar los productos en el traslado
+   */
   const confirmProducts = () => {
     const productsConfirm = details.filter(
       (item) =>
@@ -235,6 +245,9 @@ const ConfirmTransfer = () => {
     }
   };
 
+  /**
+   * @description funcion usada para confirmar la transferencia si los productos fueron confirmados anteriormente
+   */
   const confirmTransfer = () => {
     const productsConfirm = details.find((item) => item?.status !== StatusDetailTransfer.Confirmed);
 
@@ -501,7 +514,12 @@ const ConfirmTransfer = () => {
                   ]}
                   extra={error && <Alert showIcon message={error} />}
                 >
-                  <Input ref={barcodeRef} autoFocus onPressEnter={confirmProduct} />
+                  <Input
+                    ref={barcodeRef}
+                    autoFocus
+                    disabled={loading || paramsUpdate.loading || paramsConfirmProducts.loading}
+                    onPressEnter={confirmProduct}
+                  />
                 </FormItem>
               </Form>
             )}
@@ -543,11 +561,21 @@ const ConfirmTransfer = () => {
             <Col xs={12} md={6} lg={4}>
               <Space align="end" className={styles.alignRigth}>
                 {allowConfirmTransfer ? (
-                  <Button onClick={confirmTransfer} type="primary" disabled={!allowConfirm}>
+                  <Button
+                    onClick={confirmTransfer}
+                    type="primary"
+                    loading={loading || paramsUpdate.loading || paramsConfirmProducts.loading}
+                    disabled={!allowConfirm}
+                  >
                     Confirmar Traslado
                   </Button>
                 ) : (
-                  <Button type="primary" onClick={confirmProducts} disabled={!allowConfirm}>
+                  <Button
+                    type="primary"
+                    onClick={confirmProducts}
+                    loading={loading || paramsUpdate.loading || paramsConfirmProducts.loading}
+                    disabled={!allowConfirm}
+                  >
                     Confirmar Productos
                   </Button>
                 )}

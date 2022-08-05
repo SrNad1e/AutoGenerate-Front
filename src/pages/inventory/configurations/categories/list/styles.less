@@ -1,19 +1,17 @@
 @import '~antd/es/style/themes/default.less';
-
 .tableList {
+  .tableListOperator {
+    margin-bottom: 16px;
+    button {
+      margin-right: 8px;
+    }
+  }
   :global {
     .ant-table-row-level-1 {
       background-color: rgb(253, 254, 224);
     }
     .ant-table-row-level-2 {
       background-color: rgb(255, 244, 225);
-    }
-  }
-
-  .tableListOperator {
-    margin-bottom: 16px;
-    button {
-      margin-right: 8px;
     }
   }
 }
@@ -40,21 +38,12 @@
   .submitButtons {
     display: block;
     margin-bottom: 24px;
-    margin-left: 10px;
     white-space: nowrap;
   }
 }
 
-@media screen and (max-width: @screen-lg) {
-  .tableListForm {
-    margin-right: 24px;
-  }
-}
-
-@media screen and (max-width: @screen-md) {
-  .tableListForm {
-    margin-right: 8px;
-  }
+.tableListForm :global(.ant-form-item) {
+  margin-right: 24px;
 }
 
 .alignRigth {

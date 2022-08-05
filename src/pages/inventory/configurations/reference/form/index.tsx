@@ -525,7 +525,7 @@ const FormReference = () => {
         />
         <Affix offsetBottom={0}>
           <Card loading={loading} bodyStyle={styles.bodyStyle} size="small">
-            <Button type="primary" onClick={onFinish}>
+            <Button type="primary" loading={loading} style={{ borderRadius: 5 }} onClick={onFinish}>
               Guardar
             </Button>
           </Card>

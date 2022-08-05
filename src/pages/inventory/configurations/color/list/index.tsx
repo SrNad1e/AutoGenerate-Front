@@ -1,5 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  BgColorsOutlined,
+  CalendarOutlined,
+  ClearOutlined,
+  EditOutlined,
+  HighlightOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Avatar,
@@ -250,12 +259,25 @@ const ColorsList = () => {
         </Col>
         <Col xs={24} md={8}>
           <FormItem label="">
-            <Button type="primary" htmlType="submit">
-              Buscar
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={onClear}>
-              Limpiar
-            </Button>
+            <Space>
+              <Button
+                style={{ borderRadius: 5 }}
+                icon={<SearchOutlined />}
+                type="primary"
+                loading={loading}
+                htmlType="submit"
+              >
+                Buscar
+              </Button>
+              <Button
+                style={{ borderRadius: 5 }}
+                loading={loading}
+                icon={<ClearOutlined />}
+                onClick={onClear}
+              >
+                Limpiar
+              </Button>
+            </Space>
           </FormItem>
         </Col>
       </Row>
@@ -264,7 +286,7 @@ const ColorsList = () => {
 
   const columns: ColumnsType<Partial<Color>> = [
     {
-      title: 'Nombre',
+      title: <Text>{<BgColorsOutlined style={{ height: '1em', width: '1em' }} />} Nombre</Text>,
       dataIndex: 'name',
       sorter: true,
       sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
@@ -278,17 +300,15 @@ const ColorsList = () => {
             }}
             src={`${CDN_URL}/${image?.urls?.webp?.small}`}
           />
-          <Avatar
-            style={{ backgroundColor: html, border: 'solid 1px black', marginLeft: 10 }}
-            shape="square"
-          />
+          <Avatar style={{ backgroundColor: html, border: 'solid 1px black' }} shape="square" />
           <Text>{name}</Text>
         </Space>
       ),
     },
     {
-      title: 'Nombre Interno',
+      title: <Text>{<HighlightOutlined />} Nombre Interno</Text>,
       dataIndex: 'name_internal',
+      align: 'center',
     },
     {
       title: 'Activo',
@@ -297,6 +317,7 @@ const ColorsList = () => {
         return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
       },
       filterMultiple: false,
+      align: 'center',
       filteredValue: filterTable?.active || null,
       filterDropdown: (props) => (
         <Filters
@@ -315,7 +336,7 @@ const ColorsList = () => {
       ),
     },
     {
-      title: 'Fecha Creación',
+      title: <Text>{<CalendarOutlined />} Fecha Creación</Text>,
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
@@ -324,7 +345,7 @@ const ColorsList = () => {
       render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Fecha Actualización',
+      title: <Text>{<CalendarOutlined />} Fecha Actualización</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -333,13 +354,14 @@ const ColorsList = () => {
       render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Acción',
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
       render: (_: string, colorID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
+            loading={loading}
             disabled={!canEdit}
             onClick={() => visibleModal(colorID)}
             style={{ backgroundColor: '#dc9575' }}
@@ -370,22 +392,23 @@ const ColorsList = () => {
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                loading={loading}
                 onClick={() => visibleModal(color)}
               >
                 Nuevo
               </Button>
             </Col>
             <Col span={12} className={styles.alignRigth}>
-              <Text strong>Total Encontrados:</Text> {data?.colors.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.colors.page} / {data?.colors.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.colors?.totalDocs}{' '}
+              <Text strong>Páginas: </Text> {data?.colors?.page} / {data?.colors?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table
                 columns={columns}
-                dataSource={data?.colors.docs}
+                dataSource={data?.colors?.docs}
                 pagination={{
-                  current: data?.colors.page,
-                  total: data?.colors.totalDocs,
+                  current: data?.colors?.page,
+                  total: data?.colors?.totalDocs,
                   showSizeChanger: false,
                 }}
                 loading={loading}

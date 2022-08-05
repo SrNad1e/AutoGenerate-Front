@@ -5,6 +5,7 @@ import { StatusStockInput } from '@/graphql/graphql';
 import { ActionDetailInput } from '@/graphql/graphql';
 
 import styles from '../styles.less';
+import style from './styles';
 
 const { Title } = Typography;
 
@@ -38,6 +39,7 @@ const Footer = ({ input, saveInput, details, allowEdit }: Props) => {
         <Row>
           <Col xs={24} md={3}>
             <Button
+              style={style.buttonR}
               disabled={!allowEdit}
               type={input?._id ? 'primary' : 'default'}
               danger={!!input?._id}
@@ -51,10 +53,15 @@ const Footer = ({ input, saveInput, details, allowEdit }: Props) => {
           </Col>
           <Col xs={24} md={5}>
             <Space align="end" className={styles.alignRigth}>
-              <Button disabled={!allowEdit} onClick={() => saveInput()}>
+              <Button
+                style={style.buttonR}
+                disabled={!allowEdit}
+                onClick={() => saveInput(StatusStockInput.Open)}
+              >
                 Guardar
               </Button>
               <Button
+                style={style.buttonR}
                 type="primary"
                 disabled={!allowEdit}
                 onClick={() => saveInput(StatusStockInput.Confirmed)}

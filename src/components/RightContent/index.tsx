@@ -26,26 +26,30 @@ const GlobalHeaderRight: React.FC = () => {
   }
 
   return (
-    <Row gutter={0} className={className}>
-      <Col xs={2} md={1} style={{ marginRight: 8 }}>
-        <span
-          className={styles.action}
-          onClick={() => {
-            window.open('https://sites.google.com/luckywoman.com.co/documentacin-pos-toulouse/');
-          }}
-        >
-          <QuestionCircleOutlined />
-        </span>
-      </Col>
-      <Col xs={0} md={11}>
-        <Text style={{ fontSize: 13 }}>
-          {initialState?.currentUser?.role.name} / {initialState?.currentUser?.shop.name}{' '}
-        </Text>
-      </Col>
-      <Col xs={21} md={11}>
-        <Avatar />
-      </Col>
-    </Row>
+    <>
+      <Row gutter={20} className={className}>
+        <Col xs={0} md={1} style={{ marginRight: 8 }}>
+          <span
+            className={styles.action}
+            onClick={() => {
+              window.open('https://sites.google.com/luckywoman.com.co/documentacin-pos-toulouse/');
+            }}
+          >
+            <QuestionCircleOutlined />
+          </span>
+        </Col>
+        <Col xs={0} md={20}>
+          <Text style={{ fontSize: 13 }}>
+            {initialState?.currentUser?.role.name} / {initialState?.currentUser?.shop.name}{' '}
+          </Text>
+        </Col>
+      </Row>
+      <Row className={className}>
+        <Col span={24}>
+          <Avatar />
+        </Col>
+      </Row>
+    </>
   );
 };
 

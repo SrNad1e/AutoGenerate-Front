@@ -5,15 +5,9 @@ query cities($input: FiltersCitiesInput) {
     page
     docs {
       _id
-      country {
-        name
-        prefix
-      }
+      country 
       name
       state
-      defaultPostalCode
-      code
-      zone
       updatedAt
       user {
         name

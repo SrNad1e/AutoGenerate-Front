@@ -1,5 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  EditOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  SkinOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -248,19 +256,32 @@ const AttribsList = () => {
   const renderFormSearch = () => (
     <Form onFinish={onFinish} form={form}>
       <Row gutter={[8, 8]} align="middle">
-        <Col xs={24} md={10} lg={9}>
+        <Col xs={24} md={13} lg={10}>
           <FormItem label="Nombre" name="name">
             <Input placeholder="Nombre del atributo" autoComplete="off" style={{ width: '100%' }} />
           </FormItem>
         </Col>
         <Col xs={24} md={8}>
           <FormItem label="">
-            <Button type="primary" htmlType="submit">
-              Buscar
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={onClear}>
-              Limpiar
-            </Button>
+            <Space>
+              <Button
+                style={{ borderRadius: 5 }}
+                icon={<SearchOutlined />}
+                type="primary"
+                loading={loading}
+                htmlType="submit"
+              >
+                Buscar
+              </Button>
+              <Button
+                style={{ borderRadius: 5 }}
+                loading={loading}
+                icon={<ClearOutlined />}
+                onClick={onClear}
+              >
+                Limpiar
+              </Button>
+            </Space>
           </FormItem>
         </Col>
       </Row>
@@ -269,7 +290,11 @@ const AttribsList = () => {
 
   const columns: ColumnsType<Partial<Attrib>> = [
     {
-      title: 'Nombre',
+      title: (
+        <Text>
+          <SkinOutlined /> Nombre
+        </Text>
+      ),
       dataIndex: 'name',
       align: 'center',
       sorter: true,
@@ -302,7 +327,7 @@ const AttribsList = () => {
       ),
     },
     {
-      title: 'Fecha Creación',
+      title: <Text>{<CalendarOutlined />} Fecha Creación</Text>,
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
@@ -311,7 +336,7 @@ const AttribsList = () => {
       render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Fecha Actualización',
+      title: <Text>{<CalendarOutlined />} Fecha Actualización</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -320,7 +345,7 @@ const AttribsList = () => {
       render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Acción',
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -331,6 +356,7 @@ const AttribsList = () => {
             onClick={() => visibleModal(AttribID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
+            loading={loading}
           />
         </Tooltip>
       ),
@@ -355,6 +381,7 @@ const AttribsList = () => {
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                loading={loading}
                 onClick={() => visibleModal(attrib)}
               >
                 Nuevo

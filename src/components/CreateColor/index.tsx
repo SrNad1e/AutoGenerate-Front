@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Alert, Form, Input, Modal, Switch } from 'antd';
+import { Alert, Col, Form, Input, Modal, Row, Space, Switch, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -8,8 +8,10 @@ import AlertLoading from '../Alerts/AlertLoading';
 import { useCreateColor, useUpdateColor } from '@/hooks/color.hooks';
 import type { Color } from '@/graphql/graphql';
 import ImageAdmin from '../ImageAdmin';
+import { BgColorsOutlined, FormatPainterOutlined, HighlightOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
+const { Text } = Typography;
 
 export type Props = {
   modalVisible: boolean;
@@ -153,56 +155,81 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
 
   return (
     <Modal
-      okText="Aceptar"
+      okText={isNew ? 'Crear' : 'Actualizar'}
       cancelText="Cancelar"
       destroyOnClose
-      title={isNew ? 'Nuevo' : 'Editar'}
+      title={isNew ? 'Crear Color' : 'Actualizar Color'}
       visible={modalVisible}
       onCancel={() => closeAndClear()}
       onOk={() => (isNew ? createNewColor() : editColor())}
+      okButtonProps={{
+        style: { borderRadius: 5 },
+        loading: paramsCreate.loading || paramsUpdate.loading,
+      }}
+      cancelButtonProps={{
+        style: { borderRadius: 5 },
+        loading: paramsCreate.loading || paramsUpdate.loading,
+      }}
     >
       <Form
         form={form}
         initialValues={{ ...current, image: current?.image ? [current?.image] : [] }}
+        layout="vertical"
+        style={{ display: 'flex', justifyContent: 'center' }}
       >
-        <FormItem
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          label="Nombre"
-          name="name"
-          rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
-        >
-          <Input placeholder="" disabled={paramsCreate?.loading || paramsUpdate?.loading} />
-        </FormItem>
-        <FormItem
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          label="Nombre Interno"
-          name="name_internal"
-          rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
-        >
-          <Input
-            placeholder=""
-            autoFocus
-            disabled={paramsCreate?.loading || paramsUpdate?.loading}
-          />
-        </FormItem>
-        <FormItem
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          label="Activo"
-          name="active"
-          valuePropName="checked"
-        >
-          <Switch defaultChecked disabled={paramsCreate?.loading || paramsUpdate?.loading} />
-        </FormItem>
-        <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Color" name="html">
-          <Input type="color" disabled={paramsCreate?.loading || paramsUpdate?.loading} />
-        </FormItem>
-        <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 12 }} label="Imagen" name="image">
-          <ImageAdmin disabled={paramsCreate?.loading || paramsUpdate?.loading} limit={1} />
-        </FormItem>
-        {error && <Alert type="error" message={error} showIcon />}
+        <Row>
+          <Col span={24}>
+            <FormItem
+              label={
+                <Space>
+                  <BgColorsOutlined />
+                  <Text>Nombre</Text>
+                </Space>
+              }
+              name="name"
+              rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
+            >
+              <Input
+                placeholder="Nombre del color"
+                disabled={paramsCreate?.loading || paramsUpdate?.loading}
+              />
+            </FormItem>
+            <FormItem
+              label={
+                <Space>
+                  <HighlightOutlined />
+                  <Text>Nombre Interno</Text>
+                </Space>
+              }
+              name="name_internal"
+              rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
+            >
+              <Input
+                placeholder="Nombre interno del color"
+                autoFocus
+                disabled={paramsCreate?.loading || paramsUpdate?.loading}
+              />
+            </FormItem>
+            <FormItem label="Activo" name="active" valuePropName="checked">
+              <Switch defaultChecked disabled={paramsCreate?.loading || paramsUpdate?.loading} />
+            </FormItem>
+            <FormItem
+              label={
+                <Space>
+                  <FormatPainterOutlined />
+                  <Text>Color</Text>
+                </Space>
+              }
+              name="html"
+            >
+              <Input type="color" disabled={paramsCreate?.loading || paramsUpdate?.loading} />
+            </FormItem>
+            <FormItem label="Imagen" name="image">
+              <ImageAdmin disabled={paramsCreate?.loading || paramsUpdate?.loading} limit={1} />
+            </FormItem>
+            {error && <Alert type="error" message={error} showIcon />}
+          </Col>
+        </Row>
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       <AlertLoading visible={paramsCreate?.loading} message="Creando Color" />

@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  EditOutlined,
+  FontSizeOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -254,19 +262,32 @@ const SizesList = () => {
   const renderFormSearch = () => (
     <Form onFinish={onFinish} form={form}>
       <Row gutter={[8, 8]} align="middle">
-        <Col xs={24} md={10} lg={8}>
-          <FormItem label="Nombre" name="name">
+        <Col xs={24} md={13} lg={10}>
+          <FormItem label="Valor" name="name">
             <Input placeholder="Valor de la talla" autoComplete="off" style={{ width: '100%' }} />
           </FormItem>
         </Col>
         <Col xs={24} md={8}>
           <FormItem label="">
-            <Button type="primary" htmlType="submit">
-              Buscar
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={onClear}>
-              Limpiar
-            </Button>
+            <Space>
+              <Button
+                style={{ borderRadius: 5 }}
+                icon={<SearchOutlined />}
+                type="primary"
+                loading={loading}
+                htmlType="submit"
+              >
+                Buscar
+              </Button>
+              <Button
+                style={{ borderRadius: 5 }}
+                loading={loading}
+                icon={<ClearOutlined />}
+                onClick={onClear}
+              >
+                Limpiar
+              </Button>
+            </Space>
           </FormItem>
         </Col>
       </Row>
@@ -275,7 +296,7 @@ const SizesList = () => {
 
   const columns: ColumnsType<Partial<Size>> = [
     {
-      title: 'Valor',
+      title: <Text>{<FontSizeOutlined />} Valor</Text>,
       dataIndex: 'value',
       align: 'center',
       sorter: true,
@@ -308,7 +329,7 @@ const SizesList = () => {
       ),
     },
     {
-      title: 'Fecha Creación',
+      title: <Text>{<CalendarOutlined />} Fecha Creación</Text>,
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
@@ -317,7 +338,7 @@ const SizesList = () => {
       render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Fecha Actualización',
+      title: <Text>{<CalendarOutlined />} Fecha Actualización</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -326,7 +347,7 @@ const SizesList = () => {
       render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Acción',
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -334,6 +355,7 @@ const SizesList = () => {
         <Tooltip title="Editar" placement="topLeft">
           <Button
             disabled={!canEdit}
+            loading={loading}
             onClick={() => visibleModal(SizeID)}
             style={{ backgroundColor: '#dc9575' }}
             icon={<EditOutlined style={{ color: 'white' }} />}
@@ -361,6 +383,7 @@ const SizesList = () => {
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                loading={loading}
                 onClick={() => visibleModal(size)}
               >
                 Nuevo

@@ -1,5 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, PlusOutlined, PlusSquareOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  EditOutlined,
+  GatewayOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  PlusSquareOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Col, Form, Input, Row, Space, Table, Tooltip, Typography } from 'antd';
 import moment from 'moment';
@@ -268,7 +277,7 @@ const CategoryList = () => {
   const renderFormSearch = () => (
     <Form onFinish={onFinish} form={form}>
       <Row gutter={[8, 8]} align="middle">
-        <Col xs={24} md={10} lg={8}>
+        <Col xs={24} md={13} lg={10}>
           <FormItem label="Nombre" name="name">
             <Input
               placeholder="Nombre de la categoria"
@@ -279,12 +288,25 @@ const CategoryList = () => {
         </Col>
         <Col xs={24} md={8}>
           <FormItem label="">
-            <Button type="primary" htmlType="submit">
-              Buscar
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={onClear}>
-              Limpiar
-            </Button>
+            <Space>
+              <Button
+                style={{ borderRadius: 5 }}
+                icon={<SearchOutlined />}
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+              >
+                Buscar
+              </Button>
+              <Button
+                style={{ borderRadius: 5 }}
+                loading={loading}
+                icon={<ClearOutlined />}
+                onClick={onClear}
+              >
+                Limpiar
+              </Button>
+            </Space>
           </FormItem>
         </Col>
       </Row>
@@ -293,7 +315,7 @@ const CategoryList = () => {
 
   const columns: ColumnsType<Partial<CategoryLevel1>> = [
     {
-      title: 'Categoria',
+      title: <Text>{<GatewayOutlined />} Categoria</Text>,
       dataIndex: 'name',
       align: 'center',
       sorter: true,
@@ -301,7 +323,7 @@ const CategoryList = () => {
       sortOrder: sorterTable.field === 'name' ? sorterTable.order : undefined,
     },
     {
-      title: 'Fecha de creacion',
+      title: <Text>{<CalendarOutlined />} Fecha Creación</Text>,
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
@@ -310,7 +332,7 @@ const CategoryList = () => {
       render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
     },
     {
-      title: 'Fecha de actualizacion',
+      title: <Text>{<CalendarOutlined />} Fecha Actualización</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -319,7 +341,7 @@ const CategoryList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Accion',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       align: 'center',
       dataIndex: '__typename',
       fixed: 'right',
@@ -330,6 +352,7 @@ const CategoryList = () => {
               disabled={!canEdit}
               onClick={() => visibleModal(categoryData, false)}
               style={{ backgroundColor: '#dc9575' }}
+              loading={loading}
               icon={<EditOutlined style={{ color: 'white' }} />}
             />
           </Tooltip>
@@ -337,6 +360,7 @@ const CategoryList = () => {
             <Tooltip title="Crear Subcategoria" placement="topLeft">
               <Button
                 disabled={!canCreate}
+                loading={loading}
                 onClick={() => visibleModal(categoryData, true)}
                 style={{ backgroundColor: '#dc9575' }}
                 icon={<PlusSquareOutlined style={{ color: 'white' }} />}
@@ -364,6 +388,7 @@ const CategoryList = () => {
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
+              loading={loading}
               onClick={() => visibleModal({ __typename: 'CategoryLevel1' }, true)}
               disabled={!canCreate}
             >

@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Alert, Form, Input, InputNumber, Modal, Switch } from 'antd';
+import { Alert, Col, Form, Input, InputNumber, Modal, Row, Space, Switch, Typography } from 'antd';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '../Alerts/AlertLoading';
 import { useCreateSize, useUpdateSize } from '@/hooks/size.hooks';
 import type { Size } from '@/graphql/graphql';
+import { FontSizeOutlined, SortAscendingOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
+const { Text } = Typography;
 
 export type Props = {
   modalVisible: boolean;
@@ -129,43 +131,66 @@ const CreateSizes = ({ current, modalVisible, onCancel }: Props) => {
 
   return (
     <Modal
-      okText="Aceptar"
+      okText={isNew ? 'Crear' : 'Actualizar'}
       cancelText="Cancelar"
       destroyOnClose
-      title={isNew ? 'Nuevo' : 'Editar'}
+      title={isNew ? 'Crear Talla' : 'Actualizar Talla'}
       visible={modalVisible}
       onCancel={() => closeAndClear()}
       onOk={() => (isNew ? createNewSize() : editSize())}
+      okButtonProps={{
+        style: { borderRadius: 5 },
+        loading: paramsCreate.loading || paramsUpdate.loading,
+      }}
+      cancelButtonProps={{
+        style: { borderRadius: 5 },
+        loading: paramsCreate.loading || paramsUpdate.loading,
+      }}
     >
-      <Form form={form} initialValues={current}>
-        <FormItem
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          label="Nombre"
-          name="value"
-          rules={[{ required: true, message: 'Nombre obligatorio', min: 1 }]}
-        >
-          <Input placeholder="" autoFocus maxLength={45} />
-        </FormItem>
-        <FormItem
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          label="Ordenamiento"
-          name="weight"
-          rules={[{ required: true, message: 'La posición es obligatoria' }]}
-        >
-          <InputNumber controls={false} />
-        </FormItem>
-        <FormItem
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          label="Activo"
-          name="active"
-          valuePropName="checked"
-        >
-          <Switch defaultChecked />
-        </FormItem>
-        {error && <Alert type="error" message={error} showIcon />}
+      <Form
+        form={form}
+        initialValues={current}
+        layout="vertical"
+        style={{ display: 'flex', justifyContent: 'center' }}
+      >
+        <Row>
+          <Col span={24}>
+            <FormItem
+              label={
+                <Space>
+                  <FontSizeOutlined />
+                  <Text>Valor</Text>
+                </Space>
+              }
+              name="value"
+              rules={[{ required: true, message: 'Nombre obligatorio', min: 1 }]}
+            >
+              <Input placeholder="" autoFocus maxLength={45} style={{ width: '80%' }} />
+            </FormItem>
+            <FormItem
+              label={
+                <Space>
+                  <SortAscendingOutlined />
+                  <Text>Ordenamiento</Text>
+                </Space>
+              }
+              name="weight"
+              rules={[{ required: true, message: 'La posición es obligatoria' }]}
+            >
+              <InputNumber controls={false} />
+            </FormItem>
+            <FormItem
+              labelCol={{ span: 8 }}
+              wrapperCol={{ span: 12 }}
+              label="Activo"
+              name="active"
+              valuePropName="checked"
+            >
+              <Switch defaultChecked />
+            </FormItem>
+            {error && <Alert type="error" message={error} showIcon />}
+          </Col>
+        </Row>
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       <AlertLoading visible={paramsCreate?.loading} message="Creando Talla" />
