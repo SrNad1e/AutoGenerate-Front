@@ -16,6 +16,7 @@ import ReportCloseX from '../../reports/closeX';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import { useGetCurrentUser } from '@/hooks/user.hooks';
 
 const { Text, Title } = Typography;
 const { Step } = Steps;
@@ -40,6 +41,8 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
   const reportRef = useRef(null);
 
   const [createClose, { loading, data }] = useCreateCloseXInvoicing();
+
+  const currentUser = useGetCurrentUser();
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
@@ -171,6 +174,11 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
       closeDate: moment(),
       total: getTotal(),
     });
+
+    if (!currentUser?.data?.currentUser?.role?.changeWarehouse) {
+      setCurrentStep(1);
+      form.setFieldValue('pointOfSaleId', currentUser?.data?.currentUser?.pointOfSale?._id);
+    }
   }, [visible]);
 
   return (

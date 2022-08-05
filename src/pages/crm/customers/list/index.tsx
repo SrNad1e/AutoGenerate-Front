@@ -157,6 +157,11 @@ const CustomerList = () => {
    */
   const onFinish = (value: FormValues, pageCurrent?: number) => {
     const filters = { ...filterTable };
+
+    if (filters.active === null) {
+      delete filters.active;
+    }
+
     const params: FiltersCustomersInput = {
       page: pageCurrent || 1,
       limit: 10,

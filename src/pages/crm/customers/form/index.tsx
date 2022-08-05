@@ -176,7 +176,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
             },
           },
         });
-      } else {
+      } else if (valuesFields?.valuesCredit?.amount) {
         await createCredit({
           variables: {
             input: {
@@ -236,6 +236,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
       birthday: customerData?.birthday !== null ? birthday : undefined,
       documentTypeId: customerData?.documentType?._id,
     });
+    setAddresses(customerData?.addresses || []);
     onSearchCredit();
   }, [visible]);
 
@@ -243,16 +244,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
    * @description selecciona el tipo de documento del cliente
    */
   const documentTypeBefore = (
-    <FormItem
-      name="documentTypeId"
-      style={styles.marginZero}
-      rules={[
-        {
-          required: true,
-          message: 'Este campo no puede estar vacio',
-        },
-      ]}
-    >
+    <FormItem name="documentTypeId" style={styles.marginZero}>
       <Select
         size="small"
         bordered={false}
@@ -353,7 +345,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Este campo no puede estar vacio',
+                      message: '*Este campo no puede estar vacio',
                     },
                     {
                       validator: (_, value) => {
@@ -367,7 +359,18 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                         }
                         return Promise.reject();
                       },
-                      message: '*Campo numerico',
+                      message: '*Campo numérico',
+                    },
+                    {
+                      validator: () => {
+                        const type = form.getFieldValue('documentTypeId');
+
+                        if (!type) {
+                          return Promise.reject();
+                        }
+                        return Promise.resolve();
+                      },
+                      message: '*Este campo no puede estar vacio',
                     },
                   ]}
                 >
@@ -392,7 +395,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Este campo no puede estar vacio',
+                      message: '*Este campo no puede estar vacio',
                     },
                   ]}
                 >
@@ -416,7 +419,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Este campo no puede estar vacio',
+                      message: '*Este campo no puede estar vacio',
                     },
                   ]}
                 >
@@ -464,7 +467,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                         }
                         return Promise.reject();
                       },
-                      message: '*Campo numerico',
+                      message: '*Campo numérico',
                     },
                   ]}
                 >

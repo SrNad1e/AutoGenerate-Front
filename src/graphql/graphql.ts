@@ -11,7 +11,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -8199,6 +8198,7 @@ export type OrdersQuery = {
             __typename?: 'DetailOrder';
             price: number;
             quantity: number;
+            quantityReturn: number;
             product: {
               __typename?: 'Product';
               _id: string;
@@ -17381,6 +17381,7 @@ export const OrdersDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantityReturn' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'product' },
