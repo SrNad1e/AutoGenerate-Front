@@ -236,6 +236,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
       birthday: customerData?.birthday !== null ? birthday : undefined,
       documentTypeId: customerData?.documentType?._id,
     });
+    setAddresses(customerData?.addresses || []);
     onSearchCredit();
   }, [visible]);
 
