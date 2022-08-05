@@ -11,7 +11,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -504,6 +503,14 @@ export type Company = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la compañia */
   user: User;
+};
+
+/** Datos para confirmar productos */
+export type ConfirmPaymentsOrderInput = {
+  /** Identificador del pedido a confirmar los pagos */
+  orderId: Scalars['String'];
+  /** Pagos a confirmar */
+  payments: PaymentConfirm[];
 };
 
 /** Datos para confirmar productos */
@@ -2280,6 +2287,8 @@ export type Mutation = {
   addProductsOrder: ResponseOrder;
   /** Se encarga de cambiar la clave al usuario con base al tokenu */
   changePasswordToken: LoginResponse;
+  /** Se encarga de confirmar o desconfirmar pagos de un pedido */
+  confirmPaymentsOrder: ResponseOrder;
   /** Se encarga de confirmar o desconfirmar productos de un pedido */
   confirmProductsOrder: ResponseOrder;
   /** Confirma los productos del traslado */
@@ -2425,6 +2434,10 @@ export type MutationAddProductsOrderArgs = {
 export type MutationChangePasswordTokenArgs = {
   password: Scalars['String'];
   token: Scalars['String'];
+};
+
+export type MutationConfirmPaymentsOrderArgs = {
+  confirmPaymentsOrderInput: ConfirmPaymentsOrderInput;
 };
 
 export type MutationConfirmProductsOrderArgs = {
@@ -2796,6 +2809,14 @@ export type Payment = {
   user: User;
 };
 
+/** Producto para confirmar en el pedido */
+export type PaymentConfirm = {
+  /** Médio de pago a confirmar */
+  paymentId: Scalars['String'];
+  /** Estado del producto, si es diferente a confirm */
+  status?: InputMaybe<StatusOrderDetail>;
+};
+
 /** Medios de pago de la factura */
 export type PaymentInvoice = {
   __typename?: 'PaymentInvoice';
@@ -2816,6 +2837,8 @@ export type PaymentOrder = {
   payment: Payment;
   /** Total pagado */
   receipt?: Maybe<Receipt>;
+  /** Estado del pago */
+  status: StatusOrderDetail;
   /** Total pagado */
   total: Scalars['Float'];
   /** Fecha de actualizado del pago al pedido */
@@ -8245,6 +8268,7 @@ export type OrdersQuery = {
             __typename?: 'DetailOrder';
             price: number;
             quantity: number;
+            quantityReturn: number;
             product: {
               __typename?: 'Product';
               _id: string;
@@ -17440,6 +17464,7 @@ export const OrdersDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantityReturn' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'product' },
