@@ -220,7 +220,7 @@ const CitiesList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (country: Country) => country.name,
+      render: (country: Country) => country?.name,
     },
     {
       title: <Text>{<ScheduleOutlined />} Departamento</Text>,

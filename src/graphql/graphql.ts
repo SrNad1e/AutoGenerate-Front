@@ -11,6 +11,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -106,6 +107,8 @@ export type Address = {
   number2: Scalars['String'];
   /** Teléfono del contacto */
   phone: Scalars['String'];
+  /** Código postal */
+  postalCode?: Maybe<Scalars['String']>;
 };
 
 /** Dirección del cliente */
@@ -341,10 +344,14 @@ export type City = {
   __typename?: 'City';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Código DANE */
+  code: Scalars['String'];
   /** País */
-  country: Scalars['String'];
+  country: Country;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
+  /** Código postal */
+  defaultPostalCode: Scalars['String'];
   /** Nombre de la ciudad */
   name: Scalars['String'];
   /** Departamento */
@@ -353,6 +360,8 @@ export type City = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la ciudad */
   user: User;
+  /** Zona a la que pertenece la ciudad */
+  zone: ZoneType;
 };
 
 /** Ciudad entrada */
@@ -360,7 +369,7 @@ export type CityInput = {
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** País */
-  country: Scalars['String'];
+  country: CountryInput;
   /** Fecha de creación */
   createdAt?: InputMaybe<Scalars['DateTime']>;
   /** Nombre de la ciudad */
@@ -532,6 +541,10 @@ export type Conveyor = {
   message?: Maybe<Scalars['String']>;
   /** Nombre de la transportadora */
   name: Scalars['String'];
+  /** Precios por región solo para type ZONE */
+  rates?: Maybe<RatesRegion[]>;
+  /** Tipo de transportadora */
+  type: ConveyorType;
   /** Fecha de actualización de la transportadora */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la transportadora */
@@ -549,6 +562,27 @@ export type ConveyorOrder = {
   shippingDate?: Maybe<Scalars['DateTime']>;
   /** Valor del envío */
   value: Scalars['Float'];
+};
+
+export enum ConveyorType {
+  Fedex = 'FEDEX',
+  Interrapidisimo = 'INTERRAPIDISIMO',
+  Zone = 'ZONE',
+}
+
+/** Pais */
+export type Country = {
+  __typename?: 'Country';
+  /** Nombre del país */
+  name: Scalars['String'];
+  /** Prefijo del país */
+  prefix: Scalars['String'];
+};
+
+/** País entrada */
+export type CountryInput = {
+  /** Nombre del país */
+  name: Scalars['String'];
 };
 
 /** Cupones para pagos */
@@ -620,12 +654,20 @@ export type CreateCategoryInput = {
 
 /** Datos para crear una ciudad */
 export type CreateCityInput = {
+  /** Código DANE */
+  code: Scalars['String'];
   /** Nombre del país */
-  country: Scalars['String'];
+  countryName: Scalars['String'];
+  /** Prefijo del país */
+  countryPrefix: Scalars['String'];
+  /** Código postal de la ciudad por defecto */
+  defaultPostalCode: Scalars['String'];
   /** Nombre de la ciudad */
   name: Scalars['String'];
   /** Nombre del departamento */
   state: Scalars['String'];
+  /** Tipo de zona */
+  zone: ZoneType;
 };
 
 /** Datos para crear un cierre X */
@@ -3386,6 +3428,15 @@ export type QueryWarehousesArgs = {
   filtersWarehousesInput?: InputMaybe<FiltersWarehousesInput>;
 };
 
+/** Rangos de precio por regiones */
+export type RatesRegion = {
+  __typename?: 'RatesRegion';
+  /** Precio de la zona */
+  price: Scalars['Float'];
+  /** Zona a aplicar el precio */
+  zone: ZoneType;
+};
+
 /** Egreso de dinero */
 export type Receipt = {
   __typename?: 'Receipt';
@@ -5312,12 +5363,20 @@ export enum TypesRule {
 
 /** Datos para actualizar la ciudad */
 export type UpadteCityInput = {
+  /** Código DANE */
+  code?: InputMaybe<Scalars['String']>;
   /** Nombre del país */
-  country?: InputMaybe<Scalars['String']>;
+  countryName?: InputMaybe<Scalars['String']>;
+  /** Prefijo del país */
+  countryPrefix?: InputMaybe<Scalars['String']>;
+  /** Código postal de la ciudad por defecto */
+  defaultPostalCode?: InputMaybe<Scalars['String']>;
   /** Nombre de la ciudad */
   name?: InputMaybe<Scalars['String']>;
   /** Nombre del departamento */
   state?: InputMaybe<Scalars['String']>;
+  /** Tipo de zona */
+  zone?: InputMaybe<ZoneType>;
 };
 
 /** Datos para actualizar el atributo */
@@ -5744,6 +5803,15 @@ export type Warehouse = {
   /** Usuario que creó el usuario */
   user: User;
 };
+
+export enum ZoneType {
+  Inshop = 'INSHOP',
+  Local = 'LOCAL',
+  Metropolitan = 'METROPOLITAN',
+  National = 'NATIONAL',
+  Special = 'SPECIAL',
+  Urban = 'URBAN',
+}
 
 export type CreateStockAdjustmentMutationVariables = Exact<{
   input: CreateStockAdjustmentInput;
@@ -7460,10 +7528,10 @@ export type CitiesQuery = {
     docs: {
       __typename?: 'City';
       _id: string;
-      country: string;
       name: string;
       state: string;
       updatedAt: any;
+      country: { __typename?: 'Country'; name: string; prefix: string };
       user: { __typename?: 'User'; name: string };
     }[];
   };
@@ -15248,7 +15316,17 @@ export const CitiesDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'country' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'country' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'state' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
