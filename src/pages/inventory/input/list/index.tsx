@@ -446,6 +446,7 @@ const InputList = () => {
               pagination={{
                 current: data?.stockInputs?.page,
                 total: data?.stockInputs?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

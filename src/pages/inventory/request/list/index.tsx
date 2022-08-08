@@ -491,6 +491,7 @@ const RequestList = () => {
               pagination={{
                 current: data?.stockRequests?.page,
                 total: data?.stockRequests?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

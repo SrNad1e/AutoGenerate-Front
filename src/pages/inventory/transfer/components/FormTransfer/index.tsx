@@ -117,7 +117,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         setPropsAlertSave({
           status,
           visible: true,
-          message: '¿Está seguro que desea enviar la solicitud?',
+          message: '¿Está seguro que desea enviar el traslado?',
           type: 'warning',
         });
       } else {

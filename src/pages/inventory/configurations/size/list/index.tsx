@@ -357,8 +357,8 @@ const SizesList = () => {
             disabled={!canEdit}
             loading={loading}
             onClick={() => visibleModal(SizeID)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
           />
         </Tooltip>
       ),
@@ -400,6 +400,7 @@ const SizesList = () => {
                 pagination={{
                   current: data?.sizes?.page,
                   total: data?.sizes?.totalDocs,
+                  showSizeChanger: false,
                 }}
                 loading={loading}
                 onChange={handleChangeTable}

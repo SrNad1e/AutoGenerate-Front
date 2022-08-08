@@ -449,6 +449,7 @@ const OutputList = () => {
               pagination={{
                 current: data?.stockOutputs?.page,
                 total: data?.stockOutputs?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

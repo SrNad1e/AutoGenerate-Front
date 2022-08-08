@@ -88,50 +88,50 @@ export default function access(initialState: { currentUser?: User | undefined })
     },
     reference: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_REFERENCE',
+        (permission) => permission?.action === Permissions.UpdateInventoryReference,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_REFERENCE',
+        (permission) => permission?.action === Permissions.CreateInventoryReference,
       ),
     },
     color: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_COLOR',
+        (permission) => permission?.action === Permissions.UpdateInventoryColor,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_COLOR',
+        (permission) => permission?.action === Permissions.CreateInventoryColor,
       ),
     },
     categories: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_COLOR',
+        (permission) => permission?.action === Permissions.UpdateInventoryCategory,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_COLOR',
+        (permission) => permission?.action === Permissions.CreateInventoryCategory,
       ),
     },
     size: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_SIZE',
+        (permission) => permission?.action === Permissions.UpdateInventorySize,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_SIZE',
+        (permission) => permission?.action === Permissions.CreateInventorySize,
       ),
     },
     attrib: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_ATTRIB',
+        (permission) => permission?.action === Permissions.UpdateInventoryAttrib,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_ATTRIB',
+        (permission) => permission?.action === Permissions.CreateInventoryAttrib,
       ),
     },
     brand: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_INVENTORY_BRAND',
+        (permission) => permission?.action === Permissions.UpdateInventoryBrand,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVENTORY_BRAND',
+        (permission) => permission?.action === Permissions.CreateInventoryBrand,
       ),
     },
     closingX: {
@@ -160,10 +160,10 @@ export default function access(initialState: { currentUser?: User | undefined })
     },
     returns: {
       canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'PRINT_INVOICING_RETURN',
+        (permission) => permission?.action === Permissions.PrintInvoicingReturn,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVOICING_RETURN',
+        (permission) => permission?.action === Permissions.CreateInvoicingReturn,
       ),
     },
     user: {

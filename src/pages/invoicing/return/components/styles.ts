@@ -22,4 +22,12 @@ export default {
   borderR: {
     borderRadius: 5,
   },
+  iconSize: {
+    fontSize: 20,
+  },
+  tagStyle: {
+    borderColor: '#dc9575',
+    color: '#dc9575',
+    backgroundColor: 'white',
+  },
 };

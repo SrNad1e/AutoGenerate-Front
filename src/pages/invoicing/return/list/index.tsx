@@ -5,8 +5,8 @@ import {
   CalendarOutlined,
   ClearOutlined,
   DollarCircleOutlined,
+  FieldNumberOutlined,
   MoreOutlined,
-  NumberOutlined,
   PlusOutlined,
   PrinterFilled,
   SearchOutlined,
@@ -153,14 +153,18 @@ const ReturnList = () => {
    * @param values filtros necesarios para la busqueda
    */
   const onSearch = (values?: FiltersReturnsOrderInput) => {
-    getReturns({
-      variables: {
-        input: {
-          sort: { createdAt: -1 },
-          ...values,
+    try {
+      getReturns({
+        variables: {
+          input: {
+            sort: { createdAt: -1 },
+            ...values,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -304,8 +308,8 @@ const ReturnList = () => {
   const columns: ColumnsType<ReturnOrder> = [
     {
       title: (
-        <Text>
-          <NumberOutlined /> Número
+        <Text style={styles.iconSize}>
+          <FieldNumberOutlined />
         </Text>
       ),
       dataIndex: 'number',
@@ -395,7 +399,12 @@ const ReturnList = () => {
         return (
           <Space>
             <Tooltip title="Imprimir Devolución">
-              <Button type="primary" onClick={() => printReturn(record)} icon={<PrinterFilled />} />
+              <Button
+                type="primary"
+                onClick={() => printReturn(record)}
+                loading={loading}
+                icon={<PrinterFilled />}
+              />
             </Tooltip>
             <Space>
               <Tooltip title="Imprimir Cupon">
@@ -404,6 +413,7 @@ const ReturnList = () => {
                   onClick={() => printCoupon(record.coupon)}
                   icon={<PrinterFilled />}
                   disabled={!allowPrint}
+                  loading={loading}
                 />
               </Tooltip>
             </Space>
@@ -418,12 +428,12 @@ const ReturnList = () => {
       <Card bordered={false}>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={30}>
-            <Col xs={24} md={7} lg={5} xl={5}>
+            <Col xs={24} md={7} lg={6} xl={5}>
               <FormItem label="Número Pedido" name="number">
                 <InputNumber controls={false} placeholder="Ejem: 10" style={styles.allWidth} />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={6} xl={6}>
+            <Col xs={24} md={7} lg={5} xl={6}>
               <FormItem label="Tienda" name="shopId">
                 <SelectShop disabled={loading} />
               </FormItem>
@@ -444,6 +454,7 @@ const ReturnList = () => {
                     type="primary"
                     htmlType="submit"
                     style={styles.borderR}
+                    loading={loading}
                   >
                     Buscar
                   </Button>
@@ -451,6 +462,7 @@ const ReturnList = () => {
                     htmlType="reset"
                     onClick={() => onClear()}
                     style={styles.borderR}
+                    loading={loading}
                     icon={<ClearOutlined />}
                   >
                     Limpiar
@@ -467,6 +479,7 @@ const ReturnList = () => {
               icon={<PlusOutlined />}
               shape="round"
               type="primary"
+              loading={loading}
               disabled={!allowCreate}
             >
               Nuevo
@@ -478,13 +491,14 @@ const ReturnList = () => {
               <Text>{data?.returnsOrder?.totalDocs || 0}</Text>
               <Text strong>Pagina:</Text>
               <Text>
-                {data?.returnsOrder.page || 0}/ {data?.returnsOrder?.totalPages || 0}
+                {data?.returnsOrder?.page || 0}/ {data?.returnsOrder?.totalPages || 0}
               </Text>
             </Space>
           </Col>
           <Col span={24}>
             <Table
               onChange={handleChangeTable}
+              loading={loading}
               columns={columns}
               scroll={{ x: 1000 }}
               pagination={{

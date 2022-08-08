@@ -351,9 +351,9 @@ const CategoryList = () => {
             <Button
               disabled={!canEdit}
               onClick={() => visibleModal(categoryData, false)}
-              style={{ backgroundColor: '#dc9575' }}
+              type="primary"
               loading={loading}
-              icon={<EditOutlined style={{ color: 'white' }} />}
+              icon={<EditOutlined />}
             />
           </Tooltip>
           {val !== 'CategoryLevel3' && (
@@ -362,8 +362,8 @@ const CategoryList = () => {
                 disabled={!canCreate}
                 loading={loading}
                 onClick={() => visibleModal(categoryData, true)}
-                style={{ backgroundColor: '#dc9575' }}
-                icon={<PlusSquareOutlined style={{ color: 'white' }} />}
+                type="primary"
+                icon={<PlusSquareOutlined />}
               />
             </Tooltip>
           )}

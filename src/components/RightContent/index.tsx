@@ -44,7 +44,7 @@ const GlobalHeaderRight: React.FC = () => {
           </Text>
         </Col>
       </Row>
-      <Row className={className}>
+      <Row className={className} style={{ marginRight: 8 }}>
         <Col span={24}>
           <Avatar />
         </Col>

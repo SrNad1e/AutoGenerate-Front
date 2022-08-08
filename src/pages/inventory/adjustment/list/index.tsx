@@ -448,6 +448,7 @@ const AdjustmentList = () => {
               pagination={{
                 current: data?.stockAdjustments?.page,
                 total: data?.stockAdjustments?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

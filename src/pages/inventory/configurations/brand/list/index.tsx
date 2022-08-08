@@ -338,8 +338,8 @@ const BrandsList = () => {
             disabled={!canEdit}
             loading={loading}
             onClick={() => visibleModal(BrandID)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
           />
         </Tooltip>
       ),
@@ -381,6 +381,7 @@ const BrandsList = () => {
                 pagination={{
                   current: data?.brands?.page,
                   total: data?.brands?.totalDocs,
+                  showSizeChanger: false,
                 }}
                 loading={loading}
                 onChange={handleChangeTable}

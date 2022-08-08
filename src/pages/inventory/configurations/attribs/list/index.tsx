@@ -354,8 +354,8 @@ const AttribsList = () => {
           <Button
             disabled={!canEdit}
             onClick={() => visibleModal(AttribID)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
             loading={loading}
           />
         </Tooltip>
@@ -398,6 +398,7 @@ const AttribsList = () => {
                 pagination={{
                   current: data?.attribs?.page,
                   total: data?.attribs?.totalDocs,
+                  showSizeChanger: false,
                 }}
                 loading={loading}
                 onChange={handleChangeTable}

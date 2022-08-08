@@ -363,9 +363,9 @@ const ColorsList = () => {
           <Button
             loading={loading}
             disabled={!canEdit}
+            type="primary"
             onClick={() => visibleModal(colorID)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            icon={<EditOutlined />}
           />
         </Tooltip>
       ),

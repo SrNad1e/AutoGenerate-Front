@@ -480,6 +480,7 @@ const TransferList = () => {
               pagination={{
                 current: data?.stockTransfers?.page,
                 total: data?.stockTransfers?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

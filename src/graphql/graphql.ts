@@ -7221,6 +7221,7 @@ export type LoginMutation = {
       };
       role: {
         __typename?: 'Role';
+        changeWarehouse: boolean;
         name: string;
         permissions: { __typename?: 'Permission'; action: Permissions }[];
       };
@@ -14333,6 +14334,7 @@ export const LoginDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             {
                               kind: 'Field',
@@ -19913,7 +19915,6 @@ export const CurrentUserDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'permissions' },
