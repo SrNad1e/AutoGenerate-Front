@@ -9,7 +9,17 @@ import type {
   User,
 } from '@/graphql/graphql';
 import { useGetClosesXInvoicing } from '@/hooks/closeXInvoicing.hooks';
-import { PlusOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  DollarCircleOutlined,
+  FieldNumberOutlined,
+  LaptopOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  PrinterFilled,
+  SearchOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Button,
@@ -147,16 +157,20 @@ const ClosingXList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersClosesXInvoicingInput) => {
-    getCloses({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+    try {
+      getCloses({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -246,31 +260,47 @@ const ClosingXList = () => {
 
   const columns: ColumnsType<Partial<CloseXInvoicing>> = [
     {
-      title: 'Número',
+      title: (
+        <Text style={styles.iconSize}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: 'Punto de venta',
+      title: (
+        <Text>
+          <LaptopOutlined /> Punto de Venta
+        </Text>
+      ),
       dataIndex: 'pointOfSale',
       width: 150,
       render: ({ shop, name }: PointOfSale) => (
         <Space direction="vertical" size={0}>
           <Text>{shop?.name}</Text>
-          <Tag>{name}</Tag>
+          <Tag style={styles.tagStyle}>{name}</Tag>
         </Space>
       ),
     },
     {
-      title: 'Fecha Cierre',
+      title: (
+        <Text>
+          <CalendarOutlined /> Fecha Cierre
+        </Text>
+      ),
       dataIndex: 'closeDate',
       sorter: true,
       showSorterTooltip: false,
       render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE_API),
     },
     {
-      title: 'Ingresos',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Ingresos
+        </Text>
+      ),
       dataIndex: 'payments',
       align: 'right',
       render: (payments: PaymentOrderClose[]) =>
@@ -283,13 +313,17 @@ const ClosingXList = () => {
       render: (summary: SummaryOrderClose) => numeral(summary?.value).format('$ 0,0'),
     },
     {
-      title: 'Registrado Por',
+      title: <Text>{<UserOutlined />} Registrado Por</Text>,
       dataIndex: 'user',
       align: 'center',
       render: (user: User) => user?.name,
     },
     {
-      title: 'Acción',
+      title: (
+        <Text>
+          <MoreOutlined /> Opción
+        </Text>
+      ),
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -309,11 +343,11 @@ const ClosingXList = () => {
   return (
     <PageContainer>
       <Card bordered={false}>
-        <Form form={form} onFinish={onFinish} initialValues={filters} style={{ marginBottom: 30 }}>
+        <Form form={form} onFinish={onFinish} initialValues={filters}>
           <Row gutter={[20, 15]} align="middle">
             <Col xs={13} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">
-                <Input style={{ width: '100%' }} />
+                <Input style={{ width: '100%' }} placeholder="Ejem: 10" />
               </FormItem>
             </Col>
             <Col xs={11} md={7} lg={7} xl={7}>

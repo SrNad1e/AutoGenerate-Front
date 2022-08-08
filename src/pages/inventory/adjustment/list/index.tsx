@@ -375,7 +375,7 @@ const AdjustmentList = () => {
           onFinish={onFinish}
           initialValues={filters}
         >
-          <Row gutter={20} className={styles.form}>
+          <Row gutter={40} className={styles.form}>
             <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
                 <InputNumber controls={false} style={style.maxWidth} disabled={loading} min={1} />

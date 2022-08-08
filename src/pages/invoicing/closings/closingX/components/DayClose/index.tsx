@@ -177,7 +177,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
 
     if (!currentUser?.data?.currentUser?.role?.changeWarehouse) {
       setCurrentStep(1);
-      form.setFieldValue('pointOfSaleId', currentUser?.data?.currentUser?.pointOfSale?._id);
+      form.setFieldsValue({ pointOfSaleId: currentUser?.data?.currentUser?.pointOfSale?._id });
     }
   }, [visible]);
 

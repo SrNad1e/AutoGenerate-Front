@@ -410,7 +410,7 @@ const ReturnList = () => {
               <Tooltip title="Imprimir Cupon">
                 <Button
                   type="ghost"
-                  onClick={() => printCoupon(record.coupon)}
+                  onClick={() => printCoupon(record?.coupon)}
                   icon={<PrinterFilled />}
                   disabled={!allowPrint}
                   loading={loading}
@@ -430,7 +430,12 @@ const ReturnList = () => {
           <Row gutter={30}>
             <Col xs={24} md={7} lg={6} xl={5}>
               <FormItem label="Número Pedido" name="number">
-                <InputNumber controls={false} placeholder="Ejem: 10" style={styles.allWidth} />
+                <InputNumber
+                  disabled={loading}
+                  controls={false}
+                  placeholder="Ejem: 10"
+                  style={styles.allWidth}
+                />
               </FormItem>
             </Col>
             <Col xs={24} md={7} lg={5} xl={6}>
@@ -441,6 +446,7 @@ const ReturnList = () => {
             <Col xs={24} md={9} lg={6} xl={7}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker
+                  disabled={loading}
                   style={styles.allWidth}
                   placeholder={['Fecha Inicial', 'Fecha Final']}
                 />
