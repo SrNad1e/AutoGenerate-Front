@@ -49,7 +49,11 @@ const DeliveryAddress = ({ addresses, setAddresses }: Props) => {
   };
 
   const onChangeSelect = (key: string) => {
-    form.setFieldsValue(addresses[parseInt(key)]);
+    console.log(addresses[parseInt(key)]);
+    form.setFieldsValue({
+      ...addresses[parseInt(key)],
+      cityId: addresses[parseInt(key)]?.city._id,
+    });
     setIndexSelected(key);
     setAllowEdit(false);
   };

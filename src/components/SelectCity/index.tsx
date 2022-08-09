@@ -37,7 +37,7 @@ const SelectCity = ({ onChange, disabled, value }: Params) => {
         },
       },
     });
-  }, []);
+  }, [value]);
 
   return (
     <>
