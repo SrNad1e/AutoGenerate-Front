@@ -189,7 +189,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
       onCancel={onCancel}
       footer={
         <>
-          <Button loading={loading} onClick={onCancel}>
+          <Button loading={loading} style={{ borderRadius: 5 }} onClick={onCancel}>
             {currentStep !== 2 ? 'Cancelar' : 'Cerrar'}
           </Button>
 
@@ -200,11 +200,17 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 loading={loading}
                 type="primary"
                 onClick={onFinish}
+                style={{ borderRadius: 5 }}
               >
                 Imprimir
               </Button>
             ) : (
-              <Button loading={loading} type="primary" onClick={onFinish}>
+              <Button
+                loading={loading}
+                type="primary"
+                style={{ borderRadius: 5 }}
+                onClick={onFinish}
+              >
                 {currentStep === 1 ? 'Crear Cierre' : 'Siguiente'}
               </Button>
             ))}

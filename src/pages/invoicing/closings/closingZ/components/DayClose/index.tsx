@@ -176,7 +176,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
 
     if (!currentUser?.data?.currentUser?.role?.changeWarehouse) {
       setCurrentStep(1);
-      form.setFieldValue('pointOfSaleId', currentUser?.data?.currentUser?.pointOfSale?._id);
+      form.setFieldsValue({ pointOfSaleId: currentUser?.data?.currentUser?.pointOfSale?._id });
     }
   }, [visible]);
 
@@ -188,7 +188,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
       onCancel={onCancel}
       footer={
         <>
-          <Button loading={loading} onClick={onCancel}>
+          <Button loading={loading} style={{ borderRadius: 5 }} onClick={onCancel}>
             {currentStep !== 2 ? 'Cancelar' : 'Cerrar'}
           </Button>
           {visible &&
@@ -198,11 +198,17 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 loading={loading}
                 type="primary"
                 onClick={onFinish}
+                style={{ borderRadius: 5 }}
               >
                 Imprimir
               </Button>
             ) : (
-              <Button loading={loading} type="primary" onClick={onFinish}>
+              <Button
+                loading={loading}
+                type="primary"
+                onClick={onFinish}
+                style={{ borderRadius: 5 }}
+              >
                 {currentStep === 1 ? 'Crear Cierre' : 'Siguiente'}
               </Button>
             ))}

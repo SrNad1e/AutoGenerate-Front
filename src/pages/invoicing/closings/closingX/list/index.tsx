@@ -11,6 +11,8 @@ import type {
 import { useGetClosesXInvoicing } from '@/hooks/closeXInvoicing.hooks';
 import {
   CalendarOutlined,
+  ClearOutlined,
+  ContainerOutlined,
   DollarCircleOutlined,
   FieldNumberOutlined,
   LaptopOutlined,
@@ -307,7 +309,7 @@ const ClosingXList = () => {
         numeral(payments?.reduce((sum, payment) => sum + payment?.value, 0)).format('$ 0,0'),
     },
     {
-      title: 'Facturas',
+      title: <Text>{<ContainerOutlined />} Facturas</Text>,
       dataIndex: 'summaryOrder',
       align: 'right',
       render: (summary: SummaryOrderClose) => numeral(summary?.value).format('$ 0,0'),
@@ -344,18 +346,22 @@ const ClosingXList = () => {
     <PageContainer>
       <Card bordered={false}>
         <Form form={form} onFinish={onFinish} initialValues={filters}>
-          <Row gutter={[20, 15]} align="middle">
-            <Col xs={13} md={4} lg={4} xl={4}>
+          <Row gutter={[20, 0]} align="middle">
+            <Col xs={24} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">
-                <Input style={{ width: '100%' }} placeholder="Ejem: 10" />
+                <Input style={{ width: '100%' }} disabled={loading} placeholder="Ejem: 10" />
               </FormItem>
             </Col>
-            <Col xs={11} md={7} lg={7} xl={7}>
+            <Col xs={24} md={7} lg={7} xl={7}>
               <FormItem label="Fecha de Cierre" name="date">
-                <DatePicker placeholder="Seleccione una fecha" style={{ width: '100%' }} />
+                <DatePicker
+                  disabled={loading}
+                  placeholder="Seleccione una fecha"
+                  style={{ width: '100%' }}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={7} xxl={6}>
+            <Col xs={24} md={5} lg={6} xl={7} xxl={6}>
               <FormItem label="Tienda" name="shopId">
                 <SelectShop disabled={loading} />
               </FormItem>
@@ -363,10 +369,22 @@ const ClosingXList = () => {
             <Col xs={24} md={4} lg={4} xl={3} xxl={4}>
               <FormItem label=" " colon={false}>
                 <Space>
-                  <Button htmlType="submit" icon={<SearchOutlined />} type="primary">
+                  <Button
+                    loading={loading}
+                    htmlType="submit"
+                    style={styles.buttonR}
+                    icon={<SearchOutlined />}
+                    type="primary"
+                  >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button
+                    htmlType="button"
+                    onClick={onClear}
+                    style={styles.buttonR}
+                    icon={<ClearOutlined />}
+                    loading={loading}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -374,37 +392,38 @@ const ClosingXList = () => {
             </Col>
           </Row>
         </Form>
-        <Row align="middle">
-          <Col span={8}>
+        <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
+          <Col xs={12} md={15} lg={15}>
             <Button
               disabled={!canCreate}
               icon={<PlusOutlined />}
               onClick={() => setVisible(true)}
               shape="round"
+              loading={loading}
               type="primary"
             >
               Registrar
             </Button>
           </Col>
-          <Col span={16} style={{ textAlign: 'right' }}>
+          <Col xs={24} md={9} lg={9} style={{ textAlign: 'right' }}>
             <Text strong>Total Encontrados:</Text> {data?.closesXInvoicing?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.closesXInvoicing?.page} /{' '}
             {data?.closesXInvoicing?.totalPages || 0}
           </Col>
+          <Col span={24}>
+            <Table
+              pagination={{
+                current: data?.closesXInvoicing?.page,
+                total: data?.closesXInvoicing?.totalDocs,
+              }}
+              onChange={handleChangeTable}
+              columns={columns}
+              scroll={{ x: 900 }}
+              loading={loading}
+              dataSource={data?.closesXInvoicing?.docs as any}
+            />
+          </Col>
         </Row>
-      </Card>
-      <Card bordered={false} bodyStyle={styles.bodyPadding}>
-        <Table
-          pagination={{
-            current: data?.closesXInvoicing?.page,
-            total: data?.closesXInvoicing?.totalDocs,
-          }}
-          onChange={handleChangeTable}
-          columns={columns}
-          scroll={{ x: 900 }}
-          loading={loading}
-          dataSource={data?.closesXInvoicing?.docs as any}
-        />
       </Card>
       <CashRegisterModal visible={visible} onCancel={closeModal} onOk={saveCashRegister} />
       <CloseDay

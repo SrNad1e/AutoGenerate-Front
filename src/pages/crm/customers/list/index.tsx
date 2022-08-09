@@ -115,14 +115,18 @@ const CustomerList = () => {
    * @param filters filtros para realizar la consulta
    */
   const onSearch = (filters?: FiltersCustomersInput) => {
-    getCustomers({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
+    try {
+      getCustomers({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -257,7 +261,7 @@ const CustomerList = () => {
       render: (_, customer: Customer) => (
         <Space direction="vertical" size={5}>
           <Text>
-            {} {customer?.firstName} {customer?.lastName}
+            {customer?.firstName} {customer?.lastName}
           </Text>
           <Tag style={styles.tagStyle}>
             {<IdcardOutlined />} {customer?.document}
@@ -275,6 +279,7 @@ const CustomerList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
+      render: (email) => <Text>{email || '(No Registra Correo)'}</Text>,
     },
     {
       title: (
@@ -334,6 +339,7 @@ const CustomerList = () => {
         <Tooltip title="Editar">
           <Button
             onClick={() => visibleModalEdit(customerId)}
+            loading={paramsGetCustomers?.loading}
             type="primary"
             disabled={paramsGetCustomers?.loading || !canEdit}
             icon={<EditFilled />}
@@ -350,7 +356,10 @@ const CustomerList = () => {
           <Row gutter={30}>
             <Col xs={24} md={9} lg={9} xl={9}>
               <FormItem label="Dato" name="dato">
-                <Input placeholder="Correo, Nombre, Teléfono, Documento..." />
+                <Input
+                  disabled={paramsGetCustomers?.loading}
+                  placeholder="Correo, Nombre, Teléfono, Documento..."
+                />
               </FormItem>
             </Col>
             <Col xs={24} md={7} lg={7} xl={7}>
@@ -359,6 +368,7 @@ const CustomerList = () => {
                   style={styles.buttonR}
                   disabled={paramsGetCustomers?.loading}
                   icon={<SearchOutlined />}
+                  loading={paramsGetCustomers?.loading}
                   type="primary"
                   htmlType="submit"
                 >
@@ -368,6 +378,7 @@ const CustomerList = () => {
                   style={styles.buttonR}
                   disabled={paramsGetCustomers?.loading}
                   icon={<ClearOutlined />}
+                  loading={paramsGetCustomers?.loading}
                   onClick={onClear}
                 >
                   Limpiar
@@ -377,18 +388,19 @@ const CustomerList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 20]} align="middle" style={styles.marginFilter}>
-          <Col xs={12} md={15} lg={16}>
+          <Col xs={6} md={15} lg={16}>
             <Button
               icon={<PlusOutlined />}
               type="primary"
               disabled={paramsGetCustomers?.loading || !canCreate}
               shape="round"
+              loading={paramsGetCustomers?.loading}
               onClick={() => visibleModalEdit()}
             >
               Nuevo
             </Button>
           </Col>
-          <Col xs={12} md={9} lg={8} style={{ textAlign: 'right' }}>
+          <Col xs={24} md={9} lg={8} style={{ textAlign: 'right' }}>
             <Text strong>Total Encontrados:</Text> {paramsGetCustomers?.data?.customers?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {paramsGetCustomers?.data?.customers?.page} /{' '}
             {paramsGetCustomers.data?.customers?.totalPages}
@@ -397,6 +409,7 @@ const CustomerList = () => {
             <Table
               onChange={handleChangeTable}
               columns={column}
+              loading={paramsGetCustomers?.loading}
               dataSource={paramsGetCustomers?.data?.customers?.docs}
               scroll={{ x: 'auto' }}
               pagination={{
