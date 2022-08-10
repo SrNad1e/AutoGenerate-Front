@@ -186,7 +186,7 @@ const ClosingXList = () => {
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
 
-      form.setFieldsValue(props);
+      form?.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
     } catch (error: any) {
       messageError(error?.message);
