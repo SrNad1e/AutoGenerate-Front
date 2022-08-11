@@ -28,15 +28,16 @@ const DeliveryAddress = ({ addresses, setAddresses }: Props) => {
   };
 
   const saveAddress = async () => {
-    const values = await form.validateFields();
+    const { city, ...values } = await form.validateFields();
     setAddresses([...addresses, values]);
     form.resetFields();
   };
 
   const updateAddress = async () => {
     const values = await form.validateFields();
+
     setAddresses(
-      addresses.map((item, key) => {
+      addresses.map(({ __typename, ...item }, key) => {
         if (key.toString() === indexSelected) {
           return {
             ...item,
@@ -46,13 +47,14 @@ const DeliveryAddress = ({ addresses, setAddresses }: Props) => {
         return item;
       }),
     );
+    setAllowEdit(false);
   };
 
   const onChangeSelect = (key: string) => {
-    console.log(addresses[parseInt(key)]);
+    const { city, ...address } = addresses[parseInt(key)];
     form.setFieldsValue({
-      ...addresses[parseInt(key)],
-      cityId: addresses[parseInt(key)]?.city._id,
+      ...address,
+      cityId: city._id,
     });
     setIndexSelected(key);
     setAllowEdit(false);
@@ -93,7 +95,7 @@ const DeliveryAddress = ({ addresses, setAddresses }: Props) => {
             disabled={addresses.length === 0}
           >
             {addresses?.map(({ city, field1, loteNumber, number1, number2, extra }, key) => (
-              <Option key={key.toString()}>
+              <Option key={key?.toString()}>
                 {field1} {number1} # {number2} - {loteNumber} {extra} / {city?.name}
               </Option>
             ))}

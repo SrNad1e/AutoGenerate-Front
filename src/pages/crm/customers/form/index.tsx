@@ -158,9 +158,18 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
     const values = await form.validateFields();
 
     try {
+      const newAddresses = addresses.map(({ city, __typename, ...address }) => ({
+        ...address,
+        cityId: city?._id,
+      }));
       const response = await updateCustomer({
         variables: {
-          input: { ...values, isWhatsapp: isWhatsapp, addresses, isDefault: isDefault },
+          input: {
+            ...values,
+            isWhatsapp: isWhatsapp,
+            addresses: newAddresses,
+            isDefault: isDefault,
+          },
           id: customerData?._id || '',
         },
       });
