@@ -33,18 +33,18 @@ import type {
 import type { Moment } from 'moment';
 import moment from 'moment';
 import numeral from 'numeral';
-import { useReactToPrint } from 'react-to-print';
 import { useEffect, useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import type { Location } from 'umi';
-import { useLocation, useHistory, useAccess } from 'umi';
+import { useAccess, useHistory, useLocation } from 'umi';
 
-import CloseDay from '../components/DayClose';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import CashRegisterModal from '../components/CashRegister';
-import SelectShop from '@/components/SelectShop';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import ReportCloseZ from '../reports/closeZ';
+import SelectShop from '@/components/SelectShop';
 import { useGetClosesZInvoicing } from '@/hooks/closeZInvoicing.hooks';
+import CashRegisterModal from '../components/CashRegister';
+import CloseDay from '../components/DayClose';
+import ReportCloseZ from '../reports/closeZ';
 
 import styles from './styles';
 
@@ -61,7 +61,6 @@ const ClosingZList = () => {
   const [visible, setVisible] = useState(false);
   const [cashRegister, setCashRegister] = useState<Partial<CashRegister>>({});
   const [visibleNewClose, setVisibleNewClose] = useState(false);
-  const [filters, setFilters] = useState<Partial<FormValues>>();
   const [closeData, setCloseData] = useState<Partial<CloseZInvoicing>>({});
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -185,7 +184,6 @@ const ClosingZList = () => {
       const datos = Object.keys(props)
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
-
       form?.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
     } catch (error: any) {
@@ -231,7 +229,6 @@ const ClosingZList = () => {
       limit: 10,
       page: 1,
     });
-    setFilters({});
   };
 
   useEffect(() => {
@@ -309,7 +306,7 @@ const ClosingZList = () => {
   return (
     <PageContainer>
       <Card bordered={false}>
-        <Form form={form} onFinish={onFinish} initialValues={filters} style={{ marginBottom: 30 }}>
+        <Form form={form} onFinish={onFinish} style={{ marginBottom: 30 }}>
           <Row gutter={[20, 15]} align="middle">
             <Col xs={13} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">

@@ -169,15 +169,15 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
 
   useEffect(() => {
     setCurrentStep(0);
-    form.resetFields();
-    form.setFieldsValue({
+    form?.resetFields();
+    form?.setFieldsValue({
       closeDate: moment(),
       total: getTotal(),
     });
 
     if (!currentUser?.data?.currentUser?.role?.changeWarehouse) {
       setCurrentStep(1);
-      form.setFieldValue('pointOfSaleId', currentUser?.data?.currentUser?.pointOfSale?._id);
+      form?.setFieldValue('pointOfSaleId', currentUser?.data?.currentUser?.pointOfSale?._id);
     }
   }, [visible]);
 
