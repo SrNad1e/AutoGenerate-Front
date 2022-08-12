@@ -250,9 +250,9 @@ const CustomerList = () => {
   const column: ColumnsType<Customer> = [
     {
       title: (
-        <>
+        <Text>
           <UserOutlined /> Cliente
-        </>
+        </Text>
       ),
       dataIndex: 'firstName',
       align: 'center',
@@ -271,9 +271,9 @@ const CustomerList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <MailOutlined /> Correo
-        </>
+        </Text>
       ),
       dataIndex: 'email',
       align: 'center',
@@ -283,9 +283,9 @@ const CustomerList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <UserSwitchOutlined /> Tipo de Cliente
-        </>
+        </Text>
       ),
       dataIndex: 'customerType',
       align: 'center',
@@ -319,9 +319,9 @@ const CustomerList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <CalendarOutlined /> Fecha
-        </>
+        </Text>
       ),
       dataIndex: 'updatedAt',
       align: 'center',
@@ -329,9 +329,9 @@ const CustomerList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <MoreOutlined /> Opción
-        </>
+        </Text>
       ),
       dataIndex: '_id',
       align: 'center',

@@ -7763,6 +7763,7 @@ export type CouponsQuery = {
       code: string;
       expiration: any;
       updatedAt: any;
+      createdAt: any;
     }[];
   };
 };
@@ -7882,7 +7883,7 @@ export type CustomersQuery = {
             number1: string;
             number2: string;
             phone: string;
-            city: { __typename?: 'City'; name: string };
+            city: { __typename?: 'City'; _id: string; name: string };
           }[]
         | null;
       customerType: { __typename?: 'CustomerType'; name: string; _id: string };
@@ -15919,6 +15920,7 @@ export const CouponsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'code' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                     ],
                   },
                 },
@@ -16216,6 +16218,7 @@ export const CustomersDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                 ],
                               },

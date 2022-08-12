@@ -6,6 +6,7 @@ import {
   CloseSquareFilled,
   DollarCircleOutlined,
   FieldNumberOutlined,
+  FileSyncOutlined,
   MoreOutlined,
   PlusOutlined,
   PrinterFilled,
@@ -124,18 +125,22 @@ const CouponList = () => {
    * @param filters filtros para realizar la consulta
    */
   const onSearch = (filters?: FiltersCouponsInput) => {
-    getCoupons({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
-          sort: {
-            ...filters?.sort,
-            createdAt: -1,
+    try {
+      getCoupons({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+            sort: {
+              ...filters?.sort,
+              createdAt: -1,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -301,16 +306,16 @@ const CouponList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <BorderlessTableOutlined /> Código
-        </>
+        </Text>
       ),
       dataIndex: 'code',
       align: 'center',
       render: (code: string) => <Tag style={styles.tagStyle}>{code}</Tag>,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
       filteredValue: filterTable?.status || null,
@@ -340,9 +345,9 @@ const CouponList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <CalendarOutlined /> Expiración
-        </>
+        </Text>
       ),
       dataIndex: 'expiration',
       align: 'center',
@@ -352,21 +357,21 @@ const CouponList = () => {
     },
     {
       title: (
-        <>
-          <CalendarOutlined /> Fecha
-        </>
+        <Text>
+          <CalendarOutlined /> Creación
+        </Text>
       ),
-      dataIndex: 'updatedAt',
+      dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
+      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
     },
     {
       title: (
-        <>
-          <MoreOutlined /> Opción
-        </>
+        <Text>
+          <MoreOutlined /> Opciones
+        </Text>
       ),
       dataIndex: '_id',
       align: 'center',
@@ -375,6 +380,7 @@ const CouponList = () => {
           <Tooltip title="Imprimir" placement="topLeft">
             <Button
               disabled={!canPrint}
+              loading={paramsGetCoupons.loading || paramsUpdateCoupon.loading}
               type="primary"
               icon={<PrinterFilled />}
               onClick={() => printCoupon(couponId)}
@@ -391,12 +397,7 @@ const CouponList = () => {
               <Button
                 danger
                 loading={paramsGetCoupons?.loading || paramsUpdateCoupon?.loading}
-                disabled={
-                  paramsGetCoupons?.loading ||
-                  paramsUpdateCoupon?.loading ||
-                  couponId.status === StatusCoupon.Inactive ||
-                  !canEdit
-                }
+                disabled={couponId.status === StatusCoupon.Inactive || !canEdit}
                 type="primary"
                 icon={<CloseSquareFilled />}
               />
@@ -434,8 +435,7 @@ const CouponList = () => {
               <Space>
                 <Button
                   style={styles.buttonR}
-                  loading={paramsGetCoupons?.loading}
-                  disabled={paramsGetCoupons?.loading || paramsUpdateCoupon?.loading}
+                  loading={paramsGetCoupons?.loading || paramsUpdateCoupon?.loading}
                   icon={<SearchOutlined />}
                   type="primary"
                   htmlType="submit"
@@ -443,9 +443,8 @@ const CouponList = () => {
                   Buscar
                 </Button>
                 <Button
-                  loading={paramsGetCoupons?.loading}
                   style={styles.buttonR}
-                  disabled={paramsGetCoupons?.loading || paramsUpdateCoupon?.loading}
+                  loading={paramsGetCoupons?.loading || paramsUpdateCoupon?.loading}
                   icon={<ClearOutlined />}
                   onClick={onClear}
                 >
@@ -460,7 +459,8 @@ const CouponList = () => {
             <Button
               icon={<PlusOutlined />}
               type="primary"
-              disabled={paramsGetCoupons?.loading || paramsUpdateCoupon?.loading || !canCreate}
+              disabled={!canCreate}
+              loading={paramsGetCoupons.loading || paramsUpdateCoupon.loading}
               shape="round"
               onClick={() => setVisibleForm(true)}
             >
@@ -476,6 +476,7 @@ const CouponList = () => {
             <Table
               onChange={handleChangeTable}
               columns={columns}
+              loading={paramsGetCoupons.loading || paramsUpdateCoupon.loading}
               dataSource={paramsGetCoupons?.data?.coupons?.docs}
               scroll={{ x: 'auto' }}
               pagination={{

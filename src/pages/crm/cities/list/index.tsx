@@ -8,10 +8,9 @@ import {
   PlusOutlined,
   ScheduleOutlined,
   SearchOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Button, Card, Col, Form, Input, Row, Space, Table, Tag, Tooltip, Typography } from 'antd';
+import { Button, Card, Col, Form, Input, Row, Space, Table, Tooltip, Typography } from 'antd';
 import type { TablePaginationConfig } from 'antd';
 import type { SorterResult } from 'antd/es/table/interface';
 import type { ColumnsType } from 'antd/lib/table';
@@ -75,21 +74,6 @@ const CitiesList = () => {
   };
 
   /**
-   * @description se encarga de ejecutar la funcion para obtener las ciudades
-   * @param filters filtros necesarios para la busqueda
-   */
-  const onSearch = (filters?: FiltersCitiesInput) => {
-    getCities({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
-        },
-      },
-    });
-  };
-
-  /**
    * @description funcion usada para mostrar los errores
    * @param message mensaje de error a mostrar
    */
@@ -99,6 +83,25 @@ const CitiesList = () => {
       type: 'error',
       visible: true,
     });
+  };
+
+  /**
+   * @description se encarga de ejecutar la funcion para obtener las ciudades
+   * @param filters filtros necesarios para la busqueda
+   */
+  const onSearch = (filters?: FiltersCitiesInput) => {
+    try {
+      getCities({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -230,12 +233,6 @@ const CitiesList = () => {
       showSorterTooltip: false,
     },
     {
-      title: <Text>{<UserOutlined />} Creado Por</Text>,
-      dataIndex: 'user',
-      align: 'center',
-      render: (user: User) => <Tag style={styles.tagStyle}>{user?.name}</Tag>,
-    },
-    {
       title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
@@ -251,10 +248,11 @@ const CitiesList = () => {
       render: (_, cityId) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
-            disabled={loading || !canEdit}
+            disabled={!canEdit}
+            loading={loading}
             onClick={() => openForm(cityId)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
           />
         </Tooltip>
       ),
@@ -265,23 +263,23 @@ const CitiesList = () => {
     <PageContainer>
       <Card>
         <Form form={form} onFinish={onFinish}>
-          <Row gutter={[20, 20]} align="middle">
-            <Col xs={24} md={8} lg={9} xl={6}>
+          <Row gutter={[30, 0]}>
+            <Col xs={24} md={8} lg={5} xl={6}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Nombre de la ciudad" disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={9} xl={6}>
+            <Col xs={24} md={8} lg={5} xl={5}>
               <FormItem label="Pais" name="country">
                 <Input placeholder="Nombre del pais" disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={9} xl={6}>
+            <Col xs={24} md={8} lg={6} xl={7}>
               <FormItem label="Estado" name="state">
                 <Input placeholder="Nombre del departamento" disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={6}>
+            <Col xs={24} md={8} lg={4} xl={4}>
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button
@@ -289,7 +287,7 @@ const CitiesList = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
-                    disabled={loading}
+                    loading={loading}
                   >
                     Buscar
                   </Button>
@@ -297,7 +295,7 @@ const CitiesList = () => {
                     style={styles.buttonR}
                     icon={<ClearOutlined />}
                     htmlType="reset"
-                    disabled={loading}
+                    loading={loading}
                     onClick={() => onClear()}
                   >
                     Limpiar
@@ -305,9 +303,12 @@ const CitiesList = () => {
                 </Space>
               </FormItem>
             </Col>
-            <Col span={8}>
+          </Row>
+          <Row gutter={[0, 20]} align="middle" style={styles.marginFilter}>
+            <Col xs={6} md={15} lg={14}>
               <Button
-                disabled={loading || !canCreate}
+                disabled={!canCreate}
+                loading={loading}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
@@ -316,7 +317,7 @@ const CitiesList = () => {
                 Nuevo
               </Button>
             </Col>
-            <Col span={16} style={styles.alignText}>
+            <Col xs={24} md={9} lg={10} style={styles.alignText}>
               <Text strong>Total Encontrados:</Text> {data?.cities?.totalDocs}{' '}
               <Text strong>Páginas: </Text> {data?.cities?.page} / {data?.cities?.totalPages || 0}
             </Col>
@@ -324,11 +325,13 @@ const CitiesList = () => {
               <Table
                 onChange={handleChangeTable}
                 columns={column}
+                loading={loading}
                 dataSource={data?.cities.docs}
                 scroll={{ x: 'auto' }}
                 pagination={{
                   current: data?.cities?.page,
                   total: data?.cities?.totalDocs,
+                  showSizeChanger: false,
                 }}
               />
             </Col>

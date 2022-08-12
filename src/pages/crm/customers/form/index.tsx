@@ -53,6 +53,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
   });
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [valuesFields, setValuesFields] = useState();
+  const [valuesAdressField, setValuesAdressField] = useState([]);
 
   const [form] = Form.useForm();
 
@@ -163,7 +164,12 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
     try {
       const response = await updateCustomer({
         variables: {
-          input: { ...values, isWhatsapp: isWhatsapp, addresses, isDefault: isDefault },
+          input: {
+            ...values,
+            isWhatsapp: isWhatsapp,
+            addresses: valuesAdressField,
+            isDefault: isDefault,
+          },
           id: customerData?._id || '',
         },
       });
@@ -273,7 +279,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
           paramsCreateCustomer?.loading ||
           paramsCreateCredit?.loading
         }
-        defaultValue={'62c88cbb0ee9b73ab036f0d7'}
+        defaultValue={documentTypeCCId}
       >
         {documentTypes.map((typeDocument) => (
           <Option key={typeDocument._id} value={typeDocument._id}>
@@ -579,7 +585,11 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
         {!isNew && (
           <>
             <TabPane tab="Direcciones" key="2">
-              <AddressComponent addresses={addresses} setAddresses={setAddresses} />
+              <AddressComponent
+                setValuesAdressField={setValuesAdressField}
+                deliveryAddress={addresses}
+                customer={customerData}
+              />
             </TabPane>
             <TabPane tab="Crédito" key="3">
               <RenderCredit

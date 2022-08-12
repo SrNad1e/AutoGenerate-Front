@@ -1,45 +1,28 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Row,
-  Select,
-  Space,
-  Switch,
-  Typography,
-} from 'antd';
+import { Button, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Space, Switch } from 'antd';
 import { useCreateDiscountRule, useUpdateDiscountRule } from '@/hooks/discount.hooks';
 import {
-  AppstoreOutlined,
   DollarOutlined,
+  EyeOutlined,
   PercentageOutlined,
+  PlusOutlined,
   ProfileOutlined,
   ReadOutlined,
   ScheduleOutlined,
-  SelectOutlined,
-  UserAddOutlined,
 } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import type { DiscountRule } from '@/graphql/graphql';
+import type { DiscountRule, Rule } from '@/graphql/graphql';
 import moment from 'moment';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import { DocumentType } from './discount.data';
-import { RuleType } from './rules.data';
-import SelectListCategory from '../components/selectListCategory';
-import SelectListCustomerType from '../components/selectListCustomerType';
+import CreateRuleForm from '../components/createRule';
+import ListOfRules from '../components/listOfRules';
 
 import styles from '../styles';
 
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
-const { Option } = Select;
-const { Text } = Typography;
 
 type Props = {
   visible: boolean;
@@ -53,11 +36,11 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
     type: 'error',
     visible: false,
   });
-  const [visibleSelectCategory, setVisibleSelectCategory] = useState(false);
-  const [visibleSelectCustomerType, setVisibleCustomerType] = useState(false);
-  const [Ids, setIds] = useState<string[]>([]);
   const [disabledPercent, setDisabledPercent] = useState(false);
   const [disabledValue, setDisabledValue] = useState(false);
+  const [visibleAddRule, setVisibleAddRule] = useState(false);
+  const [visibleListRules, setVisibleListRules] = useState(false);
+  const [rules, setRules] = useState<Rule[]>([]);
 
   const isNew = !discountData?._id;
   const [form] = Form.useForm();
@@ -75,6 +58,30 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
       type: 'warning',
       visible: true,
     });
+  };
+
+  /**
+   * @description abre el modal de la lista de reglas y guarda las reglas del descuento en el estado
+   */
+  const openListOfRules = () => {
+    setVisibleListRules(true);
+    if (discountData?.rules?.length > 0) {
+      setRules([...discountData.rules]);
+    }
+  };
+
+  /**
+   * @description cierra el modal de la lista de reglas
+   */
+  const onCloseVisibleListOfRules = () => {
+    setVisibleListRules(false);
+  };
+
+  /**
+   * @description cierra el modal de creacion de regla
+   */
+  const onCloseVisibleAddRule = () => {
+    setVisibleAddRule(false);
   };
 
   /**
@@ -97,6 +104,10 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
     closeAndClear();
   };
 
+  /**
+   * @description controla la deshabilitacion del campo de porcentaje
+   * @param e valor del campo
+   */
   const onChangeValue = (e: any) => {
     if (e > 0) {
       setDisabledPercent(true);
@@ -105,6 +116,10 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
     }
   };
 
+  /**
+   * @description controla la deshabilitacion del campo de valor
+   * @param e valor del campo
+   */
   const onChangePercent = (e: any) => {
     if (e > 0) {
       setDisabledValue(true);
@@ -114,62 +129,27 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
   };
 
   /**
-   * @description funcion usada para guardar los Ids del tipo de cliente
-   * @param e evento del onchange
-   */
-  const onChangeType = (e: any) => {
-    if (e) {
-      setIds([...e]);
-    }
-  };
-
-  /**
-   * @description funcion usada para controlar la aparicion de los campos de categoria y seleccion de tipo de cliente
-   * @param e evento del onchange
-   */
-  const onChangeRule = (e?: any) => {
-    if (e && e == 'CATEGORIES') {
-      setVisibleSelectCategory(true);
-      setVisibleCustomerType(false);
-      form.resetFields(['categoryIds', 'customerIds']);
-    }
-    if (e && e == 'CUSTOMERTYPES') {
-      setVisibleCustomerType(true);
-      setVisibleSelectCategory(false);
-      form.resetFields(['categoryIds', 'customerIds']);
-    }
-  };
-
-  /**
    * @description funcion usada para actualizar un descuento
    */
   const editDiscount = async () => {
     const values = await form.validateFields();
-    const valueCustomer = form.getFieldValue('customerIds');
-    const valueCategory = form.getFieldValue('categoryIds');
-    let documentCustomerType: any = [];
+
+    const newRules = rules.map(({ __typename, ...rest }) => {
+      return rest;
+    });
+    const newDiscountDataRules = discountData.rules.map(({ __typename, ...rest }) => {
+      return rest;
+    });
 
     try {
-      if (valueCustomer !== undefined && Ids.length > 0) {
-        documentCustomerType = [...Ids];
-      } else if (valueCategory !== undefined) {
-        documentCustomerType = [...valueCategory];
-      }
-
-      const rulesType = {
-        documentIds: documentCustomerType,
-        documentType: values.documentType,
-        type: values.type,
-      };
-
       const params: any = {
         ...values,
-        rules: [rulesType],
+        rules: rules.length > 0 ? newRules : newDiscountDataRules,
       };
 
       if (values.dates) {
-        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE_API);
-        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE_API);
+        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE);
+        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE);
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
@@ -209,31 +189,15 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
    */
   const createNewDiscount = async () => {
     const values = await form.validateFields();
-    const valueCustomer = form.getFieldValue('customerIds');
-    const valueCategory = form.getFieldValue('categoryIds');
-    let documentCustomerType: any = [];
-
     try {
-      if (valueCustomer !== undefined) {
-        documentCustomerType = [...Ids];
-      } else if (valueCategory !== undefined) {
-        documentCustomerType = [...valueCategory];
-      }
-
-      const rulesType = {
-        documentIds: documentCustomerType,
-        documentType: values.documentType,
-        type: values.type,
-      };
-
       const params: any = {
         ...values,
-        rules: [rulesType],
+        rules: [...rules],
       };
 
       if (values.dates) {
-        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE_API);
-        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE_API);
+        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE);
+        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE);
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
@@ -268,35 +232,22 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
   };
 
   useEffect(() => {
-    setVisibleCustomerType(false);
-    setVisibleSelectCategory(false);
+    setRules([]);
     setDisabledPercent(false);
     setDisabledValue(false);
     form.resetFields();
     form.setFieldsValue({
       ...discountData,
-      documentType: discountData?.rules ? discountData.rules[0].documentType : '',
-      type: discountData?.rules ? discountData.rules[0].type : '',
-      categoryIds: discountData?.rules ? [...discountData.rules[0].documentIds] : [],
       dates:
         discountData?.dateInitial && discountData?.dateFinal
           ? [moment(discountData?.dateInitial), moment(discountData?.dateFinal)]
           : [undefined, undefined],
-      customerIds: discountData?.rules && [...discountData.rules[0].documentIds],
     });
     if (discountData.percent > 0) {
       setDisabledValue(true);
     }
     if (discountData.value > 0) {
       setDisabledPercent(true);
-    }
-
-    if (discountData?.rules) {
-      if (discountData?.rules[0]?.documentType === 'CATEGORIES') {
-        setVisibleSelectCategory(true);
-      } else if (discountData?.rules[0]?.documentType === 'CUSTOMERTYPES') {
-        setVisibleCustomerType(true);
-      }
     }
   }, [visible]);
 
@@ -317,7 +268,10 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
       }}
       okButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreateDiscountRule?.loading || paramsUpdateDiscountRule?.loading,
+        disabled:
+          paramsCreateDiscountRule?.loading ||
+          paramsUpdateDiscountRule?.loading ||
+          (isNew && rules?.length === 0),
         loading: paramsCreateDiscountRule?.loading || paramsUpdateDiscountRule?.loading,
       }}
     >
@@ -357,7 +311,8 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
               name="dates"
             >
               <RangePicker
-                format={FORMAT_DATE_API}
+                showTime
+                format={FORMAT_DATE}
                 style={styles.maxWidth}
                 placeholder={['Fecha Inicial', 'Fecha Final']}
                 disabled={paramsCreateDiscountRule?.loading || paramsUpdateDiscountRule?.loading}
@@ -406,103 +361,37 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
               />
             </FormItem>{' '}
             <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
               label={
                 <Space>
-                  <ReadOutlined /> Tipos de Documento
+                  <ReadOutlined /> Reglas
                 </Space>
               }
-              name="documentType"
             >
-              <Select
-                style={styles.maxWidth}
-                placeholder="Seleccione el tipo de documento"
-                disabled={paramsCreateDiscountRule?.loading || paramsUpdateDiscountRule?.loading}
-                onChange={(e) => onChangeRule(e)}
-              >
-                {Object.keys(DocumentType).map((type) => (
-                  <Option key={type}>
-                    <Text>{DocumentType[type].label}</Text>
-                  </Option>
-                ))}
-              </Select>
-            </FormItem>
-            {visibleSelectCategory && (
-              <FormItem
-                rules={[
-                  {
-                    required: true,
-                    message: 'Este campo no puede estar vacio',
-                  },
-                ]}
-                label={
-                  <Space>
-                    <AppstoreOutlined />
-                    <Text>Categorias</Text>
-                  </Space>
-                }
-                name="categoryIds"
-              >
-                <SelectListCategory
-                  disabled={paramsCreateDiscountRule?.loading || paramsUpdateDiscountRule?.loading}
-                />
-              </FormItem>
-            )}
-            {visibleSelectCustomerType && (
-              <FormItem
-                rules={[
-                  {
-                    required: true,
-                    message: 'Este campo no puede estar vacio',
-                  },
-                ]}
-                label={
-                  <Space>
-                    <UserAddOutlined />
-                    <Text>Tipos de Cliente</Text>
-                  </Space>
-                }
-                name="customerIds"
-              >
-                <SelectListCustomerType
-                  onChange={(e) => onChangeType(e)}
-                  disabled={paramsCreateDiscountRule?.loading || paramsUpdateDiscountRule?.loading}
-                />
-              </FormItem>
-            )}
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              label={
-                <Space>
-                  <SelectOutlined /> Tipo
-                </Space>
-              }
-              name="type"
-            >
-              <Select
-                style={styles.maxWidth}
-                placeholder="Seleccione el tipo de regla"
-                disabled={paramsCreateDiscountRule?.loading || paramsUpdateDiscountRule?.loading}
-              >
-                {Object.keys(RuleType).map((type) => (
-                  <Option key={type}>
-                    <Text>{RuleType[type].label}</Text>
-                  </Option>
-                ))}
-              </Select>
+              <Space size="large">
+                {isNew && (
+                  <Button
+                    icon={<PlusOutlined />}
+                    style={styles.buttonR}
+                    onClick={() => setVisibleAddRule(true)}
+                    type="primary"
+                  >
+                    Agregar Regla
+                  </Button>
+                )}
+                {(discountData?.rules?.length > 0 || rules?.length > 0) && (
+                  <Button
+                    icon={<EyeOutlined />}
+                    style={styles.buttonR}
+                    onClick={() => openListOfRules()}
+                    type="primary"
+                  >
+                    Ver reglas
+                  </Button>
+                )}
+              </Space>
             </FormItem>
           </Col>
-          <Col span={6} offset={10}>
+          <Col span={6}>
             {!isNew && (
               <FormItem valuePropName="checked" name="active" label="Activo">
                 <Switch
@@ -515,6 +404,21 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
         </Row>
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <CreateRuleForm
+        setRules={setRules}
+        isNew={isNew}
+        rules={rules}
+        onCancel={onCloseVisibleAddRule}
+        visible={visibleAddRule}
+      />
+      <ListOfRules
+        setRules={setRules}
+        rules={rules}
+        discountData={discountData}
+        visible={visibleListRules}
+        isNew={isNew}
+        onCancel={onCloseVisibleListOfRules}
+      />
     </Modal>
   );
 };

@@ -1,189 +1,228 @@
-import type { Address } from '@/graphql/graphql';
+/* eslint-disable react-hooks/exhaustive-deps */
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Col, Form, Input, Row, Select, Checkbox, Space } from 'antd';
-import { useState } from 'react';
+import { Button, Col, Divider, Form, Input, Row, Select, Checkbox, Typography } from 'antd';
+import { useForm } from 'antd/lib/form/Form';
+import type { Address, Customer } from '@/graphql/graphql';
+import { useEffect, useState } from 'react';
+
 import SelectCity from '../SelectCity';
+import NewAddress from './new';
 
 import styles from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
+const { Title } = Typography;
 
 type Props = {
-  addresses: Address[];
-  setAddresses: (addresses: Address[]) => void;
+  deliveryAddress?: Address[];
+  customer?: Customer;
+  setValuesAdressField: (value: any) => void;
 };
 
-const DeliveryAddress = ({ addresses, setAddresses }: Props) => {
-  const [allowEdit, setAllowEdit] = useState(false);
-  const [indexSelected, setIndexSelected] = useState<string | null>(null);
-  const [canSave, setCanSave] = useState(0);
+const AddressDelivery = ({ deliveryAddress, customer, setValuesAdressField }: Props) => {
+  const [visibleCreate, setVisibleCreate] = useState(false);
+  const [visibleAddress, setVisibleAddress] = useState(true);
+  const [count, setCount] = useState(0);
 
-  const [form] = Form.useForm();
+  const [form] = useForm();
 
-  const setNewAddress = () => {
-    setAllowEdit(true);
-    setIndexSelected(null);
-    form.resetFields();
+  const updateValues = () => {
+    const values = form.getFieldsValue();
+    setValuesAdressField([values]);
   };
 
-  const saveAddress = async () => {
-    const values = await form.validateFields();
-    setAddresses([...addresses, values]);
-    form.resetFields();
-  };
-
-  const updateAddress = async () => {
-    const values = await form.validateFields();
-    setAddresses(
-      addresses.map((item, key) => {
-        if (key.toString() === indexSelected) {
-          return {
-            ...item,
-            ...values,
-          };
-        }
-        return item;
-      }),
-    );
-  };
-
-  const onChangeSelect = (key: string) => {
-    form.setFieldsValue(addresses[parseInt(key)]);
-    setIndexSelected(key);
-    setAllowEdit(false);
-  };
-
-  const renderButtonOptions = () => {
-    if (!indexSelected) {
-      return (
-        <Button disabled={canSave === 0} type="primary" onClick={saveAddress}>
-          Guardar
-        </Button>
-      );
-    }
-
-    if (!allowEdit) {
-      return (
-        <Button onClick={() => setAllowEdit(true)} type="primary">
-          Editar
-        </Button>
-      );
-    }
-    return (
-      <Button onClick={updateAddress} type="primary">
-        Actualizar
-      </Button>
-    );
-  };
-
-  return (
-    <Space direction="vertical" size={20}>
-      <Row gutter={12}>
-        <Col span={20}>
-          <Select
-            style={{ width: '100%' }}
-            onChange={onChangeSelect}
-            value={indexSelected}
-            placeholder="Seleccione una dirección guardada"
-            disabled={addresses.length === 0}
-          >
-            {addresses?.map(({ city, field1, loteNumber, number1, number2, extra }, key) => (
-              <Option key={key.toString()}>
-                {field1} {number1} # {number2} - {loteNumber} {extra} / {city?.name}
-              </Option>
-            ))}
-          </Select>
+  /**
+   * @description renderizar una direccion
+   * @returns elemento jsx
+   */
+  const renderAddress = () => (
+    <Form layout="vertical" form={form} onChange={() => updateValues()}>
+      <Row key={2}>
+        <Col span={24}>
+          <Row align="middle" gutter={[20, 20]}>
+            <Col span={5}>
+              <FormItem name="field1">
+                <Input
+                  placeholder="Carrera"
+                  style={styles.directionInput}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.field1}
+                />
+              </FormItem>
+            </Col>
+            <Col span={5}>
+              <FormItem name="number1">
+                <Input
+                  placeholder="52"
+                  style={styles.directionInput}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.number1}
+                />
+              </FormItem>
+            </Col>
+            <Col span={1}>
+              <FormItem> # </FormItem>{' '}
+            </Col>
+            <Col span={5}>
+              <FormItem name="loteNumber">
+                <Input
+                  placeholder="84a"
+                  style={styles.directionInput}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.loteNumber}
+                />
+              </FormItem>
+            </Col>
+            <Col span={1}>
+              <FormItem>-</FormItem>
+            </Col>
+            <Col span={5}>
+              <FormItem name="number2">
+                <Input
+                  placeholder="22"
+                  style={styles.directionInput}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.number2}
+                />
+              </FormItem>
+            </Col>
+            <Col span={7}>
+              <FormItem name="extra">
+                <Input
+                  placeholder="Ejemplo: 2do Piso"
+                  style={styles.directionInput}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.extra}
+                />
+              </FormItem>
+            </Col>
+            <Col span={7}>
+              <FormItem name="neighborhood">
+                <Input
+                  placeholder="Ejemplo: El Guayabo"
+                  style={styles.directionInput}
+                  defaultValue={deliveryAddress && deliveryAddress[count]?.neighborhood}
+                />
+              </FormItem>
+            </Col>
+            <Col span={6}>
+              <FormItem name="cityId">
+                <SelectCity style={styles.directionInput} disabled={false} />
+              </FormItem>
+            </Col>
+            <Col span={4}>
+              <FormItem
+                label="¿Es Principal?"
+                name="isMain"
+                colon={false}
+                defaultValue={deliveryAddress && deliveryAddress[count]?.isMain}
+              >
+                <Checkbox defaultChecked />
+              </FormItem>
+            </Col>
+          </Row>
         </Col>
-        <Col span={4}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={setNewAddress} />
+        <Col span={12}>
+          <FormItem
+            label="Nombre del Contacto"
+            name="contact"
+            defaultValue={deliveryAddress && deliveryAddress[count]?.contact}
+          >
+            <Input style={styles.inputWidth} />
+          </FormItem>
+        </Col>
+        <Col span={12}>
+          <FormItem
+            label="Telefóno del Contacto"
+            name="phone"
+            defaultValue={deliveryAddress && deliveryAddress[count]?.phone}
+          >
+            <Input style={styles.inputWidth} />
+          </FormItem>
         </Col>
       </Row>
-      <Form form={form} layout="vertical">
+    </Form>
+  );
+
+  /**
+   * @description indice aumenta dependiendo del numero de direcciones del cliente
+   */
+  let numberOfAddressesSave = -1;
+
+  /**
+   * @description funcion usada para re-renderizar la direccion cada vez que selecciona otra
+   */
+  const reRender = () => {
+    setVisibleAddress(visibleAddress ? false : true);
+  };
+
+  /**
+   *@description funcion encargada de seleccionar el numero de la direccion y renderizarla
+   * @param e numero de direccion seleccionada de la lista de direcciones
+   */
+  const onChangeAddress = async (e: number) => {
+    if (e >= 0) {
+      await reRender();
+      setCount(e);
+      form.setFieldsValue({ cityId: deliveryAddress && deliveryAddress[e]?.city?._id });
+      setVisibleAddress(true);
+    } else {
+      setVisibleAddress(false);
+    }
+  };
+
+  useEffect(() => {
+    if (deliveryAddress !== null) {
+      form.setFieldsValue({
+        ...deliveryAddress[count],
+        contact: deliveryAddress && deliveryAddress[count]?.contact,
+        phone: deliveryAddress && deliveryAddress[count]?.phone,
+        cityId: deliveryAddress && deliveryAddress[count]?.city?._id,
+      });
+    }
+    updateValues();
+  }, [visibleAddress]);
+
+  return (
+    <>
+      <Divider style={styles.dividerMargin}>
+        {deliveryAddress && deliveryAddress.length > 0 && (
+          <>
+            {' '}
+            <Select defaultValue={0} onChange={(e) => onChangeAddress(e)}>
+              {deliveryAddress?.map(() => {
+                numberOfAddressesSave++;
+                return (
+                  <Option key={1} value={numberOfAddressesSave}>
+                    {`Direccion Guardada #${numberOfAddressesSave}`}
+                  </Option>
+                );
+              })}
+            </Select>
+            <Divider type="vertical" />{' '}
+          </>
+        )}
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          style={{ borderRadius: 5 }}
+          onClick={() => setVisibleCreate(true)}
+        >
+          Crear
+        </Button>
+      </Divider>
+      {deliveryAddress && deliveryAddress?.length > 0 ? (
+        visibleAddress && renderAddress()
+      ) : (
         <Row>
-          <Col span={24}>
-            <FormItem label="Dirección">
-              <Row align="middle" gutter={[30, 20]}>
-                <Col span={5}>
-                  <FormItem name="field1">
-                    <Input
-                      disabled={!allowEdit}
-                      placeholder="Carrera"
-                      style={styles.directionInput}
-                      onClick={() => setCanSave(1)}
-                    />
-                  </FormItem>
-                </Col>
-                <Col span={5}>
-                  <FormItem name="number1">
-                    <Input disabled={!allowEdit} placeholder="52" style={styles.directionInput} />
-                  </FormItem>
-                </Col>
-                <Col span={1}>#</Col>
-                <Col span={5}>
-                  <FormItem name="number2">
-                    <Input disabled={!allowEdit} placeholder="84a" style={styles.directionInput} />
-                  </FormItem>
-                </Col>
-                <Col span={1}>-</Col>
-                <Col span={5}>
-                  <FormItem name="loteNumber">
-                    <Input disabled={!allowEdit} placeholder="22" style={styles.directionInput} />
-                  </FormItem>
-                </Col>
-                <Col span={15}>
-                  <FormItem name="cityId">
-                    <SelectCity disabled={!allowEdit} />
-                  </FormItem>
-                </Col>
-                <Col span={6}>
-                  <FormItem
-                    label="¿Es Principal?"
-                    name="isMain"
-                    colon={false}
-                    valuePropName="checked"
-                  >
-                    <Checkbox defaultChecked disabled={!allowEdit} />
-                  </FormItem>
-                </Col>
-                <Col span={10}>
-                  <FormItem name="extra">
-                    <Input
-                      disabled={!allowEdit}
-                      placeholder="Ejemplo: 2do Piso"
-                      style={styles.directionInput}
-                    />
-                  </FormItem>
-                </Col>
-                <Col span={10}>
-                  <FormItem name="neighborhood">
-                    <Input
-                      disabled={!allowEdit}
-                      placeholder="Ejemplo: El Guayabo"
-                      style={styles.directionInput}
-                    />
-                  </FormItem>
-                </Col>
-              </Row>
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem label="Nombre del Contacto" name="contact">
-              <Input disabled={!allowEdit} style={styles.inputWidth} />
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem label="Telefóno del Contacto" name="phone">
-              <Input disabled={!allowEdit} style={styles.inputWidth} />
-            </FormItem>
-          </Col>
-          <Col span={5} offset={19}>
-            <FormItem>{renderButtonOptions()}</FormItem>
+          <Col offset={7} span={12}>
+            <Title level={1}>No Registra Direccción</Title>
           </Col>
         </Row>
-      </Form>
-    </Space>
+      )}
+      <NewAddress
+        customer={customer}
+        visible={visibleCreate}
+        onCancel={() => setVisibleCreate(false)}
+      />
+    </>
   );
 };
 
-export default DeliveryAddress;
+export default AddressDelivery;

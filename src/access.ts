@@ -136,18 +136,18 @@ export default function access(initialState: { currentUser?: User | undefined })
     },
     closingX: {
       canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'PRINT_INVOICING_CLOSEX',
+        (permission) => permission?.action === Permissions.PrintInvoicingClosex,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVOICING_CLOSEX',
+        (permission) => permission?.action === Permissions.CreateInvoicingClosex,
       ),
     },
     closingZ: {
       canPrint: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'PRINT_INVOICING_CLOSEZ',
+        (permission) => permission?.action === Permissions.PrintInvoicingClosez,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_INVOICING_CLOSEZ',
+        (permission) => permission?.action === Permissions.CreateInvoicingClosez,
       ),
     },
     role: {
