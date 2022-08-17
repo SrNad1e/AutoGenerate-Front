@@ -52,18 +52,23 @@ const FormClosingX = ({ onCancel, onOk, visible }: Props) => {
   };
   useEffect(() => {
     form.resetFields();
+    setTotal(0);
+    setError('');
   }, [visible]);
 
   return (
     <Modal
+      onCancel={onCancel}
       visible={visible}
       title="Arqueo de dinero"
       closable={false}
       destroyOnClose
       footer={
         <>
-          <Button onClick={onCancel}>Cancelar</Button>
-          <Button type="primary" onClick={onFinish}>
+          <Button onClick={onCancel} style={{ borderRadius: 5 }}>
+            Cancelar
+          </Button>
+          <Button type="primary" onClick={onFinish} style={{ borderRadius: 5 }}>
             Aceptar
           </Button>
         </>
@@ -89,37 +94,43 @@ const FormClosingX = ({ onCancel, onOk, visible }: Props) => {
         {...formItemLayout}
       >
         <FormItem label="Moneda - $50" name="M50" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} autoFocus />
+          <InputNumber
+            controls={false}
+            style={styles.inputWidth}
+            min={0}
+            autoFocus
+            onChange={getTotal}
+          />
         </FormItem>
         <FormItem label="Moneda - $100" name="M100" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
         <FormItem label="Moneda - $200" name="M200" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
         <FormItem label="Moneda - $500" name="M500" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
         <FormItem label="Moneda/Billete - $1.000" name="B1000" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
         <FormItem label="Billete - $2.000" name="B2000" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
         <FormItem label="Billete - $5.000" name="B5000" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
         <FormItem label="Billete - $10.000" name="B10000" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
         <FormItem label="Billete - $20.000" name="B20000" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
         <FormItem label="Billete - $50.000" name="B50000" style={styles.formMargin}>
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
         <FormItem label="Billete - $100.000" name="B100000">
-          <InputNumber controls={false} style={styles.inputWidth} min={0} />
+          <InputNumber controls={false} style={styles.inputWidth} min={0} onChange={getTotal} />
         </FormItem>
       </Form>
       {error && <Alert message={error} type="error" showIcon />}

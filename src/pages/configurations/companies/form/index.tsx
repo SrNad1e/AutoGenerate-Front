@@ -144,12 +144,10 @@ const CompaniesForm = ({ onCancel, visible, companyData }: Props) => {
       title={isNew ? 'Crear Compañia' : 'Actualizar Compañia'}
       cancelButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreateCompany?.loading || paramsUpdateCompany?.loading,
         loading: paramsCreateCompany?.loading || paramsUpdateCompany?.loading,
       }}
       okButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreateCompany?.loading || paramsUpdateCompany?.loading,
         loading: paramsCreateCompany?.loading || paramsUpdateCompany?.loading,
       }}
     >

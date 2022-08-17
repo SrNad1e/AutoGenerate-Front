@@ -5,7 +5,6 @@ import {
   FieldNumberOutlined,
   GroupOutlined,
   InteractionOutlined,
-  PlusOutlined,
   SearchOutlined,
   SelectOutlined,
   ShoppingOutlined,
@@ -378,14 +377,12 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
       cancelText="Cancelar"
       destroyOnClose
       okButtonProps={{
-        loading: paramsCreateReceipt?.loading,
+        loading: paramsCreateReceipt?.loading || paramsGetCredit?.loading,
         style: styles.buttonR,
-        icon: <PlusOutlined />,
       }}
       cancelButtonProps={{
-        loading: paramsCreateReceipt?.loading,
         style: styles.buttonR,
-        disabled: paramsGetCredit?.loading || paramsCreateReceipt?.loading,
+        loading: paramsGetCredit?.loading || paramsCreateReceipt?.loading,
       }}
     >
       <Form layout="vertical" form={form}>
@@ -399,14 +396,9 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
             <FormItem label=" " colon={false}>
               <Button
                 icon={<SearchOutlined />}
-                disabled={
-                  paramsGetCredit?.loading ||
-                  paramsCreateReceipt?.loading ||
-                  !selectCustomer ||
-                  detailsCredit.length > 0
-                }
+                disabled={!selectCustomer || detailsCredit.length > 0}
                 type="primary"
-                loading={paramsGetCredit?.loading}
+                loading={paramsGetCredit?.loading || paramsCreateReceipt?.loading}
                 style={styles.buttonR}
                 onClick={() => onSearch()}
               >

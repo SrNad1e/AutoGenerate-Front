@@ -109,14 +109,18 @@ const CompaniesList = () => {
    * @param filters filtros para realizar la consulta
    */
   const onSearch = (filters?: FiltersCompaniesInput) => {
-    getCompanies({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
+    try {
+      getCompanies({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -234,7 +238,7 @@ const CompaniesList = () => {
 
   const column: ColumnsType<Company> = [
     {
-      title: <>{<ProfileOutlined />} Nombre</>,
+      title: <Text>{<ProfileOutlined />} Nombre</Text>,
       dataIndex: 'name',
       align: 'center',
       sorter: true,
@@ -242,9 +246,9 @@ const CompaniesList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <IdcardOutlined /> Documento
-        </>
+        </Text>
       ),
       dataIndex: 'document',
       align: 'center',
@@ -326,7 +330,7 @@ const CompaniesList = () => {
               <FormItem>
                 <Space>
                   <Button
-                    disabled={paramsGetCompanies?.loading}
+                    loading={paramsGetCompanies?.loading}
                     type="primary"
                     htmlType="submit"
                     style={styles.buttonR}
@@ -335,7 +339,7 @@ const CompaniesList = () => {
                     Buscar
                   </Button>
                   <Button
-                    disabled={paramsGetCompanies?.loading}
+                    loading={paramsGetCompanies?.loading}
                     htmlType="reset"
                     onClick={onClear}
                     icon={<ClearOutlined />}
@@ -349,9 +353,9 @@ const CompaniesList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={styles.marginFIlters}>
-          <Col span={8}>
+          <Col span={12}>
             <Button
-              disabled={paramsGetCompanies?.loading}
+              loading={paramsGetCompanies?.loading}
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
@@ -360,13 +364,15 @@ const CompaniesList = () => {
               Nuevo
             </Button>
           </Col>
-          <Col span={16} style={styles.alignText}>
-            <Text strong>Total Encontrados: </Text> {paramsGetCompanies?.data?.companies?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {paramsGetCompanies?.data?.companies?.page} /{' '}
+          <Col span={12} style={styles.alignText}>
+            <Text strong>Total Encontrados: </Text>{' '}
+            {paramsGetCompanies?.data?.companies?.totalDocs || 0} <Text strong>Páginas: </Text>{' '}
+            {paramsGetCompanies?.data?.companies?.page || 0} /{' '}
             {paramsGetCompanies?.data?.companies?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
+              loading={paramsGetCompanies?.loading}
               onChange={handleChangeTable}
               columns={column}
               dataSource={paramsGetCompanies?.data?.companies?.docs}
@@ -374,6 +380,7 @@ const CompaniesList = () => {
               pagination={{
                 current: paramsGetCompanies?.data?.companies?.page,
                 total: paramsGetCompanies?.data?.companies?.totalDocs,
+                showSizeChanger: false,
               }}
             />
           </Col>

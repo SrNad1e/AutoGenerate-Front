@@ -172,13 +172,11 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
       destroyOnClose
       title={isNew ? 'Crear Tienda' : 'Actualizar Tienda'}
       okButtonProps={{
-        style: { borderRadius: 5 },
-        disabled: paramsCreateShop?.loading || paramsUpdateShop?.loading,
+        style: styles.buttonR,
         loading: paramsCreateShop?.loading || paramsUpdateShop?.loading,
       }}
       cancelButtonProps={{
-        style: { borderRadius: 5 },
-        disabled: paramsCreateShop?.loading || paramsUpdateShop?.loading,
+        style: styles.buttonR,
         loading: paramsCreateShop?.loading || paramsUpdateShop?.loading,
       }}
     >
@@ -237,7 +235,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 </Space>
               }
             >
-              <SelectWarehouses />
+              <SelectWarehouses disabled={false} />
             </FormItem>
             <FormItem
               name="warehouseMainId"
@@ -248,7 +246,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 </Space>
               }
             >
-              <SelectWarehouses />
+              <SelectWarehouses disabled={false} />
             </FormItem>
             <FormItem
               rules={[
@@ -308,7 +306,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 <Select
                   style={styles.maxWidth}
                   placeholder="Seleccione el Estado"
-                  disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading}
+                  loading={paramsCreateShop?.loading || paramsUpdateShop?.loading}
                   defaultValue={StatusShop.Active}
                 >
                   {Object.keys(StatusTypeShop).map((status) => (
@@ -328,7 +326,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 onChange={(e) => onChangeCheckMain(e)}
                 defaultChecked={shop?.isMain}
               >
-                ¿Es Centro de distribución?
+                ¿Es Centro de Distribución?
               </Checkbox>
             </FormItem>
           </Col>

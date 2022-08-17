@@ -210,6 +210,7 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
     });
     setShoptId(user?.shop?._id);
   }, [visible]);
+
   return (
     <Modal
       visible={visible}
@@ -220,6 +221,8 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
       cancelText="Cancelar"
       destroyOnClose
       title={isNew ? 'Crear Usuario' : 'Actualizar Usuario'}
+      okButtonProps={{ loading: paramsUpdate.loading || loading, style: styles.buttonR }}
+      cancelButtonProps={{ loading: paramsUpdate.loading || loading, style: styles.buttonR }}
     >
       <Form form={form} layout="vertical" style={styles.centerForm}>
         <Row>
@@ -252,7 +255,7 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
                 </Space>
               }
             >
-              <Input placeholder="Ingrese nombre" />
+              <Input placeholder="Ingrese nombre" disabled={paramsUpdate.loading || loading} />
             </FormItem>
             <FormItem
               rules={[
@@ -269,7 +272,7 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
                 </Space>
               }
             >
-              <SelectRole disabled={loading} />
+              <SelectRole disabled={loading || paramsUpdate.loading} />
             </FormItem>
             <FormItem
               rules={[
@@ -286,7 +289,10 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
                 </Space>
               }
             >
-              <SelectShop onChange={(id) => onChangeShop(id)} disabled={loading} />
+              <SelectShop
+                onChange={(id) => onChangeShop(id)}
+                disabled={loading || paramsUpdate.loading}
+              />
             </FormItem>
             <FormItem
               name="pointOfSaleId"
@@ -297,7 +303,10 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
                 </Space>
               }
             >
-              <SelectPointOfSale shopId={shopId} disabled={loading || (isNew && !canSelectPos)} />
+              <SelectPointOfSale
+                shopId={shopId}
+                disabled={loading || (isNew && !canSelectPos) || paramsUpdate.loading}
+              />
             </FormItem>
             <FormItem
               name="status"
@@ -311,7 +320,7 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
               <Select
                 style={styles.maxWidth}
                 placeholder="Seleccione el Estado"
-                disabled={loading}
+                loading={paramsUpdate.loading || loading}
                 defaultValue={StatusUser.Active}
               >
                 {Object.keys(StatusTypeUser).map((status) => (
@@ -327,6 +336,7 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
             {!isNew && (
               <Button
                 style={styles.buttonR}
+                loading={paramsUpdate.loading || loading}
                 icon={<RetweetOutlined />}
                 onClick={() => setVisibleChangePassword(true)}
                 type="primary"

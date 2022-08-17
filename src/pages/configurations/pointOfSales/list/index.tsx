@@ -16,9 +16,11 @@ import Table from 'antd/lib/table';
 import type { SorterResult } from 'antd/lib/table/interface';
 import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import type { Box, FiltersPointOfSalesInput, PointOfSale, Shop } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useLocation, history } from 'umi';
 import { useGetPointOfSales } from '@/hooks/pointOfSale.hooks';
@@ -55,6 +57,11 @@ const PointOfSalesList = () => {
   } = useAccess();
 
   const [getPointsOfSales, paramsGetPointsOfSales] = useGetPointOfSales();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryPos = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingPointofsales,
+  );
 
   /**
    * @description cierra el modal y reinicia el estado del punto de venta
@@ -101,14 +108,18 @@ const PointOfSalesList = () => {
    * @param filters filtros para realizar la consulta
    */
   const onSearch = (filters?: FiltersPointOfSalesInput) => {
-    getPointsOfSales({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
+    try {
+      getPointsOfSales({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -205,9 +216,15 @@ const PointOfSalesList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryPos) {
+      showError('No tiene permisos para consultar los puntos de venta');
+    }
+  }, [canQueryPos]);
+
   const column: ColumnsType<PointOfSale> = [
     {
-      title: <>{<ProfileOutlined />} Nombre</>,
+      title: <Text>{<ProfileOutlined />} Nombre</Text>,
       dataIndex: 'name',
       align: 'center',
       sorter: true,
@@ -250,7 +267,8 @@ const PointOfSalesList = () => {
       render: (_, pointOfSaleId: PointOfSale) => (
         <Tooltip title="Editar">
           <Button
-            disabled={paramsGetPointsOfSales?.loading || !canEdit}
+            disabled={!canEdit}
+            loading={paramsGetPointsOfSales?.loading}
             type="primary"
             color="secondary"
             icon={<EditOutlined />}
@@ -283,7 +301,7 @@ const PointOfSalesList = () => {
               <FormItem>
                 <Space>
                   <Button
-                    disabled={paramsGetPointsOfSales?.loading}
+                    loading={paramsGetPointsOfSales?.loading}
                     type="primary"
                     htmlType="submit"
                     style={styles.buttonR}
@@ -292,7 +310,7 @@ const PointOfSalesList = () => {
                     Buscar
                   </Button>
                   <Button
-                    disabled={paramsGetPointsOfSales?.loading}
+                    loading={paramsGetPointsOfSales?.loading}
                     htmlType="reset"
                     onClick={onClear}
                     icon={<ClearOutlined />}
@@ -306,9 +324,10 @@ const PointOfSalesList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={styles.marginFIlters}>
-          <Col span={8}>
+          <Col span={12}>
             <Button
-              disabled={paramsGetPointsOfSales?.loading || !canCreate}
+              disabled={!canCreate}
+              loading={paramsGetPointsOfSales?.loading}
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
@@ -317,10 +336,10 @@ const PointOfSalesList = () => {
               Nuevo
             </Button>
           </Col>
-          <Col span={16} style={styles.alignText}>
+          <Col span={12} style={styles.alignText}>
             <Text strong>Total Encontrados: </Text>{' '}
-            {paramsGetPointsOfSales?.data?.pointOfSales?.totalDocs} <Text strong>Páginas: </Text>{' '}
-            {paramsGetPointsOfSales?.data?.pointOfSales?.page} /{' '}
+            {paramsGetPointsOfSales?.data?.pointOfSales?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {paramsGetPointsOfSales?.data?.pointOfSales?.page || 0} /{' '}
             {paramsGetPointsOfSales?.data?.pointOfSales?.totalPages || 0}
           </Col>
           <Col span={24}>
@@ -328,11 +347,13 @@ const PointOfSalesList = () => {
               onChange={handleChangeTable}
               columns={column}
               dataSource={paramsGetPointsOfSales?.data?.pointOfSales?.docs}
-              scroll={{ x: 'auto' }}
+              scroll={{ x: 900 }}
               pagination={{
                 current: paramsGetPointsOfSales?.data?.pointOfSales?.page,
                 total: paramsGetPointsOfSales?.data?.pointOfSales?.totalDocs,
+                showSizeChanger: false,
               }}
+              loading={paramsGetPointsOfSales?.loading}
             />
           </Col>
         </Row>

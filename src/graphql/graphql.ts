@@ -11,6 +11,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -7196,6 +7197,7 @@ export type LoginMutation = {
       };
       role: {
         __typename?: 'Role';
+        changeWarehouse: boolean;
         name: string;
         permissions: { __typename?: 'Permission'; action: Permissions }[];
       };
@@ -7505,9 +7507,6 @@ export type CitiesQuery = {
       _id: string;
       name: string;
       state: string;
-      defaultPostalCode: string;
-      code: string;
-      zone: ZoneType;
       updatedAt: any;
       country: { __typename?: 'Country'; name: string; prefix: string };
       user: { __typename?: 'User'; name: string };
@@ -7740,6 +7739,7 @@ export type CouponsQuery = {
       code: string;
       expiration: any;
       updatedAt: any;
+      createdAt: any;
     }[];
   };
 };
@@ -14311,6 +14311,7 @@ export const LoginDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             {
                               kind: 'Field',
@@ -15307,9 +15308,6 @@ export const CitiesDocument = {
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'state' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'defaultPostalCode' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'code' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'zone' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       {
                         kind: 'Field',
@@ -15898,6 +15896,7 @@ export const CouponsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'code' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                     ],
                   },
                 },
@@ -19895,7 +19894,6 @@ export const CurrentUserDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'permissions' },

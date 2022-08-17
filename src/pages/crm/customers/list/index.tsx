@@ -31,8 +31,10 @@ import type { SorterResult } from 'antd/lib/table/interface';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Customer, CustomerType, FiltersCustomersInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { useGetCustomers } from '@/hooks/customer.hooks';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useLocation, history } from 'umi';
 
@@ -69,6 +71,11 @@ const CustomerList = () => {
   } = useAccess();
 
   const [getCustomers, paramsGetCustomers] = useGetCustomers();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryCustomers = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadCrmCustomers,
+  );
 
   /**
    * @description funcion usada para mostrar los errores
@@ -115,14 +122,18 @@ const CustomerList = () => {
    * @param filters filtros para realizar la consulta
    */
   const onSearch = (filters?: FiltersCustomersInput) => {
-    getCustomers({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
+    try {
+      getCustomers({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -243,12 +254,18 @@ const CustomerList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryCustomers) {
+      showError('No tiene permisos para consultar los clientes');
+    }
+  }, [canQueryCustomers]);
+
   const column: ColumnsType<Customer> = [
     {
       title: (
-        <>
+        <Text>
           <UserOutlined /> Cliente
-        </>
+        </Text>
       ),
       dataIndex: 'firstName',
       align: 'center',
@@ -257,7 +274,7 @@ const CustomerList = () => {
       render: (_, customer: Customer) => (
         <Space direction="vertical" size={5}>
           <Text>
-            {} {customer?.firstName} {customer?.lastName}
+            {customer?.firstName} {customer?.lastName}
           </Text>
           <Tag style={styles.tagStyle}>
             {<IdcardOutlined />} {customer?.document}
@@ -267,20 +284,21 @@ const CustomerList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <MailOutlined /> Correo
-        </>
+        </Text>
       ),
       dataIndex: 'email',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
+      render: (email) => <Text>{email || '(No Registra Correo)'}</Text>,
     },
     {
       title: (
-        <>
+        <Text>
           <UserSwitchOutlined /> Tipo de Cliente
-        </>
+        </Text>
       ),
       dataIndex: 'customerType',
       align: 'center',
@@ -314,9 +332,9 @@ const CustomerList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <CalendarOutlined /> Fecha
-        </>
+        </Text>
       ),
       dataIndex: 'updatedAt',
       align: 'center',
@@ -324,9 +342,9 @@ const CustomerList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <MoreOutlined /> Opción
-        </>
+        </Text>
       ),
       dataIndex: '_id',
       align: 'center',
@@ -334,6 +352,7 @@ const CustomerList = () => {
         <Tooltip title="Editar">
           <Button
             onClick={() => visibleModalEdit(customerId)}
+            loading={paramsGetCustomers?.loading}
             type="primary"
             disabled={paramsGetCustomers?.loading || !canEdit}
             icon={<EditFilled />}
@@ -350,7 +369,10 @@ const CustomerList = () => {
           <Row gutter={30}>
             <Col xs={24} md={9} lg={9} xl={9}>
               <FormItem label="Dato" name="dato">
-                <Input placeholder="Correo, Nombre, Teléfono, Documento..." />
+                <Input
+                  disabled={paramsGetCustomers?.loading}
+                  placeholder="Correo, Nombre, Teléfono, Documento..."
+                />
               </FormItem>
             </Col>
             <Col xs={24} md={7} lg={7} xl={7}>
@@ -359,6 +381,7 @@ const CustomerList = () => {
                   style={styles.buttonR}
                   disabled={paramsGetCustomers?.loading}
                   icon={<SearchOutlined />}
+                  loading={paramsGetCustomers?.loading}
                   type="primary"
                   htmlType="submit"
                 >
@@ -368,6 +391,7 @@ const CustomerList = () => {
                   style={styles.buttonR}
                   disabled={paramsGetCustomers?.loading}
                   icon={<ClearOutlined />}
+                  loading={paramsGetCustomers?.loading}
                   onClick={onClear}
                 >
                   Limpiar
@@ -376,27 +400,30 @@ const CustomerList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]} align="middle" style={styles.marginFilter}>
-          <Col xs={12} md={15} lg={16}>
+        <Row gutter={[0, 15]} align="middle" style={styles.marginFilter}>
+          <Col xs={6} md={15} lg={16}>
             <Button
               icon={<PlusOutlined />}
               type="primary"
               disabled={paramsGetCustomers?.loading || !canCreate}
               shape="round"
+              loading={paramsGetCustomers?.loading}
               onClick={() => visibleModalEdit()}
             >
               Nuevo
             </Button>
           </Col>
-          <Col xs={12} md={9} lg={8} style={{ textAlign: 'right' }}>
-            <Text strong>Total Encontrados:</Text> {paramsGetCustomers?.data?.customers?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {paramsGetCustomers?.data?.customers?.page} /{' '}
-            {paramsGetCustomers.data?.customers?.totalPages}
+          <Col xs={24} md={9} lg={8} style={{ textAlign: 'right' }}>
+            <Text strong>Total Encontrados:</Text>{' '}
+            {paramsGetCustomers?.data?.customers?.totalDocs || 0} <Text strong>Páginas: </Text>{' '}
+            {paramsGetCustomers?.data?.customers?.page || 0} /{' '}
+            {paramsGetCustomers.data?.customers?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
               onChange={handleChangeTable}
               columns={column}
+              loading={paramsGetCustomers?.loading}
               dataSource={paramsGetCustomers?.data?.customers?.docs}
               scroll={{ x: 'auto' }}
               pagination={{

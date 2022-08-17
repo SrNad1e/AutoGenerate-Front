@@ -7,7 +7,6 @@ import {
   MoreOutlined,
   PlusOutlined,
   SearchOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -20,7 +19,6 @@ import {
   Row,
   Space,
   Table,
-  Tag,
   Tooltip,
   Typography,
 } from 'antd';
@@ -28,8 +26,9 @@ import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/
 import type { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
 import { useGetPayments } from '@/hooks/payment.hooks';
-import type { FiltersPaymentsInput, Payment, ResponsePayments, User } from '@/graphql/graphql';
-import { useHistory, useLocation } from 'umi';
+import type { FiltersPaymentsInput, Payment, ResponsePayments } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
+import { useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 import { useAccess } from 'umi';
 import moment from 'moment';
@@ -68,6 +67,11 @@ const PaymentsMethodsList = () => {
   } = useAccess();
 
   const [getPayments, paramsGetPayments] = useGetPayments();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryPayments = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadTreasuryPayments,
+  );
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -114,14 +118,18 @@ const PaymentsMethodsList = () => {
    * @param values filtros necesarios para la busqueda
    */
   const onSearch = (values?: FiltersPaymentsInput) => {
-    getPayments({
-      variables: {
-        input: {
-          limit: 10,
-          ...values,
+    try {
+      getPayments({
+        variables: {
+          input: {
+            limit: 10,
+            ...values,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -255,6 +263,12 @@ const PaymentsMethodsList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryPayments) {
+      messageError('No tiene permisos para consultar los pagos');
+    }
+  }, [canQueryPayments]);
+
   const columns: ColumnsType<Payment> = [
     {
       title: <Text>{<DollarOutlined />} Nombre</Text>,
@@ -262,12 +276,6 @@ const PaymentsMethodsList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-    },
-    {
-      title: <Text>{<UserOutlined />} Creado Por</Text>,
-      dataIndex: 'user',
-      align: 'center',
-      render: (user: User) => <Tag style={styles.tagStyle}>{user?.name}</Tag>,
     },
     {
       title: 'Activo',
@@ -303,17 +311,18 @@ const PaymentsMethodsList = () => {
       render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
-      title: <Text>{<MoreOutlined />} Opciones</Text>,
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
       render: (_: string, paymentId) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
-            disabled={paramsGetPayments?.loading || !canEdit}
+            disabled={!canEdit}
             onClick={() => openForm(paymentId)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
+            loading={paramsGetPayments.loading}
           />
         </Tooltip>
       ),
@@ -324,7 +333,7 @@ const PaymentsMethodsList = () => {
     <PageContainer>
       <Card>
         <Form form={form} onFinish={onFinish}>
-          <Row gutter={[20, 20]} align="middle">
+          <Row gutter={[20, 0]} align="middle">
             <Col xs={24} md={8} lg={9} xl={7}>
               <FormItem label="Nombre" name="name">
                 <Input
@@ -341,12 +350,12 @@ const PaymentsMethodsList = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
-                    disabled={paramsGetPayments?.loading}
+                    loading={paramsGetPayments?.loading}
                   >
                     Buscar
                   </Button>
                   <Button
-                    disabled={paramsGetPayments?.loading}
+                    loading={paramsGetPayments?.loading}
                     style={styles.buttonR}
                     htmlType="reset"
                     onClick={onClear}
@@ -358,10 +367,11 @@ const PaymentsMethodsList = () => {
               </FormItem>
             </Col>
           </Row>
-          <Row gutter={[0, 20]} align="middle" style={styles?.marginFilters}>
-            <Col span={8}>
+          <Row gutter={[0, 15]} align="middle" style={styles?.marginFilters}>
+            <Col span={12}>
               <Button
-                disabled={paramsGetPayments.loading || !canCreate}
+                disabled={!canCreate}
+                loading={paramsGetPayments.loading}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
@@ -370,9 +380,10 @@ const PaymentsMethodsList = () => {
                 Nuevo
               </Button>
             </Col>
-            <Col span={16} style={styles.alignText}>
-              <Text strong>Total Encontrados:</Text> {paramsGetPayments?.data?.payments?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {paramsGetPayments?.data?.payments?.page} /{' '}
+            <Col span={12} style={styles.alignText}>
+              <Text strong>Total Encontrados:</Text>{' '}
+              {paramsGetPayments?.data?.payments?.totalDocs || 0} <Text strong>Páginas: </Text>{' '}
+              {paramsGetPayments?.data?.payments?.page || 0} /{' '}
               {paramsGetPayments?.data?.payments?.totalPages || 0}
             </Col>
             <Col span={24}>
@@ -381,9 +392,11 @@ const PaymentsMethodsList = () => {
                 columns={columns}
                 dataSource={paramsGetPayments?.data?.payments?.docs}
                 scroll={{ x: 'auto' }}
+                loading={paramsGetPayments.loading}
                 pagination={{
                   current: paramsGetPayments?.data?.payments?.page,
                   total: paramsGetPayments?.data?.payments?.totalDocs,
+                  showSizeChanger: false,
                 }}
               />
             </Col>
