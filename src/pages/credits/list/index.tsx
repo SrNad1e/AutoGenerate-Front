@@ -20,13 +20,13 @@ import type {
   SorterResult,
   TablePaginationConfig,
 } from 'antd/lib/table/interface';
-import type { Credit, Customer, FiltersCreditsInput } from '@/graphql/graphql';
+import { Credit, Customer, FiltersCreditsInput, Permissions } from '@/graphql/graphql';
 import { StatusCredit } from '@/graphql/graphql';
 import { useGetCredits, useUpdateCredit } from '@/hooks/credit.hooks';
 import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useState } from 'react';
-import { useAccess, useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 
 import Filters from '@/components/Filters';
@@ -67,6 +67,11 @@ const CreditsList = () => {
   const [getCredits, { data, loading }] = useGetCredits();
   const [updateCredit, paramsUpdate] = useUpdateCredit();
 
+  const { initialState } = useModel('@@initialState');
+  const canQueryCredit = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadCredits,
+  );
+
   /**
    * @description cierra el modal del historico
    */
@@ -99,7 +104,7 @@ const CreditsList = () => {
   const showError = (message: string) => {
     setAlertInformation({
       message,
-      type: 'warning',
+      type: 'error',
       visible: true,
     });
   };
@@ -246,6 +251,12 @@ const CreditsList = () => {
   useEffect(() => {
     loadingData();
   }, []);
+
+  useEffect(() => {
+    if (!canQueryCredit) {
+      showError('No tiene permisos para consultar los creditos');
+    }
+  }, [canQueryCredit]);
 
   const column: ColumnsType<Credit> = [
     {
@@ -422,8 +433,9 @@ const CreditsList = () => {
         </Form>
         <Row gutter={[0, 20]} align="middle">
           <Col span={24} style={styles.alignText}>
-            <Text strong>Total Encontrados:</Text> {data?.credits?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.credits?.page} / {data?.credits?.totalPages || 0}
+            <Text strong>Total Encontrados:</Text> {data?.credits?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.credits?.page || 0} /{' '}
+            {data?.credits?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table

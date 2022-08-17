@@ -26,13 +26,13 @@ import {
 } from 'antd';
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { history, Link, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-import type { FiltersReferencesInput, Reference } from '@/graphql/graphql';
+import { FiltersReferencesInput, Permissions, Reference } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectBrand from '@/components/SelectBrand';
 import EditModal from '../components/EditModal';
@@ -69,6 +69,11 @@ const ReferenceList = () => {
   } = useAccess();
 
   const [getReferences, { data, loading }] = useGetReferences();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryReference = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventoryReferences,
+  );
 
   /**
    * @description funcion usada para mostrar los errores
@@ -235,6 +240,12 @@ const ReferenceList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryReference) {
+      showError('No tiene permisos para consultar las referencias');
+    }
+  }, [canQueryReference]);
+
   const columns: ColumnsType<Partial<Reference>> = [
     {
       title: <Text>{<FileTextOutlined />} Referencia</Text>,
@@ -397,7 +408,7 @@ const ReferenceList = () => {
               </Space>
             </Col>
           </Row>
-          <Row gutter={[0, 20]} align="middle" style={{ marginTop: 20 }}>
+          <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
             <Col span={12}>
               <Button
                 icon={<PlusOutlined />}
@@ -412,9 +423,9 @@ const ReferenceList = () => {
             </Col>
             <Col span={12} className={style.textRight}>
               <Text>
-                <Text strong>Total Encontrados:</Text> {data?.references?.totalDocs}{' '}
-                <Text strong>Páginas:</Text> {data?.references?.page} /{' '}
-                {data?.references?.totalPages || 1}
+                <Text strong>Total Encontrados:</Text> {data?.references?.totalDocs || 0}{' '}
+                <Text strong>Páginas:</Text> {data?.references?.page || 0} /{' '}
+                {data?.references?.totalPages || 0}
               </Text>
             </Col>
             <Col span={24}>

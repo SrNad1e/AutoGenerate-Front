@@ -12,7 +12,7 @@ export default defineConfig({
     CDN_URL: CDN_URL || 'https://toulouse-storage.s3.amazonaws.com',
     COMPANY_ID: COMPANY_ID || '629facb5e4251f089ecd274f',
     FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
-    FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD',
+    FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD HH:mm:ss',
   },
   hash: true,
   antd: {},

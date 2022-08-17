@@ -25,7 +25,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
 
@@ -33,7 +33,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import { useGetSizes } from '@/hooks/size.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import CreateSize from '@/components/CreateSize';
-import type { FiltersSizesInput, Size } from '@/graphql/graphql';
+import { FiltersSizesInput, Permissions, Size } from '@/graphql/graphql';
 
 import styles from './style.less';
 import Filters from '@/components/Filters';
@@ -68,6 +68,11 @@ const SizesList = () => {
   } = useAccess();
 
   const [getSizes, { data, loading }] = useGetSizes();
+
+  const { initialState } = useModel('@@initialState');
+  const canQuerySizes = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventorySizes,
+  );
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -256,6 +261,12 @@ const SizesList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQuerySizes) {
+      showError('No tiene permisos para consultar las tallas');
+    }
+  }, [canQuerySizes]);
+
   /**
    * @description se encarga de renderizar la interfaz de busqueda
    */
@@ -376,7 +387,7 @@ const SizesList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row gutter={[0, 20]} align="middle">
+          <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
             <Col span={11}>
               <Button
                 disabled={!canCreate}
@@ -390,8 +401,9 @@ const SizesList = () => {
               </Button>
             </Col>
             <Col span={13} className={styles.alignRigth}>
-              <Text strong>Total Encontrados:</Text> {data?.sizes?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.sizes?.page} / {data?.sizes?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.sizes?.totalDocs || 0}{' '}
+              <Text strong>Páginas: </Text> {data?.sizes?.page || 0} /{' '}
+              {data?.sizes?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table

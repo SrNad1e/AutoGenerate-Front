@@ -32,6 +32,7 @@ import type { ColumnsType, FilterValue, SorterResult } from 'antd/es/table/inter
 import moment from 'moment';
 import type { Moment } from 'moment';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useHistory, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
 import { useEffect, useState, useRef } from 'react';
@@ -44,6 +45,7 @@ import type {
   FiltersReturnsOrderInput,
   Coupon,
 } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { useReactToPrint } from 'react-to-print';
 
 import { useGetReturnsOrder } from '@/hooks/return-order.hooks';
@@ -97,6 +99,11 @@ const ReturnList = () => {
   const handlePrintReturn = useReactToPrint({
     content: () => reportRef1?.current,
   });
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryReturn = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingReturns,
+  );
 
   /**
    * @description se encarga de seleccionar el ajuste e imprime
@@ -302,8 +309,16 @@ const ReturnList = () => {
   };
 
   useEffect(() => {
-    getFiltersQuery();
+    if (canQueryReturn) {
+      getFiltersQuery();
+    }
   }, []);
+
+  useEffect(() => {
+    if (!canQueryReturn) {
+      messageError('No tiene permisos para consultar las devoluciones');
+    }
+  }, [canQueryReturn]);
 
   const columns: ColumnsType<ReturnOrder> = [
     {

@@ -34,10 +34,10 @@ import { useEffect, useState } from 'react';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import moment from 'moment';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { history, useLocation, useAccess } from 'umi';
 import CreateColors from '@/components/CreateColor';
-import type { Color, FiltersColorsInput } from '@/graphql/graphql';
+import { Color, FiltersColorsInput, Permissions } from '@/graphql/graphql';
 
 import styles from './styles.less';
 import Filters from '@/components/Filters';
@@ -67,6 +67,11 @@ const ColorsList = () => {
   } = useAccess();
 
   const [getColors, { data, loading }] = useGetColors();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryColors = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventoryColors,
+  );
 
   /**
    * @description funcion usada para mostrar los errores
@@ -246,6 +251,12 @@ const ColorsList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryColors) {
+      showError('No tiene permisos para consultar los colores');
+    }
+  }, [canQueryColors]);
+
   /**
    * @description se encarga de renderizar la interfaz de busqueda
    */
@@ -385,7 +396,7 @@ const ColorsList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row gutter={[0, 20]} align="middle">
+          <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
             <Col span={12}>
               <Button
                 disabled={!canCreate}
@@ -399,8 +410,9 @@ const ColorsList = () => {
               </Button>
             </Col>
             <Col span={12} className={styles.alignRigth}>
-              <Text strong>Total Encontrados:</Text> {data?.colors?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.colors?.page} / {data?.colors?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.colors?.totalDocs || 0}{' '}
+              <Text strong>Páginas: </Text> {data?.colors?.page || 0} /{' '}
+              {data?.colors?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table

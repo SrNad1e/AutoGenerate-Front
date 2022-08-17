@@ -3,6 +3,8 @@ import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetCustomers } from '@/hooks/customer.hooks';
+import { useModel } from 'umi';
+import { Permissions } from '@/graphql/graphql';
 
 const { Option } = Select;
 
@@ -15,6 +17,10 @@ export type Params = {
 const SearchCustomer = ({ onChange, disabled, value }: Params) => {
   const [getCustomers, { loading, data, error }] = useGetCustomers();
 
+  const { initialState } = useModel('@@initialState');
+  const canQueryCustomer = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadCrmCustomers,
+  );
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
@@ -30,11 +36,13 @@ const SearchCustomer = ({ onChange, disabled, value }: Params) => {
   };
 
   useEffect(() => {
-    getCustomers({
-      variables: {
-        input: {},
-      },
-    });
+    if (canQueryCustomer) {
+      getCustomers({
+        variables: {
+          input: {},
+        },
+      });
+    }
   }, []);
 
   return (
@@ -57,6 +65,9 @@ const SearchCustomer = ({ onChange, disabled, value }: Params) => {
           </Option>
         ))}
       </Select>
+      {!canQueryCustomer && (
+        <Alert message="No tiene permiso para consultar los clientes" type="error" showIcon />
+      )}
       {error && <Alert message={error} type="info" showIcon />}
     </>
   );

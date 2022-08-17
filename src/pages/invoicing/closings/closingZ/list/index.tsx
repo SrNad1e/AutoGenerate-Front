@@ -8,6 +8,7 @@ import type {
   SummaryOrderClose,
   User,
 } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import {
   CalendarOutlined,
   ClearOutlined,
@@ -48,6 +49,7 @@ import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
 import { useEffect, useRef, useState } from 'react';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 
 import CloseDay from '../components/DayClose';
@@ -98,6 +100,11 @@ const ClosingZList = () => {
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryClosingZ = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingClosesz,
+  );
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -260,6 +267,12 @@ const ClosingZList = () => {
     onFinish(newFilters);
   }, []);
 
+  useEffect(() => {
+    if (!canQueryClosingZ) {
+      messageError('No tiene permisos para consultar los cierre z');
+    }
+  }, [canQueryClosingZ]);
+
   const columns: ColumnsType<Partial<CloseZInvoicing>> = [
     {
       title: (
@@ -347,7 +360,7 @@ const ClosingZList = () => {
     <PageContainer>
       <Card bordered={false}>
         <Form form={form} onFinish={onFinish} initialValues={filters}>
-          <Row gutter={[20, 0]} align="middle">
+          <Row gutter={[20, 0]}>
             <Col xs={24} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">
                 <Input style={{ width: '100%' }} disabled={loading} placeholder="Ejem: 10" />
@@ -407,8 +420,8 @@ const ClosingZList = () => {
             </Button>
           </Col>
           <Col xs={24} md={9} lg={9} style={{ textAlign: 'right' }}>
-            <Text strong>Total Encontrados:</Text> {data?.closesZInvoicing?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.closesZInvoicing?.page} /{' '}
+            <Text strong>Total Encontrados:</Text> {data?.closesZInvoicing?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.closesZInvoicing?.page || 0} /{' '}
             {data?.closesZInvoicing?.totalPages || 0}
           </Col>
           <Col span={24}>

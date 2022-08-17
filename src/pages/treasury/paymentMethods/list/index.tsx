@@ -28,8 +28,14 @@ import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/
 import type { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
 import { useGetPayments } from '@/hooks/payment.hooks';
-import type { FiltersPaymentsInput, Payment, ResponsePayments, User } from '@/graphql/graphql';
-import { useHistory, useLocation } from 'umi';
+import {
+  FiltersPaymentsInput,
+  Payment,
+  Permissions,
+  ResponsePayments,
+  User,
+} from '@/graphql/graphql';
+import { useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 import { useAccess } from 'umi';
 import moment from 'moment';
@@ -68,6 +74,11 @@ const PaymentsMethodsList = () => {
   } = useAccess();
 
   const [getPayments, paramsGetPayments] = useGetPayments();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryPayments = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadTreasuryPayments,
+  );
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -255,6 +266,12 @@ const PaymentsMethodsList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryPayments) {
+      messageError('No tiene permisos para consultar los pagos');
+    }
+  }, [canQueryPayments]);
+
   const columns: ColumnsType<Payment> = [
     {
       title: <Text>{<DollarOutlined />} Nombre</Text>,
@@ -371,8 +388,9 @@ const PaymentsMethodsList = () => {
               </Button>
             </Col>
             <Col span={16} style={styles.alignText}>
-              <Text strong>Total Encontrados:</Text> {paramsGetPayments?.data?.payments?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {paramsGetPayments?.data?.payments?.page} /{' '}
+              <Text strong>Total Encontrados:</Text>{' '}
+              {paramsGetPayments?.data?.payments?.totalDocs || 0} <Text strong>Páginas: </Text>{' '}
+              {paramsGetPayments?.data?.payments?.page || 0} /{' '}
               {paramsGetPayments?.data?.payments?.totalPages || 0}
             </Col>
             <Col span={24}>

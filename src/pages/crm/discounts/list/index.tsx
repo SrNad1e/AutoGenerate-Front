@@ -29,9 +29,9 @@ import {
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import type { SorterResult } from 'antd/lib/table/interface';
-import type { DiscountRule, FiltersDiscountRulesInput, Rule } from '@/graphql/graphql';
+import { DiscountRule, FiltersDiscountRulesInput, Permissions, Rule } from '@/graphql/graphql';
 import { useEffect, useState } from 'react';
-import { useAccess } from 'umi';
+import { useAccess, useModel } from 'umi';
 import type { Location } from 'umi';
 import { useLocation, history } from 'umi';
 import moment from 'moment';
@@ -73,6 +73,11 @@ const DiscountList = () => {
   } = useAccess();
 
   const [getDiscountRules, paramsGetDiscountRules] = useGetDiscountsRules();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryDiscounts = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadCrmDiscountrules,
+  );
 
   /**
    * @description funcion usada para mostrar los errores
@@ -254,6 +259,12 @@ const DiscountList = () => {
   useEffect(() => {
     loadingData();
   }, []);
+
+  useEffect(() => {
+    if (!canQueryDiscounts) {
+      showError('No tiene permisos para consultar los descuentos');
+    }
+  }, [canQueryDiscounts]);
 
   const column: ColumnsType<DiscountRule> = [
     {
@@ -446,7 +457,7 @@ const DiscountList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]} align="middle" style={styles.marginFilter}>
+        <Row gutter={[0, 15]} align="middle" style={styles.marginFilter}>
           <Col xs={12} md={15} lg={16}>
             <Button
               icon={<PlusOutlined />}

@@ -33,10 +33,10 @@ import type { SorterResult } from 'antd/lib/table/interface';
 import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useRef, useState } from 'react';
-import type { Box, Expense, FiltersExpensesInput } from '@/graphql/graphql';
+import { Box, Expense, FiltersExpensesInput, Permissions } from '@/graphql/graphql';
 import { StatusExpense } from '@/graphql/graphql';
 import { useGetExpenses, useUpdateExpense } from '@/hooks/expense.hooks';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useReactToPrint } from 'react-to-print';
 import { useHistory, useLocation } from 'umi';
@@ -83,6 +83,11 @@ const ExpensesList = () => {
   const [getExpenses, { data, loading }] = useGetExpenses();
   const [updateExpenses, paramsUpdate] = useUpdateExpense();
 
+  const { initialState } = useModel('@@initialState');
+  const canQueryExpense = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadTreasuryExpenses,
+  );
+
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
@@ -99,7 +104,7 @@ const ExpensesList = () => {
   const showError = (message: string) => {
     setAlertInformation({
       message,
-      type: 'warning',
+      type: 'error',
       visible: true,
     });
   };
@@ -275,6 +280,12 @@ const ExpensesList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryExpense) {
+      showError('No tiene permisos para consultar los egresos');
+    }
+  }, [canQueryExpense]);
+
   const column: ColumnsType<Expense> = [
     {
       title: (
@@ -441,8 +452,9 @@ const ExpensesList = () => {
             </Button>
           </Col>
           <Col xs={16} md={9} lg={8} style={styles.alingText}>
-            <Text strong>Total Encontrados:</Text> {data?.expenses?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.expenses?.page} / {data?.expenses?.totalPages || 0}
+            <Text strong>Total Encontrados:</Text> {data?.expenses?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.expenses?.page || 0} /{' '}
+            {data?.expenses?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table

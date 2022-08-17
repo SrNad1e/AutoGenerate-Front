@@ -14,6 +14,7 @@ import { Button, Card, Col, Form, Input, Row, Space, Table, Tooltip, Typography 
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useLocation, history, useAccess } from 'umi';
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 
@@ -27,6 +28,7 @@ import type {
   CategoryLevel3,
   FiltersCategoriesInput,
 } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 
 import styles from './styles.less';
 
@@ -62,6 +64,11 @@ const CategoryList = () => {
   } = useAccess();
 
   const [getCategories, { data, loading }] = useGetCategories();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryCategories = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventoryCategories,
+  );
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -271,6 +278,12 @@ const CategoryList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryCategories) {
+      showError('No tiene permisos para consultar las categorias');
+    }
+  }, [canQueryCategories]);
+
   /**
    * @description se encarga de renderizar la interfaz de busqueda
    */
@@ -382,7 +395,7 @@ const CategoryList = () => {
     >
       <Card className={styles.tableList}>
         <div className={styles.tableListForm}>{renderFormSearch()}</div>
-        <Row gutter={[0, 20]} align="middle">
+        <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
           <Col span={12}>
             <Button
               icon={<PlusOutlined />}
@@ -396,8 +409,8 @@ const CategoryList = () => {
             </Button>
           </Col>
           <Col span={12} className={styles.alignRigth}>
-            <Text strong>Total Encontrados:</Text> {data?.categories.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.categories.page} /{' '}
+            <Text strong>Total Encontrados:</Text> {data?.categories.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.categories.page || 0} /{' '}
             {data?.categories.totalPages || 0}
           </Col>
           <Col span={24}>

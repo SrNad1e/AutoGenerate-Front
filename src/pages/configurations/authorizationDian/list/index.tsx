@@ -15,7 +15,9 @@ import type { ColumnsType, SorterResult } from 'antd/lib/table/interface';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { AuthorizationDian, FiltersAuthorizationInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useLocation, history } from 'umi';
 import { useGetAuthorizations } from '@/hooks/authorization.hooks';
@@ -50,6 +52,11 @@ const AuthorizationDianList = () => {
   } = useAccess();
 
   const [getAuthorizations, paramsGetAuthorizations] = useGetAuthorizations();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryAuthorizations = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingAuthorizations,
+  );
 
   /**
    * @description cierra el modal y reinicia el estado de la autorizacion
@@ -96,14 +103,18 @@ const AuthorizationDianList = () => {
    * @param filters filtros para realizar la consulta
    */
   const onSearch = (filters?: FiltersAuthorizationInput) => {
-    getAuthorizations({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
+    try {
+      getAuthorizations({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -200,6 +211,12 @@ const AuthorizationDianList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryAuthorizations) {
+      showError('No tiene permisos para consultar las autorizaciones');
+    }
+  }, [canQueryAuthorizations]);
+
   const column: ColumnsType<AuthorizationDian> = [
     {
       title: <Text>{<FileProtectOutlined />} Prefijo</Text>,
@@ -223,7 +240,8 @@ const AuthorizationDianList = () => {
       render: (_, authorizationId) => (
         <Tooltip title="Editar">
           <Button
-            disabled={paramsGetAuthorizations?.loading || !canEdit}
+            disabled={!canEdit}
+            loading={paramsGetAuthorizations?.loading}
             type="primary"
             color="secondary"
             icon={<EditOutlined />}
@@ -251,7 +269,7 @@ const AuthorizationDianList = () => {
               <FormItem>
                 <Space>
                   <Button
-                    disabled={paramsGetAuthorizations?.loading}
+                    loading={paramsGetAuthorizations?.loading}
                     type="primary"
                     htmlType="submit"
                     style={styles.buttonR}
@@ -260,7 +278,7 @@ const AuthorizationDianList = () => {
                     Buscar
                   </Button>
                   <Button
-                    disabled={paramsGetAuthorizations?.loading}
+                    loading={paramsGetAuthorizations?.loading}
                     htmlType="reset"
                     onClick={onClear}
                     icon={<ClearOutlined />}
@@ -276,10 +294,11 @@ const AuthorizationDianList = () => {
         <Row gutter={[0, 15]} align="middle" style={styles.marginFIlters}>
           <Col span={8}>
             <Button
-              disabled={paramsGetAuthorizations?.loading || !canCreate}
+              disabled={!canCreate}
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
+              loading={paramsGetAuthorizations?.loading}
               onClick={() => onOpenModal()}
             >
               Nuevo
@@ -287,19 +306,22 @@ const AuthorizationDianList = () => {
           </Col>
           <Col span={16} style={styles.alignText}>
             <Text strong>Total Encontrados: </Text>{' '}
-            {paramsGetAuthorizations?.data?.authorizations?.totalDocs} <Text strong>Páginas: </Text>{' '}
-            {paramsGetAuthorizations?.data?.authorizations?.page} /{' '}
+            {paramsGetAuthorizations?.data?.authorizations?.totalDocs || 0}{' '}
+            <Text strong> Páginas: </Text>{' '}
+            {paramsGetAuthorizations?.data?.authorizations?.page || 0} /{' '}
             {paramsGetAuthorizations?.data?.authorizations?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
               onChange={handleChangeTable}
               columns={column}
+              loading={paramsGetAuthorizations?.loading}
               dataSource={paramsGetAuthorizations?.data?.authorizations?.docs}
               scroll={{ x: 'auto' }}
               pagination={{
                 current: paramsGetAuthorizations?.data?.authorizations?.page,
                 total: paramsGetAuthorizations?.data?.authorizations?.totalDocs,
+                showSizeChanger: false,
               }}
             />
           </Col>

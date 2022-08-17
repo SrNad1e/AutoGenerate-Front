@@ -76,7 +76,7 @@ export const typesAccess = {
     ],
   },
   '/inventory/configurations/reference': {
-    access: [Permissions.ReadInventoryReferences],
+    access: [Permissions.AccessInventoryReferences],
   },
   '/inventory/configurations/reference/new': {
     access: [Permissions.CreateInventoryReference],
@@ -85,19 +85,19 @@ export const typesAccess = {
     access: [Permissions.UpdateInventoryReference],
   },
   '/inventory/configurations/color': {
-    access: [Permissions.ReadInventoryColors],
+    access: [Permissions.AccessInventoryColors],
   },
   '/inventory/configurations/categories': {
-    access: [Permissions.ReadInventoryCategories],
+    access: [Permissions.AccessInventoryCategories],
   },
   '/inventory/configurations/size': {
-    access: [Permissions.ReadInventorySizes],
+    access: [Permissions.AccessInventorySizes],
   },
   '/inventory/configurations/attribs': {
-    access: [Permissions.ReadInventoryAttribs],
+    access: [Permissions.AccessInventoryAttribs],
   },
   '/inventory/configurations/brand': {
-    access: [Permissions.ReadInventoryBrands],
+    access: [Permissions.AccessInventoryBrands],
   },
   '/inventory/transfer': {
     access: [Permissions.AccessInventoryTransfers],
@@ -129,10 +129,10 @@ export const typesAccess = {
     access: [Permissions.AccessInvoicingClosesx, Permissions.AccessInvoicingClosesz],
   },
   '/invoicing/closings/closingX': {
-    access: [Permissions.ReadInvoicingClosesx],
+    access: [Permissions.AccessInvoicingClosesx],
   },
   '/invoicing/closings/closingZ': {
-    access: [Permissions.ReadInvoicingClosesz],
+    access: [Permissions.AccessInvoicingClosesz],
   },
   '/configurations': {
     access: [
@@ -141,16 +141,17 @@ export const typesAccess = {
       Permissions.AccessConfigurationShops,
       Permissions.AccessInvoicingPointofsales,
       Permissions.AccessInvoicingAuthorizations,
+      Permissions.AccessConfigurationWarehouses,
     ],
   },
   '/configurations/pointOfSale': {
-    access: [Permissions.ReadInvoicingPointofsales],
+    access: [Permissions.AccessInvoicingPointofsales],
   },
   '/configurations/authorizationDian': {
-    access: [Permissions.ReadInvoicingAuthorizations],
+    access: [Permissions.AccessInvoicingAuthorizations],
   },
   '/configurations/users': {
-    access: [Permissions.ReadConfigurationUsers],
+    access: [Permissions.AccessConfigurationUsers],
   },
   '/configurations/roles': {
     access: [Permissions.AccessConfigurationRoles],
@@ -165,13 +166,13 @@ export const typesAccess = {
     access: [Permissions.UpdateConfigurationRole],
   },
   '/configurations/warehouse': {
-    access: [Permissions.ReadConfigurationWarehouses],
+    access: [Permissions.AccessConfigurationWarehouses],
   },
   '/configurations/shop': {
-    access: [Permissions.ReadConfigurationShops],
+    access: [Permissions.AccessConfigurationShops],
   },
   '/invoicing/return': {
-    access: [Permissions.ReadInvoicingReturns],
+    access: [Permissions.AccessInvoicingReturns],
   },
   //POS
   '/pos': {
@@ -184,10 +185,10 @@ export const typesAccess = {
     access: [Permissions.AccessPos],
   },
   '/pos/closes/closingX': {
-    access: [Permissions.ReadInvoicingClosesx],
+    access: [Permissions.AccessInvoicingClosesx],
   },
   '/pos/closes/closingZ': {
-    access: [Permissions.ReadInvoicingClosesz],
+    access: [Permissions.AccessInvoicingClosesz],
   },
   //Treasury
   '/treasury': {
@@ -199,23 +200,23 @@ export const typesAccess = {
     ],
   },
   '/treasury/boxes': {
-    access: [Permissions.ReadTreasuryBoxes],
+    access: [Permissions.AccessTreasuryBoxes],
   },
   '/treasury/expenses': {
-    access: [Permissions.ReadTreasuryExpenses],
+    access: [Permissions.AccessTreasuryExpenses],
   },
-  '/treasury/receipt': {
-    access: [Permissions.ReadTreasuryReceipts],
+  '/treasury/cashReceipt': {
+    access: [Permissions.AccessTreasuryReceipt],
   },
   '/treasury/paymentMethods': {
-    access: [Permissions.ReadTreasuryPayments],
+    access: [Permissions.AccessTreasuryPayments],
   },
   //Wallets
-  '/wallets': {
+  '/credits': {
     access: [Permissions.AccessCredits],
   },
-  '/wallets/credits': {
-    access: [Permissions.ReadCredits],
+  '/credits/list': {
+    access: [Permissions.AccessCredits],
   },
   //crm
   '/crm': {
@@ -227,15 +228,15 @@ export const typesAccess = {
     ],
   },
   '/crm/customer': {
-    access: [Permissions.ReadCrmCustomers],
+    access: [Permissions.AccessCrmCustomers],
   },
   '/crm/cities': {
-    access: [Permissions.ReadCrmCities],
+    access: [Permissions.AccessCrmCities],
   },
   '/crm/coupon': {
-    access: [Permissions.ReadCrmCoupons],
+    access: [Permissions.AccessCrmCoupons],
   },
   '/crm/discount': {
-    access: [Permissions.ReadCrmDiscountrules],
+    access: [Permissions.AccessCrmDiscountrules],
   },
 };

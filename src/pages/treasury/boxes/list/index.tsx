@@ -25,10 +25,10 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import type { SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
-import type { Box, FiltersBoxesInput } from '@/graphql/graphql';
+import { Box, FiltersBoxesInput, Permissions } from '@/graphql/graphql';
 import { useGetBoxes } from '@/hooks/box.hooks';
 import moment from 'moment';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useLocation, history } from 'umi';
 import { useEffect, useState } from 'react';
@@ -64,6 +64,11 @@ const BoxList = () => {
   } = useAccess();
 
   const [getBoxes, paramsGetBoxes] = useGetBoxes();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryBox = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadTreasuryBoxes,
+  );
 
   /**
    * @description cierra el modal y reinicia el estado de la caja
@@ -230,6 +235,12 @@ const BoxList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryBox) {
+      showError('No tiene permisos para consultar las cajas');
+    }
+  }, [canQueryBox]);
+
   const column: ColumnsType<Box> = [
     {
       title: <Text>{<ProfileOutlined />} Nombre</Text>,
@@ -348,8 +359,8 @@ const BoxList = () => {
             </Button>
           </Col>
           <Col span={16} style={styles.alignText}>
-            <Text strong>Total Encontrados: </Text> {paramsGetBoxes?.data?.boxes?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {paramsGetBoxes?.data?.boxes?.page} /{' '}
+            <Text strong>Total Encontrados: </Text> {paramsGetBoxes?.data?.boxes?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {paramsGetBoxes?.data?.boxes?.page || 0} /{' '}
             {paramsGetBoxes?.data?.boxes?.totalPages || 0}
           </Col>
           <Col span={24}>

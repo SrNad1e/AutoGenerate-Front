@@ -24,7 +24,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
 
@@ -32,7 +32,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetAttribs } from '@/hooks/attrib.hooks';
 import CreateAttrib from '@/components/CreateAttrib';
-import type { Attrib, FiltersAttribsInput } from '@/graphql/graphql';
+import { Attrib, FiltersAttribsInput, Permissions } from '@/graphql/graphql';
 
 import styles from './styles.less';
 import Filters from '@/components/Filters';
@@ -67,6 +67,10 @@ const AttribsList = () => {
   } = useAccess();
 
   const [getAttribs, { data, loading }] = useGetAttribs();
+  const { initialState } = useModel('@@initialState');
+  const canQueryAttribs = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventoryAttribs,
+  );
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -250,6 +254,12 @@ const AttribsList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryAttribs) {
+      showError('No tiene permisos para consultar los atributos');
+    }
+  }, [canQueryAttribs]);
+
   /**
    * @description se encarga de renderizar la interfaz de busqueda
    */
@@ -374,7 +384,7 @@ const AttribsList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row gutter={[0, 20]} align="middle">
+          <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
             <Col span={12}>
               <Button
                 disabled={!canCreate}
@@ -388,8 +398,9 @@ const AttribsList = () => {
               </Button>
             </Col>
             <Col span={12} className={styles.alignRigth}>
-              <Text strong>Total Encontrados:</Text> {data?.attribs?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.attribs?.page} / {data?.attribs?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.attribs?.totalDocs || 0}{' '}
+              <Text strong>Páginas: </Text> {data?.attribs?.page || 0} /{' '}
+              {data?.attribs?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table

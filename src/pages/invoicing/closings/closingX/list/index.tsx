@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import type {
+import {
   CashRegister,
   CloseXInvoicing,
   FiltersClosesXInvoicingInput,
   PaymentOrderClose,
+  Permissions,
   PointOfSale,
   SummaryOrderClose,
   User,
@@ -48,7 +49,7 @@ import moment from 'moment';
 import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
 import { useEffect, useRef, useState } from 'react';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 
 import CloseDay from '../components/DayClose';
@@ -98,6 +99,11 @@ const ClosingXList = () => {
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryClosingX = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingClosesx,
+  );
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -260,6 +266,12 @@ const ClosingXList = () => {
     onFinish(newFilters);
   }, []);
 
+  useEffect(() => {
+    if (!canQueryClosingX) {
+      messageError('No tiene permisos para consultar los cierre x');
+    }
+  }, [canQueryClosingX]);
+
   const columns: ColumnsType<Partial<CloseXInvoicing>> = [
     {
       title: (
@@ -346,7 +358,7 @@ const ClosingXList = () => {
     <PageContainer>
       <Card bordered={false}>
         <Form form={form} onFinish={onFinish} initialValues={filters}>
-          <Row gutter={[20, 0]} align="middle">
+          <Row gutter={[20, 0]}>
             <Col xs={24} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">
                 <Input style={{ width: '100%' }} disabled={loading} placeholder="Ejem: 10" />

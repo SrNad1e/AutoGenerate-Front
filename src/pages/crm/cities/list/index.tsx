@@ -15,10 +15,11 @@ import type { TablePaginationConfig } from 'antd';
 import type { SorterResult } from 'antd/es/table/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
-import { useAccess, useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 import moment from 'moment';
 import type { City, Country, FiltersCitiesInput, FiltersUsersInput, User } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { useGetCities } from '@/hooks/cities.hooks';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -55,6 +56,11 @@ const CitiesList = () => {
   const {
     city: { canCreate, canEdit },
   } = useAccess();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryCities = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadCrmCities,
+  );
 
   /**
    * @description Cierra el modal y resetea el estado de la datacity
@@ -209,6 +215,12 @@ const CitiesList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryCities) {
+      showError('No tiene permisos para consultar las ciudades');
+    }
+  }, [canQueryCities]);
+
   const column: ColumnsType<City> = [
     {
       title: <Text>{<ScheduleOutlined />} Nombre</Text>,
@@ -304,7 +316,7 @@ const CitiesList = () => {
               </FormItem>
             </Col>
           </Row>
-          <Row gutter={[0, 20]} align="middle" style={styles.marginFilter}>
+          <Row gutter={[0, 15]} align="middle" style={styles.marginFilter}>
             <Col xs={6} md={15} lg={14}>
               <Button
                 disabled={!canCreate}
@@ -318,8 +330,9 @@ const CitiesList = () => {
               </Button>
             </Col>
             <Col xs={24} md={9} lg={10} style={styles.alignText}>
-              <Text strong>Total Encontrados:</Text> {data?.cities?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.cities?.page} / {data?.cities?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.cities?.totalDocs || 0}{' '}
+              <Text strong>Páginas: </Text> {data?.cities?.page || 0} /{' '}
+              {data?.cities?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table

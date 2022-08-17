@@ -29,13 +29,13 @@ import {
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import type { SorterResult } from 'antd/lib/table/interface';
-import type { FiltersReceiptsInput, Payment, Receipt } from '@/graphql/graphql';
+import { FiltersReceiptsInput, Payment, Permissions, Receipt } from '@/graphql/graphql';
 import { StatusReceipt } from '@/graphql/graphql';
 import { useGetReceipts, useUpdateReceipt } from '@/hooks/receipt.hooks';
 import { useEffect, useRef, useState } from 'react';
 import moment from 'moment';
 import numeral from 'numeral';
-import { useAccess, useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 
 import Filters from '@/components/Filters';
@@ -83,6 +83,11 @@ const CashReceiptList = () => {
   const [getReceipts, { data, loading }] = useGetReceipts();
   const [updateReceipt, paramsUpdate] = useUpdateReceipt();
 
+  const { initialState } = useModel('@@initialState');
+  const canQueryReceipts = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadTreasuryReceipts,
+  );
+
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
@@ -117,7 +122,7 @@ const CashReceiptList = () => {
   const showError = (message: string) => {
     setAlertInformation({
       message,
-      type: 'warning',
+      type: 'error',
       visible: true,
     });
   };
@@ -133,7 +138,7 @@ const CashReceiptList = () => {
           ...filters,
           sort: {
             createdAt: -1,
-            ...filters.sort,
+            ...filters?.sort,
           },
         },
       },
@@ -278,6 +283,12 @@ const CashReceiptList = () => {
   useEffect(() => {
     loadingData();
   }, []);
+
+  useEffect(() => {
+    if (!canQueryReceipts) {
+      showError('No tiene permisos para consultar los recibos de caja');
+    }
+  }, [canQueryReceipts]);
 
   const column: ColumnsType<Receipt> = [
     {
@@ -447,8 +458,9 @@ const CashReceiptList = () => {
             </Button>
           </Col>
           <Col xs={16} md={9} lg={8} style={styles.alingText}>
-            <Text strong>Total Encontrados:</Text> {data?.receipts?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.receipts?.page} / {data?.receipts?.totalPages || 0}
+            <Text strong>Total Encontrados:</Text> {data?.receipts?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.receipts?.page || 0} /{' '}
+            {data?.receipts?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
