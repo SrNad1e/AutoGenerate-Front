@@ -20,7 +20,8 @@ import type {
   SorterResult,
   TablePaginationConfig,
 } from 'antd/lib/table/interface';
-import { Credit, Customer, FiltersCreditsInput, Permissions } from '@/graphql/graphql';
+import type { Credit, Customer, FiltersCreditsInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { StatusCredit } from '@/graphql/graphql';
 import { useGetCredits, useUpdateCredit } from '@/hooks/credit.hooks';
 import moment from 'moment';
@@ -114,13 +115,17 @@ const CreditsList = () => {
    * @param filters Variables para ejecutar la consulta
    */
   const onSearch = async (filters?: FiltersCreditsInput) => {
-    getCredits({
-      variables: {
-        input: {
-          ...filters,
+    try {
+      getCredits({
+        variables: {
+          input: {
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -219,14 +224,18 @@ const CreditsList = () => {
    * @param statusUpdate estado al que se quiere cambiar
    */
   const updateCredits = (_id: string, statusUpdate: StatusCredit) => {
-    updateCredit({
-      variables: {
-        id: _id,
-        input: {
-          status: statusUpdate,
+    try {
+      updateCredit({
+        variables: {
+          id: _id,
+          input: {
+            status: statusUpdate,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -362,8 +371,8 @@ const CreditsList = () => {
             <Button
               style={{ backgroundColor: 'white' }}
               danger={credit.status === StatusCredit.Active ? true : false}
-              loading={paramsUpdate?.loading}
-              disabled={paramsUpdate?.loading || !canEdit}
+              loading={paramsUpdate?.loading || loading}
+              disabled={!canEdit}
               onClick={() =>
                 updateCredits(
                   id,
@@ -384,8 +393,7 @@ const CreditsList = () => {
           </Tooltip>
           <Tooltip title="Historicos">
             <Button
-              loading={paramsUpdate?.loading}
-              disabled={paramsUpdate?.loading}
+              loading={paramsUpdate?.loading || loading}
               onClick={() => onShowHistorical(credit)}
               type="primary"
               icon={<FieldTimeOutlined />}
@@ -401,7 +409,7 @@ const CreditsList = () => {
       <Card>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={20}>
-            <Col xs={24} md={11} lg={10} xl={9}>
+            <Col xs={24} md={8} lg={8} xl={8}>
               <FormItem label="Cliente" name="customerId">
                 <SearchCustomer disabled={loading || paramsUpdate?.loading} />
               </FormItem>
@@ -410,7 +418,7 @@ const CreditsList = () => {
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button
-                    disabled={loading || paramsUpdate?.loading}
+                    loading={loading || paramsUpdate?.loading}
                     style={styles.buttonR}
                     icon={<SearchOutlined />}
                     type="primary"
@@ -422,7 +430,7 @@ const CreditsList = () => {
                     style={styles.buttonR}
                     icon={<ClearOutlined />}
                     onClick={onClear}
-                    disabled={loading || paramsUpdate?.loading}
+                    loading={loading || paramsUpdate?.loading}
                   >
                     Limpiar
                   </Button>
@@ -431,7 +439,7 @@ const CreditsList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]} align="middle">
+        <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
           <Col span={24} style={styles.alignText}>
             <Text strong>Total Encontrados:</Text> {data?.credits?.totalDocs || 0}{' '}
             <Text strong>Páginas: </Text> {data?.credits?.page || 0} /{' '}
@@ -443,9 +451,11 @@ const CreditsList = () => {
               dataSource={data?.credits?.docs}
               scroll={{ x: 1000 }}
               onChange={handleChangeTable}
+              loading={loading || paramsUpdate.loading}
               pagination={{
                 current: data?.credits?.page,
                 total: data?.credits?.totalDocs,
+                showSizeChanger: false,
               }}
             />
           </Col>

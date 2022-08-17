@@ -292,7 +292,7 @@ const AuthorizationDianList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={styles.marginFIlters}>
-          <Col span={8}>
+          <Col span={12}>
             <Button
               disabled={!canCreate}
               icon={<PlusOutlined />}
@@ -304,7 +304,7 @@ const AuthorizationDianList = () => {
               Nuevo
             </Button>
           </Col>
-          <Col span={16} style={styles.alignText}>
+          <Col span={12} style={styles.alignText}>
             <Text strong>Total Encontrados: </Text>{' '}
             {paramsGetAuthorizations?.data?.authorizations?.totalDocs || 0}{' '}
             <Text strong> Páginas: </Text>{' '}

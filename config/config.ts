@@ -230,21 +230,15 @@ export default defineConfig({
               access: 'allowOption',
               routes: [
                 {
-                  name: 'Marcas',
-                  path: '/inventory/configurations/brand',
-                  component: './inventory/configurations/brand/list',
+                  name: 'Categorias',
+                  path: '/inventory/configurations/categories',
+                  component: './inventory/configurations/categories/list',
                   access: 'allowOption',
                 },
                 {
                   name: 'Atributos',
                   path: '/inventory/configurations/attribs',
                   component: './inventory/configurations/attribs/list',
-                  access: 'allowOption',
-                },
-                {
-                  name: 'Categorias',
-                  path: '/inventory/configurations/categories',
-                  component: './inventory/configurations/categories/list',
                   access: 'allowOption',
                 },
                 {
@@ -264,15 +258,21 @@ export default defineConfig({
                   access: 'allowOption',
                 },
                 {
+                  name: 'Tallas',
+                  path: '/inventory/configurations/size',
+                  component: './inventory/configurations/size/list',
+                  access: 'allowOption',
+                },
+                {
                   name: 'Colores',
                   path: '/inventory/configurations/color',
                   component: './inventory/configurations/color/list',
                   access: 'allowOption',
                 },
                 {
-                  name: 'Tallas',
-                  path: '/inventory/configurations/size',
-                  component: './inventory/configurations/size/list',
+                  name: 'Marcas',
+                  path: '/inventory/configurations/brand',
+                  component: './inventory/configurations/brand/list',
                   access: 'allowOption',
                 },
               ],
@@ -324,12 +324,6 @@ export default defineConfig({
           access: 'allowOption',
           routes: [
             {
-              name: 'Descuentos',
-              path: '/crm/discount',
-              component: './crm/discounts/list',
-              access: 'allowOption',
-            },
-            {
               name: 'Clientes',
               path: '/crm/customer',
               component: './crm/customers/list',
@@ -347,6 +341,58 @@ export default defineConfig({
               component: './crm/cities/list',
               access: 'allowOption',
             },
+            {
+              name: 'Descuentos',
+              path: '/crm/discount',
+              component: './crm/discounts/list',
+              access: 'allowOption',
+            },
+          ],
+        },
+        {
+          name: 'Tesoreria',
+          path: '/treasury',
+          icon: 'gold',
+          access: 'allowOption',
+          routes: [
+            {
+              name: 'Egresos',
+              path: '/treasury/expenses',
+              component: './treasury/expenses/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Cajas',
+              path: '/treasury/boxes',
+              component: './treasury/boxes/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Medios de Pago',
+              path: '/treasury/paymentMethods',
+              component: './treasury/paymentMethods/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Recibo de Cajas',
+              path: '/treasury/cashReceipt',
+              component: './treasury/cashReceipt/list',
+              access: 'allowOption',
+            },
+          ],
+        },
+        {
+          name: 'Carteras',
+          path: '/credits',
+          icon: 'wallet',
+          access: 'allowOption',
+          routes: [
+            {
+              name: 'Creditos',
+              path: '/credits/list',
+              component: './credits/list',
+              access: 'allowOption',
+            },
           ],
         },
         {
@@ -356,27 +402,15 @@ export default defineConfig({
           access: 'allowOption',
           routes: [
             {
-              name: 'Compañias',
-              path: '/configurations/companies',
-              component: './configurations/companies/list',
-              access: 'allowCompany',
-            },
-            {
-              name: 'Bodegas',
-              path: '/configurations/warehouse',
-              component: './configurations/warehouse/list',
-              access: 'allowOption',
-            },
-            {
               name: 'Tiendas',
               path: '/configurations/shop',
               component: './configurations/shop/list',
               access: 'allowOption',
             },
             {
-              name: 'Puntos de Venta',
-              path: '/configurations/pointOfSale',
-              component: './configurations/pointOfSales/list',
+              name: 'Bodegas',
+              path: '/configurations/warehouse',
+              component: './configurations/warehouse/list',
               access: 'allowOption',
             },
             {
@@ -410,55 +444,21 @@ export default defineConfig({
               ],
             },
             {
+              name: 'Compañias',
+              path: '/configurations/companies',
+              component: './configurations/companies/list',
+              access: 'allowCompany',
+            },
+            {
+              name: 'Puntos de Venta',
+              path: '/configurations/pointOfSale',
+              component: './configurations/pointOfSales/list',
+              access: 'allowOption',
+            },
+            {
               name: 'Autorización DIAN',
               path: '/configurations/authorizationDian',
               component: './configurations/authorizationDian/list',
-              access: 'allowOption',
-            },
-          ],
-        },
-        {
-          name: 'Tesoreria',
-          path: '/treasury',
-          icon: 'gold',
-          access: 'allowOption',
-          routes: [
-            {
-              name: 'Egresos',
-              path: '/treasury/expenses',
-              component: './treasury/expenses/list',
-              access: 'allowOption',
-            },
-            {
-              name: 'Recibo de Cajas',
-              path: '/treasury/cashReceipt',
-              component: './treasury/cashReceipt/list',
-              access: 'allowOption',
-            },
-            {
-              name: 'Cajas',
-              path: '/treasury/boxes',
-              component: './treasury/boxes/list',
-              access: 'allowOption',
-            },
-            {
-              name: 'Medios de Pago',
-              path: '/treasury/paymentMethods',
-              component: './treasury/paymentMethods/list',
-              access: 'allowOption',
-            },
-          ],
-        },
-        {
-          name: 'Carteras',
-          path: '/credits',
-          icon: 'wallet',
-          access: 'allowOption',
-          routes: [
-            {
-              name: 'Creditos',
-              path: '/credits/list',
-              component: './credits/list',
               access: 'allowOption',
             },
           ],

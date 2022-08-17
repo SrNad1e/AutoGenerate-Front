@@ -375,7 +375,7 @@ const UsersList = () => {
                 </Space>
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <Button
                 disabled={!canCreate}
                 icon={<PlusOutlined />}
@@ -387,7 +387,7 @@ const UsersList = () => {
                 Nuevo
               </Button>
             </Col>
-            <Col span={16} style={styles.alignText}>
+            <Col span={12} style={styles.alignText}>
               <Text strong>Total Encontrados:</Text> {data?.users?.totalDocs || 0}{' '}
               <Text strong>Páginas: </Text> {data?.users?.page || 0} /{' '}
               {data?.users?.totalPages || 0}

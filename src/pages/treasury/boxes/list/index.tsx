@@ -25,10 +25,12 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import type { SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
-import { Box, FiltersBoxesInput, Permissions } from '@/graphql/graphql';
+import type { Box, FiltersBoxesInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { useGetBoxes } from '@/hooks/box.hooks';
 import moment from 'moment';
-import { Location, useModel } from 'umi';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useLocation, history } from 'umi';
 import { useEffect, useState } from 'react';
@@ -115,14 +117,18 @@ const BoxList = () => {
    * @param filters filtros para realizar la consulta
    */
   const onSearch = (filters?: FiltersBoxesInput) => {
-    getBoxes({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
+    try {
+      getBoxes({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -274,7 +280,7 @@ const BoxList = () => {
       render: (value: number) => numeral(value).format('$ 0,0'),
     },
     {
-      title: <Text>Principal </Text>,
+      title: <Text>Es Principal </Text>,
       dataIndex: 'isMain',
       align: 'center',
       sorter: true,
@@ -292,16 +298,17 @@ const BoxList = () => {
       render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
-      title: <Text>{<MoreOutlined />} Opciones</Text>,
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
       render: (_, boxId) => (
         <Tooltip title="Editar">
           <Button
-            disabled={paramsGetBoxes?.loading || !canEdit}
+            disabled={!canEdit}
             type="primary"
             color="secondary"
+            loading={paramsGetBoxes.loading}
             icon={<EditOutlined />}
             onClick={() => onOpenModal(boxId)}
           />
@@ -324,7 +331,7 @@ const BoxList = () => {
               <FormItem>
                 <Space>
                   <Button
-                    disabled={paramsGetBoxes?.loading}
+                    loading={paramsGetBoxes?.loading}
                     type="primary"
                     htmlType="submit"
                     style={styles.buttonR}
@@ -333,7 +340,7 @@ const BoxList = () => {
                     Buscar
                   </Button>
                   <Button
-                    disabled={paramsGetBoxes?.loading}
+                    loading={paramsGetBoxes?.loading}
                     htmlType="reset"
                     onClick={onClear}
                     icon={<ClearOutlined />}
@@ -347,9 +354,10 @@ const BoxList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={styles.marginFIlters}>
-          <Col span={8}>
+          <Col span={12}>
             <Button
-              disabled={paramsGetBoxes?.loading || !canCreate}
+              disabled={!canCreate}
+              loading={paramsGetBoxes.loading}
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
@@ -358,7 +366,7 @@ const BoxList = () => {
               Nuevo
             </Button>
           </Col>
-          <Col span={16} style={styles.alignText}>
+          <Col span={12} style={styles.alignText}>
             <Text strong>Total Encontrados: </Text> {paramsGetBoxes?.data?.boxes?.totalDocs || 0}{' '}
             <Text strong>Páginas: </Text> {paramsGetBoxes?.data?.boxes?.page || 0} /{' '}
             {paramsGetBoxes?.data?.boxes?.totalPages || 0}
@@ -369,9 +377,11 @@ const BoxList = () => {
               columns={column}
               dataSource={paramsGetBoxes?.data?.boxes?.docs}
               scroll={{ x: 'auto' }}
+              loading={paramsGetBoxes.loading}
               pagination={{
                 current: paramsGetBoxes?.data?.boxes?.page,
                 total: paramsGetBoxes?.data?.boxes?.totalDocs,
+                showSizeChanger: false,
               }}
             />
           </Col>

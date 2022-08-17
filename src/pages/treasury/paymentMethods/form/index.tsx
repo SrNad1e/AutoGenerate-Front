@@ -148,12 +148,10 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
       onOk={isNew ? () => createNewPaymentMethod() : () => updatePaymentMethod()}
       okButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreatePayment?.loading || paramsUpdatePayment?.loading,
         loading: paramsCreatePayment?.loading || paramsUpdatePayment?.loading,
       }}
       cancelButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreatePayment?.loading || paramsUpdatePayment?.loading,
         loading: paramsCreatePayment?.loading || paramsUpdatePayment?.loading,
       }}
     >
@@ -197,7 +195,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
             <Select
               style={{ width: '100%' }}
               placeholder="Seleccione el Estado"
-              disabled={paramsCreatePayment?.loading || paramsUpdatePayment?.loading}
+              loading={paramsCreatePayment?.loading || paramsUpdatePayment?.loading}
             >
               {Object.keys(StatusTypePayment).map((type) => (
                 <Option key={type}>

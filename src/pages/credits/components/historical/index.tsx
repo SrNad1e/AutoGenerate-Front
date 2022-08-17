@@ -121,6 +121,7 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
           current: data?.creditHistory?.page,
           total: data?.creditHistory?.totalDocs,
           pageSize: 10,
+          showSizeChanger: false,
         }}
       />
     </Modal>

@@ -136,12 +136,10 @@ const BoxForm = ({ boxData, onCancel, visible }: Props) => {
       title={isNew ? 'Crear Caja' : 'Actualizar Caja'}
       cancelButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreateBox?.loading || paramsUpdateBox?.loading,
         loading: paramsCreateBox?.loading || paramsUpdateBox?.loading,
       }}
       okButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreateBox?.loading || paramsUpdateBox?.loading,
         loading: paramsCreateBox?.loading || paramsUpdateBox?.loading,
       }}
     >
