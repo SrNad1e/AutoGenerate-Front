@@ -94,6 +94,12 @@ export default defineConfig({
       layout: false,
       routes: [
         {
+          path: '/',
+          name: 'Dashboard',
+          icon: 'barChart',
+          component: './dashboard/list',
+        },
+        {
           path: '/inventory',
           name: 'Inventario',
           icon: 'dashboard',
