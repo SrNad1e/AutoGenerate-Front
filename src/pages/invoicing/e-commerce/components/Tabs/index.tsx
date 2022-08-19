@@ -4,6 +4,7 @@ import { useForm } from 'antd/lib/form/Form';
 import { useState } from 'react';
 import numeral from 'numeral';
 import type { Order } from '@/graphql/graphql';
+import { StatusWeb } from '@/graphql/graphql';
 import { StatusOrder } from '@/graphql/graphql';
 
 import Payments from '../Payments';
@@ -96,21 +97,22 @@ const Tabs = ({ order }: Props) => {
   const cardTab = [
     {
       key: '1',
-      tab: 'Productos',
+      tab: 'Pagos',
     },
     {
       key: '2',
-      tab: 'Envío',
+      tab: 'Productos',
     },
     {
       key: '3',
-      tab: 'Pagos',
+      tab: 'Envío',
     },
   ];
 
   const contentTab = {
-    1: <Products orderdata={order} />,
-    2: (
+    1: <Payments orderData={order} />,
+    2: <Products orderdata={order} />,
+    3: (
       <>
         <AddressDelivery deliveryAddress={order?.customer?.addresses} customer={order?.customer} />
         <Divider>Métodos de Envío</Divider>
@@ -122,9 +124,9 @@ const Tabs = ({ order }: Props) => {
                   <FormItem name="conveyorId" initialValue={order?.conveyorOrder?.conveyor?.name}>
                     <SelectConveyor
                       disabled={
-                        order?.status === StatusOrder.Sent ||
+                        order?.statusWeb === StatusWeb.Sent ||
                         order?.status === StatusOrder.Closed ||
-                        order?.status === StatusOrder.Cancelled
+                        order?.statusWeb === StatusWeb.Cancelled
                       }
                     />
                   </FormItem>
@@ -154,9 +156,9 @@ const Tabs = ({ order }: Props) => {
               <Button
                 onClick={onUpdateConveyor}
                 disabled={
-                  order?.status === StatusOrder.Sent ||
+                  order?.statusWeb === StatusWeb.Sent ||
                   order?.status === StatusOrder.Closed ||
-                  order?.status === StatusOrder.Cancelled
+                  order?.statusWeb === StatusWeb.Cancelled
                 }
                 loading={paramsUpdateOrder?.loading}
                 type="primary"
@@ -169,7 +171,6 @@ const Tabs = ({ order }: Props) => {
         </Row>
       </>
     ),
-    3: <Payments orderData={order} />,
   };
   return (
     <Card bordered={false} tabList={cardTab} activeTabKey={activeTabKey} onTabChange={onTabChange}>

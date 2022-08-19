@@ -44,6 +44,7 @@ import type {
   Order,
   PaymentOrder,
   StatusOrder,
+  StatusWeb,
 } from '@/graphql/graphql';
 import 'moment/locale/es';
 
@@ -64,7 +65,7 @@ moment.locale('es');
 type FormValues = {
   number?: number;
   customerId?: string;
-  status?: StatusOrder;
+  statusWeb?: StatusOrder;
   paymentId?: string;
   dates?: Moment[];
 };
@@ -135,12 +136,12 @@ const EcommerceList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, customerId, paymentId, dates } = props;
+    const { statusWeb, number, customerId, paymentId, dates } = props;
     try {
       const params: Partial<FiltersOrdersInput> = {
         page: pageCurrent || 1,
         limit: 10,
-        status,
+        statusWeb,
         number,
         sort: sort || { createdAt: -1 },
       };
@@ -262,9 +263,11 @@ const EcommerceList = () => {
     },
     {
       title: <Text>{<FileSyncOutlined />} Estado</Text>,
-      dataIndex: 'status',
-      render: (status: StatusOrder) => (
-        <Badge color={StatusType[status].color} text={StatusType[status].text} />
+      dataIndex: 'statusWeb',
+      width: 160,
+      align: 'center',
+      render: (statusWeb: StatusWeb) => (
+        <Badge color={StatusType[statusWeb]?.color} text={StatusType[statusWeb]?.text} />
       ),
     },
     {

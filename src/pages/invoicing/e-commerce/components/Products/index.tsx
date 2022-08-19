@@ -32,7 +32,8 @@ import { useForm } from 'antd/lib/form/Form';
 import numeral from 'numeral';
 import { useEffect, useState } from 'react';
 import type { DetailAddProductsOrderInput, DetailOrder, Order, Product } from '@/graphql/graphql';
-import { useAddProductsOrder, useConfirmProductOrder } from '@/hooks/order.hooks';
+import { StatusWeb } from '@/graphql/graphql';
+import { useAddProductsOrder, useConfirmProductOrder, useUpdateOrder } from '@/hooks/order.hooks';
 import { StatusOrder } from '@/graphql/graphql';
 import { StatusOrderDetail } from '@/graphql/graphql';
 import { ActionProductsOrder } from '@/graphql/graphql';
@@ -52,7 +53,7 @@ type Props = {
 };
 
 const Products = ({ orderdata }: Props) => {
-  const [visibleConfirmProduct, setVisibleConfirmProduct] = useState(false);
+  const [visibleConfirmProduct, setVisibleConfirmProduct] = useState(true);
   const [canEdit, setCanEdit] = useState(false);
   const [addProducts, setAddProducts] = useState(false);
   const [editProducts, setEditProducts] = useState<DetailAddProductsOrderInput[]>([]);
@@ -68,6 +69,7 @@ const Products = ({ orderdata }: Props) => {
 
   const [addProduct, paramsAddProduct] = useAddProductsOrder();
   const [confirmProductQuantity, paramsConfirmProductQuantity] = useConfirmProductOrder();
+  const [updateOrder] = useUpdateOrder();
 
   /**
    * @description array con los detalles del pedido almacenados de forma descendente
@@ -133,6 +135,24 @@ const Products = ({ orderdata }: Props) => {
   };
 
   /**
+   * @description funcion usada para cambiar el estado del pedido a preparando pedido
+   */
+  const onPreparingOrder = () => {
+    try {
+      updateOrder({
+        variables: {
+          id: orderdata?._id,
+          input: {
+            statusWeb: StatusWeb.Preparing,
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
+  };
+
+  /**
    * @description funcion usada para confirmar la cantidad de los productos
    */
   const confirmQuantity = async () => {
@@ -146,6 +166,7 @@ const Products = ({ orderdata }: Props) => {
           } else {
             productsQuantityConfirm[i].quantityConfirm++;
             setProductsQuantityConfirm([...productsQuantityConfirm]);
+            onPreparingOrder();
             if (
               productsQuantityConfirm[i]?.quantityConfirm === productsQuantityConfirm[i]?.quantity
             ) {
@@ -183,6 +204,7 @@ const Products = ({ orderdata }: Props) => {
         },
       });
       setProductsConfirm([]);
+      onPreparingOrder();
     } catch (error: any) {
       showError(error.message);
     }
@@ -358,15 +380,6 @@ const Products = ({ orderdata }: Props) => {
    * @description almacena los detalles del pedido en el estado
    */
   const controlOfSwitch = () => {
-    setProductsQuantityConfirm(
-      orderdata?.details?.map((i) => ({
-        productId: i.product._id,
-        barcode: i.product.barcode,
-        quantity: i.quantity,
-        quantityConfirm: 0,
-        status: StatusOrderDetail.Confirmed,
-      })),
-    );
     setVisibleConfirmProduct(visibleConfirmProduct ? false : true);
   };
 
@@ -476,9 +489,9 @@ const Products = ({ orderdata }: Props) => {
             danger
             disabled={
               detail?.status === StatusOrderDetail.Confirmed ||
-              orderdata?.status === StatusOrder.Sent ||
+              orderdata?.statusWeb === StatusWeb.Sent ||
               orderdata?.status === StatusOrder.Closed ||
-              orderdata?.status === StatusOrder.Cancelled
+              orderdata?.statusWeb === StatusWeb.Cancelled
             }
             type="primary"
             loading={paramsAddProduct?.loading}
@@ -605,11 +618,26 @@ const Products = ({ orderdata }: Props) => {
     form.resetFields();
   }, [confirmQuantity()]);
 
+  useEffect(() => {
+    if (orderdata !== undefined) {
+      setProductsQuantityConfirm(
+        orderdata?.details?.map((i) => ({
+          productId: i.product._id,
+          barcode: i.product.barcode,
+          quantity: i.quantity,
+          quantityConfirm: 0,
+          status: StatusOrderDetail.Confirmed,
+        })),
+      );
+    }
+  }, []);
+
   return (
     <>
       <Divider>
         <Switch
           onClick={() => controlOfSwitch()}
+          defaultChecked
           checkedChildren="Confirmación de productos"
           unCheckedChildren="Resumen de productos"
         />
@@ -631,9 +659,9 @@ const Products = ({ orderdata }: Props) => {
                       htmlType="submit"
                       icon={<PlusOutlined />}
                       disabled={
-                        orderdata?.status === StatusOrder.Sent ||
+                        orderdata?.statusWeb === StatusWeb.Sent ||
                         orderdata?.status === StatusOrder.Closed ||
-                        orderdata?.status === StatusOrder.Cancelled ||
+                        orderdata?.statusWeb === StatusWeb.Cancelled ||
                         disabledEditQuantity()
                       }
                       loading={paramsConfirmProductQuantity?.loading}
@@ -648,9 +676,9 @@ const Products = ({ orderdata }: Props) => {
                     icon={<SaveOutlined />}
                     disabled={
                       disabledEditQuantity() ||
-                      orderdata?.status === StatusOrder.Sent ||
+                      orderdata?.statusWeb === StatusWeb.Sent ||
                       orderdata?.status === StatusOrder.Closed ||
-                      orderdata?.status === StatusOrder.Cancelled ||
+                      orderdata?.statusWeb === StatusWeb.Cancelled ||
                       productsConfirm.length === 0
                     }
                     onClick={() => confirmProductsFinal()}
@@ -663,9 +691,10 @@ const Products = ({ orderdata }: Props) => {
                     style={styles.buttonR}
                     disabled={
                       disabledEditQuantity() ||
-                      orderdata?.status === StatusOrder.Sent ||
+                      orderdata?.statusWeb === StatusWeb.Sent ||
                       orderdata?.status === StatusOrder.Closed ||
-                      orderdata?.status === StatusOrder.Cancelled
+                      orderdata?.statusWeb === StatusWeb.Cancelled ||
+                      productsConfirm.length === 0
                     }
                     icon={<RetweetOutlined />}
                     onClick={() => resetConfirmQuantity()}
@@ -685,9 +714,9 @@ const Products = ({ orderdata }: Props) => {
                     }
                     disabled={
                       disabledEditQuantity() ||
-                      orderdata?.status === StatusOrder.Sent ||
+                      orderdata?.statusWeb === StatusWeb.Sent ||
                       orderdata?.status === StatusOrder.Closed ||
-                      orderdata?.status === StatusOrder.Cancelled
+                      orderdata?.statusWeb === StatusWeb.Cancelled
                     }
                     icon={canEdit ? <SaveOutlined /> : <EditOutlined />}
                     loading={paramsAddProduct?.loading}
@@ -697,9 +726,9 @@ const Products = ({ orderdata }: Props) => {
                   <Button
                     loading={paramsAddProduct?.loading}
                     disabled={
-                      orderdata?.status === StatusOrder.Sent ||
+                      orderdata?.statusWeb === StatusWeb.Sent ||
                       orderdata?.status === StatusOrder.Closed ||
-                      orderdata?.status === StatusOrder.Cancelled
+                      orderdata?.statusWeb === StatusWeb.Cancelled
                     }
                     style={styles.buttonR}
                     type="primary"

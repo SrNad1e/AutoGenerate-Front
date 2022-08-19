@@ -6,13 +6,6 @@ query conveyors($input: FiltersConveyorsInput) {
       message
       updatedAt
       createdAt
-      logo {
-        urls {
-          webp {
-            small
-          }
-        }
-      }
     }
   }
 }

@@ -31,6 +31,7 @@ import { useParams } from 'react-router';
 import { useHistory, useModel } from 'umi';
 import { useGetOrder, useUpdateOrder } from '@/hooks/order.hooks';
 import type { Order } from '@/graphql/graphql';
+import { StatusWeb } from '@/graphql/graphql';
 import { StatusOrder, StatusOrderDetail } from '@/graphql/graphql';
 import { useReactToPrint } from 'react-to-print';
 
@@ -40,7 +41,6 @@ import Tabs from '../components/Tabs';
 import { StatusType } from '../e-commerce.data';
 import ShippingLabel from '../reports/shippingLabel/TiketSent';
 import OrderProduction from '../reports/order/Order';
-import InvoicePrint from '../reports/ticket/Invoice';
 
 import styles from './styles';
 
@@ -55,7 +55,6 @@ const EcommerceForm = () => {
   });
   const [orderData, setOrderData] = useState<Partial<Order>>({});
   const [shippingLabelData, setShippingLabelData] = useState({});
-  const [invoiceData, setInvoiceData] = useState({});
 
   const { id } = useParams<Partial<{ id: string }>>();
 
@@ -65,7 +64,6 @@ const EcommerceForm = () => {
 
   const reportRef = useRef(null);
   const reportRef1 = useRef(null);
-  const reportRef2 = useRef(null);
 
   const [getOrder, paramsGetOrder] = useGetOrder();
   const [updateOrder, paramsUpdateOrder] = useUpdateOrder();
@@ -75,24 +73,12 @@ const EcommerceForm = () => {
   const balance = total - totalPaid;
   const change = totalPaid - total;
 
-  const handlePrintInvoice = useReactToPrint({
-    content: () => reportRef2.current,
-  });
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
   const handlePrintShippingLabel = useReactToPrint({
     content: () => reportRef1?.current,
   });
-
-  /**
-   * @description se encarga de seleccionar la factura e imprime
-   * @param record factura
-   */
-  const printInvoice = async (record: any) => {
-    await setInvoiceData(record);
-    handlePrintInvoice();
-  };
 
   /**
    * @description se encarga de seleccionar el pedido e imprime
@@ -144,7 +130,7 @@ const EcommerceForm = () => {
         variables: {
           id: paramsGetOrder.data?.orderId?.order?._id || '',
           input: {
-            status: StatusOrder.Cancelled,
+            statusWeb: StatusWeb.Cancelled,
           },
         },
       });
@@ -166,6 +152,29 @@ const EcommerceForm = () => {
     } catch (error: any) {
       showError(error.message);
     }
+  };
+
+  /**
+   * @description funcion usada para deshabilitar el boton de agregar pagos si no se han confirmado con anterioirdad los  productos
+   * @returns retorna un boolean
+   */
+  const disabledButton = () => {
+    let countConfirm = 0;
+    if (paramsGetOrder?.data?.orderId?.order?.details)
+      for (let index = 0; index < paramsGetOrder?.data?.orderId?.order?.details?.length; index++) {
+        if (
+          paramsGetOrder?.data?.orderId?.order?.details[index].status ===
+          StatusOrderDetail.Confirmed
+        )
+          countConfirm++;
+      }
+
+    if (countConfirm === paramsGetOrder?.data?.orderId?.order?.details?.length) {
+      return false;
+    } else if (countConfirm !== paramsGetOrder?.data?.orderId?.order?.details?.length) {
+      return true;
+    }
+    return;
   };
 
   /**
@@ -222,7 +231,7 @@ const EcommerceForm = () => {
         variables: {
           id: paramsGetOrder.data?.orderId?.order?._id || '',
           input: {
-            status: StatusOrder.Sent,
+            statusWeb: StatusWeb.Sent,
           },
         },
       });
@@ -230,13 +239,6 @@ const EcommerceForm = () => {
       showError(error.message);
     }
   };
-
-  const dateInitial = new Date(
-    moment(paramsGetOrder?.data?.orderId?.order?.createdAt).format(FORMAT_DATE_API),
-  );
-  if (dateInitial.getTime() === 604800000) {
-    onCancelOrder();
-  }
 
   useEffect(() => {
     onSearchOrder();
@@ -277,8 +279,8 @@ const EcommerceForm = () => {
             </Col>
             <Col xs={24} md={16} lg={17} xl={12}>
               <Badge
-                color={StatusType[paramsGetOrder?.data?.orderId?.order?.status || '']?.color}
-                text={StatusType[paramsGetOrder?.data?.orderId?.order?.status || '']?.text}
+                color={StatusType[paramsGetOrder?.data?.orderId?.order?.statusWeb || '']?.color}
+                text={StatusType[paramsGetOrder?.data?.orderId?.order?.statusWeb || '']?.text}
               />
             </Col>
             <Col xs={24} md={10} lg={9} xl={12}>
@@ -413,13 +415,13 @@ const EcommerceForm = () => {
                     style={styles.buttonR}
                     loading={paramsUpdateOrder?.loading}
                     disabled={
-                      paramsGetOrder?.data?.orderId?.order?.status === StatusOrder.Cancelled ||
-                      (paramsGetOrder?.data?.orderId?.order?.status !== StatusOrder.Cancelled
+                      paramsGetOrder?.data?.orderId?.order?.statusWeb === StatusWeb.Cancelled ||
+                      (paramsGetOrder?.data?.orderId?.order?.statusWeb !== StatusWeb.Cancelled
                         ? initialState?.currentUser?.role?.name === 'Administrador'
                           ? false
                           : disabledCancelButton()
                         : true) ||
-                      paramsGetOrder.data?.orderId.order.status === StatusOrder.Sent ||
+                      paramsGetOrder.data?.orderId.order.statusWeb === StatusWeb.Sent ||
                       paramsGetOrder.data?.orderId.order.status === StatusOrder.Closed
                     }
                     icon={<CloseCircleOutlined />}
@@ -436,16 +438,6 @@ const EcommerceForm = () => {
                 >
                   Imprimir Pedido
                 </Button>
-
-                <Button
-                  icon={<PrinterOutlined />}
-                  style={styles.buttonR}
-                  disabled={paramsGetOrder?.data?.orderId?.order?.invoice === null}
-                  type="primary"
-                  onClick={() => printInvoice(paramsGetOrder?.data?.orderId?.order?.invoice)}
-                >
-                  Imprimir Factura
-                </Button>
                 <Button
                   icon={<PrinterOutlined />}
                   type="primary"
@@ -460,11 +452,13 @@ const EcommerceForm = () => {
                   type="primary"
                   style={styles.buttonR}
                   disabled={
-                    paramsGetOrder.data?.orderId.order.status === StatusOrder.Sent ||
+                    paramsGetOrder.data?.orderId.order.conveyorOrder === null ||
+                    paramsGetOrder.data?.orderId.order.statusWeb === StatusWeb.Sent ||
                     paramsGetOrder.data?.orderId.order.status === StatusOrder.Closed ||
-                    paramsGetOrder?.data?.orderId?.order?.status === StatusOrder.Cancelled ||
+                    paramsGetOrder?.data?.orderId?.order?.statusWeb === StatusWeb.Cancelled ||
                     balance > 0 ||
-                    disabledSentButton()
+                    disabledSentButton() ||
+                    disabledButton()
                   }
                   onClick={() => onSentOrder()}
                 >
@@ -481,9 +475,6 @@ const EcommerceForm = () => {
       </div>
       <div style={{ display: 'none' }}>
         <ShippingLabel ref={reportRef1} data={shippingLabelData} />
-      </div>
-      <div style={{ display: 'none' }}>
-        <InvoicePrint ref={reportRef2} data={invoiceData} />
       </div>
     </PageContainer>
   );

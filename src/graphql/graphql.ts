@@ -107,6 +107,8 @@ export type Address = {
   number2: Scalars['String'];
   /** Teléfono del contacto */
   phone: Scalars['String'];
+  /** Código postal */
+  postalCode?: Maybe<Scalars['String']>;
 };
 
 /** Dirección del cliente */
@@ -342,10 +344,14 @@ export type City = {
   __typename?: 'City';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Código DANE */
+  code: Scalars['String'];
   /** País */
-  country: Scalars['String'];
+  country: Country;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
+  /** Código postal */
+  defaultPostalCode: Scalars['String'];
   /** Nombre de la ciudad */
   name: Scalars['String'];
   /** Departamento */
@@ -354,6 +360,8 @@ export type City = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la ciudad */
   user: User;
+  /** Zona a la que pertenece la ciudad */
+  zone: ZoneType;
 };
 
 /** Ciudad entrada */
@@ -361,7 +369,7 @@ export type CityInput = {
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** País */
-  country: Scalars['String'];
+  country: CountryInput;
   /** Fecha de creación */
   createdAt?: InputMaybe<Scalars['DateTime']>;
   /** Nombre de la ciudad */
@@ -527,12 +535,18 @@ export type Conveyor = {
   _id: Scalars['String'];
   /** Fecha de creación de la transportadora */
   createdAt: Scalars['DateTime'];
+  /** Precio por defecto */
+  defaultPrice: Scalars['Float'];
   /** Logo de la tranportadora */
   logo: Image;
   /** Mensaje para el usuario */
   message?: Maybe<Scalars['String']>;
   /** Nombre de la transportadora */
   name: Scalars['String'];
+  /** Precios por región solo para type ZONE */
+  rates?: Maybe<RatesRegion[]>;
+  /** Tipo de transportadora */
+  type: ConveyorType;
   /** Fecha de actualización de la transportadora */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la transportadora */
@@ -544,12 +558,35 @@ export type ConveyorOrder = {
   __typename?: 'ConveyorOrder';
   /** Datos del transportista */
   conveyor: Conveyor;
+  /** Error del médio de pago */
+  error?: Maybe<Scalars['String']>;
   /** Código de la guia del transportista */
   guideCode?: Maybe<Scalars['String']>;
   /** Fecha en el que se realiza el envío */
   shippingDate?: Maybe<Scalars['DateTime']>;
   /** Valor del envío */
   value: Scalars['Float'];
+};
+
+export enum ConveyorType {
+  Fedex = 'FEDEX',
+  Interrapidisimo = 'INTERRAPIDISIMO',
+  Zone = 'ZONE',
+}
+
+/** Pais */
+export type Country = {
+  __typename?: 'Country';
+  /** Nombre del país */
+  name: Scalars['String'];
+  /** Prefijo del país */
+  prefix: Scalars['String'];
+};
+
+/** País entrada */
+export type CountryInput = {
+  /** Nombre del país */
+  name: Scalars['String'];
 };
 
 /** Cupones para pagos */
@@ -621,12 +658,20 @@ export type CreateCategoryInput = {
 
 /** Datos para crear una ciudad */
 export type CreateCityInput = {
+  /** Código DANE */
+  code: Scalars['String'];
   /** Nombre del país */
-  country: Scalars['String'];
+  countryName: Scalars['String'];
+  /** Prefijo del país */
+  countryPrefix: Scalars['String'];
+  /** Código postal de la ciudad por defecto */
+  defaultPostalCode: Scalars['String'];
   /** Nombre de la ciudad */
   name: Scalars['String'];
   /** Nombre del departamento */
   state: Scalars['String'];
+  /** Tipo de zona */
+  zone: ZoneType;
 };
 
 /** Datos para crear un cierre X */
@@ -1806,6 +1851,8 @@ export type FiltersOrdersInput = {
   sort?: InputMaybe<SortOrder>;
   /** Estado del pedido */
   status?: InputMaybe<StatusOrder>;
+  /** Estado del pedido Web */
+  statusWeb?: InputMaybe<StatusWeb>;
 };
 
 /** Filtros para obtener el listado de tipos de medios de pago */
@@ -2738,6 +2785,8 @@ export type Order = {
   shop: Shop;
   /** Estado del pedido */
   status: StatusOrder;
+  /** Estado de transición pedido web */
+  statusWeb?: Maybe<StatusWeb>;
   /** Resumen de los pagosy totales */
   summary: SummaryOrder;
   /** Fecha de actualización */
@@ -3385,6 +3434,15 @@ export type QueryWarehouseIdArgs = {
 
 export type QueryWarehousesArgs = {
   filtersWarehousesInput?: InputMaybe<FiltersWarehousesInput>;
+};
+
+/** Rangos de precio por regiones */
+export type RatesRegion = {
+  __typename?: 'RatesRegion';
+  /** Precio de la zona */
+  price: Scalars['Float'];
+  /** Zona a aplicar el precio */
+  zone: ZoneType;
 };
 
 /** Egreso de dinero */
@@ -5014,8 +5072,7 @@ export enum StatusOrder {
   Cancelled = 'CANCELLED',
   Closed = 'CLOSED',
   Open = 'OPEN',
-  Pending = 'PENDING',
-  Sent = 'SENT',
+  Pendding = 'PENDDING',
 }
 
 export enum StatusOrderDetail {
@@ -5077,6 +5134,17 @@ export enum StatusUser {
   Active = 'ACTIVE',
   Inactive = 'INACTIVE',
   Suspend = 'SUSPEND',
+}
+
+export enum StatusWeb {
+  Cancelled = 'CANCELLED',
+  Delivered = 'DELIVERED',
+  Open = 'OPEN',
+  PaymentConfirmed = 'PAYMENT_CONFIRMED',
+  Pendding = 'PENDDING',
+  PenddingCredit = 'PENDDING_CREDIT',
+  Preparing = 'PREPARING',
+  Sent = 'SENT',
 }
 
 /** Inventario por bodegas del producto */
@@ -5313,12 +5381,20 @@ export enum TypesRule {
 
 /** Datos para actualizar la ciudad */
 export type UpadteCityInput = {
+  /** Código DANE */
+  code?: InputMaybe<Scalars['String']>;
   /** Nombre del país */
-  country?: InputMaybe<Scalars['String']>;
+  countryName?: InputMaybe<Scalars['String']>;
+  /** Prefijo del país */
+  countryPrefix?: InputMaybe<Scalars['String']>;
+  /** Código postal de la ciudad por defecto */
+  defaultPostalCode?: InputMaybe<Scalars['String']>;
   /** Nombre de la ciudad */
   name?: InputMaybe<Scalars['String']>;
   /** Nombre del departamento */
   state?: InputMaybe<Scalars['String']>;
+  /** Tipo de zona */
+  zone?: InputMaybe<ZoneType>;
 };
 
 /** Datos para actualizar el atributo */
@@ -5471,6 +5547,8 @@ export type UpdateOrderInput = {
   customerId?: InputMaybe<Scalars['String']>;
   /** Estado del pedido */
   status?: InputMaybe<StatusOrder>;
+  /** Estado que se aplicará al pedid web */
+  statusWeb?: InputMaybe<StatusWeb>;
 };
 
 /** Datos para actualizar método de pago */
@@ -5745,6 +5823,15 @@ export type Warehouse = {
   /** Usuario que creó el usuario */
   user: User;
 };
+
+export enum ZoneType {
+  Inshop = 'INSHOP',
+  Local = 'LOCAL',
+  Metropolitan = 'METROPOLITAN',
+  National = 'NATIONAL',
+  Special = 'SPECIAL',
+  Urban = 'URBAN',
+}
 
 export type CreateStockAdjustmentMutationVariables = Exact<{
   input: CreateStockAdjustmentInput;
@@ -7260,10 +7347,10 @@ export type CitiesQuery = {
     docs: {
       __typename?: 'City';
       _id: string;
-      country: string;
       name: string;
       state: string;
       updatedAt: any;
+      country: { __typename?: 'Country'; name: string };
       user: { __typename?: 'User'; name: string };
     }[];
   };
@@ -7440,13 +7527,6 @@ export type ConveyorsQuery = {
       message?: string | null;
       updatedAt: any;
       createdAt: any;
-      logo: {
-        __typename?: 'Image';
-        urls?: {
-          __typename?: 'Urls';
-          webp?: { __typename?: 'ImageTypes'; small: string } | null;
-        } | null;
-      };
     }[];
   };
 };
@@ -7803,6 +7883,7 @@ export type OrderIdQuery = {
     credit?: { __typename?: 'Credit'; available: number; amount: number } | null;
     order: {
       __typename?: 'Order';
+      statusWeb?: StatusWeb | null;
       status: StatusOrder;
       _id: string;
       number: number;
@@ -7872,18 +7953,7 @@ export type OrderIdQuery = {
         shippingDate?: any | null;
         value: number;
         guideCode?: string | null;
-        conveyor: {
-          __typename?: 'Conveyor';
-          _id: string;
-          name: string;
-          logo: {
-            __typename?: 'Image';
-            urls?: {
-              __typename?: 'Urls';
-              webp?: { __typename?: 'ImageTypes'; small: string } | null;
-            } | null;
-          };
-        };
+        conveyor: { __typename?: 'Conveyor'; _id: string; name: string };
       } | null;
       address?: {
         __typename?: 'Address';
@@ -8063,6 +8133,7 @@ export type OrdersQuery = {
     page: number;
     docs: {
       __typename?: 'Order';
+      statusWeb?: StatusWeb | null;
       _id: string;
       createdAt: any;
       updatedAt: any;
@@ -14130,7 +14201,14 @@ export const CitiesDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'country' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'country' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'state' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -14601,34 +14679,6 @@ export const ConveyorsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'message' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'logo' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'urls' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'webp' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'small' } },
-                                      ],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
                     ],
                   },
                 },
@@ -15746,6 +15796,7 @@ export const OrderIdDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'statusWeb' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'invoice' },
@@ -15967,37 +16018,6 @@ export const OrderIdDocument = {
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'logo' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'urls' },
-                                          selectionSet: {
-                                            kind: 'SelectionSet',
-                                            selections: [
-                                              {
-                                                kind: 'Field',
-                                                name: { kind: 'Name', value: 'webp' },
-                                                selectionSet: {
-                                                  kind: 'SelectionSet',
-                                                  selections: [
-                                                    {
-                                                      kind: 'Field',
-                                                      name: { kind: 'Name', value: 'small' },
-                                                    },
-                                                  ],
-                                                },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                      ],
-                                    },
-                                  },
                                 ],
                               },
                             },
@@ -16493,6 +16513,7 @@ export const OrdersDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'statusWeb' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'payments' },

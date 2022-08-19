@@ -1,22 +1,30 @@
 export const StatusType = {
-  OPEN: {
-    color: 'green',
-    text: 'Abierto',
+  DELIVERED: {
+    color: 'blue',
+    text: 'Entregado',
   },
   CANCELLED: {
     color: 'red',
     text: 'Cancelado',
   },
   SENT: {
-    color: 'blue',
+    color: 'orange',
     text: 'Enviado',
   },
-  PENDING: {
+  PENDDING: {
     color: 'yellow',
-    text: 'Pendiente',
+    text: 'Pendiente de Pago',
   },
-  CLOSED: {
-    color: 'gray',
-    text: 'Finalizado',
+  PENDING_CREDIT: {
+    color: 'yellow',
+    text: 'Pago a Crédito',
+  },
+  PAYMENT_CONFIRMED: {
+    color: 'green',
+    text: 'Pago Confirmado',
+  },
+  PREPARING: {
+    color: 'lightgreen',
+    text: 'Preparando Pedido',
   },
 };

@@ -5,7 +5,9 @@ query cities($input: FiltersCitiesInput) {
     page
     docs {
       _id
-      country
+      country{
+        name
+      }
       name
       state
       updatedAt

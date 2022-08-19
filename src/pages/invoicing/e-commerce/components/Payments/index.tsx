@@ -35,9 +35,10 @@ import { useEffect, useState } from 'react';
 import { useGetPayments } from '@/hooks/payment.hooks';
 import { useModel } from 'umi';
 import type { Order, PaymentOrder, PaymentsOrderInput } from '@/graphql/graphql';
+import { StatusWeb } from '@/graphql/graphql';
 import { StatusOrder, StatusOrderDetail } from '@/graphql/graphql';
 import { ActionPaymentsOrder, TypePayment } from '@/graphql/graphql';
-import { useAddPaymentsOrder, useConfirmPaymentOrder } from '@/hooks/order.hooks';
+import { useAddPaymentsOrder, useConfirmPaymentOrder, useUpdateOrder } from '@/hooks/order.hooks';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -57,19 +58,7 @@ const Payments = ({ orderData }: Props) => {
   const [visiblePayment, setVisiblePayment] = useState(false);
   const [canEditTotal, setCanEditTotal] = useState(false);
   const [editPayments, setEditPayments] = useState<PaymentsOrderInput[]>([]);
-  const [addPayments, setAddPayments] = useState<PaymentOrder[]>(
-    orderData?.payments?.map((i) => ({
-      total: i.total,
-      updatedAt: i.updatedAt,
-      createdAt: i.createdAt,
-      status: i.status,
-      payment: {
-        _id: i.payment._id,
-        name: i.payment.name,
-        type: i.payment.type,
-      },
-    })),
-  );
+  const [addPayments, setAddPayments] = useState<PaymentOrder[]>([]);
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -84,6 +73,7 @@ const Payments = ({ orderData }: Props) => {
   const [addPayment, paramsAddPayment] = useAddPaymentsOrder();
   const [getPayments, { data }] = useGetPayments();
   const [confirmPayment, paramsConfirmPayment] = useConfirmPaymentOrder();
+  const [updateOrder] = useUpdateOrder();
 
   const [form] = useForm();
 
@@ -156,6 +146,42 @@ const Payments = ({ orderData }: Props) => {
   };
 
   /**
+   * @description funcion usada para cambiar el estado del pedido a pago confimado
+   */
+  const onPayOrder = () => {
+    try {
+      updateOrder({
+        variables: {
+          id: orderData?._id,
+          input: {
+            statusWeb: StatusWeb.PaymentConfirmed,
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
+  };
+
+  /**
+   * @description funcion usada para cambiar el estado del pedido a pendiente por pago
+   */
+  const onReversePayOrder = () => {
+    try {
+      updateOrder({
+        variables: {
+          id: orderData?._id,
+          input: {
+            statusWeb: StatusWeb.Pendding,
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
+  };
+
+  /**
    * @description funcion usada para reversar pagos
    * @param paymentId identificador del pago a reversar
    */
@@ -179,6 +205,7 @@ const Payments = ({ orderData }: Props) => {
           },
         },
       });
+      onReversePayOrder();
     } catch (error: any) {
       showError(error?.message);
     }
@@ -208,6 +235,7 @@ const Payments = ({ orderData }: Props) => {
           },
         },
       });
+      onPayOrder();
     } catch (error: any) {
       showError(error?.message);
     }
@@ -470,25 +498,6 @@ const Payments = ({ orderData }: Props) => {
     }
   };
 
-  /**
-   * @description funcion usada para deshabilitar el boton de agregar pagos si no se han confirmado con anterioirdad los  productos
-   * @returns retorna un boolean
-   */
-  const disabledButtonAddPay = () => {
-    let countConfirm = 0;
-    if (orderData?.details)
-      for (let index = 0; index < orderData?.details.length; index++) {
-        if (orderData.details[index].status === StatusOrderDetail.Confirmed) countConfirm++;
-      }
-
-    if (countConfirm === orderData.details?.length) {
-      return false;
-    } else if (countConfirm !== orderData.details?.length) {
-      return true;
-    }
-    return;
-  };
-
   useEffect(() => {
     getPayments({
       variables: {
@@ -502,6 +511,24 @@ const Payments = ({ orderData }: Props) => {
       form.setFieldsValue({ total: paymentBankTotal });
     }
   }, [paymentBankTotal]);
+
+  useEffect(() => {
+    if (orderData !== undefined) {
+      setAddPayments(
+        orderData?.payments?.map((i) => ({
+          total: i.total,
+          updatedAt: i.updatedAt,
+          createdAt: i.createdAt,
+          status: i.status,
+          payment: {
+            _id: i.payment._id,
+            name: i.payment.name,
+            type: i.payment.type,
+          },
+        })),
+      );
+    }
+  }, [orderData]);
 
   const column: ColumnsType<PaymentOrder> = [
     {
@@ -631,9 +658,9 @@ const Payments = ({ orderData }: Props) => {
                 <Button
                   disabled={
                     detail.status === StatusOrderDetail.New ||
-                    orderData?.status === StatusOrder.Sent ||
+                    orderData?.statusWeb === StatusWeb.Sent ||
                     orderData?.status === StatusOrder.Closed ||
-                    orderData?.status === StatusOrder.Cancelled
+                    orderData?.statusWeb === StatusWeb.Cancelled
                   }
                   loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
                   style={styles.inputBorder}
@@ -647,10 +674,9 @@ const Payments = ({ orderData }: Props) => {
                 disabled={
                   detail?.status === StatusOrderDetail.Confirmed ||
                   balance > 0 ||
-                  orderData?.status === StatusOrder.Sent ||
+                  orderData?.statusWeb === StatusWeb.Sent ||
                   orderData?.status === StatusOrder.Closed ||
-                  orderData?.status === StatusOrder.Cancelled ||
-                  disabledButtonAddPay()
+                  orderData?.statusWeb === StatusWeb.Cancelled
                 }
                 loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
                 onClick={() => confirmPaymentOrder(detail?.payment?._id)}
@@ -663,9 +689,9 @@ const Payments = ({ orderData }: Props) => {
               <Button
                 disabled={
                   detail.status === StatusOrderDetail.Confirmed ||
-                  orderData?.status === StatusOrder.Sent ||
+                  orderData?.statusWeb === StatusWeb.Sent ||
                   orderData?.status === StatusOrder.Closed ||
-                  orderData?.status === StatusOrder.Cancelled
+                  orderData?.statusWeb === StatusWeb.Cancelled
                 }
                 loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
                 onClick={editable ? () => updatePayment() : () => edit(detail)}
@@ -678,9 +704,9 @@ const Payments = ({ orderData }: Props) => {
               <Button
                 disabled={
                   detail.status === StatusOrderDetail.Confirmed ||
-                  orderData?.status === StatusOrder.Sent ||
+                  orderData?.statusWeb === StatusWeb.Sent ||
                   orderData?.status === StatusOrder.Closed ||
-                  orderData?.status === StatusOrder.Cancelled
+                  orderData?.statusWeb === StatusWeb.Cancelled
                 }
                 danger
                 type="primary"
@@ -705,14 +731,15 @@ const Payments = ({ orderData }: Props) => {
                 style={styles.inputBorder}
                 loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
                 disabled={
-                  orderData?.status === StatusOrder.Sent ||
+                  balance === 0 ||
+                  orderData?.statusWeb === StatusWeb.Sent ||
                   orderData?.status === StatusOrder.Closed ||
-                  orderData?.status === StatusOrder.Cancelled
+                  orderData?.statusWeb === StatusWeb.Cancelled
                 }
                 type="primary"
                 icon={<SaveOutlined />}
                 onClick={
-                  orderData?.payments && addPayments.length < orderData?.payments?.length
+                  orderData?.payments && addPayments?.length < orderData?.payments?.length
                     ? () => deletePayment()
                     : () => createPayment()
                 }
@@ -723,10 +750,9 @@ const Payments = ({ orderData }: Props) => {
                 disabled={
                   balance === 0 ||
                   change > 0 ||
-                  orderData?.status === StatusOrder.Sent ||
+                  orderData?.statusWeb === StatusWeb.Sent ||
                   orderData?.status === StatusOrder.Closed ||
-                  orderData?.status === StatusOrder.Cancelled ||
-                  disabledButtonAddPay()
+                  orderData?.statusWeb === StatusWeb.Cancelled
                 }
                 loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
                 style={styles.inputBorder}
@@ -767,9 +793,9 @@ const Payments = ({ orderData }: Props) => {
                             type="primary"
                             icon={<PlusOutlined />}
                             disabled={
-                              orderData?.status === StatusOrder.Sent ||
+                              orderData?.statusWeb === StatusWeb.Sent ||
                               orderData?.status === StatusOrder.Closed ||
-                              orderData?.status === StatusOrder.Cancelled
+                              orderData?.statusWeb === StatusWeb.Cancelled
                             }
                             loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
                             onClick={() => onAddPayment()}
@@ -787,9 +813,9 @@ const Payments = ({ orderData }: Props) => {
                           <Button
                             loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
                             disabled={
-                              orderData?.status === StatusOrder.Sent ||
+                              orderData?.statusWeb === StatusWeb.Sent ||
                               orderData?.status === StatusOrder.Closed ||
-                              orderData?.status === StatusOrder.Cancelled
+                              orderData?.statusWeb === StatusWeb.Cancelled
                             }
                             type="primary"
                             icon={<PlusOutlined />}

@@ -5,6 +5,7 @@ query orderId($id: String!) {
       amount
     }
     order {
+      statusWeb
       invoice {
         user {
           name
@@ -79,13 +80,6 @@ query orderId($id: String!) {
         conveyor {
           _id
           name
-          logo {
-            urls {
-              webp {
-                small
-              }
-            }
-          }
         }
       }
       status
