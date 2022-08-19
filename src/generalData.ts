@@ -190,6 +190,9 @@ export const typesAccess = {
   '/pos/closes/closingZ': {
     access: [Permissions.AccessInvoicingClosesz],
   },
+  '/pos/return': {
+    access: [Permissions.AccessInvoicingReturns],
+  },
   //Treasury
   '/treasury': {
     access: [

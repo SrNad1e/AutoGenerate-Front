@@ -152,10 +152,10 @@ export default function access(initialState: { currentUser?: User | undefined })
     },
     role: {
       canEdit: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'UPDATE_CONFIGURATION_ROLE',
+        (permission) => permission?.action === Permissions.UpdateConfigurationRole,
       ),
       canCreate: !!currentUser?.role?.permissions.find(
-        (permission) => permission?.action === 'CREATE_CONFIGURATION_ROLE',
+        (permission) => permission?.action === Permissions.CreateConfigurationRole,
       ),
     },
     returns: {

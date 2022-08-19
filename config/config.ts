@@ -70,15 +70,10 @@ export default defineConfig({
           access: 'allowOption',
         },
         {
-          name: 'Cierre X',
-          path: '/pos/closes/closingX',
-          component: './invoicing/closings/closingX/list',
-          access: 'allowOption',
-        },
-        {
-          name: 'Cierre Z',
-          path: '/pos/closes/closingZ',
-          component: './invoicing/closings/closingZ/list',
+          name: 'Devoluciones',
+          path: '/pos/return',
+          icon: 'retweet',
+          component: './invoicing/return/list',
           access: 'allowOption',
         },
         {
