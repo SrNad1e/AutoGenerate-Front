@@ -53,7 +53,6 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
   });
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [valuesFields, setValuesFields] = useState();
-  const [valuesAdressField, setValuesAdressField] = useState([]);
 
   const [form] = Form.useForm();
 
@@ -162,12 +161,16 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
     const values = await form.validateFields();
 
     try {
+      const newAddresses = addresses.map(({ city, __typename, ...address }) => ({
+        ...address,
+        cityId: city?._id,
+      }));
       const response = await updateCustomer({
         variables: {
           input: {
             ...values,
             isWhatsapp: isWhatsapp,
-            addresses: valuesAdressField,
+            addresses: newAddresses,
             isDefault: isDefault,
           },
           id: customerData?._id || '',
@@ -585,11 +588,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
         {!isNew && (
           <>
             <TabPane tab="Direcciones" key="2">
-              <AddressComponent
-                setValuesAdressField={setValuesAdressField}
-                deliveryAddress={addresses}
-                customer={customerData}
-              />
+              <AddressComponent addresses={addresses} setAddresses={setAddresses} />
             </TabPane>
             <TabPane tab="Crédito" key="3">
               <RenderCredit

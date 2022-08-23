@@ -507,14 +507,6 @@ export type Company = {
 };
 
 /** Datos para confirmar productos */
-export type ConfirmPaymentsOrderInput = {
-  /** Identificador del pedido a confirmar los pagos */
-  orderId: Scalars['String'];
-  /** Pagos a confirmar */
-  payments: PaymentConfirm[];
-};
-
-/** Datos para confirmar productos */
 export type ConfirmProductsOrderInput = {
   /** Productos a confirmar */
   details: DetailsConfirm[];
@@ -2288,8 +2280,6 @@ export type Mutation = {
   addProductsOrder: ResponseOrder;
   /** Se encarga de cambiar la clave al usuario con base al tokenu */
   changePasswordToken: LoginResponse;
-  /** Se encarga de confirmar o desconfirmar pagos de un pedido */
-  confirmPaymentsOrder: ResponseOrder;
   /** Se encarga de confirmar o desconfirmar productos de un pedido */
   confirmProductsOrder: ResponseOrder;
   /** Confirma los productos del traslado */
@@ -2435,10 +2425,6 @@ export type MutationAddProductsOrderArgs = {
 export type MutationChangePasswordTokenArgs = {
   password: Scalars['String'];
   token: Scalars['String'];
-};
-
-export type MutationConfirmPaymentsOrderArgs = {
-  confirmPaymentsOrderInput: ConfirmPaymentsOrderInput;
 };
 
 export type MutationConfirmProductsOrderArgs = {
@@ -2810,14 +2796,6 @@ export type Payment = {
   user: User;
 };
 
-/** Producto para confirmar en el pedido */
-export type PaymentConfirm = {
-  /** Médio de pago a confirmar */
-  paymentId: Scalars['String'];
-  /** Estado del producto, si es diferente a confirm */
-  status?: InputMaybe<StatusOrderDetail>;
-};
-
 /** Medios de pago de la factura */
 export type PaymentInvoice = {
   __typename?: 'PaymentInvoice';
@@ -2838,8 +2816,6 @@ export type PaymentOrder = {
   payment: Payment;
   /** Total pagado */
   receipt?: Maybe<Receipt>;
-  /** Estado del pago */
-  status: StatusOrderDetail;
   /** Total pagado */
   total: Scalars['Float'];
   /** Fecha de actualizado del pago al pedido */

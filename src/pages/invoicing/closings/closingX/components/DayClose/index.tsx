@@ -169,8 +169,8 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
 
   useEffect(() => {
     setCurrentStep(0);
-    form.resetFields();
-    form.setFieldsValue({
+    form?.resetFields();
+    form?.setFieldsValue({
       closeDate: moment(),
       total: getTotal(),
     });
