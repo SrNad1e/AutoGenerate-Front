@@ -11,9 +11,6 @@ query cities($input: FiltersCitiesInput) {
       }
       name
       state
-      defaultPostalCode
-      code
-      zone
       updatedAt
       user {
         name

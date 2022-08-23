@@ -73,7 +73,7 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
+   * @param message error de apollo
    */
   const onShowInformation = (message: string) => {
     setPropsAlert({
@@ -148,15 +148,39 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
             status,
           };
 
+          if (props.status === StatusStockInput.Open) {
+            delete props.status;
+          }
+
           const response = await updateInput({
             variables: {
               input: props,
               id,
             },
           });
-          if (response?.data?.updateStockInput) {
+          if (response?.data?.updateStockInput && status === StatusStockInput.Open) {
             setPropsAlert({
-              message: `Entrada actualizada correctamente No. ${response?.data?.updateStockInput?.number}`,
+              message: `Entrada No. ${response?.data?.updateStockInput?.number} actualizada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockInput?.status === StatusStockInput.Confirmed
+                  ? '/inventory/input/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockInput && status === StatusStockInput.Confirmed) {
+            setPropsAlert({
+              message: `Entrada No. ${response?.data?.updateStockInput?.number} creada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockInput?.status === StatusStockInput.Confirmed
+                  ? '/inventory/input/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockInput && status === StatusStockInput.Cancelled) {
+            setPropsAlert({
+              message: `Entrada No. ${response?.data?.updateStockInput?.number} cancelada correctamente `,
               type: 'success',
               visible: true,
               redirect:
@@ -188,7 +212,7 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
               input: props,
             },
           });
-          if (response?.data?.createStockInput) {
+          if (response?.data?.createStockInput && status === StatusStockInput.Confirmed) {
             setPropsAlert({
               message: `Entrada creada correctamente No. ${response?.data?.createStockInput?.number}`,
               type: 'success',
@@ -197,6 +221,13 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
                 status === StatusStockInput.Confirmed
                   ? '/inventory/input/list'
                   : `/inventory/input/${response?.data?.createStockInput?._id}`,
+            });
+          } else if (response?.data?.createStockInput && status === StatusStockInput.Open) {
+            setPropsAlert({
+              message: `Entrada guardada correctamente No. ${response?.data?.createStockInput?.number}`,
+              type: 'success',
+              visible: true,
+              redirect: `/inventory/input/${response?.data?.createStockInput?._id}`,
             });
           }
         }
@@ -281,6 +312,7 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
       visible: false,
     });
   };
+
   /**
    * @description se encarga de cerrar la alerta Save
    */

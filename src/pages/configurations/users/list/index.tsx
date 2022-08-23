@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   CalendarOutlined,
+  ClearOutlined,
   CrownOutlined,
   EditOutlined,
   FileSyncOutlined,
@@ -29,11 +30,12 @@ import type { TablePaginationConfig } from 'antd';
 import type { SorterResult } from 'antd/es/table/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
-import { useAccess, useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 import moment from 'moment';
 import { useGetUsers } from '@/hooks/user.hooks';
 import type { FiltersUsersInput, Role, Shop, User } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 
 import UsersForm from '@/components/CreateUser';
 import SelectRole from '@/components/SelectRole';
@@ -67,25 +69,16 @@ const UsersList = () => {
   const [form] = Form.useForm();
   const history = useHistory();
 
-  const [getUsers, { data }] = useGetUsers();
+  const [getUsers, { data, loading }] = useGetUsers();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryUsers = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadConfigurationUsers,
+  );
 
   const {
     user: { canCreate, canEdit },
   } = useAccess();
-
-  /**
-   * @description se encarga de ejecutar la funcion para obtener los usarios
-   * @param filters filtros necesarios para la busqueda
-   */
-  const onSearch = (filters?: FiltersUsersInput) => {
-    getUsers({
-      variables: {
-        input: {
-          ...filters,
-        },
-      },
-    });
-  };
 
   /**
    * @description funcion usada para mostrar los errores
@@ -97,6 +90,24 @@ const UsersList = () => {
       type: 'error',
       visible: true,
     });
+  };
+
+  /**
+   * @description se encarga de ejecutar la funcion para obtener los usarios
+   * @param filters filtros necesarios para la busqueda
+   */
+  const onSearch = (filters?: FiltersUsersInput) => {
+    try {
+      getUsers({
+        variables: {
+          input: {
+            ...filters,
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -236,6 +247,12 @@ const UsersList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryUsers) {
+      showError('No tiene permisos para consultar los usuarios');
+    }
+  }, [canQueryUsers]);
+
   const column: ColumnsType<User> = [
     {
       title: <Text>{<UserOutlined />} Nombre</Text>,
@@ -309,9 +326,10 @@ const UsersList = () => {
         <Tooltip title="Editar" placement="topLeft">
           <Button
             disabled={!canEdit}
+            loading={loading}
             onClick={() => visibleModal(userId)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
           />
         </Tooltip>
       ),
@@ -341,40 +359,51 @@ const UsersList = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
+                    loading={loading}
                   >
                     Buscar
                   </Button>
-                  <Button style={styles.buttonR} htmlType="reset" onClick={() => onClear()}>
+                  <Button
+                    style={styles.buttonR}
+                    htmlType="reset"
+                    loading={loading}
+                    icon={<ClearOutlined />}
+                    onClick={() => onClear()}
+                  >
                     Limpiar
                   </Button>
                 </Space>
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <Button
                 disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                loading={loading}
                 onClick={() => setVisibleCreate(true)}
               >
                 Nuevo
               </Button>
             </Col>
-            <Col span={16} style={styles.alignText}>
-              <Text strong>Total Encontrados:</Text> {data?.users?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.users?.page} / {data?.users?.totalPages || 0}
+            <Col span={12} style={styles.alignText}>
+              <Text strong>Total Encontrados:</Text> {data?.users?.totalDocs || 0}{' '}
+              <Text strong>Páginas: </Text> {data?.users?.page || 0} /{' '}
+              {data?.users?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table
                 onChange={handleChangeTable}
                 columns={column}
-                dataSource={data?.users.docs}
+                dataSource={data?.users?.docs}
                 scroll={{ x: 1000 }}
                 pagination={{
                   current: data?.users?.page,
                   total: data?.users?.totalDocs,
+                  showSizeChanger: false,
                 }}
+                loading={loading}
               />
             </Col>
           </Row>

@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  EditOutlined,
+  FontSizeOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -17,7 +25,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
 
@@ -25,7 +33,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import { useGetSizes } from '@/hooks/size.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import CreateSize from '@/components/CreateSize';
-import type { FiltersSizesInput, Size } from '@/graphql/graphql';
+import { FiltersSizesInput, Permissions, Size } from '@/graphql/graphql';
 
 import styles from './style.less';
 import Filters from '@/components/Filters';
@@ -60,6 +68,11 @@ const SizesList = () => {
   } = useAccess();
 
   const [getSizes, { data, loading }] = useGetSizes();
+
+  const { initialState } = useModel('@@initialState');
+  const canQuerySizes = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventorySizes,
+  );
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -248,25 +261,44 @@ const SizesList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQuerySizes) {
+      showError('No tiene permisos para consultar las tallas');
+    }
+  }, [canQuerySizes]);
+
   /**
    * @description se encarga de renderizar la interfaz de busqueda
    */
   const renderFormSearch = () => (
     <Form onFinish={onFinish} form={form}>
       <Row gutter={[8, 8]} align="middle">
-        <Col xs={24} md={10} lg={8}>
-          <FormItem label="Nombre" name="name">
+        <Col xs={24} md={13} lg={10}>
+          <FormItem label="Valor" name="name">
             <Input placeholder="Valor de la talla" autoComplete="off" style={{ width: '100%' }} />
           </FormItem>
         </Col>
         <Col xs={24} md={8}>
           <FormItem label="">
-            <Button type="primary" htmlType="submit">
-              Buscar
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={onClear}>
-              Limpiar
-            </Button>
+            <Space>
+              <Button
+                style={{ borderRadius: 5 }}
+                icon={<SearchOutlined />}
+                type="primary"
+                loading={loading}
+                htmlType="submit"
+              >
+                Buscar
+              </Button>
+              <Button
+                style={{ borderRadius: 5 }}
+                loading={loading}
+                icon={<ClearOutlined />}
+                onClick={onClear}
+              >
+                Limpiar
+              </Button>
+            </Space>
           </FormItem>
         </Col>
       </Row>
@@ -275,7 +307,7 @@ const SizesList = () => {
 
   const columns: ColumnsType<Partial<Size>> = [
     {
-      title: 'Valor',
+      title: <Text>{<FontSizeOutlined />} Valor</Text>,
       dataIndex: 'value',
       align: 'center',
       sorter: true,
@@ -308,7 +340,7 @@ const SizesList = () => {
       ),
     },
     {
-      title: 'Fecha Creación',
+      title: <Text>{<CalendarOutlined />} Fecha Creación</Text>,
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
@@ -317,7 +349,7 @@ const SizesList = () => {
       render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Fecha Actualización',
+      title: <Text>{<CalendarOutlined />} Fecha Actualización</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -326,7 +358,7 @@ const SizesList = () => {
       render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Acción',
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -334,9 +366,10 @@ const SizesList = () => {
         <Tooltip title="Editar" placement="topLeft">
           <Button
             disabled={!canEdit}
+            loading={loading}
             onClick={() => visibleModal(SizeID)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
           />
         </Tooltip>
       ),
@@ -354,21 +387,23 @@ const SizesList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row gutter={[0, 20]} align="middle">
+          <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
             <Col span={11}>
               <Button
                 disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                loading={loading}
                 onClick={() => visibleModal(size)}
               >
                 Nuevo
               </Button>
             </Col>
             <Col span={13} className={styles.alignRigth}>
-              <Text strong>Total Encontrados:</Text> {data?.sizes?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.sizes?.page} / {data?.sizes?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.sizes?.totalDocs || 0}{' '}
+              <Text strong>Páginas: </Text> {data?.sizes?.page || 0} /{' '}
+              {data?.sizes?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table
@@ -377,6 +412,7 @@ const SizesList = () => {
                 pagination={{
                   current: data?.sizes?.page,
                   total: data?.sizes?.totalDocs,
+                  showSizeChanger: false,
                 }}
                 loading={loading}
                 onChange={handleChangeTable}

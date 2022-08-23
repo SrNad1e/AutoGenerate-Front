@@ -8,7 +8,20 @@ import type {
   SummaryOrderClose,
   User,
 } from '@/graphql/graphql';
-import { PlusOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
+import { Permissions } from '@/graphql/graphql';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  ContainerOutlined,
+  DollarCircleOutlined,
+  FieldNumberOutlined,
+  LaptopOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  PrinterFilled,
+  SearchOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Button,
@@ -36,7 +49,7 @@ import numeral from 'numeral';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import type { Location } from 'umi';
-import { useAccess, useHistory, useLocation } from 'umi';
+import { useLocation, useHistory, useAccess } from 'umi';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -61,6 +74,7 @@ const ClosingZList = () => {
   const [visible, setVisible] = useState(false);
   const [cashRegister, setCashRegister] = useState<Partial<CashRegister>>({});
   const [visibleNewClose, setVisibleNewClose] = useState(false);
+  const [filters, setFilters] = useState<Partial<FormValues>>();
   const [closeData, setCloseData] = useState<Partial<CloseZInvoicing>>({});
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -85,6 +99,11 @@ const ClosingZList = () => {
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryClosingZ = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingClosesz,
+  );
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -146,16 +165,20 @@ const ClosingZList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersClosesZInvoicingInput) => {
-    getCloses({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+    try {
+      getCloses({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -184,7 +207,8 @@ const ClosingZList = () => {
       const datos = Object.keys(props)
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
-      form?.setFieldsValue(props);
+
+      form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
     } catch (error: any) {
       messageError(error?.message);
@@ -229,6 +253,7 @@ const ClosingZList = () => {
       limit: 10,
       page: 1,
     });
+    setFilters({});
   };
 
   useEffect(() => {
@@ -241,52 +266,78 @@ const ClosingZList = () => {
     onFinish(newFilters);
   }, []);
 
+  useEffect(() => {
+    if (!canQueryClosingZ) {
+      messageError('No tiene permisos para consultar los cierre z');
+    }
+  }, [canQueryClosingZ]);
+
   const columns: ColumnsType<Partial<CloseZInvoicing>> = [
     {
-      title: 'Número',
+      title: (
+        <Text style={styles.iconSize}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: 'Punto de venta',
+      title: (
+        <Text>
+          <LaptopOutlined /> Punto de Venta
+        </Text>
+      ),
       dataIndex: 'pointOfSale',
       width: 150,
       render: ({ shop, name }: PointOfSale) => (
         <Space direction="vertical" size={0}>
           <Text>{shop?.name}</Text>
-          <Tag>{name}</Tag>
+          <Tag style={styles.tagStyle}>{name}</Tag>
         </Space>
       ),
     },
     {
-      title: 'Fecha Cierre',
+      title: (
+        <Text>
+          <CalendarOutlined /> Fecha Cierre
+        </Text>
+      ),
       dataIndex: 'closeDate',
       sorter: true,
       showSorterTooltip: false,
       render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE_API),
     },
     {
-      title: 'Ingresos',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Ingresos
+        </Text>
+      ),
       dataIndex: 'payments',
       align: 'right',
       render: (payments: PaymentOrderClose[]) =>
         numeral(payments?.reduce((sum, payment) => sum + payment?.value, 0)).format('$ 0,0'),
     },
     {
-      title: 'Facturas',
+      title: <Text>{<ContainerOutlined />} Facturas</Text>,
       dataIndex: 'summaryOrder',
       align: 'right',
       render: (summary: SummaryOrderClose) => numeral(summary?.value).format('$ 0,0'),
     },
     {
-      title: 'Registrado Por',
+      title: <Text>{<UserOutlined />} Registrado Por</Text>,
       dataIndex: 'user',
       align: 'center',
       render: (user: User) => user?.name,
     },
     {
-      title: 'Acción',
+      title: (
+        <Text>
+          <MoreOutlined /> Opción
+        </Text>
+      ),
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -297,6 +348,7 @@ const ClosingZList = () => {
             type="primary"
             icon={<PrinterFilled />}
             disabled={!canPrint}
+            loading={loading}
           />
         </Tooltip>
       ),
@@ -306,19 +358,23 @@ const ClosingZList = () => {
   return (
     <PageContainer>
       <Card bordered={false}>
-        <Form form={form} onFinish={onFinish} style={{ marginBottom: 30 }}>
-          <Row gutter={[20, 15]} align="middle">
-            <Col xs={13} md={4} lg={4} xl={4}>
+        <Form form={form} onFinish={onFinish} initialValues={filters}>
+          <Row gutter={[20, 0]}>
+            <Col xs={24} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">
-                <Input style={{ width: '100%' }} />
+                <Input style={{ width: '100%' }} disabled={loading} placeholder="Ejem: 10" />
               </FormItem>
             </Col>
-            <Col xs={11} md={7} lg={7} xl={7}>
+            <Col xs={24} md={7} lg={7} xl={7}>
               <FormItem label="Fecha de Cierre" name="date">
-                <DatePicker placeholder="Seleccione una fecha" style={{ width: '100%' }} />
+                <DatePicker
+                  disabled={loading}
+                  placeholder="Seleccione una fecha"
+                  style={{ width: '100%' }}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={7} xxl={6}>
+            <Col xs={24} md={5} lg={6} xl={7} xxl={6}>
               <FormItem label="Tienda" name="shopId">
                 <SelectShop disabled={loading} />
               </FormItem>
@@ -326,10 +382,22 @@ const ClosingZList = () => {
             <Col xs={24} md={4} lg={4} xl={3} xxl={4}>
               <FormItem label=" " colon={false}>
                 <Space>
-                  <Button htmlType="submit" icon={<SearchOutlined />} type="primary">
+                  <Button
+                    loading={loading}
+                    htmlType="submit"
+                    style={styles.buttonR}
+                    icon={<SearchOutlined />}
+                    type="primary"
+                  >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button
+                    htmlType="button"
+                    onClick={onClear}
+                    style={styles.buttonR}
+                    icon={<ClearOutlined />}
+                    loading={loading}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -337,37 +405,38 @@ const ClosingZList = () => {
             </Col>
           </Row>
         </Form>
-        <Row align="middle">
-          <Col span={8}>
+        <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
+          <Col xs={12} md={15} lg={15}>
             <Button
               disabled={!canCreate}
               icon={<PlusOutlined />}
               onClick={() => setVisible(true)}
               shape="round"
+              loading={loading}
               type="primary"
             >
               Registrar
             </Button>
           </Col>
-          <Col span={16} style={{ textAlign: 'right' }}>
-            <Text strong>Total Encontrados:</Text> {data?.closesZInvoicing?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.closesZInvoicing?.page} /{' '}
+          <Col xs={24} md={9} lg={9} style={{ textAlign: 'right' }}>
+            <Text strong>Total Encontrados:</Text> {data?.closesZInvoicing?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.closesZInvoicing?.page || 0} /{' '}
             {data?.closesZInvoicing?.totalPages || 0}
           </Col>
+          <Col span={24}>
+            <Table
+              pagination={{
+                current: data?.closesZInvoicing?.page,
+                total: data?.closesZInvoicing?.totalDocs,
+              }}
+              onChange={handleChangeTable}
+              columns={columns}
+              scroll={{ x: 900 }}
+              loading={loading}
+              dataSource={data?.closesZInvoicing?.docs as any}
+            />
+          </Col>
         </Row>
-      </Card>
-      <Card bordered={false} bodyStyle={styles.bodyPadding}>
-        <Table
-          pagination={{
-            current: data?.closesZInvoicing?.page,
-            total: data?.closesZInvoicing?.totalDocs,
-          }}
-          onChange={handleChangeTable}
-          columns={columns}
-          scroll={{ x: 900 }}
-          loading={loading}
-          dataSource={data?.closesZInvoicing?.docs as any}
-        />
       </Card>
       <CashRegisterModal visible={visible} onCancel={closeModal} onOk={saveCashRegister} />
       <CloseDay

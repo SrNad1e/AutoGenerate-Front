@@ -26,9 +26,11 @@ import {
 import type { ColumnsType } from 'antd/lib/table';
 import type { SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import type { Box, FiltersBoxesInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { useGetBoxes } from '@/hooks/box.hooks';
 import moment from 'moment';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useLocation, history } from 'umi';
 import { useEffect, useState } from 'react';
@@ -64,6 +66,11 @@ const BoxList = () => {
   } = useAccess();
 
   const [getBoxes, paramsGetBoxes] = useGetBoxes();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryBox = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadTreasuryBoxes,
+  );
 
   /**
    * @description cierra el modal y reinicia el estado de la caja
@@ -110,14 +117,18 @@ const BoxList = () => {
    * @param filters filtros para realizar la consulta
    */
   const onSearch = (filters?: FiltersBoxesInput) => {
-    getBoxes({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
+    try {
+      getBoxes({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -230,6 +241,12 @@ const BoxList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryBox) {
+      showError('No tiene permisos para consultar las cajas');
+    }
+  }, [canQueryBox]);
+
   const column: ColumnsType<Box> = [
     {
       title: <Text>{<ProfileOutlined />} Nombre</Text>,
@@ -263,7 +280,7 @@ const BoxList = () => {
       render: (value: number) => numeral(value).format('$ 0,0'),
     },
     {
-      title: <Text>Principal </Text>,
+      title: <Text>Es Principal </Text>,
       dataIndex: 'isMain',
       align: 'center',
       sorter: true,
@@ -281,16 +298,17 @@ const BoxList = () => {
       render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
-      title: <Text>{<MoreOutlined />} Opciones</Text>,
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
       render: (_, boxId) => (
         <Tooltip title="Editar">
           <Button
-            disabled={paramsGetBoxes?.loading || !canEdit}
+            disabled={!canEdit}
             type="primary"
             color="secondary"
+            loading={paramsGetBoxes.loading}
             icon={<EditOutlined />}
             onClick={() => onOpenModal(boxId)}
           />
@@ -313,7 +331,7 @@ const BoxList = () => {
               <FormItem>
                 <Space>
                   <Button
-                    disabled={paramsGetBoxes?.loading}
+                    loading={paramsGetBoxes?.loading}
                     type="primary"
                     htmlType="submit"
                     style={styles.buttonR}
@@ -322,7 +340,7 @@ const BoxList = () => {
                     Buscar
                   </Button>
                   <Button
-                    disabled={paramsGetBoxes?.loading}
+                    loading={paramsGetBoxes?.loading}
                     htmlType="reset"
                     onClick={onClear}
                     icon={<ClearOutlined />}
@@ -336,9 +354,10 @@ const BoxList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={styles.marginFIlters}>
-          <Col span={8}>
+          <Col span={12}>
             <Button
-              disabled={paramsGetBoxes?.loading || !canCreate}
+              disabled={!canCreate}
+              loading={paramsGetBoxes.loading}
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
@@ -347,9 +366,9 @@ const BoxList = () => {
               Nuevo
             </Button>
           </Col>
-          <Col span={16} style={styles.alignText}>
-            <Text strong>Total Encontrados: </Text> {paramsGetBoxes?.data?.boxes?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {paramsGetBoxes?.data?.boxes?.page} /{' '}
+          <Col span={12} style={styles.alignText}>
+            <Text strong>Total Encontrados: </Text> {paramsGetBoxes?.data?.boxes?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {paramsGetBoxes?.data?.boxes?.page || 0} /{' '}
             {paramsGetBoxes?.data?.boxes?.totalPages || 0}
           </Col>
           <Col span={24}>
@@ -358,9 +377,11 @@ const BoxList = () => {
               columns={column}
               dataSource={paramsGetBoxes?.data?.boxes?.docs}
               scroll={{ x: 'auto' }}
+              loading={paramsGetBoxes.loading}
               pagination={{
                 current: paramsGetBoxes?.data?.boxes?.page,
                 total: paramsGetBoxes?.data?.boxes?.totalDocs,
+                showSizeChanger: false,
               }}
             />
           </Col>

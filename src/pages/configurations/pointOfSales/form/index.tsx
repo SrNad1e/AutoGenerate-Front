@@ -9,6 +9,7 @@ import {
 import { Col, DatePicker, Form, Input, Modal, Row, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { useCreatePointOfSale, useUpdatePointOfSale } from '@/hooks/pointOfSale.hooks';
+
 import type { PointOfSale } from '@/graphql/graphql';
 import moment from 'moment';
 
@@ -79,7 +80,6 @@ const PointOfSalesForm = ({ pointOfSale, onCancel, visible }: Props) => {
    */
   const editPos = async () => {
     const values = await form.validateFields();
-
     try {
       const response = await updatePointOfSale({
         variables: {
@@ -147,12 +147,10 @@ const PointOfSalesForm = ({ pointOfSale, onCancel, visible }: Props) => {
       title={isNew ? 'Crear Punto de venta' : 'Actualizar Punto de venta'}
       cancelButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading,
         loading: paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading,
       }}
       okButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading,
         loading: paramsCreatePointOfSale?.loading || paramsUpdatePointOfSale?.loading,
       }}
     >

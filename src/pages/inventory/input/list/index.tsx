@@ -1,6 +1,17 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  DollarCircleOutlined,
+  DropboxOutlined,
+  EyeOutlined,
+  FieldNumberOutlined,
+  FileSyncOutlined,
+  MoreOutlined,
+  PrinterFilled,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   Badge,
   Button,
@@ -47,6 +58,7 @@ import type {
 } from '@/graphql/graphql';
 
 import styles from './styles.less';
+import style from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -127,16 +139,20 @@ const InputList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersStockInputsInput) => {
-    getInputs({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+    try {
+      getInputs({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -256,14 +272,18 @@ const InputList = () => {
 
   const columns: ColumnsType<Partial<StockInput>> = [
     {
-      title: 'Número',
+      title: (
+        <Text className={styles.iconTable}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: 'Bodega',
+      title: <Text>{<DropboxOutlined />} Bodega</Text>,
       dataIndex: 'warehouse',
       align: 'center',
       sorter: true,
@@ -271,13 +291,17 @@ const InputList = () => {
       render: (warehouse: Warehouse) => warehouse?.name,
     },
     {
-      title: 'Referencia',
+      title: (
+        <Text>
+          <FieldNumberOutlined /> Referencias
+        </Text>
+      ),
       dataIndex: 'details',
       align: 'center',
       render: (details: DetailInput[]) => details?.length,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
       render: (status: string) => {
@@ -286,7 +310,11 @@ const InputList = () => {
       },
     },
     {
-      title: 'Total',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Total
+        </Text>
+      ),
       dataIndex: 'total',
       align: 'center',
       sorter: true,
@@ -294,15 +322,7 @@ const InputList = () => {
       render: (total: number) => numeral(total).format('$ 0,0'),
     },
     {
-      title: 'Creado',
-      dataIndex: 'createdAt',
-      align: 'center',
-      sorter: true,
-      showSorterTooltip: false,
-      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
-    },
-    {
-      title: 'Actualizado',
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -310,7 +330,7 @@ const InputList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -356,15 +376,15 @@ const InputList = () => {
           onFinish={onFinish}
           initialValues={filters}
         >
-          <Row gutter={20} className={styles.form}>
-            <Col xs={24} md={5} lg={5} xl={3}>
+          <Row gutter={[40, 0]} align="middle">
+            <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
-                <InputNumber className={styles.item} disabled={loading} min={1} controls={false} />
+                <InputNumber style={style.maxWidth} disabled={loading} min={1} controls={false} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={9} xl={5}>
+            <Col xs={24} md={5} lg={5} xl={5}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item} allowClear disabled={loading}>
+                <Select className={styles.item} allowClear loading={loading}>
                   {Object.keys(StatusTypeInput).map((key) => (
                     <Option key={key}>
                       <Badge text={StatusTypeInput[key].label} color={StatusTypeInput[key].color} />
@@ -373,17 +393,21 @@ const InputList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={10} lg={10} xl={5}>
+            <Col xs={24} md={6} lg={6} xl={7}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={9} xl={6}>
+            <Col xs={24} md={7} lg={7} xl={8}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker className={styles.item} disabled={loading} />
+                <RangePicker
+                  className={styles.item}
+                  disabled={loading}
+                  placeholder={['Fecha Inicial', 'Fecha Final']}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={5}>
+            <Col xs={24} md={7} lg={24} xl={24}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -391,10 +415,17 @@ const InputList = () => {
                     type="primary"
                     htmlType="submit"
                     loading={loading}
+                    style={style.buttonR}
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button
+                    icon={<ClearOutlined />}
+                    htmlType="button"
+                    style={style.buttonR}
+                    onClick={onClear}
+                    loading={loading}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -415,6 +446,7 @@ const InputList = () => {
               pagination={{
                 current: data?.stockInputs?.page,
                 total: data?.stockInputs?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

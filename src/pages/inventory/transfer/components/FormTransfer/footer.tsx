@@ -3,6 +3,7 @@ import type { DetailTransfer, StockTransfer } from '@/graphql/graphql';
 import { StatusStockTransfer } from '@/graphql/graphql';
 import { Affix, Button, Card, Col, Divider, Row, Space, Typography } from 'antd';
 import styles from '../styles.less';
+import style from './styles';
 
 const { Title } = Typography;
 
@@ -36,6 +37,7 @@ const Footer = ({ transfer, saveTransfer, details, allowEdit }: Props) => {
             <Button
               disabled={!allowEdit}
               type={transfer?._id ? 'primary' : 'default'}
+              style={style.buttonR}
               danger={!!transfer?._id}
               onClick={() => saveTransfer(StatusStockTransfer.Cancelled)}
             >
@@ -47,11 +49,16 @@ const Footer = ({ transfer, saveTransfer, details, allowEdit }: Props) => {
           </Col>
           <Col xs={24} md={5}>
             <Space align="end" className={styles.alignRight}>
-              <Button disabled={!allowEdit} onClick={() => saveTransfer()}>
+              <Button
+                style={style.buttonR}
+                disabled={!allowEdit}
+                onClick={() => saveTransfer(StatusStockTransfer.Open)}
+              >
                 Guardar
               </Button>
               <Button
                 type="primary"
+                style={style.buttonR}
                 disabled={!allowEdit}
                 onClick={() => saveTransfer(StatusStockTransfer.Sent)}
               >

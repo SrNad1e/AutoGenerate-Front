@@ -1,10 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, PlusOutlined, PlusSquareOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  EditOutlined,
+  GatewayOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  PlusSquareOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Col, Form, Input, Row, Space, Table, Tooltip, Typography } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useLocation, history, useAccess } from 'umi';
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 
@@ -18,6 +28,7 @@ import type {
   CategoryLevel3,
   FiltersCategoriesInput,
 } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 
 import styles from './styles.less';
 
@@ -53,6 +64,11 @@ const CategoryList = () => {
   } = useAccess();
 
   const [getCategories, { data, loading }] = useGetCategories();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryCategories = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventoryCategories,
+  );
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -262,13 +278,19 @@ const CategoryList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryCategories) {
+      showError('No tiene permisos para consultar las categorias');
+    }
+  }, [canQueryCategories]);
+
   /**
    * @description se encarga de renderizar la interfaz de busqueda
    */
   const renderFormSearch = () => (
     <Form onFinish={onFinish} form={form}>
       <Row gutter={[8, 8]} align="middle">
-        <Col xs={24} md={10} lg={8}>
+        <Col xs={24} md={13} lg={10}>
           <FormItem label="Nombre" name="name">
             <Input
               placeholder="Nombre de la categoria"
@@ -279,12 +301,25 @@ const CategoryList = () => {
         </Col>
         <Col xs={24} md={8}>
           <FormItem label="">
-            <Button type="primary" htmlType="submit">
-              Buscar
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={onClear}>
-              Limpiar
-            </Button>
+            <Space>
+              <Button
+                style={{ borderRadius: 5 }}
+                icon={<SearchOutlined />}
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+              >
+                Buscar
+              </Button>
+              <Button
+                style={{ borderRadius: 5 }}
+                loading={loading}
+                icon={<ClearOutlined />}
+                onClick={onClear}
+              >
+                Limpiar
+              </Button>
+            </Space>
           </FormItem>
         </Col>
       </Row>
@@ -293,7 +328,7 @@ const CategoryList = () => {
 
   const columns: ColumnsType<Partial<CategoryLevel1>> = [
     {
-      title: 'Categoria',
+      title: <Text>{<GatewayOutlined />} Categoria</Text>,
       dataIndex: 'name',
       align: 'center',
       sorter: true,
@@ -301,7 +336,7 @@ const CategoryList = () => {
       sortOrder: sorterTable.field === 'name' ? sorterTable.order : undefined,
     },
     {
-      title: 'Fecha de creacion',
+      title: <Text>{<CalendarOutlined />} Fecha Creación</Text>,
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
@@ -310,7 +345,7 @@ const CategoryList = () => {
       render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
     },
     {
-      title: 'Fecha de actualizacion',
+      title: <Text>{<CalendarOutlined />} Fecha Actualización</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -319,7 +354,7 @@ const CategoryList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Accion',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       align: 'center',
       dataIndex: '__typename',
       fixed: 'right',
@@ -329,17 +364,19 @@ const CategoryList = () => {
             <Button
               disabled={!canEdit}
               onClick={() => visibleModal(categoryData, false)}
-              style={{ backgroundColor: '#dc9575' }}
-              icon={<EditOutlined style={{ color: 'white' }} />}
+              type="primary"
+              loading={loading}
+              icon={<EditOutlined />}
             />
           </Tooltip>
           {val !== 'CategoryLevel3' && (
             <Tooltip title="Crear Subcategoria" placement="topLeft">
               <Button
                 disabled={!canCreate}
+                loading={loading}
                 onClick={() => visibleModal(categoryData, true)}
-                style={{ backgroundColor: '#dc9575' }}
-                icon={<PlusSquareOutlined style={{ color: 'white' }} />}
+                type="primary"
+                icon={<PlusSquareOutlined />}
               />
             </Tooltip>
           )}
@@ -358,12 +395,13 @@ const CategoryList = () => {
     >
       <Card className={styles.tableList}>
         <div className={styles.tableListForm}>{renderFormSearch()}</div>
-        <Row gutter={[0, 20]} align="middle">
+        <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
           <Col span={12}>
             <Button
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
+              loading={loading}
               onClick={() => visibleModal({ __typename: 'CategoryLevel1' }, true)}
               disabled={!canCreate}
             >
@@ -371,8 +409,8 @@ const CategoryList = () => {
             </Button>
           </Col>
           <Col span={12} className={styles.alignRigth}>
-            <Text strong>Total Encontrados:</Text> {data?.categories.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.categories.page} /{' '}
+            <Text strong>Total Encontrados:</Text> {data?.categories.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.categories.page || 0} /{' '}
             {data?.categories.totalPages || 0}
           </Col>
           <Col span={24}>

@@ -65,6 +65,9 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
 
   const isNew = !customerData?._id;
 
+  const documentTypeCCId = '62c88cbb0ee9b73ab036f0d7';
+  const customerTypeDetalId = '62c88cf30ee9b73ab036f0d8';
+
   const birthday = moment(customerData?.birthday || undefined);
 
   const documentTypes = Object.values(
@@ -239,13 +242,20 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
   }, []);
 
   useEffect(() => {
-    form.setFieldsValue({
-      ...customerData,
-      customerTypeId: customerData?.customerType?._id,
-      birthday: customerData?.birthday !== null ? birthday : undefined,
-      documentTypeId: customerData?.documentType?._id,
-    });
-    setAddresses(customerData?.addresses || []);
+    if (!isNew) {
+      form.setFieldsValue({
+        ...customerData,
+        customerTypeId: customerData?.customerType?._id,
+        birthday: customerData?.birthday !== null ? birthday : undefined,
+        documentTypeId: customerData?.documentType?._id,
+      });
+      setAddresses(customerData?.addresses || []);
+    } else {
+      form.setFieldsValue({
+        documentTypeId: documentTypeCCId,
+        customerTypeId: customerTypeDetalId,
+      });
+    }
     onSearchCredit();
   }, [visible]);
 
@@ -257,7 +267,6 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
       <Select
         size="small"
         bordered={false}
-        placeholder="NIT..."
         style={styles.selectWidth}
         disabled={
           loading ||
@@ -273,6 +282,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
           paramsCreateCustomer?.loading ||
           paramsCreateCredit?.loading
         }
+        defaultValue={documentTypeCCId}
       >
         {documentTypes.map((typeDocument) => (
           <Option key={typeDocument._id} value={typeDocument._id}>
@@ -328,6 +338,9 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
           paramsUpdateCredit?.loading ||
           paramsCreateCustomer?.loading ||
           paramsCreateCredit?.loading,
+        style: {
+          borderRadius: 5,
+        },
       }}
       cancelButtonProps={{
         disabled:
@@ -340,6 +353,9 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
           paramsUpdateCredit?.loading ||
           paramsCreateCustomer?.loading ||
           paramsCreateCredit?.loading,
+        style: {
+          borderRadius: 5,
+        },
       }}
     >
       <Tabs>

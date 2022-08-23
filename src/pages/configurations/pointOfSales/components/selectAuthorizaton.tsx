@@ -3,6 +3,8 @@ import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetAuthorizations } from '@/hooks/authorization.hooks';
+import { useModel } from 'umi';
+import { Permissions } from '@/graphql/graphql';
 
 const { Option } = Select;
 
@@ -14,6 +16,11 @@ export type Params = {
 
 const SelectAuthorization = ({ onChange, disabled, value }: Params) => {
   const [getAuthorizations, { loading, data, error }] = useGetAuthorizations();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryAuthorizations = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingAuthorizations,
+  );
 
   /**
    * @description se encarga de consultar con base a un comodín
@@ -33,16 +40,18 @@ const SelectAuthorization = ({ onChange, disabled, value }: Params) => {
   };
 
   useEffect(() => {
-    getAuthorizations({
-      variables: {
-        input: {
-          prefix: value,
-          sort: {
-            prefix: 1,
+    if (canQueryAuthorizations) {
+      getAuthorizations({
+        variables: {
+          input: {
+            prefix: value,
+            sort: {
+              prefix: 1,
+            },
           },
         },
-      },
-    });
+      });
+    }
   }, []);
 
   return (
@@ -64,6 +73,9 @@ const SelectAuthorization = ({ onChange, disabled, value }: Params) => {
           </Option>
         ))}
       </Select>
+      {!canQueryAuthorizations && (
+        <Alert message="No tiene permiso para consultar las autorizaciones" type="error" showIcon />
+      )}
       {error && <Alert message={error} type="info" showIcon />}
     </>
   );

@@ -28,6 +28,7 @@ query coupons($input: FiltersCouponsInput!) {
       code
       expiration
       updatedAt
+      createdAt
     }
   }
 }

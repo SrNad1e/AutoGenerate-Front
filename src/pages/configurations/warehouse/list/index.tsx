@@ -7,7 +7,6 @@ import {
   MoreOutlined,
   PlusOutlined,
   SearchOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -20,18 +19,12 @@ import {
   Row,
   Space,
   Table,
-  Tag,
   Tooltip,
   Typography,
 } from 'antd';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import type { ColumnsType } from 'antd/lib/table';
-import type {
-  FiltersWarehousesInput,
-  ResponseWarehouses,
-  User,
-  Warehouse,
-} from '@/graphql/graphql';
+import type { FiltersWarehousesInput, ResponseWarehouses, Warehouse } from '@/graphql/graphql';
 import type { Location } from 'umi';
 import { useAccess } from 'umi';
 import { useHistory, useLocation } from 'umi';
@@ -82,7 +75,7 @@ const WarehouseList = () => {
 
     if (statusCode == 403) {
       setPropsAlertInformation({
-        message: 'No tiene acceso a consultar bodegas',
+        message: 'No tiene permisos para consultar las bodegas',
         visible: true,
         type: 'error',
       });
@@ -138,14 +131,18 @@ const WarehouseList = () => {
    * @param values filtros necesarios para la busqueda
    */
   const onSearch = (values?: FiltersWarehousesInput) => {
-    getWarehouses({
-      variables: {
-        input: {
-          sort: { createdAt: -1 },
-          ...values,
+    try {
+      getWarehouses({
+        variables: {
+          input: {
+            sort: { createdAt: -1 },
+            ...values,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error.message);
+    }
   };
 
   /**
@@ -292,16 +289,6 @@ const WarehouseList = () => {
       showSorterTooltip: false,
     },
     {
-      title: (
-        <Text>
-          <UserOutlined /> Creado Por
-        </Text>
-      ),
-      dataIndex: 'user',
-      align: 'center',
-      render: (user: User) => <Tag style={styles.tagStyle}>{user?.name}</Tag>,
-    },
-    {
       title: 'Activo',
       dataIndex: 'active',
       align: 'center',
@@ -352,7 +339,8 @@ const WarehouseList = () => {
           <Tooltip title="Editar Bodega">
             <Button
               type="primary"
-              disabled={paramsGetWarehouse?.loading || !canEdit}
+              disabled={!canEdit}
+              loading={paramsGetWarehouse?.loading}
               onClick={() => visibleModal(warehouse)}
               icon={<EditOutlined />}
             />
@@ -380,7 +368,7 @@ const WarehouseList = () => {
                     type="primary"
                     htmlType="submit"
                     style={styles.borderR}
-                    disabled={paramsGetWarehouse?.loading}
+                    loading={paramsGetWarehouse?.loading}
                   >
                     Buscar
                   </Button>
@@ -388,7 +376,7 @@ const WarehouseList = () => {
                     htmlType="reset"
                     onClick={onClear}
                     style={styles.borderR}
-                    disabled={paramsGetWarehouse?.loading}
+                    loading={paramsGetWarehouse?.loading}
                     icon={<ClearOutlined />}
                   >
                     Limpiar
@@ -399,37 +387,35 @@ const WarehouseList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={styles.marginFilters}>
-          <Col xs={8} md={15} lg={15}>
+          <Col span={12}>
             <Button
               onClick={() => visibleModal()}
               icon={<PlusOutlined />}
               shape="round"
               type="primary"
-              disabled={paramsGetWarehouse?.loading || !canCreate}
+              disabled={!canCreate}
+              loading={paramsGetWarehouse?.loading}
             >
               Nuevo
             </Button>
           </Col>
-          <Col xs={16} md={9} lg={9} style={styles.texRigth}>
-            <Space>
-              <Text strong>Total Encontrados:</Text>
-              <Text>{paramsGetWarehouse?.data?.warehouses?.totalDocs || 0}</Text>
-              <Text strong>Pagina:</Text>
-              <Text>
-                {paramsGetWarehouse?.data?.warehouses?.page || 0}/{' '}
-                {paramsGetWarehouse?.data?.warehouses?.totalPages || 0}
-              </Text>
-            </Space>
+          <Col span={12} style={styles.texRigth}>
+            <Text strong>Total Encontrados:</Text>{' '}
+            {paramsGetWarehouse?.data?.warehouses?.totalDocs || 0} <Text strong>Pagina: </Text>
+            {paramsGetWarehouse?.data?.warehouses?.page || 0} /
+            {paramsGetWarehouse?.data?.warehouses?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
               onChange={handleChangeTable}
               columns={columns}
-              scroll={{ x: 1000 }}
+              scroll={{ x: 'auto' }}
               pagination={{
                 current: paramsGetWarehouse?.data?.warehouses?.page,
                 total: paramsGetWarehouse?.data?.warehouses?.totalDocs,
+                showSizeChanger: false,
               }}
+              loading={paramsGetWarehouse?.loading}
               dataSource={paramsGetWarehouse?.data?.warehouses?.docs as any}
             />
           </Col>

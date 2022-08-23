@@ -3,6 +3,8 @@ import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetBoxes } from '@/hooks/box.hooks';
+import { useModel } from 'umi';
+import { Permissions } from '@/graphql/graphql';
 
 const { Option } = Select;
 
@@ -14,6 +16,11 @@ export type Params = {
 
 const SelectBox = ({ onChange, disabled, value }: Params) => {
   const [getBoxes, { loading, data, error }] = useGetBoxes();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryBox = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadTreasuryBoxes,
+  );
 
   /**
    * @description se encarga de consultar con base a un comodín
@@ -31,13 +38,15 @@ const SelectBox = ({ onChange, disabled, value }: Params) => {
   };
 
   useEffect(() => {
-    getBoxes({
-      variables: {
-        input: {
-          _id: value,
+    if (canQueryBox) {
+      getBoxes({
+        variables: {
+          input: {
+            _id: value,
+          },
         },
-      },
-    });
+      });
+    }
   }, []);
 
   return (
@@ -59,6 +68,9 @@ const SelectBox = ({ onChange, disabled, value }: Params) => {
           </Option>
         ))}
       </Select>
+      {!canQueryBox && (
+        <Alert message="No tiene permiso para consultar las cajas" type="error" showIcon />
+      )}
       {error && <Alert message={error} type="info" showIcon />}
     </>
   );

@@ -17,4 +17,7 @@ export default {
     color: '#dc9575',
     backgroundColor: 'white',
   },
+  marginFilter: {
+    marginTop: 20,
+  },
 };

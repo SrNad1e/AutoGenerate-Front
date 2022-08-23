@@ -1,5 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  EditOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  SkinOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Badge,
@@ -16,7 +24,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
 
@@ -24,7 +32,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetAttribs } from '@/hooks/attrib.hooks';
 import CreateAttrib from '@/components/CreateAttrib';
-import type { Attrib, FiltersAttribsInput } from '@/graphql/graphql';
+import { Attrib, FiltersAttribsInput, Permissions } from '@/graphql/graphql';
 
 import styles from './styles.less';
 import Filters from '@/components/Filters';
@@ -59,6 +67,10 @@ const AttribsList = () => {
   } = useAccess();
 
   const [getAttribs, { data, loading }] = useGetAttribs();
+  const { initialState } = useModel('@@initialState');
+  const canQueryAttribs = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventoryAttribs,
+  );
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -242,25 +254,44 @@ const AttribsList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryAttribs) {
+      showError('No tiene permisos para consultar los atributos');
+    }
+  }, [canQueryAttribs]);
+
   /**
    * @description se encarga de renderizar la interfaz de busqueda
    */
   const renderFormSearch = () => (
     <Form onFinish={onFinish} form={form}>
       <Row gutter={[8, 8]} align="middle">
-        <Col xs={24} md={10} lg={9}>
+        <Col xs={24} md={13} lg={10}>
           <FormItem label="Nombre" name="name">
             <Input placeholder="Nombre del atributo" autoComplete="off" style={{ width: '100%' }} />
           </FormItem>
         </Col>
         <Col xs={24} md={8}>
           <FormItem label="">
-            <Button type="primary" htmlType="submit">
-              Buscar
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={onClear}>
-              Limpiar
-            </Button>
+            <Space>
+              <Button
+                style={{ borderRadius: 5 }}
+                icon={<SearchOutlined />}
+                type="primary"
+                loading={loading}
+                htmlType="submit"
+              >
+                Buscar
+              </Button>
+              <Button
+                style={{ borderRadius: 5 }}
+                loading={loading}
+                icon={<ClearOutlined />}
+                onClick={onClear}
+              >
+                Limpiar
+              </Button>
+            </Space>
           </FormItem>
         </Col>
       </Row>
@@ -269,7 +300,11 @@ const AttribsList = () => {
 
   const columns: ColumnsType<Partial<Attrib>> = [
     {
-      title: 'Nombre',
+      title: (
+        <Text>
+          <SkinOutlined /> Nombre
+        </Text>
+      ),
       dataIndex: 'name',
       align: 'center',
       sorter: true,
@@ -302,7 +337,7 @@ const AttribsList = () => {
       ),
     },
     {
-      title: 'Fecha Creación',
+      title: <Text>{<CalendarOutlined />} Fecha Creación</Text>,
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
@@ -311,7 +346,7 @@ const AttribsList = () => {
       render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Fecha Actualización',
+      title: <Text>{<CalendarOutlined />} Fecha Actualización</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -320,7 +355,7 @@ const AttribsList = () => {
       render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Acción',
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -329,8 +364,9 @@ const AttribsList = () => {
           <Button
             disabled={!canEdit}
             onClick={() => visibleModal(AttribID)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
+            loading={loading}
           />
         </Tooltip>
       ),
@@ -348,21 +384,23 @@ const AttribsList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row gutter={[0, 20]} align="middle">
+          <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
             <Col span={12}>
               <Button
                 disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                loading={loading}
                 onClick={() => visibleModal(attrib)}
               >
                 Nuevo
               </Button>
             </Col>
             <Col span={12} className={styles.alignRigth}>
-              <Text strong>Total Encontrados:</Text> {data?.attribs?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.attribs?.page} / {data?.attribs?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.attribs?.totalDocs || 0}{' '}
+              <Text strong>Páginas: </Text> {data?.attribs?.page || 0} /{' '}
+              {data?.attribs?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table
@@ -371,6 +409,7 @@ const AttribsList = () => {
                 pagination={{
                   current: data?.attribs?.page,
                   total: data?.attribs?.totalDocs,
+                  showSizeChanger: false,
                 }}
                 loading={loading}
                 onChange={handleChangeTable}

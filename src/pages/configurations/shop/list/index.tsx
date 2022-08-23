@@ -8,7 +8,6 @@ import {
   PlusOutlined,
   SearchOutlined,
   ShopOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -21,7 +20,6 @@ import {
   Row,
   Space,
   Table,
-  Tag,
   Tooltip,
   Typography,
 } from 'antd';
@@ -29,8 +27,9 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import type { ColumnsType } from 'antd/lib/table';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
-import type { FiltersShopsInput, ResponseWarehouses, Shop, User } from '@/graphql/graphql';
-import { useAccess, useHistory, useLocation } from 'umi';
+import type { FiltersShopsInput, ResponseWarehouses, Shop } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 import { useGetShops } from '@/hooks/shop.hooks';
 
@@ -68,6 +67,11 @@ const ShopList = () => {
   } = useAccess();
 
   const [getShops, paramsGetShops] = useGetShops();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryShops = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadConfigurationShops,
+  );
 
   /**
    * @description se encarga de cerrar el modal de creacion
@@ -114,17 +118,21 @@ const ShopList = () => {
    * @param values filtros necesarios para la busqueda
    */
   const onSearch = (values?: FiltersShopsInput) => {
-    getShops({
-      variables: {
-        input: {
-          limit: 10,
-          sort: {
-            createdAt: -1,
+    try {
+      getShops({
+        variables: {
+          input: {
+            limit: 10,
+            sort: {
+              createdAt: -1,
+            },
+            ...values,
           },
-          ...values,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -258,6 +266,12 @@ const ShopList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryShops) {
+      messageError('No tiene permisos para consultar las tiendas');
+    }
+  }, [canQueryShops]);
+
   const columns: ColumnsType<Shop> = [
     {
       title: (
@@ -269,16 +283,6 @@ const ShopList = () => {
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-    },
-    {
-      title: (
-        <Text>
-          <UserOutlined /> Creado Por
-        </Text>
-      ),
-      dataIndex: 'user',
-      align: 'center',
-      render: (user: User) => <Tag style={styles.tagStyle}>{user?.name}</Tag>,
     },
     {
       title: <Text>{<FileSyncOutlined />} Estado</Text>,
@@ -337,7 +341,8 @@ const ShopList = () => {
               type="primary"
               onClick={() => visibleModal(shopId)}
               icon={<EditOutlined />}
-              disabled={paramsGetShops?.loading || !canEdit}
+              disabled={!canEdit}
+              loading={paramsGetShops?.loading}
             />
           </Tooltip>
         );
@@ -361,7 +366,7 @@ const ShopList = () => {
                   <Button
                     icon={<SearchOutlined />}
                     type="primary"
-                    disabled={paramsGetShops?.loading}
+                    loading={paramsGetShops?.loading}
                     htmlType="submit"
                     style={styles.buttonR}
                   >
@@ -369,7 +374,7 @@ const ShopList = () => {
                   </Button>
                   <Button
                     htmlType="reset"
-                    disabled={paramsGetShops?.loading}
+                    loading={paramsGetShops?.loading}
                     onClick={onClear}
                     style={styles.buttonR}
                     icon={<ClearOutlined />}
@@ -382,37 +387,34 @@ const ShopList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={styles.marginFIlters}>
-          <Col xs={8} md={15} lg={15}>
+          <Col span={12}>
             <Button
               onClick={() => visibleModal()}
               icon={<PlusOutlined />}
               shape="round"
-              disabled={paramsGetShops?.loading || !canCreate}
+              disabled={!canCreate}
+              loading={paramsGetShops?.loading}
               type="primary"
             >
               Nuevo
             </Button>
           </Col>
-          <Col xs={16} md={9} lg={9} style={styles.alignText}>
-            <Space>
-              <Text strong>Total Encontrados:</Text>
-              <Text>{paramsGetShops?.data?.shops?.totalDocs || 0}</Text>
-              <Text strong>Pagina:</Text>
-              <Text>
-                {paramsGetShops?.data?.shops?.page || 0}/{' '}
-                {paramsGetShops?.data?.shops?.totalPages || 0}
-              </Text>
-            </Space>
+          <Col span={12} style={styles.alignText}>
+            <Text strong>Total Encontrados:</Text> {paramsGetShops?.data?.shops?.totalDocs || 0}{' '}
+            <Text strong>Pagina: </Text>
+            {paramsGetShops?.data?.shops?.page || 0} /{paramsGetShops?.data?.shops?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
               onChange={handleChangeTable}
               columns={columns}
-              scroll={{ x: 1000 }}
+              scroll={{ x: 'auto' }}
               pagination={{
                 current: paramsGetShops?.data?.shops?.page,
                 total: paramsGetShops?.data?.shops?.totalDocs,
+                showSizeChanger: false,
               }}
+              loading={paramsGetShops?.loading}
               dataSource={paramsGetShops?.data?.shops?.docs as any}
             />
           </Col>

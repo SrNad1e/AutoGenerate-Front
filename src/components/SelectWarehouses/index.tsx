@@ -1,15 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Select } from 'antd';
+import { Alert, Select } from 'antd';
 import { useEffect, useState } from 'react';
 
 import { useGetWarehouses } from '@/hooks/warehouse.hooks';
 import type { FiltersWarehousesInput } from '@/graphql/graphql';
-import type { ApolloError } from '@apollo/client';
+import { Permissions } from '@/graphql/graphql';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from './styles.less';
+import { useModel } from 'umi';
 
 const { Option } = Select;
 
@@ -35,23 +36,12 @@ const SelectWarehouses = ({ onChange, value, onClear, disabled }: Props) => {
     });
   };
 
-  const onError = (e: ApolloError) => {
-    const { statusCode } = e?.graphQLErrors[0]?.extensions?.response as any;
-    if (statusCode == 403) {
-      setPropsAlertInformation({
-        message: 'No tiene acceso a consultar bodegas',
-        visible: true,
-        type: 'error',
-      });
-    } else {
-      setPropsAlertInformation({
-        message: e?.graphQLErrors[0]?.message,
-        visible: true,
-        type: 'error',
-      });
-    }
-  };
-  const [getWarehouses, { data, loading }] = useGetWarehouses(onError);
+  const { initialState } = useModel('@@initialState');
+  const canQueryWarehouses = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadConfigurationWarehouses,
+  );
+
+  const [getWarehouses, { data, loading }] = useGetWarehouses();
 
   /**
    * @description se encarga de consultar con base a un comodín
@@ -69,7 +59,9 @@ const SelectWarehouses = ({ onChange, value, onClear, disabled }: Props) => {
   };
 
   useEffect(() => {
-    onSearch({ _id: value, active: true });
+    if (canQueryWarehouses) {
+      onSearch({ _id: value, active: true });
+    }
   }, [!!value]);
 
   return (
@@ -91,6 +83,9 @@ const SelectWarehouses = ({ onChange, value, onClear, disabled }: Props) => {
           <Option key={warehouse._id?.toString()}>{warehouse.name}</Option>
         ))}
       </Select>
+      {!canQueryWarehouses && (
+        <Alert message="No tiene permiso para consultar las bodegas" type="error" showIcon />
+      )}
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </>
   );

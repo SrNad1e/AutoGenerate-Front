@@ -10,7 +10,7 @@ import {
   UpdateWarehouseDocument,
 } from '@/graphql/graphql';
 
-export const useGetWarehouses = (onError: (e: ApolloError) => void) => {
+export const useGetWarehouses = (onError?: (e: ApolloError) => void) => {
   return useLazyQuery(WarehousesDocument, {
     onError: onError,
   });

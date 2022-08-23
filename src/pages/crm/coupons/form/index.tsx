@@ -102,12 +102,10 @@ const CouponForm = ({ visible, onCancel }: Props) => {
       title="Crear Cupón"
       cancelButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreateCoupon?.loading,
         loading: paramsCreateCoupon?.loading,
       }}
       okButtonProps={{
         style: styles.buttonR,
-        disabled: paramsCreateCoupon?.loading,
         loading: paramsCreateCoupon?.loading,
       }}
     >

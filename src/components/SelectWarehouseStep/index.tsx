@@ -44,7 +44,7 @@ const SelectWarehouseStep = ({ changeCurrentStep, label, warehouseId, disabled }
       <Row justify="end">
         <Col>
           <FormItem>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" style={{ borderRadius: 5 }} htmlType="submit">
               Siguiente
             </Button>
           </FormItem>

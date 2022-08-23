@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import type { MenuInfo } from 'rc-menu/lib/interface';
-import { Avatar, Menu, Spin, Typography } from 'antd';
+import { Avatar, Col, Menu, Row, Spin, Typography } from 'antd';
 import { history, useModel } from 'umi';
 import { stringify } from 'querystring';
 
 import HeaderDropdown from '../HeaderDropdown';
 
 import styles from './index.less';
+import './index.less';
 
 //TODO: pendiente implementar modal para actualizar datos de usuario
 
@@ -95,10 +96,23 @@ const AvatarDropdown: React.FC = () => {
   );
   return (
     <HeaderDropdown overlay={menuHeaderDropdown}>
-      <span className={`${styles.action} ${styles.account}`}>
-        <Avatar size="small" className={styles.avatar} icon={<UserOutlined />} alt="avatar" />
-        <span className={`${styles.name} anticon`}>{currentUser.name}</span>
-      </span>
+      <Row
+        align="middle"
+        /*className={` ${styles.account}`}*/
+        style={{ cursor: 'pointer', alignItems: 'center', display: 'flex', height: 48 }}
+      >
+        <Col>
+          <Avatar
+            size="small"
+            style={{ backgroundColor: 'white' }}
+            icon={<UserOutlined style={{ color: '#dc9575' }} />}
+            alt="avatar"
+          />
+        </Col>
+        <Col>
+          <Text /*className={`${styles.name} `}*/>{currentUser.name}</Text>
+        </Col>
+      </Row>
     </HeaderDropdown>
   );
 };
