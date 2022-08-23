@@ -52,9 +52,10 @@ const FormItem = Form.Item;
 
 type Props = {
   orderData: Order;
+  tabKey?: string;
 };
 
-const Payments = ({ orderData }: Props) => {
+const Payments = ({ orderData, tabKey }: Props) => {
   const [visiblePayment, setVisiblePayment] = useState(false);
   const [canEditTotal, setCanEditTotal] = useState(false);
   const [editPayments, setEditPayments] = useState<PaymentsOrderInput[]>([]);
@@ -85,6 +86,7 @@ const Payments = ({ orderData }: Props) => {
   const change = totalPaid - total;
   const couponId = data?.payments.docs.filter((payment) => payment?.name === 'Bono');
   const bankId = data?.payments.docs.filter((payment) => payment?.name === 'Bancolombia');
+  const cashId = data?.payments.docs.filter((payment) => payment?.name === 'Efectivo');
 
   /**
    * @description funcion usada para identificar el medio de pago que se esta editando
@@ -164,24 +166,6 @@ const Payments = ({ orderData }: Props) => {
   };
 
   /**
-   * @description funcion usada para cambiar el estado del pedido a pendiente por pago
-   */
-  const onReversePayOrder = () => {
-    try {
-      updateOrder({
-        variables: {
-          id: orderData?._id,
-          input: {
-            statusWeb: StatusWeb.Pendding,
-          },
-        },
-      });
-    } catch (error: any) {
-      showError(error.message);
-    }
-  };
-
-  /**
    * @description funcion usada para reversar pagos
    * @param paymentId identificador del pago a reversar
    */
@@ -205,7 +189,6 @@ const Payments = ({ orderData }: Props) => {
           },
         },
       });
-      onReversePayOrder();
     } catch (error: any) {
       showError(error?.message);
     }
@@ -222,20 +205,35 @@ const Payments = ({ orderData }: Props) => {
       }
     }
     try {
-      confirmPayment({
-        variables: {
-          input: {
-            orderId: orderData._id,
-            payments: [
-              {
-                paymentId: paymentId,
-                status: StatusOrderDetail.Confirmed,
-              },
-            ],
+      if (paymentId === cashId[0]?._id) {
+        confirmPayment({
+          variables: {
+            input: {
+              orderId: orderData._id,
+              payments: [
+                {
+                  paymentId: paymentId,
+                  status: StatusOrderDetail.Confirmed,
+                },
+              ],
+            },
           },
-        },
-      });
-      onPayOrder();
+        });
+      } else {
+        confirmPayment({
+          variables: {
+            input: {
+              orderId: orderData._id,
+              payments: [
+                {
+                  paymentId: paymentId,
+                  status: StatusOrderDetail.Confirmed,
+                },
+              ],
+            },
+          },
+        });
+      }
     } catch (error: any) {
       showError(error?.message);
     }
@@ -416,7 +414,7 @@ const Payments = ({ orderData }: Props) => {
   /**
    * @description funcion usada para agregar los medios de pago al pedido
    */
-  const createPayment = async () => {
+  const createNewPaymentMethod = async () => {
     const values = addPayments.map((i) => ({
       action: ActionPaymentsOrder.Create,
       paymentId: i.payment._id,
@@ -496,6 +494,37 @@ const Payments = ({ orderData }: Props) => {
     } else {
       alertWarning('Cantidad no puede estar en 0');
     }
+  };
+
+  const typePaymetCash = orderData?.payments?.find((i) => i?.payment?.type === TypePayment.Cash);
+
+  const validateAllPayConfirmed = () => {
+    let countConfirmed = 0;
+    if (orderData?.payments) {
+      for (let index = 0; index < orderData?.payments?.length; index++) {
+        if (
+          orderData?.payments[index].status === StatusOrderDetail.Confirmed &&
+          orderData.payments[index].payment.type !== TypePayment.Cash
+        ) {
+          countConfirmed++;
+        }
+      }
+      if (typePaymetCash !== undefined) {
+        if (countConfirmed === orderData?.payments?.length - 1) {
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        if (countConfirmed === orderData?.payments?.length) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+    }
+
+    return;
   };
 
   useEffect(() => {
@@ -657,6 +686,8 @@ const Payments = ({ orderData }: Props) => {
               <Tooltip title="Reversar Pago">
                 <Button
                   disabled={
+                    (tabKey === '4' && detail.payment.type !== TypePayment.Cash) ||
+                    (tabKey === '1' && detail.payment.type === TypePayment.Cash) ||
                     detail.status === StatusOrderDetail.New ||
                     orderData?.statusWeb === StatusWeb.Sent ||
                     orderData?.status === StatusOrder.Closed ||
@@ -672,6 +703,8 @@ const Payments = ({ orderData }: Props) => {
             <Tooltip title="Confirmar pago">
               <Button
                 disabled={
+                  (tabKey === '4' && detail.payment.type !== TypePayment.Cash) ||
+                  (tabKey === '1' && detail.payment.type === TypePayment.Cash) ||
                   detail?.status === StatusOrderDetail.Confirmed ||
                   balance > 0 ||
                   orderData?.statusWeb === StatusWeb.Sent ||
@@ -688,6 +721,8 @@ const Payments = ({ orderData }: Props) => {
             <Tooltip title={editable ? 'Guardar Valor' : 'Editar Valor'} placement="topLeft">
               <Button
                 disabled={
+                  (tabKey === '4' && detail.payment.type !== TypePayment.Cash) ||
+                  (tabKey === '1' && detail.payment.type === TypePayment.Cash) ||
                   detail.status === StatusOrderDetail.Confirmed ||
                   orderData?.statusWeb === StatusWeb.Sent ||
                   orderData?.status === StatusOrder.Closed ||
@@ -703,6 +738,7 @@ const Payments = ({ orderData }: Props) => {
             <Tooltip title="Eliminar">
               <Button
                 disabled={
+                  (tabKey === '4' && detail.payment.type !== TypePayment.Cash) ||
                   detail.status === StatusOrderDetail.Confirmed ||
                   orderData?.statusWeb === StatusWeb.Sent ||
                   orderData?.status === StatusOrder.Closed ||
@@ -727,45 +763,68 @@ const Payments = ({ orderData }: Props) => {
         <Row gutter={[0, 20]}>
           <Col span={24}>
             <Space size={20}>
-              <Button
-                style={styles.inputBorder}
-                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
-                disabled={
-                  balance === 0 ||
-                  orderData?.statusWeb === StatusWeb.Sent ||
-                  orderData?.status === StatusOrder.Closed ||
-                  orderData?.statusWeb === StatusWeb.Cancelled
-                }
-                type="primary"
-                icon={<SaveOutlined />}
-                onClick={
-                  orderData?.payments && addPayments?.length < orderData?.payments?.length
-                    ? () => deletePayment()
-                    : () => createPayment()
-                }
-              >
-                Guardar Pagos
-              </Button>
-              <Button
-                disabled={
-                  balance === 0 ||
-                  change > 0 ||
-                  orderData?.statusWeb === StatusWeb.Sent ||
-                  orderData?.status === StatusOrder.Closed ||
-                  orderData?.statusWeb === StatusWeb.Cancelled
-                }
-                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
-                style={styles.inputBorder}
-                onClick={() => setVisiblePayment(visiblePayment ? false : true)}
-                type="primary"
-                icon={visiblePayment ? <MinusOutlined /> : <PlusOutlined />}
-              >
-                Agregar Pago
-              </Button>
+              {tabKey !== '4' && (
+                <Button
+                  style={styles.inputBorder}
+                  loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                  disabled={
+                    orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
+                    orderData?.statusWeb === StatusWeb.Sent ||
+                    orderData?.status === StatusOrder.Closed ||
+                    orderData?.statusWeb === StatusWeb.Cancelled
+                  }
+                  type="primary"
+                  icon={<SaveOutlined />}
+                  onClick={
+                    orderData?.payments && addPayments?.length < orderData?.payments?.length
+                      ? () => deletePayment()
+                      : () => createNewPaymentMethod()
+                  }
+                >
+                  Guardar Pagos
+                </Button>
+              )}
+              {tabKey !== '4' && (
+                <Button
+                  disabled={
+                    balance === 0 ||
+                    change > 0 ||
+                    orderData?.statusWeb === StatusWeb.Sent ||
+                    orderData?.status === StatusOrder.Closed ||
+                    orderData?.statusWeb === StatusWeb.Cancelled
+                  }
+                  loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                  style={styles.inputBorder}
+                  onClick={() => setVisiblePayment(visiblePayment ? false : true)}
+                  type="primary"
+                  icon={visiblePayment ? <MinusOutlined /> : <PlusOutlined />}
+                >
+                  Agregar Pago
+                </Button>
+              )}
+              {tabKey !== '4' && (
+                <Button
+                  type="primary"
+                  style={styles.buttonR}
+                  icon={<CheckCircleOutlined />}
+                  disabled={
+                    balance > 0 ||
+                    validateAllPayConfirmed() ||
+                    orderData?.statusWeb === StatusWeb.Sent ||
+                    orderData?.status === StatusOrder.Closed ||
+                    orderData?.statusWeb === StatusWeb.Cancelled ||
+                    orderData?.statusWeb !== StatusWeb.Pendding
+                  }
+                  onClick={() => onPayOrder()}
+                  loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                >
+                  Confirmar Medio de Pago
+                </Button>
+              )}
             </Space>
           </Col>
           <Col span={12}>
-            {visiblePayment && (
+            {visiblePayment && tabKey !== '4' && (
               <Form form={form} layout="horizontal">
                 <FormItem
                   label="Medio de Pago"
@@ -864,7 +923,7 @@ const Payments = ({ orderData }: Props) => {
 
   return (
     <>
-      <Divider>Pagos</Divider>
+      <Divider>{tabKey === '4' ? 'Confirmar Efectivo' : 'Pagos'}</Divider>
       <Table
         bordered
         rowKey="payment"

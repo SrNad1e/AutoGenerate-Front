@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Card, Col, Descriptions, Divider, Row, Typography, Form, Input, Button } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/lib/form/Form';
 import { useState } from 'react';
 import numeral from 'numeral';
-import type { Order } from '@/graphql/graphql';
+import type { AddressInputOrder, Order } from '@/graphql/graphql';
+import { TypePayment } from '@/graphql/graphql';
 import { StatusWeb } from '@/graphql/graphql';
 import { StatusOrder } from '@/graphql/graphql';
 
@@ -30,6 +32,7 @@ const Tabs = ({ order }: Props) => {
     type: 'error',
     visible: false,
   });
+  const [addressDelivery, setAddressDelivery] = useState<AddressInputOrder>({});
 
   const [form] = useForm();
 
@@ -39,6 +42,7 @@ const Tabs = ({ order }: Props) => {
   const dateFinal = new Date(order?.conveyorOrder?.shippingDate);
   const difference = dateFinal.getTime() - dateInitial.getTime();
   const TotalDays = difference > 0 ? Math.ceil(difference / (1000 * 3600 * 24)) : 0;
+  const typePaymetCash = order?.payments?.find((i) => i?.payment?.type === TypePayment.Cash);
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -76,19 +80,77 @@ const Tabs = ({ order }: Props) => {
    */
   const onUpdateConveyor = async () => {
     const values = await form.validateFields();
-    let conveyorId;
-    if (values.conveyorId === order?.conveyorOrder?.conveyor?.name) {
-      conveyorId = order?.conveyorOrder?.conveyor?._id;
-    }
+    const data = {
+      city: {
+        _id: order?.address?.city._id,
+        name: order?.address?.city?.name,
+        state: order?.address?.city?.state,
+        country: { name: order?.address?.city?.country?.name },
+      },
+      contact: order?.address?.contact,
+      extra: order?.address?.extra,
+      field1: order?.address?.field1,
+      isMain: order?.address?.isMain,
+      loteNumber: order?.address?.loteNumber,
+      neighborhood: order?.address?.neighborhood,
+      number1: order?.address?.number1,
+      number2: order?.address?.number2,
+      phone: order?.address?.phone,
+      postalCode: order?.address?.postalCode,
+    };
+
     try {
-      updateOrder({
-        variables: {
-          id: order?._id,
-          input: {
-            conveyorId: conveyorId,
+      if (order?.address !== null) {
+        const response = await updateOrder({
+          variables: {
+            id: order?._id,
+            input: {
+              conveyorId: values.conveyorId,
+              address: data,
+            },
           },
-        },
-      });
+        });
+        if (response.data) {
+          setPropsAlertInformation({
+            message: 'Método de envío actualizado correctamente',
+            visible: true,
+            type: 'success',
+          });
+        }
+      } else if (order?.customer?.addresses?.length > 0) {
+        const response = await updateOrder({
+          variables: {
+            id: order?._id,
+            input: {
+              conveyorId: values.conveyorId,
+              address: addressDelivery,
+            },
+          },
+        });
+        if (response.data) {
+          setPropsAlertInformation({
+            message: 'Método de envío actualizado correctamente',
+            visible: true,
+            type: 'success',
+          });
+        }
+      } else {
+        const response = await updateOrder({
+          variables: {
+            id: order?._id,
+            input: {
+              conveyorId: values.conveyorId,
+            },
+          },
+        });
+        if (response.data) {
+          setPropsAlertInformation({
+            message: 'Método de envío actualizado correctamente',
+            visible: true,
+            type: 'success',
+          });
+        }
+      }
     } catch (error: any) {
       showError(error?.message);
     }
@@ -103,6 +165,10 @@ const Tabs = ({ order }: Props) => {
       key: '2',
       tab: 'Productos',
     },
+    typePaymetCash !== undefined && {
+      key: '4',
+      tab: 'Confirmar Efectivo',
+    },
     {
       key: '3',
       tab: 'Envío',
@@ -110,18 +176,26 @@ const Tabs = ({ order }: Props) => {
   ];
 
   const contentTab = {
-    1: <Payments orderData={order} />,
+    1: <Payments orderData={order} tabKey={activeTabKey} />,
     2: <Products orderdata={order} />,
     3: (
       <>
-        <AddressDelivery deliveryAddress={order?.customer?.addresses} customer={order?.customer} />
+        <AddressDelivery
+          deliveryAddress={order?.customer?.addresses}
+          customer={order?.customer}
+          setDelivery={setAddressDelivery}
+        />
         <Divider>Métodos de Envío</Divider>
         <Row>
           <Col>
             <Form form={form}>
               <Descriptions>
                 <DescriptionItem label="Método de envío" span={2}>
-                  <FormItem name="conveyorId" initialValue={order?.conveyorOrder?.conveyor?.name}>
+                  <FormItem
+                    name="conveyorId"
+                    initialValue={order?.conveyorOrder?.conveyor?._id}
+                    rules={[{ required: true, message: 'Debe seleccionar método de envío' }]}
+                  >
                     <SelectConveyor
                       disabled={
                         order?.statusWeb === StatusWeb.Sent ||
@@ -138,7 +212,14 @@ const Tabs = ({ order }: Props) => {
                       initialValue={order?.conveyorOrder?.guideCode || '(Pendiente)'}
                       name="guideCode"
                     >
-                      <Input />
+                      <Input
+                        disabled={
+                          order?.statusWeb === StatusWeb.Sent ||
+                          order?.status === StatusOrder.Closed ||
+                          order?.statusWeb === StatusWeb.Cancelled ||
+                          order?.statusWeb === StatusWeb.Delivered
+                        }
+                      />
                     </FormItem>
                   </DescriptionItem>
                 )}
@@ -158,7 +239,8 @@ const Tabs = ({ order }: Props) => {
                 disabled={
                   order?.statusWeb === StatusWeb.Sent ||
                   order?.status === StatusOrder.Closed ||
-                  order?.statusWeb === StatusWeb.Cancelled
+                  order?.statusWeb === StatusWeb.Cancelled ||
+                  order?.statusWeb === StatusWeb.Delivered
                 }
                 loading={paramsUpdateOrder?.loading}
                 type="primary"
@@ -171,6 +253,7 @@ const Tabs = ({ order }: Props) => {
         </Row>
       </>
     ),
+    4: <Payments orderData={order} tabKey={activeTabKey} />,
   };
   return (
     <Card bordered={false} tabList={cardTab} activeTabKey={activeTabKey} onTabChange={onTabChange}>

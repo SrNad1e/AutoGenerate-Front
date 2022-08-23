@@ -17,9 +17,10 @@ const { Title } = Typography;
 type Props = {
   deliveryAddress?: Address[];
   customer?: Customer;
+  setDelivery?: any;
 };
 
-const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
+const AddressDelivery = ({ deliveryAddress, customer, setDelivery }: Props) => {
   const [visibleCreate, setVisibleCreate] = useState(false);
   const [visibleAddress, setVisibleAddress] = useState(true);
   const [count, setCount] = useState(0);
@@ -165,7 +166,30 @@ const AddressDelivery = ({ deliveryAddress, customer }: Props) => {
       form.setFieldsValue({
         contact: deliveryAddress && deliveryAddress[count]?.contact,
         phone: deliveryAddress && deliveryAddress[count]?.phone,
-        cityId: deliveryAddress && deliveryAddress[count]?.city._id,
+        cityId: deliveryAddress && deliveryAddress[count]?.city?._id,
+      });
+    }
+  }, [visibleAddress]);
+
+  useEffect(() => {
+    if (deliveryAddress !== null && setDelivery) {
+      setDelivery({
+        city: {
+          _id: deliveryAddress && deliveryAddress[count]?.city._id,
+          name: deliveryAddress && deliveryAddress[count]?.city?.name,
+          state: deliveryAddress && deliveryAddress[count]?.city?.state,
+          country: { name: 'Colombia' },
+        },
+        contact: deliveryAddress && deliveryAddress[count]?.contact,
+        extra: deliveryAddress && deliveryAddress[count]?.extra,
+        field1: deliveryAddress && deliveryAddress[count]?.field1,
+        isMain: deliveryAddress && deliveryAddress[count]?.isMain,
+        loteNumber: deliveryAddress && deliveryAddress[count]?.loteNumber,
+        neighborhood: deliveryAddress && deliveryAddress[count]?.neighborhood,
+        number1: deliveryAddress && deliveryAddress[count]?.number1,
+        number2: deliveryAddress && deliveryAddress[count]?.number2,
+        phone: deliveryAddress && deliveryAddress[count]?.phone,
+        postalCode: deliveryAddress && deliveryAddress[count]?.postalCode,
       });
     }
   }, [visibleAddress]);

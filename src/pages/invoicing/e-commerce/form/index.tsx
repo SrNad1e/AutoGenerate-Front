@@ -130,7 +130,7 @@ const EcommerceForm = () => {
         variables: {
           id: paramsGetOrder.data?.orderId?.order?._id || '',
           input: {
-            statusWeb: StatusWeb.Cancelled,
+            statusWeb: StatusWeb.Pendding,
           },
         },
       });
@@ -266,8 +266,8 @@ const EcommerceForm = () => {
         title={<Title level={3}>Pedido #{paramsGetOrder?.data?.orderId?.order?.number}</Title>}
         bordered={false}
       >
-        <Grid hoverable={false} style={styles.firstGrid}>
-          <Row align="middle" justify="center" gutter={[0, 5]} style={styles.rowFGrid}>
+        <Grid hoverable={false} style={{ height: 266 }}>
+          <Row align="middle" justify="center" gutter={[0, 5]}>
             <Col>
               <Title level={4}>Información</Title>
             </Col>
@@ -305,8 +305,8 @@ const EcommerceForm = () => {
             </Col>
           </Row>
         </Grid>
-        <Grid hoverable={false} style={styles.secondGrid}>
-          <Row justify="center" align="middle" style={styles.rowSGrid}>
+        <Grid hoverable={false} style={{ height: 266 }}>
+          <Row justify="center" align="middle" gutter={[0, 5]}>
             <Col>
               <Title level={4}>Total del Pedido</Title>
             </Col>
@@ -347,25 +347,25 @@ const EcommerceForm = () => {
             </Col>
           </Row>
         </Grid>
-        <Grid hoverable={false} style={styles.thirdGrid}>
+        <Grid hoverable={false} style={{ height: 266 }}>
           <Row justify="center" align="middle" gutter={[0, 5]}>
             <Col>
               <Title level={4}>Envío</Title>
             </Col>
-            <Divider style={styles.divGrid} />
-            <Col xs={24} md={4} lg={4} xl={8}>
+            <Divider style={styles.noMargin} />
+            <Col xs={24} md={4} lg={4} xl={4}>
               {<UserOutlined style={styles.iconStyle} />}
             </Col>
-            <Col xs={24} md={20} lg={20} xl={16}>
+            <Col xs={24} md={20} lg={20} xl={20}>
               <Text strong style={styles.textSize}>
                 {paramsGetOrder?.data?.orderId?.order?.customer?.firstName}{' '}
                 {paramsGetOrder?.data?.orderId?.order?.customer?.lastName}
               </Text>
             </Col>
-            <Col xs={24} md={4} lg={4} xl={8}>
+            <Col xs={24} md={4} lg={4} xl={4}>
               {<HomeOutlined style={styles.iconStyle} />}
             </Col>
-            <Col xs={24} md={20} lg={20} xl={16}>
+            <Col xs={24} md={20} lg={20} xl={20}>
               <Space>
                 {paramsGetOrder.data?.orderId?.order?.address ? (
                   <Text strong key={1} style={styles.textSize}>
@@ -376,21 +376,20 @@ const EcommerceForm = () => {
                     {paramsGetOrder?.data?.orderId?.order?.address?.loteNumber}
                     {' - '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.number2}
+                    {' - '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.city?.name}
                   </Text>
                 ) : (
                   <Text strong key={1} style={styles.textSize}>
                     No Registra Dirección
                   </Text>
                 )}
-                <Text key={2} strong style={styles.textSize}>
-                  {paramsGetOrder?.data?.orderId?.order?.address?.city?.name}
-                </Text>
               </Space>
             </Col>
-            <Col xs={24} md={4} lg={4} xl={8} style={styles.marginB}>
+            <Col xs={24} md={4} lg={4} xl={4} style={styles.marginB}>
               {<PhoneOutlined style={styles.iconStyle} />}
             </Col>
-            <Col xs={24} md={20} lg={20} xl={16} style={styles.marginB}>
+            <Col xs={24} md={20} lg={20} xl={20} style={styles.marginB}>
               <Text strong style={styles.textSize}>
                 {paramsGetOrder?.data?.orderId?.order?.customer?.phone || 'No registra Teléfono'}
               </Text>

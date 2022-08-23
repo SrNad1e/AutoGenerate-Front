@@ -32,14 +32,16 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
   const [updateCustomer, paramsUpdateCustomer] = useUpdateCustomer();
 
   /**
-   * @description se encarga de cerrar la alerta informativa
+   * @description Cierra el modal, resetea los campos del form y al alerta de error
    */
-  const closeAlertInformation = () => {
-    setPropsAlertInformation({
+  const closeAndClear = async () => {
+    await setPropsAlertInformation({
       message: '',
       type: 'error',
       visible: false,
     });
+    onCancel();
+    form.resetFields();
   };
 
   /**
@@ -104,7 +106,7 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
       title="Crear Dirección"
       cancelText="Cancelar"
       okText="Aceptar"
-      onCancel={onCancel}
+      onCancel={() => closeAndClear()}
       onOk={onOk}
       cancelButtonProps={{ loading: paramsUpdateCustomer.loading }}
       okButtonProps={{ loading: paramsUpdateCustomer.loading }}
@@ -202,7 +204,7 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
           </Col>
         </Row>
       </Form>
-      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAndClear} />
     </Modal>
   );
 };

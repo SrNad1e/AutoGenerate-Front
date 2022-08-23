@@ -194,6 +194,7 @@ const Products = ({ orderdata }: Props) => {
       delete productsConfirm[i].quantity;
       delete productsConfirm[i].quantityConfirm;
     }
+
     try {
       confirmProductQuantity({
         variables: {
@@ -377,7 +378,7 @@ const Products = ({ orderdata }: Props) => {
   };
 
   /**
-   * @description almacena los detalles del pedido en el estado
+   * @description controla el visible de las columnas de resumen de productos y confirmacion de productos
    */
   const controlOfSwitch = () => {
     setVisibleConfirmProduct(visibleConfirmProduct ? false : true);
@@ -491,7 +492,9 @@ const Products = ({ orderdata }: Props) => {
               detail?.status === StatusOrderDetail.Confirmed ||
               orderdata?.statusWeb === StatusWeb.Sent ||
               orderdata?.status === StatusOrder.Closed ||
-              orderdata?.statusWeb === StatusWeb.Cancelled
+              orderdata?.statusWeb === StatusWeb.Cancelled ||
+              orderdata?.statusWeb === StatusWeb.PaymentConfirmed ||
+              orderdata?.statusWeb === StatusWeb.Preparing
             }
             type="primary"
             loading={paramsAddProduct?.loading}
@@ -662,7 +665,9 @@ const Products = ({ orderdata }: Props) => {
                         orderdata?.statusWeb === StatusWeb.Sent ||
                         orderdata?.status === StatusOrder.Closed ||
                         orderdata?.statusWeb === StatusWeb.Cancelled ||
-                        disabledEditQuantity()
+                        disabledEditQuantity() ||
+                        (orderdata?.statusWeb !== StatusWeb.PaymentConfirmed &&
+                          orderdata.statusWeb !== StatusWeb.Preparing)
                       }
                       loading={paramsConfirmProductQuantity?.loading}
                     />
@@ -716,7 +721,9 @@ const Products = ({ orderdata }: Props) => {
                       disabledEditQuantity() ||
                       orderdata?.statusWeb === StatusWeb.Sent ||
                       orderdata?.status === StatusOrder.Closed ||
-                      orderdata?.statusWeb === StatusWeb.Cancelled
+                      orderdata?.statusWeb === StatusWeb.Cancelled ||
+                      orderdata?.statusWeb === StatusWeb.PaymentConfirmed ||
+                      orderdata?.statusWeb === StatusWeb.Preparing
                     }
                     icon={canEdit ? <SaveOutlined /> : <EditOutlined />}
                     loading={paramsAddProduct?.loading}
@@ -728,7 +735,9 @@ const Products = ({ orderdata }: Props) => {
                     disabled={
                       orderdata?.statusWeb === StatusWeb.Sent ||
                       orderdata?.status === StatusOrder.Closed ||
-                      orderdata?.statusWeb === StatusWeb.Cancelled
+                      orderdata?.statusWeb === StatusWeb.Cancelled ||
+                      orderdata?.statusWeb === StatusWeb.PaymentConfirmed ||
+                      orderdata?.statusWeb === StatusWeb.Preparing
                     }
                     style={styles.buttonR}
                     type="primary"

@@ -23,6 +23,9 @@ query orderId($id: String!) {
               _id
               name
               state
+              country {
+                name
+              }
             }
             extra
             field1
@@ -98,8 +101,12 @@ query orderId($id: String!) {
         number2
         phone
         city {
+          _id
           name
           state
+          country {
+            name
+          }
         }
       }
       shop {

@@ -32,7 +32,7 @@ const SelectConveyor = ({ onChange, disabled, value }: Params) => {
     getConveyor({
       variables: {
         input: {
-          name: value,
+          _id: value,
         },
       },
     });

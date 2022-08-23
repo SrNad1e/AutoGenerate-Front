@@ -18,26 +18,12 @@ export default {
   textRight: {
     textAlign: 'right',
   },
-  firstGrid: {
-    paddingBottom: 48,
-  },
-  rowFGrid: {
-    marginTop: 5,
-  },
-  secondGrid: {
-    paddingBottom: 63,
-  },
-  rowSGrid: {
-    marginTop: 10,
-  },
-  thirdGrid: {
-    paddingBottom: 29,
-  },
+
   divGrid: {
     marginTop: 15,
   },
   affixStyle: {
-    width: 815,
+    width: 655,
     borderRadius: 10,
     borderColor: '#dc9575',
   },

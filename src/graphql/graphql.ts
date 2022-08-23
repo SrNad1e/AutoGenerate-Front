@@ -1655,6 +1655,8 @@ export type FiltersCompaniesInput = {
 
 /** Filtros para obtener listado de transportadoras */
 export type FiltersConveyorsInput = {
+  /** Identificador de la transportadora */
+  _id?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Nombre de la transportadora */
@@ -7911,7 +7913,13 @@ export type OrderIdQuery = {
                 number2: string;
                 contact: string;
                 phone: string;
-                city: { __typename?: 'City'; _id: string; name: string; state: string };
+                city: {
+                  __typename?: 'City';
+                  _id: string;
+                  name: string;
+                  state: string;
+                  country: { __typename?: 'Country'; name: string };
+                };
               }[]
             | null;
         };
@@ -7966,7 +7974,13 @@ export type OrderIdQuery = {
         number1: string;
         number2: string;
         phone: string;
-        city: { __typename?: 'City'; name: string; state: string };
+        city: {
+          __typename?: 'City';
+          _id: string;
+          name: string;
+          state: string;
+          country: { __typename?: 'Country'; name: string };
+        };
       } | null;
       shop: {
         __typename?: 'Shop';
@@ -15857,6 +15871,19 @@ export const OrderIdDocument = {
                                                 kind: 'Field',
                                                 name: { kind: 'Name', value: 'state' },
                                               },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'country' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'name' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
                                             ],
                                           },
                                         },
@@ -16050,8 +16077,19 @@ export const OrderIdDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'country' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
                                 ],
                               },
                             },
