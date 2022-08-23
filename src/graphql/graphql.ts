@@ -506,22 +506,6 @@ export type Company = {
   user: User;
 };
 
-/** Datos para confirmar productos */
-export type ConfirmPaymentsOrderInput = {
-  /** Identificador del pedido a confirmar los pagos */
-  orderId: Scalars['String'];
-  /** Pagos a confirmar */
-  payments: PaymentConfirm[];
-};
-
-/** Datos para confirmar productos */
-export type ConfirmProductsOrderInput = {
-  /** Productos a confirmar */
-  details: DetailsConfirm[];
-  /** Identificador del pedido a confirmar productos */
-  orderId: Scalars['String'];
-};
-
 /** Datos para confirmar los productos del traslado */
 export type ConfirmStockTransferInput = {
   /** Productos para confirmar */
@@ -551,42 +535,6 @@ export type Conveyor = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la transportadora */
   user: User;
-};
-
-/** Transportadora que realiza el envio */
-export type ConveyorOrder = {
-  __typename?: 'ConveyorOrder';
-  /** Datos del transportista */
-  conveyor: Conveyor;
-  /** Error del médio de pago */
-  error?: Maybe<Scalars['String']>;
-  /** Código de la guia del transportista */
-  guideCode?: Maybe<Scalars['String']>;
-  /** Fecha en el que se realiza el envío */
-  shippingDate?: Maybe<Scalars['DateTime']>;
-  /** Valor del envío */
-  value: Scalars['Float'];
-};
-
-export enum ConveyorType {
-  Fedex = 'FEDEX',
-  Interrapidisimo = 'INTERRAPIDISIMO',
-  Zone = 'ZONE',
-}
-
-/** Pais */
-export type Country = {
-  __typename?: 'Country';
-  /** Nombre del país */
-  name: Scalars['String'];
-  /** Prefijo del país */
-  prefix: Scalars['String'];
-};
-
-/** País entrada */
-export type CountryInput = {
-  /** Nombre del país */
-  name: Scalars['String'];
 };
 
 /** Cupones para pagos */
@@ -2294,12 +2242,6 @@ export type Mutation = {
   addPaymentsOrder: ResponseOrder;
   /** Se encarga de agregar productos a un pedido */
   addProductsOrder: ResponseOrder;
-  /** Se encarga de cambiar la clave al usuario con base al tokenu */
-  changePasswordToken: LoginResponse;
-  /** Se encarga de confirmar o desconfirmar pagos de un pedido */
-  confirmPaymentsOrder: ResponseOrder;
-  /** Se encarga de confirmar o desconfirmar productos de un pedido */
-  confirmProductsOrder: ResponseOrder;
   /** Confirma los productos del traslado */
   confirmProductsStockTransfer: StockTransfer;
   /** Crea un atributo */
@@ -2438,19 +2380,6 @@ export type MutationAddPaymentsOrderArgs = {
 
 export type MutationAddProductsOrderArgs = {
   addProductsOrderInput: AddProductsOrderInput;
-};
-
-export type MutationChangePasswordTokenArgs = {
-  password: Scalars['String'];
-  token: Scalars['String'];
-};
-
-export type MutationConfirmPaymentsOrderArgs = {
-  confirmPaymentsOrderInput: ConfirmPaymentsOrderInput;
-};
-
-export type MutationConfirmProductsOrderArgs = {
-  confirmProductsOrderInput: ConfirmProductsOrderInput;
 };
 
 export type MutationConfirmProductsStockTransferArgs = {
@@ -5074,12 +5003,8 @@ export enum StatusOrder {
   Cancelled = 'CANCELLED',
   Closed = 'CLOSED',
   Open = 'OPEN',
-  Pendding = 'PENDDING',
-}
-
-export enum StatusOrderDetail {
-  Confirmed = 'CONFIRMED',
-  New = 'NEW',
+  Pending = 'PENDING',
+  Sent = 'SENT',
 }
 
 export enum StatusProduct {
@@ -5919,6 +5844,44 @@ export type UpdateAttribMutation = {
   };
 };
 
+export type CreateAuthorizationMutationVariables = Exact<{
+  input: CreateAuthorizationInput;
+}>;
+
+export type CreateAuthorizationMutation = {
+  __typename?: 'Mutation';
+  createAuthorization: { __typename?: 'AuthorizationDian'; _id: string; prefix: string };
+};
+
+export type UpdateAuthorizationMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateAuthorizationInput;
+}>;
+
+export type UpdateAuthorizationMutation = {
+  __typename?: 'Mutation';
+  updateAuthorization: { __typename?: 'AuthorizationDian'; _id: string; prefix: string };
+};
+
+export type CreateBoxMutationVariables = Exact<{
+  input: CreateBoxInput;
+}>;
+
+export type CreateBoxMutation = {
+  __typename?: 'Mutation';
+  createBox: { __typename?: 'Box'; _id: string; name: string };
+};
+
+export type UpdateBoxMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateBoxInput;
+}>;
+
+export type UpdateBoxMutation = {
+  __typename?: 'Mutation';
+  updateBox: { __typename?: 'Box'; _id: string; name: string };
+};
+
 export type CreateBrandMutationVariables = Exact<{
   input: CreateBrandInput;
 }>;
@@ -6202,6 +6165,44 @@ export type UpdateColorMutation = {
   };
 };
 
+export type CreateCompanyMutationVariables = Exact<{
+  input: CreateCompanyInput;
+}>;
+
+export type CreateCompanyMutation = {
+  __typename?: 'Mutation';
+  createCompany: { __typename?: 'Company'; _id: string; name: string };
+};
+
+export type UpdateCompanyMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateCompanyInput;
+}>;
+
+export type UpdateCompanyMutation = {
+  __typename?: 'Mutation';
+  updateCompany: { __typename?: 'Company'; _id: string; name: string };
+};
+
+export type CreateCouponMutationVariables = Exact<{
+  input: CreateCouponInput;
+}>;
+
+export type CreateCouponMutation = {
+  __typename?: 'Mutation';
+  createCoupon: { __typename?: 'Coupon'; _id: string; number: number };
+};
+
+export type UpdateCouponMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateCouponInput;
+}>;
+
+export type UpdateCouponMutation = {
+  __typename?: 'Mutation';
+  updateCoupon: { __typename?: 'Coupon'; _id: string; number: number };
+};
+
 export type UpdateCreditMutationVariables = Exact<{
   id: Scalars['String'];
   input: UpdateCreditInput;
@@ -6238,6 +6239,25 @@ export type UpdateCustomerMutationVariables = Exact<{
 export type UpdateCustomerMutation = {
   __typename?: 'Mutation';
   updateCustomer: { __typename?: 'Customer'; _id: string; firstName: string; lastName: string };
+};
+
+export type CreateDiscountRuleMutationVariables = Exact<{
+  input: CreateDiscountRuleInput;
+}>;
+
+export type CreateDiscountRuleMutation = {
+  __typename?: 'Mutation';
+  createDiscountRule: { __typename?: 'DiscountRule'; _id: string; name: string };
+};
+
+export type UpdateDiscountRuleMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateDiscountRuleInput;
+}>;
+
+export type UpdateDiscountRuleMutation = {
+  __typename?: 'Mutation';
+  updateDiscountRule: { __typename?: 'DiscountRule'; _id: string; name: string };
 };
 
 export type CreateExpenseMutationVariables = Exact<{
@@ -6410,6 +6430,52 @@ export type UpdateOrderMutation = {
         totalPaid: number;
         change: number;
       };
+      invoice?: {
+        __typename?: 'Invoice';
+        createdAt: any;
+        number: number;
+        authorization: { __typename?: 'AuthorizationDian'; prefix: string };
+        customer: {
+          __typename?: 'Customer';
+          document: string;
+          firstName: string;
+          lastName: string;
+          phone?: string | null;
+          documentType: { __typename?: 'DocumentType'; abbreviation: string };
+        };
+        details?:
+          | {
+              __typename?: 'DetailInvoice';
+              quantity: number;
+              price: number;
+              discount: number;
+              product: {
+                __typename?: 'Product';
+                barcode: string;
+                color: { __typename?: 'Color'; name: string };
+                reference: { __typename?: 'Reference'; name: string; description: string };
+                size: { __typename?: 'Size'; value: string };
+              };
+            }[]
+          | null;
+        payments?:
+          | {
+              __typename?: 'PaymentInvoice';
+              total: number;
+              payment: { __typename?: 'Payment'; _id: string; name: string };
+            }[]
+          | null;
+        shop: { __typename?: 'Shop'; name: string };
+        summary: {
+          __typename?: 'SummaryInvoice';
+          total: number;
+          subtotal: number;
+          change: number;
+          discount: number;
+          totalPaid: number;
+        };
+        user: { __typename?: 'User'; name: string };
+      } | null;
     };
   };
 };
@@ -6658,6 +6724,44 @@ export type UpdateStockOutputMutation = {
     user: { __typename?: 'User'; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
   };
+};
+
+export type CreatePaymentMutationVariables = Exact<{
+  input: CreatePaymentInput;
+}>;
+
+export type CreatePaymentMutation = {
+  __typename?: 'Mutation';
+  createPayment: { __typename?: 'Payment'; _id: string; name: string };
+};
+
+export type UpdatePaymentMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdatePaymentInput;
+}>;
+
+export type UpdatePaymentMutation = {
+  __typename?: 'Mutation';
+  updatePayment: { __typename?: 'Payment'; _id: string; name: string };
+};
+
+export type CreatePointOfSaleMutationVariables = Exact<{
+  input: CreatePointOfSaleInput;
+}>;
+
+export type CreatePointOfSaleMutation = {
+  __typename?: 'Mutation';
+  createPointOfSale: { __typename?: 'PointOfSale'; _id: string; name: string };
+};
+
+export type UpdatePointOfSaleMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdatePointOfSaleInput;
+}>;
+
+export type UpdatePointOfSaleMutation = {
+  __typename?: 'Mutation';
+  updatePointOfSale: { __typename?: 'PointOfSale'; _id: string; name: string };
 };
 
 export type UpdateProductMutationVariables = Exact<{
@@ -6924,6 +7028,25 @@ export type UpdateRoleMutation = {
   };
 };
 
+export type CreateShopMutationVariables = Exact<{
+  input: CreateShopInput;
+}>;
+
+export type CreateShopMutation = {
+  __typename?: 'Mutation';
+  createShop: { __typename?: 'Shop'; name: string; _id: string };
+};
+
+export type UpdateShopMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateShopInput;
+}>;
+
+export type UpdateShopMutation = {
+  __typename?: 'Mutation';
+  updateShop: { __typename?: 'Shop'; name: string; _id: string };
+};
+
 export type CreateSizeMutationVariables = Exact<{
   input: CreateSizeInput;
 }>;
@@ -7087,6 +7210,7 @@ export type LoginMutation = {
       };
       role: {
         __typename?: 'Role';
+        changeWarehouse: boolean;
         name: string;
         permissions: { __typename?: 'Permission'; action: Permissions }[];
       };
@@ -7118,6 +7242,25 @@ export type UpdateUserMutationVariables = Exact<{
 export type UpdateUserMutation = {
   __typename?: 'Mutation';
   updateUser: { __typename?: 'User'; _id: string; username: string; name: string };
+};
+
+export type CreateWarehouseMutationVariables = Exact<{
+  input: CreateWarehouseInput;
+}>;
+
+export type CreateWarehouseMutation = {
+  __typename?: 'Mutation';
+  createWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
+};
+
+export type UpdateWarehouseMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdateWarehouseInput;
+}>;
+
+export type UpdateWarehouseMutation = {
+  __typename?: 'Mutation';
+  updateWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
 };
 
 export type StockAdjustmentQueryVariables = Exact<{
@@ -7237,6 +7380,21 @@ export type AttribsQuery = {
   };
 };
 
+export type AuthorizationsQueryVariables = Exact<{
+  input?: InputMaybe<FiltersAuthorizationInput>;
+}>;
+
+export type AuthorizationsQuery = {
+  __typename?: 'Query';
+  authorizations: {
+    __typename?: 'ResponseAuthorizations';
+    totalDocs: number;
+    page: number;
+    totalPages: number;
+    docs: { __typename?: 'AuthorizationDian'; _id: string; updatedAt: any; prefix: string }[];
+  };
+};
+
 export type BoxesQueryVariables = Exact<{
   input?: InputMaybe<FiltersBoxesInput>;
 }>;
@@ -7245,7 +7403,18 @@ export type BoxesQuery = {
   __typename?: 'Query';
   boxes: {
     __typename?: 'ResponseBoxes';
-    docs: { __typename?: 'Box'; _id: string; name: string }[];
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Box';
+      _id: string;
+      base: number;
+      updatedAt: any;
+      total: number;
+      name: string;
+      isMain: boolean;
+    }[];
   };
 };
 
@@ -7352,7 +7521,6 @@ export type CitiesQuery = {
       name: string;
       state: string;
       updatedAt: any;
-      country: { __typename?: 'Country'; name: string };
       user: { __typename?: 'User'; name: string };
     }[];
   };
@@ -7514,25 +7682,6 @@ export type ColorsQuery = {
   };
 };
 
-export type ConveyorsQueryVariables = Exact<{
-  input?: InputMaybe<FiltersConveyorsInput>;
-}>;
-
-export type ConveyorsQuery = {
-  __typename?: 'Query';
-  conveyors: {
-    __typename?: 'ResponseConveyors';
-    docs: {
-      __typename?: 'Conveyor';
-      name: string;
-      _id: string;
-      message?: string | null;
-      updatedAt: any;
-      createdAt: any;
-    }[];
-  };
-};
-
 export type CouponQueryVariables = Exact<{
   input: FiltersCouponInput;
 }>;
@@ -7551,6 +7700,33 @@ export type CouponQuery = {
     number: number;
     status: StatusCoupon;
     value: number;
+  };
+};
+
+export type CouponsQueryVariables = Exact<{
+  input: FiltersCouponsInput;
+}>;
+
+export type CouponsQuery = {
+  __typename?: 'Query';
+  coupons: {
+    __typename?: 'ResponseCoupons';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Coupon';
+      _id: string;
+      number: number;
+      title: string;
+      status: StatusCoupon;
+      value: number;
+      message: string;
+      code: string;
+      expiration: any;
+      updatedAt: any;
+      createdAt: any;
+    }[];
   };
 };
 
@@ -7620,6 +7796,7 @@ export type CreditHistoryQuery = {
     docs: {
       __typename?: 'CreditHistory';
       type: TypeCreditHistory;
+      amount: number;
       credit: {
         __typename?: 'Credit';
         amount: number;
@@ -7667,7 +7844,7 @@ export type CustomersQuery = {
             number1: string;
             number2: string;
             phone: string;
-            city: { __typename?: 'City'; name: string };
+            city: { __typename?: 'City'; _id: string; name: string };
           }[]
         | null;
       customerType: { __typename?: 'CustomerType'; name: string; _id: string };
@@ -7684,6 +7861,37 @@ export type CustomerTypesQuery = {
   customerTypes: {
     __typename?: 'ResponseCustomerTypes';
     docs: { __typename?: 'CustomerType'; _id: string; name: string }[];
+  };
+};
+
+export type DiscountRulesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersDiscountRulesInput>;
+}>;
+
+export type DiscountRulesQuery = {
+  __typename?: 'Query';
+  discountRules: {
+    __typename?: 'ResponseDiscountRules';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'DiscountRule';
+      _id: string;
+      active: boolean;
+      updatedAt: any;
+      dateFinal: any;
+      dateInitial: any;
+      name: string;
+      percent: number;
+      value: number;
+      rules: {
+        __typename?: 'Rule';
+        documentType: DocumentTypesRule;
+        documentIds: string[];
+        type: TypesRule;
+      }[];
+    }[];
   };
 };
 
@@ -7714,6 +7922,7 @@ export type ExpensesQuery = {
       value: number;
       status: StatusExpense;
       concept?: string | null;
+      createdAt: any;
       user: { __typename?: 'User'; name: string };
       box: { __typename?: 'Box'; _id: string; name: string };
     }[];
@@ -8281,14 +8490,21 @@ export type PaymentsQuery = {
   __typename?: 'Query';
   payments: {
     __typename?: 'ResponsePayments';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
     docs: {
       __typename?: 'Payment';
       _id: string;
+      active: boolean;
+      updatedAt: any;
       name: string;
       type: TypePayment;
       color?: string | null;
+      user: { __typename?: 'User'; name: string };
       logo?: {
         __typename?: 'Image';
+        _id: string;
         urls?: {
           __typename?: 'Urls';
           webp?: { __typename?: 'ImageTypes'; small: string } | null;
@@ -8333,7 +8549,11 @@ export type PointOfSalesQuery = {
       __typename?: 'PointOfSale';
       _id: string;
       name: string;
-      shop: { __typename?: 'Shop'; name: string };
+      closeDate?: any | null;
+      updatedAt: any;
+      shop: { __typename?: 'Shop'; _id: string; name: string };
+      box: { __typename?: 'Box'; _id: string; name: string };
+      authorization: { __typename?: 'AuthorizationDian'; _id: string; prefix: string };
     }[];
   };
 };
@@ -8367,7 +8587,7 @@ export type ProductsQuery = {
           } | null;
         } | null;
       };
-      size: { __typename?: 'Size'; value: string };
+      size: { __typename?: 'Size'; value: string; weight: number };
       stock?: { __typename?: 'Stock'; quantity: number }[] | null;
     }[];
   };
@@ -8726,7 +8946,20 @@ export type ShopsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: { __typename?: 'Shop'; _id: string; name: string }[];
+    docs: {
+      __typename?: 'Shop';
+      _id: string;
+      name: string;
+      status: StatusShop;
+      updatedAt: any;
+      address?: string | null;
+      goal: number;
+      phone?: string | null;
+      isMain: boolean;
+      user: { __typename?: 'User'; name: string };
+      defaultWarehouse: { __typename?: 'Warehouse'; name: string; _id: string };
+      warehouseMain?: { __typename?: 'Warehouse'; name: string; _id: string } | null;
+    }[];
   };
 };
 
@@ -8924,7 +9157,16 @@ export type WarehousesQuery = {
     page: number;
     totalDocs: number;
     totalPages: number;
-    docs: { __typename?: 'Warehouse'; _id: string; name: string }[];
+    docs: {
+      __typename?: 'Warehouse';
+      max: number;
+      min: number;
+      _id: string;
+      name: string;
+      updatedAt: any;
+      active: boolean;
+      user: { __typename?: 'User'; name: string };
+    }[];
   };
 };
 
@@ -9261,6 +9503,204 @@ export const UpdateAttribDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateAttribMutation, UpdateAttribMutationVariables>;
+export const CreateAuthorizationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createAuthorization' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateAuthorizationInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createAuthorization' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createAuthorizationInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateAuthorizationMutation, CreateAuthorizationMutationVariables>;
+export const UpdateAuthorizationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateAuthorization' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateAuthorizationInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAuthorization' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateAuthorizationInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateAuthorizationMutation, UpdateAuthorizationMutationVariables>;
+export const CreateBoxDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createBox' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateBoxInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createBox' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createBoxInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateBoxMutation, CreateBoxMutationVariables>;
+export const UpdateBoxDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateBox' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateBoxInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateBox' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateBoxInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateBoxMutation, UpdateBoxMutationVariables>;
 export const CreateBrandDocument = {
   kind: 'Document',
   definitions: [
@@ -10082,6 +10522,204 @@ export const UpdateColorDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateColorMutation, UpdateColorMutationVariables>;
+export const CreateCompanyDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createCompany' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateCompanyInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createCompany' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createCompanyInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateCompanyMutation, CreateCompanyMutationVariables>;
+export const UpdateCompanyDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateCompany' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateCompanyInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateCompany' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateCompanyInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateCompanyMutation, UpdateCompanyMutationVariables>;
+export const CreateCouponDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createCoupon' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateCouponInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createCoupon' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createCouponInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateCouponMutation, CreateCouponMutationVariables>;
+export const UpdateCouponDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateCoupon' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateCouponInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateCoupon' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateCustomerInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateCouponMutation, UpdateCouponMutationVariables>;
 export const UpdateCreditDocument = {
   kind: 'Document',
   definitions: [
@@ -10276,6 +10914,105 @@ export const UpdateCustomerDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+export const CreateDiscountRuleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createDiscountRule' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateDiscountRuleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createDiscountRule' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createDiscountRuleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateDiscountRuleMutation, CreateDiscountRuleMutationVariables>;
+export const UpdateDiscountRuleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateDiscountRule' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateDiscountRuleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateDiscountRule' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateDiscountRuleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateDiscountRuleMutation, UpdateDiscountRuleMutationVariables>;
 export const CreateExpenseDocument = {
   kind: 'Document',
   definitions: [
@@ -10893,6 +11630,173 @@ export const UpdateOrderDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'change' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'invoice' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'authorization' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'customer' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'documentType' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'abbreviation' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'details' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'product' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'color' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'name' },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'reference' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'name' },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'description' },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'size' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'value' },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payments' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'payment' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'shop' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'summary' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'change' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'user' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
                           ],
                         },
                       },
@@ -11754,6 +12658,204 @@ export const UpdateStockOutputDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateStockOutputMutation, UpdateStockOutputMutationVariables>;
+export const CreatePaymentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createPayment' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreatePaymentInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createPayment' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createPaymentInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreatePaymentMutation, CreatePaymentMutationVariables>;
+export const UpdatePaymentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updatePayment' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdatePaymentInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updatePayment' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updatePaymentInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdatePaymentMutation, UpdatePaymentMutationVariables>;
+export const CreatePointOfSaleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createPointOfSale' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreatePointOfSaleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createPointOfSale' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createPointOfSaleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreatePointOfSaleMutation, CreatePointOfSaleMutationVariables>;
+export const UpdatePointOfSaleDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updatePointOfSale' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdatePointOfSaleInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updatePointOfSale' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updatePointOfSaleInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdatePointOfSaleMutation, UpdatePointOfSaleMutationVariables>;
 export const UpdateProductDocument = {
   kind: 'Document',
   definitions: [
@@ -12761,6 +13863,105 @@ export const UpdateRoleDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateRoleMutation, UpdateRoleMutationVariables>;
+export const CreateShopDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createShop' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateShopInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createShop' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createShopInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateShopMutation, CreateShopMutationVariables>;
+export const UpdateShopDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateShop' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateShopInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateShop' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateShopInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateShopMutation, UpdateShopMutationVariables>;
 export const CreateSizeDocument = {
   kind: 'Document',
   definitions: [
@@ -13391,6 +14592,7 @@ export const LoginDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             {
                               kind: 'Field',
@@ -13530,6 +14732,105 @@ export const UpdateUserDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateUserMutation, UpdateUserMutationVariables>;
+export const CreateWarehouseDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createWarehouse' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateWarehouseInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createWarehouse' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createWarehouseInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateWarehouseMutation, CreateWarehouseMutationVariables>;
+export const UpdateWarehouseDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateWarehouse' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateWarehouseInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateWarehouse' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateWarehouseInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateWarehouseMutation, UpdateWarehouseMutationVariables>;
 export const StockAdjustmentDocument = {
   kind: 'Document',
   definitions: [
@@ -13933,6 +15234,59 @@ export const AttribsDocument = {
     },
   ],
 } as unknown as DocumentNode<AttribsQuery, AttribsQueryVariables>;
+export const AuthorizationsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'authorizations' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersAuthorizationInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'authorizations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersAuthorizations' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AuthorizationsQuery, AuthorizationsQueryVariables>;
 export const BoxesDocument = {
   kind: 'Document',
   definitions: [
@@ -13963,6 +15317,9 @@ export const BoxesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -13970,7 +15327,11 @@ export const BoxesDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'base' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isMain' } },
                     ],
                   },
                 },
@@ -14215,14 +15576,7 @@ export const CitiesDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'country' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'country' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'state' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -14652,58 +16006,6 @@ export const ColorsDocument = {
     },
   ],
 } as unknown as DocumentNode<ColorsQuery, ColorsQueryVariables>;
-export const ConveyorsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'conveyors' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersConveyorsInput' } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'conveyors' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'filtersConveyorsInput' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'docs' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ConveyorsQuery, ConveyorsQueryVariables>;
 export const CouponDocument = {
   kind: 'Document',
   definitions: [
@@ -14755,6 +16057,69 @@ export const CouponDocument = {
     },
   ],
 } as unknown as DocumentNode<CouponQuery, CouponQueryVariables>;
+export const CouponsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'coupons' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCouponsInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'coupons' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCouponsInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'code' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'expiration' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CouponsQuery, CouponsQueryVariables>;
 export const CreditDocument = {
   kind: 'Document',
   definitions: [
@@ -14953,6 +16318,7 @@ export const CreditHistoryDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'credit' },
@@ -15040,6 +16406,7 @@ export const CustomersDocument = {
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                 ],
                               },
@@ -15139,6 +16506,76 @@ export const CustomerTypesDocument = {
     },
   ],
 } as unknown as DocumentNode<CustomerTypesQuery, CustomerTypesQueryVariables>;
+export const DiscountRulesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'discountRules' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersDiscountRulesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'discountRules' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersDiscountRulesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dateFinal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dateInitial' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'percent' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'rules' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'documentType' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'documentIds' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DiscountRulesQuery, DiscountRulesQueryVariables>;
 export const DocumentTypesDocument = {
   kind: 'Document',
   definitions: [
@@ -15242,6 +16679,7 @@ export const ExpensesDocument = {
                           ],
                         },
                       },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                     ],
                   },
                 },
@@ -17007,6 +18445,9 @@ export const PaymentsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'docs' },
@@ -17014,6 +18455,16 @@ export const PaymentsDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'color' } },
@@ -17023,6 +18474,7 @@ export const PaymentsDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'urls' },
@@ -17149,7 +18601,34 @@ export const PointOfSalesDocument = {
                         name: { kind: 'Name', value: 'shop' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'box' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'authorization' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                          ],
                         },
                       },
                     ],
@@ -17264,7 +18743,10 @@ export const ProductsDocument = {
                         name: { kind: 'Name', value: 'size' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'value' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'weight' } },
+                          ],
                         },
                       },
                       {
@@ -18464,6 +19946,42 @@ export const ShopsDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'goal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'defaultWarehouse' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isMain' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'warehouseMain' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -18986,7 +20504,6 @@ export const CurrentUserDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'permissions' },
@@ -19140,8 +20657,20 @@ export const WarehousesDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'max' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'min' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                     ],
                   },
                 },

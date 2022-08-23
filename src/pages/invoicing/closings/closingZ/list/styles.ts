@@ -10,4 +10,15 @@ export default {
     textAlign: 'right',
     marginRight: 60,
   },
+  buttonR: {
+    borderRadius: 5,
+  },
+  tagStyle: {
+    borderColor: '#dc9575',
+    color: '#dc9575',
+    backgroundColor: 'white',
+  },
+  iconSize: {
+    fontSize: 20,
+  },
 };

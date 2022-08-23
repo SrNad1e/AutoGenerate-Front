@@ -21,20 +21,21 @@ import type {
   TablePaginationConfig,
 } from 'antd/lib/table/interface';
 import type { Credit, Customer, FiltersCreditsInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { StatusCredit } from '@/graphql/graphql';
-import { useGetCredits, useGetHistoryCredits, useUpdateCredit } from '@/hooks/credit.hooks';
+import { useGetCredits, useUpdateCredit } from '@/hooks/credit.hooks';
 import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useState } from 'react';
-import { useAccess, useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 
 import Filters from '@/components/Filters';
 import SearchCustomer from '@/components/SearchCustomer';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import CreditsHistorical from '../historical';
-import { StatusTypeWallet } from '../wallet.data';
+import CreditsHistorical from '../components/historical';
+import { StatusTypeCredit } from '../credit.data';
 
 import styles from './styles';
 
@@ -47,14 +48,13 @@ type FormValues = {
 };
 
 const CreditsList = () => {
-  const [visibleHistorical, setVisibleHistorical] = useState(false);
+  const [creditSelected, setCreditSelected] = useState<Credit | null>(null);
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
-  const [creditSelected, setCreditSelected] = useState<Partial<Credit>>({});
 
   const [form] = Form.useForm();
   const history = useHistory();
@@ -67,13 +67,17 @@ const CreditsList = () => {
 
   const [getCredits, { data, loading }] = useGetCredits();
   const [updateCredit, paramsUpdate] = useUpdateCredit();
-  const [getCreditsHistory, paramsGetHistory] = useGetHistoryCredits();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryCredit = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadCredits,
+  );
 
   /**
    * @description cierra el modal del historico
    */
   const closeModalHistorical = () => {
-    setVisibleHistorical(false);
+    setCreditSelected(null);
   };
 
   /**
@@ -88,13 +92,20 @@ const CreditsList = () => {
   };
 
   /**
+   * @description abre el historico
+   */
+  const onShowHistorical = (credit: Credit) => {
+    setCreditSelected(credit);
+  };
+
+  /**
    * @description funcion usada para mostrar los errores
    * @param message mensaje de error a mostrar
    */
   const showError = (message: string) => {
     setAlertInformation({
       message,
-      type: 'warning',
+      type: 'error',
       visible: true,
     });
   };
@@ -104,13 +115,17 @@ const CreditsList = () => {
    * @param filters Variables para ejecutar la consulta
    */
   const onSearch = async (filters?: FiltersCreditsInput) => {
-    getCredits({
-      variables: {
-        input: {
-          ...filters,
+    try {
+      getCredits({
+        variables: {
+          input: {
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -209,32 +224,17 @@ const CreditsList = () => {
    * @param statusUpdate estado al que se quiere cambiar
    */
   const updateCredits = (_id: string, statusUpdate: StatusCredit) => {
-    updateCredit({
-      variables: {
-        id: _id,
-        input: {
-          status: statusUpdate,
+    try {
+      updateCredit({
+        variables: {
+          id: _id,
+          input: {
+            status: statusUpdate,
+          },
         },
-      },
-    });
-  };
-
-  /**
-   * @description se trae el historico en base a la id del credito
-   * @param credit credito seleccionado
-   */
-  const getHistory = async (credit: Credit) => {
-    setCreditSelected(credit);
-    const response = await getCreditsHistory({
-      variables: {
-        input: {
-          creditId: credit?._id,
-          limit: 10,
-        },
-      },
-    });
-    if (response) {
-      setVisibleHistorical(true);
+      });
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -260,6 +260,12 @@ const CreditsList = () => {
   useEffect(() => {
     loadingData();
   }, []);
+
+  useEffect(() => {
+    if (!canQueryCredit) {
+      showError('No tiene permisos para consultar los creditos');
+    }
+  }, [canQueryCredit]);
 
   const column: ColumnsType<Credit> = [
     {
@@ -319,7 +325,7 @@ const CreditsList = () => {
       align: 'center',
       filteredValue: filterTable?.status || null,
       render: (status: string) => {
-        const { color, label } = StatusTypeWallet[status || ''];
+        const { color, label } = StatusTypeCredit[status || ''];
         return <Badge text={label} color={color} />;
       },
       filterDropdown: (props: FilterDropdownProps) => (
@@ -365,8 +371,8 @@ const CreditsList = () => {
             <Button
               style={{ backgroundColor: 'white' }}
               danger={credit.status === StatusCredit.Active ? true : false}
-              loading={paramsUpdate?.loading}
-              disabled={paramsUpdate?.loading || paramsGetHistory?.loading || !canEdit}
+              loading={paramsUpdate?.loading || loading}
+              disabled={!canEdit}
               onClick={() =>
                 updateCredits(
                   id,
@@ -387,9 +393,8 @@ const CreditsList = () => {
           </Tooltip>
           <Tooltip title="Historicos">
             <Button
-              loading={paramsGetHistory?.loading}
-              disabled={paramsGetHistory?.loading || paramsUpdate?.loading}
-              onClick={() => getHistory(credit)}
+              loading={paramsUpdate?.loading || loading}
+              onClick={() => onShowHistorical(credit)}
               type="primary"
               icon={<FieldTimeOutlined />}
             />
@@ -404,7 +409,7 @@ const CreditsList = () => {
       <Card>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={20}>
-            <Col xs={24} md={11} lg={10} xl={9}>
+            <Col xs={24} md={8} lg={8} xl={8}>
               <FormItem label="Cliente" name="customerId">
                 <SearchCustomer disabled={loading || paramsUpdate?.loading} />
               </FormItem>
@@ -413,7 +418,7 @@ const CreditsList = () => {
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button
-                    disabled={loading || paramsUpdate?.loading || paramsGetHistory?.loading}
+                    loading={loading || paramsUpdate?.loading}
                     style={styles.buttonR}
                     icon={<SearchOutlined />}
                     type="primary"
@@ -425,7 +430,7 @@ const CreditsList = () => {
                     style={styles.buttonR}
                     icon={<ClearOutlined />}
                     onClick={onClear}
-                    disabled={loading || paramsUpdate?.loading || paramsGetHistory?.loading}
+                    loading={loading || paramsUpdate?.loading}
                   >
                     Limpiar
                   </Button>
@@ -434,10 +439,11 @@ const CreditsList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]} align="middle">
+        <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
           <Col span={24} style={styles.alignText}>
-            <Text strong>Total Encontrados:</Text> {data?.credits?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.credits?.page} / {data?.credits?.totalPages || 0}
+            <Text strong>Total Encontrados:</Text> {data?.credits?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.credits?.page || 0} /{' '}
+            {data?.credits?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
@@ -445,21 +451,17 @@ const CreditsList = () => {
               dataSource={data?.credits?.docs}
               scroll={{ x: 1000 }}
               onChange={handleChangeTable}
+              loading={loading || paramsUpdate.loading}
               pagination={{
                 current: data?.credits?.page,
                 total: data?.credits?.totalDocs,
+                showSizeChanger: false,
               }}
             />
           </Col>
         </Row>
       </Card>
-      <CreditsHistorical
-        data={paramsGetHistory.data?.creditHistory}
-        credit={creditSelected}
-        creditHistory={paramsGetHistory?.data?.creditHistory?.docs}
-        visible={visibleHistorical}
-        onCancel={closeModalHistorical}
-      />
+      <CreditsHistorical credit={creditSelected} onCancel={closeModalHistorical} />
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );

@@ -3,6 +3,8 @@ import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetPointOfSales } from '@/hooks/pointOfSale.hooks';
+import { Permissions } from '@/graphql/graphql';
+import { useModel } from 'umi';
 
 const { Option } = Select;
 
@@ -15,6 +17,11 @@ export type Params = {
 
 const SelectPointOfSale = ({ onChange, disabled, value, shopId }: Params) => {
   const [getPointOfSales, { loading, data, error }] = useGetPointOfSales();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryPos = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingPointofsales,
+  );
 
   /**
    * @description se encarga de consultar con base a un comodín
@@ -35,17 +42,19 @@ const SelectPointOfSale = ({ onChange, disabled, value, shopId }: Params) => {
   };
 
   useEffect(() => {
-    getPointOfSales({
-      variables: {
-        input: {
-          shopId: shopId,
-          _id: value,
-          sort: {
-            name: 1,
+    if (canQueryPos) {
+      getPointOfSales({
+        variables: {
+          input: {
+            shopId: shopId,
+            _id: value,
+            sort: {
+              name: 1,
+            },
           },
         },
-      },
-    });
+      });
+    }
   }, [shopId]);
 
   return (
@@ -68,6 +77,13 @@ const SelectPointOfSale = ({ onChange, disabled, value, shopId }: Params) => {
           </Option>
         ))}
       </Select>
+      {!canQueryPos && (
+        <Alert
+          message="No tiene permiso para consultar los puntos de venta"
+          type="error"
+          showIcon
+        />
+      )}
       {error && <Alert message={error} type="info" showIcon />}
     </>
   );

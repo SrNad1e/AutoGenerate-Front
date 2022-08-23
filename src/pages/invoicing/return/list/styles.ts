@@ -16,4 +16,7 @@ export default {
   allWidth: {
     width: '100%',
   },
+  iconSize: {
+    fontSize: 20,
+  },
 };

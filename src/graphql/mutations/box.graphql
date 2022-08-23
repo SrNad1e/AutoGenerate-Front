@@ -1,0 +1,13 @@
+mutation createBox($input: CreateBoxInput!) {
+  createBox(createBoxInput: $input) {
+    _id
+    name
+  }
+}
+
+mutation updateBox($id: String!, $input: UpdateBoxInput!) {
+  updateBox(id: $id, updateBoxInput: $input) {
+    _id
+    name
+  }
+}

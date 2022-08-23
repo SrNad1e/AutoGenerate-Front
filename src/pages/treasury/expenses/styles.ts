@@ -1,6 +1,6 @@
 export default {
   marginFilters: {
-    marginTop: 40,
+    marginTop: 20,
   },
   InputFormWIdth: {
     width: '80%',

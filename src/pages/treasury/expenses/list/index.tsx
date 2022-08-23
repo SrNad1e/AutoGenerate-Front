@@ -5,6 +5,7 @@ import {
   CloseSquareFilled,
   DollarCircleOutlined,
   FieldNumberOutlined,
+  FileSyncOutlined,
   GroupOutlined,
   MoreOutlined,
   PlusOutlined,
@@ -34,9 +35,11 @@ import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useRef, useState } from 'react';
 import type { Box, Expense, FiltersExpensesInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { StatusExpense } from '@/graphql/graphql';
 import { useGetExpenses, useUpdateExpense } from '@/hooks/expense.hooks';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useReactToPrint } from 'react-to-print';
 import { useHistory, useLocation } from 'umi';
@@ -83,6 +86,11 @@ const ExpensesList = () => {
   const [getExpenses, { data, loading }] = useGetExpenses();
   const [updateExpenses, paramsUpdate] = useUpdateExpense();
 
+  const { initialState } = useModel('@@initialState');
+  const canQueryExpense = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadTreasuryExpenses,
+  );
+
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
@@ -99,7 +107,7 @@ const ExpensesList = () => {
   const showError = (message: string) => {
     setAlertInformation({
       message,
-      type: 'warning',
+      type: 'error',
       visible: true,
     });
   };
@@ -127,13 +135,17 @@ const ExpensesList = () => {
    * @param filters Variables para ejecutar la consulta
    */
   const onSearch = (filters?: FiltersExpensesInput) => {
-    getExpenses({
-      variables: {
-        input: {
-          ...filters,
+    try {
+      getExpenses({
+        variables: {
+          input: {
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -275,6 +287,12 @@ const ExpensesList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryExpense) {
+      showError('No tiene permisos para consultar los egresos');
+    }
+  }, [canQueryExpense]);
+
   const column: ColumnsType<Expense> = [
     {
       title: (
@@ -310,7 +328,7 @@ const ExpensesList = () => {
       render: (value: number) => numeral(value).format('$ 0,0'),
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
       filteredValue: filterTable?.status || null,
@@ -340,11 +358,11 @@ const ExpensesList = () => {
           <CalendarOutlined /> Fecha
         </Text>
       ),
-      dataIndex: 'updatedAt',
+      dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
+      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
     },
     {
       title: (
@@ -359,6 +377,7 @@ const ExpensesList = () => {
           <Tooltip title="Imprimir" placement="topLeft">
             <Button
               disabled={!canPrint}
+              loading={loading || paramsUpdate.loading}
               type="primary"
               onClick={() => printExpense(expenseId)}
               icon={<PrinterFilled />}
@@ -374,12 +393,8 @@ const ExpensesList = () => {
             >
               <Button
                 danger
-                loading={paramsUpdate?.loading}
-                disabled={
-                  paramsUpdate?.loading ||
-                  expenseId.status === StatusExpense.Cancelled ||
-                  !canCancelled
-                }
+                loading={paramsUpdate?.loading || loading}
+                disabled={expenseId.status === StatusExpense.Cancelled || !canCancelled}
                 type="primary"
                 icon={<CloseSquareFilled />}
               />
@@ -393,7 +408,7 @@ const ExpensesList = () => {
     <PageContainer>
       <Card>
         <Form form={form} onFinish={onFinish}>
-          <Row gutter={40}>
+          <Row gutter={30}>
             <Col xs={24} sm={7} md={6} lg={5} xl={4}>
               <FormItem label="Número" name="number">
                 <InputNumber
@@ -416,11 +431,17 @@ const ExpensesList = () => {
                     icon={<SearchOutlined />}
                     style={styles.buttonR}
                     type="primary"
+                    loading={loading || paramsUpdate.loading}
                     htmlType="submit"
                   >
                     Buscar
                   </Button>
-                  <Button style={styles.buttonR} icon={<ClearOutlined />} onClick={onClear}>
+                  <Button
+                    style={styles.buttonR}
+                    loading={loading || paramsUpdate.loading}
+                    icon={<ClearOutlined />}
+                    onClick={onClear}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -428,31 +449,35 @@ const ExpensesList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]} align="middle" style={styles.marginFilters}>
-          <Col xs={8} md={15} lg={16}>
+        <Row gutter={[0, 15]} align="middle" style={styles.marginFilters}>
+          <Col span={12}>
             <Button
               icon={<PlusOutlined />}
               type="primary"
               shape="round"
-              disabled={loading || !canCreate}
+              disabled={!canCreate}
+              loading={loading || paramsUpdate.loading}
               onClick={() => setVisibleModalCreate(true)}
             >
               Nuevo
             </Button>
           </Col>
-          <Col xs={16} md={9} lg={8} style={styles.alingText}>
-            <Text strong>Total Encontrados:</Text> {data?.expenses?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.expenses?.page} / {data?.expenses?.totalPages || 0}
+          <Col span={12} style={styles.alingText}>
+            <Text strong>Total Encontrados:</Text> {data?.expenses?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.expenses?.page || 0} /{' '}
+            {data?.expenses?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
               onChange={handleChangeTable}
               columns={column}
+              loading={loading || paramsUpdate.loading}
               dataSource={data?.expenses?.docs}
               scroll={{ x: 'auto' }}
               pagination={{
                 current: data?.expenses?.page,
                 total: data?.expenses?.totalDocs,
+                showSizeChanger: false,
               }}
             />
           </Col>

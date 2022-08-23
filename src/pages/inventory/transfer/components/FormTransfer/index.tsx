@@ -7,7 +7,6 @@ import {
   Col,
   Form,
   InputNumber,
-  Popconfirm,
   Row,
   Space,
   Table,
@@ -75,7 +74,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
+   * @param message mensaje que se muestra en la alerta
    */
   const onShowInformation = (message: string) => {
     setPropsAlert({
@@ -114,6 +113,13 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea cancelar el traslado?',
           type: 'error',
         });
+      } else if (status === StatusStockTransfer.Sent) {
+        setPropsAlertSave({
+          status,
+          visible: true,
+          message: '¿Está seguro que desea enviar el traslado?',
+          type: 'warning',
+        });
       } else {
         setPropsAlertSave({
           status,
@@ -142,8 +148,6 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           action: detail?.action as ActionDetailTransfer,
         }));
         if (newDetails.length > 0 || status || observation !== transfer?.observationOrigin) {
-          console.log(observation);
-
           const props = {
             details: newDetails,
             requests: requests?.map((request) => request?._id),
@@ -151,24 +155,50 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
             status,
           };
 
+          if (props.status === StatusStockTransfer.Open) {
+            delete props.status;
+          }
+
           const response = await updateTransfer({
             variables: {
               input: props,
               id,
             },
           });
+
           if (response?.data?.updateStockTransfer) {
-            if (response?.data?.updateStockTransfer?.status === StatusStockTransfer.Cancelled) {
+            if (status === StatusStockTransfer.Open) {
               setPropsAlert({
-                message: `Traslado cancelado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
-                type: 'warning',
-                visible: true,
-              });
-            } else {
-              setPropsAlert({
-                message: `Traslado actualizado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
+                message: `Traslado No. ${response?.data?.updateStockTransfer?.number} actualizado correctamente`,
                 type: 'success',
                 visible: true,
+                redirect: [StatusStockTransfer.Sent, StatusStockTransfer.Confirmed].includes(
+                  response?.data?.updateStockTransfer?.status,
+                )
+                  ? '/inventory/transfer/list'
+                  : undefined,
+              });
+            } else if (props.status === StatusStockTransfer.Sent) {
+              setPropsAlert({
+                message: `Traslado No. ${response?.data?.updateStockTransfer?.number} creado correctamente `,
+                type: 'success',
+                visible: true,
+                redirect: [StatusStockTransfer.Sent, StatusStockTransfer.Confirmed].includes(
+                  response?.data?.updateStockTransfer?.status,
+                )
+                  ? '/inventory/transfer/list'
+                  : undefined,
+              });
+            } else if (status === StatusStockTransfer.Cancelled) {
+              setPropsAlert({
+                message: `Traslado No. ${response?.data?.updateStockTransfer?.number} cancelado correctamente `,
+                type: 'success',
+                visible: true,
+                redirect: [StatusStockTransfer.Sent, StatusStockTransfer.Confirmed].includes(
+                  response?.data?.updateStockTransfer?.status,
+                )
+                  ? '/inventory/transfer/list'
+                  : undefined,
               });
             }
           }
@@ -200,9 +230,19 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
             },
           });
 
-          if (response?.data?.createStockTransfer) {
+          if (response?.data?.createStockTransfer && status === StatusStockTransfer.Sent) {
             setPropsAlert({
               message: `Traslado creado correctamente No. ${response?.data?.createStockTransfer?.number}`,
+              type: 'success',
+              visible: true,
+              redirect:
+                status === StatusStockTransfer.Sent
+                  ? '/inventory/transfer/list'
+                  : `/inventory/transfer/${response?.data?.createStockTransfer?._id}`,
+            });
+          } else if (response?.data?.createStockTransfer && status === StatusStockTransfer.Open) {
+            setPropsAlert({
+              message: `Traslado guardado correctamente No. ${response?.data?.createStockTransfer?.number}`,
               type: 'success',
               visible: true,
               redirect: `/inventory/transfer/${response?.data?.createStockTransfer?._id}`,
@@ -389,22 +429,24 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       ),
     },
     {
-      title: 'Opciones',
+      title: 'Opción',
       dataIndex: 'product',
       align: 'center',
       width: 30,
       fixed: 'right',
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Popconfirm title="¿Seguro desea eliminar?" onConfirm={() => deleteDetail(_id)}>
-            <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
-          </Popconfirm>
+          <Button
+            icon={<DeleteOutlined />}
+            type="primary"
+            danger
+            onClick={() => deleteDetail(_id)}
+            disabled={!allowEdit}
+          />
         </Tooltip>
       ),
     },
   ];
-
-  console.log(details);
 
   return (
     <>
@@ -433,8 +475,9 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           dataSource={
             details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
           }
-          scroll={{ x: 800, y: 200 }}
+          scroll={{ x: 800, y: 400 }}
           pagination={{ size: 'small' }}
+          loading={paramsCreate?.loading || paramsUpdate?.loading}
         />
       </Card>
       <Footer

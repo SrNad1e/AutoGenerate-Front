@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Alert, Form, Input, Modal, Switch } from 'antd';
+import { Alert, Col, Form, Input, Modal, Row, Space, Switch, Typography } from 'antd';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '../Alerts/AlertLoading';
 import { useCreateBrand, useUpdateBrand } from '@/hooks/brand.hooks';
 import type { Brand } from '@/graphql/graphql';
+import { SketchOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
+const { Text } = Typography;
 
 export type Props = {
   modalVisible: boolean;
@@ -131,34 +133,48 @@ const CreateBrands = ({ current, modalVisible, onCancel }: Props) => {
 
   return (
     <Modal
-      okText="Aceptar"
+      okText={isNew ? 'Crear' : 'Actualizar'}
       cancelText="Cancelar"
       destroyOnClose
-      title={isNew ? 'Nuevo' : 'Editar'}
+      title={isNew ? 'Crear Marca' : 'Actualizar Marca'}
       visible={modalVisible}
       onCancel={() => closeAndClear()}
       onOk={() => (isNew ? createNewBrand() : editBrand())}
+      okButtonProps={{
+        style: { borderRadius: 5 },
+        loading: paramsCreate.loading || paramsUpdate.loading,
+      }}
+      cancelButtonProps={{
+        style: { borderRadius: 5 },
+        loading: paramsCreate.loading || paramsUpdate.loading,
+      }}
     >
-      <Form form={form} initialValues={current}>
-        <FormItem
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          label="Marca"
-          name="name"
-          rules={[{ required: true, message: 'Marca obligatoria', min: 1 }]}
-        >
-          <Input placeholder="" autoFocus maxLength={45} />
-        </FormItem>
-        <FormItem
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          label="Activo"
-          name="active"
-          valuePropName="checked"
-        >
-          <Switch defaultChecked />
-        </FormItem>
-        {error && <Alert type="error" message={error} showIcon />}
+      <Form
+        form={form}
+        initialValues={current}
+        layout="vertical"
+        style={{ display: 'flex', justifyContent: 'center' }}
+      >
+        <Row>
+          <Col span={24}>
+            <FormItem
+              label={
+                <Space>
+                  <SketchOutlined />
+                  <Text>Marca</Text>
+                </Space>
+              }
+              name="name"
+              rules={[{ required: true, message: 'Marca obligatoria', min: 1 }]}
+            >
+              <Input placeholder="" autoFocus maxLength={45} />
+            </FormItem>
+            <FormItem label="Activo" name="active" valuePropName="checked">
+              <Switch defaultChecked />
+            </FormItem>
+            {error && <Alert type="error" message={error} showIcon />}
+          </Col>
+        </Row>
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       <AlertLoading visible={paramsCreate?.loading} message="Creando Marca" />

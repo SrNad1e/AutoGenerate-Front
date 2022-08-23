@@ -147,17 +147,45 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
             status,
           };
 
+          if (props.status === StatusStockOutput.Open) {
+            delete props.status;
+          }
+
           const response = await updateOutput({
             variables: {
               input: props,
               id,
             },
           });
-          if (response?.data?.updateStockOutput) {
+          if (response?.data?.updateStockOutput && status === StatusStockOutput.Open) {
             setPropsAlert({
-              message: `Salida actualizada correctamente No. ${response?.data?.updateStockOutput?.number}`,
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} actualizada correctamente `,
               type: 'success',
               visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockOutput && status === StatusStockOutput.Confirmed) {
+            setPropsAlert({
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} creada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockOutput && status === StatusStockOutput.Cancelled) {
+            setPropsAlert({
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} cancelada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
             });
           }
         } else {
@@ -185,9 +213,19 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
               input: props,
             },
           });
-          if (response?.data?.createStockOutput) {
+          if (response?.data?.createStockOutput && status === StatusStockOutput.Confirmed) {
             setPropsAlert({
               message: `Salida creada correctamente No. ${response?.data?.createStockOutput?.number}`,
+              type: 'success',
+              visible: true,
+              redirect:
+                status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : `/inventory/output/${response?.data?.createStockOutput?._id}`,
+            });
+          } else if (response?.data?.createStockOutput && status === StatusStockOutput.Open) {
+            setPropsAlert({
+              message: `Salida guardada correctamente No. ${response?.data?.createStockOutput?.number}`,
               type: 'success',
               visible: true,
               redirect: `/inventory/output/${response?.data?.createStockOutput?._id}`,

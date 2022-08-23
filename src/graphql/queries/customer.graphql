@@ -11,6 +11,7 @@ query customers($input: FiltersCustomersInput) {
       }
       addresses {
         city {
+          _id
           name
         }
         contact

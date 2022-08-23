@@ -4,8 +4,15 @@ query warehouses($input: FiltersWarehousesInput!) {
     totalDocs
     totalPages
     docs {
+      max
+      min
       _id
       name
+      updatedAt
+      user {
+        name
+      }
+      active
     }
   }
 }

@@ -148,17 +148,51 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
             status,
           };
 
+          if (props.status === StatusStockAdjustment.Open) {
+            delete props.status;
+          }
+
           const response = await updateAdjustment({
             variables: {
               input: props,
               id,
             },
           });
-          if (response?.data?.updateStockAdjustment) {
+          if (response?.data?.updateStockAdjustment && status === StatusStockAdjustment.Open) {
             setPropsAlert({
-              message: `Ajuste actualizado correctamente No. ${response?.data?.updateStockAdjustment?.number}`,
+              message: `Ajuste No. ${response?.data?.updateStockAdjustment?.number} actualizado correctamente`,
               type: 'success',
               visible: true,
+              redirect:
+                response?.data?.updateStockAdjustment?.status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : undefined,
+            });
+          } else if (
+            response?.data?.updateStockAdjustment &&
+            status === StatusStockAdjustment.Confirmed
+          ) {
+            setPropsAlert({
+              message: `Ajuste No. ${response?.data?.updateStockAdjustment?.number} creado correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockAdjustment?.status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : undefined,
+            });
+          } else if (
+            response?.data?.updateStockAdjustment &&
+            status === StatusStockAdjustment.Cancelled
+          ) {
+            setPropsAlert({
+              message: `Ajuste No. ${response?.data?.updateStockAdjustment?.number} cancelado correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockAdjustment?.status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : undefined,
             });
           }
         } else {
@@ -186,10 +220,22 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
               input: props,
             },
           });
-
-          if (response?.data?.createStockAdjustment) {
+          if (response?.data?.createStockAdjustment && status === StatusStockAdjustment.Confirmed) {
             setPropsAlert({
               message: `Ajuste creado correctamente No. ${response?.data?.createStockAdjustment?.number}`,
+              type: 'success',
+              visible: true,
+              redirect:
+                status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : `/inventory/adjustment/${response?.data?.createStockAdjustment?._id}`,
+            });
+          } else if (
+            response?.data?.createStockAdjustment &&
+            status === StatusStockAdjustment.Open
+          ) {
+            setPropsAlert({
+              message: `Ajuste guardado correctamente No. ${response?.data?.createStockAdjustment?.number}`,
               type: 'success',
               visible: true,
               redirect: `/inventory/adjustment/${response?.data?.createStockAdjustment?._id}`,

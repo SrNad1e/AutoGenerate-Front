@@ -93,6 +93,8 @@ const ImageAdmin = ({ limit, value = [], onChange, onCopyImage, disabled }: Prop
     multiple: false,
     style: { width: 148, margin: '0 10px' },
   };
+  console.log(`${CDN_URL}`);
+  console.log({ value });
 
   return (
     <Row gutter={24}>

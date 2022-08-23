@@ -65,6 +65,9 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
 
   const isNew = !customerData?._id;
 
+  const documentTypeCCId = '62c88cbb0ee9b73ab036f0d7';
+  const customerTypeDetalId = '62c88cf30ee9b73ab036f0d8';
+
   const birthday = moment(customerData?.birthday || undefined);
 
   const documentTypes = Object.values(
@@ -158,9 +161,18 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
     const values = await form.validateFields();
 
     try {
+      const newAddresses = addresses.map(({ city, __typename, ...address }) => ({
+        ...address,
+        cityId: city?._id,
+      }));
       const response = await updateCustomer({
         variables: {
-          input: { ...values, isWhatsapp: isWhatsapp, addresses, isDefault: isDefault },
+          input: {
+            ...values,
+            isWhatsapp: isWhatsapp,
+            addresses: newAddresses,
+            isDefault: isDefault,
+          },
           id: customerData?._id || '',
         },
       });
@@ -176,7 +188,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
             },
           },
         });
-      } else {
+      } else if (valuesFields?.valuesCredit?.amount) {
         await createCredit({
           variables: {
             input: {
@@ -230,12 +242,20 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
   }, []);
 
   useEffect(() => {
-    form.setFieldsValue({
-      ...customerData,
-      customerTypeId: customerData?.customerType?._id,
-      birthday: customerData?.birthday !== null ? birthday : undefined,
-      documentTypeId: customerData?.documentType?._id,
-    });
+    if (!isNew) {
+      form.setFieldsValue({
+        ...customerData,
+        customerTypeId: customerData?.customerType?._id,
+        birthday: customerData?.birthday !== null ? birthday : undefined,
+        documentTypeId: customerData?.documentType?._id,
+      });
+      setAddresses(customerData?.addresses || []);
+    } else {
+      form.setFieldsValue({
+        documentTypeId: documentTypeCCId,
+        customerTypeId: customerTypeDetalId,
+      });
+    }
     onSearchCredit();
   }, [visible]);
 
@@ -243,20 +263,10 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
    * @description selecciona el tipo de documento del cliente
    */
   const documentTypeBefore = (
-    <FormItem
-      name="documentTypeId"
-      style={styles.marginZero}
-      rules={[
-        {
-          required: true,
-          message: 'Este campo no puede estar vacio',
-        },
-      ]}
-    >
+    <FormItem name="documentTypeId" style={styles.marginZero}>
       <Select
         size="small"
         bordered={false}
-        placeholder="NIT..."
         style={styles.selectWidth}
         disabled={
           loading ||
@@ -272,6 +282,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
           paramsCreateCustomer?.loading ||
           paramsCreateCredit?.loading
         }
+        defaultValue={documentTypeCCId}
       >
         {documentTypes.map((typeDocument) => (
           <Option key={typeDocument._id} value={typeDocument._id}>
@@ -327,6 +338,9 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
           paramsUpdateCredit?.loading ||
           paramsCreateCustomer?.loading ||
           paramsCreateCredit?.loading,
+        style: {
+          borderRadius: 5,
+        },
       }}
       cancelButtonProps={{
         disabled:
@@ -339,6 +353,9 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
           paramsUpdateCredit?.loading ||
           paramsCreateCustomer?.loading ||
           paramsCreateCredit?.loading,
+        style: {
+          borderRadius: 5,
+        },
       }}
     >
       <Tabs>
@@ -353,7 +370,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Este campo no puede estar vacio',
+                      message: '*Este campo no puede estar vacio',
                     },
                     {
                       validator: (_, value) => {
@@ -367,7 +384,18 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                         }
                         return Promise.reject();
                       },
-                      message: '*Campo numerico',
+                      message: '*Campo numérico',
+                    },
+                    {
+                      validator: () => {
+                        const type = form.getFieldValue('documentTypeId');
+
+                        if (!type) {
+                          return Promise.reject();
+                        }
+                        return Promise.resolve();
+                      },
+                      message: '*Este campo no puede estar vacio',
                     },
                   ]}
                 >
@@ -392,7 +420,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Este campo no puede estar vacio',
+                      message: '*Este campo no puede estar vacio',
                     },
                   ]}
                 >
@@ -416,7 +444,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Este campo no puede estar vacio',
+                      message: '*Este campo no puede estar vacio',
                     },
                   ]}
                 >
@@ -464,7 +492,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
                         }
                         return Promise.reject();
                       },
-                      message: '*Campo numerico',
+                      message: '*Campo numérico',
                     },
                   ]}
                 >

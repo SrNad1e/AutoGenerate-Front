@@ -68,7 +68,7 @@ const Form = () => {
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
+   * @param message mensaje que se muestra en la alerta
    */
   const onShowError = (message: string) => {
     setPropsAlert({

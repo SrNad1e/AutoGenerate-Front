@@ -1,5 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  EditOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  SketchOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { TablePaginationConfig } from 'antd';
 import {
@@ -17,7 +25,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useHistory, useLocation, useAccess } from 'umi';
 import type { ColumnsType, SorterResult } from 'antd/es/table/interface';
 
@@ -25,7 +33,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetBrands } from '@/hooks/brand.hooks';
 import CreateBrands from '@/components/CreateBrand';
-import type { Brand, FiltersBrandsInput } from '@/graphql/graphql';
+import { Brand, FiltersBrandsInput, Permissions } from '@/graphql/graphql';
 
 import styles from './styles.less';
 import Filters from '@/components/Filters';
@@ -60,6 +68,11 @@ const BrandsList = () => {
   } = useAccess();
 
   const [getBrands, { data, loading }] = useGetBrands();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryBrands = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventoryBrands,
+  );
 
   /**
    * @description funcion usada por los hooks para mostrar los errores
@@ -239,25 +252,44 @@ const BrandsList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryBrands) {
+      showError('No tiene permisos para consultar las marcas');
+    }
+  }, [canQueryBrands]);
+
   /**
    * @description se encarga de renderizar la interfaz de busqueda
    */
   const renderFormSearch = () => (
     <Form onFinish={onFinish} form={form}>
       <Row gutter={[8, 8]} align="middle">
-        <Col xs={24} md={10} lg={8}>
+        <Col xs={24} md={13} lg={10}>
           <FormItem label="Nombre" name="name">
             <Input placeholder="Nombre de la marca" autoComplete="off" style={{ width: '100%' }} />
           </FormItem>
         </Col>
         <Col xs={24} md={8}>
           <FormItem label="">
-            <Button type="primary" htmlType="submit">
-              Buscar
-            </Button>
-            <Button style={{ marginLeft: 8 }} onClick={onClear}>
-              Limpiar
-            </Button>
+            <Space>
+              <Button
+                style={{ borderRadius: 5 }}
+                icon={<SearchOutlined />}
+                type="primary"
+                loading={loading}
+                htmlType="submit"
+              >
+                Buscar
+              </Button>
+              <Button
+                style={{ borderRadius: 5 }}
+                loading={loading}
+                icon={<ClearOutlined />}
+                onClick={onClear}
+              >
+                Limpiar
+              </Button>
+            </Space>
           </FormItem>
         </Col>
       </Row>
@@ -266,7 +298,7 @@ const BrandsList = () => {
 
   const columns: ColumnsType<Partial<Brand>> = [
     {
-      title: 'Nombre',
+      title: <Text>{<SketchOutlined />} Nombre</Text>,
       dataIndex: 'name',
       align: 'center',
       sorter: true,
@@ -299,7 +331,7 @@ const BrandsList = () => {
       ),
     },
     {
-      title: 'Fecha registro',
+      title: <Text>{<CalendarOutlined />} Fecha Registro</Text>,
       dataIndex: 'createdAt',
       align: 'center',
       sorter: true,
@@ -308,16 +340,17 @@ const BrandsList = () => {
       render: (createdAt: string) => <span>{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Acción',
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       render: (_: string, BrandID) => (
         <Tooltip title="Editar" placement="topLeft">
           <Button
             disabled={!canEdit}
+            loading={loading}
             onClick={() => visibleModal(BrandID)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
           />
         </Tooltip>
       ),
@@ -335,21 +368,23 @@ const BrandsList = () => {
       <Card>
         <div className={styles.tableList}>
           <div className={styles.tableListForm}>{renderFormSearch()}</div>
-          <Row gutter={[0, 20]} align="middle">
+          <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
             <Col span={12}>
               <Button
                 disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                loading={loading}
                 onClick={() => visibleModal(brand)}
               >
                 Nuevo
               </Button>
             </Col>
             <Col span={12} className={styles.alignRigth}>
-              <Text strong>Total Encontrados:</Text> {data?.brands?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.brands?.page} / {data?.brands?.totalPages || 0}
+              <Text strong>Total Encontrados:</Text> {data?.brands?.totalDocs || 0}{' '}
+              <Text strong>Páginas: </Text> {data?.brands?.page || 0} /{' '}
+              {data?.brands?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table
@@ -358,6 +393,7 @@ const BrandsList = () => {
                 pagination={{
                   current: data?.brands?.page,
                   total: data?.brands?.totalDocs,
+                  showSizeChanger: false,
                 }}
                 loading={loading}
                 onChange={handleChangeTable}

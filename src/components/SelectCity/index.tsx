@@ -37,7 +37,7 @@ const SelectCity = ({ onChange, disabled, value }: Params) => {
         },
       },
     });
-  }, []);
+  }, [value]);
 
   return (
     <>
@@ -52,9 +52,9 @@ const SelectCity = ({ onChange, disabled, value }: Params) => {
         disabled={disabled}
         value={value}
       >
-        {data?.cities?.docs?.map(({ _id, name }) => (
-          <Option key={_id} value={_id}>
-            {name}
+        {data?.cities?.docs?.map((city) => (
+          <Option key={city._id} value={city._id}>
+            {city.name}
           </Option>
         ))}
       </Select>
