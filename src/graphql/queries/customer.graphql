@@ -31,7 +31,6 @@ query customers($input: FiltersCustomersInput) {
       updatedAt
       phone
       birthday
-      isDefault
       isWhatsapp
       active
       customerType {

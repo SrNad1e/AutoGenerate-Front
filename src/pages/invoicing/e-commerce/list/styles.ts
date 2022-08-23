@@ -26,7 +26,16 @@ export default {
   dateWidth: {
     width: '100%',
   },
-  moreFilters: {
-    bottom: 10,
+  textRight: {
+    textAlign: 'right',
+  },
+  buttonR: {
+    borderRadius: 5,
+  },
+  marginFilters: {
+    marginTop: 20,
+  },
+  iconFontSize: {
+    fontSize: 20,
   },
 };

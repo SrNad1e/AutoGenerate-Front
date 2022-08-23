@@ -32,15 +32,16 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
   const [updateCustomer, paramsUpdateCustomer] = useUpdateCustomer();
 
   /**
-   * @description se encarga de cerrar la alerta informativa
+   * @description Cierra el modal, resetea los campos del form y al alerta de error
    */
-  const closeAlertInformation = () => {
-    setPropsAlertInformation({
+  const closeAndClear = async () => {
+    await setPropsAlertInformation({
       message: '',
       type: 'error',
       visible: false,
     });
     onCancel();
+    form.resetFields();
   };
 
   /**
@@ -51,14 +52,6 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
     setPropsAlertInformation({
       message,
       type: 'error',
-      visible: true,
-    });
-  };
-
-  const showSuccess = async () => {
-    setPropsAlertInformation({
-      message: 'Dirección agregada correctamente',
-      type: 'success',
       visible: true,
     });
   };
@@ -87,12 +80,16 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
     try {
       const response = await updateCustomer({
         variables: {
-          id: customer?._id,
+          id: customer._id,
           input: { addresses: [...createAddress, { ...values }] },
         },
       });
       if (response?.data) {
-        showSuccess();
+        setPropsAlertInformation({
+          message: 'Dirección agregada correctamente',
+          type: 'success',
+          visible: true,
+        });
       }
     } catch (error: any) {
       showError(error?.message);
@@ -109,10 +106,10 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
       title="Crear Dirección"
       cancelText="Cancelar"
       okText="Aceptar"
-      onCancel={onCancel}
+      onCancel={() => closeAndClear()}
       onOk={onOk}
-      cancelButtonProps={{ loading: paramsUpdateCustomer.loading, style: { borderRadius: 5 } }}
-      okButtonProps={{ loading: paramsUpdateCustomer.loading, style: { borderRadius: 5 } }}
+      cancelButtonProps={{ loading: paramsUpdateCustomer.loading }}
+      okButtonProps={{ loading: paramsUpdateCustomer.loading }}
       width={700}
     >
       {' '}
@@ -121,10 +118,7 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
           <Col span={24}>
             <Row align="middle" gutter={[20, 20]}>
               <Col span={5}>
-                <FormItem
-                  name="field1"
-                  rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
-                >
+                <FormItem name="field1">
                   <Input
                     disabled={paramsUpdateCustomer?.loading}
                     placeholder="Carrera"
@@ -133,10 +127,7 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
                 </FormItem>
               </Col>
               <Col span={5}>
-                <FormItem
-                  name="number1"
-                  rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
-                >
+                <FormItem name="number1">
                   <Input
                     disabled={paramsUpdateCustomer?.loading}
                     placeholder="52"
@@ -148,10 +139,7 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
                 <FormItem> # </FormItem>{' '}
               </Col>
               <Col span={5}>
-                <FormItem
-                  name="loteNumber"
-                  rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
-                >
+                <FormItem name="loteNumber">
                   <Input
                     disabled={paramsUpdateCustomer?.loading}
                     placeholder="84a"
@@ -163,10 +151,7 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
                 <FormItem>-</FormItem>
               </Col>
               <Col span={5}>
-                <FormItem
-                  name="number2"
-                  rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
-                >
+                <FormItem name="number2">
                   <Input
                     disabled={paramsUpdateCustomer?.loading}
                     placeholder="22"
@@ -184,10 +169,7 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
                 </FormItem>
               </Col>
               <Col span={7}>
-                <FormItem
-                  name="neighborhood"
-                  rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
-                >
+                <FormItem name="neighborhood">
                   <Input
                     disabled={paramsUpdateCustomer?.loading}
                     placeholder="Ejemplo: El Guayabo"
@@ -196,10 +178,7 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
                 </FormItem>
               </Col>
               <Col span={7}>
-                <FormItem
-                  name="cityId"
-                  rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
-                >
+                <FormItem name="cityId">
                   <SelectCity
                     style={styles.directionInput}
                     disabled={paramsUpdateCustomer?.loading}
@@ -208,32 +187,24 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
               </Col>
               <Col span={3}>
                 <FormItem label="¿Es Principal?" name="isMain" colon={false}>
-                  <Checkbox />
+                  <Checkbox defaultChecked />
                 </FormItem>
               </Col>
             </Row>
           </Col>
           <Col span={12}>
-            <FormItem
-              label="Nombre del Contacto"
-              name="contact"
-              rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
-            >
+            <FormItem label="Nombre del Contacto" name="contact">
               <Input style={styles.inputWidth} disabled={paramsUpdateCustomer?.loading} />
             </FormItem>
           </Col>
           <Col span={12}>
-            <FormItem
-              label="Telefóno del Contacto"
-              name="phone"
-              rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
-            >
+            <FormItem label="Telefóno del Contacto" name="phone">
               <Input style={styles.inputWidth} disabled={paramsUpdateCustomer?.loading} />
             </FormItem>
           </Col>
         </Row>
       </Form>
-      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAndClear} />
     </Modal>
   );
 };

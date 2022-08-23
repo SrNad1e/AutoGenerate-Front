@@ -3,7 +3,7 @@ export default {
     marginBottom: 50,
   },
   directionInput: {
-    width: '100%',
+    width: '80%',
     textAlign: 'center',
   },
   inputWidth: {

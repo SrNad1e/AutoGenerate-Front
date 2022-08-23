@@ -63,7 +63,7 @@ const SelectPayment = ({ onChange, disabled, value, bonus = false, credit = fals
         showSearch
         allowClear
         loading={loading}
-        placeholder="Seleccione el metodo de pago"
+        placeholder="Medio de pago"
         optionFilterProp="children"
         onChange={onChange}
         onSearch={onSearch}

@@ -286,6 +286,20 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'E-Commerce',
+              path: '/invoicing/e-commerce',
+              routes: [
+                {
+                  path: '/invoicing/e-commerce',
+                  component: './invoicing/e-commerce/list',
+                },
+                {
+                  path: '/invoicing/e-commerce/:id',
+                  component: './invoicing/e-commerce/form',
+                },
+              ],
+            },
+            {
               name: 'Devoluciones',
               path: '/invoicing/return',
               component: './invoicing/return/list',
