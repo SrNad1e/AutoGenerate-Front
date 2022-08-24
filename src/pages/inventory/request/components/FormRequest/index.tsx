@@ -104,7 +104,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
     if (
       details.length > 0 ||
       status === StatusStockRequest.Cancelled ||
-      observation !== request?.observation
+      observation !== (request?.observation || '')
     ) {
       if (status === StatusStockRequest.Cancelled) {
         setPropsAlertSave({
@@ -120,16 +120,18 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea enviar la solicitud?',
           type: 'warning',
         });
-      } else {
+      } else if (status === StatusStockRequest.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar la solicitud?',
           type: 'warning',
         });
+      } else {
+        onShowInformation('La salida no tiene productos');
       }
     } else {
-      onShowInformation('La solicitud no tiene productos');
+      onShowInformation('No se encontraron cambios en la solicitud');
     }
   };
 
@@ -487,10 +489,8 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
         details={details}
       />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <AlertLoading
-        visible={paramsCreate?.loading || paramsUpdate?.loading}
-        message="Guardando Solicitud"
-      />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Solicitud" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Guardando Solicitud" />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );

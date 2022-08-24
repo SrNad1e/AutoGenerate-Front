@@ -111,11 +111,18 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea cancelar la salida?',
           type: 'error',
         });
-      } else if (details.length > 0) {
+      } else if (status === StatusStockOutput.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar la salida?',
+          type: 'warning',
+        });
+      } else if (status === StatusStockOutput.Confirmed) {
+        setPropsAlertSave({
+          status,
+          visible: true,
+          message: '¿Está seguro que desea enviar la salida?',
           type: 'warning',
         });
       } else {

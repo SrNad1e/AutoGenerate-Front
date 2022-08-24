@@ -112,11 +112,18 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea cancelar la entrada?',
           type: 'error',
         });
-      } else if (details.length > 0) {
+      } else if (status === StatusStockInput.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar la entrada?',
+          type: 'warning',
+        });
+      } else if (status === StatusStockInput.Confirmed) {
+        setPropsAlertSave({
+          status,
+          visible: true,
+          message: '¿Está seguro que desea enviar la entrada?',
           type: 'warning',
         });
       } else {
