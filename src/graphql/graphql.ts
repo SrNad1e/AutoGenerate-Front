@@ -506,6 +506,22 @@ export type Company = {
   user: User;
 };
 
+/** Datos para confirmar productos */
+export type ConfirmPaymentsOrderInput = {
+  /** Identificador del pedido a confirmar los pagos */
+  orderId: Scalars['String'];
+  /** Pagos a confirmar */
+  payments: PaymentConfirm[];
+};
+
+/** Datos para confirmar productos */
+export type ConfirmProductsOrderInput = {
+  /** Productos a confirmar */
+  details: DetailsConfirm[];
+  /** Identificador del pedido a confirmar productos */
+  orderId: Scalars['String'];
+};
+
 /** Datos para confirmar los productos del traslado */
 export type ConfirmStockTransferInput = {
   /** Productos para confirmar */
@@ -535,6 +551,42 @@ export type Conveyor = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea la transportadora */
   user: User;
+};
+
+/** Transportadora que realiza el envio */
+export type ConveyorOrder = {
+  __typename?: 'ConveyorOrder';
+  /** Datos del transportista */
+  conveyor: Conveyor;
+  /** Error del médio de pago */
+  error?: Maybe<Scalars['String']>;
+  /** Código de la guia del transportista */
+  guideCode?: Maybe<Scalars['String']>;
+  /** Fecha en el que se realiza el envío */
+  shippingDate?: Maybe<Scalars['DateTime']>;
+  /** Valor del envío */
+  value: Scalars['Float'];
+};
+
+export enum ConveyorType {
+  Fedex = 'FEDEX',
+  Interrapidisimo = 'INTERRAPIDISIMO',
+  Zone = 'ZONE',
+}
+
+/** Pais */
+export type Country = {
+  __typename?: 'Country';
+  /** Nombre del país */
+  name: Scalars['String'];
+  /** Prefijo del país */
+  prefix: Scalars['String'];
+};
+
+/** País entrada */
+export type CountryInput = {
+  /** Nombre del país */
+  name: Scalars['String'];
 };
 
 /** Cupones para pagos */
@@ -2242,6 +2294,12 @@ export type Mutation = {
   addPaymentsOrder: ResponseOrder;
   /** Se encarga de agregar productos a un pedido */
   addProductsOrder: ResponseOrder;
+  /** Se encarga de cambiar la clave al usuario con base al tokenu */
+  changePasswordToken: LoginResponse;
+  /** Se encarga de confirmar o desconfirmar pagos de un pedido */
+  confirmPaymentsOrder: ResponseOrder;
+  /** Se encarga de confirmar o desconfirmar productos de un pedido */
+  confirmProductsOrder: ResponseOrder;
   /** Confirma los productos del traslado */
   confirmProductsStockTransfer: StockTransfer;
   /** Crea un atributo */
@@ -2380,6 +2438,19 @@ export type MutationAddPaymentsOrderArgs = {
 
 export type MutationAddProductsOrderArgs = {
   addProductsOrderInput: AddProductsOrderInput;
+};
+
+export type MutationChangePasswordTokenArgs = {
+  password: Scalars['String'];
+  token: Scalars['String'];
+};
+
+export type MutationConfirmPaymentsOrderArgs = {
+  confirmPaymentsOrderInput: ConfirmPaymentsOrderInput;
+};
+
+export type MutationConfirmProductsOrderArgs = {
+  confirmProductsOrderInput: ConfirmProductsOrderInput;
 };
 
 export type MutationConfirmProductsStockTransferArgs = {
@@ -5003,8 +5074,12 @@ export enum StatusOrder {
   Cancelled = 'CANCELLED',
   Closed = 'CLOSED',
   Open = 'OPEN',
-  Pending = 'PENDING',
-  Sent = 'SENT',
+  Pendding = 'PENDDING',
+}
+
+export enum StatusOrderDetail {
+  Confirmed = 'CONFIRMED',
+  New = 'NEW',
 }
 
 export enum StatusProduct {
@@ -7521,6 +7596,7 @@ export type CitiesQuery = {
       name: string;
       state: string;
       updatedAt: any;
+      country: { __typename?: 'Country'; name: string; prefix: string };
       user: { __typename?: 'User'; name: string };
     }[];
   };
@@ -7678,6 +7754,51 @@ export type ColorsQuery = {
           webp?: { __typename?: 'ImageTypes'; small: string } | null;
         } | null;
       } | null;
+    }[];
+  };
+};
+
+export type CompaniesQueryVariables = Exact<{
+  input?: InputMaybe<FiltersCompaniesInput>;
+}>;
+
+export type CompaniesQuery = {
+  __typename?: 'Query';
+  companies: {
+    __typename?: 'ResponseCompanies';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'Company';
+      name: string;
+      document: string;
+      phone: string;
+      address: string;
+      regimenSimplify: boolean;
+      active: boolean;
+      updatedAt: any;
+      _id: string;
+      logo: string;
+    }[];
+  };
+};
+
+export type ConveyorsQueryVariables = Exact<{
+  input?: InputMaybe<FiltersConveyorsInput>;
+}>;
+
+export type ConveyorsQuery = {
+  __typename?: 'Query';
+  conveyors: {
+    __typename?: 'ResponseConveyors';
+    docs: {
+      __typename?: 'Conveyor';
+      name: string;
+      _id: string;
+      message?: string | null;
+      updatedAt: any;
+      createdAt: any;
     }[];
   };
 };
@@ -15576,7 +15697,17 @@ export const CitiesDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'country' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'country' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'state' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -16006,6 +16137,117 @@ export const ColorsDocument = {
     },
   ],
 } as unknown as DocumentNode<ColorsQuery, ColorsQueryVariables>;
+export const CompaniesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'companies' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersCompaniesInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'companies' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersCompaniesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'regimenSimplify' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'logo' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CompaniesQuery, CompaniesQueryVariables>;
+export const ConveyorsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'conveyors' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersConveyorsInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'conveyors' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersConveyorsInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ConveyorsQuery, ConveyorsQueryVariables>;
 export const CouponDocument = {
   kind: 'Document',
   definitions: [
