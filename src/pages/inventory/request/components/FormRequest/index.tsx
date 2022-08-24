@@ -474,7 +474,9 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== ActionDetailRequest.Delete)}
+          dataSource={details
+            .filter((detail) => detail?.action !== ActionDetailRequest.Delete)
+            .reverse()}
           scroll={{ x: 800, y: 400 }}
           pagination={{ size: 'small' }}
           loading={paramsCreate?.loading || paramsUpdate?.loading}

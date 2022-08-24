@@ -470,7 +470,9 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== ActionDetailOutput.Delete)}
+          dataSource={details
+            .filter((detail) => detail?.action !== ActionDetailOutput.Delete)
+            .reverse()}
           scroll={{ x: 1000 }}
           pagination={{ size: 'small' }}
         />

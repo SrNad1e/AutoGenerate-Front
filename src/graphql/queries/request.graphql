@@ -3,6 +3,8 @@ query stockRequest($id: String!) {
     _id
     createdAt
     details {
+      createdAt
+      updatedAt
       product {
         _id
         barcode
@@ -67,6 +69,8 @@ query stockRequests($input: FiltersStockRequestsInput!) {
       }
       status
       details {
+        createdAt
+        updatedAt
         quantity
         product {
           _id
@@ -89,7 +93,7 @@ query stockRequests($input: FiltersStockRequestsInput!) {
           size {
             value
           }
-          stock{
+          stock {
             quantity
           }
         }
