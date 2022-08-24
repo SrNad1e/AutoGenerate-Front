@@ -104,7 +104,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     if (
       details.length > 0 ||
       status === StatusStockTransfer.Cancelled ||
-      observation !== transfer?.observation
+      observation !== (transfer?.observation || '')
     ) {
       if (status === StatusStockTransfer.Cancelled) {
         setPropsAlertSave({
@@ -120,16 +120,18 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea enviar el traslado?',
           type: 'warning',
         });
-      } else {
+      } else if (status === StatusStockTransfer.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar el traslado?',
           type: 'warning',
         });
+      } else {
+        onShowInformation('El traslado no tiene productos');
       }
     } else {
-      onShowInformation('El traslado no tiene productos');
+      onShowInformation('No se encontraron cambios en el traslado');
     }
   };
 
@@ -487,10 +489,8 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         details={details}
       />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <AlertLoading
-        visible={paramsCreate?.loading || paramsUpdate?.loading}
-        message="Guardando traslado"
-      />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando traslado" />
+      <AlertLoading visible={paramsUpdate.loading} message="Guardando  Traslado" />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );

@@ -112,11 +112,18 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea cancelar el ajuste?',
           type: 'error',
         });
-      } else if (details.length > 0) {
+      } else if (status === StatusStockAdjustment.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar el ajuste?',
+          type: 'warning',
+        });
+      } else if (status === StatusStockAdjustment.Confirmed) {
+        setPropsAlertSave({
+          status,
+          visible: true,
+          message: '¿Está seguro que desea enviar el ajuste?',
           type: 'warning',
         });
       } else {
