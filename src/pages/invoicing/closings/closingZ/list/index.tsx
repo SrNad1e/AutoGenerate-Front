@@ -48,7 +48,7 @@ import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
