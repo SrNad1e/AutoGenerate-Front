@@ -135,7 +135,7 @@ export default class ReportAdjustment extends React.PureComponent {
     return (
       <div style={classes.content}>
         <div style={classes.header}>
-          <div style={classes.title}>Ajuste DE MERCANCIA</div>
+          <div style={classes.title}>AJUSTE DE MERCANCIA</div>
           <div style={classes.title}>No. {data?.number}</div>
           <div style={classes.body}>
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
