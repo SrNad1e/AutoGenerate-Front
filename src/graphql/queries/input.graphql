@@ -58,6 +58,7 @@ query stockInputs($input: FiltersStockInputsInput) {
       user {
         name
       }
+      observation
       status
       total
       createdAt

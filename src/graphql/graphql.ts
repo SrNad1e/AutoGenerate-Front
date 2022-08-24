@@ -8133,6 +8133,7 @@ export type StockInputsQuery = {
       __typename?: 'StockInput';
       _id: string;
       number: number;
+      observation?: string | null;
       status: StatusStockInput;
       total: number;
       createdAt: any;
@@ -8574,6 +8575,7 @@ export type StockOutputsQuery = {
     page: number;
     docs: {
       __typename?: 'StockOutput';
+      observation?: string | null;
       _id: string;
       createdAt: any;
       number: number;
@@ -17224,6 +17226,7 @@ export const StockInputsDocument = {
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                         },
                       },
+                      { kind: 'Field', name: { kind: 'Name', value: 'observation' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
@@ -18561,6 +18564,7 @@ export const StockOutputsDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'observation' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },

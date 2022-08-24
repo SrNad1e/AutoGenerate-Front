@@ -331,7 +331,7 @@ export default class ReportTransfer extends React.PureComponent {
           </div>
           <div>
             <div style={{ fontWeight: 'bold' }}>Observación: </div>
-            <div>{data?.observation} </div>
+            <div>{data?.observationOrigin} </div>
           </div>
         </div>
         <div style={classes.footer}>
