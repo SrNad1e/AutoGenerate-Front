@@ -7,7 +7,7 @@ export default defineConfig({
     'react-dev-inspector/plugins/umi/react-inspector',
   ],
   define: {
-    API_URL: 'http://localhost:8080',
+    API_URL: 'http://192.168.70.254:8080/graphql',
     CDN_URL: 'https://toulouse-storage.s3.amazonaws.com',
     COMPANY_ID: '62503250f035862fa3925f70',
     FORMAT_DATE: 'DD/MM/YYYY HH:mm:ss',
