@@ -16,6 +16,7 @@ import {
   Avatar,
   Typography,
   Tooltip,
+  Popconfirm,
 } from 'antd';
 import { useModel, useParams } from 'umi';
 import { useEffect, useState } from 'react';
@@ -441,14 +442,20 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       width: 30,
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-            loading={paramsCreate.loading || paramsUpdate.loading}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button
+              icon={<DeleteOutlined />}
+              type="primary"
+              danger
+              disabled={!allowEdit}
+              loading={paramsCreate.loading || paramsUpdate.loading}
+            />
+          </Popconfirm>
         </Tooltip>
       ),
     },

@@ -7,6 +7,7 @@ import {
   Col,
   Form,
   InputNumber,
+  Popconfirm,
   Row,
   Space,
   Table,
@@ -436,13 +437,14 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       fixed: 'right',
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
+          </Popconfirm>
         </Tooltip>
       ),
     },

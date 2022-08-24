@@ -14,6 +14,7 @@ import {
   Tooltip,
   Typography,
   Table,
+  Popconfirm,
 } from 'antd';
 import { useModel, useParams } from 'umi';
 import type { ColumnsType } from 'antd/es/table/interface';
@@ -438,13 +439,14 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       align: 'center',
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
+          </Popconfirm>
         </Tooltip>
       ),
     },
