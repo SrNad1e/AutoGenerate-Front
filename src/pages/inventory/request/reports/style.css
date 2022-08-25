@@ -24,3 +24,14 @@
     size: auto;
     margin: 20mm;
   }
+
+  .marca-de-agua {
+    background-image: url('https://www.federacionmadridnatacion.es/images/COMPETICIONES/TEMPORADA_20-21/ARTISTICA/CARTELES/cancelado.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    height: auto;
+    margin: auto;
+    padding: 0;
+    opacity: 1;
+}
