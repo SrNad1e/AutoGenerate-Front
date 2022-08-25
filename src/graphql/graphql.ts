@@ -7920,6 +7920,7 @@ export type CreditHistoryQuery = {
       amount: number;
       credit: {
         __typename?: 'Credit';
+        frozenAmount: number;
         amount: number;
         available: number;
         balance: number;
@@ -16573,6 +16574,7 @@ export const CreditHistoryDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'frozenAmount' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'available' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
