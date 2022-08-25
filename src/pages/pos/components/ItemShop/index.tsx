@@ -93,7 +93,7 @@ const ShopItem = ({ product, addProductOrder }: Params) => {
                 </Col>
                 <Col span={24}>
                   <Title style={styles.textCenter} level={2}>
-                    {stock ? stock[0]?.quantity : 0}
+                    {stock && stock[0]?.quantity > 0 ? stock[0]?.quantity : 'Sin Stock'}
                   </Title>
                 </Col>
               </Row>
