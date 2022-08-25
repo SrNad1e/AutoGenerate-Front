@@ -67,7 +67,7 @@ const ModalSearchProducts = ({
   deleteDetail,
 }: Props) => {
   const [filters, setFilters] = useState<Partial<FiltersProductsInput>>({
-    limit: 10,
+    limit: 12,
     page: 0,
   });
 
@@ -308,6 +308,8 @@ const ModalSearchProducts = ({
               pagination={{
                 current: data?.products?.page,
                 total: data?.products?.totalDocs,
+                defaultPageSize: 12,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}
