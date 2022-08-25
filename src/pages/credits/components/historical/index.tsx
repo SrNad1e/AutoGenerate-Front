@@ -109,6 +109,9 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
         <DescriptionItem label="Cupo Disponible" span={3}>
           {numeral(credit?.available).format('$ 0,0')}
         </DescriptionItem>
+        <DescriptionItem label="Cupo Congelado" span={3}>
+          {numeral(credit?.frozenAmount).format('$ 0,0')}
+        </DescriptionItem>
       </Descriptions>
       <Divider>Detalles</Divider>
       <Table
