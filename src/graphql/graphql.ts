@@ -7363,7 +7363,13 @@ export type StockAdjustmentQuery = {
         _id: string;
         barcode: string;
         status: StatusProduct;
-        reference: { __typename?: 'Reference'; cost: number; description: string; name: string };
+        reference: {
+          __typename?: 'Reference';
+          cost: number;
+          description: string;
+          name: string;
+          price: number;
+        };
         size: { __typename?: 'Size'; value: string };
         color: {
           __typename?: 'Color';
@@ -8097,7 +8103,13 @@ export type StockInputQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
+        reference: {
+          __typename?: 'Reference';
+          description: string;
+          cost: number;
+          name: string;
+          price: number;
+        };
         color: {
           __typename?: 'Color';
           html: string;
@@ -8541,7 +8553,13 @@ export type StockOutputQuery = {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
+        reference: {
+          __typename?: 'Reference';
+          description: string;
+          cost: number;
+          name: string;
+          price: number;
+        };
         color: {
           __typename?: 'Color';
           html: string;
@@ -15045,6 +15063,7 @@ export const StockAdjustmentDocument = {
                                   { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                                 ],
                               },
                             },
@@ -17077,6 +17096,7 @@ export const StockInputDocument = {
                                   { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                                 ],
                               },
                             },
@@ -18430,6 +18450,7 @@ export const StockOutputDocument = {
                                   { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                                 ],
                               },
                             },
