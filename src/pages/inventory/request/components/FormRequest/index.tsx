@@ -474,7 +474,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
-            <FormItem label="Código de barras">
+            <FormItem label="Búsqueda de Referencias">
               <SearchProducts {...propsSearchProduct} />
             </FormItem>
           </Form>
