@@ -16,6 +16,7 @@ query stockInput($id: String!) {
           description
           cost
           name
+          price
         }
         color {
           image {

@@ -19,6 +19,7 @@ import {
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useModel, useParams } from 'umi';
+import numeral from 'numeral';
 
 import { useCreateAdjustment, useUpdateAdjustment } from '@/hooks/adjustment.hooks';
 import AlertLoading from '@/components/Alerts/AlertLoading';
@@ -403,6 +404,11 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
       title: 'Talla',
       dataIndex: 'product',
       render: ({ size }: Product) => size.value,
+    },
+    {
+      title: 'Costo Unitario',
+      dataIndex: 'product',
+      render: (product: Product) => numeral(product?.reference?.price).format('$ 0,0'),
     },
     {
       title: 'Inventario',

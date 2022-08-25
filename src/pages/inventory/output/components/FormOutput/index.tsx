@@ -19,6 +19,7 @@ import {
 import { useModel, useParams } from 'umi';
 import type { ColumnsType } from 'antd/es/table/interface';
 import { useEffect, useState } from 'react';
+import numeral from 'numeral';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
@@ -411,6 +412,11 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       title: 'Talla',
       dataIndex: 'product',
       render: ({ size }: Product) => size.value,
+    },
+    {
+      title: 'Costo Unitario',
+      dataIndex: 'product',
+      render: (product: Product) => numeral(product?.reference?.price).format('$ 0,0'),
     },
     {
       title: 'Inventario',

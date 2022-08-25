@@ -19,6 +19,7 @@ import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table/interface';
 import { useModel, useParams } from 'umi';
 import { useEffect, useState } from 'react';
+import numeral from 'numeral';
 
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -391,6 +392,11 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
       title: 'Talla',
       dataIndex: 'product',
       render: ({ size }: Product) => size.value,
+    },
+    {
+      title: 'Costo Unitario',
+      dataIndex: 'product',
+      render: (product: Product) => numeral(product?.reference?.price).format('$ 0,0'),
     },
     {
       title: 'Inventario',
