@@ -66,7 +66,7 @@ const Footer = ({ input, saveInput, details, allowEdit }: Props) => {
                 disabled={!allowEdit}
                 onClick={() => saveInput(StatusStockInput.Confirmed)}
               >
-                Enviar
+                Confirmar
               </Button>
             </Space>
           </Col>
