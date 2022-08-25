@@ -91,7 +91,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
         delete values.image;
         const response = await updateColor({
           variables: {
-            input: values,
+            input: { ...values, name_internal: values.name_internal.trim().toLowerCase() },
             id: current?._id || '',
           },
         });
@@ -117,6 +117,7 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
     const values = await form.validateFields();
     try {
       delete values.active;
+
       if (values.image.length === 0) {
         delete values.image;
       }
@@ -130,7 +131,10 @@ const CreateColors = ({ current, modalVisible, onCancel }: Props) => {
 
       const response = await createColor({
         variables: {
-          input: values,
+          input: {
+            ...values,
+            name_internal: values.name_internal.trim().toLowerCase(),
+          },
         },
       });
       if (response?.data?.createColor) {
