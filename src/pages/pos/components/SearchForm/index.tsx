@@ -1,6 +1,17 @@
 import { useGetProducts } from '@/hooks/product.hooks';
 import { BarcodeOutlined, DeleteFilled } from '@ant-design/icons';
-import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Popconfirm, Row } from 'antd';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  Pagination,
+  Popconfirm,
+  Row,
+} from 'antd';
 import { useModel, useHistory } from 'umi';
 
 import type { FiltersProductsInput, Product, UpdateOrderInput } from '@/graphql/graphql';
@@ -104,6 +115,11 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
     }
   };
 
+  const handlePagination = (pageCurrent: number) => {
+    const values = form.getFieldsValue();
+    onSearch({ page: pageCurrent, withStock: values.withStock });
+  };
+
   return (
     <Row>
       <Col span={24}>
@@ -177,6 +193,14 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
               <ShopItem addProductOrder={addProductOrder} product={product as Product} />
             </Col>
           ))}
+          {data && data?.products?.docs?.length > 0 && (
+            <Pagination
+              onChange={handlePagination}
+              current={data?.products?.page}
+              total={data?.products?.totalDocs}
+              showSizeChanger={false}
+            />
+          )}
         </Row>
       </Col>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
