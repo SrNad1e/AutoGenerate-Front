@@ -8886,6 +8886,8 @@ export type StockRequestQuery = {
     updatedAt: any;
     details: {
       __typename?: 'DetailRequest';
+      createdAt: any;
+      updatedAt: any;
       quantity: number;
       product: {
         __typename?: 'Product';
@@ -8937,6 +8939,8 @@ export type StockRequestsQuery = {
       warehouseDestination: { __typename?: 'Warehouse'; _id: string; name: string };
       details: {
         __typename?: 'DetailRequest';
+        createdAt: any;
+        updatedAt: any;
         quantity: number;
         product: {
           __typename?: 'Product';
@@ -19534,6 +19538,8 @@ export const StockRequestDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'product' },
@@ -19740,6 +19746,8 @@ export const StockRequestsDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
                             {
                               kind: 'Field',

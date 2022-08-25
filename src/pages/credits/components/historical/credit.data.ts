@@ -1,18 +1,18 @@
 export const StatusTypeCredit = {
   CREDIT: {
-    label: 'Activo',
+    label: 'Abono',
     textColor: '#fff',
   },
   DEBIT: {
-    label: 'Supendido',
+    label: 'Compra',
     textColor: '#fff',
   },
   FROZEN: {
-    label: 'Supendido',
+    label: 'Congelado',
     textColor: '#fff',
   },
   THAWED: {
-    label: 'Supendido',
+    label: 'Descongelado',
     textColor: '#fff',
   },
 };

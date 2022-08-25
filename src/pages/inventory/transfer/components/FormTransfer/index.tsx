@@ -477,7 +477,9 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         <Table
           columns={columns}
           dataSource={
-            details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
+            details
+              .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
+              .reverse() as any
           }
           scroll={{ x: 800, y: 400 }}
           pagination={{ size: 'small' }}
