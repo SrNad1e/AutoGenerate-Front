@@ -4,7 +4,7 @@ query Orders($input: FiltersOrdersInput!) {
     totalPages
     page
     docs {
-    statusWeb
+      statusWeb
       payments {
         total
         payment {
@@ -30,6 +30,7 @@ query Orders($input: FiltersOrdersInput!) {
       details {
         price
         quantity
+        quantityReturn
         product {
           _id
           barcode
