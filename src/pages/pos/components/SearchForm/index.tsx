@@ -22,6 +22,7 @@ import { useState } from 'react';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import './style.less';
 import validateCodeBar from '@/libs/validateCodeBar';
 
 const FormItem = Form.Item;
@@ -177,7 +178,13 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
                   okText="Si, cancelar"
                   cancelText="No"
                 >
-                  <Button loading={loading} danger type="primary" icon={<DeleteFilled />}>
+                  <Button
+                    loading={loading}
+                    style={{ borderRadius: 5 }}
+                    danger
+                    type="primary"
+                    icon={<DeleteFilled />}
+                  >
                     Cancelar
                   </Button>
                 </Popconfirm>

@@ -56,7 +56,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
   }, [id]);
 
   return (
-    <Card bodyStyle={styles.bodyPadding}>
+    <Card bodyStyle={styles.bodyPadding} style={{ height: '100%' }}>
       <Row gutter={[12, 12]}>
         <Col offset={2} span={11}>
           <Title level={4}>Productos: {data?.orderId?.order?.details?.length || 0}</Title>
@@ -96,7 +96,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
               </Title>
             </Col>
             <Col md={8} lg={6}>
-              <Row gutter={[25, 16]}>
+              <Row gutter={[25, 16]} style={{ textAlign: 'right' }}>
                 <Col span={24}>
                   <Button
                     onClick={() => setModalCustomerVisible(true)}
@@ -155,7 +155,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
         <Divider style={styles.dividerStyle} />
         <Col span={24}>
           <Row gutter={10}>
-            <Col md={14} lg={16}>
+            <Col span={10}>
               <Button
                 icon={<DollarOutlined />}
                 type="primary"
@@ -166,21 +166,21 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
                 PAGAR
               </Button>
             </Col>
-            <Col md={10} lg={8} style={styles.alignPrint}>
+            <Col offset={2} span={12} style={styles.alignPrint}>
               <Button ghost shape="round" icon={<PrinterOutlined />} size="small" type="primary">
                 Imprimir
               </Button>
             </Col>
           </Row>
         </Col>
+        <ModalPayment
+          credit={data?.orderId?.credit}
+          summary={data?.orderId?.order?.summary as SummaryOrder}
+          editOrder={editOrder}
+          visible={modalPaymentVisible}
+          onCancel={onCloseModalPayment}
+        />
       </Row>
-      <ModalPayment
-        credit={data?.orderId?.credit}
-        summary={data?.orderId?.order?.summary as SummaryOrder}
-        editOrder={editOrder}
-        visible={modalPaymentVisible}
-        onCancel={onCloseModalPayment}
-      />
     </Card>
   );
 };
