@@ -206,6 +206,7 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
               current={data?.products?.page}
               total={data?.products?.totalDocs}
               showSizeChanger={false}
+              defaultPageSize={20}
             />
           )}
         </Row>
