@@ -317,7 +317,6 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
       </Tooltip>
     </FormItem>
   );
-
   return (
     <Modal
       visible={visible}
@@ -588,7 +587,11 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
         {!isNew && (
           <>
             <TabPane tab="Direcciones" key="2">
-              <AddressComponent addresses={addresses} setAddresses={setAddresses} />
+              <AddressComponent
+                deliveryAddress={addresses}
+                setAddresses={setAddresses}
+                customer={customerData}
+              />
             </TabPane>
             <TabPane tab="Crédito" key="3">
               <RenderCredit

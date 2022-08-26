@@ -217,7 +217,8 @@ const AddressDelivery = ({ deliveryAddress, customer, setDelivery }: Props) => {
           Crear
         </Button>
       </Divider>
-      {deliveryAddress && deliveryAddress?.length > 0 ? (
+      {(deliveryAddress && deliveryAddress?.length > 0) ||
+      (customer?.addresses && customer?.addresses?.length > 0) ? (
         visibleAddress && renderAddress()
       ) : (
         <Row>
