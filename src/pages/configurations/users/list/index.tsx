@@ -54,6 +54,7 @@ const { Option } = Select;
 type FormValues = {
   name?: string;
   roleId?: string;
+  isWeb?: boolean;
 };
 
 const UsersList = () => {
@@ -143,7 +144,6 @@ const UsersList = () => {
   const setQueryParams = (values?: FiltersUsersInput) => {
     try {
       const valuesForm = form.getFieldsValue();
-
       const valuesNew = {
         ...values,
         ...valuesForm,
@@ -151,7 +151,9 @@ const UsersList = () => {
       const datos = Object.keys(valuesNew)
         .reduce(
           (a, key) =>
-            valuesNew[key] !== undefined ? `${a}&${key}=${JSON.stringify(valuesNew[key])}` : a,
+            valuesNew[key] !== undefined && valuesNew[key] !== null
+              ? `${a}&${key}=${JSON.stringify(valuesNew[key])}`
+              : a,
           '',
         )
         .slice(1);
@@ -173,6 +175,10 @@ const UsersList = () => {
       limit: 10,
       ...value,
     };
+
+    if (params.isWeb === null) {
+      delete params.isWeb;
+    }
 
     onSearch({ ...params, ...filters });
     setQueryParams({ ...value, ...filters });
@@ -358,17 +364,15 @@ const UsersList = () => {
               </FormItem>
             </Col>
             <Col xs={24} md={6} lg={6} xl={6}>
-              <FormItem label="Tipos de Usuario" name="isWeb">
-                <Select defaultValue={'1'}>
+              <FormItem label="Tipo de Usuario" name="isWeb">
+                <Select placeholder="Seleccione Tipo de Usuario">
                   <Option key={'1'} value={true}>
                     Usuarios Web
                   </Option>
                   <Option key={'2'} value={false}>
                     Usuarios ERP
                   </Option>
-                  <Option key={'3'} value={''}>
-                    Todos
-                  </Option>
+                  <Option>Todos</Option>
                 </Select>
               </FormItem>
             </Col>
