@@ -3,6 +3,7 @@ query currentUser {
     _id
     username
     name
+    isWeb
     pointOfSale {
       _id
       box {
@@ -37,6 +38,7 @@ query users($input: FiltersUsersInput!) {
       createdAt
       updatedAt
       name
+      isWeb
       role {
         name
         _id

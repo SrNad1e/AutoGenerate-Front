@@ -1007,6 +1007,8 @@ export type CreateStockTransferInput = {
 export type CreateUserInput = {
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
+  /** Identifica si el usuario es web */
+  isWeb?: InputMaybe<Scalars['Boolean']>;
   /** Nombre del usuario */
   name: Scalars['String'];
   /** Contraseña de usuario */
@@ -1841,6 +1843,8 @@ export type FiltersOrdersInput = {
   dateInitial?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
+  /** Estado del pedido que no quiere consultar */
+  nonStatus?: InputMaybe<StatusOrder[]>;
   /** Número consecutivo del pedido */
   number?: InputMaybe<Scalars['Float']>;
   /** Trae los pedidos POS solamente */
@@ -2178,6 +2182,8 @@ export type FiltersStockTransfersInput = {
 export type FiltersUsersInput = {
   /** Identificador del tipo de cliente */
   customerTypeId?: InputMaybe<Scalars['String']>;
+  /** Selecciona si es usuario web o no */
+  isWeb?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Comodín para la busqueda por nombre,nombre de usuario, documento o correo */
@@ -5733,6 +5739,8 @@ export type UpdateStockTransferInput = {
 export type UpdateUserInput = {
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
+  /** Identifica si el usuario es web */
+  isWeb?: InputMaybe<Scalars['Boolean']>;
   /** Nombre del usuario */
   name?: InputMaybe<Scalars['String']>;
   /** Contraseña de usuario */
@@ -5783,6 +5791,8 @@ export type User = {
   createdAt: Scalars['DateTime'];
   /** Cliente asignado */
   customer?: Maybe<Customer>;
+  /** Usado para diferenciar la creación de los usuarios */
+  isWeb: Scalars['Boolean'];
   /** Nombre de para mostrar del usuario */
   name: Scalars['String'];
   /** Contraseña de usuario */
@@ -9246,6 +9256,7 @@ export type CurrentUserQuery = {
     _id: string;
     username: string;
     name: string;
+    isWeb: boolean;
     pointOfSale?: {
       __typename?: 'PointOfSale';
       _id: string;
@@ -9283,6 +9294,7 @@ export type UsersQuery = {
       createdAt: any;
       updatedAt: any;
       name: string;
+      isWeb: boolean;
       status: StatusUser;
       username: string;
       role: { __typename?: 'Role'; name: string; _id: string };
@@ -20733,6 +20745,7 @@ export const CurrentUserDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isWeb' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'pointOfSale' },
@@ -20846,6 +20859,7 @@ export const UsersDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isWeb' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'role' },
