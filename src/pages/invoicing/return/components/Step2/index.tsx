@@ -47,7 +47,9 @@ const RenderStep2 = ({
       setKeysSelected(selectedRowKeys);
     },
     getCheckboxProps: (record: DetailOrder) => ({
-      disabled: record.product.reference.changeable === false,
+      disabled:
+        record.product.reference.changeable === false ||
+        record.quantity - record.quantityReturn === 0,
       name: record.product.reference.name,
     }),
   };
@@ -106,7 +108,7 @@ const RenderStep2 = ({
       title: 'Cantidad Disponible',
       dataIndex: 'quantityReturn',
       align: 'center',
-      render: (quantityReturn: number, { quantity }) => quantity - (quantityReturn || 0),
+      render: (quantityReturn: number, { quantity }) => quantity - quantityReturn,
     },
     {
       title: 'Precio',
