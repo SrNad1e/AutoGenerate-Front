@@ -1007,6 +1007,8 @@ export type CreateStockTransferInput = {
 export type CreateUserInput = {
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
+  /** Identifica si el usuario es web */
+  isWeb?: InputMaybe<Scalars['Boolean']>;
   /** Nombre del usuario */
   name: Scalars['String'];
   /** Contraseña de usuario */
@@ -1841,6 +1843,8 @@ export type FiltersOrdersInput = {
   dateInitial?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
+  /** Estado del pedido que no quiere consultar */
+  nonStatus?: InputMaybe<StatusOrder[]>;
   /** Número consecutivo del pedido */
   number?: InputMaybe<Scalars['Float']>;
   /** Trae los pedidos POS solamente */
@@ -2178,6 +2182,8 @@ export type FiltersStockTransfersInput = {
 export type FiltersUsersInput = {
   /** Identificador del tipo de cliente */
   customerTypeId?: InputMaybe<Scalars['String']>;
+  /** Selecciona si es usuario web o no */
+  isWeb?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Comodín para la busqueda por nombre,nombre de usuario, documento o correo */
@@ -5733,6 +5739,8 @@ export type UpdateStockTransferInput = {
 export type UpdateUserInput = {
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
+  /** Identifica si el usuario es web */
+  isWeb?: InputMaybe<Scalars['Boolean']>;
   /** Nombre del usuario */
   name?: InputMaybe<Scalars['String']>;
   /** Contraseña de usuario */
@@ -5783,6 +5791,8 @@ export type User = {
   createdAt: Scalars['DateTime'];
   /** Cliente asignado */
   customer?: Maybe<Customer>;
+  /** Usado para diferenciar la creación de los usuarios */
+  isWeb: Scalars['Boolean'];
   /** Nombre de para mostrar del usuario */
   name: Scalars['String'];
   /** Contraseña de usuario */
