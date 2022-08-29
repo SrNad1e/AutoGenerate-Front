@@ -21,6 +21,7 @@ import {
   Form,
   Input,
   Row,
+  Select,
   Space,
   Table,
   Tooltip,
@@ -48,10 +49,12 @@ import Filters from '@/components/Filters';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
+const { Option } = Select;
 
 type FormValues = {
   name?: string;
   roleId?: string;
+  isWeb?: boolean;
 };
 
 const UsersList = () => {
@@ -141,7 +144,6 @@ const UsersList = () => {
   const setQueryParams = (values?: FiltersUsersInput) => {
     try {
       const valuesForm = form.getFieldsValue();
-
       const valuesNew = {
         ...values,
         ...valuesForm,
@@ -149,7 +151,9 @@ const UsersList = () => {
       const datos = Object.keys(valuesNew)
         .reduce(
           (a, key) =>
-            valuesNew[key] !== undefined ? `${a}&${key}=${JSON.stringify(valuesNew[key])}` : a,
+            valuesNew[key] !== undefined && valuesNew[key] !== null
+              ? `${a}&${key}=${JSON.stringify(valuesNew[key])}`
+              : a,
           '',
         )
         .slice(1);
@@ -171,6 +175,10 @@ const UsersList = () => {
       limit: 10,
       ...value,
     };
+
+    if (params.isWeb === null) {
+      delete params.isWeb;
+    }
 
     onSearch({ ...params, ...filters });
     setQueryParams({ ...value, ...filters });
@@ -235,10 +243,14 @@ const UsersList = () => {
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
         params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+      }
+      if (item === 'isWeb') {
+        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
       } else {
         params[item] = JSON.parse(queryParams[item]);
       }
     });
+
     form.setFieldsValue(params);
     onFinish(params);
   };
@@ -341,17 +353,30 @@ const UsersList = () => {
       <Card>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={[20, 20]} align="middle">
-            <Col xs={24} md={8} lg={9} xl={7}>
+            <Col xs={24} md={5} lg={5} xl={7}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Nombre, Nombre de usuario" />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={6}>
+            <Col xs={24} md={5} lg={5} xl={5}>
               <FormItem label="Rol" name="roleId">
                 <SelectRole disabled={false} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={6}>
+            <Col xs={24} md={6} lg={6} xl={6}>
+              <FormItem label="Tipo de Usuario" name="isWeb">
+                <Select placeholder="Seleccione Tipo de Usuario">
+                  <Option key={'1'} value={true}>
+                    Usuarios Web
+                  </Option>
+                  <Option key={'2'} value={false}>
+                    Usuarios ERP
+                  </Option>
+                  <Option>Todos</Option>
+                </Select>
+              </FormItem>
+            </Col>
+            <Col xs={24} md={3} lg={3}>
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button

@@ -9257,6 +9257,7 @@ export type CurrentUserQuery = {
     _id: string;
     username: string;
     name: string;
+    isWeb: boolean;
     pointOfSale?: {
       __typename?: 'PointOfSale';
       _id: string;
@@ -9294,6 +9295,7 @@ export type UsersQuery = {
       createdAt: any;
       updatedAt: any;
       name: string;
+      isWeb: boolean;
       status: StatusUser;
       username: string;
       role: { __typename?: 'Role'; name: string; _id: string };
@@ -20745,6 +20747,7 @@ export const CurrentUserDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isWeb' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'pointOfSale' },
@@ -20858,6 +20861,7 @@ export const UsersDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isWeb' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'role' },
