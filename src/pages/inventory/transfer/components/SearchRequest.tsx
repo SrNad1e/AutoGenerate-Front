@@ -79,7 +79,7 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
         variables: {
           input: {
             ...values,
-            warehouseOriginId: transfer?.warehouseDestination?._id,
+            warehouseOriginId: transfer?.warehouseOrigin?._id,
           },
         },
       });
