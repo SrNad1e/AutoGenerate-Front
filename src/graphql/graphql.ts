@@ -8514,12 +8514,27 @@ export type OrdersQuery = {
             payment: { __typename?: 'Payment'; name: string };
           }[]
         | null;
-      summary: { __typename?: 'SummaryOrder'; total: number };
-      customer: { __typename?: 'Customer'; document: string; firstName: string; lastName: string };
+      summary: {
+        __typename?: 'SummaryOrder';
+        total: number;
+        change: number;
+        discount: number;
+        subtotal: number;
+        totalPaid: number;
+      };
+      customer: {
+        __typename?: 'Customer';
+        document: string;
+        firstName: string;
+        lastName: string;
+        phone?: string | null;
+      };
       shop: { __typename?: 'Shop'; name: string };
+      user: { __typename?: 'User'; name: string };
       details?:
         | {
             __typename?: 'DetailOrder';
+            discount: number;
             price: number;
             quantity: number;
             quantityReturn: number;
@@ -18302,7 +18317,13 @@ export const OrdersDocument = {
                         name: { kind: 'Name', value: 'summary' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'total' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'change' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'totalPaid' } },
+                          ],
                         },
                       },
                       {
@@ -18314,12 +18335,21 @@ export const OrdersDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
                           ],
                         },
                       },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
@@ -18333,6 +18363,7 @@ export const OrdersDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'discount' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantityReturn' } },

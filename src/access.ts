@@ -241,6 +241,14 @@ export default function access(initialState: { currentUser?: User | undefined })
         (permission) => permission?.action === Permissions.CreateConfigurationWarehouse,
       ),
     },
+    order: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateInvoicingOrder,
+      ),
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintInvoicingOrder,
+      ),
+    },
     paymentMethod: {
       canEdit: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === Permissions.UpdateTreasuryPayment,
