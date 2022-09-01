@@ -21,9 +21,11 @@ export type Props = {
   createDetail: (product: Product, quantity: number) => void;
   updateDetail: (product: Product, quantity: number) => void;
   deleteDetail: (productId: string) => void;
+  order?: any;
 };
 
 const SearchProducts = ({
+  order,
   barcode,
   validateStock = true,
   quantity,
@@ -122,7 +124,7 @@ const SearchProducts = ({
         style={{ width: '100%' }}
       />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <ModalSearchProducts {...propsModal} />
+      <ModalSearchProducts {...propsModal} order={order} />
       {error && <Alert type="warning" message={error} showIcon />}
     </>
   );

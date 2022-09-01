@@ -24,11 +24,13 @@ import type {
   Color,
   DetailRequest,
   FiltersProductsInput,
+  Order,
   Product,
   Reference,
   Size,
   Stock,
 } from '@/graphql/graphql';
+import { StatusOrderDetail } from '@/graphql/graphql';
 import SelectColor from '../SelectColor';
 import SelectSize from '../SelectSize';
 
@@ -44,6 +46,7 @@ export type Props = {
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
   warehouseId: string | undefined;
+  order?: Order;
 };
 
 export type FormValues = {
@@ -53,6 +56,7 @@ export type FormValues = {
 };
 
 const ModalSearchProducts = ({
+  order,
   visible,
   validateStock,
   details = [],
@@ -63,7 +67,7 @@ const ModalSearchProducts = ({
   deleteDetail,
 }: Props) => {
   const [filters, setFilters] = useState<Partial<FiltersProductsInput>>({
-    limit: 10,
+    limit: 12,
     page: 0,
   });
 
@@ -110,6 +114,38 @@ const ModalSearchProducts = ({
     const { current } = paginationLocal;
     setFilters({ ...filters, page: current });
     onSearch({ ...filters, page: current });
+  };
+
+  /**
+   * @description agrega producto al pedido y  cierra el modal
+   * @param product producto que se agrega
+   */
+  const createAndClose = (product: Product) => {
+    createDetail(product, 1);
+    onCancel();
+  };
+
+  /**
+   * @description bloquea el boton de eliminar y deshabilita la actualizacion de cantidad si el producto ya esta confirmado
+   * @param productId identificador del producto
+   * @returns retorna un boolean
+   */
+  const disabledButtonConfirmProduct = (productId: string) => {
+    if (order?.details)
+      for (let i = 0; i < order?.details?.length; i++) {
+        if (
+          productId === order.details[i].product._id &&
+          order?.details[i].status === StatusOrderDetail.Confirmed
+        ) {
+          return true;
+        } else if (
+          productId === order.details[i].product._id &&
+          order?.details[i].status !== StatusOrderDetail.Confirmed
+        ) {
+          return false;
+        }
+      }
+    return;
   };
 
   const columns: ColumnsType<Product> = [
@@ -180,6 +216,7 @@ const ModalSearchProducts = ({
                   max={
                     validateStock ? (product.stock ? product?.stock[0]?.quantity : 0) : undefined
                   }
+                  disabled={order && disabledButtonConfirmProduct(product?._id)}
                   onChange={(value) => updateDetail(product, value)}
                 />
               </Space>
@@ -187,6 +224,7 @@ const ModalSearchProducts = ({
                 <Button
                   type="primary"
                   danger
+                  disabled={order && disabledButtonConfirmProduct(product?._id)}
                   icon={<DeleteOutlined />}
                   onClick={() => deleteDetail(_id)}
                 />
@@ -199,7 +237,7 @@ const ModalSearchProducts = ({
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => createDetail(product, 1)}
+              onClick={order ? () => createAndClose(product) : () => createDetail(product, 1)}
               disabled={
                 validateStock ? !!(product.stock && product?.stock[0]?.quantity === 0) : false
               }
@@ -270,6 +308,8 @@ const ModalSearchProducts = ({
               pagination={{
                 current: data?.products?.page,
                 total: data?.products?.totalDocs,
+                defaultPageSize: 12,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

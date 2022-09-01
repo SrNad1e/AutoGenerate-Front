@@ -13,6 +13,7 @@ import numeral from 'numeral';
 import styles from './styles';
 import { useGetHistoryCredits } from '@/hooks/credit.hooks';
 import { useEffect } from 'react';
+import { StatusTypeCredit } from './credit.data';
 
 const DescriptionItem = Descriptions.Item;
 
@@ -28,7 +29,9 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
     {
       title: 'Tipo',
       dataIndex: 'type',
-      render: (type: TypeCreditHistory) => <Tag style={styles.tagStyle}>{type}</Tag>,
+      render: (type: TypeCreditHistory) => (
+        <Tag style={styles.tagStyle}>{StatusTypeCredit[type].label}</Tag>
+      ),
     },
     {
       title: 'Movimiento',
@@ -109,6 +112,9 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
         <DescriptionItem label="Cupo Disponible" span={3}>
           {numeral(credit?.available).format('$ 0,0')}
         </DescriptionItem>
+        <DescriptionItem label="Cupo Congelado" span={3}>
+          {numeral(credit?.frozenAmount).format('$ 0,0')}
+        </DescriptionItem>
       </Descriptions>
       <Divider>Detalles</Divider>
       <Table
@@ -121,6 +127,7 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
           current: data?.creditHistory?.page,
           total: data?.creditHistory?.totalDocs,
           pageSize: 10,
+          showSizeChanger: false,
         }}
       />
     </Modal>

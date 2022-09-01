@@ -1,6 +1,17 @@
 import { useGetProducts } from '@/hooks/product.hooks';
 import { BarcodeOutlined, DeleteFilled } from '@ant-design/icons';
-import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Popconfirm, Row } from 'antd';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  Pagination,
+  Popconfirm,
+  Row,
+} from 'antd';
 import { useModel, useHistory } from 'umi';
 
 import type { FiltersProductsInput, Product, UpdateOrderInput } from '@/graphql/graphql';
@@ -11,6 +22,7 @@ import { useState } from 'react';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import './style.less';
 import validateCodeBar from '@/libs/validateCodeBar';
 
 const FormItem = Form.Item;
@@ -104,6 +116,11 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
     }
   };
 
+  const handlePagination = (pageCurrent: number) => {
+    const values = form.getFieldsValue();
+    onSearch({ page: pageCurrent, withStock: values.withStock });
+  };
+
   return (
     <Row>
       <Col span={24}>
@@ -161,7 +178,13 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
                   okText="Si, cancelar"
                   cancelText="No"
                 >
-                  <Button loading={loading} danger type="primary" icon={<DeleteFilled />}>
+                  <Button
+                    loading={loading}
+                    style={{ borderRadius: 5 }}
+                    danger
+                    type="primary"
+                    icon={<DeleteFilled />}
+                  >
                     Cancelar
                   </Button>
                 </Popconfirm>
@@ -177,6 +200,15 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
               <ShopItem addProductOrder={addProductOrder} product={product as Product} />
             </Col>
           ))}
+          {data && data?.products?.docs?.length > 0 && (
+            <Pagination
+              onChange={handlePagination}
+              current={data?.products?.page}
+              total={data?.products?.totalDocs}
+              showSizeChanger={false}
+              defaultPageSize={20}
+            />
+          )}
         </Row>
       </Col>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />

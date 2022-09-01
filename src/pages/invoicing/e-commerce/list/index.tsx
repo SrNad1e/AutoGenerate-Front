@@ -1,9 +1,16 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
-  CaretRightOutlined,
+  BankOutlined,
+  ClearOutlined,
   ClockCircleFilled,
   EditFilled,
+  FieldNumberOutlined,
+  FileSyncOutlined,
   IdcardFilled,
+  MoreOutlined,
+  ScheduleOutlined,
   SearchOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -12,9 +19,7 @@ import {
   Card,
   Col,
   DatePicker,
-  Divider,
   Form,
-  Input,
   InputNumber,
   Row,
   Select,
@@ -24,10 +29,30 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
+import type { ColumnsType } from 'antd/lib/table';
+import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import numeral from 'numeral';
+import type { Moment } from 'moment';
 import moment from 'moment';
-import { history } from 'umi';
-import { useState } from 'react';
+import type { Location } from 'umi';
+import { useHistory, useLocation } from 'umi';
+import { useEffect, useState } from 'react';
+import { useGetOrders } from '@/hooks/order.hooks';
+import type {
+  Customer,
+  FiltersOrdersInput,
+  Order,
+  PaymentOrder,
+  StatusOrder,
+  StatusWeb,
+} from '@/graphql/graphql';
+import 'moment/locale/es';
+
+import { StatusType } from '../e-commerce.data';
+import SearchCustomer from '@/components/SearchCustomer';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import SelectPayment from '@/components/SelectPayment';
 
 import styles from './styles';
 
@@ -35,65 +60,244 @@ const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
+moment.locale('es');
+
+type FormValues = {
+  number?: number;
+  customerId?: string;
+  statusWeb?: StatusOrder;
+  paymentId?: string;
+  dates?: Moment[];
+};
 
 const EcommerceList = () => {
-  const [visibleFilters, setVisibleFilters] = useState(false);
+  const [filters, setFilters] = useState<Partial<FormValues>>();
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
 
-  const dataTest = [
-    {
-      number: 1,
-      customer: { firstName: 'Dio', lastName: 'Brandon', identification: 1001203 },
-      shop: 'Belen la 76',
-      status: { color: 'green', name: 'Pagado' },
-      payments: { name: 'Efectivo', total: 100000 },
-      createdAt: '2022-05-04T18:10:20.727Z',
-      updatedAt: '2022-05-04T18:10:20.727Z',
-    },
-  ];
+  const [form] = Form.useForm();
 
-  const columns = [
+  const history = useHistory();
+
+  const location: Location = useLocation();
+
+  const [getOrders, { data, loading }] = useGetOrders();
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  /**
+   * @description funcion usada por los hook para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const showError = (message: string) => {
+    setPropsAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description funcion ejecutada para obtener los pedidos
+   * @param params filtros para consultar los pedidos
+   */
+  const onSearch = (params?: FiltersOrdersInput) => {
+    try {
+      getOrders({
+        variables: {
+          input: {
+            orderPos: false,
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
+  };
+
+  /*
+   * @description se encarga de realizar el proceso de busqueda con los filtros
+   * @param props filtros seleccionados en el formulario
+   */
+  const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
+    const { statusWeb, number, customerId, paymentId, dates } = props;
+    try {
+      const params: Partial<FiltersOrdersInput> = {
+        page: pageCurrent || 1,
+        limit: 10,
+        statusWeb,
+        number,
+        sort: sort || { createdAt: -1 },
+      };
+      if (dates) {
+        const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
+        const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
+      }
+      if (customerId) {
+        params.customerId = customerId;
+      }
+      if (paymentId) {
+        params.paymentId = paymentId;
+      }
+      onSearch(params);
+      const datos = Object.keys(props)
+        .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
+        .slice(1);
+      form.setFieldsValue(props);
+      history.replace(`${location.pathname}?${datos}`);
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de manejar eventos de tabla
+   * @param paginationLocal eventos de la páginacion
+   * @param sorter ordenamiento de la tabla
+   */
+  const handleChangeTable = (
+    paginationLocal: TablePaginationConfig,
+    _: Record<string, FilterValue | null>,
+    sorter: SorterResult<Order> | SorterResult<Order>[] | any,
+  ) => {
+    const { current } = paginationLocal;
+    const params = form.getFieldsValue();
+
+    let sort = {};
+
+    if (sorter.field) {
+      sort = {
+        [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+      };
+    } else {
+      sort = {
+        createdAt: -1,
+      };
+    }
+    onFinish(params, sort, current);
+  };
+
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
+  const onClear = () => {
+    history.replace(location.pathname);
+    form.resetFields();
+    onSearch({
+      limit: 10,
+      page: 1,
+    });
+    setFilters({});
+  };
+
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const loadingData = () => {
+    const queryParams: any = location?.query;
+
+    const newFilters = {};
+
+    Object.keys(queryParams).forEach((item) => {
+      if (item === 'dates') {
+        const dataItem = JSON.parse(queryParams[item]);
+        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      } else {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      }
+    });
+    onFinish(newFilters);
+  };
+
+  useEffect(() => {
+    loadingData();
+  }, []);
+
+  const columns: ColumnsType<Order> = [
     {
-      title: 'Número',
+      title: (
+        <Text style={styles.iconFontSize}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
     },
     {
-      title: 'Cliente',
+      title: <Text>{<UserOutlined />} Cliente</Text>,
       dataIndex: 'customer',
       width: 200,
-      render: (customer: any) => (
+      render: (customer: Customer) => (
         <>
           <Space direction="vertical" size={1}>
-            <Text strong>
+            <Text>
               {customer?.firstName} {customer?.lastName}{' '}
               <Tag title="Tipo de cliente" style={styles.tagStyle}>
                 {'Mayorista'}
               </Tag>
             </Text>
             <Text title="Documento" style={styles.textStyle}>
-              <IdcardFilled /> {customer.identification !== '0' ? customer.identification : 'N/A'}
+              <IdcardFilled style={styles.tagStyle} />{' '}
+              {customer.document !== '0' ? customer.document : 'N/A'}
             </Text>
           </Space>
         </>
       ),
     },
     {
-      title: 'Estado',
-      dataIndex: 'status',
-      render: (status: any) => <Badge color={status.color} text={status.name} />,
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
+      dataIndex: 'statusWeb',
+      width: 160,
+      align: 'center',
+      render: (statusWeb: StatusWeb) => (
+        <Badge color={StatusType[statusWeb]?.color} text={StatusType[statusWeb]?.text} />
+      ),
     },
     {
-      title: 'Formas de Pago',
+      title: <Text>{<BankOutlined />} Formas de Pago</Text>,
       dataIndex: 'payments',
-      width: 150,
+      width: 180,
       align: 'left',
-      render: (payments: any) => (
+      render: (payments: PaymentOrder[]) => (
         <>
-          {payments.name}: <Text strong>{numeral(payments.total).format('$ 0,0')}</Text>
+          {payments.length > 0
+            ? payments.map(({ total, payment }) => (
+                <>
+                  {' '}
+                  {payment?.name}:{' '}
+                  <Text>
+                    {numeral(total).format('$ 0,0')}
+                    <br />
+                  </Text>
+                </>
+              ))
+            : '(PENDIENTE)'}
         </>
       ),
     },
     {
-      title: 'Creado',
+      title: (
+        <Text>
+          <ScheduleOutlined /> Creado
+        </Text>
+      ),
       dataIndex: 'createdAt',
       sorter: true,
       showSorterTooltip: false,
@@ -107,10 +311,15 @@ const EcommerceList = () => {
       ),
     },
     {
-      title: 'Actualizado',
+      title: (
+        <Text>
+          <ScheduleOutlined /> Actualizado
+        </Text>
+      ),
       dataIndex: 'updatedAt',
       sorter: true,
       showSorterTooltip: false,
+      width: 150,
       render: (updatedAt: string) => (
         <>
           {moment(updatedAt).format(FORMAT_DATE)}
@@ -122,14 +331,14 @@ const EcommerceList = () => {
       ),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
-      render: () => (
+      render: (_id: string) => (
         <Tooltip title="Editar">
           <Button
-            onClick={() => history.push('/billing/e-commerce/:id')}
+            onClick={() => history.push(`/invoicing/e-commerce/${_id}`)}
             type="primary"
             icon={<EditFilled />}
           />
@@ -141,82 +350,82 @@ const EcommerceList = () => {
   return (
     <PageContainer>
       <Card bordered={false}>
-        <Form>
-          <Row gutter={15} align="middle">
-            <Col xs={24} md={6} lg={5}>
-              <FormItem label="Número">
-                <InputNumber style={styles.inputNumberWidth} controls={false} />
+        <Form form={form} initialValues={filters} onFinish={onFinish}>
+          <Row gutter={25} align="middle">
+            <Col xs={24} md={5} lg={5} xl={4}>
+              <FormItem label="Número" name="number">
+                <InputNumber disabled={loading} style={styles.inputNumberWidth} controls={false} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={8}>
-              <FormItem label="Cliente">
-                <Input />
+            <Col xs={24} md={10} lg={10} xl={7}>
+              <FormItem label="Cliente" name="customerId">
+                <SearchCustomer disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={9}>
-              <FormItem label="Estado">
-                <Select allowClear placeholder="Seleccione un estado">
-                  <Option value="Completo">Cancelado</Option>
-                  <Option value="Incompleto">Entregado</Option>
-                  <Option value="Enviado">Enviado</Option>
-                  <Option value="Facturado">Facturado</Option>
-                  <Option value="Pagado">Pagado</Option>
-                  <Option value="Pendiente de pago">Pendiente de pago</Option>
-                  <Option value="Preparando pedido">Preparando pedido</Option>
-                  <Option value="Reservado">Reservado</Option>
+            <Col xs={24} md={7} lg={7} xl={5}>
+              <FormItem label="Estado" name="status">
+                <Select allowClear disabled={loading}>
+                  {Object.keys(StatusType).map((key) => (
+                    <Option key={key}>
+                      <Badge text={StatusType[key].text} color={StatusType[key].color} />
+                    </Option>
+                  ))}
                 </Select>
               </FormItem>
             </Col>
-            <Col span={1} style={styles.moreFilters}>
-              <CaretRightOutlined
-                onClick={() => setVisibleFilters(visibleFilters ? false : true)}
-                rotate={visibleFilters ? 90 : 0}
-              />
+            <Col xs={24} md={8} lg={9} xl={8}>
+              <FormItem label="Formas de pago" name="paymentId">
+                <SelectPayment disabled={loading} />
+              </FormItem>
             </Col>
-            {visibleFilters && (
-              <>
-                <Col xs={24} md={10} lg={9} xl={10}>
-                  <FormItem label="Formas de pago">
-                    <Select style={styles.selectWidth} allowClear showSearch>
-                      <Option value="Efectivo">Efectivo</Option>
-                      <Option value="Credito">Credito</Option>
-                      <Option value="Bancolombia">Bancolombia</Option>
-                    </Select>
-                  </FormItem>
-                </Col>
-                <Col xs={24} md={12} lg={12} xl={10}>
-                  <FormItem label="Fechas">
-                    <RangePicker
-                      style={styles.dateWidth}
-                      placeholder={['Fecha inicial', 'Fecha Final']}
-                    />
-                  </FormItem>
-                </Col>
-              </>
-            )}
-            <Col span={24}>
+            <Col xs={24} md={8} lg={8} xl={9}>
+              <FormItem label="Fechas" name="dates">
+                <RangePicker
+                  style={styles.dateWidth}
+                  placeholder={['Fecha inicial', 'Fecha Final']}
+                />
+              </FormItem>
+            </Col>
+            <Col span={4}>
               <FormItem colon={false}>
                 <Space>
-                  <Button icon={<SearchOutlined />} type="primary">
+                  <Button
+                    htmlType="submit"
+                    icon={<SearchOutlined />}
+                    style={styles.buttonR}
+                    type="primary"
+                  >
                     Buscar
                   </Button>
-                  <Button>Limpiar</Button>
+                  <Button icon={<ClearOutlined />} style={styles.buttonR} onClick={onClear}>
+                    Limpiar
+                  </Button>
                 </Space>
               </FormItem>
             </Col>
           </Row>
         </Form>
-        <Divider style={styles.dividerMargin} />
-        <Space>
-          <Text strong>Total Encontrados:</Text>
-          <Text>10</Text>
-          <Text strong>Página:</Text>
-          <Text>1/1</Text>
-        </Space>
+        <Row gutter={[0, 20]} style={styles.marginFilters}>
+          <Col span={24} style={styles.textRight}>
+            <Text strong>Total Encontrados:</Text> {data?.orders?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.orders?.page} / {data?.orders?.totalPages || 0}
+          </Col>
+          <Col span={24}>
+            <Table
+              columns={columns as any}
+              onChange={handleChangeTable}
+              scroll={{ x: 1000 }}
+              dataSource={data?.orders?.docs}
+              loading={loading}
+              pagination={{
+                current: data?.orders?.page,
+                total: data?.orders?.totalDocs,
+              }}
+            />
+          </Col>
+        </Row>
       </Card>
-      <Card bordered={false} bodyStyle={styles.bodyPadding}>
-        <Table columns={columns} scroll={{ x: 1000 }} dataSource={dataTest} />
-      </Card>
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </PageContainer>
   );
 };

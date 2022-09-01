@@ -2,10 +2,9 @@
 import {
   CalendarOutlined,
   DollarCircleOutlined,
+  FieldNumberOutlined,
   IdcardOutlined,
   InteractionOutlined,
-  LoadingOutlined,
-  NumberOutlined,
   SearchOutlined,
   SelectOutlined,
   ShopOutlined,
@@ -18,7 +17,6 @@ import {
   DatePicker,
   Divider,
   Form,
-  Input,
   InputNumber,
   Row,
   Table,
@@ -47,6 +45,7 @@ import type { Moment } from 'moment';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import SearchCustomer from '@/components/SearchCustomer';
 
 import styles from '../styles';
 
@@ -132,7 +131,7 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    filters: Record<string, FilterValue | null>,
+    _: Record<string, FilterValue | null>,
     sorter: SorterResult<ResponseOrders> | SorterResult<ResponseOrders>[] | any,
   ) => {
     const { current } = paginationLocal;
@@ -156,14 +155,15 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
   const columns: ColumnsType<Order> = [
     {
       title: (
-        <Text>
-          <NumberOutlined /> Número
+        <Text style={styles.iconSize}>
+          <FieldNumberOutlined />
         </Text>
       ),
       dataIndex: 'number',
       sorter: true,
       showSorterTooltip: false,
       align: 'center',
+      width: 120,
       render: (number: number) => (
         <Tag style={{ backgroundColor: 'white', color: '#dc9575', borderColor: '#dc9575' }}>
           {number}
@@ -186,6 +186,7 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
           <IdcardOutlined /> Documento
         </Text>
       ),
+      width: 130,
       dataIndex: 'customer',
       align: 'center',
       render: (customer: Customer) => <>{customer?.document}</>,
@@ -193,7 +194,7 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
     {
       title: (
         <Text>
-          <UserOutlined /> Usuario
+          <UserOutlined /> Cliente
         </Text>
       ),
       dataIndex: 'customer',
@@ -212,7 +213,7 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
       ),
       dataIndex: 'summary',
       align: 'center',
-      render: (value: SummaryOrder) => numeral(value.total).format('$ 0,0'),
+      render: (value: SummaryOrder) => numeral(value?.total).format('$ 0,0'),
     },
     {
       title: (
@@ -235,11 +236,13 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
+      width: 130,
       render: (_, Order: Order) => (
         <Button
           disabled={false}
           onClick={() => selectOrder(Order)}
           type="primary"
+          loading={loading}
           icon={<SelectOutlined />}
         />
       ),
@@ -248,30 +251,35 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
 
   return (
     <>
-      <Form layout="inline" form={form} onFinish={onFinish}>
-        <Row>
-          <Col xs={24} md={7} lg={6}>
+      <Form layout="horizontal" form={form} onFinish={onFinish}>
+        <Row gutter={30}>
+          <Col xs={24} md={7} lg={6} xl={6}>
             <FormItem label="Número de Pedido" name="number">
-              <InputNumber autoFocus controls={false} placeholder="Ejem: 10" />
+              <InputNumber autoFocus disabled={loading} controls={false} placeholder="Ejem: 10" />
             </FormItem>
           </Col>
-          <Col xs={24} md={6} lg={7}>
-            <FormItem label="Documento" name="document">
-              <Input placeholder="Ejem: 1004512204" />
+          <Col xs={24} md={6} lg={7} xl={7}>
+            <FormItem label="Cliente" name="customerId">
+              <SearchCustomer disabled={loading} />
             </FormItem>
           </Col>
-          <Col xs={24} md={7} lg={8}>
+          <Col xs={24} md={7} lg={8} xl={8}>
             <FormItem label="Fechas" name="dates">
-              <RangePicker style={styles.allWidth} placeholder={['Fecha Inicial', 'Fecha Final']} />
+              <RangePicker
+                disabled={loading}
+                style={styles.allWidth}
+                placeholder={['Fecha Inicial', 'Fecha Final']}
+              />
             </FormItem>
           </Col>
-          <Col xs={18} md={4} lg={3}>
-            <FormItem label=" " colon={false}>
+          <Col xs={18} md={4} lg={3} xl={3}>
+            <FormItem>
               <Button
                 style={styles.borderR}
-                icon={loading ? <LoadingOutlined /> : <SearchOutlined />}
+                icon={<SearchOutlined />}
                 type="primary"
                 htmlType="submit"
+                loading={loading}
               >
                 Buscar
               </Button>
@@ -285,10 +293,15 @@ const RenderStep1 = ({ selectOrder, data, onSearch, loading }: Props) => {
       <Card bordered={false} bodyStyle={styles.bodyCardPadding}>
         <Table
           columns={columns}
-          scroll={{ x: 900 }}
-          dataSource={data?.orders.docs as any}
+          scroll={{ x: 900, y: 400 }}
+          dataSource={data?.orders?.docs as any}
           onChange={handleChangeTable}
-          pagination={false}
+          loading={loading}
+          pagination={{
+            current: data?.orders?.page,
+            total: data?.orders?.totalDocs,
+            showSizeChanger: false,
+          }}
         />
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />

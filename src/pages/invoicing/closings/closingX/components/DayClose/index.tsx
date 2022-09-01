@@ -16,6 +16,7 @@ import ReportCloseX from '../../reports/closeX';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import { useGetCurrentUser } from '@/hooks/user.hooks';
 
 const { Text, Title } = Typography;
 const { Step } = Steps;
@@ -40,6 +41,8 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
   const reportRef = useRef(null);
 
   const [createClose, { loading, data }] = useCreateCloseXInvoicing();
+
+  const currentUser = useGetCurrentUser();
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
@@ -166,11 +169,16 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
 
   useEffect(() => {
     setCurrentStep(0);
-    form.resetFields();
-    form.setFieldsValue({
+    form?.resetFields();
+    form?.setFieldsValue({
       closeDate: moment(),
       total: getTotal(),
     });
+
+    if (!currentUser?.data?.currentUser?.role?.changeWarehouse) {
+      setCurrentStep(1);
+      form.setFieldsValue({ pointOfSaleId: currentUser?.data?.currentUser?.pointOfSale?._id });
+    }
   }, [visible]);
 
   return (
@@ -181,7 +189,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
       onCancel={onCancel}
       footer={
         <>
-          <Button loading={loading} onClick={onCancel}>
+          <Button loading={loading} style={{ borderRadius: 5 }} onClick={onCancel}>
             {currentStep !== 2 ? 'Cancelar' : 'Cerrar'}
           </Button>
 
@@ -192,11 +200,17 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 loading={loading}
                 type="primary"
                 onClick={onFinish}
+                style={{ borderRadius: 5 }}
               >
                 Imprimir
               </Button>
             ) : (
-              <Button loading={loading} type="primary" onClick={onFinish}>
+              <Button
+                loading={loading}
+                type="primary"
+                style={{ borderRadius: 5 }}
+                onClick={onFinish}
+              >
                 {currentStep === 1 ? 'Crear Cierre' : 'Siguiente'}
               </Button>
             ))}

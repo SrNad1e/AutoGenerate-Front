@@ -123,230 +123,232 @@ export default class ReportRequest extends React.PureComponent {
   render() {
     const { data } = this.props;
     return (
-      <div style={classes.content}>
-        <div style={classes.header}>
-          <div style={classes.title}>SOLICITUD DE MERCANCIA</div>
-          <div style={classes.title}>No. {data?.number}</div>
-          <div style={classes.body}>
-            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-              <div
-                style={{ ...styleBorders, width: '25%', borderRight: 'none', fontWeight: 'bold' }}
-              >
-                Bodega que solicita
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  width: '25%',
-                }}
-              >
-                {data?.warehouseDestination?.name}
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  width: '25%',
-                  borderRight: 'none',
-                  borderLeft: 'none',
-                  fontWeight: 'bold',
-                }}
-              >
-                Bodega de despacho
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  width: '25%',
-                }}
-              >
-                {data?.warehouseOrigin?.name}
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-              <div
-                style={{
-                  ...styleBorders,
-                  width: '12%',
-                  borderRight: 'none',
-                  borderTop: 'none',
-                  fontWeight: 'bold',
-                }}
-              >
-                Estado
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  borderTop: 'none',
-                  width: '15%',
-                }}
-              >
-                {StatusType[data?.status || '']?.label}
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  width: '20%',
-                  borderRight: 'none',
-                  borderLeft: 'none',
-                  borderTop: 'none',
-                  fontWeight: 'bold',
-                }}
-              >
-                Fecha Creación
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  borderTop: 'none',
-                  width: '25%',
-                }}
-              >
-                {moment(data?.createdAt).format('YYYY/MM/DD HH:mm:ss')}
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  width: '20%',
-                  borderRight: 'none',
-                  borderLeft: 'none',
-                  borderTop: 'none',
-                  fontWeight: 'bold',
-                }}
-              >
-                Ultima fecha
-              </div>
-              <div
-                style={{
-                  ...styleBorders,
-                  borderTop: 'none',
-                  width: '25%',
-                }}
-              >
-                {moment(data?.updatedAt).format('YYYY/MM/DD HH:mm:ss')}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style={classes.body}>
-          <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-            {columnsHeader?.map((item) => item)}
-          </div>
-          <div style={{ borderBottom: 'solid 1px black' }}>
-            {data?.details?.map((detail) => (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  width: '100%',
-                }}
-              >
+      <div className={data.status === 'CANCELLED' ? 'marca-de-agua' : ''}>
+        <div style={classes.content}>
+          <div style={classes.header}>
+            <div style={classes.title}>SOLICITUD DE MERCANCIA</div>
+            <div style={classes.title}>No. {data?.number}</div>
+            <div style={classes.body}>
+              <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
                 <div
-                  style={{
-                    ...styleBorders,
-                    borderBottom: 'none',
-                    width: '20%',
-                  }}
+                  style={{ ...styleBorders, width: '25%', borderRight: 'none', fontWeight: 'bold' }}
                 >
-                  {detail?.product?.barcode}
+                  Bodega que solicita
                 </div>
                 <div
                   style={{
                     ...styleBorders,
-                    width: '43%',
-                    borderLeft: 'none',
-                    borderBottom: 'none',
+                    width: '25%',
                   }}
                 >
-                  {detail?.product?.reference?.name} / {detail?.product?.reference?.description}
+                  {data?.warehouseDestination?.name}
                 </div>
                 <div
                   style={{
                     ...styleBorders,
+                    width: '25%',
+                    borderRight: 'none',
                     borderLeft: 'none',
-                    borderBottom: 'none',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Bodega de despacho
+                </div>
+                <div
+                  style={{
+                    ...styleBorders,
+                    width: '25%',
+                  }}
+                >
+                  {data?.warehouseOrigin?.name}
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+                <div
+                  style={{
+                    ...styleBorders,
+                    width: '12%',
+                    borderRight: 'none',
+                    borderTop: 'none',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Estado
+                </div>
+                <div
+                  style={{
+                    ...styleBorders,
+                    borderTop: 'none',
                     width: '15%',
                   }}
                 >
-                  {detail?.product?.color?.name_internal}
+                  {StatusType[data?.status || '']?.label}
                 </div>
                 <div
                   style={{
                     ...styleBorders,
+                    width: '20%',
+                    borderRight: 'none',
                     borderLeft: 'none',
-                    borderBottom: 'none',
-                    width: '10%',
+                    borderTop: 'none',
+                    fontWeight: 'bold',
                   }}
                 >
-                  {detail?.product?.size?.value}
+                  Fecha Creación
                 </div>
                 <div
                   style={{
                     ...styleBorders,
-                    borderLeft: 'none',
-                    borderBottom: 'none',
-                    width: '12%',
+                    borderTop: 'none',
+                    width: '25%',
                   }}
                 >
-                  {detail?.quantity}
+                  {moment(data?.createdAt).format('YYYY/MM/DD HH:mm:ss')}
+                </div>
+                <div
+                  style={{
+                    ...styleBorders,
+                    width: '20%',
+                    borderRight: 'none',
+                    borderLeft: 'none',
+                    borderTop: 'none',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Ultima fecha
+                </div>
+                <div
+                  style={{
+                    ...styleBorders,
+                    borderTop: 'none',
+                    width: '25%',
+                  }}
+                >
+                  {moment(data?.updatedAt).format('YYYY/MM/DD HH:mm:ss')}
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-          <div>
-            <div style={{ fontWeight: 'bold' }}>Observación: </div>
-            <div>{data?.observation} </div>
+          <div style={classes.body}>
+            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+              {columnsHeader?.map((item) => item)}
+            </div>
+            <div style={{ borderBottom: 'solid 1px black' }}>
+              {data?.details?.map((detail) => (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    width: '100%',
+                  }}
+                >
+                  <div
+                    style={{
+                      ...styleBorders,
+                      borderBottom: 'none',
+                      width: '20%',
+                    }}
+                  >
+                    {detail?.product?.barcode}
+                  </div>
+                  <div
+                    style={{
+                      ...styleBorders,
+                      width: '43%',
+                      borderLeft: 'none',
+                      borderBottom: 'none',
+                    }}
+                  >
+                    {detail?.product?.reference?.name} / {detail?.product?.reference?.description}
+                  </div>
+                  <div
+                    style={{
+                      ...styleBorders,
+                      borderLeft: 'none',
+                      borderBottom: 'none',
+                      width: '15%',
+                    }}
+                  >
+                    {detail?.product?.color?.name_internal}
+                  </div>
+                  <div
+                    style={{
+                      ...styleBorders,
+                      borderLeft: 'none',
+                      borderBottom: 'none',
+                      width: '10%',
+                    }}
+                  >
+                    {detail?.product?.size?.value}
+                  </div>
+                  <div
+                    style={{
+                      ...styleBorders,
+                      borderLeft: 'none',
+                      borderBottom: 'none',
+                      width: '12%',
+                    }}
+                  >
+                    {detail?.quantity}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div>
+              <div style={{ fontWeight: 'bold' }}>Observación: </div>
+              <div>{data?.observation} </div>
+            </div>
           </div>
-        </div>
-        <div style={classes.footer}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              width: '100%',
-            }}
-          >
-            <div style={{ width: '75%' }} />
-            <div style={{ ...styleBorders, width: '18%', fontWeight: 'bold' }}>Referencias:</div>
+          <div style={classes.footer}>
             <div
               style={{
-                ...styleBorders,
-                width: '14%',
-                borderLeft: 'none',
                 display: 'flex',
-                justifyContent: 'flex-end',
-                paddingRight: 10,
+                flexDirection: 'row',
+                width: '100%',
               }}
             >
-              {data?.details?.length}
-            </div>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              width: '100%',
-            }}
-          >
-            <div style={{ width: '75%' }} />
-            <div style={{ ...styleBorders, width: '18%', fontWeight: 'bold', borderTop: 'none' }}>
-              Productos:
+              <div style={{ width: '75%' }} />
+              <div style={{ ...styleBorders, width: '18%', fontWeight: 'bold' }}>Referencias:</div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '14%',
+                  borderLeft: 'none',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  paddingRight: 10,
+                }}
+              >
+                {data?.details?.length}
+              </div>
             </div>
             <div
               style={{
-                ...styleBorders,
-                width: '14%',
-                borderLeft: 'none',
-                borderTop: 'none',
                 display: 'flex',
-                justifyContent: 'flex-end',
-                paddingRight: 10,
+                flexDirection: 'row',
+                width: '100%',
               }}
             >
-              {data?.details?.reduce((sum, detail) => sum + detail?.quantity, 0)}
+              <div style={{ width: '75%' }} />
+              <div style={{ ...styleBorders, width: '18%', fontWeight: 'bold', borderTop: 'none' }}>
+                Productos:
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '14%',
+                  borderLeft: 'none',
+                  borderTop: 'none',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  paddingRight: 10,
+                }}
+              >
+                {data?.details?.reduce((sum, detail) => sum + detail?.quantity, 0)}
+              </div>
             </div>
+            <div style={{ fontSize: 12, marginTop: 10 }}>Creado por: {data?.user?.name}</div>
           </div>
-          <div style={{ fontSize: 12, marginTop: 10 }}>Creado por: {data?.user?.name}</div>
         </div>
       </div>
     );

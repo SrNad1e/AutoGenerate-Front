@@ -133,12 +133,10 @@ const WarehouseForm = ({ onCancel, visible, warehouseData }: Props) => {
       title={isNew ? 'Crear Bodega' : 'Actualizar Bodega'}
       cancelButtonProps={{
         style: styles.borderR,
-        disabled: paramsCreateWarehouse?.loading || paramsUpdateWarehouse?.loading,
         loading: paramsCreateWarehouse?.loading || paramsUpdateWarehouse?.loading,
       }}
       okButtonProps={{
         style: styles.borderR,
-        disabled: paramsCreateWarehouse?.loading || paramsUpdateWarehouse?.loading,
         loading: paramsCreateWarehouse?.loading || paramsUpdateWarehouse?.loading,
       }}
     >

@@ -32,6 +32,7 @@ import { StatusTypeShop } from '../shop.data';
 import SelectWarehouses from '@/components/SelectWarehouses';
 
 import styles from '../styles';
+import { isNumber } from 'lodash';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -109,9 +110,10 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
     const values = await form.validateFields();
 
     try {
+      const phoneString = values.phone.toString();
       const response = await updateShop({
         variables: {
-          input: { ...values, isMain: isMain },
+          input: { ...values, isMain: isMain, phone: phoneString },
           id: shop?._id || '',
         },
       });
@@ -136,9 +138,10 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
     const values = await form.validateFields();
 
     try {
+      const phoneString = values.phone.toString();
       const response = await createShop({
         variables: {
-          input: { ...values, isMain: isMain },
+          input: { ...values, isMain: isMain, phone: phoneString },
         },
       });
       if (response?.data?.createShop) {
@@ -172,13 +175,11 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
       destroyOnClose
       title={isNew ? 'Crear Tienda' : 'Actualizar Tienda'}
       okButtonProps={{
-        style: { borderRadius: 5 },
-        disabled: paramsCreateShop?.loading || paramsUpdateShop?.loading,
+        style: styles.buttonR,
         loading: paramsCreateShop?.loading || paramsUpdateShop?.loading,
       }}
       cancelButtonProps={{
-        style: { borderRadius: 5 },
-        disabled: paramsCreateShop?.loading || paramsUpdateShop?.loading,
+        style: styles.buttonR,
         loading: paramsCreateShop?.loading || paramsUpdateShop?.loading,
       }}
     >
@@ -237,7 +238,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 </Space>
               }
             >
-              <SelectWarehouses />
+              <SelectWarehouses disabled={false} />
             </FormItem>
             <FormItem
               name="warehouseMainId"
@@ -248,23 +249,20 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 </Space>
               }
             >
-              <SelectWarehouses />
+              <SelectWarehouses disabled={false} />
             </FormItem>
             <FormItem
               rules={[
                 {
                   validator: (_, value) => {
-                    const number = parseInt(value);
-
                     if (!value) {
                       return Promise.resolve();
                     }
-                    if (!isNaN(number)) {
+                    if (isNumber(value)) {
                       return Promise.resolve();
                     }
-                    return Promise.reject();
+                    return Promise.resolve();
                   },
-                  message: '*Campo numerico',
                 },
               ]}
               name="phone"
@@ -275,7 +273,11 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 </Space>
               }
             >
-              <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
+              <InputNumber
+                style={{ width: '100%' }}
+                disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading}
+                controls={false}
+              />
             </FormItem>
             <FormItem
               name="goal"
@@ -308,7 +310,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 <Select
                   style={styles.maxWidth}
                   placeholder="Seleccione el Estado"
-                  disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading}
+                  loading={paramsCreateShop?.loading || paramsUpdateShop?.loading}
                   defaultValue={StatusShop.Active}
                 >
                   {Object.keys(StatusTypeShop).map((status) => (
@@ -328,7 +330,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 onChange={(e) => onChangeCheckMain(e)}
                 defaultChecked={shop?.isMain}
               >
-                ¿Es Centro de distribución?
+                ¿Es Centro de Distribución?
               </Checkbox>
             </FormItem>
           </Col>

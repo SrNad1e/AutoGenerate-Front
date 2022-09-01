@@ -7,4 +7,8 @@ export const DocumentType = {
     label: 'Tipos de Cliente',
     textColor: '#fff',
   },
+  COMPANY: {
+    label: 'Compañia',
+    textColor: '#fff',
+  },
 };

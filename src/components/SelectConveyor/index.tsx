@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
-
-import { useGetAuthorizations } from '@/hooks/authorization.hooks';
+import { useGetConveyors } from '@/hooks/conveyors.hooks';
 
 const { Option } = Select;
 
@@ -12,34 +11,28 @@ export type Params = {
   disabled: boolean;
 };
 
-const SelectAuthorization = ({ onChange, disabled, value }: Params) => {
-  const [getAuthorizations, { loading, data, error }] = useGetAuthorizations();
+const SelectConveyor = ({ onChange, disabled, value }: Params) => {
+  const [getConveyor, { loading, data, error }] = useGetConveyors();
 
   /**
    * @description se encarga de consultar con base a un comodín
-   * @param prefix comodín de coincidencia en el nombre
+   * @param name comodín de coincidencia en el nombre
    */
-  const onSearch = (prefix: string) => {
-    getAuthorizations({
+  const onSearch = (name: string) => {
+    getConveyor({
       variables: {
         input: {
-          prefix,
-          sort: {
-            prefix: 1,
-          },
+          name,
         },
       },
     });
   };
 
   useEffect(() => {
-    getAuthorizations({
+    getConveyor({
       variables: {
         input: {
-          prefix: value,
-          sort: {
-            prefix: 1,
-          },
+          _id: value,
         },
       },
     });
@@ -48,19 +41,20 @@ const SelectAuthorization = ({ onChange, disabled, value }: Params) => {
   return (
     <>
       <Select
-        style={{ width: '100%' }}
+        style={{ width: 200 }}
         showSearch
         loading={loading}
-        placeholder="Seleccione la autorización"
+        placeholder="Seleccione Transportista"
         optionFilterProp="children"
         onChange={onChange}
         onSearch={onSearch}
+        allowClear
         disabled={disabled}
         value={value}
       >
-        {data?.authorizations?.docs?.map(({ _id, prefix }) => (
+        {data?.conveyors?.docs?.map(({ _id, name }) => (
           <Option key={_id} value={_id}>
-            {prefix}
+            {name}
           </Option>
         ))}
       </Select>
@@ -69,4 +63,4 @@ const SelectAuthorization = ({ onChange, disabled, value }: Params) => {
   );
 };
 
-export default SelectAuthorization;
+export default SelectConveyor;

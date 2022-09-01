@@ -88,7 +88,7 @@ const FormCreateProduct = ({ onFinish, form }: Params) => {
           </FormItem>
         </Col>
         <Col xs={24} md={2}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" style={{ borderRadius: 5 }} htmlType="submit">
             Crear
           </Button>
         </Col>

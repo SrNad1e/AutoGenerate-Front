@@ -29,9 +29,9 @@ import {
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import type { SorterResult } from 'antd/lib/table/interface';
-import type { DiscountRule, FiltersDiscountRulesInput, Rule } from '@/graphql/graphql';
+import { DiscountRule, FiltersDiscountRulesInput, Permissions, Rule } from '@/graphql/graphql';
 import { useEffect, useState } from 'react';
-import { useAccess } from 'umi';
+import { useAccess, useModel } from 'umi';
 import type { Location } from 'umi';
 import { useLocation, history } from 'umi';
 import moment from 'moment';
@@ -73,6 +73,11 @@ const DiscountList = () => {
   } = useAccess();
 
   const [getDiscountRules, paramsGetDiscountRules] = useGetDiscountsRules();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryDiscounts = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadCrmDiscountrules,
+  );
 
   /**
    * @description funcion usada para mostrar los errores
@@ -119,14 +124,18 @@ const DiscountList = () => {
    * @param filters filtros para realizar la consulta
    */
   const onSearch = (filters?: FiltersDiscountRulesInput) => {
-    getDiscountRules({
-      variables: {
-        input: {
-          limit: 10,
-          ...filters,
+    try {
+      getDiscountRules({
+        variables: {
+          input: {
+            limit: 10,
+            ...filters,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -251,12 +260,18 @@ const DiscountList = () => {
     loadingData();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryDiscounts) {
+      showError('No tiene permisos para consultar los descuentos');
+    }
+  }, [canQueryDiscounts]);
+
   const column: ColumnsType<DiscountRule> = [
     {
       title: (
-        <>
+        <Text>
           <ProfileOutlined /> Nombre
-        </>
+        </Text>
       ),
       dataIndex: 'name',
       align: 'center',
@@ -266,9 +281,9 @@ const DiscountList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <DollarOutlined /> Valor
-        </>
+        </Text>
       ),
       dataIndex: 'value',
       align: 'center',
@@ -278,21 +293,21 @@ const DiscountList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <PercentageOutlined /> Porcentaje
-        </>
+        </Text>
       ),
       dataIndex: 'percent',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (percent: number) => <> {percent} </>,
+      render: (percent: number) => <> {percent + '%'} </>,
     },
     {
       title: (
-        <>
+        <Text>
           <FieldNumberOutlined /> Reglas
-        </>
+        </Text>
       ),
       dataIndex: 'rules',
       align: 'center',
@@ -305,6 +320,7 @@ const DiscountList = () => {
         return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
       },
       filterMultiple: false,
+      align: 'center',
       filteredValue: filterTable?.active || null,
       filterDropdown: (props) => (
         <Filters
@@ -324,33 +340,33 @@ const DiscountList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <ScheduleOutlined /> Fecha Inicial
-        </>
+        </Text>
       ),
       dataIndex: 'dateInitial',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE_API),
+      render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
       title: (
-        <>
+        <Text>
           <ScheduleOutlined /> Fecha Final
-        </>
+        </Text>
       ),
       dataIndex: 'dateFinal',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE_API),
+      render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
       title: (
-        <>
-          <CalendarOutlined /> Fecha Actualización
-        </>
+        <Text>
+          <CalendarOutlined /> Actualización
+        </Text>
       ),
       dataIndex: 'updatedAt',
       align: 'center',
@@ -360,23 +376,26 @@ const DiscountList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <MoreOutlined /> Opción
-        </>
+        </Text>
       ),
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
-      render: (_, customerId) => (
-        <Tooltip title="Editar">
-          <Button
-            onClick={() => openModal(customerId)}
-            type="primary"
-            disabled={paramsGetDiscountRules?.loading || !canEdit}
-            icon={<EditFilled />}
-          />
-        </Tooltip>
-      ),
+      render: (_, discount) => {
+        return (
+          <Tooltip title="Editar">
+            <Button
+              onClick={() => openModal(discount)}
+              type="primary"
+              disabled={!canEdit}
+              loading={paramsGetDiscountRules.loading}
+              icon={<EditFilled />}
+            />
+          </Tooltip>
+        );
+      },
     },
   ];
 
@@ -384,15 +403,19 @@ const DiscountList = () => {
     <PageContainer>
       <Card>
         <Form form={form} onFinish={onFinish}>
-          <Row gutter={20}>
+          <Row gutter={30}>
             <Col xs={24} md={5} lg={6} xl={6}>
               <FormItem label="Nombre" name="name">
-                <Input placeholder="Nombre" />
+                <Input
+                  disabled={paramsGetDiscountRules.loading}
+                  placeholder="Nombre del descuento"
+                />
               </FormItem>
             </Col>
-            <Col xs={24} md={5} lg={6} xl={6}>
+            <Col xs={24} md={6} lg={5} xl={5}>
               <FormItem label="Porcentaje" name="percent">
                 <InputNumber
+                  disabled={paramsGetDiscountRules.loading}
                   style={styles.maxWidth}
                   controls={false}
                   formatter={(value) => `% ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -400,9 +423,10 @@ const DiscountList = () => {
                 />
               </FormItem>
             </Col>
-            <Col xs={24} md={5} lg={5} xl={6}>
+            <Col xs={24} md={5} lg={5} xl={5}>
               <FormItem label="Valor" name="value">
                 <InputNumber
+                  disabled={paramsGetDiscountRules.loading}
                   style={styles.maxWidth}
                   controls={false}
                   formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -410,11 +434,11 @@ const DiscountList = () => {
                 />
               </FormItem>
             </Col>
-            <Col xs={24} md={3} lg={3} xl={4}>
+            <Col xs={24} md={3} lg={4} xl={4}>
               <Space>
                 <Button
                   style={styles.buttonR}
-                  disabled={paramsGetDiscountRules?.loading}
+                  loading={paramsGetDiscountRules?.loading}
                   icon={<SearchOutlined />}
                   type="primary"
                   htmlType="submit"
@@ -423,7 +447,7 @@ const DiscountList = () => {
                 </Button>
                 <Button
                   style={styles.buttonR}
-                  disabled={paramsGetDiscountRules?.loading}
+                  loading={paramsGetDiscountRules?.loading}
                   icon={<ClearOutlined />}
                   onClick={onClear}
                 >
@@ -433,12 +457,13 @@ const DiscountList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]} align="middle" style={styles.marginFilter}>
+        <Row gutter={[0, 15]} align="middle" style={styles.marginFilter}>
           <Col xs={12} md={15} lg={16}>
             <Button
               icon={<PlusOutlined />}
               type="primary"
-              disabled={paramsGetDiscountRules?.loading || !canCreate}
+              disabled={!canCreate}
+              loading={paramsGetDiscountRules.loading}
               shape="round"
               onClick={() => openModal()}
             >
@@ -447,16 +472,17 @@ const DiscountList = () => {
           </Col>
           <Col xs={12} md={9} lg={8} style={styles.alignRight}>
             <Text strong>Total Encontrados:</Text>{' '}
-            {paramsGetDiscountRules?.data?.discountRules?.totalDocs} <Text strong>Páginas: </Text>{' '}
-            {paramsGetDiscountRules?.data?.discountRules?.page} /{' '}
-            {paramsGetDiscountRules.data?.discountRules?.totalPages}
+            {paramsGetDiscountRules?.data?.discountRules?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {paramsGetDiscountRules?.data?.discountRules?.page || 0} /{' '}
+            {paramsGetDiscountRules.data?.discountRules?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
               onChange={handleChangeTable}
+              loading={paramsGetDiscountRules.loading}
               columns={column}
               dataSource={paramsGetDiscountRules?.data?.discountRules?.docs}
-              scroll={{ x: 'auto' }}
+              scroll={{ x: 1300 }}
               pagination={{
                 current: paramsGetDiscountRules?.data?.discountRules?.page,
                 total: paramsGetDiscountRules?.data?.discountRules?.totalDocs,

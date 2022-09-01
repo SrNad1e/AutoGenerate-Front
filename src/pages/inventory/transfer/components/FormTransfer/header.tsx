@@ -41,10 +41,16 @@ const Header = ({
 
   const { initialState } = useModel('@@initialState');
 
+  /**
+   * @description cierra el modal de seleccion de solicitudes
+   */
   const closeModalSelectRequests = () => {
     setShowSelectRequests(false);
   };
 
+  /**
+   * @description abre el modal de seleccion de solicitudes
+   */
   const showModalSelectRequests = () => {
     setShowSelectRequests(true);
   };
@@ -162,6 +168,7 @@ const Header = ({
         </DescriptionsItem>
       </Descriptions>
       <SearchRequest
+        transfer={transfer}
         visible={showSelectRequests}
         onCancel={closeModalSelectRequests}
         requests={requests as StockRequest[]}

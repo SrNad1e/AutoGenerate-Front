@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   CalendarOutlined,
+  ClearOutlined,
   CrownOutlined,
   EditOutlined,
   FileSyncOutlined,
@@ -20,6 +21,7 @@ import {
   Form,
   Input,
   Row,
+  Select,
   Space,
   Table,
   Tooltip,
@@ -29,11 +31,12 @@ import type { TablePaginationConfig } from 'antd';
 import type { SorterResult } from 'antd/es/table/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
-import { useAccess, useHistory, useLocation } from 'umi';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 import moment from 'moment';
 import { useGetUsers } from '@/hooks/user.hooks';
 import type { FiltersUsersInput, Role, Shop, User } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 
 import UsersForm from '@/components/CreateUser';
 import SelectRole from '@/components/SelectRole';
@@ -46,10 +49,12 @@ import Filters from '@/components/Filters';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
+const { Option } = Select;
 
 type FormValues = {
   name?: string;
   roleId?: string;
+  isWeb?: boolean;
 };
 
 const UsersList = () => {
@@ -67,25 +72,16 @@ const UsersList = () => {
   const [form] = Form.useForm();
   const history = useHistory();
 
-  const [getUsers, { data }] = useGetUsers();
+  const [getUsers, { data, loading }] = useGetUsers();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryUsers = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadConfigurationUsers,
+  );
 
   const {
     user: { canCreate, canEdit },
   } = useAccess();
-
-  /**
-   * @description se encarga de ejecutar la funcion para obtener los usarios
-   * @param filters filtros necesarios para la busqueda
-   */
-  const onSearch = (filters?: FiltersUsersInput) => {
-    getUsers({
-      variables: {
-        input: {
-          ...filters,
-        },
-      },
-    });
-  };
 
   /**
    * @description funcion usada para mostrar los errores
@@ -97,6 +93,24 @@ const UsersList = () => {
       type: 'error',
       visible: true,
     });
+  };
+
+  /**
+   * @description se encarga de ejecutar la funcion para obtener los usarios
+   * @param filters filtros necesarios para la busqueda
+   */
+  const onSearch = (filters?: FiltersUsersInput) => {
+    try {
+      getUsers({
+        variables: {
+          input: {
+            ...filters,
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -130,7 +144,6 @@ const UsersList = () => {
   const setQueryParams = (values?: FiltersUsersInput) => {
     try {
       const valuesForm = form.getFieldsValue();
-
       const valuesNew = {
         ...values,
         ...valuesForm,
@@ -138,7 +151,9 @@ const UsersList = () => {
       const datos = Object.keys(valuesNew)
         .reduce(
           (a, key) =>
-            valuesNew[key] !== undefined ? `${a}&${key}=${JSON.stringify(valuesNew[key])}` : a,
+            valuesNew[key] !== undefined && valuesNew[key] !== null
+              ? `${a}&${key}=${JSON.stringify(valuesNew[key])}`
+              : a,
           '',
         )
         .slice(1);
@@ -160,6 +175,10 @@ const UsersList = () => {
       limit: 10,
       ...value,
     };
+
+    if (params.isWeb === null) {
+      delete params.isWeb;
+    }
 
     onSearch({ ...params, ...filters });
     setQueryParams({ ...value, ...filters });
@@ -224,10 +243,14 @@ const UsersList = () => {
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
         params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+      }
+      if (item === 'isWeb') {
+        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
       } else {
         params[item] = JSON.parse(queryParams[item]);
       }
     });
+
     form.setFieldsValue(params);
     onFinish(params);
   };
@@ -235,6 +258,12 @@ const UsersList = () => {
   useEffect(() => {
     loadingData();
   }, []);
+
+  useEffect(() => {
+    if (!canQueryUsers) {
+      showError('No tiene permisos para consultar los usuarios');
+    }
+  }, [canQueryUsers]);
 
   const column: ColumnsType<User> = [
     {
@@ -309,9 +338,10 @@ const UsersList = () => {
         <Tooltip title="Editar" placement="topLeft">
           <Button
             disabled={!canEdit}
+            loading={loading}
             onClick={() => visibleModal(userId)}
-            style={{ backgroundColor: '#dc9575' }}
-            icon={<EditOutlined style={{ color: 'white' }} />}
+            type="primary"
+            icon={<EditOutlined />}
           />
         </Tooltip>
       ),
@@ -323,17 +353,30 @@ const UsersList = () => {
       <Card>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={[20, 20]} align="middle">
-            <Col xs={24} md={8} lg={9} xl={7}>
+            <Col xs={24} md={5} lg={5} xl={7}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Nombre, Nombre de usuario" />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={6}>
+            <Col xs={24} md={5} lg={5} xl={5}>
               <FormItem label="Rol" name="roleId">
                 <SelectRole disabled={false} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={6}>
+            <Col xs={24} md={6} lg={6} xl={6}>
+              <FormItem label="Tipo de Usuario" name="isWeb">
+                <Select placeholder="Seleccione Tipo de Usuario">
+                  <Option key={'1'} value={true}>
+                    Usuarios Web
+                  </Option>
+                  <Option key={'2'} value={false}>
+                    Usuarios ERP
+                  </Option>
+                  <Option>Todos</Option>
+                </Select>
+              </FormItem>
+            </Col>
+            <Col xs={24} md={3} lg={3}>
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button
@@ -341,40 +384,51 @@ const UsersList = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
+                    loading={loading}
                   >
                     Buscar
                   </Button>
-                  <Button style={styles.buttonR} htmlType="reset" onClick={() => onClear()}>
+                  <Button
+                    style={styles.buttonR}
+                    htmlType="reset"
+                    loading={loading}
+                    icon={<ClearOutlined />}
+                    onClick={() => onClear()}
+                  >
                     Limpiar
                   </Button>
                 </Space>
               </FormItem>
             </Col>
-            <Col span={8}>
+            <Col span={12}>
               <Button
                 disabled={!canCreate}
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                loading={loading}
                 onClick={() => setVisibleCreate(true)}
               >
                 Nuevo
               </Button>
             </Col>
-            <Col span={16} style={styles.alignText}>
-              <Text strong>Total Encontrados:</Text> {data?.users?.totalDocs}{' '}
-              <Text strong>Páginas: </Text> {data?.users?.page} / {data?.users?.totalPages || 0}
+            <Col span={12} style={styles.alignText}>
+              <Text strong>Total Encontrados:</Text> {data?.users?.totalDocs || 0}{' '}
+              <Text strong>Páginas: </Text> {data?.users?.page || 0} /{' '}
+              {data?.users?.totalPages || 0}
             </Col>
             <Col span={24}>
               <Table
                 onChange={handleChangeTable}
                 columns={column}
-                dataSource={data?.users.docs}
+                dataSource={data?.users?.docs}
                 scroll={{ x: 1000 }}
                 pagination={{
                   current: data?.users?.page,
                   total: data?.users?.totalDocs,
+                  showSizeChanger: false,
                 }}
+                loading={loading}
               />
             </Col>
           </Row>

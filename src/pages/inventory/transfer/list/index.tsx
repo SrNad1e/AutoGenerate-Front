@@ -3,9 +3,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import SelectWarehouses from '@/components/SelectWarehouses';
 import {
+  CalendarOutlined,
+  ClearOutlined,
+  DropboxOutlined,
   EditOutlined,
   EyeOutlined,
+  FieldNumberOutlined,
   FileDoneOutlined,
+  FileSyncOutlined,
+  MoreOutlined,
   PrinterFilled,
   SearchOutlined,
 } from '@ant-design/icons';
@@ -73,7 +79,6 @@ const TransferList = () => {
     type: 'error',
     visible: false,
   });
-  const [filterType, setFilterType] = useState(false);
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -91,7 +96,7 @@ const TransferList = () => {
   } = useAccess();
 
   const { initialState } = useModel('@@initialState');
-  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const defaultWarehouse = initialState?.currentUser?.shop?.defaultWarehouse?._id;
   const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const [getTransfers, { data, loading }] = useGetTransfers();
@@ -133,16 +138,20 @@ const TransferList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersStockTransfersInput) => {
-    getTransfers({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+    try {
+      getTransfers({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -194,7 +203,7 @@ const TransferList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    filters: Record<string, FilterValue | null>,
+    __: Record<string, FilterValue | null>,
     sorter: SorterResult<StockTransfer> | SorterResult<StockTransfer>[] | any,
     _: TableCurrentDataSource<StockTransfer>,
   ) => {
@@ -267,6 +276,9 @@ const TransferList = () => {
     onFinish(newFilters);
   };
 
+  /**
+   * @description funcion usada para controlar el visible del filtro tipo
+   */
   const onChangeWarehouse = async () => {
     const warehouseId = await form.getFieldValue('warehouseId');
 
@@ -283,50 +295,53 @@ const TransferList = () => {
       form.setFieldsValue({
         warehouseId: defaultWarehouse,
       });
-      setFilterType(true);
     }
   }, []);
 
   const columns: ColumnsType<StockTransfer> = [
     {
-      title: 'Número',
+      title: (
+        <Text className={styles.iconTable}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       sorter: true,
       showSorterTooltip: false,
       align: 'center',
-      width: 100,
     },
     {
-      title: 'Origen',
+      title: <Text>{<DropboxOutlined />} Origen</Text>,
       dataIndex: 'warehouseOrigin',
       align: 'center',
-      width: 200,
       render: (warehouseOrigin) => warehouseOrigin.name,
     },
     {
-      title: 'Destino',
+      title: <Text>{<DropboxOutlined />} Destino</Text>,
       dataIndex: 'warehouseDestination',
       align: 'center',
-      width: 200,
       render: (warehouseDestination) => warehouseDestination.name,
     },
     {
-      title: 'Referencias',
+      title: (
+        <Text>
+          <FieldNumberOutlined /> Referencias
+        </Text>
+      ),
       dataIndex: 'details',
       align: 'center',
-      width: 110,
       render: (details) => details?.length,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
-      width: 120,
+      align: 'center',
       render: (status: string) => {
         return <Badge color={StatusType[status]?.color} text={StatusType[status]?.text} />;
       },
     },
     {
-      title: 'Fecha',
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       sorter: true,
       showSorterTooltip: false,
@@ -334,11 +349,10 @@ const TransferList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
-      width: 100,
       render: (_id: string, record) => {
         return (
           <Space>
@@ -384,24 +398,18 @@ const TransferList = () => {
   ];
 
   return (
-    <PageContainer
-      title={
-        <Title level={4} style={{ margin: 0 }}>
-          Lista de traslados
-        </Title>
-      }
-    >
+    <PageContainer title={<Title level={4}>Lista de traslados</Title>}>
       <Card>
         <Form form={form} layout="horizontal" className={styles.filters} onFinish={onFinish}>
-          <Row gutter={20} className={styles.form}>
-            <Col xs={24} md={5} lg={5} xl={3}>
+          <Row gutter={[40, 0]} align="middle">
+            <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
-                <InputNumber controls={false} style={style.maxWidth} />
+                <InputNumber controls={false} style={style.maxWidth} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={5}>
+            <Col xs={24} md={6} lg={5} xl={5}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item}>
+                <Select className={styles.item} loading={loading}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
                       <Badge text={StatusType[key]?.text} color={StatusType[key]?.color} />
@@ -410,33 +418,47 @@ const TransferList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={6}>
+            <Col xs={24} md={8} lg={7} xl={7}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses onChange={onChangeWarehouse} disabled={!canChangeWarehouse} />
+                <SelectWarehouses
+                  onChange={onChangeWarehouse}
+                  disabled={!canChangeWarehouse || loading}
+                />
               </FormItem>
             </Col>
-            {filterType && (
-              <Col xs={24} md={6} lg={6} xl={4}>
+            {showFilterType && (
+              <Col xs={24} md={5} lg={6} xl={6}>
                 <FormItem label="Tipo" name="type">
-                  <Select className={styles.item} disabled={loading}>
+                  <Select className={styles.item} loading={loading}>
                     <Option key="sent">Enviados</Option>
                     <Option key="received">Recibidos</Option>
                   </Select>
                 </FormItem>
               </Col>
             )}
-            <Col xs={24} md={9} lg={9} xl={6}>
+            <Col xs={24} md={9} lg={7} xl={8}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker disabled={loading} />
+                <RangePicker disabled={loading} placeholder={['Fecha Inicial', 'Fecha Final']} />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={24}>
+            <Col xs={24} md={7} lg={7} xl={7}>
               <FormItem>
                 <Space className={styles.buttons}>
-                  <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
+                  <Button
+                    icon={<SearchOutlined />}
+                    loading={loading}
+                    type="primary"
+                    htmlType="submit"
+                    style={style.buttonR}
+                  >
                     Buscar
                   </Button>
-                  <Button onClick={onClear} loading={loading}>
+                  <Button
+                    onClick={onClear}
+                    icon={<ClearOutlined />}
+                    loading={loading}
+                    style={style.buttonR}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -458,6 +480,7 @@ const TransferList = () => {
               pagination={{
                 current: data?.stockTransfers?.page,
                 total: data?.stockTransfers?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

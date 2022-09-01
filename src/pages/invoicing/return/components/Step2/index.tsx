@@ -18,6 +18,7 @@ type Props = {
   productsSelected: (DetailOrder & { quantityReturn: number })[];
   setProductsSelected: (products: (DetailOrder & { quantityReturn: number })[]) => void;
   currentStep: number;
+  loading: boolean;
 };
 
 const RenderStep2 = ({
@@ -25,6 +26,7 @@ const RenderStep2 = ({
   productsSelected,
   setProductsSelected,
   currentStep,
+  loading,
 }: Props) => {
   const [keysSelected, setKeysSelected] = useState<React.Key[]>([]);
 
@@ -45,7 +47,9 @@ const RenderStep2 = ({
       setKeysSelected(selectedRowKeys);
     },
     getCheckboxProps: (record: DetailOrder) => ({
-      disabled: record.product.reference.changeable === false,
+      disabled:
+        record.product.reference.changeable === false ||
+        record.quantity - record.quantityReturn === 0,
       name: record.product.reference.name,
     }),
   };
@@ -93,7 +97,7 @@ const RenderStep2 = ({
     {
       title: 'Codigo',
       dataIndex: 'product',
-      render: (product: Product) => <Tag>{product?.barcode}</Tag>,
+      render: (product: Product) => <Tag style={styles.tagStyle}>{product?.barcode}</Tag>,
     },
     {
       title: 'Cantidad',
@@ -104,7 +108,7 @@ const RenderStep2 = ({
       title: 'Cantidad Disponible',
       dataIndex: 'quantityReturn',
       align: 'center',
-      render: (quantityReturn: number, { quantity }) => quantity - (quantityReturn || 0),
+      render: (quantityReturn: number, { quantity }) => quantity - quantityReturn,
     },
     {
       title: 'Precio',
@@ -117,7 +121,7 @@ const RenderStep2 = ({
       dataIndex: 'product',
       align: 'center',
       render: (product: Product) =>
-        product.reference.changeable ? (
+        product?.reference?.changeable ? (
           <CheckCircleOutlined style={styles.checkStyle} />
         ) : (
           <CloseCircleOutlined style={styles.closeStyle} />
@@ -155,6 +159,7 @@ const RenderStep2 = ({
       <Table
         rowKey="product"
         rowSelection={rowSelection}
+        loading={loading}
         columns={columns}
         dataSource={orderSelected?.details as any}
         pagination={false}
@@ -163,7 +168,11 @@ const RenderStep2 = ({
       <Divider orientation="left" style={styles.dividerMargin}>
         Productos Seleccionados
       </Divider>
-      <SelectedProducts productsSelected={productsSelected} onChangeQuantity={onChangeQuantity} />
+      <SelectedProducts
+        loading={loading}
+        productsSelected={productsSelected}
+        onChangeQuantity={onChangeQuantity}
+      />
     </>
   );
 };

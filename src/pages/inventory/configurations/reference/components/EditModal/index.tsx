@@ -161,6 +161,14 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
       visible={visible}
       width="80%"
       onCancel={onClose}
+      okButtonProps={{
+        style: { borderRadius: 5 },
+        loading: loading,
+      }}
+      cancelButtonProps={{
+        style: { borderRadius: 5 },
+        loading: loading,
+      }}
     >
       <Form form={form} layout="horizontal">
         <Row gutter={20}>
@@ -193,7 +201,7 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
               label="Estado"
               rules={[{ required: true, message: 'Obligatorio' }]}
             >
-              <Select disabled={loading}>
+              <Select loading={loading}>
                 {Object.keys(StatusType).map((name) => (
                   <Option key={name} value={name}>
                     {StatusType[name].title}

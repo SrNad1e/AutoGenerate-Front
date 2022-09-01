@@ -14,10 +14,12 @@ import {
   Tooltip,
   Typography,
   Table,
+  Popconfirm,
 } from 'antd';
 import { useModel, useParams } from 'umi';
 import type { ColumnsType } from 'antd/es/table/interface';
 import { useEffect, useState } from 'react';
+import numeral from 'numeral';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
@@ -111,11 +113,18 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea cancelar la salida?',
           type: 'error',
         });
-      } else if (details.length > 0) {
+      } else if (status === StatusStockOutput.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar la salida?',
+          type: 'warning',
+        });
+      } else if (status === StatusStockOutput.Confirmed) {
+        setPropsAlertSave({
+          status,
+          visible: true,
+          message: '¿Está seguro que desea enviar la salida?',
           type: 'warning',
         });
       } else {
@@ -147,15 +156,39 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
             status,
           };
 
+          if (props.status === StatusStockOutput.Open) {
+            delete props.status;
+          }
+
           const response = await updateOutput({
             variables: {
               input: props,
               id,
             },
           });
-          if (response?.data?.updateStockOutput) {
+          if (response?.data?.updateStockOutput && status === StatusStockOutput.Open) {
             setPropsAlert({
-              message: `Salida actualizada correctamente No. ${response?.data?.updateStockOutput?.number}`,
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} actualizada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockOutput && status === StatusStockOutput.Confirmed) {
+            setPropsAlert({
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} creada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockOutput && status === StatusStockOutput.Cancelled) {
+            setPropsAlert({
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} cancelada correctamente `,
               type: 'success',
               visible: true,
               redirect:
@@ -189,7 +222,7 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
               input: props,
             },
           });
-          if (response?.data?.createStockOutput) {
+          if (response?.data?.createStockOutput && status === StatusStockOutput.Confirmed) {
             setPropsAlert({
               message: `Salida creada correctamente No. ${response?.data?.createStockOutput?.number}`,
               type: 'success',
@@ -198,6 +231,13 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
                 status === StatusStockOutput.Confirmed
                   ? '/inventory/output/list'
                   : `/inventory/output/${response?.data?.createStockOutput?._id}`,
+            });
+          } else if (response?.data?.createStockOutput && status === StatusStockOutput.Open) {
+            setPropsAlert({
+              message: `Salida guardada correctamente No. ${response?.data?.createStockOutput?.number}`,
+              type: 'success',
+              visible: true,
+              redirect: `/inventory/output/${response?.data?.createStockOutput?._id}`,
             });
           }
         }
@@ -374,6 +414,11 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       render: ({ size }: Product) => size.value,
     },
     {
+      title: 'Costo Unitario',
+      dataIndex: 'product',
+      render: (product: Product) => numeral(product?.reference?.price).format('$ 0,0'),
+    },
+    {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
@@ -407,13 +452,14 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       align: 'center',
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
+          </Popconfirm>
         </Tooltip>
       ),
     },
@@ -439,7 +485,9 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== ActionDetailOutput.Delete)}
+          dataSource={details
+            .filter((detail) => detail?.action !== ActionDetailOutput.Delete)
+            .reverse()}
           scroll={{ x: 1000 }}
           pagination={{ size: 'small' }}
         />
