@@ -168,6 +168,7 @@ const Header = ({
         </DescriptionsItem>
       </Descriptions>
       <SearchRequest
+        transfer={transfer}
         visible={showSelectRequests}
         onCancel={closeModalSelectRequests}
         requests={requests as StockRequest[]}
