@@ -120,6 +120,7 @@ export const typesAccess = {
       Permissions.AccessInvoicingClosesz,
       Permissions.AccessInvoicingReturns,
       Permissions.AccessPos,
+      Permissions.Order,
     ],
   },
   '/invoicing/pos': {

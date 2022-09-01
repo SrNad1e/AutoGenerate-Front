@@ -182,7 +182,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
           },
         },
       });
-      if (responsePayments.data?.addPaymentsOrder) {
+      if (responsePayments?.data?.addPaymentsOrder) {
         setLoading(true);
         const response: any = await editOrder({
           status: StatusOrder.Closed,
@@ -213,13 +213,17 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
   };
 
   useEffect(() => {
-    getPayments({
-      variables: {
-        input: {
-          active: true,
+    try {
+      getPayments({
+        variables: {
+          input: {
+            active: true,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   }, []);
 
   return (

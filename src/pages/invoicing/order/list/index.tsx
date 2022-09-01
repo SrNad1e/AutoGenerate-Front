@@ -31,8 +31,9 @@ import {
 import type { ColumnsType } from 'antd/es/table/interface';
 import type { FilterValue, SorterResult } from 'antd/lib/table/interface';
 import { useEffect, useRef, useState } from 'react';
-import { useGetOrders } from '@/hooks/order.hooks';
+import { useGetOrders, useUpdateOrder } from '@/hooks/order.hooks';
 import type { Customer, FiltersOrdersInput, Order, ResponseOrders, Shop } from '@/graphql/graphql';
+import { StatusOrder } from '@/graphql/graphql';
 import { useAccess, useHistory, useLocation } from 'umi';
 import type { Location } from 'umi';
 import type { Moment } from 'moment';
@@ -93,21 +94,7 @@ const OrderList = () => {
   };
 
   const [getOrders, paramsGetOrders] = useGetOrders();
-
-  /**
-   * @description se encarga de ejecutar la funcion para obtener los pedidos
-   * @param values filtros necesarios para la busqueda
-   */
-  const onSearch = (values?: FiltersOrdersInput) => {
-    getOrders({
-      variables: {
-        input: {
-          limit: 10,
-          ...values,
-        },
-      },
-    });
-  };
+  const [updateOrder, paramsUpdateOrder] = useUpdateOrder();
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -119,6 +106,44 @@ const OrderList = () => {
       type: 'error',
       visible: true,
     });
+  };
+
+  /**
+   * @description se encarga de ejecutar la funcion para obtener los pedidos
+   * @param values filtros necesarios para la busqueda
+   */
+  const onSearch = (values?: FiltersOrdersInput) => {
+    try {
+      getOrders({
+        variables: {
+          input: {
+            limit: 10,
+            sort: { createdAt: -1 },
+            ...values,
+          },
+        },
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
+  };
+
+  /**
+   * @description funcion usada para cambiar el estado del pedido a cancelado
+   */
+  const onCancelOrder = (id: string) => {
+    try {
+      updateOrder({
+        variables: {
+          id: id,
+          input: {
+            status: StatusOrder.Cancelled,
+          },
+        },
+      });
+    } catch (error: any) {
+      messageError(error.message);
+    }
   };
 
   /**
@@ -169,6 +194,7 @@ const OrderList = () => {
     const params: any = {
       page: pageCurrent || 1,
       limit: 10,
+      sort: { createdAt: -1 },
       ...value,
     };
 
@@ -278,9 +304,9 @@ const OrderList = () => {
     },
     {
       title: (
-        <>
+        <Text>
           <UserOutlined /> Cliente
-        </>
+        </Text>
       ),
       dataIndex: 'customer',
       align: 'center',
@@ -385,16 +411,22 @@ const OrderList = () => {
                 type="primary"
                 onClick={() => printOrder(record)}
                 icon={<PrinterFilled />}
-                disabled={paramsGetOrders?.loading || !canPrint}
+                disabled={!canPrint}
+                loading={paramsGetOrders?.loading || paramsUpdateOrder?.loading}
               />
             </Tooltip>
             <Space>
               <Tooltip title="Cancelar">
                 <Button
                   danger
-                  onClick={() => {}}
+                  onClick={() => onCancelOrder(record._id)}
                   icon={<CloseCircleOutlined />}
-                  disabled={paramsGetOrders?.loading || !canEdit}
+                  disabled={
+                    record.status === StatusOrder.Cancelled ||
+                    !canEdit ||
+                    record.status === StatusOrder.Closed
+                  }
+                  loading={paramsGetOrders?.loading || paramsUpdateOrder?.loading}
                 />
               </Tooltip>
             </Space>
@@ -408,11 +440,11 @@ const OrderList = () => {
     <PageContainer>
       <Card>
         <Form form={form} onFinish={onFinish}>
-          <Row gutter={[20, 15]} align="middle">
+          <Row gutter={[20, 15]}>
             <Col xs={6} md={8} lg={5} xl={5}>
               <FormItem label="Número" name="number">
                 <InputNumber
-                  disabled={paramsGetOrders?.loading}
+                  disabled={paramsGetOrders?.loading || paramsUpdateOrder?.loading}
                   controls={false}
                   style={styles.allWidth}
                   placeholder="Ejem: 10"
@@ -421,13 +453,13 @@ const OrderList = () => {
             </Col>
             <Col xs={24} md={8} lg={6} xl={6}>
               <FormItem label="Cliente" name="customerId">
-                <SearchCustomer disabled={paramsGetOrders?.loading} />
+                <SearchCustomer disabled={paramsGetOrders?.loading || paramsUpdateOrder?.loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={6} xl={7}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker
-                  disabled={paramsGetOrders?.loading}
+                  disabled={paramsGetOrders?.loading || paramsUpdateOrder?.loading}
                   style={styles.allWidth}
                   placeholder={['Fecha Inicial', 'Fecha Final']}
                 />
@@ -440,9 +472,8 @@ const OrderList = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
-                    loading={paramsGetOrders?.loading}
+                    loading={paramsGetOrders?.loading || paramsUpdateOrder?.loading}
                     style={styles.borderR}
-                    disabled={paramsGetOrders?.loading}
                   >
                     Buscar
                   </Button>
@@ -450,7 +481,7 @@ const OrderList = () => {
                     htmlType="reset"
                     onClick={onClear}
                     style={styles.borderR}
-                    disabled={paramsGetOrders?.loading}
+                    loading={paramsGetOrders?.loading || paramsUpdateOrder?.loading}
                     icon={<ClearOutlined />}
                   >
                     Limpiar
@@ -472,11 +503,13 @@ const OrderList = () => {
             <Col span={24}>
               <Table
                 onChange={handleChangeTable}
+                loading={paramsGetOrders?.loading || paramsUpdateOrder?.loading}
                 columns={columns}
                 scroll={{ x: 1000 }}
                 pagination={{
                   current: paramsGetOrders?.data?.orders?.page,
                   total: paramsGetOrders?.data?.orders?.totalDocs,
+                  showSizeChanger: false,
                 }}
                 dataSource={paramsGetOrders?.data?.orders?.docs as any}
               />

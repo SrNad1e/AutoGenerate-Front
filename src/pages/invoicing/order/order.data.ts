@@ -21,7 +21,7 @@ export const StatusTypeOrder = {
   },
   CANCELLED: {
     label: 'Cancelado',
-    color: '#E5856F',
+    color: 'red',
     textColor: '#ffffff',
   },
   PENDING: {
