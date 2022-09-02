@@ -43,6 +43,7 @@ import ReportReceipt from '../report/receipt';
 
 import styles from '../styles';
 import SelectPointOfSale from '@/components/SelectPointOfSale';
+import { useGetPointOfSales } from '@/hooks/pointOfSale.hooks';
 
 const { TextArea } = Input;
 const FormItem = Form.Item;
@@ -74,6 +75,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
 
   const [getCredit, paramsGetCredit] = useGetCredit();
   const [createReceipt, paramsCreateReceipt] = useCreateReceipts();
+  const [getPos, paramsGetPos] = useGetPointOfSales();
 
   const reportRef = useRef(null);
 
@@ -129,6 +131,17 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
       visible: false,
     });
     onCancel();
+  };
+
+  const getPosProp = () => {
+    const value = form.getFieldsValue();
+    getPos({
+      variables: {
+        input: {
+          _id: value.pointOfSaleId,
+        },
+      },
+    });
   };
 
   /**
@@ -220,6 +233,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
           input: {
             ...values,
             details: detailsCreate,
+            boxId: paramsGetPos.data?.pointOfSales?.docs[0]?.box?._id,
           },
         },
       });
@@ -425,6 +439,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
             >
               <SelectPointOfSale
                 disabled={paramsGetCredit?.loading || paramsCreateReceipt?.loading}
+                onChange={() => getPosProp()}
               />
             </FormItem>
           </Col>
