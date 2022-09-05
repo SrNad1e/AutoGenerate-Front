@@ -28,7 +28,7 @@ const RenderCredit = ({ dataCredit, setValuesFields }: Props) => {
   const [form] = Form.useForm();
 
   const creditProps =
-    dataCredit.length > 0 &&
+    dataCredit?.length > 0 &&
     dataCredit.reduce((target, key, index) => {
       target[index] = key;
       return target;
@@ -64,14 +64,14 @@ const RenderCredit = ({ dataCredit, setValuesFields }: Props) => {
             parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
           />
         </FormItem>
-        {dataCredit.length > 0 && (
+        {dataCredit?.length > 0 && (
           <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 14 }} label="Estado">
             <Select defaultValue={creditProps?.status} style={styles.midWidth}>
               {Object.keys(StatusTypeCustomer).map((status) => (
                 <Option key={status}>
                   <Badge
-                    color={StatusTypeCustomer[status].color}
-                    text={StatusTypeCustomer[status].label}
+                    color={StatusTypeCustomer[status]?.color}
+                    text={StatusTypeCustomer[status]?.label}
                   />
                 </Option>
               ))}
