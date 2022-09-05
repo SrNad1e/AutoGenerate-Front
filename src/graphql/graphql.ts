@@ -850,6 +850,8 @@ export type CreateReceiptInput = {
   details?: InputMaybe<DetailReceiptOrder[]>;
   /** Identificador del medio de pago */
   paymentId: Scalars['String'];
+  /** Identificador del punto de venta */
+  pointOfSaleId: Scalars['String'];
   /** Valor del recibo */
   value: Scalars['Float'];
 };
@@ -1954,6 +1956,8 @@ export type FiltersReceiptsInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
   paymentId?: InputMaybe<Scalars['String']>;
+  /** Punto de venta del pago */
+  pointOfSaleId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortReceipt>;
   /** Estado del recibo */
@@ -3472,6 +3476,8 @@ export type Receipt = {
   number: Scalars['Float'];
   /** Método de pago del recibo de caja */
   payment: Payment;
+  /** Punto de venta que genera el recibo */
+  pointOfSale: Box;
   /** Estado del recibo de caja */
   status: StatusReceipt;
   /** Fecha de actualización */
@@ -8785,7 +8791,7 @@ export type ProductQuery = {
         } | null;
       } | null;
     };
-    reference: { __typename?: 'Reference'; description: string; name: string };
+    reference: { __typename?: 'Reference'; description: string; name: string; price: number };
     size: { __typename?: 'Size'; value: string };
   };
 };
@@ -19181,6 +19187,7 @@ export const ProductDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                     ],
                   },
                 },
