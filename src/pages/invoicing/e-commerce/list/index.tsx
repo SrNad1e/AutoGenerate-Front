@@ -43,9 +43,9 @@ import type {
   FiltersOrdersInput,
   Order,
   PaymentOrder,
-  StatusOrder,
   StatusWeb,
 } from '@/graphql/graphql';
+import { StatusOrder } from '@/graphql/graphql';
 import 'moment/locale/es';
 
 import { StatusType } from '../e-commerce.data';
@@ -119,6 +119,7 @@ const EcommerceList = () => {
         variables: {
           input: {
             orderPos: false,
+            nonStatus: [StatusOrder.Open, StatusOrder.Closed, StatusOrder.Cancelled],
             sort: {
               createdAt: -1,
             },
@@ -277,7 +278,7 @@ const EcommerceList = () => {
       align: 'left',
       render: (payments: PaymentOrder[]) => (
         <>
-          {payments.length > 0
+          {payments?.length > 0
             ? payments.map(({ total, payment }) => (
                 <>
                   {' '}
