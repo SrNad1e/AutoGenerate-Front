@@ -110,7 +110,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
     const values = await form.validateFields();
 
     try {
-      const phoneString = values.phone.toString();
+      const phoneString = (values.phone !== null && values.phone.toString()) || '';
       const response = await updateShop({
         variables: {
           input: { ...values, isMain: isMain, phone: phoneString },
@@ -138,7 +138,9 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
     const values = await form.validateFields();
 
     try {
-      const phoneString = values.phone.toString();
+      console.log(values);
+
+      const phoneString = (values.phone !== undefined && values.phone.toString()) || undefined;
       const response = await createShop({
         variables: {
           input: { ...values, isMain: isMain, phone: phoneString },
