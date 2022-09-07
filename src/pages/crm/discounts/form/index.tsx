@@ -148,8 +148,8 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
       };
 
       if (values.dates) {
-        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE);
-        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE);
+        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE_API);
+        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE_API);
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
@@ -196,8 +196,8 @@ const DiscountForm = ({ discountData, onCancel, visible }: Props) => {
       };
 
       if (values.dates) {
-        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE);
-        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE);
+        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE_API);
+        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE_API);
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
