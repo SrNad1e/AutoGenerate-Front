@@ -55,6 +55,7 @@ query product($input: FiltersProductInput!) {
     reference {
       description
       name
+      price
     }
     size {
       value
