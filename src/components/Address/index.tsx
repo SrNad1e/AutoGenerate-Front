@@ -1,6 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Col, Divider, Form, Input, Row, Select, Checkbox, Typography } from 'antd';
+import {
+  Button,
+  Col,
+  Divider,
+  Form,
+  Input,
+  Row,
+  Select,
+  Checkbox,
+  Typography,
+  InputNumber,
+} from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import type { Address, Customer } from '@/graphql/graphql';
 import { useEffect, useState } from 'react';
@@ -128,7 +139,7 @@ const AddressDelivery = ({ deliveryAddress, customer, setDelivery }: Props) => {
             name="phone"
             defaultValue={deliveryAddress && deliveryAddress[count]?.phone}
           >
-            <Input style={styles.inputWidth} />
+            <InputNumber style={{ width: '80%' }} controls={false} />
           </FormItem>
         </Col>
       </Row>
