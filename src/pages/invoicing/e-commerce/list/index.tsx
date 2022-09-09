@@ -363,7 +363,7 @@ const EcommerceList = () => {
               </FormItem>
             </Col>
             <Col xs={24} md={7} lg={7} xl={5}>
-              <FormItem label="Estado" name="status">
+              <FormItem label="Estado" name="statusWeb">
                 <Select allowClear disabled={loading}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
