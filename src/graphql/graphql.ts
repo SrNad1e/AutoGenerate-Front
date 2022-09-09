@@ -8513,6 +8513,20 @@ export type OrdersQuery = {
       updatedAt: any;
       number: number;
       status: StatusOrder;
+      conveyorOrder?: {
+        __typename?: 'ConveyorOrder';
+        conveyor: {
+          __typename?: 'Conveyor';
+          name: string;
+          logo: {
+            __typename?: 'Image';
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
+          };
+        };
+      } | null;
       payments?:
         | {
             __typename?: 'PaymentOrder';
@@ -18294,6 +18308,56 @@ export const OrdersDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'conveyorOrder' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'conveyor' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'logo' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'urls' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'webp' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'small' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'statusWeb' } },
                       {
                         kind: 'Field',

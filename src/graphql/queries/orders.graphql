@@ -4,6 +4,18 @@ query Orders($input: FiltersOrdersInput!) {
     totalPages
     page
     docs {
+      conveyorOrder {
+        conveyor {
+          name
+          logo {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+        }
+      }
       statusWeb
       payments {
         total
