@@ -377,7 +377,8 @@ const EcommerceForm = () => {
                     {' - '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.number2}
                     {' - '}
-                    {paramsGetOrder?.data?.orderId?.order?.address?.city?.name}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.city?.name},{' '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.city?.state}
                   </Text>
                 ) : (
                   <Text strong key={1} style={styles.textSize}>
