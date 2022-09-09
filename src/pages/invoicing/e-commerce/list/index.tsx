@@ -375,7 +375,7 @@ const EcommerceList = () => {
             </Col>
             <Col xs={24} md={8} lg={9} xl={8}>
               <FormItem label="Formas de pago" name="paymentId">
-                <SelectPayment disabled={loading} />
+                <SelectPayment bonus={true} credit={true} disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={8} xl={9}>
