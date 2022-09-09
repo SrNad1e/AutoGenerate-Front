@@ -7915,6 +7915,7 @@ export type CreditsQuery = {
       _id: string;
       amount: number;
       available: number;
+      frozenAmount: number;
       balance: number;
       createdAt: any;
       updatedAt: any;
@@ -16539,6 +16540,7 @@ export const CreditsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'frozenAmount' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
