@@ -4,6 +4,12 @@ query Orders($input: FiltersOrdersInput!) {
     totalPages
     page
     docs {
+      address {
+        city {
+          name
+          state
+        }
+      }
       statusWeb
       payments {
         total

@@ -8513,6 +8513,10 @@ export type OrdersQuery = {
       updatedAt: any;
       number: number;
       status: StatusOrder;
+      address?: {
+        __typename?: 'Address';
+        city: { __typename?: 'City'; name: string; state: string };
+      } | null;
       payments?:
         | {
             __typename?: 'PaymentOrder';
@@ -18294,6 +18298,26 @@ export const OrdersDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'address' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'city' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'statusWeb' } },
                       {
                         kind: 'Field',
