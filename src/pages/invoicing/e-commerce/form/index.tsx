@@ -130,7 +130,7 @@ const EcommerceForm = () => {
         variables: {
           id: paramsGetOrder.data?.orderId?.order?._id || '',
           input: {
-            statusWeb: StatusWeb.Pendding,
+            statusWeb: StatusWeb.Cancelled,
           },
         },
       });
