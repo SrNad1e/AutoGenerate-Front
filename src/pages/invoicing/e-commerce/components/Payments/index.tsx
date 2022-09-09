@@ -34,7 +34,7 @@ import numeral from 'numeral';
 import { useEffect, useState } from 'react';
 import { useGetPayments } from '@/hooks/payment.hooks';
 import { useModel } from 'umi';
-import type { Order, PaymentOrder, PaymentsOrderInput } from '@/graphql/graphql';
+import type { Credit, Order, PaymentOrder, PaymentsOrderInput } from '@/graphql/graphql';
 import { StatusWeb } from '@/graphql/graphql';
 import { StatusOrder, StatusOrderDetail } from '@/graphql/graphql';
 import { ActionPaymentsOrder, TypePayment } from '@/graphql/graphql';
@@ -53,9 +53,10 @@ const FormItem = Form.Item;
 type Props = {
   orderData: Order;
   tabKey?: string;
+  creditData?: Credit;
 };
 
-const Payments = ({ orderData, tabKey }: Props) => {
+const Payments = ({ orderData, tabKey, creditData }: Props) => {
   const [visiblePayment, setVisiblePayment] = useState(false);
   const [canEditTotal, setCanEditTotal] = useState(false);
   const [editPayments, setEditPayments] = useState<PaymentsOrderInput[]>([]);
@@ -831,7 +832,12 @@ const Payments = ({ orderData, tabKey }: Props) => {
                   name="paymentId"
                   rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
                 >
-                  <SelectPayment onChange={(e) => onSelectPayment(e)} disabled={false} />
+                  <SelectPayment
+                    bonus={true}
+                    credit={creditData !== null}
+                    onChange={(e) => onSelectPayment(e)}
+                    disabled={false}
+                  />
                 </FormItem>
                 {visibleField && (
                   <>

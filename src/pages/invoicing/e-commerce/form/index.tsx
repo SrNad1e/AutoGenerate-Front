@@ -399,7 +399,14 @@ const EcommerceForm = () => {
         <Divider />
       </Card>
       <Row gutter={[0, 10]} justify="center">
-        <Col style={styles.widthMax}>{<Tabs order={paramsGetOrder?.data?.orderId?.order} />}</Col>
+        <Col style={styles.widthMax}>
+          {
+            <Tabs
+              order={paramsGetOrder?.data?.orderId?.order}
+              creditData={paramsGetOrder?.data?.orderId?.credit}
+            />
+          }
+        </Col>
         <Col>
           <Affix offsetBottom={10}>
             <Card size="small" style={styles.affixStyle}>
