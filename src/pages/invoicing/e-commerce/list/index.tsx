@@ -146,8 +146,8 @@ const EcommerceList = () => {
         sort: sort || { createdAt: -1 },
       };
       if (dates) {
-        const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
-        const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
+        const dateInitial = moment(dates[0]).format('YYYY/MM/DD 00:00:00');
+        const dateFinal = moment(dates[1]).format('YYYY/MM/DD 00:00:00');
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
