@@ -61,7 +61,7 @@ const FormReference = () => {
     type: 'error',
     visible: false,
   });
-  const [arraySorted, setArraySorted] = useState([]);
+  const [numberOfRuns, setNumberOfRuns] = useState(0);
 
   const history = useHistory();
   const { id } = useParams<Partial<{ id: string }>>();
@@ -411,26 +411,27 @@ const FormReference = () => {
     }
   }, [data]);
 
+  const arraySorted: any[] = [];
+
   const sorterReferences = () => {
     const colors = combinations.map(({ color }) => color?.name);
-
     const result = colors.filter((item, index) => {
       return colors.indexOf(item) === index;
     });
 
-    /*while (arraySorted.length < combinations.length) {*/
     for (let index = 0; index < combinations.length; index++) {
-      if (combinations[index].color?.name === result[0]) {
-        setArraySorted([combinations[index]]);
-      }
+      const a = combinations.filter((com) => com?.color?.name === result[index]);
+      arraySorted.push(...a);
+      setCombinations(arraySorted);
     }
-    //}
   };
 
   useEffect(() => {
-    sorterReferences();
-    console.log(arraySorted);
-  }, [combinations, data]);
+    if (numberOfRuns < 3) {
+      sorterReferences();
+    }
+    setNumberOfRuns(numberOfRuns + 1);
+  }, [combinations]);
 
   const columns: ColumnsType<Product> = [
     {
@@ -539,7 +540,7 @@ const FormReference = () => {
         <Divider />
         <Table
           loading={loading}
-          dataSource={arraySorted}
+          dataSource={combinations}
           columns={columns}
           pagination={false}
           bordered
