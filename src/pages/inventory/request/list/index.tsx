@@ -112,6 +112,14 @@ const RequestList = () => {
     });
   };
 
+  const historyEditConfig = (_id: string) => {
+    if (history.location.pathname.includes('pos')) {
+      history.push(`/pos/request/${_id}`);
+    } else {
+      history.push(`/inventory/request/${_id}`);
+    }
+  };
+
   /**
    * @description se encarga de cerrar la alerta informativa
    */
@@ -380,7 +388,7 @@ const RequestList = () => {
                 type="primary"
                 icon={<EyeOutlined />}
                 loading={loading}
-                onClick={() => history.push(`/inventory/request/${_id}`)}
+                onClick={() => historyEditConfig(_id)}
               />
             </Tooltip>
             <Space>

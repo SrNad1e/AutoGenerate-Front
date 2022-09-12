@@ -16,18 +16,27 @@ query Orders($input: FiltersOrdersInput!) {
       updatedAt
       summary {
         total
+        change
+        discount
+        subtotal
+        totalPaid
       }
       customer {
         document
         firstName
         lastName
+        phone
       }
       shop {
+        name
+      }
+      user {
         name
       }
       number
       status
       details {
+        discount
         price
         quantity
         quantityReturn

@@ -11,7 +11,7 @@ export default defineConfig({
     CDN_URL: 'https://toulouse-storage.s3.amazonaws.com',
     COMPANY_ID: '62503250f035862fa3925f70',
     FORMAT_DATE: 'DD/MM/YYYY HH:mm:ss',
-    FORMAT_DATE_API: 'YYYY/MM/DD',
+    FORMAT_DATE_API: 'YYYY/MM/DD HH:mm:ss',
   },
   // https://github.com/zthxxx/react-dev-inspector#inspector-loader-props
   inspectorConfig: {

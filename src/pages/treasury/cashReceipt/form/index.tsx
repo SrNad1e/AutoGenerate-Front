@@ -3,8 +3,8 @@ import {
   CloseCircleOutlined,
   DollarCircleOutlined,
   FieldNumberOutlined,
-  GroupOutlined,
   InteractionOutlined,
+  LaptopOutlined,
   SearchOutlined,
   SelectOutlined,
   ShoppingOutlined,
@@ -33,17 +33,17 @@ import numeral from 'numeral';
 import { useCreateReceipts } from '@/hooks/receipt.hooks';
 import { useGetCredit } from '@/hooks/credit.hooks';
 import type { DetailCredit, DetailReceiptOrder, Order, ResponseReceipt } from '@/graphql/graphql';
-import { useModel } from 'umi';
 
 import SearchCustomer from '@/components/SearchCustomer';
 import Balance from '../components/balance';
-import SelectBox from '@/components/SelectBox';
 import SelectPayment from '@/components/SelectPayment';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import ReportReceipt from '../report/receipt';
 
 import styles from '../styles';
+import SelectPointOfSale from '@/components/SelectPointOfSale';
+import { useGetPointOfSales } from '@/hooks/pointOfSale.hooks';
 
 const { TextArea } = Input;
 const FormItem = Form.Item;
@@ -72,12 +72,10 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
   const [receipt, setReceipt] = useState({});
 
   const [form] = useForm();
-  const { initialState } = useModel('@@initialState');
-
-  const canChangeBox = initialState?.currentUser?.role?.changeWarehouse;
 
   const [getCredit, paramsGetCredit] = useGetCredit();
   const [createReceipt, paramsCreateReceipt] = useCreateReceipts();
+  const [getPos, paramsGetPos] = useGetPointOfSales();
 
   const reportRef = useRef(null);
 
@@ -135,21 +133,15 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
     onCancel();
   };
 
-  /**
-   * @description funcion usada para elegir la caja del punto de venta asignado al usuario
-   */
-  const validateBox = () => {
-    if (!canChangeBox) {
-      if (initialState?.currentUser?.pointOfSale?._id) {
-        form.setFieldsValue({ boxId: initialState?.currentUser?.pointOfSale?.box?._id });
-      } else {
-        setAlertInformation({
-          message: 'El usuario no tiene punto de venta asignado',
-          type: 'warning',
-          visible: true,
-        });
-      }
-    }
+  const getPosProp = () => {
+    const value = form.getFieldsValue();
+    getPos({
+      variables: {
+        input: {
+          _id: value.pointOfSaleId,
+        },
+      },
+    });
   };
 
   /**
@@ -241,6 +233,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
           input: {
             ...values,
             details: detailsCreate,
+            boxId: paramsGetPos.data?.pointOfSales?.docs[0]?.box?._id,
           },
         },
       });
@@ -297,7 +290,6 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
   useEffect(() => {
     form.resetFields();
     setDetailsCredit([]);
-    validateBox();
     setCanSelected(true);
     setSelectCustomer(false);
     setAllowData(false);
@@ -386,7 +378,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
       }}
     >
       <Form layout="vertical" form={form}>
-        <Row gutter={[20, 20]} justify="center" align="middle">
+        <Row gutter={[20, 20]} justify="center">
           <Col span={11}>
             <FormItem label={<Space>{<UserOutlined />} Cliente </Space>} name="customerId">
               <SearchCustomer disabled={false} onChange={() => setSelectCustomer(true)} />
@@ -436,8 +428,8 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
           </Col>
           <Col span={8}>
             <FormItem
-              label={<Space>{<GroupOutlined />} Caja </Space>}
-              name="boxId"
+              label={<Space>{<LaptopOutlined />} Punto de Venta </Space>}
+              name="pointOfSaleId"
               rules={[
                 {
                   required: true,
@@ -445,8 +437,9 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
                 },
               ]}
             >
-              <SelectBox
-                disabled={paramsGetCredit?.loading || paramsCreateReceipt?.loading || !canChangeBox}
+              <SelectPointOfSale
+                disabled={paramsGetCredit?.loading || paramsCreateReceipt?.loading}
+                onChange={() => getPosProp()}
               />
             </FormItem>
           </Col>

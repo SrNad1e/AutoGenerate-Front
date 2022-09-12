@@ -120,6 +120,7 @@ export const typesAccess = {
       Permissions.AccessInvoicingClosesz,
       Permissions.AccessInvoicingReturns,
       Permissions.AccessPos,
+      Permissions.Order,
     ],
   },
   '/invoicing/pos': {
@@ -192,6 +193,36 @@ export const typesAccess = {
   },
   '/pos/return': {
     access: [Permissions.AccessInvoicingReturns],
+  },
+  '/pos/transfer': {
+    access: [Permissions.AccessInventoryTransfers],
+  },
+  '/pos/transfer/list': {
+    access: [Permissions.ReadInventoryTransfers],
+  },
+  '/pos/transfer/new': {
+    access: [Permissions.CreateInventoryTransfer],
+  },
+  '/pos/transfer/confirm/:id': {
+    access: [Permissions.ConfirmInventoryTransfer],
+  },
+  '/pos/transfer/:id': {
+    access: [Permissions.UpdateInventoryTransfer],
+  },
+  '/pos/request': {
+    access: [Permissions.AccessInventoryRequests],
+  },
+  '/pos/request/list': {
+    access: [Permissions.ReadInventoryRequests],
+  },
+  '/pos/request/new': {
+    access: [Permissions.CreateInventoryRequest],
+  },
+  '/pos/request/:id': {
+    access: [Permissions.UpdateInventoryRequest],
+  },
+  '/pos/expenses': {
+    access: [Permissions.AccessTreasuryExpenses],
   },
   //Treasury
   '/treasury': {

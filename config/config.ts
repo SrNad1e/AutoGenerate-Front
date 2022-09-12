@@ -70,10 +70,79 @@ export default defineConfig({
           access: 'allowOption',
         },
         {
+          name: 'Traslados',
+          path: '/pos/transfer',
+          icon: 'audit',
+          access: 'allowOption',
+          routes: [
+            {
+              name: 'Lista',
+              path: '/pos/transfer/list',
+              component: './inventory/transfer/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Nuevo',
+              path: '/pos/transfer/new',
+              component: './inventory/transfer/form',
+              access: 'allowOption',
+            },
+            {
+              path: '/pos/transfer/confirm/:id',
+              component: './inventory/transfer/confirm',
+              access: 'allowOption',
+            },
+            {
+              path: '/pos/transfer/:id',
+              component: './inventory/transfer/form',
+              access: 'allowOption',
+            },
+          ],
+        },
+        {
           name: 'Devoluciones',
           path: '/pos/return',
           icon: 'retweet',
           component: './invoicing/return/list',
+          access: 'allowOption',
+        },
+        {
+          name: 'Cierre Z',
+          path: '/pos/closes/closingZ',
+          icon: 'closeCircle',
+          component: './invoicing/closings/closingZ/list',
+          access: 'allowOption',
+        },
+        {
+          name: 'Solicitudes',
+          path: '/pos/request',
+          icon: 'fileAdd',
+          access: 'allowOption',
+          routes: [
+            {
+              name: 'Lista',
+              path: '/pos/request/list',
+              component: './inventory/request/list',
+              access: 'allowOption',
+            },
+            {
+              name: 'Nueva',
+              path: '/pos/request/new',
+              component: './inventory/request/form',
+              access: 'allowOption',
+            },
+            {
+              path: '/pos/request/:id',
+              component: './inventory/request/form',
+              access: 'allowOption',
+            },
+          ],
+        },
+        {
+          name: 'Egresos',
+          path: '/pos/expenses',
+          icon: 'fund',
+          component: './treasury/expenses/list',
           access: 'allowOption',
         },
         {
@@ -304,6 +373,12 @@ export default defineConfig({
               path: '/invoicing/return',
               component: './invoicing/return/list',
               access: 'allowOption',
+            },
+            {
+              name: 'Pedidos',
+              path: '/invoicing/order',
+              component: './invoicing/order/list',
+              // access: 'allowOption',
             },
             {
               name: 'Cierres',
