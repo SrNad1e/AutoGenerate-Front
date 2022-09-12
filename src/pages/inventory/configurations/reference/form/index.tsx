@@ -61,6 +61,7 @@ const FormReference = () => {
     type: 'error',
     visible: false,
   });
+  const [arraySorted, setArraySorted] = useState([]);
 
   const history = useHistory();
   const { id } = useParams<Partial<{ id: string }>>();
@@ -410,6 +411,27 @@ const FormReference = () => {
     }
   }, [data]);
 
+  const sorterReferences = () => {
+    const colors = combinations.map(({ color }) => color?.name);
+
+    const result = colors.filter((item, index) => {
+      return colors.indexOf(item) === index;
+    });
+
+    /*while (arraySorted.length < combinations.length) {*/
+    for (let index = 0; index < combinations.length; index++) {
+      if (combinations[index].color?.name === result[0]) {
+        setArraySorted([combinations[index]]);
+      }
+    }
+    //}
+  };
+
+  useEffect(() => {
+    sorterReferences();
+    console.log(arraySorted);
+  }, [combinations, data]);
+
   const columns: ColumnsType<Product> = [
     {
       title: 'Imagen',
@@ -517,7 +539,7 @@ const FormReference = () => {
         <Divider />
         <Table
           loading={loading}
-          dataSource={combinations}
+          dataSource={arraySorted}
           columns={columns}
           pagination={false}
           bordered
