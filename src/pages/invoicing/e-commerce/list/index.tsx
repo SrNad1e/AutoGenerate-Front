@@ -119,7 +119,7 @@ const EcommerceList = () => {
         variables: {
           input: {
             orderPos: false,
-            nonStatus: [StatusOrder.Open, StatusOrder.Closed, StatusOrder.Cancelled],
+            nonStatus: [StatusOrder.Pendding],
             sort: {
               createdAt: -1,
             },
