@@ -79,7 +79,8 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
         variables: {
           input: {
             ...values,
-            warehouseOriginId: transfer?.warehouseOrigin?._id,
+            warehouseDestinationId: transfer?.warehouseDestination?._id,
+            status: StatusStockRequest.Pending,
           },
         },
       });
@@ -133,8 +134,8 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
   };
 
   useEffect(() => {
-    onSearch({ status: StatusStockRequest.Pending });
-  }, []);
+    onSearch();
+  }, [visible]);
 
   const columns: ColumnsType<StockRequest> = [
     {

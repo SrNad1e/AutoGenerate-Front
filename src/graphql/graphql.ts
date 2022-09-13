@@ -1519,6 +1519,8 @@ export type FiltersAuthorizationInput = {
 export type FiltersBoxesInput = {
   /** Identificador de la caja */
   _id?: InputMaybe<Scalars['String']>;
+  /** Es caja principal */
+  isMain?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Nombre de la caja para buscar coincidencias */
@@ -7915,6 +7917,7 @@ export type CreditsQuery = {
       _id: string;
       amount: number;
       available: number;
+      frozenAmount: number;
       balance: number;
       createdAt: any;
       updatedAt: any;
@@ -8513,6 +8516,24 @@ export type OrdersQuery = {
       updatedAt: any;
       number: number;
       status: StatusOrder;
+      address?: {
+        __typename?: 'Address';
+        city: { __typename?: 'City'; name: string; state: string };
+      } | null;
+      conveyorOrder?: {
+        __typename?: 'ConveyorOrder';
+        conveyor: {
+          __typename?: 'Conveyor';
+          name: string;
+          logo: {
+            __typename?: 'Image';
+            urls?: {
+              __typename?: 'Urls';
+              webp?: { __typename?: 'ImageTypes'; small: string } | null;
+            } | null;
+          };
+        };
+      } | null;
       payments?:
         | {
             __typename?: 'PaymentOrder';
@@ -16539,6 +16560,7 @@ export const CreditsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'amount' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'available' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'frozenAmount' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -18294,6 +18316,76 @@ export const OrdersDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'address' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'city' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'conveyorOrder' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'conveyor' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'logo' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'urls' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'webp' },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: { kind: 'Name', value: 'small' },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'statusWeb' } },
                       {
                         kind: 'Field',

@@ -42,7 +42,9 @@ const SelectPayment = ({ onChange, disabled, value, bonus = false, credit = fals
     if (canQueryPayments) {
       getPayments({
         variables: {
-          input: {},
+          input: {
+            active: true,
+          },
         },
       });
     }

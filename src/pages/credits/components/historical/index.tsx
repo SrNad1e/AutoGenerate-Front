@@ -120,7 +120,7 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
       <Table
         columns={column}
         loading={loading}
-        dataSource={data?.creditHistory?.docs || []}
+        dataSource={data?.creditHistory?.docs}
         scroll={{ x: 'auto', y: 200 }}
         onChange={handleChangeTable}
         pagination={{

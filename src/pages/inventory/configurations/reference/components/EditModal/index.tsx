@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import ImageAdmin from '@/components/ImageAdmin';
 import SelectColor from '@/components/SelectColor';
 import SelectSize from '@/components/SelectSize';
-import { Image, Product, StatusProduct, UpdateProductInput } from '@/graphql/graphql';
+import type { Image, Product, UpdateProductInput } from '@/graphql/graphql';
+import { StatusProduct } from '@/graphql/graphql';
 import { StatusType } from '../../product.data';
 import { useUpdateProduct } from '@/hooks/product.hooks';
 
@@ -218,7 +219,7 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
         </Row>
       </Form>
       {error && <Alert type="error" message={error} showIcon />}
-      {progress > 0 && <Progress strokeColor="primary.main" percent={progress} />}
+      {progress > 0 && <Progress strokeColor="primary.main" percent={parseInt(progress)} />}
     </Modal>
   );
 };
