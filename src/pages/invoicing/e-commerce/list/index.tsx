@@ -4,6 +4,7 @@ import {
   CarOutlined,
   ClearOutlined,
   ClockCircleFilled,
+  DingtalkOutlined,
   EditFilled,
   FieldNumberOutlined,
   FileSyncOutlined,
@@ -15,6 +16,7 @@ import {
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
+  Avatar,
   Badge,
   Button,
   Card,
@@ -40,13 +42,14 @@ import { useHistory, useLocation } from 'umi';
 import { useEffect, useState } from 'react';
 import { useGetOrders } from '@/hooks/order.hooks';
 import type {
+  ConveyorOrder,
   Customer,
   FiltersOrdersInput,
   Order,
   PaymentOrder,
-  StatusOrder,
   StatusWeb,
 } from '@/graphql/graphql';
+import { StatusOrder } from '@/graphql/graphql';
 import 'moment/locale/es';
 
 import { StatusType } from '../e-commerce.data';
@@ -120,6 +123,7 @@ const EcommerceList = () => {
         variables: {
           input: {
             orderPos: false,
+            nonStatus: [StatusOrder.Pendding],
             sort: {
               createdAt: -1,
             },
@@ -147,8 +151,8 @@ const EcommerceList = () => {
         sort: sort || { createdAt: -1 },
       };
       if (dates) {
-        const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
-        const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
+        const dateInitial = moment(dates[0]).format('YYYY/MM/DD 00:00:00');
+        const dateFinal = moment(dates[1]).format('YYYY/MM/DD 00:00:00');
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
@@ -269,6 +273,27 @@ const EcommerceList = () => {
       ),
     },
     {
+      title: <Text>{<DingtalkOutlined />} Método de Envío</Text>,
+      dataIndex: 'conveyorOrder',
+      align: 'center',
+      width: 160,
+      render: (conveyorOrder: ConveyorOrder) => (
+        <Space>
+          {conveyorOrder === null ? (
+            <Text>{'(PENDIENTE)'}</Text>
+          ) : (
+            <Avatar
+              shape="square"
+              style={{ borderRadius: 4 }}
+              size="small"
+              src={`${CDN_URL}/${conveyorOrder?.conveyor?.logo.urls?.webp?.small}`}
+            />
+          )}
+          <Text>{conveyorOrder?.conveyor?.name}</Text>
+        </Space>
+      ),
+    },
+    {
       title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'statusWeb',
       width: 160,
@@ -284,7 +309,7 @@ const EcommerceList = () => {
       align: 'left',
       render: (payments: PaymentOrder[]) => (
         <>
-          {payments.length > 0
+          {payments?.length > 0
             ? payments.map(({ total, payment }) => (
                 <>
                   {' '}
@@ -370,7 +395,7 @@ const EcommerceList = () => {
               </FormItem>
             </Col>
             <Col xs={24} md={7} lg={7} xl={5}>
-              <FormItem label="Estado" name="status">
+              <FormItem label="Estado" name="statusWeb">
                 <Select allowClear disabled={loading}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
@@ -382,7 +407,7 @@ const EcommerceList = () => {
             </Col>
             <Col xs={24} md={8} lg={9} xl={8}>
               <FormItem label="Formas de pago" name="paymentId">
-                <SelectPayment disabled={loading} />
+                <SelectPayment bonus={true} credit={true} disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={8} xl={9}>
@@ -421,7 +446,7 @@ const EcommerceList = () => {
             <Table
               columns={columns as any}
               onChange={handleChangeTable}
-              scroll={{ x: 1000 }}
+              scroll={{ x: 1200 }}
               dataSource={data?.orders?.docs}
               loading={loading}
               pagination={{

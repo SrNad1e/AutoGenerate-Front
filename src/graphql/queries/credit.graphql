@@ -25,6 +25,7 @@ query credits($input: FiltersCreditsInput) {
       _id
       amount
       available
+      frozenAmount
       balance
       createdAt
       updatedAt

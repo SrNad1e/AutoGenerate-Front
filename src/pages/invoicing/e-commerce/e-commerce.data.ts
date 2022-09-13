@@ -15,7 +15,7 @@ export const StatusType = {
     color: 'yellow',
     text: 'Pendiente de Pago',
   },
-  PENDING_CREDIT: {
+  PENDDING_CREDIT: {
     color: 'yellow',
     text: 'Pago a Crédito',
   },

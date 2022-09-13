@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Checkbox, Col, Form, Input, Modal, Row } from 'antd';
+import { Checkbox, Col, Form, Input, InputNumber, Modal, Row } from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import type { Customer } from '@/graphql/graphql';
 import { useUpdateCustomer } from '@/hooks/customer.hooks';
@@ -85,10 +85,11 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
   const onOk = async () => {
     const values = await form.validateFields();
     try {
+      const phoneString = (values.phone !== undefined && values.phone.toString()) || undefined;
       const response = await updateCustomer({
         variables: {
           id: customer?._id,
-          input: { addresses: [...createAddress, { ...values }] },
+          input: { addresses: [...createAddress, { ...values, phone: phoneString }] },
         },
       });
       if (response?.data) {
@@ -230,7 +231,7 @@ const NewAddress = ({ visible, onCancel, customer }: Props) => {
               name="phone"
               rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
             >
-              <Input style={styles.inputWidth} disabled={paramsUpdateCustomer?.loading} />
+              <InputNumber style={{ width: '80%' }} controls={false} />
             </FormItem>
           </Col>
         </Row>

@@ -10,6 +10,18 @@ query Orders($input: FiltersOrdersInput!) {
           state
         }
       }
+      conveyorOrder {
+        conveyor {
+          name
+          logo {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+        }
+      }
       statusWeb
       payments {
         total

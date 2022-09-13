@@ -4,6 +4,7 @@ import {
   ArrowLeftOutlined,
   CloseCircleOutlined,
   HomeOutlined,
+  IdcardOutlined,
   PhoneOutlined,
   PrinterOutlined,
   SendOutlined,
@@ -130,7 +131,7 @@ const EcommerceForm = () => {
         variables: {
           id: paramsGetOrder.data?.orderId?.order?._id || '',
           input: {
-            statusWeb: StatusWeb.Pendding,
+            statusWeb: StatusWeb.Cancelled,
           },
         },
       });
@@ -363,6 +364,14 @@ const EcommerceForm = () => {
               </Text>
             </Col>
             <Col xs={24} md={4} lg={4} xl={4}>
+              {<IdcardOutlined style={styles.iconStyle} />}
+            </Col>
+            <Col xs={24} md={20} lg={20} xl={20}>
+              <Text strong style={styles.textSize}>
+                {paramsGetOrder?.data?.orderId?.order?.customer?.document}
+              </Text>
+            </Col>
+            <Col xs={24} md={4} lg={4} xl={4}>
               {<HomeOutlined style={styles.iconStyle} />}
             </Col>
             <Col xs={24} md={20} lg={20} xl={20}>
@@ -377,7 +386,8 @@ const EcommerceForm = () => {
                     {' - '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.number2}
                     {' - '}
-                    {paramsGetOrder?.data?.orderId?.order?.address?.city?.name}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.city?.name},{' '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.city?.state}
                   </Text>
                 ) : (
                   <Text strong key={1} style={styles.textSize}>
@@ -399,7 +409,14 @@ const EcommerceForm = () => {
         <Divider />
       </Card>
       <Row gutter={[0, 10]} justify="center">
-        <Col style={styles.widthMax}>{<Tabs order={paramsGetOrder?.data?.orderId?.order} />}</Col>
+        <Col style={styles.widthMax}>
+          {
+            <Tabs
+              order={paramsGetOrder?.data?.orderId?.order}
+              creditData={paramsGetOrder?.data?.orderId?.credit}
+            />
+          }
+        </Col>
         <Col>
           <Affix offsetBottom={10}>
             <Card size="small" style={styles.affixStyle}>
