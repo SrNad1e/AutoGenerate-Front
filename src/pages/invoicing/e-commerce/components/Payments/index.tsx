@@ -75,7 +75,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
   const [addPayment, paramsAddPayment] = useAddPaymentsOrder();
   const [getPayments, { data }] = useGetPayments();
   const [confirmPayment, paramsConfirmPayment] = useConfirmPaymentOrder();
-  const [updateOrder] = useUpdateOrder();
+  const [updateOrder, paramsUpdateOrder] = useUpdateOrder();
 
   const [form] = useForm();
 
@@ -817,7 +817,11 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                     orderData?.statusWeb !== StatusWeb.Pendding
                   }
                   onClick={() => onPayOrder()}
-                  loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                  loading={
+                    paramsAddPayment?.loading ||
+                    paramsConfirmPayment?.loading ||
+                    paramsUpdateOrder.loading
+                  }
                 >
                   Confirmar Medio de Pago
                 </Button>
@@ -939,6 +943,9 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
         footer={footerTable}
         pagination={false}
         sortDirections={['descend', 'ascend']}
+        loading={
+          paramsAddPayment.loading || paramsConfirmPayment.loading || paramsUpdateOrder.loading
+        }
       />
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </>

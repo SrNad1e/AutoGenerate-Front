@@ -33,7 +33,7 @@ import numeral from 'numeral';
 import { useEffect, useState } from 'react';
 import type { DetailAddProductsOrderInput, DetailOrder, Order, Product } from '@/graphql/graphql';
 import { StatusWeb } from '@/graphql/graphql';
-import { useAddProductsOrder, useConfirmProductOrder, useUpdateOrder } from '@/hooks/order.hooks';
+import { useAddProductsOrder, useConfirmProductOrder } from '@/hooks/order.hooks';
 import { StatusOrder } from '@/graphql/graphql';
 import { StatusOrderDetail } from '@/graphql/graphql';
 import { ActionProductsOrder } from '@/graphql/graphql';
@@ -69,7 +69,6 @@ const Products = ({ orderdata }: Props) => {
 
   const [addProduct, paramsAddProduct] = useAddProductsOrder();
   const [confirmProductQuantity, paramsConfirmProductQuantity] = useConfirmProductOrder();
-  const [updateOrder] = useUpdateOrder();
 
   /**
    * @description array con los detalles del pedido almacenados de forma descendente
@@ -135,24 +134,6 @@ const Products = ({ orderdata }: Props) => {
   };
 
   /**
-   * @description funcion usada para cambiar el estado del pedido a preparando pedido
-   */
-  const onPreparingOrder = () => {
-    try {
-      updateOrder({
-        variables: {
-          id: orderdata?._id,
-          input: {
-            statusWeb: StatusWeb.Preparing,
-          },
-        },
-      });
-    } catch (error: any) {
-      showError(error.message);
-    }
-  };
-
-  /**
    * @description funcion usada para confirmar la cantidad de los productos
    */
   const confirmQuantity = async () => {
@@ -166,7 +147,6 @@ const Products = ({ orderdata }: Props) => {
           } else {
             productsQuantityConfirm[i].quantityConfirm++;
             setProductsQuantityConfirm([...productsQuantityConfirm]);
-            onPreparingOrder();
             if (
               productsQuantityConfirm[i]?.quantityConfirm === productsQuantityConfirm[i]?.quantity
             ) {
@@ -205,7 +185,6 @@ const Products = ({ orderdata }: Props) => {
         },
       });
       setProductsConfirm([]);
-      onPreparingOrder();
     } catch (error: any) {
       showError(error.message);
     }
