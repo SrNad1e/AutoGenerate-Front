@@ -4,6 +4,7 @@ import {
   ArrowLeftOutlined,
   CloseCircleOutlined,
   HomeOutlined,
+  IdcardOutlined,
   PhoneOutlined,
   PrinterOutlined,
   SendOutlined,
@@ -360,6 +361,14 @@ const EcommerceForm = () => {
               <Text strong style={styles.textSize}>
                 {paramsGetOrder?.data?.orderId?.order?.customer?.firstName}{' '}
                 {paramsGetOrder?.data?.orderId?.order?.customer?.lastName}
+              </Text>
+            </Col>
+            <Col xs={24} md={4} lg={4} xl={4}>
+              {<IdcardOutlined style={styles.iconStyle} />}
+            </Col>
+            <Col xs={24} md={20} lg={20} xl={20}>
+              <Text strong style={styles.textSize}>
+                {paramsGetOrder?.data?.orderId?.order?.customer?.document}
               </Text>
             </Col>
             <Col xs={24} md={4} lg={4} xl={4}>
