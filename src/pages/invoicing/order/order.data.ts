@@ -24,7 +24,7 @@ export const StatusTypeOrder = {
     color: 'red',
     textColor: '#ffffff',
   },
-  PENDING: {
+  PENDDING: {
     label: 'Pendiente',
     color: '#1981F0',
     textColor: '#fff',
