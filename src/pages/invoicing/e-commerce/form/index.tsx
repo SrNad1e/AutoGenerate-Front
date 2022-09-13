@@ -429,7 +429,7 @@ const EcommerceForm = () => {
                 >
                   <Button
                     style={styles.buttonR}
-                    loading={paramsUpdateOrder?.loading}
+                    loading={paramsGetOrder.loading || paramsUpdateOrder.loading}
                     disabled={
                       paramsGetOrder?.data?.orderId?.order?.statusWeb === StatusWeb.Cancelled ||
                       (paramsGetOrder?.data?.orderId?.order?.statusWeb !== StatusWeb.Cancelled
@@ -448,6 +448,7 @@ const EcommerceForm = () => {
                 </Popconfirm>
                 <Button
                   style={styles.buttonR}
+                  loading={paramsGetOrder.loading || paramsUpdateOrder.loading}
                   icon={<PrinterOutlined />}
                   type="primary"
                   onClick={() => printOrder(paramsGetOrder?.data?.orderId?.order)}
@@ -458,6 +459,7 @@ const EcommerceForm = () => {
                   icon={<PrinterOutlined />}
                   type="primary"
                   disabled={paramsGetOrder?.data?.orderId?.order?.conveyorOrder === null}
+                  loading={paramsGetOrder.loading || paramsUpdateOrder.loading}
                   style={styles.buttonR}
                   onClick={() => printShippingLabel(paramsGetOrder?.data?.orderId?.order)}
                 >
@@ -467,6 +469,7 @@ const EcommerceForm = () => {
                   icon={<SendOutlined />}
                   type="primary"
                   style={styles.buttonR}
+                  loading={paramsGetOrder.loading || paramsUpdateOrder.loading}
                   disabled={
                     paramsGetOrder.data?.orderId.order.conveyorOrder === null ||
                     paramsGetOrder.data?.orderId.order.statusWeb === StatusWeb.Sent ||

@@ -210,15 +210,17 @@ const ModalSearchProducts = ({
           return (
             <Space>
               <Space>
-                <InputNumber
-                  value={detailFind.quantity}
-                  min={1}
-                  max={
-                    validateStock ? (product.stock ? product?.stock[0]?.quantity : 0) : undefined
-                  }
-                  disabled={order && disabledButtonConfirmProduct(product?._id)}
-                  onChange={(value) => updateDetail(product, value)}
-                />
+                {!order && (
+                  <InputNumber
+                    value={detailFind.quantity}
+                    min={1}
+                    max={
+                      validateStock ? (product.stock ? product?.stock[0]?.quantity : 0) : undefined
+                    }
+                    disabled={order && disabledButtonConfirmProduct(product?._id)}
+                    onChange={(value) => updateDetail(product, value)}
+                  />
+                )}
               </Space>
               <Tooltip title="Eliminar">
                 <Button
