@@ -476,7 +476,7 @@ const Products = ({ orderdata }: Props) => {
               orderdata?.statusWeb === StatusWeb.Preparing
             }
             type="primary"
-            loading={paramsAddProduct?.loading}
+            loading={paramsAddProduct.loading || paramsConfirmProductQuantity.loading}
             onClick={() => deleteProduct(detail?.product?._id)}
             icon={<DeleteOutlined />}
           />
@@ -648,7 +648,7 @@ const Products = ({ orderdata }: Props) => {
                         (orderdata?.statusWeb !== StatusWeb.PaymentConfirmed &&
                           orderdata.statusWeb !== StatusWeb.Preparing)
                       }
-                      loading={paramsConfirmProductQuantity?.loading}
+                      loading={paramsAddProduct.loading || paramsConfirmProductQuantity.loading}
                     />
                   </Space>
                 </FormItem>
@@ -670,7 +670,7 @@ const Products = ({ orderdata }: Props) => {
                     Aprobar productos confirmados
                   </Button>
                   <Button
-                    loading={paramsConfirmProductQuantity?.loading}
+                    loading={paramsAddProduct.loading || paramsConfirmProductQuantity.loading}
                     type="primary"
                     style={styles.buttonR}
                     disabled={
@@ -705,12 +705,12 @@ const Products = ({ orderdata }: Props) => {
                       orderdata?.statusWeb === StatusWeb.Preparing
                     }
                     icon={canEdit ? <SaveOutlined /> : <EditOutlined />}
-                    loading={paramsAddProduct?.loading}
+                    loading={paramsAddProduct.loading || paramsConfirmProductQuantity.loading}
                   >
                     {canEdit ? 'Guardar Cantidades' : 'Editar Cantidades'}
                   </Button>
                   <Button
-                    loading={paramsAddProduct?.loading}
+                    loading={paramsAddProduct.loading || paramsConfirmProductQuantity.loading}
                     disabled={
                       orderdata?.statusWeb === StatusWeb.Sent ||
                       orderdata?.status === StatusOrder.Closed ||
@@ -736,6 +736,7 @@ const Products = ({ orderdata }: Props) => {
               columns={visibleConfirmProduct ? columnConfirm : column}
               dataSource={sortedDesc}
               scroll={{ x: 1000, y: 500 }}
+              loading={paramsAddProduct.loading || paramsConfirmProductQuantity.loading}
             />
           </Col>
         </Row>

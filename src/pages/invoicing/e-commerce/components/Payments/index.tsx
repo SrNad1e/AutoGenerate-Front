@@ -73,7 +73,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
   const [paymentBankTotal, setPaymentBankTotal] = useState(0);
 
   const [addPayment, paramsAddPayment] = useAddPaymentsOrder();
-  const [getPayments, { data }] = useGetPayments();
+  const [getPayments, { data, loading }] = useGetPayments();
   const [confirmPayment, paramsConfirmPayment] = useConfirmPaymentOrder();
   const [updateOrder, paramsUpdateOrder] = useUpdateOrder();
 
@@ -694,7 +694,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                     orderData?.status === StatusOrder.Closed ||
                     orderData?.statusWeb === StatusWeb.Cancelled
                   }
-                  loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                  loading={
+                    paramsAddPayment.loading ||
+                    paramsConfirmPayment.loading ||
+                    paramsUpdateOrder.loading ||
+                    loading
+                  }
                   style={styles.inputBorder}
                   icon={<RetweetOutlined />}
                   onClick={() => reversePaymentOrder(detail?.payment?._id)}
@@ -712,7 +717,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                   orderData?.status === StatusOrder.Closed ||
                   orderData?.statusWeb === StatusWeb.Cancelled
                 }
-                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                loading={
+                  paramsAddPayment.loading ||
+                  paramsConfirmPayment.loading ||
+                  paramsUpdateOrder.loading ||
+                  loading
+                }
                 onClick={() => confirmPaymentOrder(detail?.payment?._id)}
                 type="primary"
                 icon={<DollarCircleOutlined />}
@@ -729,7 +739,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                   orderData?.status === StatusOrder.Closed ||
                   orderData?.statusWeb === StatusWeb.Cancelled
                 }
-                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                loading={
+                  paramsAddPayment.loading ||
+                  paramsConfirmPayment.loading ||
+                  paramsUpdateOrder.loading ||
+                  loading
+                }
                 onClick={editable ? () => updatePayment() : () => edit(detail)}
                 type="primary"
                 ghost
@@ -747,7 +762,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                 }
                 danger
                 type="primary"
-                loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                loading={
+                  paramsAddPayment.loading ||
+                  paramsConfirmPayment.loading ||
+                  paramsUpdateOrder.loading ||
+                  loading
+                }
                 onClick={() => deleteDetailPayment(addPayments, detail?.payment?._id)}
                 icon={<DeleteOutlined />}
               />
@@ -767,7 +787,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
               {tabKey !== '4' && (
                 <Button
                   style={styles.inputBorder}
-                  loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                  loading={
+                    paramsAddPayment.loading ||
+                    paramsConfirmPayment.loading ||
+                    paramsUpdateOrder.loading ||
+                    loading
+                  }
                   disabled={
                     orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
                     orderData?.statusWeb === StatusWeb.Sent ||
@@ -794,7 +819,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                     orderData?.status === StatusOrder.Closed ||
                     orderData?.statusWeb === StatusWeb.Cancelled
                   }
-                  loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                  loading={
+                    paramsAddPayment.loading ||
+                    paramsConfirmPayment.loading ||
+                    paramsUpdateOrder.loading ||
+                    loading
+                  }
                   style={styles.inputBorder}
                   onClick={() => setVisiblePayment(visiblePayment ? false : true)}
                   type="primary"
@@ -818,9 +848,10 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                   }
                   onClick={() => onPayOrder()}
                   loading={
-                    paramsAddPayment?.loading ||
-                    paramsConfirmPayment?.loading ||
-                    paramsUpdateOrder.loading
+                    paramsAddPayment.loading ||
+                    paramsConfirmPayment.loading ||
+                    paramsUpdateOrder.loading ||
+                    loading
                   }
                 >
                   Confirmar Medio de Pago
@@ -866,7 +897,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                               orderData?.status === StatusOrder.Closed ||
                               orderData?.statusWeb === StatusWeb.Cancelled
                             }
-                            loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                            loading={
+                              paramsAddPayment.loading ||
+                              paramsConfirmPayment.loading ||
+                              paramsUpdateOrder.loading ||
+                              loading
+                            }
                             onClick={() => onAddPayment()}
                           />
                         }
@@ -880,7 +916,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                       <Input
                         addonAfter={
                           <Button
-                            loading={paramsAddPayment?.loading || paramsConfirmPayment?.loading}
+                            loading={
+                              paramsAddPayment.loading ||
+                              paramsConfirmPayment.loading ||
+                              paramsUpdateOrder.loading ||
+                              loading
+                            }
                             disabled={
                               orderData?.statusWeb === StatusWeb.Sent ||
                               orderData?.status === StatusOrder.Closed ||
@@ -944,7 +985,10 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
         pagination={false}
         sortDirections={['descend', 'ascend']}
         loading={
-          paramsAddPayment.loading || paramsConfirmPayment.loading || paramsUpdateOrder.loading
+          paramsAddPayment.loading ||
+          paramsConfirmPayment.loading ||
+          paramsUpdateOrder.loading ||
+          loading
         }
       />
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
