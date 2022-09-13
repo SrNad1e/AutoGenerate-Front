@@ -4,7 +4,7 @@ import { SaveOutlined } from '@ant-design/icons';
 import { useForm } from 'antd/lib/form/Form';
 import { useState } from 'react';
 import numeral from 'numeral';
-import type { AddressInputOrder, Order } from '@/graphql/graphql';
+import type { AddressInputOrder, Credit, Order } from '@/graphql/graphql';
 import { TypePayment } from '@/graphql/graphql';
 import { StatusWeb } from '@/graphql/graphql';
 import { StatusOrder } from '@/graphql/graphql';
@@ -23,9 +23,10 @@ const FormItem = Form.Item;
 
 type Props = {
   order: Order;
+  creditData?: Credit;
 };
 
-const Tabs = ({ order }: Props) => {
+const Tabs = ({ order, creditData }: Props) => {
   const [activeTabKey, setActiveTabKey] = useState('1');
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -176,7 +177,7 @@ const Tabs = ({ order }: Props) => {
   ];
 
   const contentTab = {
-    1: <Payments orderData={order} tabKey={activeTabKey} />,
+    1: <Payments orderData={order} tabKey={activeTabKey} creditData={creditData} />,
     2: <Products orderdata={order} />,
     3: (
       <>
