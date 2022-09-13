@@ -3,6 +3,7 @@ import {
   BankOutlined,
   ClearOutlined,
   ClockCircleFilled,
+  DingtalkOutlined,
   EditFilled,
   FieldNumberOutlined,
   FileSyncOutlined,
@@ -14,6 +15,7 @@ import {
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
+  Avatar,
   Badge,
   Button,
   Card,
@@ -39,6 +41,7 @@ import { useHistory, useLocation } from 'umi';
 import { useEffect, useState } from 'react';
 import { useGetOrders } from '@/hooks/order.hooks';
 import type {
+  ConveyorOrder,
   Customer,
   FiltersOrdersInput,
   Order,
@@ -263,6 +266,27 @@ const EcommerceList = () => {
       ),
     },
     {
+      title: <Text>{<DingtalkOutlined />} Método de Envío</Text>,
+      dataIndex: 'conveyorOrder',
+      align: 'center',
+      width: 160,
+      render: (conveyorOrder: ConveyorOrder) => (
+        <Space>
+          {conveyorOrder === null ? (
+            <Text>{'(PENDIENTE)'}</Text>
+          ) : (
+            <Avatar
+              shape="square"
+              style={{ borderRadius: 4 }}
+              size="small"
+              src={`${CDN_URL}/${conveyorOrder?.conveyor?.logo.urls?.webp?.small}`}
+            />
+          )}
+          <Text>{conveyorOrder?.conveyor?.name}</Text>
+        </Space>
+      ),
+    },
+    {
       title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'statusWeb',
       width: 160,
@@ -415,7 +439,7 @@ const EcommerceList = () => {
             <Table
               columns={columns as any}
               onChange={handleChangeTable}
-              scroll={{ x: 1000 }}
+              scroll={{ x: 1200 }}
               dataSource={data?.orders?.docs}
               loading={loading}
               pagination={{
