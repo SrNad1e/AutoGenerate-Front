@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   BankOutlined,
+  CarOutlined,
   ClearOutlined,
   ClockCircleFilled,
   DingtalkOutlined,
@@ -248,7 +249,7 @@ const EcommerceList = () => {
       title: <Text>{<UserOutlined />} Cliente</Text>,
       dataIndex: 'customer',
       width: 200,
-      render: (customer: Customer) => (
+      render: (customer: Customer, order: Order) => (
         <>
           <Space direction="vertical" size={1}>
             <Text>
@@ -261,6 +262,12 @@ const EcommerceList = () => {
               <IdcardFilled style={styles.tagStyle} />{' '}
               {customer.document !== '0' ? customer.document : 'N/A'}
             </Text>
+            {order.address !== null && (
+              <Text title="Destino" style={styles.textStyle}>
+                <CarOutlined style={styles.tagStyle} /> {order.address?.city.name},{' '}
+                {order?.address?.city?.state}
+              </Text>
+            )}
           </Space>
         </>
       ),
