@@ -150,9 +150,9 @@ const Payments = ({ orderData, tabKey }: Props) => {
   /**
    * @description funcion usada para cambiar el estado del pedido a pago confimado
    */
-  const onPayOrder = () => {
+  const onPayOrder = async () => {
     try {
-      updateOrder({
+      await updateOrder({
         variables: {
           id: orderData?._id,
           input: {
@@ -161,7 +161,7 @@ const Payments = ({ orderData, tabKey }: Props) => {
         },
       });
     } catch (error: any) {
-      showError(error.message);
+      showError(error?.message);
     }
   };
 
