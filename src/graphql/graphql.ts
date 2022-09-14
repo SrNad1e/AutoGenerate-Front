@@ -8555,6 +8555,7 @@ export type OrdersQuery = {
         firstName: string;
         lastName: string;
         phone?: string | null;
+        customerType: { __typename?: 'CustomerType'; name: string };
       };
       shop: { __typename?: 'Shop'; name: string };
       user: { __typename?: 'User'; name: string };
@@ -18434,6 +18435,16 @@ export const OrdersDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'customerType' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
                           ],
                         },
                       },
