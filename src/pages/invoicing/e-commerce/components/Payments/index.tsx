@@ -35,6 +35,7 @@ import { useEffect, useState } from 'react';
 import { useGetPayments } from '@/hooks/payment.hooks';
 import { useModel } from 'umi';
 import type { Credit, Order, PaymentOrder, PaymentsOrderInput } from '@/graphql/graphql';
+import { StatusCoupon } from '@/graphql/graphql';
 import { StatusWeb } from '@/graphql/graphql';
 import { StatusOrder, StatusOrderDetail } from '@/graphql/graphql';
 import { ActionPaymentsOrder, TypePayment } from '@/graphql/graphql';
@@ -46,6 +47,7 @@ import SelectPayment from '@/components/SelectPayment';
 
 import styles from '../styles';
 import './style.less';
+import { useGetCoupon } from '@/hooks/coupon.hooks';
 
 const { Text } = Typography;
 const FormItem = Form.Item;
@@ -71,11 +73,13 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
   const [isCoupon, setIsCoupon] = useState(false);
   const [editingKey, setEditingKey] = useState('');
   const [paymentBankTotal, setPaymentBankTotal] = useState(0);
+  const [isBonus, setIsBonus] = useState(true);
 
   const [addPayment, paramsAddPayment] = useAddPaymentsOrder();
   const [getPayments, { data, loading }] = useGetPayments();
   const [confirmPayment, paramsConfirmPayment] = useConfirmPaymentOrder();
   const [updateOrder, paramsUpdateOrder] = useUpdateOrder();
+  const [getCoupon, paramsGetCoupon] = useGetCoupon();
 
   const [form] = useForm();
 
@@ -85,9 +89,9 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
   const totalPaid = orderData?.summary?.totalPaid || 0;
   const balance = total - totalPaid;
   const change = totalPaid - total;
-  const couponId = data?.payments.docs.filter((payment) => payment?.name === 'Bono');
-  const bankId = data?.payments.docs.filter((payment) => payment?.name === 'Bancolombia');
-  const cashId = data?.payments.docs.filter((payment) => payment?.name === 'Efectivo');
+  const couponId = data?.payments?.docs.filter((payment) => payment?.name === 'Bono');
+  const bankId = data?.payments?.docs.filter((payment) => payment?.name === 'Bancolombia');
+  const cashId = data?.payments?.docs.filter((payment) => payment?.name === 'Efectivo');
 
   /**
    * @description funcion usada para identificar el medio de pago que se esta editando
@@ -265,6 +269,47 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
     }
   };
 
+  const onAddCoupon = async () => {
+    const values = await form.validateFields();
+    try {
+      const response = await getCoupon({
+        variables: {
+          input: {
+            code: values?.code,
+          },
+        },
+      });
+      if (response?.data?.coupon) {
+        if (moment().isAfter(response?.data?.coupon?.expiration)) {
+          showError('El bono se encuentra vencido');
+        } else if (response?.data?.coupon?.status === StatusCoupon.Redeemed) {
+          showError('El bono ya se redimió');
+        } else if (response?.data?.coupon?.status === StatusCoupon.Inactive) {
+          showError('El bono se encuentra inactivo');
+        } else {
+          const payment: PaymentOrder = {
+            action: ActionPaymentsOrder.Update,
+            total: response?.data?.coupon?.value || 0,
+            createdAt: orderData?.createdAt,
+            updatedAt: orderData?.updatedAt,
+            status: StatusOrderDetail.New,
+            code: response?.data?.coupon?.code,
+            payment: {
+              _id: values.paymentId || '',
+              name: 'Bono',
+              type: TypePayment.Bonus,
+            },
+          };
+          setAddPayments([...addPayments, payment]);
+          form.resetFields();
+          setVisiblePayment(false);
+        }
+      }
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
   /**
    * @description funcion usada para guardar los detalles de los pagos en el estado
    */
@@ -335,6 +380,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
       action: ActionPaymentsOrder.Delete,
       paymentId: paymentId,
       total: 1,
+      code: 'a',
     };
     for (let index = 0; index < arrComparison?.length; index++) {
       const newPayments = addPayments.filter((pay) => pay?.payment?._id !== paymentId);
@@ -416,11 +462,20 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
    * @description funcion usada para agregar los medios de pago al pedido
    */
   const createNewPaymentMethod = async () => {
-    const values = addPayments.map((i) => ({
-      action: ActionPaymentsOrder.Create,
-      paymentId: i.payment._id,
-      total: i.total,
-    }));
+    const bonoId = '629fc27ee4251f089ecd275e';
+
+    const values = addPayments.map((i) => {
+      if (i.payment._id === bonoId) {
+        return {
+          action: ActionPaymentsOrder.Create,
+          paymentId: i.payment._id,
+          total: i.total,
+          code: i.code,
+        };
+      } else {
+        return { action: ActionPaymentsOrder.Create, paymentId: i.payment._id, total: i.total };
+      }
+    });
     try {
       if (orderData.payments) {
         for (let index = 0; index < addPayments.length; index++) {
@@ -440,6 +495,8 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
             });
             if (response?.data) {
               alertSuccess('Pago agregado correctamente');
+              form.resetFields();
+              setVisiblePayment(false);
             }
           }
         }
@@ -504,8 +561,8 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
     if (orderData?.payments) {
       for (let index = 0; index < orderData?.payments?.length; index++) {
         if (
-          orderData?.payments[index].status === StatusOrderDetail.Confirmed &&
-          orderData.payments[index].payment.type !== TypePayment.Cash
+          orderData?.payments[index]?.status === StatusOrderDetail.Confirmed &&
+          orderData?.payments[index]?.payment?.type !== TypePayment.Cash
         ) {
           countConfirmed++;
         }
@@ -546,19 +603,27 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
     if (orderData !== undefined) {
       setAddPayments(
         orderData?.payments?.map((i) => ({
-          total: i.total,
-          updatedAt: i.updatedAt,
-          createdAt: i.createdAt,
-          status: i.status,
+          total: i?.total,
+          updatedAt: i?.updatedAt,
+          createdAt: i?.createdAt,
+          status: i?.status,
           payment: {
-            _id: i.payment._id,
-            name: i.payment.name,
-            type: i.payment.type,
+            _id: i?.payment?._id,
+            name: i?.payment?.name,
+            type: i?.payment?.type,
           },
         })),
       );
     }
   }, [orderData]);
+
+  useEffect(() => {
+    if (addPayments.find((payment) => payment.payment._id === '629fc27ee4251f089ecd275e')) {
+      setIsBonus(false);
+    } else {
+      setIsBonus(true);
+    }
+  }, [addPayments]);
 
   const column: ColumnsType<PaymentOrder> = [
     {
@@ -593,7 +658,9 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
             (payment?.payment?.type === TypePayment.Bank && (
               <BankOutlined style={styles.colorPrimary} />
             )) ||
-            payment?.payment?.type === TypePayment.Bonus ||
+            (payment?.payment?.type === TypePayment.Bonus && (
+              <TagOutlined style={styles.colorPrimary} />
+            )) ||
             (payment?.payment?.type === TypePayment.Credit && (
               <TagOutlined style={styles.colorPrimary} />
             ))}
@@ -687,17 +754,17 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
               <Tooltip title="Reversar Pago">
                 <Button
                   disabled={
-                    (tabKey === '4' && detail.payment.type !== TypePayment.Cash) ||
-                    (tabKey === '1' && detail.payment.type === TypePayment.Cash) ||
+                    (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                    (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
                     detail.status === StatusOrderDetail.New ||
                     orderData?.statusWeb === StatusWeb.Sent ||
                     orderData?.status === StatusOrder.Closed ||
                     orderData?.statusWeb === StatusWeb.Cancelled
                   }
                   loading={
-                    paramsAddPayment.loading ||
-                    paramsConfirmPayment.loading ||
-                    paramsUpdateOrder.loading ||
+                    paramsAddPayment?.loading ||
+                    paramsConfirmPayment?.loading ||
+                    paramsUpdateOrder?.loading ||
                     loading
                   }
                   style={styles.inputBorder}
@@ -709,8 +776,8 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
             <Tooltip title="Confirmar pago">
               <Button
                 disabled={
-                  (tabKey === '4' && detail.payment.type !== TypePayment.Cash) ||
-                  (tabKey === '1' && detail.payment.type === TypePayment.Cash) ||
+                  (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                  (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
                   detail?.status === StatusOrderDetail.Confirmed ||
                   balance > 0 ||
                   orderData?.statusWeb === StatusWeb.Sent ||
@@ -718,9 +785,9 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                   orderData?.statusWeb === StatusWeb.Cancelled
                 }
                 loading={
-                  paramsAddPayment.loading ||
-                  paramsConfirmPayment.loading ||
-                  paramsUpdateOrder.loading ||
+                  paramsAddPayment?.loading ||
+                  paramsConfirmPayment?.loading ||
+                  paramsUpdateOrder?.loading ||
                   loading
                 }
                 onClick={() => confirmPaymentOrder(detail?.payment?._id)}
@@ -729,33 +796,35 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                 style={styles.inputBorder}
               />
             </Tooltip>
-            <Tooltip title={editable ? 'Guardar Valor' : 'Editar Valor'} placement="topLeft">
-              <Button
-                disabled={
-                  (tabKey === '4' && detail.payment.type !== TypePayment.Cash) ||
-                  (tabKey === '1' && detail.payment.type === TypePayment.Cash) ||
-                  detail.status === StatusOrderDetail.Confirmed ||
-                  orderData?.statusWeb === StatusWeb.Sent ||
-                  orderData?.status === StatusOrder.Closed ||
-                  orderData?.statusWeb === StatusWeb.Cancelled
-                }
-                loading={
-                  paramsAddPayment.loading ||
-                  paramsConfirmPayment.loading ||
-                  paramsUpdateOrder.loading ||
-                  loading
-                }
-                onClick={editable ? () => updatePayment() : () => edit(detail)}
-                type="primary"
-                ghost
-                icon={editable ? <SaveOutlined /> : <EditOutlined />}
-              />
-            </Tooltip>
+            {detail?.payment?._id !== '629fc27ee4251f089ecd275e' && (
+              <Tooltip title={editable ? 'Guardar Valor' : 'Editar Valor'} placement="topLeft">
+                <Button
+                  disabled={
+                    (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                    (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
+                    detail?.status === StatusOrderDetail.Confirmed ||
+                    orderData?.statusWeb === StatusWeb.Sent ||
+                    orderData?.status === StatusOrder.Closed ||
+                    orderData?.statusWeb === StatusWeb.Cancelled
+                  }
+                  loading={
+                    paramsAddPayment?.loading ||
+                    paramsConfirmPayment?.loading ||
+                    paramsUpdateOrder?.loading ||
+                    loading
+                  }
+                  onClick={editable ? () => updatePayment() : () => edit(detail)}
+                  type="primary"
+                  ghost
+                  icon={editable ? <SaveOutlined /> : <EditOutlined />}
+                />
+              </Tooltip>
+            )}
             <Tooltip title="Eliminar">
               <Button
                 disabled={
-                  (tabKey === '4' && detail.payment.type !== TypePayment.Cash) ||
-                  detail.status === StatusOrderDetail.Confirmed ||
+                  (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                  detail?.status === StatusOrderDetail.Confirmed ||
                   orderData?.statusWeb === StatusWeb.Sent ||
                   orderData?.status === StatusOrder.Closed ||
                   orderData?.statusWeb === StatusWeb.Cancelled
@@ -763,9 +832,9 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                 danger
                 type="primary"
                 loading={
-                  paramsAddPayment.loading ||
-                  paramsConfirmPayment.loading ||
-                  paramsUpdateOrder.loading ||
+                  paramsAddPayment?.loading ||
+                  paramsConfirmPayment?.loading ||
+                  paramsUpdateOrder?.loading ||
                   loading
                 }
                 onClick={() => deleteDetailPayment(addPayments, detail?.payment?._id)}
@@ -788,10 +857,11 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                 <Button
                   style={styles.inputBorder}
                   loading={
-                    paramsAddPayment.loading ||
-                    paramsConfirmPayment.loading ||
-                    paramsUpdateOrder.loading ||
-                    loading
+                    paramsAddPayment?.loading ||
+                    paramsConfirmPayment?.loading ||
+                    paramsUpdateOrder?.loading ||
+                    loading ||
+                    paramsGetCoupon?.loading
                   }
                   disabled={
                     orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
@@ -820,10 +890,11 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                     orderData?.statusWeb === StatusWeb.Cancelled
                   }
                   loading={
-                    paramsAddPayment.loading ||
-                    paramsConfirmPayment.loading ||
-                    paramsUpdateOrder.loading ||
-                    loading
+                    paramsAddPayment?.loading ||
+                    paramsConfirmPayment?.loading ||
+                    paramsUpdateOrder?.loading ||
+                    loading ||
+                    paramsGetCoupon?.loading
                   }
                   style={styles.inputBorder}
                   onClick={() => setVisiblePayment(visiblePayment ? false : true)}
@@ -848,10 +919,11 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                   }
                   onClick={() => onPayOrder()}
                   loading={
-                    paramsAddPayment.loading ||
-                    paramsConfirmPayment.loading ||
-                    paramsUpdateOrder.loading ||
-                    loading
+                    paramsAddPayment?.loading ||
+                    paramsConfirmPayment?.loading ||
+                    paramsUpdateOrder?.loading ||
+                    loading ||
+                    paramsGetCoupon?.loading
                   }
                 >
                   Confirmar Medio de Pago
@@ -868,7 +940,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                   rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
                 >
                   <SelectPayment
-                    bonus={true}
+                    bonus={isBonus}
                     credit={creditData !== null}
                     onChange={(e) => onSelectPayment(e)}
                     disabled={false}
@@ -898,10 +970,11 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                               orderData?.statusWeb === StatusWeb.Cancelled
                             }
                             loading={
-                              paramsAddPayment.loading ||
-                              paramsConfirmPayment.loading ||
-                              paramsUpdateOrder.loading ||
-                              loading
+                              paramsAddPayment?.loading ||
+                              paramsConfirmPayment?.loading ||
+                              paramsUpdateOrder?.loading ||
+                              loading ||
+                              paramsGetCoupon?.loading
                             }
                             onClick={() => onAddPayment()}
                           />
@@ -912,15 +985,20 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                 )}
                 {isCoupon && (
                   <>
-                    <FormItem label="Código" name="code">
+                    <FormItem
+                      label="Código"
+                      name="code"
+                      rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
+                    >
                       <Input
                         addonAfter={
                           <Button
                             loading={
-                              paramsAddPayment.loading ||
-                              paramsConfirmPayment.loading ||
-                              paramsUpdateOrder.loading ||
-                              loading
+                              paramsAddPayment?.loading ||
+                              paramsConfirmPayment?.loading ||
+                              paramsUpdateOrder?.loading ||
+                              loading ||
+                              paramsGetCoupon?.loading
                             }
                             disabled={
                               orderData?.statusWeb === StatusWeb.Sent ||
@@ -929,7 +1007,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                             }
                             type="primary"
                             icon={<PlusOutlined />}
-                            onClick={() => onAddPayment()}
+                            onClick={() => onAddCoupon()}
                           />
                         }
                       />
