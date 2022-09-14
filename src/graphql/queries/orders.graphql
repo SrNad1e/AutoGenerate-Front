@@ -44,6 +44,9 @@ query Orders($input: FiltersOrdersInput!) {
         firstName
         lastName
         phone
+        customerType {
+          name
+        }
       }
       shop {
         name

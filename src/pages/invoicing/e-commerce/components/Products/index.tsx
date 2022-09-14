@@ -66,6 +66,7 @@ const Products = ({ orderdata }: Props) => {
   const [productsConfirm, setProductsConfirm] = useState<any[]>([]);
 
   const [form] = useForm();
+  const clientType = orderdata?.customer?.customerType?.name;
 
   const [addProduct, paramsAddProduct] = useAddProductsOrder();
   const [confirmProductQuantity, paramsConfirmProductQuantity] = useConfirmProductOrder();
@@ -544,12 +545,13 @@ const Products = ({ orderdata }: Props) => {
       dataIndex: 'details',
       align: 'center',
       width: 120,
-      render: (_, details) => numeral(details?.price).format('$ 0,0'),
+      render: (_, details) => numeral(details?.product?.reference?.price).format('$ 0,0'),
     },
     {
-      title: 'Precio Distribuidor',
+      title: `Precio ${clientType}`,
       dataIndex: 'details',
       width: 120,
+      align: 'center',
       render: (_, detail) =>
         numeral(detail?.product?.reference?.price - detail?.discount).format('$ 0,0'),
     },

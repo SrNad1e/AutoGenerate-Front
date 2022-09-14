@@ -255,7 +255,7 @@ const EcommerceList = () => {
             <Text>
               {customer?.firstName} {customer?.lastName}{' '}
               <Tag title="Tipo de cliente" style={styles.tagStyle}>
-                {'Mayorista'}
+                {customer?.customerType?.name}
               </Tag>
             </Text>
             <Text title="Documento" style={styles.textStyle}>
@@ -305,7 +305,7 @@ const EcommerceList = () => {
     {
       title: <Text>{<BankOutlined />} Formas de Pago</Text>,
       dataIndex: 'payments',
-      width: 180,
+      width: 200,
       align: 'left',
       render: (payments: PaymentOrder[]) => (
         <>
@@ -333,6 +333,7 @@ const EcommerceList = () => {
       dataIndex: 'createdAt',
       sorter: true,
       showSorterTooltip: false,
+      width: 120,
       render: (createdAt: string) => (
         <>
           {moment(createdAt).format(FORMAT_DATE)}
