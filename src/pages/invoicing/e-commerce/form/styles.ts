@@ -23,7 +23,7 @@ export default {
     marginTop: 15,
   },
   affixStyle: {
-    width: 655,
+    width: 'auto',
     borderRadius: 10,
     borderColor: '#dc9575',
   },

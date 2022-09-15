@@ -5,6 +5,7 @@ import {
   CloseCircleOutlined,
   HomeOutlined,
   IdcardOutlined,
+  LikeOutlined,
   PhoneOutlined,
   PrinterOutlined,
   SendOutlined,
@@ -233,6 +234,24 @@ const EcommerceForm = () => {
           id: paramsGetOrder.data?.orderId?.order?._id || '',
           input: {
             statusWeb: StatusWeb.Sent,
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
+  };
+
+  /**
+   * @description funcion usada para cambiar el estado del pedido a enviado
+   */
+  const onConfirmDelivery = () => {
+    try {
+      updateOrder({
+        variables: {
+          id: paramsGetOrder.data?.orderId?.order?._id || '',
+          input: {
+            statusWeb: StatusWeb.Delivered,
           },
         },
       });
@@ -482,6 +501,22 @@ const EcommerceForm = () => {
                   onClick={() => onSentOrder()}
                 >
                   Enviar Pedido
+                </Button>
+                <Button
+                  icon={<LikeOutlined />}
+                  type="primary"
+                  style={styles.buttonR}
+                  loading={paramsGetOrder?.loading || paramsUpdateOrder?.loading}
+                  disabled={
+                    paramsGetOrder.data?.orderId?.order?.conveyorOrder === null ||
+                    paramsGetOrder?.data?.orderId?.order?.statusWeb !== StatusWeb.Sent ||
+                    balance > 0 ||
+                    disabledSentButton() ||
+                    disabledButton()
+                  }
+                  onClick={() => onConfirmDelivery()}
+                >
+                  Confirmar Entrega
                 </Button>
               </Space>
             </Card>
