@@ -79,8 +79,6 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
         variables: {
           input: {
             ...values,
-            warehouseDestinationId: transfer?.warehouseDestination?._id,
-            status: StatusStockRequest.Pending,
           },
         },
       });
@@ -89,6 +87,12 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
     }
   };
 
+  const onSearchPendings = () => {
+    onSearch({
+      warehouseDestinationId: transfer?.warehouseDestination?._id,
+      status: StatusStockRequest.Pending,
+    });
+  };
   /**
    * @description selecciona las solicitudes y las almacena en un array
    */
@@ -109,11 +113,13 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
 
     if (!values?.all) {
       filters.status = StatusStockRequest.Pending;
+      filters.warehouseDestinationId = transfer?.warehouseDestination?._id;
     }
 
     delete values.all;
 
     if (values?.warehouseId) {
+      filters.warehouseDestinationId = values?.warehouseId;
       delete values.warehouseId;
     }
 
@@ -134,7 +140,7 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
   };
 
   useEffect(() => {
-    onSearch();
+    onSearchPendings();
   }, [visible]);
 
   const columns: ColumnsType<StockRequest> = [
