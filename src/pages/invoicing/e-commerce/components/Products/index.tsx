@@ -66,7 +66,6 @@ const Products = ({ orderdata }: Props) => {
   const [productsConfirm, setProductsConfirm] = useState<any[]>([]);
 
   const [form] = useForm();
-  const clientType = orderdata?.customer?.customerType?.name;
 
   const [addProduct, paramsAddProduct] = useAddProductsOrder();
   const [confirmProductQuantity, paramsConfirmProductQuantity] = useConfirmProductOrder();
@@ -548,7 +547,7 @@ const Products = ({ orderdata }: Props) => {
       render: (_, details) => numeral(details?.product?.reference?.price).format('$ 0,0'),
     },
     {
-      title: `Precio ${clientType}`,
+      title: `Precio Con Descuento`,
       dataIndex: 'details',
       width: 120,
       align: 'center',
