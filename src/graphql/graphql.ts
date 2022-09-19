@@ -11,7 +11,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -1755,6 +1754,8 @@ export type FiltersCustomersInput = {
   active?: InputMaybe<Scalars['Boolean']>;
   /** comodin para la busque de documento, nombre, apellido, teléfono, correo,  */
   dato?: InputMaybe<Scalars['String']>;
+  /** comodin para la busque de documento, nombre, apellido, teléfono, correo,  */
+  _id?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
