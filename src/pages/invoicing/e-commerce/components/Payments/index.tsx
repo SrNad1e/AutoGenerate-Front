@@ -915,7 +915,9 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                     orderData?.statusWeb === StatusWeb.Sent ||
                     orderData?.status === StatusOrder.Closed ||
                     orderData?.statusWeb === StatusWeb.Cancelled ||
-                    orderData?.statusWeb !== StatusWeb.Pendding
+                    orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
+                    orderData?.statusWeb === StatusWeb.Preparing ||
+                    orderData?.statusWeb === StatusWeb.Delivered
                   }
                   onClick={() => onPayOrder()}
                   loading={
