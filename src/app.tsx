@@ -28,7 +28,7 @@ export async function getInitialState(): Promise<{
     try {
       const { data, error } = await client.query({ query: CurrentUserDocument });
       if (error) {
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         history.push(loginPath);
       }
       return data.currentUser;
