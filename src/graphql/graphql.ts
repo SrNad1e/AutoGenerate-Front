@@ -11,6 +11,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -1459,6 +1460,7 @@ export enum DocumentTypesRule {
   Categories = 'CATEGORIES',
   Company = 'COMPANY',
   Customertypes = 'CUSTOMERTYPES',
+  Shops = 'SHOPS',
 }
 
 /** Egreso de dinero */
@@ -1750,12 +1752,12 @@ export type FiltersCustomerTypesInput = {
 
 /** Filtros de listado de clientes */
 export type FiltersCustomersInput = {
+  /** Identificdor de un usuario */
+  _id?: InputMaybe<Scalars['String']>;
   /** Si el cliente se encuentra activo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** comodin para la busque de documento, nombre, apellido, teléfono, correo,  */
   dato?: InputMaybe<Scalars['String']>;
-  /** comodin para la busque de documento, nombre, apellido, teléfono, correo,  */
-  _id?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
