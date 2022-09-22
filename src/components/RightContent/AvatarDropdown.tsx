@@ -20,7 +20,7 @@ const { Text } = Typography;
 const loginOut = async () => {
   const { query = {}, pathname } = history.location;
   const { redirect } = query;
-  localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
 
   // Note: There may be security issues, please note
   if (window.location.pathname !== '/user/login' && !redirect) {
