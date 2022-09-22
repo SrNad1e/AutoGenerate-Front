@@ -1,6 +1,9 @@
 import { useLazyQuery, useMutation } from '@apollo/client';
-
-import type { StockTransfer } from '@/graphql/graphql';
+import type { StockTransfer, StockTransferError } from '@/graphql/graphql';
+import {
+  StockTransfersErrorDocument,
+  VerifiedProducttStockTransferDocument,
+} from '@/graphql/graphql';
 import {
   ConfirmProductsStockTransferDocument,
   CreateStockTransferDocument,
@@ -43,6 +46,7 @@ export const useUpdateTransfer = () => {
     },
   });
 };
+
 export const useConfirmProductsTransfer = () => {
   return useMutation(ConfirmProductsStockTransferDocument, {
     update: (store, response) => {
@@ -54,6 +58,31 @@ export const useConfirmProductsTransfer = () => {
           stockTransferId: {
             ...dataInStore?.stockTransferId,
             ...response.data?.confirmProductsStockTransfer,
+          },
+        },
+      });
+    },
+  });
+};
+
+export const useGetTransfersError = () => {
+  return useLazyQuery(StockTransfersErrorDocument, {
+    fetchPolicy: 'cache-first',
+  });
+};
+
+export const useVerifiedProductTransfersError = () => {
+  return useMutation(VerifiedProducttStockTransferDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockTransfersError(existingTransfers = []) {
+            return existingTransfers?.docs?.map((transfer: StockTransferError) => {
+              if (transfer?._id === data?.verifiedProductStockTransfer?._id) {
+                return data?.verifiedProductStockTransfer;
+              }
+              return transfer;
+            });
           },
         },
       });

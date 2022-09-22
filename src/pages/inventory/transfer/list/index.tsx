@@ -96,7 +96,7 @@ const TransferList = () => {
   });
 
   const {
-    transfer: { canPrint, canConfirm },
+    transfer: { canPrint, canConfirm, canVerified },
   } = useAccess();
 
   const { initialState } = useModel('@@initialState');
@@ -493,6 +493,7 @@ const TransferList = () => {
               type="primary"
               shape="round"
               loading={loading}
+              disabled={!canVerified}
               onClick={() => setVisibleInconsistencies(true)}
             >
               Inconsistencias

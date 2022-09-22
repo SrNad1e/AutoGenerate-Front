@@ -1,4 +1,4 @@
-import SelectWarehouses from '@/components/SelectWarehouses';
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   CalendarOutlined,
   ClearOutlined,
@@ -8,172 +8,168 @@ import {
   MoreOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import { Button, Col, Form, Modal, Row, Space, Table, Typography } from 'antd';
-import type { ColumnsType } from 'antd/lib/table';
+import { Button, Col, Form, Modal, Row, Space, Switch, Table, Typography } from 'antd';
+import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import { useGetTransfersError } from '@/hooks/transfer.hooks';
+import type {
+  DetailTransferError,
+  FiltersStockTransfersErrorInput,
+  StockTransfer,
+  StockTransferError,
+} from '@/graphql/graphql';
+
 import TransferProducts from './TransferProducts';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
-
-export type Product = {
-  reference: string;
-  code: number;
-  color: string;
-  pendingQuantity: number;
-  size: string;
-};
-
-export type data = {
-  number: number;
-  warehouseOrigin: string;
-  warehouseDestination: string;
-  updatedAt: string;
-  _id: number;
-  products: Product[];
-};
 
 type Props = {
   visible: boolean;
   onCancel: () => void;
 };
 
+type FormValues = {
+  verifield: boolean;
+};
+
 const Inconsistencies = ({ onCancel, visible }: Props) => {
   const [visibleProducts, setVisibleProducts] = useState(false);
-  const [dataTransfer, setDataTransfer] = useState([]);
+  const [dataTransfer, setDataTransfer] = useState<DetailTransferError>();
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
+  const [getTransfersError, paramsGetTransfersError] = useGetTransfersError();
+
   const [form] = Form.useForm();
 
-  const data = [
-    {
-      number: 1,
-      warehouseOrigin: 'Punto de Fabrica',
-      warehouseDestination: 'Belen',
-      updatedAt: '08/04/2022 12:05:05',
-      _id: 2,
-      products: [
-        {
-          reference: 'Maravilla',
-          code: 290421,
-          color: 'Amarillo',
-          pendingQuantity: 10,
-          size: 'L',
-        },
-        {
-          reference: 'Vivi BR',
-          code: 290421,
-          color: 'Negro',
-          pendingQuantity: 10,
-          size: 'L',
-        },
-      ],
-    },
-    {
-      number: 2,
-      warehouseOrigin: 'Mayoristas',
-      warehouseDestination: 'Salvador',
-      updatedAt: '09/05/2022 01:05:05',
-      _id: 3,
-      products: [
-        {
-          reference: 'Maravilla',
-          code: 290421,
-          color: 'Amarillo',
-          pendingQuantity: 10,
-          size: 'L',
-        },
-        {
-          reference: 'Vivi BR',
-          code: 290421,
-          color: 'Negro',
-          pendingQuantity: 10,
-          size: 'L',
-        },
-      ],
-    },
-    {
-      number: 3,
-      warehouseOrigin: 'Cristo Rey',
-      warehouseDestination: 'Belen',
-      updatedAt: '10/06/2022 02:05:05',
-      _id: 4,
-      products: [
-        {
-          reference: 'Maravilla',
-          code: 290421,
-          color: 'Amarillo',
-          pendingQuantity: 10,
-          size: 'L',
-        },
-        {
-          reference: 'Vivi BR',
-          code: 290421,
-          color: 'Negro',
-          pendingQuantity: 10,
-          size: 'L',
-        },
-      ],
-    },
-    {
-      number: 4,
-      warehouseOrigin: 'Manrique',
-      warehouseDestination: 'Castilla',
-      updatedAt: '11/07/2022 03:05:05',
-      _id: 5,
-      products: [
-        {
-          reference: 'Maravilla',
-          code: 290421,
-          color: 'Amarillo',
-          pendingQuantity: 10,
-          size: 'L',
-        },
-        {
-          reference: 'Vivi BR',
-          code: 290421,
-          color: 'Negro',
-          pendingQuantity: 10,
-          size: 'L',
-        },
-      ],
-    },
-  ];
-
-  const onOpenProducts = (dataT: Product[]) => {
+  /**
+   * @description funcion usada para almacenar los datos de la transferencia erronea en el estado y abrir el modal de productos
+   * @param dataT datos de la trasnferencia con error
+   */
+  const onOpenProducts = (dataT: StockTransferError) => {
     setDataTransfer(dataT);
     setVisibleProducts(true);
   };
 
-  useEffect(() => {
-    console.log(dataTransfer);
-  }, [dataTransfer]);
+  /**
+   * @description funcion usada por los hook para mostrar los errores
+   * @param message mensaje de error a mostrar
+   */
+  const messageError = (message: string) => {
+    setPropsAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
 
-  const columns: ColumnsType<data> = [
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  /**
+   * @description se encarga de ejecutar la funcion para obtener los traslados
+   * @param params filtros necesarios para la busqueda
+   */
+  const onSearch = (params?: FiltersStockTransfersErrorInput) => {
+    try {
+      getTransfersError({
+        variables: {
+          input: {
+            ...params,
+            sort: { updatedAt: -1 },
+          },
+        },
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de realizar el proceso de busqueda con los filtros
+   * @param props filtros seleccionados en el formulario
+   */
+  const onFinish = (props: FormValues, pageCurrent?: number) => {
+    const { verifield } = props;
+    try {
+      const params: FiltersStockTransfersErrorInput = {
+        page: pageCurrent || 1,
+        limit: 10,
+        verifield,
+      };
+
+      onSearch(params);
+      form.setFieldsValue(props);
+    } catch (e: any) {
+      messageError(e?.message);
+    }
+  };
+
+  /**
+   * @descripcion controla el onchange de la tabla
+   * @param paginationLocal eventos de la paginacion
+   */
+  const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
+    const { current } = paginationLocal;
+    const params = form.getFieldsValue();
+
+    onFinish(params, current);
+  };
+
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
+  const onClear = () => {
+    onSearch({});
+    form.resetFields();
+  };
+
+  useEffect(() => {
+    onSearch();
+  }, []);
+
+  const columns: ColumnsType<StockTransferError> = [
     {
       title: (
         <Text style={{ fontSize: 20 }}>
           <FieldNumberOutlined />
         </Text>
       ),
-      dataIndex: 'number',
-      sorter: true,
+      dataIndex: 'stockTransfer',
       showSorterTooltip: false,
       align: 'center',
+      render: (stockTransfer: StockTransfer) => stockTransfer?.number,
     },
     {
       title: <Text>{<DropboxOutlined />} Origen</Text>,
-      dataIndex: 'warehouseOrigin',
+      dataIndex: 'stockTransfer',
       align: 'center',
+      render: (stockTransfer: StockTransfer) => stockTransfer?.warehouseOrigin?.name,
     },
     {
       title: <Text>{<DropboxOutlined />} Destino</Text>,
-      dataIndex: 'warehouseDestination',
+      dataIndex: 'stockTransfer',
       align: 'center',
+      render: (stockTransfer: StockTransfer) => stockTransfer?.warehouseDestination?.name,
     },
     {
       title: <Text>{<CalendarOutlined />} Ultima Actualización</Text>,
       dataIndex: 'updatedAt',
-      sorter: true,
       showSorterTooltip: false,
       align: 'center',
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
@@ -187,8 +183,9 @@ const Inconsistencies = ({ onCancel, visible }: Props) => {
         return (
           <Button
             icon={<EyeOutlined />}
-            onClick={() => onOpenProducts(transfer.products)}
+            onClick={() => onOpenProducts(transfer)}
             type="primary"
+            loading={paramsGetTransfersError?.loading}
             style={{ borderRadius: 5 }}
           >
             Ver
@@ -206,16 +203,20 @@ const Inconsistencies = ({ onCancel, visible }: Props) => {
       destroyOnClose
       width={1040}
       footer={
-        <Button onClick={onCancel} style={{ borderRadius: 5 }}>
+        <Button
+          onClick={onCancel}
+          style={{ borderRadius: 5 }}
+          loading={paramsGetTransfersError?.loading}
+        >
           Cerrar
         </Button>
       }
     >
-      <Form form={form}>
+      <Form form={form} onFinish={onFinish}>
         <Row gutter={20}>
           <Col>
-            <FormItem label="Bodega" name="warehouse">
-              <SelectWarehouses disabled={false} />
+            <FormItem label="Verificado" name="verifield">
+              <Switch />
             </FormItem>
           </Col>
           <Col>
@@ -226,10 +227,16 @@ const Inconsistencies = ({ onCancel, visible }: Props) => {
                   type="primary"
                   htmlType="submit"
                   style={{ borderRadius: 5 }}
+                  loading={paramsGetTransfersError?.loading}
                 >
                   Buscar
                 </Button>
-                <Button icon={<ClearOutlined />} style={{ borderRadius: 5 }}>
+                <Button
+                  icon={<ClearOutlined />}
+                  loading={paramsGetTransfersError?.loading}
+                  style={{ borderRadius: 5 }}
+                  onClick={() => onClear()}
+                >
                   Limpiar
                 </Button>
               </Space>
@@ -239,21 +246,23 @@ const Inconsistencies = ({ onCancel, visible }: Props) => {
       </Form>
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={paramsGetTransfersError?.data?.stockTransfersError?.docs}
         pagination={{
-          current: 1,
-          total: 100,
+          current: paramsGetTransfersError?.data?.stockTransfersError?.page,
+          total: paramsGetTransfersError?.data?.stockTransfersError?.totalDocs,
           showSizeChanger: false,
         }}
-        onChange={() => {}}
-        loading={false}
+        onChange={handleChangeTable}
+        loading={paramsGetTransfersError?.loading}
         scroll={{ x: 'auto' }}
       />
       <TransferProducts
+        loading={paramsGetTransfersError.loading}
         data={dataTransfer}
         visible={visibleProducts}
         onCancel={() => setVisibleProducts(false)}
       />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </Modal>
   );
 };
