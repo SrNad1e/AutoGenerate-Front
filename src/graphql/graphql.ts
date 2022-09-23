@@ -1404,6 +1404,23 @@ export type DetailTransfer = {
   updatedAt: Scalars['DateTime'];
 };
 
+/** Detalle del traslado de productos */
+export type DetailTransferError = {
+  __typename?: 'DetailTransferError';
+  /** Producto del detalle */
+  product: Product;
+  /** Cantidad del productos en el traslado */
+  quantity: Scalars['Float'];
+  /** Motivo del proceso */
+  reason?: Maybe<Scalars['String']>;
+  /** Estado del producto */
+  status: StatusDetailTransferError;
+  /** Fecha de actualización del traslado */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que valida el error */
+  user?: Maybe<User>;
+};
+
 /** Producto para confirmar en el pedido */
 export type DetailsConfirm = {
   /** Producto a confirmar */
@@ -2166,6 +2183,18 @@ export type FiltersStockRequestsInput = {
 };
 
 /** Filtros para el listado de traslados de productos */
+export type FiltersStockTransfersErrorInput = {
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortStockTransferError>;
+  /** Si el traslado esta o no verificado por completo */
+  verifield?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** Filtros para el listado de traslados de productos */
 export type FiltersStockTransfersInput = {
   /** Fecha final para la busqueda */
   dateFinal?: InputMaybe<Scalars['String']>;
@@ -2445,6 +2474,8 @@ export type Mutation = {
   updateUser: User;
   /** Actualiza una bodega */
   updateWarehouse: Warehouse;
+  /** Verifica un producto de un traslado en error */
+  verifiedProductStockTransfer: StockTransferError;
 };
 
 export type MutationAddPaymentsOrderArgs = {
@@ -2762,6 +2793,10 @@ export type MutationUpdateWarehouseArgs = {
   updateWarehouseInput: UpdateWarehouseInput;
 };
 
+export type MutationVerifiedProductStockTransferArgs = {
+  verifiedProductTransferErrorInput: VerifiedProductTransferErrorInput;
+};
+
 /** Opción del permiso */
 export type OptionPermission = {
   __typename?: 'OptionPermission';
@@ -2987,6 +3022,7 @@ export enum Permissions {
   CreateTreasuryExpense = 'CREATE_TREASURY_EXPENSE',
   CreateTreasuryPayment = 'CREATE_TREASURY_PAYMENT',
   CreateTreasuryReceipt = 'CREATE_TREASURY_RECEIPT',
+  InventoryTransfersVerified = 'INVENTORY_TRANSFERS_VERIFIED',
   PrintCrmCoupon = 'PRINT_CRM_COUPON',
   PrintInventoryAdjustment = 'PRINT_INVENTORY_ADJUSTMENT',
   PrintInventoryInput = 'PRINT_INVENTORY_INPUT',
@@ -3227,6 +3263,8 @@ export type Query = {
   stockTransferId: StockTransfer;
   /** Obtiene listado de traslados de productos entre bodegas */
   stockTransfers: ResponseStockTransfers;
+  /** Obtiene listado de traslados en error de productos entre bodegas */
+  stockTransfersError: ResponseStockTransfersError;
   /** Consulta todos los usuarios con base a los filtros */
   users: ResponseUsers;
   /** Se encarga de traer bodega por identificador */
@@ -3439,6 +3477,10 @@ export type QueryStockTransferIdArgs = {
 
 export type QueryStockTransfersArgs = {
   filtersStockTransfersInput?: InputMaybe<FiltersStockTransfersInput>;
+};
+
+export type QueryStockTransfersErrorArgs = {
+  filtersStockTransfersErrorInput?: InputMaybe<FiltersStockTransfersErrorInput>;
 };
 
 export type QueryUsersArgs = {
@@ -4442,6 +4484,30 @@ export type ResponseStockTransfers = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de traslados en error de productos */
+export type ResponseStockTransfersError = {
+  __typename?: 'ResponseStockTransfersError';
+  /** Lista de traslados en error */
+  docs: StockTransferError[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Lista de usuarios */
 export type ResponseUsers = {
   __typename?: 'ResponseUsers';
@@ -5046,6 +5112,14 @@ export type SortStockTransfer = {
   warehouseOrigin?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento del traslado de productos */
+export type SortStockTransferError = {
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento de los usuarios */
 export type SortUser = {
   createdAt?: InputMaybe<Scalars['Float']>;
@@ -5080,6 +5154,12 @@ export enum StatusDetailTransfer {
   Confirmed = 'CONFIRMED',
   New = 'NEW',
   Sent = 'SENT',
+}
+
+export enum StatusDetailTransferError {
+  Confirmed = 'CONFIRMED',
+  Missing = 'MISSING',
+  Surplus = 'SURPLUS',
 }
 
 export enum StatusExpense {
@@ -5327,6 +5407,23 @@ export type StockTransfer = {
   warehouseDestination: Warehouse;
   /** Bodega de origen del traslado */
   warehouseOrigin: Warehouse;
+};
+
+/** Errores en traslados de productos */
+export type StockTransferError = {
+  __typename?: 'StockTransferError';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Fecha de creación del traslado */
+  createdAt: Scalars['DateTime'];
+  /** Detalle de los productos que están en error */
+  details: DetailTransferError[];
+  /** Traslado al que está relacionado */
+  stockTransfer: StockTransfer;
+  /** Fecha de actualización del traslado */
+  updatedAt: Scalars['DateTime'];
+  /** Si ya fue verificados todos los errores */
+  verified: Scalars['Boolean'];
 };
 
 /** Resumen de la factura */
@@ -5822,6 +5919,18 @@ export type User = {
   user?: Maybe<User>;
   /** Cuenta de usuario */
   username: Scalars['String'];
+};
+
+/** Datos para verificar los productos */
+export type VerifiedProductTransferErrorInput = {
+  /** Identificador del producto */
+  productId: Scalars['String'];
+  /** Motivo por el cual se verifica el producto */
+  reason: Scalars['String'];
+  /** Proceso a realizar, si se envia al origen true, si se envia al destino false */
+  returnInventory: Scalars['Boolean'];
+  /** Identificador del traslado en error */
+  stockTransferErrorId: Scalars['String'];
 };
 
 /** Modelo de la bodega */
@@ -7280,6 +7389,34 @@ export type ConfirmProductsStockTransferMutation = {
         stock?: { __typename?: 'Stock'; quantity: number }[] | null;
       };
     }[];
+  };
+};
+
+export type VerifiedProducttStockTransferMutationVariables = Exact<{
+  input: VerifiedProductTransferErrorInput;
+}>;
+
+export type VerifiedProducttStockTransferMutation = {
+  __typename?: 'Mutation';
+  verifiedProductStockTransfer: {
+    __typename?: 'StockTransferError';
+    _id: string;
+    createdAt: any;
+    updatedAt: any;
+    verified: boolean;
+    details: {
+      __typename?: 'DetailTransferError';
+      quantity: number;
+      reason?: string | null;
+      status: StatusDetailTransferError;
+      updatedAt: any;
+      product: {
+        __typename?: 'Product';
+        barcode: string;
+        color: { __typename?: 'Color'; name: string };
+      };
+    }[];
+    stockTransfer: { __typename?: 'StockTransfer'; _id: string };
   };
 };
 
@@ -9291,6 +9428,50 @@ export type StockTransferIdQuery = {
     userOrigin: { __typename?: 'User'; _id: string; name: string };
     warehouseDestination: { __typename?: 'Warehouse'; _id: string; name: string };
     warehouseOrigin: { __typename?: 'Warehouse'; _id: string; name: string };
+  };
+};
+
+export type StockTransfersErrorQueryVariables = Exact<{
+  input?: InputMaybe<FiltersStockTransfersErrorInput>;
+}>;
+
+export type StockTransfersErrorQuery = {
+  __typename?: 'Query';
+  stockTransfersError: {
+    __typename?: 'ResponseStockTransfersError';
+    page: number;
+    totalDocs: number;
+    totalPages: number;
+    docs: {
+      __typename?: 'StockTransferError';
+      _id: string;
+      updatedAt: any;
+      createdAt: any;
+      verified: boolean;
+      details: {
+        __typename?: 'DetailTransferError';
+        status: StatusDetailTransferError;
+        quantity: number;
+        reason?: string | null;
+        updatedAt: any;
+        product: {
+          __typename?: 'Product';
+          _id: string;
+          barcode: string;
+          size: { __typename?: 'Size'; value: string };
+          reference: { __typename?: 'Reference'; name: string };
+          color: { __typename?: 'Color'; name: string };
+        };
+      }[];
+      stockTransfer: {
+        __typename?: 'StockTransfer';
+        _id: string;
+        number: number;
+        updatedAt: any;
+        warehouseOrigin: { __typename?: 'Warehouse'; name: string };
+        warehouseDestination: { __typename?: 'Warehouse'; name: string };
+      };
+    }[];
   };
 };
 
@@ -14718,6 +14899,98 @@ export const ConfirmProductsStockTransferDocument = {
 } as unknown as DocumentNode<
   ConfirmProductsStockTransferMutation,
   ConfirmProductsStockTransferMutationVariables
+>;
+export const VerifiedProducttStockTransferDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'verifiedProducttStockTransfer' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'VerifiedProductTransferErrorInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'verifiedProductStockTransfer' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'verifiedProductTransferErrorInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'verified' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'details' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'product' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'color' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'stockTransfer' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  VerifiedProducttStockTransferMutation,
+  VerifiedProducttStockTransferMutationVariables
 >;
 export const LoginDocument = {
   kind: 'Document',
@@ -20872,6 +21145,149 @@ export const StockTransferIdDocument = {
     },
   ],
 } as unknown as DocumentNode<StockTransferIdQuery, StockTransferIdQueryVariables>;
+export const StockTransfersErrorDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'stockTransfersError' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NamedType',
+            name: { kind: 'Name', value: 'FiltersStockTransfersErrorInput' },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'stockTransfersError' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersStockTransfersErrorInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'verified' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'details' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'product' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'size' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'reference' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'color' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'stockTransfer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'warehouseOrigin' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'warehouseDestination' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<StockTransfersErrorQuery, StockTransfersErrorQueryVariables>;
 export const CurrentUserDocument = {
   kind: 'Document',
   definitions: [

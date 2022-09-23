@@ -85,6 +85,9 @@ export default function access(initialState: { currentUser?: User | undefined })
       canConfirm: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === Permissions.ConfirmInventoryTransfer,
       ),
+      canVerified: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.InventoryTransfersVerified,
+      ),
     },
     reference: {
       canEdit: !!currentUser?.role?.permissions.find(
