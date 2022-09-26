@@ -61,6 +61,7 @@ const FormReference = () => {
     type: 'error',
     visible: false,
   });
+  const [numberOfRuns, setNumberOfRuns] = useState(0);
 
   const history = useHistory();
   const { id } = useParams<Partial<{ id: string }>>();
@@ -409,6 +410,28 @@ const FormReference = () => {
       setCombinations((data?.referenceId?.products as Product[]) || []);
     }
   }, [data]);
+
+  const arraySorted: any[] = [];
+
+  const sorterReferences = () => {
+    const colors = combinations.map(({ color }) => color?.name);
+    const result = colors.filter((item, index) => {
+      return colors.indexOf(item) === index;
+    });
+
+    for (let index = 0; index < combinations.length; index++) {
+      const a = combinations.filter((com) => com?.color?.name === result[index]);
+      arraySorted.push(...a);
+      setCombinations(arraySorted);
+    }
+  };
+
+  useEffect(() => {
+    if (numberOfRuns < 3) {
+      sorterReferences();
+    }
+    setNumberOfRuns(numberOfRuns + 1);
+  }, [combinations]);
 
   const columns: ColumnsType<Product> = [
     {

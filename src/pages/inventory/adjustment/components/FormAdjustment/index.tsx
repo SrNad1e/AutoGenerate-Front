@@ -9,6 +9,7 @@ import {
   Col,
   Form,
   InputNumber,
+  Popconfirm,
   Row,
   Space,
   Tag,
@@ -18,6 +19,7 @@ import {
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useModel, useParams } from 'umi';
+import numeral from 'numeral';
 
 import { useCreateAdjustment, useUpdateAdjustment } from '@/hooks/adjustment.hooks';
 import AlertLoading from '@/components/Alerts/AlertLoading';
@@ -112,11 +114,18 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea cancelar el ajuste?',
           type: 'error',
         });
-      } else if (details.length > 0) {
+      } else if (status === StatusStockAdjustment.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar el ajuste?',
+          type: 'warning',
+        });
+      } else if (status === StatusStockAdjustment.Confirmed) {
+        setPropsAlertSave({
+          status,
+          visible: true,
+          message: '¿Está seguro que desea enviar el ajuste?',
           type: 'warning',
         });
       } else {
@@ -397,6 +406,11 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
       render: ({ size }: Product) => size.value,
     },
     {
+      title: 'Costo Unitario',
+      dataIndex: 'product',
+      render: (product: Product) => numeral(product?.reference?.price).format('$ 0,0'),
+    },
+    {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
@@ -430,13 +444,14 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
       align: 'center',
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
+          </Popconfirm>
         </Tooltip>
       ),
     },
@@ -462,7 +477,9 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== ActionDetailAdjustment.Delete)}
+          dataSource={details
+            .filter((detail) => detail?.action !== ActionDetailAdjustment.Delete)
+            .reverse()}
           scroll={{ x: 1000 }}
           pagination={{ size: 'small' }}
         />

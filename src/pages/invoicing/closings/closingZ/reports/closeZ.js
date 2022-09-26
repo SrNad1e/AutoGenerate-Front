@@ -167,7 +167,7 @@ export default class ReportCloseZ extends React.PureComponent {
             </div>
             <div style={classes.title}>
               <div style={classes.row}>
-                <div>Devoluciones</div>
+                <div>Cupones Redimidos</div>
               </div>
             </div>
             <div style={classes.text}>

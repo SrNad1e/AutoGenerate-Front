@@ -6,7 +6,6 @@ import { history, useModel } from 'umi';
 import { stringify } from 'querystring';
 
 import HeaderDropdown from '../HeaderDropdown';
-import { outLogin } from '@/services/ant-design-pro/api';
 
 import styles from './index.less';
 import './index.less';
@@ -19,10 +18,9 @@ const { Text } = Typography;
  * @description remueve el token y envian hacia la pagina de login
  */
 const loginOut = async () => {
-  await outLogin();
   const { query = {}, pathname } = history.location;
   const { redirect } = query;
-  localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
 
   // Note: There may be security issues, please note
   if (window.location.pathname !== '/user/login' && !redirect) {

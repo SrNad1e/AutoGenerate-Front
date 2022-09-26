@@ -34,7 +34,12 @@ const Item = ({ payment, setPayment, paymentsOrder, disabled }: Params) => {
       onClick={() => setPayment(payment)}
     >
       <Space direction="vertical" align="center" style={styles.maxWidth}>
-        <Image width={100} src={`${CDN_URL}/${logo?.urls?.webp?.small}`} fallback={DefaultImage} />
+        <Image
+          width={100}
+          src={`${CDN_URL}/${logo?.urls?.webp?.small}`}
+          fallback={DefaultImage}
+          preview={false}
+        />
         <Title style={styles.whiteColor} level={3}>
           {name}
         </Title>

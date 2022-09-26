@@ -3,7 +3,6 @@ import { Badge, Button, Col, Form, InputNumber, Modal, Row, Space, Switch, Table
 import type { ColumnsType } from 'antd/es/table/interface';
 import { SearchOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { useModel } from 'umi';
 import moment from 'moment';
 
 import { useGetRequests } from '@/hooks/request.hooks';
@@ -13,6 +12,7 @@ import type {
   Warehouse,
   StockRequest,
   FiltersStockRequestsInput,
+  StockTransfer,
 } from '@/graphql/graphql';
 import { StatusStockRequest } from '@/graphql/graphql';
 import { StatusType } from '../../request/request.data';
@@ -22,6 +22,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 const FormItem = Form.Item;
 
 export type Params = {
+  transfer?: Partial<StockTransfer>;
   requests: StockRequest[];
   visible: boolean;
   onCancel: () => void;
@@ -34,7 +35,7 @@ type FormValues = {
   all?: boolean;
 };
 
-const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
+const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) => {
   const [requestsSelected, setRequestSelected] = useState<StockRequest[]>([]);
   const [keysSelected, setKeysSelected] = useState<React.Key[]>([]);
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
@@ -42,8 +43,6 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
     type: 'error',
     visible: false,
   });
-
-  const { initialState } = useModel('@@initialState');
 
   const [getRequests, { data, loading }] = useGetRequests();
 
@@ -80,7 +79,6 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
         variables: {
           input: {
             ...values,
-            warehouseOriginId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
           },
         },
       });
@@ -89,6 +87,12 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
     }
   };
 
+  const onSearchPendings = () => {
+    onSearch({
+      warehouseDestinationId: transfer?.warehouseDestination?._id,
+      status: StatusStockRequest.Pending,
+    });
+  };
   /**
    * @description selecciona las solicitudes y las almacena en un array
    */
@@ -109,11 +113,13 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
 
     if (!values?.all) {
       filters.status = StatusStockRequest.Pending;
+      filters.warehouseDestinationId = transfer?.warehouseDestination?._id;
     }
 
     delete values.all;
 
     if (values?.warehouseId) {
+      filters.warehouseDestinationId = values?.warehouseId;
       delete values.warehouseId;
     }
 
@@ -134,8 +140,8 @@ const SearchRequest = ({ requests, visible, onCancel, onOk }: Params) => {
   };
 
   useEffect(() => {
-    onSearch({ status: StatusStockRequest.Pending });
-  }, []);
+    onSearchPendings();
+  }, [visible]);
 
   const columns: ColumnsType<StockRequest> = [
     {

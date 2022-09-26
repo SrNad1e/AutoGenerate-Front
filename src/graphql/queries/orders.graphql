@@ -4,23 +4,60 @@ query Orders($input: FiltersOrdersInput!) {
     totalPages
     page
     docs {
+      address {
+        city {
+          name
+          state
+        }
+      }
+      conveyorOrder {
+        conveyor {
+          name
+          logo {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+        }
+      }
+      statusWeb
+      payments {
+        total
+        payment {
+          name
+        }
+      }
       _id
       createdAt
       updatedAt
       summary {
         total
+        change
+        discount
+        subtotal
+        totalPaid
       }
       customer {
         document
         firstName
         lastName
+        phone
+        customerType {
+          name
+        }
       }
       shop {
+        name
+      }
+      user {
         name
       }
       number
       status
       details {
+        discount
         price
         quantity
         quantityReturn

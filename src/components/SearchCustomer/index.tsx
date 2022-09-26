@@ -36,14 +36,16 @@ const SearchCustomer = ({ onChange, disabled, value }: Params) => {
   };
 
   useEffect(() => {
-    if (canQueryCustomer) {
+    if (!data && value) {
       getCustomers({
         variables: {
-          input: {},
+          input: {
+            _id: value,
+          },
         },
       });
     }
-  }, []);
+  }, [value]);
 
   return (
     <>

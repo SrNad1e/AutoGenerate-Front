@@ -1,6 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Col, Divider, Form, Input, Row, Select, Checkbox, Typography } from 'antd';
+import {
+  Button,
+  Col,
+  Divider,
+  Form,
+  Input,
+  Row,
+  Select,
+  Checkbox,
+  Typography,
+  InputNumber,
+} from 'antd';
 import { useForm } from 'antd/lib/form/Form';
 import type { Address, Customer } from '@/graphql/graphql';
 import { useEffect, useState } from 'react';
@@ -17,27 +28,22 @@ const { Title } = Typography;
 type Props = {
   deliveryAddress?: Address[];
   customer?: Customer;
-  setValuesAdressField: (value: any) => void;
+  setDelivery?: any;
 };
 
-const AddressDelivery = ({ deliveryAddress, customer, setValuesAdressField }: Props) => {
+const AddressDelivery = ({ deliveryAddress, customer, setDelivery }: Props) => {
   const [visibleCreate, setVisibleCreate] = useState(false);
   const [visibleAddress, setVisibleAddress] = useState(true);
   const [count, setCount] = useState(0);
 
   const [form] = useForm();
 
-  const updateValues = () => {
-    const values = form.getFieldsValue();
-    setValuesAdressField([values]);
-  };
-
   /**
    * @description renderizar una direccion
    * @returns elemento jsx
    */
   const renderAddress = () => (
-    <Form layout="vertical" form={form} onChange={() => updateValues()}>
+    <Form layout="vertical" form={form}>
       <Row key={2}>
         <Col span={24}>
           <Row align="middle" gutter={[20, 20]}>
@@ -133,7 +139,7 @@ const AddressDelivery = ({ deliveryAddress, customer, setValuesAdressField }: Pr
             name="phone"
             defaultValue={deliveryAddress && deliveryAddress[count]?.phone}
           >
-            <Input style={styles.inputWidth} />
+            <InputNumber style={{ width: '80%' }} controls={false} />
           </FormItem>
         </Col>
       </Row>
@@ -160,7 +166,6 @@ const AddressDelivery = ({ deliveryAddress, customer, setValuesAdressField }: Pr
     if (e >= 0) {
       await reRender();
       setCount(e);
-      form.setFieldsValue({ cityId: deliveryAddress && deliveryAddress[e]?.city?._id });
       setVisibleAddress(true);
     } else {
       setVisibleAddress(false);
@@ -170,13 +175,34 @@ const AddressDelivery = ({ deliveryAddress, customer, setValuesAdressField }: Pr
   useEffect(() => {
     if (deliveryAddress !== null) {
       form.setFieldsValue({
-        ...deliveryAddress[count],
         contact: deliveryAddress && deliveryAddress[count]?.contact,
         phone: deliveryAddress && deliveryAddress[count]?.phone,
         cityId: deliveryAddress && deliveryAddress[count]?.city?._id,
       });
     }
-    updateValues();
+  }, [visibleAddress]);
+
+  useEffect(() => {
+    if (deliveryAddress !== null && setDelivery) {
+      setDelivery({
+        city: {
+          _id: deliveryAddress && deliveryAddress[count]?.city._id,
+          name: deliveryAddress && deliveryAddress[count]?.city?.name,
+          state: deliveryAddress && deliveryAddress[count]?.city?.state,
+          country: { name: 'Colombia' },
+        },
+        contact: deliveryAddress && deliveryAddress[count]?.contact,
+        extra: deliveryAddress && deliveryAddress[count]?.extra,
+        field1: deliveryAddress && deliveryAddress[count]?.field1,
+        isMain: deliveryAddress && deliveryAddress[count]?.isMain,
+        loteNumber: deliveryAddress && deliveryAddress[count]?.loteNumber,
+        neighborhood: deliveryAddress && deliveryAddress[count]?.neighborhood,
+        number1: deliveryAddress && deliveryAddress[count]?.number1,
+        number2: deliveryAddress && deliveryAddress[count]?.number2,
+        phone: deliveryAddress && deliveryAddress[count]?.phone,
+        postalCode: deliveryAddress && deliveryAddress[count]?.postalCode,
+      });
+    }
   }, [visibleAddress]);
 
   return (
@@ -198,16 +224,12 @@ const AddressDelivery = ({ deliveryAddress, customer, setValuesAdressField }: Pr
             <Divider type="vertical" />{' '}
           </>
         )}
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          style={{ borderRadius: 5 }}
-          onClick={() => setVisibleCreate(true)}
-        >
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setVisibleCreate(true)}>
           Crear
         </Button>
       </Divider>
-      {deliveryAddress && deliveryAddress?.length > 0 ? (
+      {(deliveryAddress && deliveryAddress?.length > 0) ||
+      (customer?.addresses && customer?.addresses?.length > 0) ? (
         visibleAddress && renderAddress()
       ) : (
         <Row>

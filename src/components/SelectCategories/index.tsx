@@ -34,7 +34,7 @@ const SelectCategories = ({ value, onChange }: Params) => {
 
   useEffect(() => {
     onSearch();
-  }, []);
+  }, [value]);
 
   useEffect(() => {
     if (value) {
@@ -56,9 +56,11 @@ const SelectCategories = ({ value, onChange }: Params) => {
       <TreeSelect
         placeholder="Seleccione categoría"
         loading={loading}
+        allowClear
         defaultValue={value?.split('-')}
         value={value}
         onChange={onChange}
+        onSearch={onSearch}
       >
         {data?.categories.docs.map(({ _id, name, childs }) => (
           <TreeNode key={_id} value={_id} title={name}>

@@ -27,6 +27,7 @@ export type Props = {
   createDetail: (product: Product, quantity: number) => void;
   updateDetail: (product: Product, quantity: number) => void;
   deleteDetail: (productId: string) => void;
+  order?: any;
 };
 
 type FormValues = {

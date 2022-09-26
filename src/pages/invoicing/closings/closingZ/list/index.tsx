@@ -46,19 +46,18 @@ import type {
 import type { Moment } from 'moment';
 import moment from 'moment';
 import numeral from 'numeral';
-import { useReactToPrint } from 'react-to-print';
 import { useEffect, useRef, useState } from 'react';
-import type { Location } from 'umi';
-import { useModel } from 'umi';
+import { useReactToPrint } from 'react-to-print';
+import { Location, useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 
-import CloseDay from '../components/DayClose';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import CashRegisterModal from '../components/CashRegister';
-import SelectShop from '@/components/SelectShop';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import ReportCloseZ from '../reports/closeZ';
+import SelectShop from '@/components/SelectShop';
 import { useGetClosesZInvoicing } from '@/hooks/closeZInvoicing.hooks';
+import CashRegisterModal from '../components/CashRegister';
+import CloseDay from '../components/DayClose';
+import ReportCloseZ from '../reports/closeZ';
 
 import styles from './styles';
 

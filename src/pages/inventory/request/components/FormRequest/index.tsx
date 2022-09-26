@@ -16,6 +16,7 @@ import {
   Avatar,
   Typography,
   Tooltip,
+  Popconfirm,
 } from 'antd';
 import { useModel, useParams } from 'umi';
 import { useEffect, useState } from 'react';
@@ -104,7 +105,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
     if (
       details.length > 0 ||
       status === StatusStockRequest.Cancelled ||
-      observation !== request?.observation
+      observation !== (request?.observation || '')
     ) {
       if (status === StatusStockRequest.Cancelled) {
         setPropsAlertSave({
@@ -120,16 +121,18 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea enviar la solicitud?',
           type: 'warning',
         });
-      } else {
+      } else if (status === StatusStockRequest.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar la solicitud?',
           type: 'warning',
         });
+      } else {
+        onShowInformation('La salida no tiene productos');
       }
     } else {
-      onShowInformation('La solicitud no tiene productos');
+      onShowInformation('No se encontraron cambios en la solicitud');
     }
   };
 
@@ -441,14 +444,20 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       width: 30,
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-            loading={paramsCreate.loading || paramsUpdate.loading}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button
+              icon={<DeleteOutlined />}
+              type="primary"
+              danger
+              disabled={!allowEdit}
+              loading={paramsCreate.loading || paramsUpdate.loading}
+            />
+          </Popconfirm>
         </Tooltip>
       ),
     },
@@ -465,7 +474,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
-            <FormItem label="Código de barras">
+            <FormItem label="Búsqueda de Referencias">
               <SearchProducts {...propsSearchProduct} />
             </FormItem>
           </Form>
@@ -474,7 +483,9 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== ActionDetailRequest.Delete)}
+          dataSource={details
+            .filter((detail) => detail?.action !== ActionDetailRequest.Delete)
+            .reverse()}
           scroll={{ x: 800, y: 400 }}
           pagination={{ size: 'small' }}
           loading={paramsCreate?.loading || paramsUpdate?.loading}
@@ -487,10 +498,8 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
         details={details}
       />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <AlertLoading
-        visible={paramsCreate?.loading || paramsUpdate?.loading}
-        message="Guardando Solicitud"
-      />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Solicitud" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Guardando Solicitud" />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );

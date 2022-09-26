@@ -16,6 +16,7 @@ query stockOutput($id: String!) {
           description
           cost
           name
+          price
         }
         color {
           image {
@@ -48,43 +49,44 @@ query stockOutput($id: String!) {
 }
 
 query stockOutputs($input: FiltersStockOutputsInput) {
-    stockOutputs(filtersStockOutputsInput: $input) {
-      totalDocs
-      totalPages
-      page
-      docs {
+  stockOutputs(filtersStockOutputsInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      observation
+      _id
+      createdAt
+      number
+      updatedAt
+      status
+      total
+      user {
+        name
+      }
+      warehouse {
+        name
         _id
-        createdAt
-        number
-        updatedAt
-        status
-        total
-        user {
-          name
-        }
-        warehouse {
-          name
-          _id
-        }
-        details {
-          quantity
-          product {
-            reference {
-              description
-              price
-              cost
-              name
-            }
-            barcode
-            color {
-              name
-              name_internal
-            }
-            size {
-              value
-            }
+      }
+      details {
+        quantity
+        product {
+          reference {
+            description
+            price
+            cost
+            name
+          }
+          barcode
+          color {
+            name
+            name_internal
+          }
+          size {
+            value
           }
         }
       }
     }
   }
+}

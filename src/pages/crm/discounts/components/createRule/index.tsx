@@ -1,5 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { AppstoreOutlined, ReadOutlined, SelectOutlined, UserAddOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  ReadOutlined,
+  SelectOutlined,
+  ShopOutlined,
+  UserAddOutlined,
+} from '@ant-design/icons';
 import { Col, Form, Modal, Row, Select, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { RuleType } from '../../form/rules.data';
@@ -12,6 +18,7 @@ import { DocumentTypesRule } from '@/graphql/graphql';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import SelectListShop from '../selectListShop';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -30,6 +37,7 @@ type Props = {
 const CreateRuleForm = ({ onCancel, visible, ruleDataUpdate, isNew, rules, setRules }: Props) => {
   const [visibleSelectCategory, setVisibleSelectCategory] = useState(false);
   const [visibleSelectCustomerType, setVisibleCustomerType] = useState(false);
+  const [visibleSelectShop, setVisibleSelectShop] = useState(false);
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -115,16 +123,25 @@ const CreateRuleForm = ({ onCancel, visible, ruleDataUpdate, isNew, rules, setRu
     if (e && e == 'CATEGORIES') {
       setVisibleSelectCategory(true);
       setVisibleCustomerType(false);
+      setVisibleSelectShop(false);
       form.resetFields(['documentIds']);
     }
     if (e && e == 'CUSTOMERTYPES') {
       setVisibleCustomerType(true);
       setVisibleSelectCategory(false);
+      setVisibleSelectShop(false);
       form.resetFields(['documentIds']);
     }
     if (e && e == 'COMPANY') {
       setVisibleCustomerType(false);
       setVisibleSelectCategory(false);
+      setVisibleSelectShop(false);
+      form.resetFields(['documentIds']);
+    }
+    if (e && e == 'SHOPS') {
+      setVisibleCustomerType(false);
+      setVisibleSelectCategory(false);
+      setVisibleSelectShop(true);
       form.resetFields(['documentIds']);
     }
   };
@@ -141,15 +158,22 @@ const CreateRuleForm = ({ onCancel, visible, ruleDataUpdate, isNew, rules, setRu
       if (ruleDataUpdate.documentType === DocumentTypesRule.Categories) {
         setVisibleSelectCategory(true);
         setVisibleCustomerType(false);
+        setVisibleSelectShop(false);
       }
       if (ruleDataUpdate.documentType === DocumentTypesRule.Customertypes) {
         setVisibleCustomerType(true);
         setVisibleSelectCategory(false);
+        setVisibleSelectShop(false);
       }
-
+      if (ruleDataUpdate.documentType === DocumentTypesRule.Shops) {
+        setVisibleSelectShop(true);
+        setVisibleCustomerType(false);
+        setVisibleSelectCategory(false);
+      }
       if (ruleDataUpdate.documentType === DocumentTypesRule.Company) {
         setVisibleCustomerType(false);
         setVisibleSelectCategory(false);
+        setVisibleSelectShop(false);
       }
     }
   }, [visible]);
@@ -235,6 +259,25 @@ const CreateRuleForm = ({ onCancel, visible, ruleDataUpdate, isNew, rules, setRu
                 name="documentIds"
               >
                 <SelectListCustomerType disabled={false} />
+              </FormItem>
+            )}
+            {visibleSelectShop && (
+              <FormItem
+                rules={[
+                  {
+                    required: true,
+                    message: 'Este campo no puede estar vacio',
+                  },
+                ]}
+                label={
+                  <Space>
+                    <ShopOutlined />
+                    <Text>Tiendas</Text>
+                  </Space>
+                }
+                name="documentIds"
+              >
+                <SelectListShop disabled={false} />
               </FormItem>
             )}
             <FormItem

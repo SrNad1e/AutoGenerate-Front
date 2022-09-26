@@ -7,32 +7,32 @@ query stockTransfers($input: FiltersStockTransfersInput) {
       _id
       details {
         quantity
-         product {
-        _id
-        barcode
-        color {
-          name
-          name_internal
-          html
-          image {
-            urls {
-              webp {
-                small
+        product {
+          _id
+          barcode
+          color {
+            name
+            name_internal
+            html
+            image {
+              urls {
+                webp {
+                  small
+                }
               }
             }
           }
+          reference {
+            name
+            description
+          }
+          size {
+            value
+          }
+          stock {
+            quantity
+          }
         }
-        reference {
-          name
-          description
-        }
-        size {
-          value
-        }
-        stock {
-          quantity
-        }
-      }
       }
       number
       status
@@ -47,7 +47,7 @@ query stockTransfers($input: FiltersStockTransfersInput) {
       warehouseOrigin {
         name
       }
-      userOrigin{
+      userOrigin {
         name
       }
     }
@@ -114,5 +114,49 @@ query stockTransferId($id: String!) {
       _id
       name
     }
+  }
+}
+
+query stockTransfersError($input: FiltersStockTransfersErrorInput) {
+  stockTransfersError(filtersStockTransfersErrorInput: $input) {
+    docs {
+      _id
+      updatedAt
+      createdAt
+      verified
+      details {
+        status
+        product {
+          _id
+          size {
+            value
+          }
+          reference {
+            name
+          }
+          color {
+            name
+          }
+          barcode
+        }
+        quantity
+        reason
+        updatedAt
+      }
+      stockTransfer {
+        _id
+        number
+        updatedAt
+        warehouseOrigin {
+          name
+        }
+        warehouseDestination {
+          name
+        }
+      }
+    }
+    page
+    totalDocs
+    totalPages
   }
 }

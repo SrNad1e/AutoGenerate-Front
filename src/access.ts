@@ -85,6 +85,9 @@ export default function access(initialState: { currentUser?: User | undefined })
       canConfirm: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === Permissions.ConfirmInventoryTransfer,
       ),
+      canVerified: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.InventoryTransfersVerified,
+      ),
     },
     reference: {
       canEdit: !!currentUser?.role?.permissions.find(
@@ -239,6 +242,14 @@ export default function access(initialState: { currentUser?: User | undefined })
       ),
       canCreate: !!currentUser?.role?.permissions.find(
         (permission) => permission?.action === Permissions.CreateConfigurationWarehouse,
+      ),
+    },
+    order: {
+      canEdit: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.UpdateInvoicingOrder,
+      ),
+      canPrint: !!currentUser?.role?.permissions.find(
+        (permission) => permission?.action === Permissions.PrintInvoicingOrder,
       ),
     },
     paymentMethod: {

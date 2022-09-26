@@ -7,6 +7,7 @@ import {
   Col,
   Form,
   InputNumber,
+  Popconfirm,
   Row,
   Space,
   Table,
@@ -104,7 +105,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     if (
       details.length > 0 ||
       status === StatusStockTransfer.Cancelled ||
-      observation !== transfer?.observation
+      observation !== (transfer?.observation || '')
     ) {
       if (status === StatusStockTransfer.Cancelled) {
         setPropsAlertSave({
@@ -120,16 +121,18 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           message: '¿Está seguro que desea enviar el traslado?',
           type: 'warning',
         });
-      } else {
+      } else if (status === StatusStockTransfer.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar el traslado?',
           type: 'warning',
         });
+      } else {
+        onShowInformation('El traslado no tiene productos');
       }
     } else {
-      onShowInformation('El traslado no tiene productos');
+      onShowInformation('No se encontraron cambios en el traslado');
     }
   };
 
@@ -436,13 +439,14 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       fixed: 'right',
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
+          </Popconfirm>
         </Tooltip>
       ),
     },
@@ -473,7 +477,9 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         <Table
           columns={columns}
           dataSource={
-            details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
+            details
+              .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
+              .reverse() as any
           }
           scroll={{ x: 800, y: 400 }}
           pagination={{ size: 'small' }}
@@ -487,10 +493,8 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         details={details}
       />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <AlertLoading
-        visible={paramsCreate?.loading || paramsUpdate?.loading}
-        message="Guardando traslado"
-      />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando traslado" />
+      <AlertLoading visible={paramsUpdate.loading} message="Guardando  Traslado" />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );

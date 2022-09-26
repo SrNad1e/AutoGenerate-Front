@@ -32,6 +32,7 @@ import { StatusTypeShop } from '../shop.data';
 import SelectWarehouses from '@/components/SelectWarehouses';
 
 import styles from '../styles';
+import { isNumber } from 'lodash';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -109,9 +110,10 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
     const values = await form.validateFields();
 
     try {
+      const phoneString = (values.phone !== null && values.phone.toString()) || '';
       const response = await updateShop({
         variables: {
-          input: { ...values, isMain: isMain },
+          input: { ...values, isMain: isMain, phone: phoneString },
           id: shop?._id || '',
         },
       });
@@ -136,9 +138,12 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
     const values = await form.validateFields();
 
     try {
+      console.log(values);
+
+      const phoneString = (values.phone !== undefined && values.phone.toString()) || undefined;
       const response = await createShop({
         variables: {
-          input: { ...values, isMain: isMain },
+          input: { ...values, isMain: isMain, phone: phoneString },
         },
       });
       if (response?.data?.createShop) {
@@ -252,17 +257,14 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
               rules={[
                 {
                   validator: (_, value) => {
-                    const number = parseInt(value);
-
                     if (!value) {
                       return Promise.resolve();
                     }
-                    if (!isNaN(number)) {
+                    if (isNumber(value)) {
                       return Promise.resolve();
                     }
-                    return Promise.reject();
+                    return Promise.resolve();
                   },
-                  message: '*Campo numerico',
                 },
               ]}
               name="phone"
@@ -273,7 +275,11 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 </Space>
               }
             >
-              <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
+              <InputNumber
+                style={{ width: '100%' }}
+                disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading}
+                controls={false}
+              />
             </FormItem>
             <FormItem
               name="goal"

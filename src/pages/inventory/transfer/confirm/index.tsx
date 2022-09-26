@@ -483,21 +483,22 @@ const ConfirmTransfer = () => {
                 {moment(data?.stockTransferId?.updatedAt).format(FORMAT_DATE)}
               </DescriptionsItem>
               <DescriptionsItem label="Solicitudes" span={1}>
-                {data?.stockTransferId?.requests?.map((request) => {
+                {data?.stockTransferId?.requests?.map((request) => (
                   <Tag key={request?._id} color="volcano" icon={<CheckCircleOutlined />}>
                     {request?.number}
-                  </Tag>;
-                })}
+                  </Tag>
+                ))}
               </DescriptionsItem>
-              <DescriptionsItem label="Observación">
+              <DescriptionsItem label="Observación" span={2} style={{ width: 200 }}>
                 {allowConfirm ? (
                   <TextArea
+                    maxLength={100}
                     defaultValue={data?.stockTransferId?.observationDestination || ''}
                     value={observation}
                     onChange={(e) => setObservation(e?.target?.value)}
                   />
                 ) : (
-                  data?.stockTransferId?.observationDestination
+                  data?.stockTransferId?.observationOrigin
                 )}
               </DescriptionsItem>
             </Descriptions>

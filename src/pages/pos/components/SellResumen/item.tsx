@@ -52,10 +52,10 @@ const ItemResume = ({
               />
             </Tooltip>
           </Col>
-          <Col lg={1}>
+          <Col span={3}>
             <Title level={4}>{number}</Title>
           </Col>
-          <Col lg={3}>
+          <Col span={2}>
             <Image
               preview={false}
               fallback={DefaultImage}
@@ -63,7 +63,7 @@ const ItemResume = ({
               alt="Product"
             />
           </Col>
-          <Col lg={9}>
+          <Col span={9}>
             <Row>
               <Col span={24} style={styles.titleLine}>
                 <Text>{product?.reference?.name}</Text>
@@ -83,7 +83,8 @@ const ItemResume = ({
               </Col>
             </Row>
           </Col>
-          <Col lg={6}>
+
+          <Col span={5}>
             <InputNumber
               disabled={disabled}
               onChange={onChange}
@@ -92,7 +93,7 @@ const ItemResume = ({
               min={1}
             />
           </Col>
-          <Col lg={5}>
+          <Col span={5}>
             <Row style={styles.rowStyle}>
               <Col span={24}>
                 <Text>{numeral(price * quantity).format('$ 0,0')}</Text>
