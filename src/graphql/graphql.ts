@@ -810,6 +810,8 @@ export type CreatePaymentInput = {
   color?: InputMaybe<Scalars['String']>;
   /** Identificador de la imagen del método de pago */
   logoId?: InputMaybe<Scalars['String']>;
+  /** Mensaje para el medio de pago */
+  message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name: Scalars['String'];
   /** Tipo de método de pago */
@@ -2860,6 +2862,8 @@ export type Payment = {
   createdAt: Scalars['DateTime'];
   /** Logo para el medio de pago */
   logo?: Maybe<Image>;
+  /** Mensaje para el usuario web */
+  message?: Maybe<Scalars['String']>;
   /** Nombre del medio de pago */
   name: Scalars['String'];
   /** Tipo de medio de pago */
@@ -5675,6 +5679,8 @@ export type UpdatePaymentInput = {
   color?: InputMaybe<Scalars['String']>;
   /** Identificador de la imagen del método de pago */
   logoId?: InputMaybe<Scalars['String']>;
+  /** Mensaje para el medio de pago */
+  message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name?: InputMaybe<Scalars['String']>;
   /** Tipo de método de pago */
@@ -8834,6 +8840,7 @@ export type PaymentsQuery = {
       _id: string;
       active: boolean;
       updatedAt: any;
+      message?: string | null;
       name: string;
       type: TypePayment;
       color?: string | null;
@@ -19168,6 +19175,7 @@ export const PaymentsDocument = {
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                         },
                       },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'color' } },
