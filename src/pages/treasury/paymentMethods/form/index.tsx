@@ -1,5 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { AliyunOutlined, BankOutlined, BgColorsOutlined, DollarOutlined } from '@ant-design/icons';
+import {
+  AliyunOutlined,
+  BankOutlined,
+  BgColorsOutlined,
+  DollarOutlined,
+  MessageOutlined,
+} from '@ant-design/icons';
 import { Col, Form, Input, Modal, Row, Select, Space, Switch, Typography } from 'antd';
 import { useCreatePayments, useUpdatePayment } from '@/hooks/payment.hooks';
 import type { Payment } from '@/graphql/graphql';
@@ -15,6 +21,7 @@ import styles from '../styles';
 const FormItem = Form.Item;
 const { Text } = Typography;
 const { Option } = Select;
+const { TextArea } = Input;
 
 type Props = {
   visible: boolean;
@@ -225,6 +232,22 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
           >
             <Input
               type="color"
+              disabled={paramsCreatePayment?.loading || paramsUpdatePayment?.loading}
+            />
+          </FormItem>
+          <FormItem
+            label={
+              <Space>
+                <MessageOutlined />
+                <Text>Mensaje</Text>
+              </Space>
+            }
+            name="message"
+          >
+            <TextArea
+              maxLength={175}
+              showCount
+              autoSize
               disabled={paramsCreatePayment?.loading || paramsUpdatePayment?.loading}
             />
           </FormItem>
