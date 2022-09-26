@@ -636,7 +636,7 @@ const Products = ({ orderdata }: Props) => {
                   rules={[{ required: true, message: 'Este campo no puede estar vacío' }]}
                 >
                   <Space>
-                    <Input style={styles.inputBorder} />
+                    <Input autoFocus style={styles.inputBorder} />
                     <Button
                       type="primary"
                       htmlType="submit"
