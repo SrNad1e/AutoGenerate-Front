@@ -17,11 +17,11 @@ import { StatusTypePayment } from '../paymentMethod.data';
 import ImageAdmin from '@/components/ImageAdmin';
 
 import styles from '../styles';
+import { FirstVersion } from '@/components/HtmlEdit';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
 const { Option } = Select;
-const { TextArea } = Input;
 
 type Props = {
   visible: boolean;
@@ -79,6 +79,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
    */
   const updatePaymentMethod = async () => {
     const values = await form.validateFields();
+    const message = values.message;
 
     try {
       const response = await updatePayment({
@@ -86,6 +87,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
           id: paymentMethod._id,
           input: {
             ...values,
+            message: message,
             logoId: values?.logoId[0]?._id,
           },
         },
@@ -109,6 +111,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
    */
   const createNewPaymentMethod = async () => {
     const values = await form.validateFields();
+    const message = values.message;
 
     try {
       if (values?.logoId?.length > 0) {
@@ -119,7 +122,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
 
       const response = await createPayment({
         variables: {
-          input: values,
+          input: { ...values, message },
         },
       });
       if (response?.data?.createPayment) {
@@ -244,12 +247,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
             }
             name="message"
           >
-            <TextArea
-              maxLength={175}
-              showCount
-              autoSize
-              disabled={paramsCreatePayment?.loading || paramsUpdatePayment?.loading}
-            />
+            <FirstVersion />
           </FormItem>
           <FormItem
             label={
