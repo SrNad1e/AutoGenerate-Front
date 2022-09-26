@@ -242,7 +242,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
               label={
                 <Space>
                   <DropboxOutlined />
-                  <Text>Bodega Principal</Text>
+                  <Text>Centro de Distribución</Text>
                 </Space>
               }
             >
