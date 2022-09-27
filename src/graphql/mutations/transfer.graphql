@@ -134,6 +134,10 @@ mutation verifiedProducttStockTransfer($input: VerifiedProductTransferErrorInput
     verified
     details {
       product {
+        _id
+        reference {
+          name
+        }
         color {
           name
         }

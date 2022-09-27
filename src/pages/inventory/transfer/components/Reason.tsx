@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Col, Form, Input, Modal, Row, Space, Typography } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { VerifiedProductTransferErrorInput } from '@/graphql/graphql';
 import { MessageOutlined } from '@ant-design/icons';
 import { useVerifiedProductTransfersError } from '@/hooks/transfer.hooks';
@@ -16,10 +16,10 @@ type Props = {
   visible: boolean;
   onCancel: () => void;
   dataVerified: VerifiedProductTransferErrorInput;
-  onCloseProducts: () => void;
+  setDetailsData: any;
 };
 
-const Reason = ({ onCancel, visible, dataVerified, onCloseProducts }: Props) => {
+const Reason = ({ onCancel, visible, dataVerified, setDetailsData }: Props) => {
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -52,7 +52,6 @@ const Reason = ({ onCancel, visible, dataVerified, onCloseProducts }: Props) => 
       visible: false,
     });
     onCancel();
-    onCloseProducts();
   };
 
   /**
@@ -72,6 +71,7 @@ const Reason = ({ onCancel, visible, dataVerified, onCloseProducts }: Props) => 
         },
       });
       if (response?.data?.verifiedProductStockTransfer) {
+        await setDetailsData(response?.data?.verifiedProductStockTransfer?.details);
         setPropsAlertInformation({
           message: 'Producto Verificado Correctamente',
           type: 'success',
@@ -82,6 +82,10 @@ const Reason = ({ onCancel, visible, dataVerified, onCloseProducts }: Props) => 
       messageError(error?.message);
     }
   };
+
+  useEffect(() => {
+    form.resetFields();
+  }, [visible]);
 
   return (
     <Modal

@@ -7420,7 +7420,9 @@ export type VerifiedProducttStockTransferMutation = {
       updatedAt: any;
       product: {
         __typename?: 'Product';
+        _id: string;
         barcode: string;
+        reference: { __typename?: 'Reference'; name: string };
         color: { __typename?: 'Color'; name: string };
       };
     }[];
@@ -14961,6 +14963,17 @@ export const VerifiedProducttStockTransferDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'reference' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'color' },
