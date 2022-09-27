@@ -369,21 +369,17 @@ const ConfirmTransfer = () => {
     {
       title: 'Talla',
       dataIndex: 'product',
-      render: ({ size }: Product) => size.value,
-    },
-    {
-      title: 'Enviado',
-      dataIndex: 'quantity',
       align: 'center',
+      render: ({ size }: Product) => size.value,
     },
     {
       title: 'Confirmado',
       dataIndex: 'quantityConfirmed',
       align: 'center',
-      render: (quantityConfirmed: number, record) => (
+      render: (quantityConfirmed: number) => (
         <Badge
           style={{
-            backgroundColor: record?.quantity === quantityConfirmed ? 'green' : 'red',
+            backgroundColor: '#dc9575',
           }}
           count={quantityConfirmed || 0}
           showZero
@@ -533,7 +529,7 @@ const ConfirmTransfer = () => {
                   .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
                   .reverse() as any
               }
-              scroll={{ x: 800 }}
+              scroll={{ x: 300 }}
               pagination={{ size: 'small' }}
             />
           </Col>
