@@ -201,6 +201,7 @@ const Products = ({ orderdata }: Props) => {
           input: {
             orderId: orderdata?._id,
             details: editProducts,
+            isWholesaler: true,
           },
         },
       });

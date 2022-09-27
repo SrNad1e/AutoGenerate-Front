@@ -11,7 +11,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -6878,7 +6877,10 @@ export type ConfirmPaymentsOrderMutation = {
     order: {
       __typename?: 'Order';
       payments?:
-        | { __typename?: 'PaymentOrder'; payment: { __typename?: 'Payment'; name: string } }[]
+        | {
+            __typename?: 'PaymentOrder';
+            payment: { __typename?: 'Payment'; name: string };
+          }[]
         | null;
     };
   };
