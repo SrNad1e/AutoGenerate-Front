@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
@@ -14,7 +15,7 @@ import type {
   VerifiedProductTransferErrorInput,
 } from '@/graphql/graphql';
 import { StatusDetailTransferError } from '@/graphql/graphql';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { StatusTypeError } from './FormTransfer/error.data';
 import Reason from './Reason';
@@ -30,6 +31,7 @@ type Props = {
 
 const TransferProducts = ({ onCancel, visible, data, loading }: Props) => {
   const [visibleReason, setVisibleReason] = useState(false);
+  const [detailsData, setDetailsData] = useState(data?.details);
   const [dataVerified, setDataVerified] = useState<VerifiedProductTransferErrorInput>({
     returnInventory: false,
     reason: '',
@@ -56,6 +58,10 @@ const TransferProducts = ({ onCancel, visible, data, loading }: Props) => {
     });
     setVisibleReason(true);
   };
+
+  useEffect(() => {
+    setDetailsData(data?.details);
+  }, [data]);
 
   const columns: ColumnsType<DetailTransferError> = [
     {
@@ -159,13 +165,13 @@ const TransferProducts = ({ onCancel, visible, data, loading }: Props) => {
     >
       <Table
         columns={columns}
-        dataSource={data?.details}
+        dataSource={detailsData}
         pagination={false}
         loading={loading}
         scroll={{ x: 'auto' }}
       />
       <Reason
-        onCloseProducts={onCancel}
+        setDetailsData={setDetailsData}
         onCancel={() => setVisibleReason(false)}
         visible={visibleReason}
         dataVerified={dataVerified}
