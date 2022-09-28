@@ -50,6 +50,7 @@ import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
 import styles from './styles.less';
+import validateCodeBar from '@/libs/validateCodeBar';
 
 const { Text, Title } = Typography;
 const FormItem = Form.Item;
@@ -175,9 +176,11 @@ const ConfirmTransfer = () => {
     try {
       const values = await form.validateFields();
 
-      const detail = details.find((item) => item?.product?.barcode === values.barcode);
+      const barcode = values.barcode && validateCodeBar(values.barcode);
 
-      const newDetails = details.filter((item) => item?.product?.barcode !== values.barcode);
+      const detail = details.find((item) => item?.product?.barcode === barcode);
+
+      const newDetails = details.filter((item) => item?.product?.barcode !== barcode);
 
       if (detail) {
         if (detail?.status === StatusDetailTransfer.New || detail?.quantityConfirmed === 0) {

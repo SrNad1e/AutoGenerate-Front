@@ -33,6 +33,7 @@ import type {
 import { StatusOrderDetail } from '@/graphql/graphql';
 import SelectColor from '../SelectColor';
 import SelectSize from '../SelectSize';
+import validateCodeBar from '@/libs/validateCodeBar';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -97,7 +98,7 @@ const ModalSearchProducts = ({
     const params: Partial<FiltersProductsInput> = {
       page: 1,
       colorId,
-      name: name,
+      name: name && validateCodeBar(name),
       sizeId,
     };
     setFilters({ ...filters, ...params });
