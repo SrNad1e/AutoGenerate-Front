@@ -380,7 +380,6 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
       action: ActionPaymentsOrder.Delete,
       paymentId: paymentId,
       total: 1,
-      code: 'a',
     };
     for (let index = 0; index < arrComparison?.length; index++) {
       const newPayments = addPayments.filter((pay) => pay?.payment?._id !== paymentId);
