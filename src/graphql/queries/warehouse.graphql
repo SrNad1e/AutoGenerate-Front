@@ -1,0 +1,25 @@
+query warehouses($input: FiltersWarehousesInput!) {
+  warehouses(filtersWarehousesInput: $input) {
+    page
+    totalDocs
+    totalPages
+    docs {
+      max
+      min
+      _id
+      name
+      updatedAt
+      user {
+        name
+      }
+      active
+    }
+  }
+}
+
+query warehouseId($warehouseId: String!) {
+  warehouseId(warehouseId: $warehouseId) {
+    _id
+    name
+  }
+}

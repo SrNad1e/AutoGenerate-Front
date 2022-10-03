@@ -1,0 +1,45 @@
+mutation createCategory($input: CreateCategoryInput!) {
+  createCategory(createCategoryInput: $input) {
+    _id
+    createdAt
+    updatedAt
+    name
+    childs {
+      _id
+      createdAt
+      updatedAt
+      parentId
+      name
+      childs {
+        _id
+        name
+        createdAt
+        updatedAt
+        parentId
+      }
+    }
+  }
+}
+
+mutation updateCategory($id: String!, $input: UpdateCategoryInput!) {
+  updateCategory(id: $id, updateCategoryInput: $input) {
+    _id
+    createdAt
+    updatedAt
+    name
+    childs {
+      _id
+      createdAt
+      updatedAt
+      parentId
+      name
+      childs {
+        _id
+        name
+        createdAt
+        updatedAt
+        parentId
+      }
+    }
+  }
+}

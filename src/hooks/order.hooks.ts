@@ -1,116 +1,114 @@
-import {
-  ADDPAYMENTSORDER,
-  APPPRODUCTSORDER,
-  CREATEORDER,
-  UPDATEORDER,
-} from '@/graphql/mutations/order.mutations';
-import { ORDER, ORDERSBYPOS } from '@/graphql/queries/order.queries';
 import { useLazyQuery, useMutation } from '@apollo/client';
 
-export const useGetOrder = (
-  callback: (data: Partial<ORDER.Order[]>) => void,
-  showError: (message: string) => void,
-) => {
-  const [getOrder, { loading }] = useLazyQuery(ORDER, {
-    onCompleted: (result) => callback(result?.orderId),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+import type { Order } from '@/graphql/graphql';
+import { ConfirmPaymentsOrderDocument } from '@/graphql/graphql';
+import { ConfirmProductsOrderDocument } from '@/graphql/graphql';
+import {
+  OrderIdDocument,
+  OrdersByPosDocument,
+  CreateOrderDocument,
+  UpdateOrderDocument,
+  AddProductsOrderDocument,
+  AddPaymentsOrderDocument,
+  OrdersDocument,
+} from '@/graphql/graphql';
 
-      showError(message ?? 'Error en la consulta');
-    },
+export const useGetOrder = () => {
+  return useLazyQuery(OrderIdDocument, {
+    fetchPolicy: 'cache-first',
   });
-  return {
-    getOrder,
-    loadingGetOne: loading,
-  };
 };
 
-export const useGetOrdersByPos = (
-  callback: (data: Partial<ORDER.Order[]>) => void,
-  showError: (message: string) => void,
-) => {
-  const [getOrdersByPos, { loading }] = useLazyQuery(ORDERSBYPOS, {
-    onCompleted: (result) => callback(result?.ordersByPointOfSale),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
-    },
+export const useGetOrders = () => {
+  return useLazyQuery(OrdersDocument, {
+    fetchPolicy: 'cache-first',
   });
-  return {
-    getOrdersByPos,
-    loading,
-  };
 };
 
-export const useCreateOrder = (
-  callback: (data: Partial<ORDER.Order>) => void,
-  showError: (message: string) => void,
-) => {
-  const [createOrder, { loading }] = useMutation(CREATEORDER, {
-    onCompleted: (result) => callback(result?.createOrder),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    createOrder,
-    loading,
-  };
+export const useGetOrdersByPos = () => {
+  return useLazyQuery(OrdersByPosDocument);
 };
 
-export const useUpdateOrder = (
-  callback: (data: Partial<ORDER.Order>) => void,
-  showError: (message: string) => void,
-) => {
-  const [updateOrder, { loading }] = useMutation(UPDATEORDER, {
-    onCompleted: (result) => callback(result?.updateOrder),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    updateOrder,
-    loading,
-  };
+export const useCreateOrder = () => {
+  return useMutation(CreateOrderDocument);
 };
 
-export const useAddPaymentsOrder = (
-  callback: (data: Partial<ORDER.Order>) => void,
-  showError: (message: string) => void,
-) => {
-  const [addPaymentsOrder, { loading }] = useMutation(ADDPAYMENTSORDER, {
-    onCompleted: (result) => callback(result?.addPaymentsOrder),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
+export const useUpdateOrder = () => {
+  return useMutation(UpdateOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.updateOrder;
+          },
+          ordersByPos(existingOrders = {}) {
+            if (data?.updateOrder?.order?.status === 'CANCELLED') {
+              return {
+                ...existingOrders,
+                docs: existingOrders?.docs?.filter(
+                  (order: Order) => order?._id !== data?.updateOrder?.order?._id,
+                ),
+              };
+            }
+          },
+        },
+      });
     },
   });
-  return {
-    addPaymentsOrder,
-    loading,
-  };
 };
 
-export const useAddProductsOrder = (
-  callback: (data: Partial<ORDER.Order>) => void,
-  showError: (message: string) => void,
-) => {
-  const [addProductsOrder, { loading }] = useMutation(APPPRODUCTSORDER, {
-    onCompleted: (result) => callback(result?.addProductsOrder),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
+export const useAddPaymentsOrder = () => {
+  return useMutation(AddPaymentsOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.addPaymentsOrder;
+          },
+        },
+      });
     },
   });
-  return {
-    addProductsOrder,
-    loading,
-  };
+};
+
+export const useAddProductsOrder = () => {
+  return useMutation(AddProductsOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.addProductsOrder;
+          },
+        },
+      });
+    },
+  });
+};
+
+export const useConfirmProductOrder = () => {
+  return useMutation(ConfirmProductsOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.confirmProductsOrder;
+          },
+        },
+      });
+    },
+  });
+};
+
+export const useConfirmPaymentOrder = () => {
+  return useMutation(ConfirmPaymentsOrderDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          orderId() {
+            return data?.confirmPaymentsOrder;
+          },
+        },
+      });
+    },
+  });
 };

@@ -1,0 +1,15 @@
+mutation createCustomer($input: CreateCustomerInput!) {
+  createCustomer(createCustomerInput: $input) {
+    _id
+    firstName
+    lastName
+  }
+}
+
+mutation updateCustomer($id: String!, $input: UpdateCustomerInput!) {
+  updateCustomer(id: $id, updateCustomerInput: $input) {
+    _id
+    firstName
+    lastName
+  }
+}

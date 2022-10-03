@@ -1,75 +1,50 @@
-import { CREATEADJUSTMENT, UPDATEADJUSTMENT } from '@/graphql/mutations/adjustment.mutations';
-import { ADJUSTMENT, ADJUSTMENTS } from '@/graphql/queries/adjustment.queries';
 import { useLazyQuery, useMutation } from '@apollo/client';
 
-export const useCreateAdjustment = (
-  callback: (data: Partial<ADJUSTMENT.Adjustment>) => void,
-  showError: (message: string) => void,
-) => {
-  const [createAdjustment, { loading }] = useMutation(CREATEADJUSTMENT, {
-    onCompleted: (result) => callback(result.createStockAdjustment),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+import type { StockAdjustment } from '@/graphql/graphql';
+import {
+  CreateStockAdjustmentDocument,
+  StockAdjustmentDocument,
+  StockAdjustmentsDocument,
+  UpdateStockAdjustmentDocument,
+} from '@/graphql/graphql';
 
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    createAdjustment,
-    loadingCreate: loading,
-  };
+export const useGetAdjustment = () => {
+  return useLazyQuery(StockAdjustmentDocument);
 };
 
-export const useGetAdjustment = (
-  callback: (data: Partial<ADJUSTMENT.Adjustment>) => void,
-  showError: (message: string) => void,
-) => {
-  const [getAdjustment, { loading }] = useLazyQuery(ADJUSTMENT, {
-    onCompleted: (result) => callback(result?.stockAdjustmentId),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
-    },
-  });
-  return {
-    getAdjustment,
-    loading,
-  };
+export const useGetAdjustments = () => {
+  return useLazyQuery(StockAdjustmentsDocument);
 };
 
-export const useGetAdjustments = (
-  callback: (data: Partial<ADJUSTMENT.Response>) => void,
-  showError: (message: string) => void,
-) => {
-  const [getAdjustments, { loading }] = useLazyQuery(ADJUSTMENTS, {
-    onCompleted: (result) => callback(result?.stockAdjustments),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
+export const useCreateAdjustment = () => {
+  return useMutation(CreateStockAdjustmentDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockAdjustments(existingAdjustments = []) {
+            return [data?.createStockAdjustment].concat(existingAdjustments);
+          },
+        },
+      });
     },
   });
-  return {
-    getAdjustments,
-    loading,
-  };
 };
 
-export const useUpdateAdjustment = (
-  callback: (data: Partial<ADJUSTMENT.Adjustment>) => void,
-  showError: (message: string) => void,
-) => {
-  const [updateAdjustment, { loading }] = useMutation(UPDATEADJUSTMENT, {
-    onCompleted: (result) => callback(result.updateStockAdjustment),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
-
-      showError(message ?? 'Error en la consulta');
+export const useUpdateAdjustment = () => {
+  return useMutation(UpdateStockAdjustmentDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          stockAdjustments(existingAdjustment = []) {
+            return existingAdjustment?.docs?.map((adjustment: StockAdjustment) => {
+              if (adjustment?._id === data?.updateStockAdjustment?._id) {
+                return data?.updateStockAdjustment;
+              }
+              return adjustment;
+            });
+          },
+        },
+      });
     },
   });
-  return {
-    updateAdjustment,
-    loadingUpdate: loading,
-  };
 };

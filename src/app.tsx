@@ -5,9 +5,9 @@ import { history } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import PageLoading from './components/PageLoading';
-
 import { client } from './services/apollo-client';
-import { CURRENTUSER } from './graphql/queries/user.queries';
+import type { User } from './graphql/graphql';
+import { CurrentUserDocument } from './graphql/graphql';
 
 const loginPath = '/user/login';
 
@@ -21,14 +21,14 @@ export const initialStateConfig = {
  * */
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
-  currentUser?: USER.User;
-  fetchUserInfo?: () => Promise<USER.User | undefined>;
+  currentUser?: User;
+  fetchUserInfo?: () => Promise<User | undefined>;
 }> {
   const fetchUserInfo = async () => {
     try {
-      const { data, error } = await client.query({ query: CURRENTUSER });
+      const { data, error } = await client.query({ query: CurrentUserDocument });
       if (error) {
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         history.push(loginPath);
       }
       return data.currentUser;
@@ -37,6 +37,7 @@ export async function getInitialState(): Promise<{
     }
     return undefined;
   };
+
   if (history.location.pathname !== loginPath) {
     const currentUser = await fetchUserInfo();
     return {

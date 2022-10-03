@@ -1,0 +1,155 @@
+mutation createStockTransfer($input: CreateStockTransferInput!) {
+  createStockTransfer(createStockTransferInput: $input) {
+    _id
+    createdAt
+    number
+    details {
+      product {
+        _id
+        barcode
+        color {
+          name
+        }
+        reference {
+          name
+          description
+        }
+        size {
+          value
+        }
+        stock {
+          quantity
+        }
+      }
+      quantity
+      quantityConfirmed
+    }
+    observation
+    observationDestination
+    observationOrigin
+    requests {
+      _id
+      number
+    }
+    status
+    updatedAt
+    userDestination {
+      name
+    }
+    userOrigin {
+      name
+    }
+    warehouseDestination {
+      name
+    }
+    warehouseOrigin {
+      name
+    }
+  }
+}
+
+mutation updateStockTransfer($id: String!, $input: UpdateStockTransferInput!) {
+  updateStockTransfer(id: $id, updateStockTransferInput: $input) {
+    _id
+    createdAt
+    number
+    details {
+      product {
+        _id
+        barcode
+        color {
+          name
+        }
+        reference {
+          name
+          description
+        }
+        size {
+          value
+        }
+        stock {
+          quantity
+        }
+      }
+      quantity
+      quantityConfirmed
+    }
+    observation
+    observationDestination
+    observationOrigin
+    requests {
+      _id
+      number
+    }
+    status
+    updatedAt
+    userDestination {
+      name
+    }
+    userOrigin {
+      name
+    }
+    warehouseDestination {
+      name
+    }
+    warehouseOrigin {
+      name
+    }
+  }
+}
+
+mutation confirmProductsStockTransfer($id: String!, $input: ConfirmStockTransferInput!) {
+  confirmProductsStockTransfer(id: $id, confirmStockTransferInput: $input) {
+    _id
+    details {
+      product {
+        _id
+        barcode
+        color {
+          name
+        }
+        reference {
+          name
+          description
+        }
+        size {
+          value
+        }
+        stock {
+          quantity
+        }
+      }
+      quantity
+      quantityConfirmed
+      status
+    }
+  }
+}
+
+mutation verifiedProducttStockTransfer($input: VerifiedProductTransferErrorInput!) {
+  verifiedProductStockTransfer(verifiedProductTransferErrorInput: $input) {
+    _id
+    createdAt
+    updatedAt
+    verified
+    details {
+      product {
+        _id
+        reference {
+          name
+        }
+        color {
+          name
+        }
+        barcode
+      }
+      quantity
+      reason
+      status
+      updatedAt
+    }
+    stockTransfer {
+      _id
+    }
+  }
+}

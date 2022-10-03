@@ -1,0 +1,83 @@
+query Orders($input: FiltersOrdersInput!) {
+  orders(filtersOrdersInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      address {
+        city {
+          name
+          state
+        }
+      }
+      conveyorOrder {
+        conveyor {
+          name
+          logo {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+        }
+      }
+      statusWeb
+      payments {
+        total
+        payment {
+          name
+        }
+      }
+      _id
+      createdAt
+      updatedAt
+      summary {
+        total
+        change
+        discount
+        subtotal
+        totalPaid
+      }
+      customer {
+        document
+        firstName
+        lastName
+        phone
+        customerType {
+          name
+        }
+      }
+      shop {
+        name
+      }
+      user {
+        name
+      }
+      number
+      status
+      details {
+        discount
+        price
+        quantity
+        quantityReturn
+        product {
+          _id
+          barcode
+          reference {
+            changeable
+            name
+            description
+          }
+          color {
+            name
+          }
+          barcode
+          size {
+            value
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,310 @@
+mutation createOrder($input: CreateOrderInput!) {
+  createOrder(createOrderInput: $input) {
+    order {
+      _id
+    }
+  }
+}
+
+mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
+  updateOrder(id: $id, updateOrderInput: $input) {
+    credit {
+      amount
+      available
+    }
+    order {
+      updatedAt
+      _id
+      number
+      status
+      user {
+        name
+      }
+      customer {
+        phone
+        document
+        firstName
+        lastName
+        documentType {
+          abbreviation
+        }
+        customerType {
+          name
+        }
+      }
+      details {
+        discount
+        quantity
+        price
+        product {
+          _id
+          barcode
+          reference {
+            name
+            cost
+            description
+          }
+          size {
+            value
+          }
+          status
+          color {
+            html
+            name
+            image {
+              urls {
+                webp {
+                  small
+                }
+              }
+            }
+            name_internal
+          }
+          stock {
+            quantity
+          }
+        }
+      }
+      payments {
+        total
+        payment {
+          type
+          name
+        }
+      }
+      summary {
+        discount
+        subtotal
+        total
+        totalPaid
+        change
+      }
+      invoice {
+        authorization {
+          prefix
+        }
+        createdAt
+        customer {
+          documentType {
+            abbreviation
+          }
+          document
+          firstName
+          lastName
+          phone
+        }
+        details {
+          product {
+            barcode
+            color {
+              name
+            }
+            reference {
+              name
+              description
+            }
+            size {
+              value
+            }
+          }
+          quantity
+          price
+          discount
+        }
+        number
+        payments {
+          total
+          payment {
+            _id
+            name
+          }
+        }
+        shop {
+          name
+        }
+        summary {
+          total
+          subtotal
+          change
+          discount
+          totalPaid
+        }
+        user {
+          name
+        }
+      }
+    }
+  }
+}
+
+mutation addPaymentsOrder($input: AddPaymentsOrderInput!) {
+  addPaymentsOrder(addPaymentsOrderInput: $input) {
+    credit {
+      amount
+      available
+    }
+    order {
+      updatedAt
+      _id
+      number
+      user {
+        name
+      }
+      customer {
+        document
+        firstName
+        lastName
+        phone
+        documentType {
+          abbreviation
+        }
+        customerType {
+          name
+        }
+      }
+      details {
+        discount
+        quantity
+        price
+        product {
+          _id
+          barcode
+          reference {
+            name
+            cost
+            description
+          }
+          size {
+            value
+          }
+          status
+          color {
+            html
+            name
+            image {
+              urls {
+                webp {
+                  small
+                }
+              }
+            }
+            name_internal
+          }
+          stock {
+            quantity
+          }
+        }
+      }
+      payments {
+        total
+        payment {
+          type
+          name
+        }
+      }
+      summary {
+        discount
+        subtotal
+        total
+        totalPaid
+      }
+    }
+  }
+}
+
+mutation addProductsOrder($input: AddProductsOrderInput!) {
+  addProductsOrder(addProductsOrderInput: $input) {
+    credit {
+      amount
+      available
+    }
+    order {
+      _id
+      number
+      customer {
+        document
+        firstName
+        lastName
+        documentType {
+          abbreviation
+        }
+        customerType {
+          name
+        }
+      }
+      details {
+        discount
+        quantity
+        price
+        product {
+          _id
+          barcode
+          reference {
+            name
+            cost
+            description
+          }
+          size {
+            value
+          }
+          status
+          color {
+            html
+            name
+            image {
+              urls {
+                webp {
+                  small
+                }
+              }
+            }
+            name_internal
+          }
+          stock {
+            quantity
+          }
+        }
+      }
+      payments {
+        total
+        payment {
+          name
+        }
+      }
+      summary {
+        discount
+        subtotal
+        total
+        totalPaid
+      }
+    }
+  }
+}
+
+mutation confirmProductsOrder($input: ConfirmProductsOrderInput!) {
+  confirmProductsOrder(confirmProductsOrderInput: $input) {
+    order {
+      details {
+        product {
+          _id
+          barcode
+          reference {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation confirmPaymentsOrder($input: ConfirmPaymentsOrderInput!) {
+  confirmPaymentsOrder(confirmPaymentsOrderInput: $input) {
+    order {
+      payments {
+        payment {
+          name
+        }
+      }
+    }
+  }
+}

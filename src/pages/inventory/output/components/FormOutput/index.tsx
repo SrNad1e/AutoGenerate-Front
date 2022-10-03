@@ -1,5 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
-import Table, { ColumnsType } from 'antd/lib/table';
 import {
   Avatar,
   Badge,
@@ -13,10 +13,14 @@ import {
   Tag,
   Tooltip,
   Typography,
+  Table,
+  Popconfirm,
 } from 'antd';
-
 import { useModel, useParams } from 'umi';
+import type { ColumnsType } from 'antd/es/table/interface';
 import { useEffect, useState } from 'react';
+import numeral from 'numeral';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import AlertLoading from '@/components/Alerts/AlertLoading';
@@ -25,21 +29,24 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectProducts from '@/components/SelectProducts';
 import type { Props as PropsSelectProducts } from '@/components/SelectProducts';
 import { useCreateOutput, useUpdateOutput } from '@/hooks/output.hooks';
-
 import Header from './header';
 import Footer from './footer';
+import type { DetailOutput, StockOutput, Product } from '@/graphql/graphql';
+import { ActionDetailOutput, StatusStockOutput } from '@/graphql/graphql';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
 
 export type Props = {
-  output?: Partial<OUTPUT.Output>;
+  output?: Partial<StockOutput>;
   setCurrentStep: (step: number) => void;
-  setOutput: (data: Partial<OUTPUT.Output>) => void;
+  allowEdit: boolean;
 };
 
-const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
-  const [details, setDetails] = useState<Partial<OUTPUT.DetailOutputProps[]>>([]);
+const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
+  const [details, setDetails] = useState<Partial<DetailOutput & { action: ActionDetailOutput }>[]>(
+    [],
+  );
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -50,7 +57,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
     type: TYPES;
     visible: boolean;
     message: string;
-    status?: string;
+    status?: StatusStockOutput;
   }>({
     visible: false,
     message: '',
@@ -60,11 +67,10 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
 
   const { id } = useParams<Partial<{ id: string }>>();
 
-  const allowEdit = output?.status === 'open';
-
   const { initialState } = useModel('@@initialState');
 
-  /** Funciones ejecutadas por los hooks */
+  const [createOutput, paramsCreate] = useCreateOutput();
+  const [updateOutput, paramsUpdate] = useUpdateOutput();
 
   /**
    * @description se encarga de abrir aviso de información
@@ -79,28 +85,6 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
   };
 
   /**
-   * @description abre la alerta de confirmacion de creacion
-   * @param data salida creada
-   */
-  const resultSave = (data: Partial<OUTPUT.Output>) => {
-    setPropsAlert({
-      message: `Salida creada correctamente No. ${data.number}`,
-      type: 'success',
-      visible: true,
-      redirect: `/inventory/output/${data._id}`,
-    });
-  };
-
-  const resultUpdate = (data: Partial<OUTPUT.Output>) => {
-    setPropsAlert({
-      message: `Salida creada correctamente No. ${data.number}`,
-      type: 'success',
-      visible: true,
-    });
-    setOutput(data);
-  };
-
-  /**
    * @description maneja el error de la consulta
    * @param message error que genera al consulta
    */
@@ -112,37 +96,35 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
     });
   };
 
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { createOutput, loadingCreate } = useCreateOutput(resultSave, showError);
-  const { updateOutput, loadingUpdate } = useUpdateOutput(resultUpdate, showError);
-
-  /** Fin de Hooks para manejo de consultas */
-
   /**
    * @description se encarga de mostrar la alerta de guardado y cancelar
    * @param status estado actual de la salida
    */
-  const showAlertSave = (status?: string) => {
+  const showAlertSave = (status?: StatusStockOutput) => {
     if (
       details.length > 0 ||
-      status === 'cancelled' ||
+      status === StatusStockOutput.Cancelled ||
       observation !== (output?.observation || '')
     ) {
-      if (status === 'cancelled') {
+      if (status === StatusStockOutput.Cancelled) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea cancelar la salida?',
           type: 'error',
         });
-      } else if (details.length > 0) {
+      } else if (status === StatusStockOutput.Open) {
         setPropsAlertSave({
           status,
           visible: true,
           message: '¿Está seguro que desea guardar la salida?',
+          type: 'warning',
+        });
+      } else if (status === StatusStockOutput.Confirmed) {
+        setPropsAlertSave({
+          status,
+          visible: true,
+          message: '¿Está seguro que desea enviar la salida?',
           type: 'warning',
         });
       } else {
@@ -157,52 +139,111 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    * @description se encarga de guardar el traslado
    * @param status se usa para definir el estado de la salida
    */
-  const saveOutput = (status?: string) => {
-    if (id) {
-      const detailsFilter = details.filter((detail) => detail?.action);
+  const saveOutput = async (status?: StatusStockOutput) => {
+    try {
+      if (id) {
+        const detailsFilter = details.filter((detail) => detail?.action);
 
-      const newDetails = detailsFilter.map((detail) => ({
-        productId: detail?.product?._id,
-        quantity: detail?.quantity,
-        action: detail?.action,
-      }));
-      if (newDetails.length > 0 || status || observation !== output?.observation) {
-        const props = {
-          details: newDetails,
-          observation,
-          status,
-        };
-
-        updateOutput({
-          variables: {
-            input: props,
-            id,
-          },
-        });
-      } else {
-        onShowInformation('La salida no tiene cambios a realizar');
-      }
-    } else {
-      if (status === 'cancelled') {
-        setCurrentStep(0);
-      } else {
-        const newDetails = details.map((detail) => ({
-          productId: detail?.product?._id,
-          quantity: detail?.quantity,
+        const newDetails = detailsFilter.map((detail) => ({
+          productId: detail?.product?._id || '',
+          quantity: detail?.quantity || 1,
+          action: detail?.action as ActionDetailOutput,
         }));
-        const props = {
-          details: newDetails,
-          warehouseId:
-            output?.warehouse?._id || initialState?.currentUser?.shop?.defaultWarehouse?._id,
-          observation,
-          status,
-        };
-        createOutput({
-          variables: {
-            input: props,
-          },
-        });
+        if (newDetails.length > 0 || status || observation !== output?.observation) {
+          const props = {
+            details: newDetails,
+            observation,
+            status,
+          };
+
+          if (props.status === StatusStockOutput.Open) {
+            delete props.status;
+          }
+
+          const response = await updateOutput({
+            variables: {
+              input: props,
+              id,
+            },
+          });
+          if (response?.data?.updateStockOutput && status === StatusStockOutput.Open) {
+            setPropsAlert({
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} actualizada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockOutput && status === StatusStockOutput.Confirmed) {
+            setPropsAlert({
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} creada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockOutput && status === StatusStockOutput.Cancelled) {
+            setPropsAlert({
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} cancelada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
+            });
+          }
+        } else {
+          onShowInformation('La salida no tiene cambios a realizar');
+        }
+      } else {
+        if (status === StatusStockOutput.Cancelled) {
+          setCurrentStep(0);
+        } else {
+          const newDetails = details.map((detail) => ({
+            productId: detail?.product?._id || '',
+            quantity: detail?.quantity || 1,
+          }));
+          const props = {
+            details: newDetails,
+            warehouseId:
+              output?.warehouse?._id ||
+              initialState?.currentUser?.shop?.defaultWarehouse?._id ||
+              '',
+            observation,
+            status,
+          };
+          const response = await createOutput({
+            variables: {
+              input: props,
+            },
+          });
+          if (response?.data?.createStockOutput && status === StatusStockOutput.Confirmed) {
+            setPropsAlert({
+              message: `Salida creada correctamente No. ${response?.data?.createStockOutput?.number}`,
+              type: 'success',
+              visible: true,
+              redirect:
+                status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : `/inventory/output/${response?.data?.createStockOutput?._id}`,
+            });
+          } else if (response?.data?.createStockOutput && status === StatusStockOutput.Open) {
+            setPropsAlert({
+              message: `Salida guardada correctamente No. ${response?.data?.createStockOutput?.number}`,
+              type: 'success',
+              visible: true,
+              redirect: `/inventory/output/${response?.data?.createStockOutput?._id}`,
+            });
+          }
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -222,7 +263,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
             if (detail?.product?._id === _id) {
               return {
                 ...detail,
-                action: 'delete',
+                action: ActionDetailOutput.Delete,
               };
             }
             return detail;
@@ -237,17 +278,20 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    * @param _id identificador del producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
-  const updateDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
+  const updateDetail = (product: Partial<Product>, quantity: number) => {
     if (setDetails) {
       if (product.stock && product?.stock[0].quantity) {
         if (product?.stock[0].quantity >= quantity) {
+          const productFind = output?.details?.find(
+            (detail) => detail?.product?._id === product?._id,
+          );
           setDetails(
             details.map((detail) => {
               if (detail?.product?._id === product?._id) {
                 return {
                   ...detail,
-                  quantity: quantity || 0,
-                  action: detail?.action ?? 'update',
+                  quantity: quantity || 1,
+                  action: productFind ? ActionDetailOutput.Update : ActionDetailOutput.Create,
                 };
               }
               return detail;
@@ -267,11 +311,18 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
    * @param product identificador del producto a crear
    * @param quantity cantidad  a asignar
    */
-  const createDetail = (product: Partial<PRODUCT.Product>, quantity: number) => {
+  const createDetail = (product: Product, quantity: number) => {
     if (setDetails) {
       if (product?.stock && product.stock[0].quantity) {
         if (product?.stock[0].quantity >= quantity) {
-          setDetails([...details, { product, quantity, action: 'create' }]);
+          const findProduct = output?.details?.find(
+            (detail) => detail?.product?._id === product._id,
+          );
+          if (findProduct) {
+            updateDetail(product, quantity);
+          } else {
+            setDetails([...details, { product, quantity, action: ActionDetailOutput.Create }]);
+          }
         } else {
           onShowInformation(
             `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
@@ -304,7 +355,9 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(output?.details || []);
+      if (details?.length === 0) {
+        setDetails(output?.details || []);
+      }
       setObservation(output?.observation || '');
     }
   }, [output, id]);
@@ -316,7 +369,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
   };
 
   const propsSelectProduct: PropsSelectProducts = {
-    details: details.filter((item) => item?.action !== 'delete'),
+    details: details.filter((item) => item?.action !== ActionDetailOutput.Delete),
     validateStock: true,
     warehouseId: output?.warehouse?._id,
     createDetail,
@@ -324,11 +377,11 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
     deleteDetail,
   };
 
-  const columns: ColumnsType<Partial<OUTPUT.DetailOutput>> = [
+  const columns: ColumnsType<Partial<DetailOutput>> = [
     {
       title: 'Referencia',
       dataIndex: 'product',
-      render: ({ reference, barcode }: PRODUCT.Product) => (
+      render: ({ reference, barcode }: Product) => (
         <Row>
           <Col span={24}>
             {reference?.name} / {reference?.description}
@@ -342,7 +395,7 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
     {
       title: 'Color',
       dataIndex: 'product',
-      render: ({ color }: PRODUCT.Product) => {
+      render: ({ color }: Product) => {
         return (
           <Space>
             <Avatar
@@ -358,13 +411,18 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
     {
       title: 'Talla',
       dataIndex: 'product',
-      render: ({ size }: PRODUCT.Product) => size.value,
+      render: ({ size }: Product) => size.value,
+    },
+    {
+      title: 'Costo Unitario',
+      dataIndex: 'product',
+      render: (product: Product) => numeral(product?.reference?.price).format('$ 0,0'),
     },
     {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
-      render: ({ stock }: PRODUCT.Product) =>
+      render: ({ stock }: Product) =>
         stock && (
           <Badge
             overflowCount={99999}
@@ -385,7 +443,6 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
           max={product?.stock ? product?.stock[0]?.quantity : 0}
           onChange={(value) => updateDetail(product || {}, value)}
           disabled={!allowEdit}
-          style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
     },
@@ -393,15 +450,16 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
       title: 'Opciones',
       dataIndex: 'product',
       align: 'center',
-      render: ({ _id = '' }: PRODUCT.Product) => (
+      render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
+          </Popconfirm>
         </Tooltip>
       ),
     },
@@ -409,7 +467,12 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
 
   return (
     <>
-      <Header output={output} setObservation={setObservation} observation={observation} />
+      <Header
+        allowEdit={allowEdit}
+        output={output}
+        setObservation={setObservation}
+        observation={observation}
+      />
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
@@ -422,14 +485,17 @@ const FormOutput = ({ output, setCurrentStep, setOutput }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== 'delete')}
+          dataSource={details
+            .filter((detail) => detail?.action !== ActionDetailOutput.Delete)
+            .reverse()}
           scroll={{ x: 1000 }}
           pagination={{ size: 'small' }}
         />
       </Card>
-      <Footer output={output} saveOutput={showAlertSave} details={details} />
+      <Footer allowEdit={allowEdit} output={output} saveOutput={showAlertSave} details={details} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <AlertLoading visible={loadingCreate || loadingUpdate} message="Guardando Solicitud" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Guardando Salida" />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Salida" />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );

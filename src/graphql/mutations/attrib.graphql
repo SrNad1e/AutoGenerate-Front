@@ -1,0 +1,19 @@
+mutation createAttrib($input: CreateAttribInput!) {
+  createAttrib(createAttribInput: $input) {
+    _id
+    active
+    createdAt
+    updatedAt
+    name
+  }
+}
+
+mutation updateAttrib($id: String!, $input: UpdateAttribInput!) {
+  updateAttrib(id: $id, updateAttribInput: $input) {
+    _id
+    active
+    createdAt
+    updatedAt
+    name
+  }
+}

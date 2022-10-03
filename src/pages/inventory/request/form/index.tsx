@@ -7,16 +7,19 @@ import {
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
-
-import { useParams, useHistory, useModel } from 'umi';
+import { useParams, useHistory, useModel, useAccess } from 'umi';
 import { useReactToPrint } from 'react-to-print';
+import { useEffect, useRef, useState } from 'react';
+
 import FormRequest from '../components/FormRequest';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetRequest } from '@/hooks/request.hooks';
 import ReportRequest from '../reports/request';
-import { useEffect, useRef, useState } from 'react';
+import type { StockRequest, Warehouse } from '@/graphql/graphql';
+import { StatusStockRequest } from '@/graphql/graphql';
+import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
 import './styles.less';
@@ -24,14 +27,14 @@ import './styles.less';
 const { Step } = Steps;
 
 const RequestForm = () => {
-  const [currentStep, setCurretStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
   const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
-  const [request, setRequest] = useState<Partial<REQUEST.Request>>({
-    status: 'open',
+  const [request, setRequest] = useState<Partial<StockRequest>>({
+    status: StatusStockRequest.Open,
   });
 
   const { initialState } = useModel('@@initialState');
@@ -45,11 +48,23 @@ const RequestForm = () => {
     content: () => reportRef?.current,
   });
 
+  const [getRequest, { loading, data }] = useGetRequest();
+  const [getWarehouseId] = useGetWarehouseId();
+
   const isNew = !id;
+
+  const {
+    request: { canEdit, canPrint },
+  } = useAccess();
+
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === request?.user?._id &&
+      request?.status === StatusStockRequest.Open &&
+      canEdit;
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
    */
   const onShowError = (message: string) => {
     setPropsAlert({
@@ -69,52 +84,63 @@ const RequestForm = () => {
       visible: false,
     });
   };
-  /**
-   * @description se encarga de cargar la solicitud actual
-   * @param data datos de la solicitud
-   */
-  const currentRequest = (data: Partial<REQUEST.Request>) => {
-    console.log(data);
-
-    setRequest(data);
-  };
 
   /**
-   * @description se encarga de administrar el error
-   * @param message mensaje de error
+   * @description consulta la solicitud y almacena en memoria
    */
-  const showError = (message: string) => {
-    onShowError(message);
-  };
-
-  const { getRequest, loadingGetOne } = useGetRequest(currentRequest, showError);
-
-  /**
-   * @description se encarga de cambiar el paso y asignar la bodega
-   * @param warehouseDestinationId bodega seleccionada
-   */
-  const changeCurrentStep = (warehouseOrigin?: WAREHOUSE.Warehouse) => {
-    if (warehouseOrigin) {
-      setCurretStep(1);
-
-      setRequest({
-        ...request,
-        warehouseOrigin,
+  const getRequestId = async () => {
+    try {
+      const response = await getRequest({
+        variables: {
+          id: id || '',
+        },
       });
-    } else {
-      setCurretStep(0);
+
+      if (response?.data?.stockRequestId) {
+        setRequest(response?.data?.stockRequestId as StockRequest);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de cambiar el paso, consultar y asignar la bodega
+   * @param warehouseOriginId identificador bodega seleccionada
+   */
+  const changeCurrentStep = async (warehouseOriginId?: string) => {
+    try {
+      if (warehouseOriginId) {
+        setCurrentStep(1);
+        const response = await getWarehouseId({
+          variables: {
+            warehouseId: warehouseOriginId,
+          },
+        });
+
+        setRequest({
+          ...request,
+          warehouseOrigin: response?.data?.warehouseId as Warehouse,
+        });
+      } else {
+        setCurrentStep(0);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
   };
 
   useEffect(() => {
     if (!isNew) {
-      getRequest({
-        variables: {
-          id,
-        },
-      });
+      getRequestId();
     }
   }, [isNew]);
+
+  useEffect(() => {
+    if (data?.stockRequestId) {
+      setRequest(data?.stockRequestId as StockRequest);
+    }
+  }, [data]);
 
   /**
    * @description se encarga de renderizar los componentes con base al step
@@ -133,7 +159,7 @@ const RequestForm = () => {
         );
       case 1:
         return (
-          <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurretStep} />
+          <FormRequest allowEdit={allowEdit} request={request} setCurrentStep={setCurrentStep} />
         );
       default:
         return <></>;
@@ -160,13 +186,18 @@ const RequestForm = () => {
               Solicitud No. {request?.number}
               <Divider type="vertical" />
               <Tooltip title="Imprimir">
-                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+                <Button
+                  type="primary"
+                  disabled={!canPrint}
+                  icon={<PrinterOutlined />}
+                  onClick={() => handlePrint()}
+                />
               </Tooltip>
             </>
           )}
         </Space>
       }
-      loading={loadingGetOne}
+      loading={loading}
     >
       {isNew ? (
         <Card>
@@ -185,7 +216,7 @@ const RequestForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormRequest setRequest={setRequest} request={request} setCurrentStep={setCurretStep} />
+        <FormRequest allowEdit={allowEdit} request={request} setCurrentStep={setCurrentStep} />
       )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <div style={{ display: 'none' }}>

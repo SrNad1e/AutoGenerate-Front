@@ -1,4 +1,4 @@
-import { Space, Typography } from 'antd';
+import { Col, Row, Typography } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import React from 'react';
 import { useModel } from 'umi';
@@ -26,20 +26,30 @@ const GlobalHeaderRight: React.FC = () => {
   }
 
   return (
-    <Space className={className}>
-      <span
-        className={styles.action}
-        onClick={() => {
-          window.open('https://sites.google.com/luckywoman.com.co/documentacin-pos-toulouse/');
-        }}
-      >
-        <QuestionCircleOutlined />
-      </span>
-      <Text>
-        {initialState?.currentUser?.role.name} / {initialState?.currentUser?.shop.name}{' '}
-      </Text>
-      <Avatar />
-    </Space>
+    <>
+      <Row gutter={20} className={className}>
+        <Col xs={0} md={1} style={{ marginRight: 8 }}>
+          <span
+            className={styles.action}
+            onClick={() => {
+              window.open('https://sites.google.com/luckywoman.com.co/documentacin-pos-toulouse/');
+            }}
+          >
+            <QuestionCircleOutlined />
+          </span>
+        </Col>
+        <Col xs={0} md={20}>
+          <Text style={{ fontSize: 13 }}>
+            {initialState?.currentUser?.role.name} / {initialState?.currentUser?.shop.name}{' '}
+          </Text>
+        </Col>
+      </Row>
+      <Row className={className} style={{ marginRight: 8 }}>
+        <Col span={24}>
+          <Avatar />
+        </Col>
+      </Row>
+    </>
   );
 };
 

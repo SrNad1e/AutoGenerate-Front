@@ -1,10 +1,11 @@
 import React from 'react';
 import { Col, Row } from 'antd';
 
-import styles from './index.less';
 import FormLogin from '@/components/FormLogin';
 import { ApolloProvider } from '@apollo/client';
 import { client } from '@/services/apollo-client';
+
+import styles from './index.less';
 
 const Login: React.FC = () => (
   <ApolloProvider client={client}>

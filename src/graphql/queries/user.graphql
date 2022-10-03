@@ -1,0 +1,58 @@
+query currentUser {
+  currentUser {
+    _id
+    username
+    name
+    isWeb
+    pointOfSale {
+      _id
+      box {
+        _id
+      }
+    }
+    shop {
+      _id
+      name
+      defaultWarehouse {
+        _id
+        name
+      }
+    }
+    role {
+      changeWarehouse
+      name
+      permissions {
+        action
+      }
+    }
+  }
+}
+
+query users($input: FiltersUsersInput!) {
+  users(filtersUsersInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      createdAt
+      updatedAt
+      name
+      isWeb
+      role {
+        name
+        _id
+      }
+      shop {
+        name
+        _id
+      }
+      status
+      username
+      pointOfSale {
+        name
+        _id
+      }
+    }
+  }
+}

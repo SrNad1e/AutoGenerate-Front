@@ -1,0 +1,262 @@
+query orderId($id: String!) {
+  orderId(id: $id) {
+    credit {
+      available
+      amount
+    }
+    order {
+      statusWeb
+      invoice {
+        user {
+          name
+        }
+        createdAt
+        authorization {
+          prefix
+        }
+        customer {
+          document
+          firstName
+          lastName
+          addresses {
+            city {
+              _id
+              name
+              state
+              country {
+                name
+              }
+            }
+            extra
+            field1
+            isMain
+            loteNumber
+            neighborhood
+            number1
+            number2
+            contact
+            phone
+          }
+        }
+        payments {
+          payment {
+            name
+          }
+          total
+        }
+        summary {
+          change
+          discount
+          total
+          totalPaid
+          tax
+          subtotal
+        }
+        shop {
+          name
+        }
+        details {
+          discount
+          price
+          quantity
+          product {
+            size {
+              value
+            }
+            reference {
+              description
+              name
+            }
+            color {
+              name
+            }
+          }
+        }
+      }
+      user {
+        name
+      }
+      conveyorOrder {
+        shippingDate
+        value
+        guideCode
+        conveyor {
+          _id
+          name
+        }
+      }
+      status
+      _id
+      number
+      updatedAt
+      createdAt
+      address {
+        contact
+        extra
+        field1
+        isMain
+        loteNumber
+        neighborhood
+        number1
+        number2
+        phone
+        city {
+          _id
+          name
+          state
+          country {
+            name
+          }
+        }
+      }
+      shop {
+        name
+        defaultWarehouse {
+          _id
+        }
+      }
+      customer {
+        _id
+        addresses {
+          city {
+            _id
+            name
+            state
+          }
+          extra
+          field1
+          isMain
+          loteNumber
+          neighborhood
+          number1
+          number2
+          contact
+          phone
+        }
+        document
+        phone
+        firstName
+        lastName
+        active
+        documentType {
+          abbreviation
+        }
+        customerType {
+          name
+        }
+      }
+      details {
+        createdAt
+        updatedAt
+        discount
+        quantity
+        price
+        status
+        product {
+          _id
+          barcode
+          images {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+          reference {
+            name
+            cost
+            description
+            _id
+            price
+            cost
+          }
+          size {
+            value
+          }
+          status
+          color {
+            html
+            name
+            image {
+              urls {
+                webp {
+                  small
+                }
+              }
+            }
+            name_internal
+          }
+          stock {
+            quantity
+          }
+        }
+      }
+      payments {
+        createdAt
+        updatedAt
+        total
+        status
+        payment {
+          _id
+          name
+          type
+          active
+        }
+      }
+      summary {
+        change
+        discount
+        subtotal
+        total
+        totalPaid
+      }
+      status
+    }
+  }
+}
+
+query OrdersByPos {
+  ordersByPointOfSale {
+    _id
+    number
+    shop {
+      name
+    }
+    invoice {
+      number
+    }
+    status
+    customer {
+      document
+      firstName
+      lastName
+      documentType {
+        abbreviation
+      }
+    }
+    updatedAt
+    details {
+      price
+      quantity
+      product {
+        _id
+        barcode
+        color {
+          name
+        }
+        size {
+          value
+        }
+        reference {
+          name
+        }
+      }
+    }
+    summary {
+      discount
+      subtotal
+      total
+      totalPaid
+    }
+  }
+}

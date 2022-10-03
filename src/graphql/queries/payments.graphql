@@ -1,0 +1,27 @@
+query payments($input: FiltersPaymentsInput) {
+  payments(filtersPaymentsInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      active
+      updatedAt
+      user {
+        name
+      }
+      message
+      name
+      type
+      color
+      logo {
+        _id
+        urls {
+          webp {
+            small
+          }
+        }
+      }
+    }
+  }
+}

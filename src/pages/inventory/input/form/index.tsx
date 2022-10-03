@@ -1,4 +1,5 @@
-import { useHistory, useParams } from 'umi';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useAccess, useHistory, useModel, useParams } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Button, Card, Divider, Space, Steps, Tooltip } from 'antd';
 import {
@@ -7,15 +8,18 @@ import {
   FileTextOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-
 import { useEffect, useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useGetInput } from '@/hooks/input.hooks';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import FormInput from '../components/FormInput';
-import { useReactToPrint } from 'react-to-print';
 import ReportInput from '../reports/input';
+import type { StockInput, Warehouse } from '@/graphql/graphql';
+import { StatusStockInput } from '@/graphql/graphql';
+import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
 
@@ -28,8 +32,8 @@ const InputForm = () => {
     type: 'error',
     visible: false,
   });
-  const [input, setInput] = useState<Partial<INPUT.Input & INPUT.CreateInput>>({
-    status: 'open',
+  const [input, setInput] = useState<Partial<StockInput>>({
+    status: StatusStockInput.Open,
   });
 
   const { id } = useParams<Partial<{ id: string }>>();
@@ -38,17 +42,29 @@ const InputForm = () => {
 
   const reportRef = useRef(null);
 
+  const { initialState } = useModel('@@initialState');
+
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
 
-  const isNew = !id;
+  const [getInput, { loading, data }] = useGetInput();
+  const [getWarehouseId] = useGetWarehouseId();
 
-  /** Funciones ejecutadas por los hooks */
+  const isNew = !id;
+  const {
+    input: { canPrint, canEdit },
+  } = useAccess();
+
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === input?.user?._id &&
+      input?.status === StatusStockInput.Open &&
+      canEdit;
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
+   * @param message error de apollo
    */
   const onShowError = (message: string) => {
     setPropsAlert({
@@ -70,62 +86,73 @@ const InputForm = () => {
   };
 
   /**
-   * @description se encarga de cargar la entrada actual
-   * @param data datos de la entrada
+   * @description consulta la entrada y almacena en memoria
    */
-  const currentInput = (data: Partial<INPUT.Input>) => {
-    setInput(data);
+  const getInputId = async () => {
+    try {
+      const response = await getInput({
+        variables: {
+          id: id || '',
+        },
+      });
+
+      if (response?.data?.stockInputId) {
+        setInput(response?.data?.stockInputId as StockInput);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
+    }
   };
-
-  /**
-   * @description se encarga de administrar el error
-   * @param message mensaje de error
-   */
-  const showError = (message: string) => {
-    onShowError(message);
-  };
-
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getInput, loading } = useGetInput(currentInput, showError);
-
-  /** Fin de Hooks para manejo de consultas */
 
   /**
    * @description se encarga de cambiar el paso y asignar la bodega
-   * @param warehouse bodega seleccionada
+   * @param warehouseId identificador bodega seleccionada
    */
-  const changeCurrentStep = (warehouse: WAREHOUSE.Warehouse) => {
-    if (warehouse) {
-      setCurrentStep(1);
+  const changeCurrentStep = async (warehouseId: string) => {
+    try {
+      if (warehouseId) {
+        setCurrentStep(1);
+        const response = await getWarehouseId({
+          variables: {
+            warehouseId: warehouseId,
+          },
+        });
 
-      setInput({
-        ...input,
-        warehouse,
-      });
-    } else {
-      setCurrentStep(0);
+        setInput({
+          ...input,
+          warehouse: response?.data?.warehouseId as Warehouse,
+        });
+      } else {
+        setCurrentStep(0);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
   };
 
   useEffect(() => {
     if (!isNew) {
-      getInput({
-        variables: {
-          id,
-        },
-      });
+      getInputId();
     }
   }, [isNew]);
 
+  useEffect(() => {
+    if (data?.stockInputId) {
+      setInput(data?.stockInputId as StockInput);
+    }
+  }, [data]);
+
+  /**
+   * @description se encarga de renderizar los componentes con base al step
+   * @param step paso en el cual se encuentra
+   * @returns componente
+   */
   const renderSteps = (step: number) => {
     switch (step) {
       case 0:
         return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
       case 1:
-        return <FormInput setInput={setInput} input={input} setCurrentStep={setCurrentStep} />;
+        return <FormInput allowEdit={allowEdit} input={input} setCurrentStep={setCurrentStep} />;
       default:
         return <></>;
     }
@@ -152,7 +179,12 @@ const InputForm = () => {
               {' '}
               Entrada No. {input?.number} <Divider type="vertical" />
               <Tooltip title="Imprimir">
-                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+                <Button
+                  type="primary"
+                  icon={<PrinterOutlined />}
+                  disabled={!canPrint}
+                  onClick={() => handlePrint()}
+                />
               </Tooltip>{' '}
             </>
           )}
@@ -177,9 +209,8 @@ const InputForm = () => {
           {renderSteps(currentStep)}
         </Card>
       ) : (
-        <FormInput setInput={setInput} input={input} setCurrentStep={setCurrentStep} />
+        <FormInput allowEdit={allowEdit} input={input} setCurrentStep={setCurrentStep} />
       )}
-      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
       <div style={{ display: 'none' }}>
         <ReportInput ref={reportRef} data={input} />

@@ -1,0 +1,24 @@
+query colors($input: FiltersColorsInput!) {
+  colors(filtersColorsInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      name
+      name_internal
+      createdAt
+      updatedAt
+      image {
+      _id
+        urls {
+          webp {
+            small
+          }
+        }
+      }
+      html
+      active
+    }
+  }
+}

@@ -1,0 +1,21 @@
+mutation createSize($input: CreateSizeInput!) {
+  createSize(createSizeInput: $input) {
+    _id
+    active
+    createdAt
+    updatedAt
+    value
+    weight
+  }
+}
+
+mutation updateSize($id: String!, $input: UpdateSizeInput!) {
+  updateSize(id: $id, updateSizeInput: $input) {
+    _id
+    active
+    createdAt
+    updatedAt
+    value
+    weight
+  }
+}

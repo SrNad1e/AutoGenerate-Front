@@ -2,10 +2,12 @@
 /* eslint-disable */
 import { request } from 'umi';
 
+import { User } from '@/graphql/graphql';
+
 /** 获取当前的用户 GET /api/currentUser */
 export async function currentUser(options?: { [key: string]: any }) {
   return request<{
-    data: USER.User;
+    data: User;
   }>('/api/currentUser', {
     method: 'GET',
     ...(options || {}),

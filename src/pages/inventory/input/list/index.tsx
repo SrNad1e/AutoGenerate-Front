@@ -1,5 +1,17 @@
-import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
-import Table, { ColumnsType } from 'antd/lib/table';
+/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable react-hooks/exhaustive-deps */
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  DollarCircleOutlined,
+  DropboxOutlined,
+  EyeOutlined,
+  FieldNumberOutlined,
+  FileSyncOutlined,
+  MoreOutlined,
+  PrinterFilled,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   Badge,
   Button,
@@ -11,52 +23,59 @@ import {
   Row,
   Select,
   Space,
+  Table,
   Tooltip,
   Typography,
 } from 'antd';
-import { TablePaginationConfig } from 'antd/es/table/interface';
+import type {
+  ColumnsType,
+  FilterValue,
+  TablePaginationConfig,
+  SorterResult,
+} from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import { SorterResult } from 'antd/lib/table/interface';
-
-import { useHistory, useLocation } from 'umi';
-import { useGetInputs } from '@/hooks/input.hooks';
-import { useEffect, useRef, useState } from 'react';
-import { StatusTypeInput } from '../input.data';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
+import { useHistory, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
-import SelectWarehouses from '@/components/SelectWarehouses';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import TotalFound from '@/components/TotalFound';
-import ReportInput from '../reports/input';
+import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 
+import { useGetInputs } from '@/hooks/input.hooks';
+import { StatusTypeInput } from '../input.data';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import SelectWarehouses from '@/components/SelectWarehouses';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import ReportInput from '../reports/input';
+import type {
+  DetailInput,
+  FiltersStockInputsInput,
+  StatusStockInput,
+  StockInput,
+  Warehouse,
+} from '@/graphql/graphql';
+
 import styles from './styles.less';
+import style from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockInput;
   number?: number;
-  warehouse?: WAREHOUSE.Warehouse;
+  warehouseId?: string;
   dates?: Moment[];
 };
 
 const InputList = () => {
-  const [inputs, setInputs] = useState<Partial<INPUT.Input[]>>([]);
-  const [inputData, setInputData] = useState<Partial<INPUT.Input>>({});
+  const [inputData, setInputData] = useState<Partial<StockInput>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
-  const [totalPages, setTotalPages] = useState(0);
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    total: 0,
-    pageSize: 10,
-    current: 1,
-  });
-  const [error, setError] = useState<PropsAlertInformation>({
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
@@ -66,34 +85,29 @@ const InputList = () => {
 
   const history = useHistory();
 
-  const location = useLocation();
+  const location: Location = useLocation();
 
   const reportRef = useRef(null);
+
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
+
+  const [getInputs, { data, loading }] = useGetInputs();
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
 
-  /** Funciones ejecutadas por los hooks */
-
-  /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
-   */
-  const resultInputs = (data: Partial<INPUT.Response>) => {
-    if (data) {
-      setInputs(data.docs || []);
-      setTotalPages(data?.totalPages || 0);
-      setPagination({ ...pagination, total: data.totalDocs });
-    }
-  };
-
+  const {
+    input: { canPrint },
+  } = useAccess();
   /**
    * @description funcion usada por los hook para mostrar los errores
    * @param message mensaje de error a mostrar
    */
   const messageError = (message: string) => {
-    setError({
+    setPropsAlertInformation({
       message,
       type: 'error',
       visible: true,
@@ -103,23 +117,19 @@ const InputList = () => {
   /**
    * @description se encarga de cerrar la alerta informativa
    */
-  const closeMessageError = () => {
-    setError({
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
       message: '',
       type: 'error',
       visible: false,
     });
   };
 
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getInputs, loading } = useGetInputs(resultInputs, messageError);
-
-  /** Fin de Hooks para manejo de consultas */
-
-  const printPage = async (record: Partial<INPUT.Input>) => {
+  /**
+   * @description se encarga de seleccionar la entrada e imprime
+   * @param record entrada
+   */
+  const printPage = async (record: Partial<StockInput>) => {
     await setInputData(record);
     handlePrint();
   };
@@ -128,17 +138,21 @@ const InputList = () => {
    * @description se encarga de ejecutar la funcion para obtener las entradas
    * @param params filtros necesarios para la busqueda
    */
-  const onSearch = (params?: Partial<INPUT.FiltersGetInputs>) => {
-    getInputs({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+  const onSearch = (params?: FiltersStockInputsInput) => {
+    try {
+      getInputs({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -146,11 +160,11 @@ const InputList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouse, dates } = props;
+    const { status, number, warehouseId, dates } = props;
     try {
-      const params: Partial<INPUT.FiltersGetInputs> = {
+      const params: Partial<FiltersStockInputsInput> = {
         page: pageCurrent || 1,
-        limit: pagination.pageSize,
+        limit: 10,
         status,
         number,
         sort: sort || { createdAt: -1 },
@@ -159,13 +173,12 @@ const InputList = () => {
       if (dates) {
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
-        params['dateFinal'] = dateFinal;
-        params['dateInitial'] = dateInitial;
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
       }
-      if (warehouse) {
-        params['warehouseId'] = warehouse?._id;
+      if (warehouseId) {
+        params.warehouseId = warehouseId;
       }
-      setPagination({ ...pagination, current: pageCurrent || 1 });
       onSearch(params);
 
       const datos = Object.keys(props)
@@ -174,8 +187,8 @@ const InputList = () => {
 
       form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error: any) {
+      messageError(error?.message);
     }
   };
 
@@ -186,8 +199,8 @@ const InputList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: any,
-    sorter: SorterResult<Partial<INPUT.Input>>,
+    _: Record<string, FilterValue | null>,
+    sorter: SorterResult<StockInput> | SorterResult<StockInput>[] | any,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -204,7 +217,6 @@ const InputList = () => {
       };
     }
 
-    setPagination({ ...pagination, current });
     onFinish(params, sort, current);
   };
 
@@ -214,53 +226,82 @@ const InputList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
-    setPagination({
-      total: 0,
-      pageSize: 10,
-      current: 1,
-    });
     onSearch({
       limit: 10,
       page: 1,
+      warehouseId: !canChangeWarehouse ? defaultWarehouse : null,
     });
-    setFilters({});
+
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+      setFilters({ warehouseId: defaultWarehouse });
+    } else {
+      setFilters({});
+    }
   };
 
-  useEffect(() => {
-    const queryParams = location['query'];
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const loadingData = () => {
+    const queryParams: any = location?.query;
 
     const newFilters = {};
 
     Object.keys(queryParams).forEach((item) => {
-      newFilters[item] = JSON.parse(queryParams[item]);
+      if (item === 'dates') {
+        const dataItem = JSON.parse(queryParams[item]);
+        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      } else {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      }
     });
+
+    if (!canChangeWarehouse) {
+      newFilters['warehouseId'] = defaultWarehouse;
+    }
+
     onFinish(newFilters);
+  };
+
+  useEffect(() => {
+    loadingData();
   }, []);
 
-  const columns: ColumnsType<Partial<INPUT.Input>> = [
+  const columns: ColumnsType<Partial<StockInput>> = [
     {
-      title: 'Número',
+      title: (
+        <Text className={styles.iconTable}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: 'Bodega',
+      title: <Text>{<DropboxOutlined />} Bodega</Text>,
       dataIndex: 'warehouse',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouse: WAREHOUSE.Warehouse) => warehouse?.name,
+      render: (warehouse: Warehouse) => warehouse?.name,
     },
     {
-      title: 'Referencia',
+      title: (
+        <Text>
+          <FieldNumberOutlined /> Referencias
+        </Text>
+      ),
       dataIndex: 'details',
       align: 'center',
-      render: (details: INPUT.DetailInput[]) => details?.length,
+      render: (details: DetailInput[]) => details?.length,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
       render: (status: string) => {
@@ -269,7 +310,11 @@ const InputList = () => {
       },
     },
     {
-      title: 'Total',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Total
+        </Text>
+      ),
       dataIndex: 'total',
       align: 'center',
       sorter: true,
@@ -277,15 +322,7 @@ const InputList = () => {
       render: (total: number) => numeral(total).format('$ 0,0'),
     },
     {
-      title: 'Creado',
-      dataIndex: 'createdAt',
-      align: 'center',
-      sorter: true,
-      showSorterTooltip: false,
-      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
-    },
-    {
-      title: 'Actualizado',
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -293,9 +330,10 @@ const InputList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, record) => {
         return (
           <Space>
@@ -313,6 +351,7 @@ const InputList = () => {
                   style={{ backgroundColor: 'white' }}
                   onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
+                  disabled={!canPrint}
                 />
               </Tooltip>
             </Space>
@@ -325,34 +364,27 @@ const InputList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de Entradas
-          </Title>
+          <Title level={4}>Lista de Entradas</Title>
         </Space>
       }
     >
       <Card>
         <Form
           form={form}
-          layout="inline"
+          layout="horizontal"
           className={styles.filters}
           onFinish={onFinish}
           initialValues={filters}
         >
-          <Row gutter={[8, 8]} className={styles.form}>
-            <Col xs={24} lg={4} xl={4} xxl={2}>
+          <Row gutter={[40, 0]} align="middle">
+            <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
-                <InputNumber
-                  className={styles.item}
-                  disabled={loading}
-                  min={1}
-                  max={pagination.total}
-                />
+                <InputNumber style={style.maxWidth} disabled={loading} min={1} controls={false} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={5} xxl={4}>
+            <Col xs={24} md={5} lg={5} xl={5}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item} allowClear disabled={loading}>
+                <Select className={styles.item} allowClear loading={loading}>
                   {Object.keys(StatusTypeInput).map((key) => (
                     <Option key={key}>
                       <Badge text={StatusTypeInput[key].label} color={StatusTypeInput[key].color} />
@@ -361,17 +393,21 @@ const InputList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={6} xxl={6}>
-              <FormItem label="Bodega" name="warehouse">
-                <SelectWarehouses />
+            <Col xs={24} md={6} lg={6} xl={7}>
+              <FormItem label="Bodega" name="warehouseId">
+                <SelectWarehouses disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={8} xxl={7}>
+            <Col xs={24} md={7} lg={7} xl={8}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker className={styles.item} disabled={loading} />
+                <RangePicker
+                  className={styles.item}
+                  disabled={loading}
+                  placeholder={['Fecha Inicial', 'Fecha Final']}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={5} xxl={4}>
+            <Col xs={24} md={7} lg={24} xl={24}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -379,10 +415,17 @@ const InputList = () => {
                     type="primary"
                     htmlType="submit"
                     loading={loading}
+                    style={style.buttonR}
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button
+                    icon={<ClearOutlined />}
+                    htmlType="button"
+                    style={style.buttonR}
+                    onClick={onClear}
+                    loading={loading}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -390,22 +433,29 @@ const InputList = () => {
             </Col>
           </Row>
         </Form>
+        <Row gutter={[0, 20]}>
+          <Col span={24} className={styles.marginFilters}>
+            <Text strong>Total Encontrados:</Text> {data?.stockInputs?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.stockInputs?.page} /{' '}
+            {data?.stockInputs?.totalPages || 0}
+          </Col>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={data?.stockInputs?.docs as any}
+              pagination={{
+                current: data?.stockInputs?.page,
+                total: data?.stockInputs?.totalDocs,
+                showSizeChanger: false,
+              }}
+              onChange={handleChangeTable}
+              loading={loading}
+              scroll={{ x: 'auto' }}
+            />
+          </Col>
+        </Row>
       </Card>
-      <TotalFound
-        current={pagination.current || 0}
-        totalPages={totalPages}
-        total={pagination.total || 0}
-      />
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={inputs}
-          pagination={pagination}
-          onChange={handleChangeTable}
-          loading={loading}
-        />
-      </Card>
-      <AlertInformation {...error} onCancel={closeMessageError} />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>
         <ReportInput ref={reportRef} data={inputData} />
       </div>

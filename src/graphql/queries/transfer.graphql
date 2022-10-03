@@ -1,0 +1,162 @@
+query stockTransfers($input: FiltersStockTransfersInput) {
+  stockTransfers(filtersStockTransfersInput: $input) {
+    page
+    totalDocs
+    totalPages
+    docs {
+      _id
+      details {
+        quantity
+        product {
+          _id
+          barcode
+          color {
+            name
+            name_internal
+            html
+            image {
+              urls {
+                webp {
+                  small
+                }
+              }
+            }
+          }
+          reference {
+            name
+            description
+          }
+          size {
+            value
+          }
+          stock {
+            quantity
+          }
+        }
+      }
+      number
+      status
+      updatedAt
+      createdAt
+      observation
+      observationOrigin
+      observationDestination
+      warehouseDestination {
+        name
+      }
+      warehouseOrigin {
+        name
+      }
+      userOrigin {
+        name
+      }
+    }
+  }
+}
+
+query stockTransferId($id: String!) {
+  stockTransferId(id: $id) {
+    _id
+    createdAt
+    number
+    details {
+      product {
+        _id
+        barcode
+        color {
+          name
+          name_internal
+          html
+          image {
+            urls {
+              webp {
+                small
+              }
+            }
+          }
+        }
+        reference {
+          name
+          description
+        }
+        size {
+          value
+        }
+        stock {
+          quantity
+        }
+      }
+      quantity
+      quantityConfirmed
+      status
+    }
+    observation
+    observationDestination
+    observationOrigin
+    requests {
+      _id
+      number
+    }
+    status
+    updatedAt
+    userDestination {
+      name
+    }
+    userOrigin {
+      _id
+      name
+    }
+    warehouseDestination {
+      _id
+      name
+    }
+    warehouseOrigin {
+      _id
+      name
+    }
+  }
+}
+
+query stockTransfersError($input: FiltersStockTransfersErrorInput) {
+  stockTransfersError(filtersStockTransfersErrorInput: $input) {
+    docs {
+      _id
+      updatedAt
+      createdAt
+      verified
+      details {
+        status
+        product {
+          _id
+          size {
+            value
+          }
+          reference {
+            name
+          }
+          color {
+            name
+          }
+          barcode
+        }
+        quantity
+        reason
+        updatedAt
+      }
+      stockTransfer {
+        _id
+        number
+        updatedAt
+        warehouseOrigin {
+          name
+        }
+        warehouseDestination {
+          name
+        }
+      }
+    }
+    page
+    totalDocs
+    totalPages
+  }
+}

@@ -1,5 +1,19 @@
-import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
-import Table, { ColumnsType } from 'antd/lib/table';
+/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  DollarCircleOutlined,
+  DropboxOutlined,
+  EyeOutlined,
+  FieldNumberOutlined,
+  FileSyncOutlined,
+  MoreOutlined,
+  PrinterFilled,
+  SearchOutlined,
+} from '@ant-design/icons';
+import Table from 'antd/lib/table';
 import {
   Badge,
   Button,
@@ -14,78 +28,89 @@ import {
   Tooltip,
   Typography,
 } from 'antd';
-import { TablePaginationConfig } from 'antd/es/table/interface';
+import type {
+  ColumnsType,
+  FilterValue,
+  TablePaginationConfig,
+  SorterResult,
+} from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import { SorterResult } from 'antd/lib/table/interface';
-
-import { useHistory, useLocation } from 'umi';
-import { useGetAdjustments } from '@/hooks/adjustment.hooks';
+import { useReactToPrint } from 'react-to-print';
+import { useAccess, useHistory, useLocation, useModel } from 'umi';
 import { useEffect, useRef, useState } from 'react';
+import numeral from 'numeral';
+import type { Location } from 'umi';
+
 import { StatusTypeAdjustment } from '../adjustment.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import numeral from 'numeral';
 import SelectWarehouses from '@/components/SelectWarehouses';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import TotalFound from '@/components/TotalFound';
 import ReportAdjustment from '../reports/adjustment';
-import { useReactToPrint } from 'react-to-print';
+import type {
+  DetailAdjustment,
+  FiltersStockAdjustmentsInput,
+  StatusStockAdjustment,
+  StockAdjustment,
+  Warehouse,
+} from '@/graphql/graphql';
+import { useGetAdjustments } from '@/hooks/adjustment.hooks';
 
 import styles from './styles.less';
+import style from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockAdjustment;
   number?: number;
-  warehouse?: WAREHOUSE.Warehouse;
+  warehouseId?: string;
   dates?: Moment[];
 };
 
 const AdjustmentList = () => {
-  const [adjustments, setAdjustments] = useState<Partial<ADJUSTMENT.Adjustment[]>>([]);
-  const [adjustmentData, setAdjustmentData] = useState<Partial<ADJUSTMENT.Adjustment>>({});
+  const [adjustmentData, setAdjustmentData] = useState<Partial<StockAdjustment>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
-  const [totalPages, setTotalPages] = useState(0);
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    total: 0,
-    pageSize: 10,
-    current: 1,
-  });
-  const [error, setError] = useState<PropsAlertInformation>({
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
 
+  const {
+    adjustment: { canPrint },
+  } = useAccess();
+
   const [form] = Form.useForm();
 
   const history = useHistory();
-
-  const location = useLocation();
+  const location: Location = useLocation();
 
   const reportRef = useRef(null);
+
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
+
+  const [getAdjustments, { data, loading }] = useGetAdjustments();
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
 
-  /** Funciones ejecutadas por los hooks */
-
   /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
+   * @description se encarga de cerrar la alerta informativa
    */
-  const resultAdjustments = (data: Partial<ADJUSTMENT.Response>) => {
-    if (data) {
-      setAdjustments(data.docs || []);
-      setTotalPages(data?.totalPages || 0);
-      setPagination({ ...pagination, total: data.totalDocs });
-    }
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
   };
 
   /**
@@ -93,7 +118,7 @@ const AdjustmentList = () => {
    * @param message mensaje de error a mostrar
    */
   const messageError = (message: string) => {
-    setError({
+    setPropsAlertInformation({
       message,
       type: 'error',
       visible: true,
@@ -101,25 +126,10 @@ const AdjustmentList = () => {
   };
 
   /**
-   * @description se encarga de cerrar la alerta informativa
+   * @description se encarga de seleccionar el ajuste e imprime
+   * @param record ajuste
    */
-  const closeMessageError = () => {
-    setError({
-      message: '',
-      type: 'error',
-      visible: false,
-    });
-  };
-
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getAdjustments, loading } = useGetAdjustments(resultAdjustments, messageError);
-
-  /** Fin de Hooks para manejo de consultas */
-
-  const printPage = async (record: Partial<ADJUSTMENT.Adjustment>) => {
+  const printPage = async (record: Partial<StockAdjustment>) => {
     await setAdjustmentData(record);
     handlePrint();
   };
@@ -128,17 +138,21 @@ const AdjustmentList = () => {
    * @description se encarga de ejecutar la funcion para obtener los ajustes
    * @param params filtros necesarios para la busqueda
    */
-  const onSearch = (params?: Partial<ADJUSTMENT.FiltersGetAdjustment>) => {
-    getAdjustments({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+  const onSearch = (params?: FiltersStockAdjustmentsInput) => {
+    try {
+      getAdjustments({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error.message);
+    }
   };
 
   /**
@@ -146,11 +160,11 @@ const AdjustmentList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouse, dates } = props;
+    const { status, number, warehouseId, dates } = props;
     try {
-      const params: Partial<ADJUSTMENT.FiltersGetAdjustment> = {
+      const params: Partial<FiltersStockAdjustmentsInput> = {
         page: pageCurrent || 1,
-        limit: pagination.pageSize,
+        limit: 10,
         status,
         number,
         sort: sort || { createdAt: -1 },
@@ -159,13 +173,12 @@ const AdjustmentList = () => {
       if (dates) {
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
-        params['dateFinal'] = dateFinal;
-        params['dateInitial'] = dateInitial;
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
       }
-      if (warehouse) {
-        params['warehouseId'] = warehouse?._id;
+      if (warehouseId) {
+        params.warehouseId = warehouseId;
       }
-      setPagination({ ...pagination, current: pageCurrent || 1 });
       onSearch(params);
 
       const datos = Object.keys(props)
@@ -174,8 +187,8 @@ const AdjustmentList = () => {
 
       form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error: any) {
+      messageError(error?.message);
     }
   };
 
@@ -186,8 +199,8 @@ const AdjustmentList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: any,
-    sorter: SorterResult<Partial<ADJUSTMENT.Adjustment>>,
+    _: Record<string, FilterValue | null>,
+    sorter: SorterResult<StockAdjustment> | SorterResult<StockAdjustment>[] | any,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -204,7 +217,6 @@ const AdjustmentList = () => {
       };
     }
 
-    setPagination({ ...pagination, current });
     onFinish(params, sort, current);
   };
 
@@ -214,62 +226,93 @@ const AdjustmentList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
-    setPagination({
-      total: 0,
-      pageSize: 10,
-      current: 1,
-    });
     onSearch({
       limit: 10,
       page: 1,
+      warehouseId: !canChangeWarehouse ? defaultWarehouse : null,
     });
-    setFilters({});
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+      setFilters({ warehouseId: defaultWarehouse });
+    } else {
+      setFilters({});
+    }
   };
 
-  useEffect(() => {
-    const queryParams = location['query'];
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const loadingData = () => {
+    const queryParams: any = location?.query;
 
     const newFilters = {};
 
     Object.keys(queryParams).forEach((item) => {
-      newFilters[item] = JSON.parse(queryParams[item]);
+      if (item === 'dates') {
+        const dataItem = JSON.parse(queryParams[item]);
+        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      } else {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      }
     });
+
+    if (!canChangeWarehouse) {
+      newFilters['warehouseId'] = defaultWarehouse;
+    }
     onFinish(newFilters);
+  };
+
+  useEffect(() => {
+    loadingData();
   }, []);
 
-  const columns: ColumnsType<Partial<ADJUSTMENT.Adjustment>> = [
+  const columns: ColumnsType<StockAdjustment> = [
     {
-      title: 'Número',
+      title: (
+        <Text className={styles.iconTable}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: 'Bodega',
+      title: <Text>{<DropboxOutlined />} Bodega</Text>,
       dataIndex: 'warehouse',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouse: WAREHOUSE.Warehouse) => warehouse?.name,
+      render: (warehouse: Warehouse) => warehouse?.name,
     },
     {
-      title: 'Referencia',
+      title: (
+        <Text>
+          <FieldNumberOutlined /> Referencias
+        </Text>
+      ),
       dataIndex: 'details',
       align: 'center',
-      render: (details: ADJUSTMENT.DetailAdjustment[]) => details?.length,
+      render: (details: DetailAdjustment[]) => details?.length,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
-      render: (status: string) => {
+      render: (status: StatusStockAdjustment) => {
         const { color, label } = StatusTypeAdjustment[status || ''];
         return <Badge text={label} color={color} />;
       },
     },
     {
-      title: 'Total',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Total
+        </Text>
+      ),
       dataIndex: 'total',
       align: 'center',
       sorter: true,
@@ -277,15 +320,7 @@ const AdjustmentList = () => {
       render: (total: number) => numeral(total).format('$ 0,0'),
     },
     {
-      title: 'Creado',
-      dataIndex: 'createdAt',
-      align: 'center',
-      sorter: true,
-      showSorterTooltip: false,
-      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
-    },
-    {
-      title: 'Actualizado',
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -293,9 +328,10 @@ const AdjustmentList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, record) => {
         return (
           <Space>
@@ -313,6 +349,7 @@ const AdjustmentList = () => {
                   style={{ backgroundColor: 'white' }}
                   onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
+                  disabled={!canPrint}
                 />
               </Tooltip>
             </Space>
@@ -321,38 +358,32 @@ const AdjustmentList = () => {
       },
     },
   ];
+
   return (
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de Ajustes
-          </Title>
+          <Title level={4}>Lista de Ajustes</Title>
         </Space>
       }
     >
       <Card>
         <Form
           form={form}
-          layout="inline"
+          layout="horizontal"
           className={styles.filters}
           onFinish={onFinish}
           initialValues={filters}
         >
-          <Row gutter={[8, 8]} className={styles.form}>
-            <Col xs={24} lg={4} xl={4} xxl={2}>
+          <Row gutter={40} className={styles.form}>
+            <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
-                <InputNumber
-                  className={styles.item}
-                  disabled={loading}
-                  min={1}
-                  max={pagination.total}
-                />
+                <InputNumber controls={false} style={style.maxWidth} disabled={loading} min={1} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={5} xxl={4}>
+            <Col xs={24} md={5} lg={5} xl={5}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item} allowClear disabled={loading}>
+                <Select className={styles.item} allowClear loading={loading}>
                   {Object.keys(StatusTypeAdjustment).map((key) => (
                     <Option key={key}>
                       <Badge
@@ -364,28 +395,39 @@ const AdjustmentList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={6} xxl={6}>
-              <FormItem label="Bodega" name="warehouse">
-                <SelectWarehouses />
+            <Col xs={24} md={6} lg={6} xl={7}>
+              <FormItem label="Bodega" name="warehouseId">
+                <SelectWarehouses disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={8} xxl={7}>
+            <Col xs={24} md={7} lg={7} xl={8}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker className={styles.item} disabled={loading} />
+                <RangePicker
+                  className={styles.item}
+                  disabled={loading}
+                  placeholder={['Fecha Inicial', 'Fecha Final']}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={5} xxl={4}>
+            <Col xs={24} md={7} lg={24} xl={24}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
                     icon={<SearchOutlined />}
+                    style={style.buttonR}
                     type="primary"
                     htmlType="submit"
                     loading={loading}
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button
+                    htmlType="button"
+                    style={style.buttonR}
+                    icon={<ClearOutlined />}
+                    onClick={onClear}
+                    loading={loading}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -393,22 +435,29 @@ const AdjustmentList = () => {
             </Col>
           </Row>
         </Form>
+        <Row gutter={[0, 20]}>
+          <Col span={24} className={styles.marginFilters}>
+            <Text strong>Total Encontrados:</Text> {data?.stockAdjustments?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.stockAdjustments?.page} /{' '}
+            {data?.stockAdjustments?.totalPages || 0}
+          </Col>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={data?.stockAdjustments?.docs as any}
+              pagination={{
+                current: data?.stockAdjustments?.page,
+                total: data?.stockAdjustments?.totalDocs,
+                showSizeChanger: false,
+              }}
+              onChange={handleChangeTable}
+              loading={loading}
+              scroll={{ x: 800 }}
+            />
+          </Col>
+        </Row>
       </Card>
-      <TotalFound
-        current={pagination.current || 0}
-        totalPages={totalPages}
-        total={pagination.total || 0}
-      />
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={adjustments}
-          pagination={pagination}
-          onChange={handleChangeTable}
-          loading={loading}
-        />
-      </Card>
-      <AlertInformation {...error} onCancel={closeMessageError} />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>
         <ReportAdjustment ref={reportRef} data={adjustmentData} />
       </div>

@@ -1,0 +1,25 @@
+query pointOfSales($input: FiltersPointOfSalesInput) {
+  pointOfSales(filtersPointOfSales: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      name
+      shop {
+        _id
+        name
+      }
+      closeDate
+      updatedAt
+      box {
+        _id
+        name
+      }
+      authorization {
+        _id
+        prefix
+      }
+    }
+  }
+}

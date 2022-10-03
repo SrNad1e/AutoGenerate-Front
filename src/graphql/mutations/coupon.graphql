@@ -1,0 +1,13 @@
+mutation createCoupon($input: CreateCouponInput!) {
+  createCoupon(createCouponInput: $input) {
+    _id
+    number
+  }
+}
+
+mutation updateCoupon($id: String!, $input: UpdateCouponInput!) {
+  updateCoupon(id: $id, updateCustomerInput: $input) {
+    _id
+    number
+  }
+}

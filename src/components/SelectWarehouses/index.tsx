@@ -1,60 +1,68 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useGetWarehouses } from '@/hooks/warehouse.hooks';
 import { Alert, Select } from 'antd';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import { useGetWarehouses } from '@/hooks/warehouse.hooks';
+import type { FiltersWarehousesInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
+
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from './styles.less';
+import { useModel } from 'umi';
 
 const { Option } = Select;
 
-const SelectWarehouses = ({ onChange, value }: any) => {
-  const [warehouses, setWarehouses] = useState<Partial<WAREHOUSE.Warehouse>[]>([]);
-  const [error, setError] = useState<string | undefined>();
+export type Props = {
+  onChange?: (warehouseId: string) => void;
+  value?: string;
+  onClear?: () => void;
+  disabled: boolean;
+};
 
-  /**
-   * @description callback ejecutado por el customHook
-   * @param warehousesData array de datos
-   */
-  const resultWarehouses = (warehousesData: WAREHOUSE.Response) => {
-    if (warehousesData) {
-      setWarehouses(warehousesData.docs);
-    }
+const SelectWarehouses = ({ onChange, value, onClear, disabled }: Props) => {
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      visible: false,
+      type: 'error',
+      message: '',
+    });
   };
 
-  /**
-   * @description maneja el error de la consulta
-   * @param message error que genera al consulta
-   */
-  const showError = (message: string) => {
-    setError(message);
-  };
+  const { initialState } = useModel('@@initialState');
+  const canQueryWarehouses = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadConfigurationWarehouses,
+  );
 
-  const { getWarehouses, loading } = useGetWarehouses(resultWarehouses, showError);
+  const [getWarehouses, { data, loading }] = useGetWarehouses();
 
   /**
    * @description se encarga de consultar con base a un comodín
    * @param name comodín de coincidencia en el nombre
    */
-  const onSearch = (name: string) => {
+  const onSearch = (params: FiltersWarehousesInput) => {
     getWarehouses({
       variables: {
         input: {
-          name,
+          ...params,
           active: true,
         },
       },
     });
   };
 
-  const onChangeLocal = (warehouseId: string) => {
-    onChange(warehouses.find((warehouse) => warehouse._id === warehouseId));
-  };
-
   useEffect(() => {
-    getWarehouses({
-      variables: { input: { active: true } },
-    });
-  }, []);
+    if (canQueryWarehouses) {
+      onSearch({ _id: value, active: true });
+    }
+  }, [!!value]);
 
   return (
     <>
@@ -64,16 +72,21 @@ const SelectWarehouses = ({ onChange, value }: any) => {
         loading={loading}
         placeholder="Seleccione Bodega"
         optionFilterProp="children"
-        onChange={onChangeLocal}
-        onSearch={onSearch}
+        onChange={onChange}
+        onSearch={(name) => onSearch({ name })}
         allowClear
-        value={value?._id.toString()}
+        onClear={onClear}
+        value={value}
+        disabled={disabled}
       >
-        {warehouses.map((warehouse) => (
+        {data?.warehouses?.docs.map((warehouse) => (
           <Option key={warehouse._id?.toString()}>{warehouse.name}</Option>
         ))}
       </Select>
-      {error && <Alert type="error" message={error} />}
+      {!canQueryWarehouses && (
+        <Alert message="No tiene permiso para consultar las bodegas" type="error" showIcon />
+      )}
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </>
   );
 };

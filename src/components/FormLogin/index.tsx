@@ -7,53 +7,24 @@ import { useModel, history } from 'umi';
 
 import Logosquare from '@/assets/logosquare.png';
 
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import { useLogin } from '@/hooks/user.hooks';
+import type { LoginUserInput } from '@/graphql/graphql';
 
 import styles from './index.less';
-import { useLogin } from '@/hooks/user.hooks';
 
 const FormLogin = () => {
   const [show, setShow] = useState(false);
-  const [propsAlert, setPropsAlert] = useState<Partial<ALERT.AlertInformationProps>>({
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
 
   const { setInitialState } = useModel('@@initialState');
-  /**
-   * se encarga de capturar los resultados de la consulta
-   * @param data datos resultantes de la consulta un usuarioy su token
-   */
-  const fetchUserInfo = async ({ user, access_token }: USER.Response) => {
-    if (access_token) {
-      localStorage.setItem('token', access_token);
 
-      await setInitialState((s) => ({
-        ...s,
-        currentUser: user,
-      }));
-
-      if (!history) return;
-      const { query } = history.location;
-      const { redirect } = query as { redirect: string };
-      history.push(redirect || '/');
-    }
-  };
-
-  /**
-   * @description se encarga de enviar error en el login
-   * @param error error de apollo
-   */
-  const onShowError = (message: string) => {
-    setPropsAlert({
-      message,
-      type: 'error',
-      visible: true,
-    });
-  };
-
-  const { login, loading } = useLogin(fetchUserInfo, onShowError);
+  const [login, { loading }] = useLogin();
 
   /**
    * oculta
@@ -71,8 +42,55 @@ const FormLogin = () => {
    * @param formData datos para enviar a la consulta
    * @returns void
    */
-  const handleSubmit = async (formData: USER.LoginParams): Promise<boolean | void> => {
-    await login({ variables: { input: { ...formData, companyId: COMPANY_ID } } });
+  const handleSubmit = async (formData: LoginUserInput): Promise<boolean | void> => {
+    try {
+      const response = await login({
+        variables: { input: { ...formData, companyId: COMPANY_ID } },
+      });
+
+      if (response?.data?.login) {
+        const allowPOS = !!response?.data?.login?.user?.role?.permissions.find(
+          (permission) => permission?.action === 'ACCESS_POS',
+        );
+
+        const allowERP = !!response?.data?.login?.user?.role?.permissions.find(
+          (permission) => permission?.action === 'ACCESS_ERP',
+        );
+
+        if (response?.data?.login?.access_token) {
+          sessionStorage.setItem('token', response?.data?.login?.access_token);
+
+          if (!allowERP && !allowPOS) {
+            setPropsAlert({
+              message: 'No tienes acceso, reporta tu problema al administrador',
+              type: 'error',
+              visible: true,
+            });
+          } else {
+            await setInitialState((s) => ({
+              ...s,
+              currentUser: response?.data?.login?.user,
+            }));
+
+            if (!history) return;
+            if (!allowERP) {
+              history.push('/pos/sales');
+            } else {
+              const { query } = history.location;
+              const { redirect } = query as { redirect: string };
+              history.push(redirect || '/');
+            }
+          }
+        }
+      }
+    } catch (error: any) {
+      setPropsAlert({
+        message: error?.message,
+        type: 'error',
+        visible: true,
+      });
+    }
+
     return loading;
   };
 

@@ -1,0 +1,65 @@
+query products($input: FiltersProductsInput!) {
+  products(filtersProductsInput: $input) {
+    docs {
+      _id
+      barcode
+      reference {
+        description
+        name
+        price
+      }
+      color {
+        name_internal
+        name
+        html
+        image {
+          urls {
+            webp {
+              small
+            }
+          }
+        }
+      }
+      size {
+        value
+        weight
+      }
+      stock {
+        quantity
+      }
+    }
+    totalDocs
+    totalPages
+    page
+  }
+}
+
+query product($input: FiltersProductInput!) {
+  product(filtersProductInput: $input) {
+    stock {
+      quantity
+    }
+    _id
+    barcode
+    color {
+      name_internal
+      html
+      image {
+        urls {
+          webp {
+            small
+          }
+        }
+      }
+    }
+    reference {
+      description
+      name
+      price
+    }
+    size {
+      value
+    }
+    status
+  }
+}

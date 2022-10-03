@@ -1,4 +1,5 @@
 @import '~antd/es/style/themes/default.less';
+@import '../../custom.less';
 
 @pro-header-hover-bg: rgba(0, 0, 0, 0.025);
 
@@ -15,13 +16,11 @@
   display: flex;
   float: right;
   height: 48px;
-  margin-left: auto;
   overflow: hidden;
   .action {
     display: flex;
     align-items: center;
     height: 48px;
-    padding: 0 12px;
     cursor: pointer;
     transition: all 0.3s;
     > span {
@@ -81,4 +80,8 @@
       display: none;
     }
   }
+}
+
+.ant-layout-header {
+  line-height: 0px;
 }

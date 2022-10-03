@@ -1,18 +1,18 @@
 export const StatusType = {
-  open: {
+  OPEN: {
     color: 'green',
     text: 'Abierto',
   },
-  cancel: {
+  CANCELLED: {
     color: 'red',
     text: 'Cancelado',
   },
-  sent: {
+  SENT: {
     color: 'blue',
     text: 'Enviado',
   },
-  '': {
-    color: 'gray',
-    text: 'Error',
+  CONFIRMED: {
+    color: 'yellow',
+    text: 'Confirmado',
   },
 };

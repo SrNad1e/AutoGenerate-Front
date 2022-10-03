@@ -1,20 +1,31 @@
-import { COLORS } from '@/graphql/queries/color.queries';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 
-export const useGetColors = (
-  callback: (data: COLOR.ResponsePaginate) => void,
-  showError: (message: string) => void,
-) => {
-  const [getColors, { loading }] = useLazyQuery(COLORS, {
-    onCompleted: (result) => callback(result.colors),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+import type { Color } from '@/graphql/graphql';
+import { ColorsDocument, CreateColorDocument, UpdateColorDocument } from '@/graphql/graphql';
 
-      showError(message ?? 'Error en la consulta');
+export const useGetColors = () => {
+  return useLazyQuery(ColorsDocument);
+};
+
+export const useCreateColor = () => {
+  return useMutation(CreateColorDocument);
+};
+
+export const useUpdateColor = () => {
+  return useMutation(UpdateColorDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          colors(existingColors = []) {
+            return existingColors?.docs?.map((color: Color) => {
+              if (color?._id === data?.updateColor?._id) {
+                return data?.updateColor;
+              }
+              return color;
+            });
+          },
+        },
+      });
     },
   });
-  return {
-    getColors,
-    loading,
-  };
 };

@@ -1,5 +1,17 @@
-import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
-import Table, { ColumnsType } from 'antd/lib/table';
+/* eslint-disable @typescript-eslint/dot-notation */
+/* eslint-disable react-hooks/exhaustive-deps */
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  DollarCircleOutlined,
+  DropboxOutlined,
+  EyeOutlined,
+  FieldNumberOutlined,
+  FileSyncOutlined,
+  MoreOutlined,
+  PrinterFilled,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   Badge,
   Button,
@@ -12,51 +24,59 @@ import {
   Select,
   Space,
   Tooltip,
+  Table,
   Typography,
 } from 'antd';
-import { TablePaginationConfig } from 'antd/es/table/interface';
+import type {
+  ColumnsType,
+  FilterValue,
+  TablePaginationConfig,
+  SorterResult,
+} from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
-import { SorterResult } from 'antd/lib/table/interface';
-
 import type { Moment } from 'moment';
 import moment from 'moment';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
+import { useAccess } from 'umi';
 import { useHistory, useLocation } from 'umi';
-import { useGetOutputs } from '@/hooks/output.hooks';
 import { useEffect, useRef, useState } from 'react';
-import { StatusTypeOutput } from '../output.data';
-import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import numeral from 'numeral';
-import SelectWarehouses from '@/components/SelectWarehouses';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import TotalFound from '@/components/TotalFound';
-import ReportOutput from '../reports/output';
 import { useReactToPrint } from 'react-to-print';
 
+import { useGetOutputs } from '@/hooks/output.hooks';
+import { StatusTypeOutput } from '../output.data';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import SelectWarehouses from '@/components/SelectWarehouses';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import ReportOutput from '../reports/output';
+import type {
+  DetailOutput,
+  FiltersStockOutputsInput,
+  StatusStockOutput,
+  StockOutput,
+  Warehouse,
+} from '@/graphql/graphql';
+
 import styles from './styles.less';
+import style from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockOutput;
   number?: number;
-  warehouse?: WAREHOUSE.Warehouse;
+  warehouseId?: string;
   dates?: Moment[];
 };
 
 const OutputList = () => {
-  const [outputs, setOutputs] = useState<Partial<OUTPUT.Output[]>>([]);
-  const [outputData, setOutputData] = useState<Partial<OUTPUT.Output>>({});
+  const [outputData, setOutputData] = useState<Partial<StockOutput>>({});
   const [filters, setFilters] = useState<Partial<FormValues>>();
-  const [totalPages, setTotalPages] = useState(0);
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    total: 0,
-    pageSize: 10,
-    current: 1,
-  });
-  const [error, setError] = useState<PropsAlertInformation>({
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
@@ -66,34 +86,30 @@ const OutputList = () => {
 
   const history = useHistory();
 
-  const location = useLocation();
+  const location: Location = useLocation();
 
   const reportRef = useRef(null);
+
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
+
+  const [getOutputs, { data, loading }] = useGetOutputs();
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
 
-  /** Funciones ejecutadas por los hooks */
-
-  /**
-   * @description se encarga de almacenar los datos de la consulta
-   * @param data respuesta de la consulta
-   */
-  const resultOutputs = (data: Partial<OUTPUT.Response>) => {
-    if (data) {
-      setOutputs(data.docs || []);
-      setTotalPages(data?.totalPages || 0);
-      setPagination({ ...pagination, total: data.totalDocs });
-    }
-  };
+  const {
+    output: { canPrint },
+  } = useAccess();
 
   /**
    * @description funcion usada por los hook para mostrar los errores
    * @param message mensaje de error a mostrar
    */
   const messageError = (message: string) => {
-    setError({
+    setPropsAlertInformation({
       message,
       type: 'error',
       visible: true,
@@ -103,23 +119,19 @@ const OutputList = () => {
   /**
    * @description se encarga de cerrar la alerta informativa
    */
-  const closeMessageError = () => {
-    setError({
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
       message: '',
       type: 'error',
       visible: false,
     });
   };
 
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getOutputs, loading } = useGetOutputs(resultOutputs, messageError);
-
-  /** Fin de Hooks para manejo de consultas */
-
-  const printPage = async (record: Partial<OUTPUT.Output>) => {
+  /**
+   * @description se encarga de seleccionar la salida e imprime
+   * @param record salida
+   */
+  const printPage = async (record: Partial<StockOutput>) => {
     await setOutputData(record);
     handlePrint();
   };
@@ -128,17 +140,21 @@ const OutputList = () => {
    * @description se encarga de ejecutar la funcion para obtener las salidas
    * @param params filtros necesarios para la busqueda
    */
-  const onSearch = (params?: Partial<OUTPUT.FiltersGetOutputs>) => {
-    getOutputs({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+  const onSearch = (params?: FiltersStockOutputsInput) => {
+    try {
+      getOutputs({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -146,11 +162,11 @@ const OutputList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouse, dates } = props;
+    const { status, number, warehouseId, dates } = props;
     try {
-      const params: Partial<OUTPUT.FiltersGetOutputs> = {
+      const params: Partial<FiltersStockOutputsInput> = {
         page: pageCurrent || 1,
-        limit: pagination.pageSize,
+        limit: 10,
         status,
         number,
         sort: sort || { createdAt: -1 },
@@ -159,13 +175,12 @@ const OutputList = () => {
       if (dates) {
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
-        params['dateFinal'] = dateFinal;
-        params['dateInitial'] = dateInitial;
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
       }
-      if (warehouse) {
-        params['warehouseId'] = warehouse?._id;
+      if (warehouseId) {
+        params.warehouseId = warehouseId;
       }
-      setPagination({ ...pagination, current: pageCurrent || 1 });
       onSearch(params);
 
       const datos = Object.keys(props)
@@ -174,8 +189,8 @@ const OutputList = () => {
 
       form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error: any) {
+      messageError(error?.message);
     }
   };
 
@@ -186,8 +201,8 @@ const OutputList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    _: any,
-    sorter: SorterResult<Partial<OUTPUT.Output>>,
+    _: Record<string, FilterValue | null>,
+    sorter: SorterResult<StockOutput> | SorterResult<StockOutput>[] | any,
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
@@ -204,7 +219,6 @@ const OutputList = () => {
       };
     }
 
-    setPagination({ ...pagination, current });
     onFinish(params, sort, current);
   };
 
@@ -214,53 +228,80 @@ const OutputList = () => {
   const onClear = () => {
     history.replace(location.pathname);
     form.resetFields();
-    setPagination({
-      total: 0,
-      pageSize: 10,
-      current: 1,
-    });
     onSearch({
       limit: 10,
       page: 1,
     });
-    setFilters({});
+    if (!canChangeWarehouse) {
+      form.setFieldsValue({
+        warehouseId: defaultWarehouse,
+      });
+      setFilters({ warehouseId: defaultWarehouse });
+    } else {
+      setFilters({});
+    }
   };
 
-  useEffect(() => {
-    const queryParams = location['query'];
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const loadingData = () => {
+    const queryParams: any = location?.query;
 
     const newFilters = {};
 
     Object.keys(queryParams).forEach((item) => {
-      newFilters[item] = JSON.parse(queryParams[item]);
+      if (item === 'dates') {
+        const dataItem = JSON.parse(queryParams[item]);
+        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      } else {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      }
     });
+
+    if (!canChangeWarehouse) {
+      newFilters['warehouseId'] = defaultWarehouse;
+    }
+
     onFinish(newFilters);
+  };
+
+  useEffect(() => {
+    loadingData();
   }, []);
 
-  const columns: ColumnsType<Partial<OUTPUT.Output>> = [
+  const columns: ColumnsType<Partial<StockOutput>> = [
     {
-      title: 'Número',
+      title: (
+        <Text className={styles.iconTable}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: 'Bodega',
+      title: <Text>{<DropboxOutlined />} Bodega</Text>,
       dataIndex: 'warehouse',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
-      render: (warehouse: WAREHOUSE.Warehouse) => warehouse?.name,
+      render: (warehouse: Warehouse) => warehouse?.name,
     },
     {
-      title: 'Referencia',
+      title: (
+        <Text>
+          <FieldNumberOutlined /> Referencias
+        </Text>
+      ),
       dataIndex: 'details',
       align: 'center',
-      render: (details: OUTPUT.DetailOutput[]) => details?.length,
+      render: (details: DetailOutput[]) => details?.length,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
       render: (status: string) => {
@@ -269,7 +310,11 @@ const OutputList = () => {
       },
     },
     {
-      title: 'Total',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Total
+        </Text>
+      ),
       dataIndex: 'total',
       align: 'center',
       sorter: true,
@@ -277,15 +322,7 @@ const OutputList = () => {
       render: (total: number) => numeral(total).format('$ 0,0'),
     },
     {
-      title: 'Creado',
-      dataIndex: 'createdAt',
-      align: 'center',
-      sorter: true,
-      showSorterTooltip: false,
-      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
-    },
-    {
-      title: 'Actualizado',
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -293,9 +330,10 @@ const OutputList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id: string, record) => {
         return (
           <Space>
@@ -310,6 +348,7 @@ const OutputList = () => {
               <Tooltip title="Imprimir">
                 <Button
                   type="ghost"
+                  disabled={!canPrint}
                   style={{ backgroundColor: 'white' }}
                   onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
@@ -325,34 +364,27 @@ const OutputList = () => {
     <PageContainer
       title={
         <Space>
-          <Title level={4} style={{ margin: 0 }}>
-            Lista de Salidas
-          </Title>
+          <Title level={4}>Lista de Salidas</Title>
         </Space>
       }
     >
       <Card>
         <Form
           form={form}
-          layout="inline"
+          layout="horizontal"
           className={styles.filters}
           onFinish={onFinish}
           initialValues={filters}
         >
-          <Row gutter={[8, 8]} className={styles.form}>
-            <Col xs={24} lg={4} xl={4} xxl={2}>
+          <Row gutter={40} align="middle">
+            <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
-                <InputNumber
-                  className={styles.item}
-                  disabled={loading}
-                  min={1}
-                  max={pagination.total}
-                />
+                <InputNumber style={style.maxWidth} disabled={loading} min={1} controls={false} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={5} xl={5} xxl={4}>
+            <Col xs={24} md={5} lg={5} xl={5}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item} allowClear disabled={loading}>
+                <Select className={styles.item} allowClear loading={loading}>
                   {Object.keys(StatusTypeOutput).map((key) => (
                     <Option key={key}>
                       <Badge
@@ -364,17 +396,21 @@ const OutputList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={6} xxl={6}>
-              <FormItem label="Bodega" name="warehouse">
-                <SelectWarehouses />
+            <Col xs={24} md={6} lg={6} xl={7}>
+              <FormItem label="Bodega" name="warehouseId">
+                <SelectWarehouses disabled={!canChangeWarehouse || loading} />
               </FormItem>
             </Col>
-            <Col xs={24} lg={10} xl={8} xxl={7}>
+            <Col xs={24} md={7} lg={7} xl={8}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker className={styles.item} disabled={loading} />
+                <RangePicker
+                  className={styles.item}
+                  disabled={loading}
+                  placeholder={['Fecha Inicial', 'Fecha Final']}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} lg={14} xl={5} xxl={4}>
+            <Col xs={24} md={7} lg={24} xl={24}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -382,10 +418,17 @@ const OutputList = () => {
                     type="primary"
                     htmlType="submit"
                     loading={loading}
+                    style={style.buttonR}
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button
+                    icon={<ClearOutlined />}
+                    htmlType="button"
+                    style={style.buttonR}
+                    onClick={onClear}
+                    loading={loading}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -393,22 +436,29 @@ const OutputList = () => {
             </Col>
           </Row>
         </Form>
+        <Row gutter={[0, 20]}>
+          <Col span={24} className={styles.marginFilters}>
+            <Text strong>Total Encontrados:</Text> {data?.stockOutputs?.totalDocs}{' '}
+            <Text strong>Páginas: </Text> {data?.stockOutputs?.page} /{' '}
+            {data?.stockOutputs?.totalPages || 0}
+          </Col>
+          <Col span={24}>
+            <Table
+              columns={columns}
+              dataSource={data?.stockOutputs?.docs as any}
+              pagination={{
+                current: data?.stockOutputs?.page,
+                total: data?.stockOutputs?.totalDocs,
+                showSizeChanger: false,
+              }}
+              onChange={handleChangeTable}
+              loading={loading}
+              scroll={{ x: 'auto' }}
+            />
+          </Col>
+        </Row>
       </Card>
-      <TotalFound
-        current={pagination.current || 0}
-        totalPages={totalPages}
-        total={pagination.total || 0}
-      />
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={outputs}
-          pagination={pagination}
-          onChange={handleChangeTable}
-          loading={loading}
-        />
-      </Card>
-      <AlertInformation {...error} onCancel={closeMessageError} />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>
         <ReportOutput ref={reportRef} data={outputData} />
       </div>

@@ -1,0 +1,15 @@
+.form-permissions .ant-collapse > .ant-collapse-item > .ant-collapse-header {
+    color: white;
+}
+
+.form-permissions .ant-descriptions-header {
+    margin-bottom: 0px;
+}
+
+.form-permissions .ant-collapse-content > .ant-collapse-content-box {
+    padding: 0px;
+}
+
+.form-permissions .ant-checkbox-wrapper {
+    margin: 5px;
+}

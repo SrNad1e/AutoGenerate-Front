@@ -7,16 +7,19 @@ import {
   FileTextOutlined,
   PrinterOutlined,
 } from '@ant-design/icons';
-
-import { useHistory, useParams } from 'umi';
+import { useAccess, useHistory, useModel, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
+
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useGetAdjustment } from '@/hooks/adjustment.hooks';
 import SelectWarehouseStep from '@/components/SelectWarehouseStep';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { useReactToPrint } from 'react-to-print';
 import ReportAdjustment from '../reports/adjustment';
 import FormAdjustment from '../components/FormAdjustment';
+import type { StockAdjustment, Warehouse } from '@/graphql/graphql';
+import { StatusStockAdjustment } from '@/graphql/graphql';
+import { useGetWarehouseId } from '@/hooks/warehouse.hooks';
 
 import styles from './styles.less';
 
@@ -29,11 +32,11 @@ const AdjustmentForm = () => {
     type: 'error',
     visible: false,
   });
-  const [adjustment, setAdjustment] = useState<
-    Partial<ADJUSTMENT.Adjustment & ADJUSTMENT.CreateAdjustment>
-  >({
-    status: 'open',
+  const [adjustment, setAdjustment] = useState<Partial<StockAdjustment>>({
+    status: StatusStockAdjustment.Open,
   });
+
+  const { initialState } = useModel('@@initialState');
 
   const { id } = useParams<Partial<{ id: string }>>();
 
@@ -45,13 +48,22 @@ const AdjustmentForm = () => {
     content: () => reportRef?.current,
   });
 
-  const isNew = !id;
+  const {
+    adjustment: { canPrint, canEdit },
+  } = useAccess();
 
-  /** Funciones ejecutadas por los hooks */
+  const isNew = !id;
+  const allowEdit = isNew
+    ? true
+    : initialState?.currentUser?._id === adjustment?.user?._id &&
+      adjustment?.status === StatusStockAdjustment.Open &&
+      canEdit;
+  const [getAdjustment, { loading, data }] = useGetAdjustment();
+  const [getWarehouseId] = useGetWarehouseId();
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
+   * @param message error de apollo
    */
   const onShowError = (message: string) => {
     setPropsAlert({
@@ -73,56 +85,67 @@ const AdjustmentForm = () => {
   };
 
   /**
-   * @description se encarga de cargar la entrada actual
-   * @param data datos de la entrada
+   * @description consulta la solicitud y almacena en memoria
    */
-  const currentAdjustment = (data: Partial<ADJUSTMENT.Adjustment>) => {
-    setAdjustment(data);
-  };
-
-  /**
-   * @description se encarga de administrar el error
-   * @param message mensaje de error
-   */
-  const showError = (message: string) => {
-    onShowError(message);
-  };
-
-  /** FIn de Funciones ejecutadas por los hooks */
-
-  /** Hooks para manejo de consultas */
-
-  const { getAdjustment, loading } = useGetAdjustment(currentAdjustment, showError);
-
-  /** Fin de Hooks para manejo de consultas */
-
-  /**
-   * @description se encarga de cambiar el paso y asignar la bodega
-   * @param warehouse bodega seleccionada
-   */
-  const changeCurrentStep = (warehouse: WAREHOUSE.Warehouse) => {
-    if (warehouse) {
-      setCurrentStep(1);
-
-      setAdjustment({
-        ...adjustment,
-        warehouse,
+  const getAdjustmentId = async () => {
+    try {
+      const response = await getAdjustment({
+        variables: {
+          id: id || '',
+        },
       });
-    } else {
-      setCurrentStep(0);
+
+      if (response?.data?.stockAdjustmentId) {
+        setAdjustment(response?.data?.stockAdjustmentId as StockAdjustment);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de cambiar el paso, consultar y asignar la bodega
+   * @param warehouseId identificador bodega seleccionada
+   */
+  const changeCurrentStep = async (warehouseId?: string) => {
+    try {
+      if (warehouseId) {
+        setCurrentStep(1);
+        const response = await getWarehouseId({
+          variables: {
+            warehouseId,
+          },
+        });
+
+        setAdjustment({
+          ...adjustment,
+          warehouse: response?.data?.warehouseId as Warehouse,
+        });
+      } else {
+        setCurrentStep(0);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
   };
 
   useEffect(() => {
     if (!isNew) {
-      getAdjustment({
-        variables: {
-          id,
-        },
-      });
+      getAdjustmentId();
     }
   }, [isNew]);
 
+  useEffect(() => {
+    if (data?.stockAdjustmentId) {
+      setAdjustment(data?.stockAdjustmentId as StockAdjustment);
+    }
+  }, [data]);
+
+  /**
+   * @description se encarga de renderizar los componentes con base al step
+   * @param step paso en el cual se encuentra
+   * @returns componente
+   */
   const renderSteps = (step: number) => {
     switch (step) {
       case 0:
@@ -130,7 +153,7 @@ const AdjustmentForm = () => {
       case 1:
         return (
           <FormAdjustment
-            setAdjustment={setAdjustment}
+            allowEdit={allowEdit}
             adjustment={adjustment}
             setCurrentStep={setCurrentStep}
           />
@@ -159,7 +182,12 @@ const AdjustmentForm = () => {
             <>
               Ajuste No. {adjustment?.number} <Divider type="vertical" />
               <Tooltip title="Imprimir">
-                <Button type="primary" icon={<PrinterOutlined />} onClick={() => handlePrint()} />
+                <Button
+                  type="primary"
+                  icon={<PrinterOutlined />}
+                  onClick={() => handlePrint()}
+                  disabled={!canPrint}
+                />
               </Tooltip>
             </>
           )}
@@ -185,7 +213,7 @@ const AdjustmentForm = () => {
         </Card>
       ) : (
         <FormAdjustment
-          setAdjustment={setAdjustment}
+          allowEdit={allowEdit}
           adjustment={adjustment}
           setCurrentStep={setCurrentStep}
         />

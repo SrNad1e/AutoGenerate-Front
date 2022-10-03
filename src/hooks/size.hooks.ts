@@ -1,20 +1,31 @@
-import { SIZES } from '@/graphql/queries/size.queries';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 
-export const useGetSizes = (
-  callback: (data: SIZE.ResponsePaginate) => void,
-  showError: (message: string) => void,
-) => {
-  const [getSizes, { loading }] = useLazyQuery(SIZES, {
-    onCompleted: (result) => callback(result.sizes),
-    onError: ({ graphQLErrors }) => {
-      const message = graphQLErrors ? graphQLErrors[0]?.message : 'Error sin identificar';
+import type { Size } from '@/graphql/graphql';
+import { SizesDocument, UpdateSizeDocument, CreateSizeDocument } from '@/graphql/graphql';
 
-      showError(message ?? 'Error en la consulta');
+export const useGetSizes = () => {
+  return useLazyQuery(SizesDocument);
+};
+
+export const useUpdateSize = () => {
+  return useMutation(UpdateSizeDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          sizes(existingSizes = []) {
+            return existingSizes?.docs?.map((size: Size) => {
+              if (size?._id === data?.updateSize?._id) {
+                return data?.updateSize;
+              }
+              return size;
+            });
+          },
+        },
+      });
     },
   });
-  return {
-    getSizes,
-    loading,
-  };
+};
+
+export const useCreateSize = () => {
+  return useMutation(CreateSizeDocument);
 };
