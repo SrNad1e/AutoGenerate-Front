@@ -204,13 +204,17 @@ const EcommerceList = () => {
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({
-      limit: 10,
-      page: 1,
-    });
-    setFilters({});
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({
+        limit: 10,
+        page: 1,
+      });
+      setFilters({});
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -220,16 +224,19 @@ const EcommerceList = () => {
     const queryParams: any = location?.query;
 
     const newFilters = {};
-
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'dates') {
-        const dataItem = JSON.parse(queryParams[item]);
-        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
-      } else {
-        newFilters[item] = JSON.parse(queryParams[item]);
-      }
-    });
-    onFinish(newFilters);
+    try {
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'dates') {
+          const dataItem = JSON.parse(queryParams[item]);
+          newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+        } else {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        }
+      });
+      onFinish(newFilters);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   useEffect(() => {

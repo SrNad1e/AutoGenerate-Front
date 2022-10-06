@@ -102,37 +102,41 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param status estado actual de la solicitud
    */
   const showAlertSave = (status?: StatusStockTransfer) => {
-    if (
-      details.length > 0 ||
-      status === StatusStockTransfer.Cancelled ||
-      observation !== (transfer?.observation || '')
-    ) {
-      if (status === StatusStockTransfer.Cancelled) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea cancelar el traslado?',
-          type: 'error',
-        });
-      } else if (status === StatusStockTransfer.Sent) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea enviar el traslado?',
-          type: 'warning',
-        });
-      } else if (status === StatusStockTransfer.Open) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea guardar el traslado?',
-          type: 'warning',
-        });
+    try {
+      if (
+        details.length > 0 ||
+        status === StatusStockTransfer.Cancelled ||
+        observation !== (transfer?.observation || '')
+      ) {
+        if (status === StatusStockTransfer.Cancelled) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea cancelar el traslado?',
+            type: 'error',
+          });
+        } else if (status === StatusStockTransfer.Sent) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea enviar el traslado?',
+            type: 'warning',
+          });
+        } else if (status === StatusStockTransfer.Open) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea guardar el traslado?',
+            type: 'warning',
+          });
+        } else {
+          onShowInformation('El traslado no tiene productos');
+        }
       } else {
-        onShowInformation('El traslado no tiene productos');
+        onShowInformation('No se encontraron cambios en el traslado');
       }
-    } else {
-      onShowInformation('No se encontraron cambios en el traslado');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -263,24 +267,28 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param _id identificador del producto a eliminar
    */
   const deleteDetail = (_id: string) => {
-    if (setDetails) {
-      const productFind = details.find((detail) => detail?.product?._id);
+    try {
+      if (setDetails) {
+        const productFind = details.find((detail) => detail?.product?._id);
 
-      if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product?._id !== _id));
-      } else {
-        setDetails(
-          details.map((detail) => {
-            if (detail?.product?._id === _id) {
-              return {
-                ...detail,
-                action: ActionDetailTransfer.Delete,
-              };
-            }
-            return detail;
-          }),
-        );
+        if (productFind && !productFind.__typename) {
+          setDetails(details.filter((detail) => detail?.product?._id !== _id));
+        } else {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === _id) {
+                return {
+                  ...detail,
+                  action: ActionDetailTransfer.Delete,
+                };
+              }
+              return detail;
+            }),
+          );
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -290,18 +298,22 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Product, quantity: number) => {
-    setDetails(
-      details.map((detail) => {
-        if (detail?.product?._id === product._id) {
-          return {
-            ...detail,
-            quantity: quantity || 0,
-            action: detail?.action ?? ActionDetailTransfer.Update,
-          };
-        }
-        return detail;
-      }),
-    );
+    try {
+      setDetails(
+        details.map((detail) => {
+          if (detail?.product?._id === product._id) {
+            return {
+              ...detail,
+              quantity: quantity || 0,
+              action: detail?.action ?? ActionDetailTransfer.Update,
+            };
+          }
+          return detail;
+        }),
+      );
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -310,7 +322,11 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad del producto
    */
   const createDetail = (product: Product, quantity: number) => {
-    setDetails([...details, { product, quantity, action: ActionDetailTransfer.Create }]);
+    try {
+      setDetails([...details, { product, quantity, action: ActionDetailTransfer.Create }]);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -335,12 +351,16 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
   };
 
   useEffect(() => {
-    if (id) {
-      if (details?.length === 0) {
-        setDetails(transfer?.details || []);
+    try {
+      if (id) {
+        if (details?.length === 0) {
+          setDetails(transfer?.details || []);
+        }
+        setRequests(transfer?.requests || []);
+        setObservation(transfer?.observationOrigin || '');
       }
-      setRequests(transfer?.requests || []);
-      setObservation(transfer?.observationOrigin || '');
+    } catch (error: any) {
+      showError(error?.mesage);
     }
   }, [transfer, id]);
 

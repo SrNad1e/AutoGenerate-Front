@@ -18,6 +18,8 @@ import { useEffect, useState } from 'react';
 
 import SelectCity from '../SelectCity';
 import NewAddress from './new';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from './styles';
 
@@ -35,8 +37,29 @@ const AddressDelivery = ({ deliveryAddress, customer, setDelivery }: Props) => {
   const [visibleCreate, setVisibleCreate] = useState(false);
   const [visibleAddress, setVisibleAddress] = useState(true);
   const [count, setCount] = useState(0);
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
 
   const [form] = useForm();
+
+  const onCloseAlert = () => {
+    setPropsAlert({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  const showError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
 
   /**
    * @description renderizar una direccion
@@ -173,35 +196,43 @@ const AddressDelivery = ({ deliveryAddress, customer, setDelivery }: Props) => {
   };
 
   useEffect(() => {
-    if (deliveryAddress !== null) {
-      form.setFieldsValue({
-        contact: deliveryAddress && deliveryAddress[count]?.contact,
-        phone: deliveryAddress && deliveryAddress[count]?.phone,
-        cityId: deliveryAddress && deliveryAddress[count]?.city?._id,
-      });
+    try {
+      if (deliveryAddress !== null) {
+        form.setFieldsValue({
+          contact: deliveryAddress && deliveryAddress[count]?.contact,
+          phone: deliveryAddress && deliveryAddress[count]?.phone,
+          cityId: deliveryAddress && deliveryAddress[count]?.city?._id,
+        });
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, [visibleAddress]);
 
   useEffect(() => {
-    if (deliveryAddress !== null && setDelivery) {
-      setDelivery({
-        city: {
-          _id: deliveryAddress && deliveryAddress[count]?.city._id,
-          name: deliveryAddress && deliveryAddress[count]?.city?.name,
-          state: deliveryAddress && deliveryAddress[count]?.city?.state,
-          country: { name: 'Colombia' },
-        },
-        contact: deliveryAddress && deliveryAddress[count]?.contact,
-        extra: deliveryAddress && deliveryAddress[count]?.extra,
-        field1: deliveryAddress && deliveryAddress[count]?.field1,
-        isMain: deliveryAddress && deliveryAddress[count]?.isMain,
-        loteNumber: deliveryAddress && deliveryAddress[count]?.loteNumber,
-        neighborhood: deliveryAddress && deliveryAddress[count]?.neighborhood,
-        number1: deliveryAddress && deliveryAddress[count]?.number1,
-        number2: deliveryAddress && deliveryAddress[count]?.number2,
-        phone: deliveryAddress && deliveryAddress[count]?.phone,
-        postalCode: deliveryAddress && deliveryAddress[count]?.postalCode,
-      });
+    try {
+      if (deliveryAddress !== null && setDelivery) {
+        setDelivery({
+          city: {
+            _id: deliveryAddress && deliveryAddress[count]?.city._id,
+            name: deliveryAddress && deliveryAddress[count]?.city?.name,
+            state: deliveryAddress && deliveryAddress[count]?.city?.state,
+            country: { name: 'Colombia' },
+          },
+          contact: deliveryAddress && deliveryAddress[count]?.contact,
+          extra: deliveryAddress && deliveryAddress[count]?.extra,
+          field1: deliveryAddress && deliveryAddress[count]?.field1,
+          isMain: deliveryAddress && deliveryAddress[count]?.isMain,
+          loteNumber: deliveryAddress && deliveryAddress[count]?.loteNumber,
+          neighborhood: deliveryAddress && deliveryAddress[count]?.neighborhood,
+          number1: deliveryAddress && deliveryAddress[count]?.number1,
+          number2: deliveryAddress && deliveryAddress[count]?.number2,
+          phone: deliveryAddress && deliveryAddress[count]?.phone,
+          postalCode: deliveryAddress && deliveryAddress[count]?.postalCode,
+        });
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, [visibleAddress]);
 
@@ -243,6 +274,7 @@ const AddressDelivery = ({ deliveryAddress, customer, setDelivery }: Props) => {
         visible={visibleCreate}
         onCancel={() => setVisibleCreate(false)}
       />
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </>
   );
 };

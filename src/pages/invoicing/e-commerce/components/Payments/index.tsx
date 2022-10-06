@@ -314,59 +314,63 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
    * @description funcion usada para guardar los detalles de los pagos en el estado
    */
   const onAddPayment = async () => {
-    const values = await form.validateFields();
-    const payment: PaymentOrder = {
-      action: ActionPaymentsOrder.Update,
-      total: values.total || 0,
-      createdAt: orderData?.createdAt,
-      updatedAt: orderData?.updatedAt,
-      status: StatusOrderDetail.New,
-      payment: {
-        _id: values.paymentId || '',
-        name: '',
-        type: '',
-      },
-    };
-    if (values.paymentId === '629fc27ee4251f089ecd275b') {
-      payment.payment.name = 'Efectivo';
-      payment.payment.type = TypePayment.Cash;
-    } else if (values.paymentId === '629fc27ee4251f089ecd275d') {
-      payment.payment.name = 'Bancolombia';
-      payment.payment.type = TypePayment.Bank;
-    } else if (values.paymentId === '629fc27ee4251f089ecd275c') {
-      payment.payment.name = 'Crédito';
-      payment.payment.type = TypePayment.Credit;
-    } else if (values.paymentId === '629fc27ee4251f089ecd275e') {
-      payment.payment.name = 'Bono';
-      payment.payment.type = TypePayment.Bonus;
-    }
+    try {
+      const values = await form.validateFields();
+      const payment: PaymentOrder = {
+        action: ActionPaymentsOrder.Update,
+        total: values.total || 0,
+        createdAt: orderData?.createdAt,
+        updatedAt: orderData?.updatedAt,
+        status: StatusOrderDetail.New,
+        payment: {
+          _id: values.paymentId || '',
+          name: '',
+          type: '',
+        },
+      };
+      if (values.paymentId === '629fc27ee4251f089ecd275b') {
+        payment.payment.name = 'Efectivo';
+        payment.payment.type = TypePayment.Cash;
+      } else if (values.paymentId === '629fc27ee4251f089ecd275d') {
+        payment.payment.name = 'Bancolombia';
+        payment.payment.type = TypePayment.Bank;
+      } else if (values.paymentId === '629fc27ee4251f089ecd275c') {
+        payment.payment.name = 'Crédito';
+        payment.payment.type = TypePayment.Credit;
+      } else if (values.paymentId === '629fc27ee4251f089ecd275e') {
+        payment.payment.name = 'Bono';
+        payment.payment.type = TypePayment.Bonus;
+      }
 
-    if (values.total && values.total > 0) {
-      for (let i = -1; i < addPayments.length; i++) {
-        if (values.total && values.paymentId === addPayments[i]?.payment._id) {
-          addPayments[i].total += values.total;
-          setAddPayments([...addPayments]);
-          form.resetFields();
-          setVisiblePayment(false);
-          break;
-        }
-        if (values.total && values.paymentId !== addPayments[i]?.payment._id) {
-          if (values.paymentId === addPayments[i]?.payment._id) {
+      if (values.total && values.total > 0) {
+        for (let i = -1; i < addPayments.length; i++) {
+          if (values.total && values.paymentId === addPayments[i]?.payment._id) {
             addPayments[i].total += values.total;
             setAddPayments([...addPayments]);
             form.resetFields();
             setVisiblePayment(false);
-          } else if (values.paymentId !== addPayments[i]?.payment._id) {
-            setAddPayments([...addPayments, payment]);
-            form.resetFields();
-            setVisiblePayment(false);
-          } else {
-            showError('Error');
+            break;
+          }
+          if (values.total && values.paymentId !== addPayments[i]?.payment._id) {
+            if (values.paymentId === addPayments[i]?.payment._id) {
+              addPayments[i].total += values.total;
+              setAddPayments([...addPayments]);
+              form.resetFields();
+              setVisiblePayment(false);
+            } else if (values.paymentId !== addPayments[i]?.payment._id) {
+              setAddPayments([...addPayments, payment]);
+              form.resetFields();
+              setVisiblePayment(false);
+            } else {
+              showError('Error');
+            }
           }
         }
+      } else {
+        showError('Cantidad no puede estar en 0');
       }
-    } else {
-      showError('Cantidad no puede estar en 0');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -376,19 +380,23 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
    * @param paymentId Identificador del pago a eliminar del estado
    */
   const deleteDetailPayment = (arrComparison: PaymentOrder[], paymentId: string) => {
-    const productDelete = {
-      action: ActionPaymentsOrder.Delete,
-      paymentId: paymentId,
-      total: 1,
-    };
-    for (let index = 0; index < arrComparison?.length; index++) {
-      const newPayments = addPayments.filter((pay) => pay?.payment?._id !== paymentId);
-      if (newPayments.length === 0) {
-        alertWarning('El pedido no puede quedar sin medios de pago');
-        break;
+    try {
+      const productDelete = {
+        action: ActionPaymentsOrder.Delete,
+        paymentId: paymentId,
+        total: 1,
+      };
+      for (let index = 0; index < arrComparison?.length; index++) {
+        const newPayments = addPayments.filter((pay) => pay?.payment?._id !== paymentId);
+        if (newPayments.length === 0) {
+          alertWarning('El pedido no puede quedar sin medios de pago');
+          break;
+        }
+        setProductsDelete([...productsDelete, productDelete]);
+        setAddPayments([...newPayments]);
       }
-      setProductsDelete([...productsDelete, productDelete]);
-      setAddPayments([...newPayments]);
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -511,76 +519,83 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
    * @param paymentId identificador del medio de pago
    */
   const onChangeTotalDetailPayment = (totalPayment?: number, paymentId?: string) => {
-    const values = addPayments.map((i) => ({
-      action: ActionPaymentsOrder.Update,
-      paymentId: i.payment._id,
-      total: i.total,
-    }));
-    if (orderData?.payments) {
-      for (let index = 0; index < addPayments.length; index++) {
-        if (values[index]?.paymentId !== orderData?.payments[index]?.payment?._id) {
-          values[index].action = ActionPaymentsOrder.Create;
-          setEditPayments([...values]);
-        }
-      }
-    }
-    for (let index = 0; index < addPayments.length; index++) {
-      if (paymentId !== values[index]?.paymentId) {
-        setEditPayments([...editPayments, values[index]]);
-      } else {
-        values[index].total = totalPayment;
-        setEditPayments([...values]);
-        break;
-      }
-    }
-    if (totalPayment && totalPayment > 0) {
-      for (let i = -1; i < addPayments.length; i++) {
-        if (totalPayment && paymentId === addPayments[i]?.payment?._id) {
-          addPayments[i].total = totalPayment;
-          setAddPayments([...addPayments]);
-          break;
-        }
-        if (totalPayment && paymentId !== addPayments[i]?.payment?._id) {
-          if (paymentId !== addPayments[i]?.payment?._id) {
-            setAddPayments([...addPayments]);
-          } else {
-            showError('Error');
+    try {
+      const values = addPayments.map((i) => ({
+        action: ActionPaymentsOrder.Update,
+        paymentId: i.payment._id,
+        total: i.total,
+      }));
+      if (orderData?.payments) {
+        for (let index = 0; index < addPayments.length; index++) {
+          if (values[index]?.paymentId !== orderData?.payments[index]?.payment?._id) {
+            values[index].action = ActionPaymentsOrder.Create;
+            setEditPayments([...values]);
           }
         }
       }
-    } else {
-      alertWarning('Cantidad no puede estar en 0');
+      for (let index = 0; index < addPayments.length; index++) {
+        if (paymentId !== values[index]?.paymentId) {
+          setEditPayments([...editPayments, values[index]]);
+        } else {
+          values[index].total = totalPayment;
+          setEditPayments([...values]);
+          break;
+        }
+      }
+      if (totalPayment && totalPayment > 0) {
+        for (let i = -1; i < addPayments.length; i++) {
+          if (totalPayment && paymentId === addPayments[i]?.payment?._id) {
+            addPayments[i].total = totalPayment;
+            setAddPayments([...addPayments]);
+            break;
+          }
+          if (totalPayment && paymentId !== addPayments[i]?.payment?._id) {
+            if (paymentId !== addPayments[i]?.payment?._id) {
+              setAddPayments([...addPayments]);
+            } else {
+              showError('Error');
+            }
+          }
+        }
+      } else {
+        alertWarning('Cantidad no puede estar en 0');
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
   const typePaymetCash = orderData?.payments?.find((i) => i?.payment?.type === TypePayment.Cash);
 
   const validateAllPayConfirmed = () => {
-    let countConfirmed = 0;
-    if (orderData?.payments) {
-      for (let index = 0; index < orderData?.payments?.length; index++) {
-        if (
-          orderData?.payments[index]?.status === StatusOrderDetail.Confirmed &&
-          orderData?.payments[index]?.payment?.type !== TypePayment.Cash
-        ) {
-          countConfirmed++;
+    try {
+      if (orderData?.payments) {
+        let countConfirmed = 0;
+        for (let index = 0; index < orderData?.payments?.length; index++) {
+          if (
+            orderData?.payments[index]?.status === StatusOrderDetail.Confirmed &&
+            orderData?.payments[index]?.payment?.type !== TypePayment.Cash
+          ) {
+            countConfirmed++;
+          }
+        }
+        if (typePaymetCash !== undefined) {
+          if (countConfirmed === orderData?.payments?.length - 1) {
+            return false;
+          } else {
+            return true;
+          }
+        } else {
+          if (countConfirmed === orderData?.payments?.length) {
+            return false;
+          } else {
+            return true;
+          }
         }
       }
-      if (typePaymetCash !== undefined) {
-        if (countConfirmed === orderData?.payments?.length - 1) {
-          return false;
-        } else {
-          return true;
-        }
-      } else {
-        if (countConfirmed === orderData?.payments?.length) {
-          return false;
-        } else {
-          return true;
-        }
-      }
+    } catch (error: any) {
+      showError(error?.message);
     }
-
     return;
   };
 
@@ -599,20 +614,24 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
   }, [paymentBankTotal]);
 
   useEffect(() => {
-    if (orderData !== undefined) {
-      setAddPayments(
-        orderData?.payments?.map((i) => ({
-          total: i?.total,
-          updatedAt: i?.updatedAt,
-          createdAt: i?.createdAt,
-          status: i?.status,
-          payment: {
-            _id: i?.payment?._id,
-            name: i?.payment?.name,
-            type: i?.payment?.type,
-          },
-        })),
-      );
+    try {
+      if (orderData !== undefined) {
+        setAddPayments(
+          orderData?.payments?.map((i) => ({
+            total: i?.total,
+            updatedAt: i?.updatedAt,
+            createdAt: i?.createdAt,
+            status: i?.status,
+            payment: {
+              _id: i?.payment?._id,
+              name: i?.payment?.name,
+              type: i?.payment?.type,
+            },
+          })),
+        );
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, [orderData]);
 

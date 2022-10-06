@@ -34,6 +34,8 @@ import { StatusOrderDetail } from '@/graphql/graphql';
 import SelectColor from '../SelectColor';
 import SelectSize from '../SelectSize';
 import validateCodeBar from '@/libs/validateCodeBar';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -71,23 +73,48 @@ const ModalSearchProducts = ({
     limit: 12,
     page: 0,
   });
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
 
   const [getProducts, { data, loading, error }] = useGetProducts();
+
+  const onCloseAlert = () => {
+    setPropsAlert({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  const showError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
 
   /**
    * @description se encarga de consultar los productos con los filtros
    * @param params filtros para buscar productos
    */
   const onSearch = (params: Partial<FiltersProductsInput>) => {
-    getProducts({
-      variables: {
-        input: {
-          ...params,
-          warehouseId,
-          status: 'active',
+    try {
+      getProducts({
+        variables: {
+          input: {
+            ...params,
+            warehouseId,
+            status: 'active',
+          },
         },
-      },
-    });
+      });
+    } catch (err: any) {
+      showError(err?.message);
+    }
   };
 
   /**
@@ -95,14 +122,18 @@ const ModalSearchProducts = ({
    * @param values valores del formulario
    */
   const onFinish = ({ colorId, name, sizeId }: FormValues) => {
-    const params: Partial<FiltersProductsInput> = {
-      page: 1,
-      colorId,
-      name: name && validateCodeBar(name),
-      sizeId,
-    };
-    setFilters({ ...filters, ...params });
-    onSearch({ ...filters, ...params });
+    try {
+      const params: Partial<FiltersProductsInput> = {
+        page: 1,
+        colorId,
+        name: name && validateCodeBar(name),
+        sizeId,
+      };
+      setFilters({ ...filters, ...params });
+      onSearch({ ...filters, ...params });
+    } catch (err: any) {
+      showError(err?.message);
+    }
   };
 
   /**
@@ -112,9 +143,13 @@ const ModalSearchProducts = ({
    * @param sorter evento de ordenamientos
    */
   const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
-    const { current } = paginationLocal;
-    setFilters({ ...filters, page: current });
-    onSearch({ ...filters, page: current });
+    try {
+      const { current } = paginationLocal;
+      setFilters({ ...filters, page: current });
+      onSearch({ ...filters, page: current });
+    } catch (err: any) {
+      showError(err?.message);
+    }
   };
 
   /**
@@ -132,20 +167,24 @@ const ModalSearchProducts = ({
    * @returns retorna un boolean
    */
   const disabledButtonConfirmProduct = (productId: string) => {
-    if (order?.details)
-      for (let i = 0; i < order?.details?.length; i++) {
-        if (
-          productId === order.details[i].product._id &&
-          order?.details[i].status === StatusOrderDetail.Confirmed
-        ) {
-          return true;
-        } else if (
-          productId === order.details[i].product._id &&
-          order?.details[i].status !== StatusOrderDetail.Confirmed
-        ) {
-          return false;
+    try {
+      if (order?.details)
+        for (let i = 0; i < order?.details?.length; i++) {
+          if (
+            productId === order.details[i].product._id &&
+            order?.details[i].status === StatusOrderDetail.Confirmed
+          ) {
+            return true;
+          } else if (
+            productId === order.details[i].product._id &&
+            order?.details[i].status !== StatusOrderDetail.Confirmed
+          ) {
+            return false;
+          }
         }
-      }
+    } catch (err: any) {
+      showError(err?.message);
+    }
     return;
   };
 
@@ -320,6 +359,7 @@ const ModalSearchProducts = ({
           </Col>
         </Row>
       </>
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </Modal>
   );
 };

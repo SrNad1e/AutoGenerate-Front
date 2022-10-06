@@ -117,10 +117,14 @@ const FormReturn = ({ visible, onCancel }: Props) => {
   };
 
   useEffect(() => {
-    getOrders({ variables: { input: { status: StatusOrder.Closed, sort: { createdAt: -1 } } } });
-    setOrderSelected({});
-    setProductsSelected([]);
-    setCurrentStep(0);
+    try {
+      getOrders({ variables: { input: { status: StatusOrder.Closed, sort: { createdAt: -1 } } } });
+      setOrderSelected({});
+      setProductsSelected([]);
+      setCurrentStep(0);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   }, [visible]);
 
   return (

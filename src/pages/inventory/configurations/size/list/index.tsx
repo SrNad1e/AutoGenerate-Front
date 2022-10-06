@@ -162,21 +162,25 @@ const SizesList = () => {
    * @param values valores del formulario
    */
   const onFinish = (values: FormData) => {
-    const filters = { ...filterTable };
+    try {
+      const filters = { ...filterTable };
 
-    Object.keys(filters).forEach((i) => {
-      if (filters[i] === null) {
-        delete filters[i];
-      } else {
-        filters[i] = filters[i][0];
-      }
-    });
+      Object.keys(filters).forEach((i) => {
+        if (filters[i] === null) {
+          delete filters[i];
+        } else {
+          filters[i] = filters[i][0];
+        }
+      });
 
-    setQueryParams({
-      ...values,
-      ...filters,
-    });
-    onSearch({ ...filters, ...values });
+      setQueryParams({
+        ...values,
+        ...filters,
+      });
+      onSearch({ ...filters, ...values });
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -194,46 +198,53 @@ const SizesList = () => {
     const prop = form.getFieldsValue();
 
     const filters = { ...filterArg };
+    try {
+      Object.keys(filters).forEach((i) => {
+        if (filters[i] === null) {
+          delete filters[i];
+        } else {
+          filters[i] = filters[i][0];
+        }
+      });
 
-    Object.keys(filters).forEach((i) => {
-      if (filters[i] === null) {
-        delete filters[i];
-      } else {
-        filters[i] = filters[i][0];
+      let sort = {};
+
+      if (sorter.field) {
+        if (['ascend', 'descend'].includes(sorter?.order || '')) {
+          sort = {
+            [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+          };
+        }
       }
-    });
 
-    let sort = {};
+      setQueryParams(filters);
+      setSorterTable(sorter);
 
-    if (sorter.field) {
-      if (['ascend', 'descend'].includes(sorter?.order || '')) {
-        sort = {
-          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-        };
+      if (sort['value']) {
+        sort['weight'] = sort['value'];
+        delete sort['value'];
       }
+
+      onSearch({ ...prop, sort, page: current, ...filters });
+      setFilterTable(filterArg);
+    } catch (error: any) {
+      showError(error?.message);
     }
-
-    setQueryParams(filters);
-    setSorterTable(sorter);
-
-    if (sort['value']) {
-      sort['weight'] = sort['value'];
-      delete sort['value'];
-    }
-
-    onSearch({ ...prop, sort, page: current, ...filters });
-    setFilterTable(filterArg);
   };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({});
-    setSorterTable({});
-    setFilterTable({});
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({});
+      setSorterTable({});
+      setFilterTable({});
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -245,16 +256,20 @@ const SizesList = () => {
     const tableFilters = {
       active: queryParams.active ? [queryParams.active === 'true'] : null,
     };
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'active') {
-        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
-      } else {
-        params[item] = JSON.parse(queryParams[item]);
-      }
-    });
-    form.setFieldsValue(params);
-    setFilterTable(tableFilters);
-    onSearch(params);
+    try {
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'active') {
+          params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+        } else {
+          params[item] = JSON.parse(queryParams[item]);
+        }
+      });
+      form.setFieldsValue(params);
+      setFilterTable(tableFilters);
+      onSearch(params);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   useEffect(() => {

@@ -146,14 +146,21 @@ const OutputForm = () => {
    * @returns componente
    */
   const renderSteps = (step: number) => {
-    switch (step) {
-      case 0:
-        return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
-      case 1:
-        return <FormOutput allowEdit={allowEdit} output={output} setCurrentStep={setCurrentStep} />;
-      default:
-        return <></>;
+    try {
+      switch (step) {
+        case 0:
+          return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
+        case 1:
+          return (
+            <FormOutput allowEdit={allowEdit} output={output} setCurrentStep={setCurrentStep} />
+          );
+        default:
+          return <></>;
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
+    return 0;
   };
 
   return (
