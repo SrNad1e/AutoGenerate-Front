@@ -44,6 +44,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import validateCodeBar from '@/libs/validateCodeBar';
 
 const { Text } = Typography;
 const FormItem = Form.Item;
@@ -138,9 +139,10 @@ const Products = ({ orderdata }: Props) => {
    */
   const confirmQuantity = async () => {
     const values = await form.validateFields();
+    const barcode = validateCodeBar(values.barcode);
     if (values.barcode) {
       for (let i = 0; i < productsQuantityConfirm.length; i++) {
-        if (values.barcode === productsQuantityConfirm[i].barcode) {
+        if (barcode === productsQuantityConfirm[i].barcode) {
           if (productsQuantityConfirm[i].quantityConfirm >= productsQuantityConfirm[i].quantity) {
             alertWarning('Esta intentado agregar más produtos de los registrados en el pedido');
             break;
