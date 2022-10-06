@@ -214,37 +214,44 @@ const ConfirmTransfer = () => {
    * @param _id identificador del producto
    */
   const confirmZero = (_id: string) => {
-    const newDetails = details.map((item) => {
-      if (item?.product?._id === _id) {
-        return {
-          ...item,
-          status: StatusDetailTransfer.Confirmed,
-          quantityConfirmed: 0,
-        };
-      }
-      return item;
-    });
-    setDetails(newDetails);
+    try {
+      const newDetails = details.map((item) => {
+        if (item?.product?._id === _id) {
+          return {
+            ...item,
+            status: StatusDetailTransfer.Confirmed,
+            quantityConfirmed: 0,
+          };
+        }
+        return item;
+      });
+      setDetails(newDetails);
+    } catch (e: any) {
+      onShowError(e?.message);
+    }
   };
 
   /**
    * @description funcion usada para confirmar los productos en el traslado
    */
   const confirmProducts = () => {
-    const productsConfirm = details.filter(
-      (item) =>
-        ((item?.status === StatusDetailTransfer.New && item?.quantityConfirmed) || 0) > 0 ||
-        (item?.status === StatusDetailTransfer.Confirmed && item?.quantityConfirmed === 0),
-    );
-
-    if (productsConfirm.length > 0) {
-      setPropsAlertSave({
-        visible: true,
-        message: '¿Está seguro que desea confirmar los productos?',
-        type: 'warning',
-      });
-    } else {
-      onShowError('No hay productos para confirmar');
+    try {
+      const productsConfirm = details.filter(
+        (item) =>
+          ((item?.status === StatusDetailTransfer.New && item?.quantityConfirmed) || 0) > 0 ||
+          (item?.status === StatusDetailTransfer.Confirmed && item?.quantityConfirmed === 0),
+      );
+      if (productsConfirm.length > 0) {
+        setPropsAlertSave({
+          visible: true,
+          message: '¿Está seguro que desea confirmar los productos?',
+          type: 'warning',
+        });
+      } else {
+        onShowError('No hay productos para confirmar');
+      }
+    } catch (e: any) {
+      onShowError(e?.message);
     }
   };
 
@@ -252,46 +259,56 @@ const ConfirmTransfer = () => {
    * @description funcion usada para confirmar la transferencia si los productos fueron confirmados anteriormente
    */
   const confirmTransfer = () => {
-    const productsConfirm = details.find((item) => item?.status !== StatusDetailTransfer.Confirmed);
+    try {
+      const productsConfirm = details.find(
+        (item) => item?.status !== StatusDetailTransfer.Confirmed,
+      );
 
-    if (!productsConfirm) {
-      setPropsAlertSave({
-        visible: true,
-        message: 'Se enviaran las unidades confirmadas a la bodega, ¿Está Seguro?',
-        type: 'warning',
-        status: StatusStockTransfer.Confirmed,
-      });
-    } else {
-      onShowError('Debe confirmar todos los productos');
+      if (!productsConfirm) {
+        setPropsAlertSave({
+          visible: true,
+          message: 'Se enviaran las unidades confirmadas a la bodega, ¿Está Seguro?',
+          type: 'warning',
+          status: StatusStockTransfer.Confirmed,
+        });
+      } else {
+        onShowError('Debe confirmar todos los productos');
+      }
+    } catch (e: any) {
+      onShowError(e?.message);
     }
   };
 
   const saveTransfer = async (status?: StatusStockTransfer) => {
     if (status === StatusStockTransfer.Confirmed) {
-      const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.New);
+      try {
+        const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.New);
 
-      if (!confirm) {
-        onShowError('Debe confirmar todos los productos antes de enviar');
-      } else {
-        if (id) {
-          const response = await updateTransfer({
-            variables: {
-              id,
-              input: {
-                observationDestination: observation,
-                status,
+        if (!confirm) {
+          onShowError('Debe confirmar todos los productos antes de enviar');
+        } else {
+          if (id) {
+            const response = await updateTransfer({
+              variables: {
+                id,
+                input: {
+                  observationDestination: observation,
+                  status,
+                },
               },
-            },
-          });
-          if (response?.data?.updateStockTransfer) {
-            setPropsAlert({
-              message: 'Productos confirmados correctamente',
-              visible: true,
-              type: 'success',
-              redirect: '/inventory/transfer/list',
             });
+            if (response?.data?.updateStockTransfer) {
+              setPropsAlert({
+                message: 'Productos confirmados correctamente',
+                visible: true,
+                type: 'success',
+                redirect: '/inventory/transfer/list',
+              });
+            }
           }
         }
+      } catch (e: any) {
+        onShowError(e?.message);
       }
     } else {
       const newDetails = details.filter(

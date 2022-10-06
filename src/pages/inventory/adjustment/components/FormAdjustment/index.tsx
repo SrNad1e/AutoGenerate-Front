@@ -102,37 +102,41 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
    * @param status estado actual del ajuste
    */
   const showAlertSave = (status?: StatusStockAdjustment) => {
-    if (
-      details.length > 0 ||
-      status === StatusStockAdjustment.Cancelled ||
-      observation !== (adjustment?.observation || '')
-    ) {
-      if (status === StatusStockAdjustment.Cancelled) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea cancelar el ajuste?',
-          type: 'error',
-        });
-      } else if (status === StatusStockAdjustment.Open) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea guardar el ajuste?',
-          type: 'warning',
-        });
-      } else if (status === StatusStockAdjustment.Confirmed) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea enviar el ajuste?',
-          type: 'warning',
-        });
+    try {
+      if (
+        details.length > 0 ||
+        status === StatusStockAdjustment.Cancelled ||
+        observation !== (adjustment?.observation || '')
+      ) {
+        if (status === StatusStockAdjustment.Cancelled) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea cancelar el ajuste?',
+            type: 'error',
+          });
+        } else if (status === StatusStockAdjustment.Open) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea guardar el ajuste?',
+            type: 'warning',
+          });
+        } else if (status === StatusStockAdjustment.Confirmed) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea enviar el ajuste?',
+            type: 'warning',
+          });
+        } else {
+          onShowInformation('El ajuste no tiene productos');
+        }
       } else {
-        onShowInformation('El ajuste no tiene productos');
+        onShowInformation('No se encontraron cambios en el ajuste');
       }
-    } else {
-      onShowInformation('No se encontraron cambios en el ajuste');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -262,24 +266,28 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
    * @param _id identificador del producto a eliminar
    */
   const deleteDetail = (_id: string) => {
-    if (setDetails) {
-      const productFind = details.find((detail) => detail?.product?._id);
+    try {
+      if (setDetails) {
+        const productFind = details.find((detail) => detail?.product?._id);
 
-      if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product?._id !== _id));
-      } else {
-        setDetails(
-          details.map((detail) => {
-            if (detail?.product?._id === _id) {
-              return {
-                ...detail,
-                action: ActionDetailAdjustment.Delete,
-              };
-            }
-            return detail;
-          }),
-        );
+        if (productFind && !productFind.__typename) {
+          setDetails(details.filter((detail) => detail?.product?._id !== _id));
+        } else {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === _id) {
+                return {
+                  ...detail,
+                  action: ActionDetailAdjustment.Delete,
+                };
+              }
+              return detail;
+            }),
+          );
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -289,22 +297,26 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Product, quantity: number) => {
-    if (setDetails) {
-      const productFind = adjustment?.details?.find(
-        (detail) => detail?.product?._id === product?._id,
-      );
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product?._id) {
-            return {
-              ...detail,
-              quantity: quantity || 0,
-              action: productFind ? ActionDetailAdjustment.Update : ActionDetailAdjustment.Create,
-            };
-          }
-          return detail;
-        }),
-      );
+    try {
+      if (setDetails) {
+        const productFind = adjustment?.details?.find(
+          (detail) => detail?.product?._id === product?._id,
+        );
+        setDetails(
+          details.map((detail) => {
+            if (detail?.product?._id === product?._id) {
+              return {
+                ...detail,
+                quantity: quantity || 0,
+                action: productFind ? ActionDetailAdjustment.Update : ActionDetailAdjustment.Create,
+              };
+            }
+            return detail;
+          }),
+        );
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -314,13 +326,19 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad  a asignar
    */
   const createDetail = (product: Product, quantity: number) => {
-    const findProduct = adjustment?.details?.find((detail) => detail?.product?._id === product._id);
-    if (findProduct) {
-      updateDetail(product, quantity);
-    } else {
-      if (setDetails) {
-        setDetails([...details, { product, quantity, action: ActionDetailAdjustment.Create }]);
+    try {
+      const findProduct = adjustment?.details?.find(
+        (detail) => detail?.product?._id === product._id,
+      );
+      if (findProduct) {
+        updateDetail(product, quantity);
+      } else {
+        if (setDetails) {
+          setDetails([...details, { product, quantity, action: ActionDetailAdjustment.Create }]);
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -346,11 +364,15 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
   };
 
   useEffect(() => {
-    if (id) {
-      if (details?.length === 0) {
-        setDetails(adjustment?.details || []);
+    try {
+      if (id) {
+        if (details?.length === 0) {
+          setDetails(adjustment?.details || []);
+        }
+        setObservation(adjustment?.observation || '');
       }
-      setObservation(adjustment?.observation || '');
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, [adjustment, id]);
 

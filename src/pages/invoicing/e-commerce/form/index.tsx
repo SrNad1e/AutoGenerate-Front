@@ -161,20 +161,28 @@ const EcommerceForm = () => {
    * @returns retorna un boolean
    */
   const disabledButton = () => {
-    let countConfirm = 0;
-    if (paramsGetOrder?.data?.orderId?.order?.details)
-      for (let index = 0; index < paramsGetOrder?.data?.orderId?.order?.details?.length; index++) {
-        if (
-          paramsGetOrder?.data?.orderId?.order?.details[index].status ===
-          StatusOrderDetail.Confirmed
-        )
-          countConfirm++;
-      }
+    try {
+      let countConfirm = 0;
+      if (paramsGetOrder?.data?.orderId?.order?.details)
+        for (
+          let index = 0;
+          index < paramsGetOrder?.data?.orderId?.order?.details?.length;
+          index++
+        ) {
+          if (
+            paramsGetOrder?.data?.orderId?.order?.details[index].status ===
+            StatusOrderDetail.Confirmed
+          )
+            countConfirm++;
+        }
 
-    if (countConfirm === paramsGetOrder?.data?.orderId?.order?.details?.length) {
-      return false;
-    } else if (countConfirm !== paramsGetOrder?.data?.orderId?.order?.details?.length) {
-      return true;
+      if (countConfirm === paramsGetOrder?.data?.orderId?.order?.details?.length) {
+        return false;
+      } else if (countConfirm !== paramsGetOrder?.data?.orderId?.order?.details?.length) {
+        return true;
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
     return;
   };
@@ -184,18 +192,24 @@ const EcommerceForm = () => {
    * @returns retorna un booleano
    */
   const disabledSentButton = () => {
-    let countConfirmed = 0;
-    if (paramsGetOrder?.data?.orderId?.order?.payments?.length) {
-      for (let i = 0; i < paramsGetOrder?.data?.orderId?.order?.payments?.length; i++) {
-        if (paramsGetOrder.data.orderId.order.payments[i].status === StatusOrderDetail.Confirmed) {
-          countConfirmed++;
+    try {
+      let countConfirmed = 0;
+      if (paramsGetOrder?.data?.orderId?.order?.payments?.length) {
+        for (let i = 0; i < paramsGetOrder?.data?.orderId?.order?.payments?.length; i++) {
+          if (
+            paramsGetOrder.data.orderId.order.payments[i].status === StatusOrderDetail.Confirmed
+          ) {
+            countConfirmed++;
+          }
         }
       }
-    }
-    if (countConfirmed === paramsGetOrder?.data?.orderId?.order?.payments?.length) {
-      return false;
-    } else if (countConfirmed !== paramsGetOrder?.data?.orderId?.order?.payments?.length) {
-      return true;
+      if (countConfirmed === paramsGetOrder?.data?.orderId?.order?.payments?.length) {
+        return false;
+      } else if (countConfirmed !== paramsGetOrder?.data?.orderId?.order?.payments?.length) {
+        return true;
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
     return;
   };
@@ -205,21 +219,29 @@ const EcommerceForm = () => {
    * @returns retorna un booleano
    */
   const disabledCancelButton = () => {
-    let countConfirmed = 0;
-    if (paramsGetOrder?.data?.orderId?.order?.payments) {
-      for (let index = 0; index < paramsGetOrder?.data?.orderId?.order?.payments?.length; index++) {
-        if (
-          paramsGetOrder?.data?.orderId?.order?.payments[index].status ===
-          StatusOrderDetail.Confirmed
+    try {
+      let countConfirmed = 0;
+      if (paramsGetOrder?.data?.orderId?.order?.payments) {
+        for (
+          let index = 0;
+          index < paramsGetOrder?.data?.orderId?.order?.payments?.length;
+          index++
         ) {
-          countConfirmed++;
+          if (
+            paramsGetOrder?.data?.orderId?.order?.payments[index].status ===
+            StatusOrderDetail.Confirmed
+          ) {
+            countConfirmed++;
+          }
         }
       }
-    }
-    if (countConfirmed === paramsGetOrder?.data?.orderId?.order?.payments?.length) {
-      return true;
-    } else if (countConfirmed !== paramsGetOrder?.data?.orderId?.order?.payments?.length) {
-      return false;
+      if (countConfirmed === paramsGetOrder?.data?.orderId?.order?.payments?.length) {
+        return true;
+      } else if (countConfirmed !== paramsGetOrder?.data?.orderId?.order?.payments?.length) {
+        return false;
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
     return;
   };

@@ -55,8 +55,20 @@ const SearchProducts = ({
     });
   };
 
+  const showError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
   const setVisibleModal = () => {
-    setShowModal(!showModal);
+    try {
+      setShowModal(!showModal);
+    } catch (err: any) {
+      showError(err?.message);
+    }
   };
 
   /**
@@ -64,29 +76,36 @@ const SearchProducts = ({
    * @param e evento del input
    */
   const onPressEnter = async (e: any) => {
-    setError(undefined);
-    const value = validateCodeBar(e?.target?.value);
-    const response = await getProduct({
-      variables: {
-        input: {
-          status: 'active',
-          barcode: value,
-          warehouseId,
+    try {
+      setError(undefined);
+      const value = validateCodeBar(e?.target?.value);
+      const response = await getProduct({
+        variables: {
+          input: {
+            status: 'active',
+            barcode: value,
+            warehouseId,
+          },
         },
-      },
-    });
+      });
 
-    if (response?.data?.product) {
-      const exist = details.find((item) => item?.product?._id === response?.data?.product?._id);
-      if (exist) {
-        updateDetail(response?.data?.product as Product, (exist?.quantity || 0) + (quantity || 1));
+      if (response?.data?.product) {
+        const exist = details.find((item) => item?.product?._id === response?.data?.product?._id);
+        if (exist) {
+          updateDetail(
+            response?.data?.product as Product,
+            (exist?.quantity || 0) + (quantity || 1),
+          );
+        } else {
+          createDetail(response?.data?.product as Product, quantity || 1);
+        }
       } else {
-        createDetail(response?.data?.product as Product, quantity || 1);
+        setError('Producto no existe o no se encuentra activo');
       }
-    } else {
-      setError('Producto no existe o no se encuentra activo');
+      searchRef?.current?.select();
+    } catch (err: any) {
+      showError(err?.message);
     }
-    searchRef?.current?.select();
   };
 
   useEffect(() => {

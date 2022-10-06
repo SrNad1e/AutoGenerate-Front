@@ -88,20 +88,28 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
   };
 
   const onSearchPendings = () => {
-    onSearch({
-      warehouseDestinationId: transfer?.warehouseDestination?._id,
-      status: StatusStockRequest.Pending,
-    });
+    try {
+      onSearch({
+        warehouseDestinationId: transfer?.warehouseDestination?._id,
+        status: StatusStockRequest.Pending,
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
   /**
    * @description selecciona las solicitudes y las almacena en un array
    */
   const onSelect = () => {
-    const newRequests = requestsSelected.filter(
-      (item) => !requests?.find((request) => request?._id === item?._id),
-    );
+    try {
+      const newRequests = requestsSelected.filter(
+        (item) => !requests?.find((request) => request?._id === item?._id),
+      );
 
-    onOk(newRequests);
+      onOk(newRequests);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -110,20 +118,23 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
    */
   const onFinish = (values: FormValues) => {
     const filters: FiltersStockRequestsInput = {};
+    try {
+      if (!values?.all) {
+        filters.status = StatusStockRequest.Pending;
+        filters.warehouseDestinationId = transfer?.warehouseDestination?._id;
+      }
 
-    if (!values?.all) {
-      filters.status = StatusStockRequest.Pending;
-      filters.warehouseDestinationId = transfer?.warehouseDestination?._id;
+      delete values.all;
+
+      if (values?.warehouseId) {
+        filters.warehouseDestinationId = values?.warehouseId;
+        delete values.warehouseId;
+      }
+
+      onSearch({ ...filters, ...values });
+    } catch (error: any) {
+      messageError(error?.message);
     }
-
-    delete values.all;
-
-    if (values?.warehouseId) {
-      filters.warehouseDestinationId = values?.warehouseId;
-      delete values.warehouseId;
-    }
-
-    onSearch({ ...filters, ...values });
   };
 
   const rowSelection = {

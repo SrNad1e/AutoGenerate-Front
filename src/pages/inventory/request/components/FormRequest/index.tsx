@@ -102,37 +102,41 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
    * @param status estado actual de la solicitud
    */
   const showAlertSave = (status?: StatusStockRequest) => {
-    if (
-      details.length > 0 ||
-      status === StatusStockRequest.Cancelled ||
-      observation !== (request?.observation || '')
-    ) {
-      if (status === StatusStockRequest.Cancelled) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea cancelar la solicitud?',
-          type: 'error',
-        });
-      } else if (status === StatusStockRequest.Pending) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea enviar la solicitud?',
-          type: 'warning',
-        });
-      } else if (status === StatusStockRequest.Open) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea guardar la solicitud?',
-          type: 'warning',
-        });
+    try {
+      if (
+        details.length > 0 ||
+        status === StatusStockRequest.Cancelled ||
+        observation !== (request?.observation || '')
+      ) {
+        if (status === StatusStockRequest.Cancelled) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea cancelar la solicitud?',
+            type: 'error',
+          });
+        } else if (status === StatusStockRequest.Pending) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea enviar la solicitud?',
+            type: 'warning',
+          });
+        } else if (status === StatusStockRequest.Open) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea guardar la solicitud?',
+            type: 'warning',
+          });
+        } else {
+          onShowInformation('La salida no tiene productos');
+        }
       } else {
-        onShowInformation('La salida no tiene productos');
+        onShowInformation('No se encontraron cambios en la solicitud');
       }
-    } else {
-      onShowInformation('No se encontraron cambios en la solicitud');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -259,24 +263,28 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
    * @param _id identificador del producto a eliminar
    */
   const deleteDetail = (_id: string) => {
-    if (setDetails) {
-      const productFind = details.find((detail) => detail?.product?._id);
+    try {
+      if (setDetails) {
+        const productFind = details.find((detail) => detail?.product?._id);
 
-      if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product?._id !== _id));
-      } else {
-        setDetails(
-          details.map((detail) => {
-            if (detail?.product?._id === _id) {
-              return {
-                ...detail,
-                action: ActionDetailRequest.Delete,
-              };
-            }
-            return detail;
-          }),
-        );
+        if (productFind && !productFind.__typename) {
+          setDetails(details.filter((detail) => detail?.product?._id !== _id));
+        } else {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === _id) {
+                return {
+                  ...detail,
+                  action: ActionDetailRequest.Delete,
+                };
+              }
+              return detail;
+            }),
+          );
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -286,20 +294,24 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Product, quantity: number) => {
-    const productFind = request?.details?.find((detail) => detail?.product?._id === product?._id);
-    if (setDetails) {
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product._id) {
-            return {
-              ...detail,
-              quantity: quantity || 1,
-              action: productFind ? ActionDetailRequest.Update : ActionDetailRequest.Create,
-            };
-          }
-          return detail;
-        }),
-      );
+    try {
+      const productFind = request?.details?.find((detail) => detail?.product?._id === product?._id);
+      if (setDetails) {
+        setDetails(
+          details.map((detail) => {
+            if (detail?.product?._id === product._id) {
+              return {
+                ...detail,
+                quantity: quantity || 1,
+                action: productFind ? ActionDetailRequest.Update : ActionDetailRequest.Create,
+              };
+            }
+            return detail;
+          }),
+        );
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -309,13 +321,17 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad del producto
    */
   const createDetail = (product: Product, quantity: number) => {
-    const findProduct = request?.details?.find((detail) => detail?.product?._id === product._id);
-    if (findProduct) {
-      updateDetail(product, quantity);
-    } else {
-      if (setDetails) {
-        setDetails([...details, { product, quantity, action: ActionDetailRequest.Create }]);
+    try {
+      const findProduct = request?.details?.find((detail) => detail?.product?._id === product._id);
+      if (findProduct) {
+        updateDetail(product, quantity);
+      } else {
+        if (setDetails) {
+          setDetails([...details, { product, quantity, action: ActionDetailRequest.Create }]);
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 

@@ -12,6 +12,8 @@ import { useState } from 'react';
 import { useModel } from 'umi';
 import { StatusType } from '../../tranfer.data';
 import SearchRequest from '../SearchRequest';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 
 const DescriptionsItem = Descriptions.Item;
 const { TextArea } = Input;
@@ -38,6 +40,30 @@ const Header = ({
   setRequests,
 }: Props) => {
   const [showSelectRequests, setShowSelectRequests] = useState(false);
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
+  const onShowError = (message: string) => {
+    setPropsAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
 
   const { initialState } = useModel('@@initialState');
 
@@ -62,53 +88,59 @@ const Header = ({
   const addRequests = (requestsAdd: StockRequest[]) => {
     const create: any[] = [];
     const update: any[] = [];
-    if (requestsAdd.length > 0) {
-      for (let i = 0; i < requestsAdd.length; i++) {
-        const request = requestsAdd[i];
-        for (let j = 0; j < request?.details?.length; j++) {
-          const detail = request?.details[j];
-          const productFind = details?.find((item) => item?.product?._id === detail?.product?._id);
-          const productFindLocal = create?.findIndex(
-            (item) => item?.product?._id === detail?.product?._id,
-          );
+    try {
+      if (requestsAdd.length > 0) {
+        for (let i = 0; i < requestsAdd.length; i++) {
+          const request = requestsAdd[i];
+          for (let j = 0; j < request?.details?.length; j++) {
+            const detail = request?.details[j];
+            const productFind = details?.find(
+              (item) => item?.product?._id === detail?.product?._id,
+            );
+            const productFindLocal = create?.findIndex(
+              (item) => item?.product?._id === detail?.product?._id,
+            );
 
-          if (productFind) {
-            update.push({
-              product: detail?.product,
-              quantity: detail?.quantity,
-            });
-          } else {
-            if (productFindLocal >= 0) {
-              create[productFindLocal] = {
+            if (productFind) {
+              update.push({
                 product: detail?.product,
                 quantity: detail?.quantity,
-                action: ActionDetailRequest.Create,
-              };
-            } else {
-              create.push({
-                product: detail?.product,
-                quantity: detail?.quantity,
-                action: ActionDetailRequest.Create,
               });
+            } else {
+              if (productFindLocal >= 0) {
+                create[productFindLocal] = {
+                  product: detail?.product,
+                  quantity: detail?.quantity,
+                  action: ActionDetailRequest.Create,
+                };
+              } else {
+                create.push({
+                  product: detail?.product,
+                  quantity: detail?.quantity,
+                  action: ActionDetailRequest.Create,
+                });
+              }
             }
           }
         }
-      }
 
-      const newDetails = details.map((item) => {
-        const find = update.find((detail) => detail?.product?._id === item?.product?._id);
-        if (find) {
-          return {
-            ...item,
-            quantity: find?.quantity,
-          };
-        }
-        return item;
-      });
-      setDetails(newDetails.concat(create));
-      setRequests(requests.concat(requestsAdd));
+        const newDetails = details.map((item) => {
+          const find = update.find((detail) => detail?.product?._id === item?.product?._id);
+          if (find) {
+            return {
+              ...item,
+              quantity: find?.quantity,
+            };
+          }
+          return item;
+        });
+        setDetails(newDetails.concat(create));
+        setRequests(requests.concat(requestsAdd));
+      }
+      closeModalSelectRequests();
+    } catch (error: any) {
+      onShowError(error?.message);
     }
-    closeModalSelectRequests();
   };
 
   return (
@@ -174,6 +206,7 @@ const Header = ({
         requests={requests as StockRequest[]}
         onOk={addRequests}
       />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </Card>
   );
 };

@@ -247,23 +247,31 @@ const ClosingZList = () => {
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({
-      limit: 10,
-      page: 1,
-    });
-    setFilters({});
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({
+        limit: 10,
+        page: 1,
+      });
+      setFilters({});
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   useEffect(() => {
-    const queryParams: any = location.query;
+    try {
+      const queryParams: any = location.query;
 
-    const newFilters = {};
-    Object.keys(queryParams).forEach((item) => {
-      newFilters[item] = JSON.parse(queryParams[item]);
-    });
-    onFinish(newFilters);
+      const newFilters = {};
+      Object.keys(queryParams).forEach((item) => {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      });
+      onFinish(newFilters);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   }, []);
 
   useEffect(() => {

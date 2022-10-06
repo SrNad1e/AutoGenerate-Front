@@ -136,8 +136,12 @@ const AdjustmentForm = () => {
   }, [isNew]);
 
   useEffect(() => {
-    if (data?.stockAdjustmentId) {
-      setAdjustment(data?.stockAdjustmentId as StockAdjustment);
+    try {
+      if (data?.stockAdjustmentId) {
+        setAdjustment(data?.stockAdjustmentId as StockAdjustment);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
   }, [data]);
 
@@ -147,20 +151,25 @@ const AdjustmentForm = () => {
    * @returns componente
    */
   const renderSteps = (step: number) => {
-    switch (step) {
-      case 0:
-        return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
-      case 1:
-        return (
-          <FormAdjustment
-            allowEdit={allowEdit}
-            adjustment={adjustment}
-            setCurrentStep={setCurrentStep}
-          />
-        );
-      default:
-        return <></>;
+    try {
+      switch (step) {
+        case 0:
+          return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
+        case 1:
+          return (
+            <FormAdjustment
+              allowEdit={allowEdit}
+              adjustment={adjustment}
+              setCurrentStep={setCurrentStep}
+            />
+          );
+        default:
+          return <></>;
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
+    return 0;
   };
 
   return (

@@ -356,20 +356,28 @@ const FormReference = () => {
    * @description elimina la combinacion seleccionada
    */
   const deleteProduct = ({ color, size }: Product) => {
-    const newCombinations = combinations?.filter(
-      (combination) =>
-        !(combination?.color?._id === color?._id && combination?.size?._id === size?._id),
-    );
-    setCombinations(newCombinations);
+    try {
+      const newCombinations = combinations?.filter(
+        (combination) =>
+          !(combination?.color?._id === color?._id && combination?.size?._id === size?._id),
+      );
+      setCombinations(newCombinations);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   useEffect(() => {
-    if (id) {
-      getReference({
-        variables: {
-          id,
-        },
-      });
+    try {
+      if (id) {
+        getReference({
+          variables: {
+            id,
+          },
+        });
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, []);
 
@@ -414,15 +422,19 @@ const FormReference = () => {
   const arraySorted: any[] = [];
 
   const sorterReferences = () => {
-    const colors = combinations.map(({ color }) => color?.name);
-    const result = colors.filter((item, index) => {
-      return colors.indexOf(item) === index;
-    });
+    try {
+      const colors = combinations.map(({ color }) => color?.name);
+      const result = colors.filter((item, index) => {
+        return colors.indexOf(item) === index;
+      });
 
-    for (let index = 0; index < combinations.length; index++) {
-      const a = combinations.filter((com) => com?.color?.name === result[index]);
-      arraySorted.push(...a);
-      setCombinations(arraySorted);
+      for (let index = 0; index < combinations.length; index++) {
+        const a = combinations.filter((com) => com?.color?.name === result[index]);
+        arraySorted.push(...a);
+        setCombinations(arraySorted);
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 

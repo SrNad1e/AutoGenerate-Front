@@ -145,32 +145,40 @@ const ReferenceList = () => {
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({});
-    setSorterTable({});
-    setFilterTable({});
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({});
+      setSorterTable({});
+      setFilterTable({});
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de cargar los datos con base a la query
    */
   const getFiltersQuery = () => {
-    const queryParams: any = location.query;
-    const params = {};
-    const tableFilters = {
-      active: queryParams.active ? [queryParams.active === 'true'] : null,
-    };
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'active') {
-        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
-      } else {
-        params[item] = JSON.parse(queryParams[item]);
-      }
-    });
-    form.setFieldsValue(params);
-    setFilterTable(tableFilters);
-    onSearch(params);
+    try {
+      const queryParams: any = location.query;
+      const params = {};
+      const tableFilters = {
+        active: queryParams.active ? [queryParams.active === 'true'] : null,
+      };
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'active') {
+          params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+        } else {
+          params[item] = JSON.parse(queryParams[item]);
+        }
+      });
+      form.setFieldsValue(params);
+      setFilterTable(tableFilters);
+      onSearch(params);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -179,20 +187,23 @@ const ReferenceList = () => {
    */
   const onFinish = (values: FormData) => {
     const filters = { ...filterTable };
+    try {
+      Object.keys(filters).forEach((i) => {
+        if (filters[i] === null) {
+          delete filters[i];
+        } else {
+          filters[i] = filters[i][0];
+        }
+      });
 
-    Object.keys(filters).forEach((i) => {
-      if (filters[i] === null) {
-        delete filters[i];
-      } else {
-        filters[i] = filters[i][0];
-      }
-    });
-
-    onSearch({ ...filters, ...values });
-    setQueryParams({
-      ...values,
-      ...filters,
-    });
+      onSearch({ ...filters, ...values });
+      setQueryParams({
+        ...values,
+        ...filters,
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
   };
 
   /**
@@ -210,29 +221,32 @@ const ReferenceList = () => {
     const prop = form.getFieldsValue();
 
     const filters = { ...filterArg };
+    try {
+      Object.keys(filters).forEach((i) => {
+        if (filters[i] === null) {
+          delete filters[i];
+        } else {
+          filters[i] = filters[i][0];
+        }
+      });
 
-    Object.keys(filters).forEach((i) => {
-      if (filters[i] === null) {
-        delete filters[i];
-      } else {
-        filters[i] = filters[i][0];
+      let sort = {};
+
+      if (sorter.field) {
+        if (['ascend', 'descend'].includes(sorter?.order || '')) {
+          sort = {
+            [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+          };
+        }
       }
-    });
 
-    let sort = {};
-
-    if (sorter.field) {
-      if (['ascend', 'descend'].includes(sorter?.order || '')) {
-        sort = {
-          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-        };
-      }
+      setQueryParams(filters);
+      onSearch({ ...prop, sort, page: current, ...filters });
+      setSorterTable(sorter);
+      setFilterTable(filterArg);
+    } catch (error: any) {
+      showError(error?.message);
     }
-
-    setQueryParams(filters);
-    onSearch({ ...prop, sort, page: current, ...filters });
-    setSorterTable(sorter);
-    setFilterTable(filterArg);
   };
 
   useEffect(() => {

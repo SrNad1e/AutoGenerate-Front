@@ -102,37 +102,41 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
    * @param status estado actual de la entrada
    */
   const showAlertSave = (status?: StatusStockInput) => {
-    if (
-      details.length > 0 ||
-      status === StatusStockInput.Cancelled ||
-      observation !== (input?.observation || '')
-    ) {
-      if (status === StatusStockInput.Cancelled) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea cancelar la entrada?',
-          type: 'error',
-        });
-      } else if (status === StatusStockInput.Open) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea guardar la entrada?',
-          type: 'warning',
-        });
-      } else if (status === StatusStockInput.Confirmed) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea enviar la entrada?',
-          type: 'warning',
-        });
+    try {
+      if (
+        details.length > 0 ||
+        status === StatusStockInput.Cancelled ||
+        observation !== (input?.observation || '')
+      ) {
+        if (status === StatusStockInput.Cancelled) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea cancelar la entrada?',
+            type: 'error',
+          });
+        } else if (status === StatusStockInput.Open) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea guardar la entrada?',
+            type: 'warning',
+          });
+        } else if (status === StatusStockInput.Confirmed) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea enviar la entrada?',
+            type: 'warning',
+          });
+        } else {
+          onShowInformation('La entrada no tiene productos');
+        }
       } else {
-        onShowInformation('La entrada no tiene productos');
+        onShowInformation('No se encontraron cambios en la entrada');
       }
-    } else {
-      onShowInformation('No se encontraron cambios en la entrada');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -251,24 +255,28 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
    * @param _id identificador del producto a eliminar
    */
   const deleteDetail = (_id: string) => {
-    if (setDetails) {
-      const productFind = details.find((detail) => detail?.product?._id);
+    try {
+      if (setDetails) {
+        const productFind = details.find((detail) => detail?.product?._id);
 
-      if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product?._id !== _id));
-      } else {
-        setDetails(
-          details.map((detail) => {
-            if (detail?.product?._id === _id) {
-              return {
-                ...detail,
-                action: ActionDetailInput.Delete,
-              };
-            }
-            return detail;
-          }),
-        );
+        if (productFind && !productFind.__typename) {
+          setDetails(details.filter((detail) => detail?.product?._id !== _id));
+        } else {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === _id) {
+                return {
+                  ...detail,
+                  action: ActionDetailInput.Delete,
+                };
+              }
+              return detail;
+            }),
+          );
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -278,20 +286,24 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Partial<Product>, quantity: number) => {
-    if (setDetails) {
-      const productFind = input?.details?.find((detail) => detail?.product?._id === product?._id);
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product?._id) {
-            return {
-              ...detail,
-              quantity: quantity || 1,
-              action: productFind ? ActionDetailInput.Update : ActionDetailInput.Create,
-            };
-          }
-          return detail;
-        }) || [],
-      );
+    try {
+      if (setDetails) {
+        const productFind = input?.details?.find((detail) => detail?.product?._id === product?._id);
+        setDetails(
+          details.map((detail) => {
+            if (detail?.product?._id === product?._id) {
+              return {
+                ...detail,
+                quantity: quantity || 1,
+                action: productFind ? ActionDetailInput.Update : ActionDetailInput.Create,
+              };
+            }
+            return detail;
+          }) || [],
+        );
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -301,13 +313,17 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad  a asignar
    */
   const createDetail = (product: Product, quantity: number) => {
-    const findProduct = input?.details?.find((detail) => detail?.product?._id === product._id);
-    if (findProduct) {
-      updateDetail(product, quantity);
-    } else {
-      if (setDetails) {
-        setDetails([...details, { product, quantity, action: ActionDetailInput.Create }]);
+    try {
+      const findProduct = input?.details?.find((detail) => detail?.product?._id === product._id);
+      if (findProduct) {
+        updateDetail(product, quantity);
+      } else {
+        if (setDetails) {
+          setDetails([...details, { product, quantity, action: ActionDetailInput.Create }]);
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -334,11 +350,15 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
   };
 
   useEffect(() => {
-    if (id) {
-      if (details?.length === 0) {
-        setDetails(input?.details || []);
+    try {
+      if (id) {
+        if (details?.length === 0) {
+          setDetails(input?.details || []);
+        }
+        setObservation(input?.observation || '');
       }
-      setObservation(input?.observation || '');
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, [input, id]);
 
