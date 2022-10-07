@@ -17,7 +17,7 @@ import { ActionPaymentsOrder, StatusOrder, TypePayment } from '@/graphql/graphql
 import Item from './item';
 import { useGetPayments } from '@/hooks/payment.hooks';
 import Payment from './payment';
-import { useAddPaymentsOrder } from '@/hooks/order.hooks';
+import { useAddPaymentsOrder, useGetOrder } from '@/hooks/order.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import OrderReport from '../../reports/order/Order';
 import AlertLoading from '@/components/Alerts/AlertLoading';
@@ -50,12 +50,14 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
   }>({
     visible: false,
   });
+
   const orderRef = useRef(null);
 
   const { id } = useParams<Partial<{ id: string }>>();
 
   const [getPayments, { data }] = useGetPayments();
   const [addPayments, dataPayments] = useAddPaymentsOrder();
+  const [getOrder, paramsGetOrder] = useGetOrder();
 
   const totalPayments = payments?.reduce((sum, paymentOrder) => sum + paymentOrder?.total, 0);
 
@@ -167,18 +169,78 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
     setPayments(payments?.filter((paymentOrder) => paymentOrder?.payment?._id !== payment?._id));
   };
 
+  function compare_lname(a, b) {
+    if (a.payment.name.toLowerCase() < b.payment.name.toLowerCase()) {
+      return -1;
+    }
+    if (a.payment.name.toLowerCase() > b.payment.name.toLowerCase()) {
+      return 1;
+    }
+    return 0;
+  }
+
+  const savePayments = () => {
+    const arr: any = [];
+
+    const paymenSave = paramsGetOrder?.data?.orderId?.order?.payments;
+    const paymentSave = paymenSave?.sort(compare_lname);
+    const paymentCurrent = payments.sort(compare_lname);
+
+    if (paymentSave?.length > paymentCurrent.length) {
+      for (let i = 0; i < payments?.length; i++) {
+        if (paymentSave[i + 1]?.payment?._id === paymentCurrent[i]?.payment?._id) {
+          arr.push({
+            paymentId: payments[i]?.payment?._id,
+            action: ActionPaymentsOrder.Update,
+            total: payments[i]?.total,
+            code: payments[i]?.code,
+          });
+        } else if (paymentSave[i]?.payment?._id === paymentCurrent[i]?.payment?._id) {
+          arr.push({
+            paymentId: payments[i]?.payment?._id,
+            action: ActionPaymentsOrder.Update,
+            total: payments[i]?.total,
+            code: payments[i]?.code,
+          });
+        } else if (paymentSave[i]?.payment?._id !== paymentCurrent[i]?.payment?._id) {
+          arr.push({
+            paymentId: payments[i]?.payment?._id,
+            action: ActionPaymentsOrder.Create,
+            total: payments[i]?.total,
+            code: payments[i]?.code,
+          });
+        }
+      }
+    } else {
+      for (let i = 0; i < payments?.length; i++) {
+        if (paymentCurrent[i]?.payment?._id === paymentSave[i]?.payment?._id) {
+          arr.push({
+            paymentId: payments[i]?.payment?._id,
+            action: ActionPaymentsOrder.Update,
+            total: payments[i]?.total,
+            code: payments[i]?.code,
+          });
+        } else if (paymentCurrent[i]?.payment?._id !== paymentSave[i]?.payment?._id) {
+          arr.push({
+            paymentId: payments[i]?.payment?._id,
+            action: ActionPaymentsOrder.Create,
+            total: payments[i]?.total,
+            code: payments[i]?.code,
+          });
+        }
+      }
+    }
+
+    return arr;
+  };
+
   const onFinish = async () => {
     try {
       const responsePayments = await addPayments({
         variables: {
           input: {
             orderId: id || '',
-            payments: payments.map((paymentOrder) => ({
-              paymentId: paymentOrder?.payment?._id,
-              action: ActionPaymentsOrder.Create,
-              total: paymentOrder?.total,
-              code: paymentOrder?.code,
-            })),
+            payments: savePayments(),
           },
         },
       });
@@ -189,7 +251,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
         });
 
         setLoading(false);
-        if (response) {
+        if (response?.order?.number !== undefined) {
           setOrder(response?.order);
           handlePrint();
           showSuccess(`Pedido ${response?.order?.number} generado correctamente`);
@@ -225,6 +287,16 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
       showError(error?.message);
     }
   }, []);
+
+  useEffect(() => {
+    if (id) {
+      getOrder({
+        variables: {
+          id,
+        },
+      });
+    }
+  }, [id]);
 
   return (
     <Modal
