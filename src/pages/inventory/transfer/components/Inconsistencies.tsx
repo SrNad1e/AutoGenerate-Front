@@ -125,22 +125,33 @@ const Inconsistencies = ({ onCancel, visible }: Props) => {
    * @param paginationLocal eventos de la paginacion
    */
   const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
-    const { current } = paginationLocal;
     const params = form.getFieldsValue();
-
-    onFinish(params, current);
+    const { current } = paginationLocal;
+    try {
+      onFinish(params, current);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    onSearch({});
-    form.resetFields();
+    try {
+      onSearch({});
+      form.resetFields();
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   useEffect(() => {
-    onSearch({ verifield: false });
+    try {
+      onSearch({ verifield: false });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   }, []);
 
   const columns: ColumnsType<StockTransferError> = [

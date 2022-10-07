@@ -101,37 +101,41 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @param status estado actual de la salida
    */
   const showAlertSave = (status?: StatusStockOutput) => {
-    if (
-      details.length > 0 ||
-      status === StatusStockOutput.Cancelled ||
-      observation !== (output?.observation || '')
-    ) {
-      if (status === StatusStockOutput.Cancelled) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea cancelar la salida?',
-          type: 'error',
-        });
-      } else if (status === StatusStockOutput.Open) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea guardar la salida?',
-          type: 'warning',
-        });
-      } else if (status === StatusStockOutput.Confirmed) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea enviar la salida?',
-          type: 'warning',
-        });
+    try {
+      if (
+        details.length > 0 ||
+        status === StatusStockOutput.Cancelled ||
+        observation !== (output?.observation || '')
+      ) {
+        if (status === StatusStockOutput.Cancelled) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea cancelar la salida?',
+            type: 'error',
+          });
+        } else if (status === StatusStockOutput.Open) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea guardar la salida?',
+            type: 'warning',
+          });
+        } else if (status === StatusStockOutput.Confirmed) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea enviar la salida?',
+            type: 'warning',
+          });
+        } else {
+          onShowInformation('La salida no tiene productos');
+        }
       } else {
-        onShowInformation('La salida no tiene productos');
+        onShowInformation('No se encontraron cambios en la salida');
       }
-    } else {
-      onShowInformation('No se encontraron cambios en la salida');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -252,24 +256,27 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @param _id identificador del producto a eliminar
    */
   const deleteDetail = (_id: string) => {
-    if (setDetails) {
-      const productFind = details.find((detail) => detail?.product?._id);
-
-      if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product?._id !== _id));
-      } else {
-        setDetails(
-          details.map((detail) => {
-            if (detail?.product?._id === _id) {
-              return {
-                ...detail,
-                action: ActionDetailOutput.Delete,
-              };
-            }
-            return detail;
-          }),
-        );
+    try {
+      if (setDetails) {
+        const productFind = details.find((detail) => detail?.product?._id);
+        if (productFind && !productFind.__typename) {
+          setDetails(details.filter((detail) => detail?.product?._id !== _id));
+        } else {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === _id) {
+                return {
+                  ...detail,
+                  action: ActionDetailOutput.Delete,
+                };
+              }
+              return detail;
+            }),
+          );
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -279,30 +286,34 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Partial<Product>, quantity: number) => {
-    if (setDetails) {
-      if (product.stock && product?.stock[0].quantity) {
-        if (product?.stock[0].quantity >= quantity) {
-          const productFind = output?.details?.find(
-            (detail) => detail?.product?._id === product?._id,
-          );
-          setDetails(
-            details.map((detail) => {
-              if (detail?.product?._id === product?._id) {
-                return {
-                  ...detail,
-                  quantity: quantity || 1,
-                  action: productFind ? ActionDetailOutput.Update : ActionDetailOutput.Create,
-                };
-              }
-              return detail;
-            }) || [],
-          );
-        } else {
-          onShowInformation(
-            `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
-          );
+    try {
+      if (setDetails) {
+        if (product.stock && product?.stock[0].quantity) {
+          if (product?.stock[0].quantity >= quantity) {
+            const productFind = output?.details?.find(
+              (detail) => detail?.product?._id === product?._id,
+            );
+            setDetails(
+              details.map((detail) => {
+                if (detail?.product?._id === product?._id) {
+                  return {
+                    ...detail,
+                    quantity: quantity || 1,
+                    action: productFind ? ActionDetailOutput.Update : ActionDetailOutput.Create,
+                  };
+                }
+                return detail;
+              }) || [],
+            );
+          } else {
+            onShowInformation(
+              `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
+            );
+          }
         }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -312,23 +323,27 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad  a asignar
    */
   const createDetail = (product: Product, quantity: number) => {
-    if (setDetails) {
-      if (product?.stock && product.stock[0].quantity) {
-        if (product?.stock[0].quantity >= quantity) {
-          const findProduct = output?.details?.find(
-            (detail) => detail?.product?._id === product._id,
-          );
-          if (findProduct) {
-            updateDetail(product, quantity);
+    try {
+      if (setDetails) {
+        if (product?.stock && product.stock[0].quantity) {
+          if (product?.stock[0].quantity >= quantity) {
+            const findProduct = output?.details?.find(
+              (detail) => detail?.product?._id === product._id,
+            );
+            if (findProduct) {
+              updateDetail(product, quantity);
+            } else {
+              setDetails([...details, { product, quantity, action: ActionDetailOutput.Create }]);
+            }
           } else {
-            setDetails([...details, { product, quantity, action: ActionDetailOutput.Create }]);
+            onShowInformation(
+              `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
+            );
           }
-        } else {
-          onShowInformation(
-            `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
-          );
         }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -354,11 +369,15 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
   };
 
   useEffect(() => {
-    if (id) {
-      if (details?.length === 0) {
-        setDetails(output?.details || []);
+    try {
+      if (id) {
+        if (details?.length === 0) {
+          setDetails(output?.details || []);
+        }
+        setObservation(output?.observation || '');
       }
-      setObservation(output?.observation || '');
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, [output, id]);
 

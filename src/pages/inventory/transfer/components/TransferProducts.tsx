@@ -19,6 +19,8 @@ import { useEffect, useState } from 'react';
 
 import { StatusTypeError } from './FormTransfer/error.data';
 import Reason from './Reason';
+import AlertInformation from '@/components/Alerts/AlertInformation';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 
 const { Text } = Typography;
 
@@ -38,6 +40,30 @@ const TransferProducts = ({ onCancel, visible, data, loading }: Props) => {
     productId: '',
     stockTransferErrorId: '',
   });
+  const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
+
+  const onShowError = (message: string) => {
+    setPropsAlertInformation({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta informativa
+   */
+  const closeAlertInformation = () => {
+    setPropsAlertInformation({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
 
   /**
    *@description funcion usada para almacenar los datos de la trasnferencia en el estado y abrir el modal de verificacion
@@ -50,17 +76,25 @@ const TransferProducts = ({ onCancel, visible, data, loading }: Props) => {
     detailsProduct: DetailTransferError,
     destinyOrOrigin: boolean,
   ) => {
-    setDataVerified({
-      productId: detailsProduct?.product?._id,
-      stockTransferErrorId: dataT?._id,
-      reason: '',
-      returnInventory: destinyOrOrigin,
-    });
-    setVisibleReason(true);
+    try {
+      setDataVerified({
+        productId: detailsProduct?.product?._id,
+        stockTransferErrorId: dataT?._id,
+        reason: '',
+        returnInventory: destinyOrOrigin,
+      });
+      setVisibleReason(true);
+    } catch (error: any) {
+      onShowError(error?.message);
+    }
   };
 
   useEffect(() => {
-    setDetailsData(data?.details);
+    try {
+      setDetailsData(data?.details);
+    } catch (error: any) {
+      onShowError(error?.message);
+    }
   }, [data]);
 
   const columns: ColumnsType<DetailTransferError> = [
@@ -176,6 +210,7 @@ const TransferProducts = ({ onCancel, visible, data, loading }: Props) => {
         visible={visibleReason}
         dataVerified={dataVerified}
       />
+      <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </Modal>
   );
 };

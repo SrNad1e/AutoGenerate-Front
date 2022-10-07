@@ -118,7 +118,7 @@ const SearchProduct = ({ addProductOrder, refCode, editOrder }: Params) => {
 
   const handlePagination = (pageCurrent: number) => {
     const values = form.getFieldsValue();
-    onSearch({ page: pageCurrent, withStock: values.withStock });
+    onSearch({ page: pageCurrent, withStock: values.withStock, name: values.name });
   };
 
   return (

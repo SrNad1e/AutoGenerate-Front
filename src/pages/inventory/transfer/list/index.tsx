@@ -232,35 +232,43 @@ const TransferList = () => {
 
     let sort = {};
 
-    if (sorter?.field) {
-      sort = {
-        [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
-      };
-    } else {
-      sort = {
-        createdAt: -1,
-      };
-    }
+    try {
+      if (sorter?.field) {
+        sort = {
+          [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
+        };
+      } else {
+        sort = {
+          createdAt: -1,
+        };
+      }
 
-    onFinish(params, sort, current);
+      onFinish(params, sort, current);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    onSearch({});
-    form.resetFields();
-    form.setFieldsValue({
-      type: 'received',
-    });
-    if (!canChangeWarehouse) {
-      onFinish({ warehouseId: defaultWarehouse });
-      setShowFilterType(true);
-    } else {
-      onFinish({});
-      setShowFilterType(false);
+    try {
+      history.replace(location.pathname);
+      onSearch({});
+      form.resetFields();
+      form.setFieldsValue({
+        type: 'received',
+      });
+      if (!canChangeWarehouse) {
+        onFinish({ warehouseId: defaultWarehouse });
+        setShowFilterType(true);
+      } else {
+        onFinish({});
+        setShowFilterType(false);
+      }
+    } catch (error: any) {
+      messageError(error?.message);
     }
   };
 
@@ -269,31 +277,33 @@ const TransferList = () => {
    */
   const loadingData = () => {
     const queryParams: any = location?.query;
-
     const newFilters = {};
+    try {
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'dates') {
+          const dataItem = JSON.parse(queryParams[item]);
+          newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+        }
+        if (item === 'warehouseId') {
+          delete newFilters[item];
+        } else {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        }
+      });
 
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'dates') {
-        const dataItem = JSON.parse(queryParams[item]);
-        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      form.setFieldsValue({
+        type: 'received',
+      });
+
+      if (!canChangeWarehouse) {
+        newFilters['warehouseId'] = defaultWarehouse;
+        setShowFilterType(true);
       }
-      if (item === 'warehouseId') {
-        delete newFilters[item];
-      } else {
-        newFilters[item] = JSON.parse(queryParams[item]);
-      }
-    });
 
-    form.setFieldsValue({
-      type: 'received',
-    });
-
-    if (!canChangeWarehouse) {
-      newFilters['warehouseId'] = defaultWarehouse;
-      setShowFilterType(true);
+      onFinish(newFilters);
+    } catch (error: any) {
+      messageError(error?.message);
     }
-
-    onFinish(newFilters);
   };
 
   /**
@@ -311,10 +321,14 @@ const TransferList = () => {
 
   useEffect(() => {
     loadingData();
-    if (!canChangeWarehouse) {
-      form.setFieldsValue({
-        warehouseId: defaultWarehouse,
-      });
+    try {
+      if (!canChangeWarehouse) {
+        form.setFieldsValue({
+          warehouseId: defaultWarehouse,
+        });
+      }
+    } catch (error: any) {
+      messageError(error?.message);
     }
   }, []);
 
