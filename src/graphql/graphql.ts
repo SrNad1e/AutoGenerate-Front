@@ -11,6 +11,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -79,6 +80,8 @@ export type AddPaymentsOrderInput = {
 export type AddProductsOrderInput = {
   /** Productos a crear o actualizar */
   details: DetailAddProductsOrderInput[];
+  /** El pedido es mayorista */
+  isWholesaler?: InputMaybe<Scalars['Boolean']>;
   /** Id del pedido que se requiere agreagr o editar productos */
   orderId: Scalars['String'];
 };
@@ -1089,6 +1092,8 @@ export type CreditHistory = {
 /** Cliente */
 export type Customer = {
   __typename?: 'Customer';
+  /** Fecha de mayorista */
+  WolesalerDate?: Maybe<Scalars['DateTime']>;
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Se encuentra activo el usuario */
@@ -2826,6 +2831,11 @@ export type Order = {
   details?: Maybe<DetailOrder[]>;
   /** Factura generada al facturar */
   invoice?: Maybe<Invoice>;
+  /**
+   * Número de la factura vieja
+   * @deprecated facturas viejas
+   */
+  invoiceNumber?: Maybe<Scalars['Float']>;
   /** Número de pedido */
   number: Scalars['Float'];
   /** Pedido de POS */
@@ -6877,10 +6887,7 @@ export type ConfirmPaymentsOrderMutation = {
     order: {
       __typename?: 'Order';
       payments?:
-        | {
-            __typename?: 'PaymentOrder';
-            payment: { __typename?: 'Payment'; name: string };
-          }[]
+        | { __typename?: 'PaymentOrder'; payment: { __typename?: 'Payment'; name: string } }[]
         | null;
     };
   };
@@ -8440,7 +8447,7 @@ export type OrderIdQuery = {
           | {
               __typename?: 'PaymentInvoice';
               total: number;
-              payment: { __typename?: 'Payment'; name: string };
+              payment: { __typename?: 'Payment'; name: string; _id: string; type: TypePayment };
             }[]
           | null;
         summary: {
@@ -17985,6 +17992,8 @@ export const OrderIdDocument = {
                                       kind: 'SelectionSet',
                                       selections: [
                                         { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                                       ],
                                     },
                                   },
