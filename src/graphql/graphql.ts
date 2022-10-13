@@ -8447,7 +8447,7 @@ export type OrderIdQuery = {
           | {
               __typename?: 'PaymentInvoice';
               total: number;
-              payment: { __typename?: 'Payment'; name: string };
+              payment: { __typename?: 'Payment'; name: string; _id: string; type: TypePayment };
             }[]
           | null;
         summary: {
@@ -17992,6 +17992,8 @@ export const OrderIdDocument = {
                                       kind: 'SelectionSet',
                                       selections: [
                                         { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                                       ],
                                     },
                                   },

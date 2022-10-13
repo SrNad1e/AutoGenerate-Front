@@ -33,9 +33,10 @@ export type Params = {
   editOrder: (values: UpdateOrderInput) => void;
   summary: SummaryOrder;
   credit?: Credit;
+  paymentsSave?: PaymentOrder[];
 };
 
-const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params) => {
+const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsSave }: Params) => {
   const [loading, setLoading] = useState(false);
   const [payments, setPayments] = useState<PaymentOrder[]>([]);
   const [order, setOrder] = useState({});
@@ -195,12 +196,23 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
             total: payments[i]?.total,
             code: payments[i]?.code,
           });
+
+          arr.push({
+            paymentId: paymenSave[i]?.payment?._id,
+            action: ActionPaymentsOrder.Delete,
+            total: paymenSave[i]?.total,
+          });
         } else if (paymentSave[i]?.payment?._id === paymentCurrent[i]?.payment?._id) {
           arr.push({
             paymentId: payments[i]?.payment?._id,
             action: ActionPaymentsOrder.Update,
             total: payments[i]?.total,
             code: payments[i]?.code,
+          });
+          arr.push({
+            paymentId: paymenSave[i + 1]?.payment?._id,
+            action: ActionPaymentsOrder.Delete,
+            total: paymenSave[i]?.total,
           });
         } else if (paymentSave[i]?.payment?._id !== paymentCurrent[i]?.payment?._id) {
           arr.push({
@@ -222,11 +234,23 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
           });
         } else if (paymentCurrent[i]?.payment?._id !== paymentSave[i]?.payment?._id) {
           arr.push({
-            paymentId: payments[i]?.payment?._id,
+            paymentId: paymentCurrent[i]?.payment?._id,
             action: ActionPaymentsOrder.Create,
-            total: payments[i]?.total,
-            code: payments[i]?.code,
+            total: paymentCurrent[i]?.total,
+            code: paymentCurrent[i]?.code,
           });
+          break;
+        }
+        if (paymentCurrent[i]?.payment?._id !== paymentSave[i]?.payment?._id) {
+          if (paymentSave.includes(paymentCurrent[i])) {
+            arr.push({
+              paymentId: paymentSave[i]?.payment?._id,
+              action: ActionPaymentsOrder.Update,
+              total: paymentCurrent[i + 1]?.total,
+              code: paymentSave[i]?.code,
+            });
+            break;
+          }
         }
       }
     }
@@ -297,6 +321,12 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit }: Params)
       });
     }
   }, [id]);
+
+  useEffect(() => {
+    if (paymentsSave?.length > 0) {
+      setPayments(paymentsSave);
+    }
+  }, [paymentsSave]);
 
   return (
     <Modal

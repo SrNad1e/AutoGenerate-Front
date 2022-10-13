@@ -41,6 +41,8 @@ query orderId($id: String!) {
         payments {
           payment {
             name
+            _id
+            type
           }
           total
         }

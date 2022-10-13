@@ -174,6 +174,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
           </Row>
         </Col>
         <ModalPayment
+          paymentsSave={data?.orderId?.order?.payments}
           credit={data?.orderId?.credit}
           summary={data?.orderId?.order?.summary as SummaryOrder}
           editOrder={editOrder}
