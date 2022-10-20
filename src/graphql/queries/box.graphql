@@ -13,3 +13,31 @@ query boxes($input: FiltersBoxesInput) {
     }
   }
 }
+
+query errorCash($input: FiltersErrorsCashInput!) {
+  errorsCash(filtersErrorsCashInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      boxDestination {
+        _id
+        name
+      }
+      boxOrigin {
+        name
+        _id
+      }
+      closeZ {
+        _id
+        number
+      }
+      reason
+      typeError
+      value
+      verified
+      updatedAt
+    }
+  }
+}
