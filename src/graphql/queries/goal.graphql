@@ -1,0 +1,6 @@
+query goalStatus($input: FiltersGoalStatusInput!) {
+  goalStatus(filtersGoalStatus: $input) {
+    goal
+    netSales
+  }
+}
