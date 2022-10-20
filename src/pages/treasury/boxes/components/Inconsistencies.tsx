@@ -4,11 +4,13 @@ import {
   ArrowUpOutlined,
   CalendarOutlined,
   ClearOutlined,
+  DollarOutlined,
   FieldNumberOutlined,
   LikeOutlined,
   MoreOutlined,
   ProfileOutlined,
   SearchOutlined,
+  ShopOutlined,
 } from '@ant-design/icons';
 import {
   Badge,
@@ -28,6 +30,7 @@ import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
 import type { Box, CloseZInvoicing, ErrorCash, FiltersErrorsCashInput } from '@/graphql/graphql';
 import { TypeErrorCash } from '@/graphql/graphql';
+import numeral from 'numeral';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -180,14 +183,20 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
   const columns: ColumnsType<ErrorCash> = [
     {
       title: (
-        <Text style={{ fontSize: 20 }}>
-          <FieldNumberOutlined />
+        <Text>
+          <FieldNumberOutlined /> Cierre
         </Text>
       ),
       dataIndex: 'closeZ',
       showSorterTooltip: false,
       align: 'center',
       render: (closeZ: CloseZInvoicing) => closeZ?.number,
+    },
+    {
+      title: <Text>{<ShopOutlined />} Punto de Venta</Text>,
+      dataIndex: 'closeZ',
+      align: 'center',
+      render: (closeZ: CloseZInvoicing) => closeZ?.pointOfSale?.name,
     },
     {
       title: <Text>{<ProfileOutlined />} Caja Origen</Text>,
@@ -221,6 +230,12 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
           />
         );
       },
+    },
+    {
+      title: <Text>{<DollarOutlined />} Valor</Text>,
+      dataIndex: 'value',
+      align: 'center',
+      render: (value: number) => numeral(value).format('$ 0,0'),
     },
     {
       title: <Text>{<CalendarOutlined />} Ultima Actualización</Text>,
