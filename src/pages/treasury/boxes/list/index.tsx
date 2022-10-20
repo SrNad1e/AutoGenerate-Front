@@ -4,6 +4,7 @@ import {
   ClearOutlined,
   DollarCircleOutlined,
   EditOutlined,
+  MonitorOutlined,
   MoreOutlined,
   PlusOutlined,
   ProfileOutlined,
@@ -15,6 +16,7 @@ import {
   Button,
   Card,
   Col,
+  Divider,
   Form,
   Input,
   Row,
@@ -41,6 +43,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import BoxForm from '../form';
 
 import styles from '../styles';
+import BoxInconsistencies from '../components/Inconsistencies';
 
 const { Text } = Typography;
 const FormItem = Form.Item;
@@ -57,6 +60,7 @@ const BoxList = () => {
   });
   const [visibleForm, setVisibleForm] = useState(false);
   const [box, setBox] = useState<Partial<Box>>({});
+  const [visibleInconsistences, setVisibleInconsistences] = useState(false);
 
   const [form] = Form.useForm();
   const location: Location = useLocation();
@@ -87,6 +91,10 @@ const BoxList = () => {
   const onOpenModal = (boxId?: Box) => {
     setBox(boxId || {});
     setVisibleForm(true);
+  };
+
+  const onOpenInconsistences = () => {
+    setVisibleInconsistences(true);
   };
 
   /**
@@ -318,7 +326,21 @@ const BoxList = () => {
   ];
 
   return (
-    <PageContainer>
+    <PageContainer
+      title={
+        <>
+          Cajas <Divider type="vertical" />
+          <Button
+            type="primary"
+            style={{ borderRadius: 5 }}
+            icon={<MonitorOutlined />}
+            onClick={() => onOpenInconsistences()}
+          >
+            Cuadre de Cajas
+          </Button>
+        </>
+      }
+    >
       <Card>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={30}>
@@ -389,6 +411,10 @@ const BoxList = () => {
       </Card>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       <BoxForm boxData={box} onCancel={onCloseModal} visible={visibleForm} />
+      <BoxInconsistencies
+        visible={visibleInconsistences}
+        onCancel={() => setVisibleInconsistences(false)}
+      />
     </PageContainer>
   );
 };

@@ -11,3 +11,22 @@ mutation updateBox($id: String!, $input: UpdateBoxInput!) {
     name
   }
 }
+
+mutation verifiedErrorCash($input: VerifiedErrorsCashInput!) {
+  verifiedErrorsCash(verifiedErrorsCashInput: $input) {
+    _id
+    reason
+    boxDestination {
+      name
+    }
+    boxOrigin {
+      name
+    }
+    closeZ {
+      number
+    }
+    verified
+    updatedAt
+    typeError
+  }
+}

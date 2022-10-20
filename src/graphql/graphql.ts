@@ -1486,6 +1486,35 @@ export enum DocumentTypesRule {
   Shops = 'SHOPS',
 }
 
+/** Errores de traslado de efectivo */
+export type ErrorCash = {
+  __typename?: 'ErrorCash';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Caja hacia donde se realiza el movimiento */
+  boxDestination: Box;
+  /** Caja desde donde se realiza el movimiento */
+  boxOrigin: Box;
+  /** Cierre que efectúa el error */
+  closeZ?: Maybe<CloseZInvoicing>;
+  /** Compañía a la que pertenece el error */
+  company: Scalars['String'];
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Motivo del proceso */
+  reason?: Maybe<Scalars['String']>;
+  /** Tipo de error */
+  typeError: TypeErrorCash;
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó la caja */
+  user: User;
+  /** Valor del movimiento */
+  value: Scalars['Float'];
+  /** Si ya fue verificados */
+  verified: Scalars['Boolean'];
+};
+
 /** Egreso de dinero */
 export type Expense = {
   __typename?: 'Expense';
@@ -1815,6 +1844,24 @@ export type FiltersDocumentTypesInput = {
   name?: InputMaybe<Scalars['String']>;
 };
 
+/** Listado de errores de efectivo */
+export type FiltersErrorsCashInput = {
+  /** Número del cierre que efectúa el error */
+  closeZNumber?: InputMaybe<Scalars['Float']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Página actual */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortErrosCash>;
+  /** Tipo de error */
+  typeError?: InputMaybe<TypeErrorCash>;
+  /** cantidad de efectivo */
+  value?: InputMaybe<Scalars['Float']>;
+  /** Si ya fue verificado */
+  verified?: InputMaybe<Scalars['Boolean']>;
+};
+
 /** Filtros para obtener el listado de egresos */
 export type FiltersExpensesInput = {
   /** Caja a la que afecta el egreso */
@@ -1833,6 +1880,14 @@ export type FiltersExpensesInput = {
   sort?: InputMaybe<SortExpense>;
   /** Estado del egreso */
   status?: InputMaybe<StatusExpense>;
+};
+
+/** Datos para consultar el estado de la meta */
+export type FiltersGoalStatusInput = {
+  /** Mes a evaluar la meta */
+  month: Scalars['String'];
+  /** Identificador de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Filtros para la lista de imagenes */
@@ -2481,6 +2536,8 @@ export type Mutation = {
   /** Actualiza una bodega */
   updateWarehouse: Warehouse;
   /** Verifica un producto de un traslado en error */
+  verifiedErrorsCash: ErrorCash;
+  /** Verifica un producto de un traslado en error */
   verifiedProductStockTransfer: StockTransferError;
 };
 
@@ -2799,6 +2856,10 @@ export type MutationUpdateWarehouseArgs = {
   updateWarehouseInput: UpdateWarehouseInput;
 };
 
+export type MutationVerifiedErrorsCashArgs = {
+  verifiedErrorsCashInput: VerifiedErrorsCashInput;
+};
+
 export type MutationVerifiedProductStockTransferArgs = {
   verifiedProductTransferErrorInput: VerifiedProductTransferErrorInput;
 };
@@ -2819,6 +2880,8 @@ export type Order = {
   _id: Scalars['String'];
   /** Usuario que creó o editó el pedido */
   address?: Maybe<Address>;
+  /** Fecha de cierre del pedido */
+  closeDate: Scalars['DateTime'];
   /** Empresa a la que perteneces el pedido */
   company: Company;
   /** Trasportadora */
@@ -3081,9 +3144,11 @@ export enum Permissions {
   ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
   ReadInvoicingReturns = 'READ_INVOICING_RETURNS',
   ReadTreasuryBoxes = 'READ_TREASURY_BOXES',
+  ReadTreasuryErrorsCash = 'READ_TREASURY_ERRORS_CASH',
   ReadTreasuryExpenses = 'READ_TREASURY_EXPENSES',
   ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
   ReadTreasuryReceipts = 'READ_TREASURY_RECEIPTS',
+  ReportInvoicingGoalStatus = 'REPORT_INVOICING_GOAL_STATUS',
   UpdateConfigurationRole = 'UPDATE_CONFIGURATION_ROLE',
   UpdateConfigurationShop = 'UPDATE_CONFIGURATION_SHOP',
   UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
@@ -3112,6 +3177,7 @@ export enum Permissions {
   UpdateTreasuryExpense = 'UPDATE_TREASURY_EXPENSE',
   UpdateTreasuryPayment = 'UPDATE_TREASURY_PAYMENT',
   UpdateTreasuryReceipt = 'UPDATE_TREASURY_RECEIPT',
+  VerifiedTreasuryErrrorsCash = 'VERIFIED_TREASURY_ERRRORS_CASH',
 }
 
 /** Punto de venta de la tienda */
@@ -3216,8 +3282,12 @@ export type Query = {
   discountRules: ResponseDiscountRules;
   /** Listado de tipos de documento */
   documentTypes: DocumentType[];
+  /** Obtiene listado de traslados en error de productos entre bodegas */
+  errorsCash: ResponseErrorCash;
   /** Se encarga de listar los egresos */
   expenses: ResponseExpenses;
+  /** Consulta usada para ver el estado de la meta */
+  goalStatus: ResponseGoalStatus;
   /** Listado de imagenes */
   images: ResponseImages;
   /** Lista de facturas */
@@ -3378,8 +3448,16 @@ export type QueryDocumentTypesArgs = {
   filtersDocumentTypesInput?: InputMaybe<FiltersDocumentTypesInput>;
 };
 
+export type QueryErrorsCashArgs = {
+  filtersErrorsCashInput: FiltersErrorsCashInput;
+};
+
 export type QueryExpensesArgs = {
   filtersExpensesInput?: InputMaybe<FiltersExpensesInput>;
+};
+
+export type QueryGoalStatusArgs = {
+  filtersGoalStatus: FiltersGoalStatusInput;
 };
 
 export type QueryImagesArgs = {
@@ -4047,6 +4125,30 @@ export type ResponseDiscountRules = {
   totalPages: Scalars['Float'];
 };
 
+/** Respuesta a la consulta de cajas */
+export type ResponseErrorCash = {
+  __typename?: 'ResponseErrorCash';
+  /** Lista de errores de efectivo */
+  docs: ErrorCash[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta a la consulta de egresos */
 export type ResponseExpenses = {
   __typename?: 'ResponseExpenses';
@@ -4069,6 +4171,15 @@ export type ResponseExpenses = {
   totalDocs: Scalars['Float'];
   /** Total de páginas */
   totalPages: Scalars['Float'];
+};
+
+/** Datos resultado de la consulta de Estado de la meta */
+export type ResponseGoalStatus = {
+  __typename?: 'ResponseGoalStatus';
+  /** Meta */
+  goal: Scalars['Float'];
+  /** Venta neta generada por el usuario */
+  netSales: Scalars['Float'];
 };
 
 /** Respuesta al listado de las imagenes */
@@ -4923,6 +5034,12 @@ export type SortDiscountRule = {
   value?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamient */
+export type SortErrosCash = {
+  value?: InputMaybe<Scalars['Float']>;
+  verified?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento de los egresos */
 export type SortExpense = {
   createdAt?: InputMaybe<Scalars['Float']>;
@@ -5493,6 +5610,11 @@ export enum TypeCreditHistory {
   Thawed = 'THAWED',
 }
 
+export enum TypeErrorCash {
+  Missing = 'MISSING',
+  Surplus = 'SURPLUS',
+}
+
 export enum TypePayment {
   Bank = 'BANK',
   Bonus = 'BONUS',
@@ -5936,6 +6058,14 @@ export type User = {
   username: Scalars['String'];
 };
 
+/** Datos para verificar los errores de pedido */
+export type VerifiedErrorsCashInput = {
+  /** Identificador del error de efectivo */
+  errorCashId: Scalars['String'];
+  /** Motivo por el cual se verificar el error */
+  reason: Scalars['String'];
+};
+
 /** Datos para verificar los productos */
 export type VerifiedProductTransferErrorInput = {
   /** Identificador del producto */
@@ -6100,6 +6230,25 @@ export type UpdateBoxMutationVariables = Exact<{
 export type UpdateBoxMutation = {
   __typename?: 'Mutation';
   updateBox: { __typename?: 'Box'; _id: string; name: string };
+};
+
+export type VerifiedErrorCashMutationVariables = Exact<{
+  input: VerifiedErrorsCashInput;
+}>;
+
+export type VerifiedErrorCashMutation = {
+  __typename?: 'Mutation';
+  verifiedErrorsCash: {
+    __typename?: 'ErrorCash';
+    _id: string;
+    reason?: string | null;
+    verified: boolean;
+    updatedAt: any;
+    typeError: TypeErrorCash;
+    boxDestination: { __typename?: 'Box'; name: string };
+    boxOrigin: { __typename?: 'Box'; name: string };
+    closeZ?: { __typename?: 'CloseZInvoicing'; number: number } | null;
+  };
 };
 
 export type CreateBrandMutationVariables = Exact<{
@@ -7670,6 +7819,32 @@ export type BoxesQuery = {
       total: number;
       name: string;
       isMain: boolean;
+    }[];
+  };
+};
+
+export type ErrorCashQueryVariables = Exact<{
+  input: FiltersErrorsCashInput;
+}>;
+
+export type ErrorCashQuery = {
+  __typename?: 'Query';
+  errorsCash: {
+    __typename?: 'ResponseErrorCash';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'ErrorCash';
+      _id: string;
+      reason?: string | null;
+      typeError: TypeErrorCash;
+      value: number;
+      verified: boolean;
+      updatedAt: any;
+      boxDestination: { __typename?: 'Box'; _id: string; name: string };
+      boxOrigin: { __typename?: 'Box'; name: string; _id: string };
+      closeZ?: { __typename?: 'CloseZInvoicing'; _id: string; number: number } | null;
     }[];
   };
 };
@@ -10105,6 +10280,76 @@ export const UpdateBoxDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateBoxMutation, UpdateBoxMutationVariables>;
+export const VerifiedErrorCashDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'verifiedErrorCash' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'VerifiedErrorsCashInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'verifiedErrorsCash' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'verifiedErrorsCashInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'boxDestination' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'boxOrigin' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'closeZ' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'number' } }],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'verified' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'typeError' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<VerifiedErrorCashMutation, VerifiedErrorCashMutationVariables>;
 export const CreateBrandDocument = {
   kind: 'Document',
   definitions: [
@@ -15851,6 +16096,98 @@ export const BoxesDocument = {
     },
   ],
 } as unknown as DocumentNode<BoxesQuery, BoxesQueryVariables>;
+export const ErrorCashDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'errorCash' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersErrorsCashInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'errorsCash' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersErrorsCashInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'boxDestination' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'boxOrigin' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'closeZ' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'reason' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'typeError' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'verified' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ErrorCashQuery, ErrorCashQueryVariables>;
 export const BrandsDocument = {
   kind: 'Document',
   definitions: [
