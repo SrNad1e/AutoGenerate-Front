@@ -32,6 +32,9 @@ query errorCash($input: FiltersErrorsCashInput!) {
       closeZ {
         _id
         number
+        pointOfSale {
+          name
+        }
       }
       reason
       typeError

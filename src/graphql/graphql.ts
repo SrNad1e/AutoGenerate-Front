@@ -7844,7 +7844,12 @@ export type ErrorCashQuery = {
       updatedAt: any;
       boxDestination: { __typename?: 'Box'; _id: string; name: string };
       boxOrigin: { __typename?: 'Box'; name: string; _id: string };
-      closeZ?: { __typename?: 'CloseZInvoicing'; _id: string; number: number } | null;
+      closeZ?: {
+        __typename?: 'CloseZInvoicing';
+        _id: string;
+        number: number;
+        pointOfSale: { __typename?: 'PointOfSale'; name: string };
+      } | null;
     }[];
   };
 };
@@ -16169,6 +16174,16 @@ export const ErrorCashDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'pointOfSale' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
                           ],
                         },
                       },
