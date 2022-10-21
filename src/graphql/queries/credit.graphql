@@ -57,6 +57,11 @@ query creditHistory($input: FiltersCreditHistoryInput!) {
         available
         balance
         updatedAt
+        details {
+          order {
+            number
+          }
+        }
       }
     }
   }

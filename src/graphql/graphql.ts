@@ -8287,6 +8287,9 @@ export type CreditHistoryQuery = {
         available: number;
         balance: number;
         updatedAt: any;
+        details?:
+          | { __typename?: 'DetailCredit'; order: { __typename?: 'Order'; number: number } }[]
+          | null;
       };
     }[];
   };
@@ -17312,6 +17315,25 @@ export const CreditHistoryDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'available' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'balance' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'details' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'order' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
                           ],
                         },
                       },

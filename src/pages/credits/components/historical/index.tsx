@@ -34,6 +34,11 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
       ),
     },
     {
+      title: 'Documento',
+      dataIndex: 'credit',
+      render: (credits: Credit) => credits?.details?.find((i) => i?.order?.number)?.order?.number,
+    },
+    {
       title: 'Movimiento',
       dataIndex: 'amount',
       render: (amount: number) => numeral(amount).format('$ 0,0'),
@@ -121,7 +126,7 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
         columns={column}
         loading={loading}
         dataSource={data?.creditHistory?.docs}
-        scroll={{ x: 'auto', y: 200 }}
+        scroll={{ x: 700, y: 200 }}
         onChange={handleChangeTable}
         pagination={{
           current: data?.creditHistory?.page,
