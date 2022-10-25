@@ -9,7 +9,7 @@ import {
 import { Button, Card, Col, Divider, Empty, List, Row, Space, Tag, Typography } from 'antd';
 import numeral from 'numeral';
 import { useParams } from 'umi';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import ModalPayment from '../Payment';
 import ItemResume from './item';
@@ -17,6 +17,8 @@ import { useGetOrder } from '@/hooks/order.hooks';
 import type { DetailOrder, Product, SummaryOrder, UpdateOrderInput } from '@/graphql/graphql';
 
 import styles from '../styles';
+import { useReactToPrint } from 'react-to-print';
+import OrderProduction from './Resumen';
 
 const { Title } = Typography;
 
@@ -28,10 +30,17 @@ export type Params = {
 
 const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params) => {
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false);
+  const [orderCurrentData, setOrderCurrentData] = useState({});
 
   const { id } = useParams<Partial<{ id: string }>>();
 
   const [getOrder, { data }] = useGetOrder();
+
+  const orderRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => orderRef?.current,
+  });
 
   const totalProducts = data?.orderId?.order?.details?.reduce(
     (sum, detail) => detail?.quantity + sum,
@@ -54,6 +63,10 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
       });
     }
   }, [id]);
+
+  useEffect(() => {
+    setOrderCurrentData(data?.orderId?.order);
+  }, [data]);
 
   return (
     <Card bodyStyle={styles.bodyPadding} style={{ height: '100%' }}>
@@ -167,7 +180,14 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
               </Button>
             </Col>
             <Col offset={2} span={12} style={styles.alignPrint}>
-              <Button ghost shape="round" icon={<PrinterOutlined />} size="small" type="primary">
+              <Button
+                ghost
+                shape="round"
+                icon={<PrinterOutlined />}
+                onClick={() => handlePrint()}
+                size="small"
+                type="primary"
+              >
                 Imprimir
               </Button>
             </Col>
@@ -182,6 +202,9 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
           onCancel={onCloseModalPayment}
         />
       </Row>
+      <div style={{ display: 'none' }}>
+        <OrderProduction data={orderCurrentData} ref={orderRef} />
+      </div>
     </Card>
   );
 };
