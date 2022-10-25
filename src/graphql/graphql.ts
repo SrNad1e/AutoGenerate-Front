@@ -9141,6 +9141,7 @@ export type ProductQuery = {
     stock?: { __typename?: 'Stock'; quantity: number }[] | null;
     color: {
       __typename?: 'Color';
+      name: string;
       name_internal: string;
       html: string;
       image?: {
@@ -19910,6 +19911,7 @@ export const ProductDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'html' } },
                       {
