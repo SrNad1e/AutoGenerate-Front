@@ -130,7 +130,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
             type: 'warning',
           });
         } else {
-          onShowInformation('La salida no tiene productos');
+          onShowInformation('La solicitud no tiene productos');
         }
       } else {
         onShowInformation('No se encontraron cambios en la solicitud');
