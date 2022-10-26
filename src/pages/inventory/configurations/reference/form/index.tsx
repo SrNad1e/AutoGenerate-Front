@@ -50,6 +50,7 @@ const FormReference = () => {
   const [combinations, setCombinations] = useState<Partial<Product>[]>([]);
   const [activeKey, setActiveKey] = useState('1');
   const [editProduct, setEditProduct] = useState(false);
+  const [missingValue, setMissingValue] = useState(false);
   const [product, setProduct] = useState<Product>();
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -141,6 +142,7 @@ const FormReference = () => {
       }
 
       if (!values?.long) {
+        setMissingValue(true);
         setActiveKey('2');
         return;
       }
@@ -196,6 +198,10 @@ const FormReference = () => {
       showError(e?.message);
     }
   };
+
+  useEffect(() => {
+    console.log(missingValue);
+  }, [missingValue]);
 
   /**
    * @description valida los valores en los campos y ejecuta la mutation para actualizar la
@@ -439,7 +445,7 @@ const FormReference = () => {
   };
 
   useEffect(() => {
-    if (numberOfRuns < 3) {
+    if (numberOfRuns < 5) {
       sorterReferences();
     }
     setNumberOfRuns(numberOfRuns + 1);
@@ -543,7 +549,7 @@ const FormReference = () => {
               <FormGeneralData />
             </TabPane>
             <TabPane tab="Datos de envio" key="2">
-              <FormShipping />
+              <FormShipping missingValue={missingValue} form={form} />
             </TabPane>
           </Tabs>
         </Form>
