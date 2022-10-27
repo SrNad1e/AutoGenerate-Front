@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Col, Form, Input, Modal, Row, Space, Typography } from 'antd';
-import { FileProtectOutlined } from '@ant-design/icons';
+import { FieldNumberOutlined, FileProtectOutlined } from '@ant-design/icons';
 import type { AuthorizationDian } from '@/graphql/graphql';
 import { useCreateAuthorization, useUpdateAuthorization } from '@/hooks/authorization.hooks';
 import { useEffect, useState } from 'react';
@@ -160,6 +160,186 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
                 <Space>
                   <FileProtectOutlined />
                   <Text>Prefijo</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese prefijo"
+                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="prefix"
+              label={
+                <Space>
+                  <FileProtectOutlined />
+                  <Text>Resolución de Facturación</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese prefijo"
+                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="prefix"
+              label={
+                <Space>
+                  <FieldNumberOutlined />
+                  <Text>Inicio</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese prefijo"
+                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="prefix"
+              label={
+                <Space>
+                  <FieldNumberOutlined />
+                  <Text>Final</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese prefijo"
+                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="prefix"
+              label={
+                <Space>
+                  <FileProtectOutlined />
+                  <Text>Fechas</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese prefijo"
+                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="prefix"
+              label={
+                <Space>
+                  <FileProtectOutlined />
+                  <Text>Dirección del Local</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese prefijo"
+                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="prefix"
+              label={
+                <Space>
+                  <FileProtectOutlined />
+                  <Text>Teléfono</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese prefijo"
+                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="prefix"
+              label={
+                <Space>
+                  <FileProtectOutlined />
+                  <Text>E-mail</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese prefijo"
+                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="prefix"
+              label={
+                <Space>
+                  <FileProtectOutlined />
+                  <Text>Nombre del establecimiento comercial</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese prefijo"
+                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="prefix"
+              label={
+                <Space>
+                  <FileProtectOutlined />
+                  <Text>NIT</Text>
                 </Space>
               }
             >
