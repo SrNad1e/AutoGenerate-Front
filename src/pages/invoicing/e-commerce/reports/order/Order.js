@@ -13,28 +13,34 @@ const classes = {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    color: 'black',
   },
   text: {
     fontSize: 18,
+    color: 'black',
   },
   textBold: {
     fontWeight: 'bold',
     marginRight: 18,
+    color: 'black',
   },
   body: {
     width: '100%',
     marginTop: 15,
+    color: 'black',
   },
   bodyHeaders: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     fontWeight: 'bold',
+    color: 'black',
   },
   bodyContent: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
+    color: 'black',
   },
   footer: {
     width: '100%',
@@ -44,6 +50,7 @@ const classes = {
     flexDirection: 'column',
     alignItems: 'end',
     lineHeight: 1.5,
+    color: 'black',
   },
 };
 
