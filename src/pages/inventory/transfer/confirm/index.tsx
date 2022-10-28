@@ -51,6 +51,7 @@ import AlertSave from '@/components/Alerts/AlertSave';
 
 import styles from './styles.less';
 import validateCodeBar from '@/libs/validateCodeBar';
+import { useGetProduct } from '@/hooks/product.hooks';
 
 const { Text, Title } = Typography;
 const FormItem = Form.Item;
@@ -60,6 +61,9 @@ const { TextArea } = Input;
 const ConfirmTransfer = () => {
   const [observation, setObservation] = useState('');
   const [details, setDetails] = useState<
+    Partial<DetailTransfer & { action: ActionDetailTransfer }>[]
+  >([]);
+  const [transferData, setTransferData] = useState<
     Partial<DetailTransfer & { action: ActionDetailTransfer }>[]
   >([]);
   const [error, setError] = useState('');
@@ -97,6 +101,7 @@ const ConfirmTransfer = () => {
   const [getTransfer, { loading, data }] = useGetTransfer();
   const [confirmProductsTransfer, paramsConfirmProducts] = useConfirmProductsTransfer();
   const [updateTransfer, paramsUpdate] = useUpdateTransfer();
+  const [getProduct] = useGetProduct();
 
   const {
     transfer: { canPrint, canConfirm },
@@ -156,9 +161,8 @@ const ConfirmTransfer = () => {
           id: id || '',
         },
       });
-
       if (response?.data?.stockTransferId) {
-        setDetails(
+        setTransferData(
           response?.data?.stockTransferId?.details as Partial<
             DetailTransfer & { action: ActionDetailTransfer }
           >[],
@@ -178,31 +182,59 @@ const ConfirmTransfer = () => {
 
       const barcode = values.barcode && validateCodeBar(values.barcode);
 
-      const detail = details.find((item) => item?.product?.barcode === barcode);
-
       const newDetails = details.filter((item) => item?.product?.barcode !== barcode);
 
-      if (detail) {
-        if (detail?.status === StatusDetailTransfer.New || detail?.quantityConfirmed === 0) {
-          newDetails.push({
-            ...detail,
-            status: StatusDetailTransfer.New,
-            quantityConfirmed: (detail.quantityConfirmed || 0) + 1,
-          });
-          setError(
-            `Confirmado ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${
-              detail?.product?.size?.value
-            }, cantidad: ${(detail?.quantityConfirmed || 0) + 1}`,
-          );
-          setDetails(newDetails);
-        } else {
-          setError(
-            `Producto ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${detail?.product?.size?.value}, ya se encuentra confirmado`,
-          );
+      const detail = transferData.find((item) => item);
+
+      const existingDetail = details.find((item) => item?.product?.barcode === barcode);
+
+      const response = await getProduct({
+        variables: {
+          input: {
+            barcode: barcode,
+            warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
+          },
+        },
+      });
+      if (response?.data?.product) {
+        const product = response?.data?.product;
+        if (detail) {
+          if (existingDetail) {
+            newDetails.push({
+              ...existingDetail,
+              status: StatusDetailTransfer.New,
+              quantityConfirmed: (existingDetail?.quantityConfirmed || 0) + 1,
+            });
+            setError(
+              `Confirmado ${existingDetail?.product?.reference?.name} / ${
+                existingDetail?.product?.color?.name
+              } / ${existingDetail?.product?.size?.value}, cantidad: ${
+                (existingDetail?.quantityConfirmed || 0) + 1
+              }`,
+            );
+            setDetails(newDetails);
+          } else {
+            const objDetail: Partial<DetailTransfer> = {
+              product: product,
+              quantity: detail?.quantity || 0,
+              status: detail?.status,
+              quantityConfirmed: detail?.quantityConfirmed || 0,
+            };
+            newDetails.push({
+              ...objDetail,
+              status: StatusDetailTransfer.New,
+              quantityConfirmed: (objDetail?.quantityConfirmed || 0) + 1,
+            });
+            setError(
+              `Confirmado ${product?.reference?.name} / ${product?.color?.name} / ${
+                product?.size?.value
+              }, cantidad: ${(objDetail?.quantityConfirmed || 0) + 1}`,
+            );
+            setDetails(newDetails);
+          }
         }
-      } else {
-        setError('El producto no se encuentra registrado');
       }
+
       barcodeRef?.current?.select();
     } catch (e: any) {
       setError(e?.message);
@@ -359,13 +391,13 @@ const ConfirmTransfer = () => {
     {
       title: 'Producto',
       dataIndex: 'product',
-      render: ({ reference, barcode }: Product) => (
+      render: (product: Product) => (
         <Row>
           <Col span={24}>
-            {reference?.name} / {reference?.description}
+            {product?.reference?.name} / {product?.reference?.description}
           </Col>
           <Col span={24}>
-            <Tag icon={<BarcodeOutlined />}>{barcode}</Tag>
+            <Tag icon={<BarcodeOutlined />}>{product?.barcode}</Tag>
           </Col>
         </Row>
       ),
@@ -373,15 +405,15 @@ const ConfirmTransfer = () => {
     {
       title: 'Color',
       dataIndex: 'product',
-      render: ({ color }: Product) => {
+      render: (product: Product) => {
         return (
           <Space>
             <Avatar
               size="small"
-              style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
-              src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
+              style={{ backgroundColor: product?.color?.html, border: 'solid 1px black' }}
+              src={`${CDN_URL}/${product?.color?.image?.urls?.webp?.small}`}
             />
-            <Text style={{ marginLeft: 10 }}>{color?.name_internal}</Text>
+            <Text style={{ marginLeft: 10 }}>{product?.color?.name_internal}</Text>
           </Space>
         );
       },
@@ -390,7 +422,7 @@ const ConfirmTransfer = () => {
       title: 'Talla',
       dataIndex: 'product',
       align: 'center',
-      render: ({ size }: Product) => size.value,
+      render: (product: Product) => product?.size?.value,
     },
     {
       title: 'Confirmado',
@@ -412,13 +444,13 @@ const ConfirmTransfer = () => {
           dataIndex: 'product',
           align: 'center',
           fixed: 'right',
-          render: ({ _id = '' }: Product, record) => (
+          render: (product: Product, record) => (
             <Popconfirm
               disabled={!allowConfirm || record?.status === StatusDetailTransfer.Confirmed}
               title="¿Desea confirmar en 0?"
               okText="Si, confirmar"
               cancelText="Cancelar"
-              onConfirm={() => confirmZero(_id)}
+              onConfirm={() => confirmZero(product?._id)}
             >
               <Tooltip title="Confirmar en 0">
                 <Button
