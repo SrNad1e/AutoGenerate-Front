@@ -60,7 +60,7 @@ const Dashboard = () => {
       getGoal({
         variables: {
           input: {
-            month: moment().format(FORMAT_DATE_API).slice(0, -9),
+            month: moment().format(FORMAT_DATE_API),
             shopId: initialState?.currentUser?.shop?._id,
           },
         },
