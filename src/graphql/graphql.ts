@@ -8413,6 +8413,15 @@ export type ExpensesQuery = {
   };
 };
 
+export type GoalStatusQueryVariables = Exact<{
+  input: FiltersGoalStatusInput;
+}>;
+
+export type GoalStatusQuery = {
+  __typename?: 'Query';
+  goalStatus: { __typename?: 'ResponseGoalStatus'; goal: number; netSales: number };
+};
+
 export type ImagesQueryVariables = Exact<{
   input?: InputMaybe<FiltersImagesInput>;
 }>;
@@ -17674,6 +17683,49 @@ export const ExpensesDocument = {
     },
   ],
 } as unknown as DocumentNode<ExpensesQuery, ExpensesQueryVariables>;
+export const GoalStatusDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'goalStatus' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersGoalStatusInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'goalStatus' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersGoalStatus' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'goal' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'netSales' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GoalStatusQuery, GoalStatusQueryVariables>;
 export const ImagesDocument = {
   kind: 'Document',
   definitions: [
