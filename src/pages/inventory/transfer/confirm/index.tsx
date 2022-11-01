@@ -9,6 +9,7 @@ import {
   BarcodeOutlined,
   CheckCircleOutlined,
   PrinterOutlined,
+  SaveOutlined,
   StopOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -49,7 +50,6 @@ import ReportTransfer from '../reports/transfer';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
-import styles from './styles.less';
 import validateCodeBar from '@/libs/validateCodeBar';
 import { useGetProduct } from '@/hooks/product.hooks';
 
@@ -112,10 +112,6 @@ const ConfirmTransfer = () => {
     initialState?.currentUser?.shop?.defaultWarehouse?._id ===
       data?.stockTransferId?.warehouseDestination?._id &&
     canConfirm;
-
-  const allowConfirmTransfer = !data?.stockTransferId?.details?.find(
-    (item) => item.status === StatusDetailTransfer.New,
-  );
 
   /**
    * @description se encarga de abrir aviso de información
@@ -223,12 +219,12 @@ const ConfirmTransfer = () => {
             newDetails.push({
               ...objDetail,
               status: StatusDetailTransfer.New,
-              quantityConfirmed: (objDetail?.quantityConfirmed || 0) + 1,
+              quantityConfirmed: objDetail?.quantityConfirmed || 1,
             });
             setError(
               `Confirmado ${product?.reference?.name} / ${product?.color?.name} / ${
                 product?.size?.value
-              }, cantidad: ${(objDetail?.quantityConfirmed || 0) + 1}`,
+              }, cantidad: ${objDetail?.quantityConfirmed || 1}`,
             );
             setDetails(newDetails);
           }
@@ -304,7 +300,7 @@ const ConfirmTransfer = () => {
           status: StatusStockTransfer.Confirmed,
         });
       } else {
-        onShowError('Debe confirmar todos los productos');
+        onShowError('Debe guardar todos los productos');
       }
     } catch (e: any) {
       onShowError(e?.message);
@@ -376,6 +372,12 @@ const ConfirmTransfer = () => {
       }
     }
   };
+
+  const productsConfirmed = transferData?.filter((i) => i.status !== StatusDetailTransfer.New);
+
+  useEffect(() => {
+    setDetails(productsConfirmed);
+  }, [transferData]);
 
   useEffect(() => {
     getTransferId();
@@ -589,8 +591,8 @@ const ConfirmTransfer = () => {
       </Card>
       <Affix offsetBottom={0}>
         <Card bordered={false}>
-          <Row justify="center" align="middle">
-            <Col xs={12} md={18} lg={20}>
+          <Row justify="center" align="middle" gutter={40}>
+            <Col xs={12} md={12} lg={12}>
               <Title
                 level={3}
                 style={{
@@ -604,30 +606,30 @@ const ConfirmTransfer = () => {
                 PRODUCTOS:{' '}
                 {details
                   .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
-                  .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
+                  .reduce((sum, detail) => sum + (detail?.quantityConfirmed || 0), 0)}
               </Title>
             </Col>
-            <Col xs={12} md={6} lg={4}>
-              <Space align="end" className={styles.alignRigth}>
-                {allowConfirmTransfer ? (
-                  <Button
-                    onClick={confirmTransfer}
-                    type="primary"
-                    loading={loading || paramsUpdate.loading || paramsConfirmProducts.loading}
-                    disabled={!allowConfirm}
-                  >
-                    Confirmar Traslado
-                  </Button>
-                ) : (
-                  <Button
-                    type="primary"
-                    onClick={confirmProducts}
-                    loading={loading || paramsUpdate.loading || paramsConfirmProducts.loading}
-                    disabled={!allowConfirm}
-                  >
-                    Confirmar Productos
-                  </Button>
-                )}
+            <Col xs={12} md={8} lg={6}>
+              <Space>
+                <Button
+                  style={{ borderRadius: 5 }}
+                  type="primary"
+                  icon={<SaveOutlined />}
+                  onClick={confirmProducts}
+                  loading={loading || paramsUpdate.loading || paramsConfirmProducts.loading}
+                  disabled={!allowConfirm}
+                >
+                  Guardar
+                </Button>
+                <Button
+                  style={{ borderRadius: 5 }}
+                  onClick={confirmTransfer}
+                  type="primary"
+                  loading={loading || paramsUpdate.loading || paramsConfirmProducts.loading}
+                  disabled={!allowConfirm}
+                >
+                  Confirmar Traslado
+                </Button>
               </Space>
             </Col>
           </Row>
