@@ -144,6 +144,7 @@ const FormReference = () => {
       if (!values?.long) {
         setMissingValue(true);
         setActiveKey('2');
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
         return;
       }
 
@@ -198,10 +199,6 @@ const FormReference = () => {
       showError(e?.message);
     }
   };
-
-  useEffect(() => {
-    console.log(missingValue);
-  }, [missingValue]);
 
   /**
    * @description valida los valores en los campos y ejecuta la mutation para actualizar la
