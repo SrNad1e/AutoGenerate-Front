@@ -28,7 +28,7 @@ const GlobalHeaderRight: React.FC = () => {
   return (
     <>
       <Row gutter={20} className={className}>
-        <Col xs={0} md={1} style={{ marginRight: 8 }}>
+        <Col xs={0} md={1}>
           <span
             className={styles.action}
             onClick={() => {
@@ -38,9 +38,9 @@ const GlobalHeaderRight: React.FC = () => {
             <QuestionCircleOutlined />
           </span>
         </Col>
-        <Col xs={0} md={20}>
+        <Col xs={0} md={22}>
           <Text style={{ fontSize: 13 }}>
-            {initialState?.currentUser?.role.name} / {initialState?.currentUser?.shop.name}{' '}
+            {initialState?.currentUser?.role.name} / {initialState?.currentUser?.shop.name}
           </Text>
         </Col>
       </Row>
