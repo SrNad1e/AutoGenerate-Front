@@ -5,6 +5,7 @@ query orderId($id: String!) {
       amount
     }
     order {
+      closeDate
       statusWeb
       invoice {
         user {
