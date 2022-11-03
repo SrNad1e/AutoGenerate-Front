@@ -141,7 +141,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
   };
 
   /**
-   * @description se encarga de guardar el traslado
+   * @description se encarga de guardar la solicitud
    * @param status se usa para definir el estado de la solicitud
    */
   const saveRequest = async (status?: StatusStockRequest) => {
@@ -164,6 +164,10 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
 
           if (props.status === StatusStockRequest.Open) {
             delete props.status;
+          }
+
+          if (props.status === StatusStockRequest.Pending) {
+            props.details = [];
           }
 
           const response = await updateRequest({
@@ -423,19 +427,16 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       dataIndex: 'product',
       align: 'center',
       width: 30,
-      render: ({ stock = [] }: Product, record) =>
-        record?.__typename ? (
-          <Badge
-            overflowCount={99999}
-            count={(stock && stock[0]?.quantity) || 0}
-            style={{
-              backgroundColor: ((stock && stock[0]?.quantity) || 0) > 0 ? '#dc9575' : 'red',
-            }}
-            showZero
-          />
-        ) : (
-          'Pendiente'
-        ),
+      render: ({ stock = [] }: Product) => (
+        <Badge
+          overflowCount={99999}
+          count={(stock && stock[0]?.quantity) || 0}
+          style={{
+            backgroundColor: ((stock && stock[0]?.quantity) || 0) > 0 ? '#dc9575' : 'red',
+          }}
+          showZero
+        />
+      ),
     },
     {
       title: 'Cantidad',
