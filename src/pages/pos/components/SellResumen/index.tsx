@@ -4,6 +4,7 @@ import {
   CloseCircleOutlined,
   DollarOutlined,
   PrinterOutlined,
+  SaveOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Button, Card, Col, Divider, Empty, List, Row, Space, Tag, Typography } from 'antd';
@@ -19,6 +20,7 @@ import type { DetailOrder, Product, SummaryOrder, UpdateOrderInput } from '@/gra
 import styles from '../styles';
 import { useReactToPrint } from 'react-to-print';
 import OrderProduction from './Resumen';
+import { history } from 'umi';
 
 const { Title } = Typography;
 
@@ -166,9 +168,9 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
           </Row>
         </Col>
         <Divider style={styles.dividerStyle} />
-        <Col span={24}>
-          <Row gutter={10}>
-            <Col span={10}>
+        <Col span={24} style={{ marginTop: 20 }}>
+          <Row gutter={[10, 10]} align="middle" justify="center">
+            <Col lg={10} xl={10}>
               <Button
                 icon={<DollarOutlined />}
                 type="primary"
@@ -179,17 +181,33 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
                 PAGAR
               </Button>
             </Col>
-            <Col offset={2} span={12} style={styles.alignPrint}>
-              <Button
-                ghost
-                shape="round"
-                icon={<PrinterOutlined />}
-                onClick={() => handlePrint()}
-                size="small"
-                type="primary"
-              >
-                Imprimir
-              </Button>
+            <Col lg={12} xl={12} style={styles.alignPrint}>
+              <Row gutter={[0, 15]} justify="center">
+                <Col span={24}>
+                  <Button
+                    ghost
+                    shape="round"
+                    icon={<PrinterOutlined />}
+                    onClick={() => handlePrint()}
+                    size="small"
+                    type="primary"
+                  >
+                    Imprimir
+                  </Button>
+                </Col>
+                <Col span={24}>
+                  <Button
+                    onClick={() => history.push('/pos/sales')}
+                    style={{ borderRadius: 5 }}
+                    shape="round"
+                    size="small"
+                    type="primary"
+                    icon={<SaveOutlined />}
+                  >
+                    Guardar
+                  </Button>
+                </Col>
+              </Row>
             </Col>
           </Row>
         </Col>
