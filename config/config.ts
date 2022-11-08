@@ -94,7 +94,7 @@ export default defineConfig({
       layout: false,
       routes: [
         {
-          path: '/',
+          path: '/dashboard',
           name: 'Dashboard',
           icon: 'barChart',
           component: './dashboard/list',

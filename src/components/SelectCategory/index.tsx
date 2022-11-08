@@ -67,7 +67,7 @@ const SelectCategory = ({ onChange, level, disabled, value, parentId }: Params) 
   return (
     <>
       <Select
-        style={{ width: 220 }}
+        style={{ width: '90%' }}
         showSearch
         loading={loading}
         placeholder="Seleccione Categoría"
