@@ -98,7 +98,7 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
         }}
         menuHeaderRender={(logoHeader) => (
           <div id="customize_menu_header" className={styles.title}>
-            {<Link to={'/'}>{logoHeader}</Link>}
+            {<Link to={allowERP ? '/' : '/pos/sales'}>{logoHeader}</Link>}
           </div>
         )}
       />
