@@ -272,7 +272,6 @@ const ConfirmTransfer = () => {
   };
 
   const productsConfirmed = transferData?.filter((i) => i.status !== StatusDetailTransfer.New);
-  //const productsNew = details?.filter((i) => i.status !== StatusDetailTransfer.Confirmed);
 
   const confirmTransfer = () => {
     try {
