@@ -57,7 +57,11 @@ const RequestForm = () => {
     request: { canEdit, canPrint },
   } = useAccess();
 
-  const allowEdit = isNew ? true : request?.status === StatusStockRequest.Open && canEdit;
+  const allowEdit = isNew
+    ? true
+    : request?.status === StatusStockRequest.Open &&
+      canEdit &&
+      initialState?.currentUser?.shop?.defaultWarehouse?._id === request?.warehouseDestination?._id;
 
   /**
    * @description se encarga de abrir aviso de información
