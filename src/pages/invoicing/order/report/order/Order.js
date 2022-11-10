@@ -89,7 +89,7 @@ export default class OrderReport extends React.PureComponent {
           <Barcode value={data?.number} height={50} text={`No. ${data?.number}`} fontSize={12} />
           <div style={classes.text}>
             <div style={classes.title}>TICKET DE VENTA</div>
-            Fecha: {moment(data?.createdAt).format('YYYY/MM/DD HH:mm:ss')}
+            Fecha: {moment(data?.closeDate).format('YYYY/MM/DD HH:mm:ss')}
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>
             <div style={classes.text}>

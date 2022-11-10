@@ -13,6 +13,7 @@ import { ApolloProvider } from '@apollo/client';
 import { client } from '@/services/apollo-client';
 
 import styles from './styles.less';
+import './styles.less';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const loginPath = '/user/login';
@@ -66,7 +67,7 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
         fixSiderbar={true}
         logo={logo}
         rightContentRender={() => <RightContent />}
-        title="TOULOUSE"
+        title=""
         onPageChange={() => {
           const { location } = history;
           if (!initialState?.currentUser && location.pathname !== loginPath) {
@@ -95,10 +96,9 @@ const GeneralLayout: React.FC<BasicLayoutProps> = (props) => {
             <span>{route.breadcrumbName}</span>
           );
         }}
-        menuHeaderRender={(logoHeader, title) => (
+        menuHeaderRender={(logoHeader) => (
           <div id="customize_menu_header" className={styles.title}>
-            {logoHeader}
-            {title}
+            {<Link to={'/'}>{logoHeader}</Link>}
           </div>
         )}
       />

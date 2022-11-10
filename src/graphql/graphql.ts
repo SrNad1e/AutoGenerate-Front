@@ -865,7 +865,7 @@ export type CreateReferenceInput = {
   /** Estado de la referencia */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Atributos de la referencia */
-  attribIds: Scalars['String'][];
+  attribIds?: InputMaybe<Scalars['String'][]>;
   /** Marca de la referencia */
   brandId: Scalars['String'];
   /** Categoría nivel 1 de la referencia */
@@ -3711,7 +3711,7 @@ export type ReferenceData = {
 /** Resumen de los pagos */
 export type RefundOrderClose = {
   __typename?: 'RefundOrderClose';
-  /** Cantidad de devoluciones */
+  /** Cantidad de productos devueltos */
   quantity?: Maybe<Scalars['Float']>;
   /** Valor de las devoluciones */
   value?: Maybe<Scalars['Float']>;
@@ -4699,8 +4699,8 @@ export type ReturnOrder = {
   number: Scalars['Float'];
   /** Pedido de la devolución */
   order: Order;
-  /** Tienda */
-  shop: Shop;
+  /** Punto de venta */
+  pointOfSale: Shop;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
@@ -5597,10 +5597,14 @@ export type SummaryOrderClose = {
   quantityCancel: Scalars['Float'];
   /** Cantidad de las ordenes finalizadas */
   quantityClosed: Scalars['Float'];
+  /** Cantidad de los cupones redimidos */
+  quantityCoupons: Scalars['Float'];
   /** Cantidad de las ordenes abiertas */
   quantityOpen: Scalars['Float'];
   /** Valor de las ordenes finalizadas */
   value: Scalars['Float'];
+  /** Valor de los cupones redimidos */
+  valueCoupons: Scalars['Float'];
 };
 
 export enum TypeCreditHistory {
@@ -8413,6 +8417,15 @@ export type ExpensesQuery = {
   };
 };
 
+export type GoalStatusQueryVariables = Exact<{
+  input: FiltersGoalStatusInput;
+}>;
+
+export type GoalStatusQuery = {
+  __typename?: 'Query';
+  goalStatus: { __typename?: 'ResponseGoalStatus'; goal: number; netSales: number };
+};
+
 export type ImagesQueryVariables = Exact<{
   input?: InputMaybe<FiltersImagesInput>;
 }>;
@@ -8585,6 +8598,7 @@ export type OrderIdQuery = {
     credit?: { __typename?: 'Credit'; available: number; amount: number } | null;
     order: {
       __typename?: 'Order';
+      closeDate: any;
       statusWeb?: StatusWeb | null;
       status: StatusOrder;
       _id: string;
@@ -8847,6 +8861,7 @@ export type OrdersQuery = {
     page: number;
     docs: {
       __typename?: 'Order';
+      closeDate: any;
       statusWeb?: StatusWeb | null;
       _id: string;
       createdAt: any;
@@ -9141,6 +9156,7 @@ export type ProductQuery = {
     stock?: { __typename?: 'Stock'; quantity: number }[] | null;
     color: {
       __typename?: 'Color';
+      name: string;
       name_internal: string;
       html: string;
       image?: {
@@ -9410,7 +9426,6 @@ export type ReturnsOrderQuery = {
         message: string;
         expiration: any;
       };
-      shop: { __typename?: 'Shop'; name: string };
       order: {
         __typename?: 'Order';
         number: number;
@@ -17674,6 +17689,49 @@ export const ExpensesDocument = {
     },
   ],
 } as unknown as DocumentNode<ExpensesQuery, ExpensesQueryVariables>;
+export const GoalStatusDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'goalStatus' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersGoalStatusInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'goalStatus' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersGoalStatus' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'goal' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'netSales' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GoalStatusQuery, GoalStatusQueryVariables>;
 export const ImagesDocument = {
   kind: 'Document',
   definitions: [
@@ -18233,6 +18291,7 @@ export const OrderIdDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'statusWeb' } },
                       {
                         kind: 'Field',
@@ -18976,6 +19035,7 @@ export const OrdersDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'address' },
@@ -19910,6 +19970,7 @@ export const ProductDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'html' } },
                       {
@@ -20777,14 +20838,6 @@ export const ReturnsOrderDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'shop' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                       {
                         kind: 'Field',
