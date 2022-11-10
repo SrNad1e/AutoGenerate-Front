@@ -10,7 +10,6 @@ import {
   CheckCircleOutlined,
   LikeOutlined,
   PrinterOutlined,
-  StopOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -25,7 +24,6 @@ import {
   Divider,
   Form,
   Input,
-  Popconfirm,
   Row,
   Space,
   Table,
@@ -234,7 +232,7 @@ const ConfirmTransfer = () => {
     }
   };
 
-  const confirmZero = (_id: string) => {
+  /* const confirmZero = (_id: string) => {
     try {
       const newDetails = details.map((item) => {
         if (item?.product?._id === _id) {
@@ -250,7 +248,7 @@ const ConfirmTransfer = () => {
     } catch (e: any) {
       onShowError(e?.message);
     }
-  };
+  };*/
 
   const confirmProducts = () => {
     try {
@@ -433,34 +431,6 @@ const ConfirmTransfer = () => {
         />
       ),
     },
-    allowConfirm
-      ? {
-          title: 'Opciones',
-          dataIndex: 'product',
-          align: 'center',
-          fixed: 'right',
-          render: (product: Product, record) => (
-            <Popconfirm
-              disabled={!allowConfirm || record?.status === StatusDetailTransfer.Confirmed}
-              title="¿Desea confirmar en 0?"
-              okText="Si, confirmar"
-              cancelText="Cancelar"
-              onConfirm={() => confirmZero(product?._id)}
-            >
-              <Tooltip title="Confirmar en 0">
-                <Button
-                  icon={<StopOutlined />}
-                  type="primary"
-                  disabled={!allowConfirm || record?.status === StatusDetailTransfer.Confirmed}
-                  danger
-                />
-              </Tooltip>
-            </Popconfirm>
-          ),
-        }
-      : {
-          width: 0,
-        },
   ];
 
   return (
