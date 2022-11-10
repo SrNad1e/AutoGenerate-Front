@@ -8783,6 +8783,7 @@ export type OrderIdQuery = {
             updatedAt: any;
             total: number;
             status: StatusOrderDetail;
+            code?: string | null;
             payment: {
               __typename?: 'Payment';
               _id: string;
@@ -18820,6 +18821,7 @@ export const OrderIdDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'code' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'payment' },
