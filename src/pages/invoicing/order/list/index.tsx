@@ -385,18 +385,6 @@ const OrderList = () => {
     {
       title: (
         <Text>
-          <CalendarOutlined /> Fecha Creación
-        </Text>
-      ),
-      dataIndex: 'updatedAt',
-      sorter: true,
-      showSorterTooltip: false,
-      align: 'center',
-      render: (updatedAt: Date) => moment(updatedAt).format('DD/MM/YYYY HH:mm:ss'),
-    },
-    {
-      title: (
-        <Text>
           <CalendarOutlined /> Fecha Cierre
         </Text>
       ),
