@@ -27,7 +27,7 @@ const GlobalHeaderRight: React.FC = () => {
 
   return (
     <>
-      <Row gutter={20} className={className}>
+      <Row gutter={15} className={className}>
         <Col xs={0} md={1}>
           <span
             className={styles.action}
