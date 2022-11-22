@@ -6,14 +6,14 @@ import { Column, Pie, Bullet } from '@ant-design/plots';
 import numeral from 'numeral';
 import SelectCategory from '@/components/SelectCategory';
 import { ClearOutlined, SearchOutlined } from '@ant-design/icons';
-import { useState } from 'react';
-import { useGetOrders } from '@/hooks/order.hooks';
+import { useEffect, useState } from 'react';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import type { FiltersOrdersInput } from '@/graphql/graphql';
+import { FiltersSalesReportInput, GroupDates } from '@/graphql/graphql';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useHistory } from 'umi';
+import { useGetReportSales } from '@/hooks/reportSales.hooks';
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
@@ -22,8 +22,9 @@ const { Title } = Typography;
 
 type FormValues = {
   shopId?: string;
-  dates?: Moment[];
-  categoryLevel1Id?: string;
+  groupDates: GroupDates;
+  isGroupByCategory: boolean;
+  dates: Moment[];
 };
 
 const Dashboard = () => {
@@ -34,7 +35,7 @@ const Dashboard = () => {
     visible: false,
   });
 
-  const [getOrders /*paramsGetOrders*/] = useGetOrders();
+  const [getReportSales, paramsGetReportSales] = useGetReportSales();
 
   const [form] = Form.useForm();
   const history = useHistory();
@@ -62,12 +63,16 @@ const Dashboard = () => {
     });
   };
 
-  const onSearchData = (filters: FiltersOrdersInput) => {
+  const onSearchData = (filters?: FiltersSalesReportInput) => {
     try {
-      getOrders({
+      getReportSales({
         variables: {
           input: {
             ...filters,
+            isGroupByCategory: false,
+            groupDates: GroupDates.Month,
+            dateInitial: new Date(),
+            dateFinal: new Date(),
           },
         },
       });
@@ -80,13 +85,13 @@ const Dashboard = () => {
    * @description se encarga de realizar el proceso de busqueda con los filtros
    * @param props filtros seleccionados en el formulario
    */
-  const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { dates /*shopId, categoryLevel1Id*/ } = props;
+  const onFinish = (props: FormValues) => {
+    const { dates, groupDates, isGroupByCategory, shopId } = props;
     try {
-      const params: Partial<FiltersOrdersInput> = {
-        page: pageCurrent || 1,
-        limit: 10,
-        sort: sort || { createdAt: -1 },
+      const params: Partial<FiltersSalesReportInput> = {
+        groupDates,
+        isGroupByCategory,
+        shopId,
       };
 
       if (dates) {
@@ -110,7 +115,7 @@ const Dashboard = () => {
   };
 
   const config = {
-    //data,
+    data: onFinish(),
     isStack: true,
     xField: 'id',
     yField: 'price',
@@ -133,7 +138,7 @@ const Dashboard = () => {
 
   const configPie = {
     appendPadding: 10,
-    data: onFinish(), //data1,
+    data: [], //data1,
     angleField: 'price',
     colorField: 'name',
     radius: 0.75,
@@ -153,7 +158,7 @@ const Dashboard = () => {
   };
 
   const configBullet = {
-    data: onFinish(),
+    data: [],
     measureField: 'Ventas',
     rangeField: 'ranges',
     targetField: 'Meta',
@@ -205,6 +210,12 @@ const Dashboard = () => {
     }
   };
 
+  useEffect(() => {
+    onSearchData();
+  }, []);
+
+  const summaryData = paramsGetReportSales.data?.reportSales?.summarySalesReport;
+
   return (
     <PageContainer title="Admin Dashboard">
       <Card>
@@ -221,7 +232,7 @@ const Dashboard = () => {
             <Col xs={24} xl={6}>
               <FormItem label="Fechas" name="dates">
                 {period === false ? (
-                  <RangePicker placeholder={['Fecha Inicial', 'Fecha Final']} />
+                  <RangePicker picker="date" placeholder={['Fecha Inicial', 'Fecha Final']} />
                 ) : (
                   <RangePicker picker="month" placeholder={['Fecha Inicial', 'Fecha Final']} />
                 )}
@@ -261,7 +272,7 @@ const Dashboard = () => {
                     icon={<ClearOutlined />}
                     loading={false}
                     style={{ borderRadius: 5 }}
-                    onClick={() => {}}
+                    onClick={() => console.log(1)}
                   >
                     Limpiar
                   </Button>
@@ -301,7 +312,7 @@ const Dashboard = () => {
           </Col>
           <Col offset={1} span={8}>
             <Card bordered={false}>
-              <Row>
+              <Row align="middle">
                 <Col span={12}>
                   <Row>
                     <Col span={24}>
@@ -322,7 +333,7 @@ const Dashboard = () => {
                   <Row>
                     <Col span={24}>
                       {' '}
-                      <Title level={5}>{numeral(340000000).format('$ 0,00')}</Title>
+                      <Title level={5}>{summaryData?.quantity || 0}</Title>
                     </Col>
                     <Col span={24}>
                       <Title level={5}>{numeral(230000000).format('$ 0,00')}</Title>{' '}

@@ -1,7 +1,7 @@
-import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends Record<string, unknown>> = { [K in keyof T]: T[K] };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 /** All built-in and custom scalars, mapped to their actual values */
@@ -11,7 +11,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -73,13 +72,15 @@ export type AddPaymentsOrderInput = {
   /** Id del pedido que se requiere agreagar o editar productos */
   orderId: Scalars['String'];
   /** Medios de pago */
-  payments: PaymentsOrderInput[];
+  payments: Array<PaymentsOrderInput>;
 };
 
 /** Datos para agregar productos al pedido */
 export type AddProductsOrderInput = {
   /** Productos a crear o actualizar */
-  details: DetailAddProductsOrderInput[];
+  details: Array<DetailAddProductsOrderInput>;
+  /** El pedido es mayorista */
+  isWholesaler?: InputMaybe<Scalars['Boolean']>;
   /** Id del pedido que se requiere agreagr o editar productos */
   orderId: Scalars['String'];
 };
@@ -185,8 +186,20 @@ export type AuthorizationDian = {
   company: Scalars['String'];
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
+  /** Fecha de finalización de la resolución */
+  dateFinal?: Maybe<Scalars['DateTime']>;
+  /** Fecha de inicio de la resolución */
+  dateInitial?: Maybe<Scalars['DateTime']>;
+  /** Numero final de la resolución */
+  numberFinal?: Maybe<Scalars['Float']>;
+  /** Numero inicial de la resolución */
+  numberInitial?: Maybe<Scalars['Float']>;
   /** Prefijo de autorización */
   prefix: Scalars['String'];
+  /** Si es una habilitación true */
+  qualification: Scalars['Boolean'];
+  /** Resolución de la autorización o de la habilitación */
+  resolution?: Maybe<Scalars['String']>;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la autorización de facturación */
@@ -292,7 +305,7 @@ export type CategoryLevel1 = {
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Nombre de la categoría */
-  childs?: Maybe<CategoryLevel2[]>;
+  childs?: Maybe<Array<CategoryLevel2>>;
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -309,7 +322,7 @@ export type CategoryLevel2 = {
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Categorías inferiores */
-  childs?: Maybe<CategoryLevel3[]>;
+  childs?: Maybe<Array<CategoryLevel3>>;
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -394,11 +407,13 @@ export type CloseXInvoicing = {
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Egresos del día */
-  expenses?: Maybe<Expense[]>;
+  expenses?: Maybe<Array<Expense>>;
   /** Número consecutivo */
   number: Scalars['Float'];
   /** Listado de pagos */
-  payments?: Maybe<PaymentOrderClose[]>;
+  payments?: Maybe<Array<PaymentOrderClose>>;
+  /** Medios de pago usados para cruzar créditos */
+  paymentsCredit?: Maybe<Array<PaymentCredit>>;
   /** Punto de venta que registra el cierre */
   pointOfSale: PointOfSale;
   /** Transacciones reportadas por el usuario */
@@ -427,11 +442,13 @@ export type CloseZInvoicing = {
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Egresos del día */
-  expenses?: Maybe<Expense[]>;
+  expenses?: Maybe<Array<Expense>>;
   /** Número consecutivo */
   number: Scalars['Float'];
   /** Listado de pagos */
-  payments?: Maybe<PaymentOrderClose[]>;
+  payments?: Maybe<Array<PaymentOrderClose>>;
+  /** Medios de pago usados para cruzar créditos */
+  paymentsCredit?: Maybe<Array<PaymentCredit>>;
   /** Punto de venta que registra el cierre */
   pointOfSale: PointOfSale;
   /** Transacciones reportadas por el usuario */
@@ -474,7 +491,7 @@ export type CombinationInput = {
   /** Identificador del color */
   colorId: Scalars['String'];
   /** Identificadores de las imagenes */
-  imageIds?: InputMaybe<Scalars['String'][]>;
+  imageIds?: InputMaybe<Array<Scalars['String']>>;
   /** Identificador de la talla */
   sizeId: Scalars['String'];
 };
@@ -492,6 +509,8 @@ export type Company = {
   createdAt: Scalars['DateTime'];
   /** Documento de la compañía */
   document: Scalars['String'];
+  /** Correo de la compañia */
+  email: Scalars['String'];
   /** Url del logo de la compañía */
   logo: Scalars['String'];
   /** Nombre de la compañía */
@@ -507,9 +526,17 @@ export type Company = {
 };
 
 /** Datos para confirmar productos */
+export type ConfirmPaymentsOrderInput = {
+  /** Identificador del pedido a confirmar los pagos */
+  orderId: Scalars['String'];
+  /** Pagos a confirmar */
+  payments: Array<PaymentConfirm>;
+};
+
+/** Datos para confirmar productos */
 export type ConfirmProductsOrderInput = {
   /** Productos a confirmar */
-  details: DetailsConfirm[];
+  details: Array<DetailsConfirm>;
   /** Identificador del pedido a confirmar productos */
   orderId: Scalars['String'];
 };
@@ -517,7 +544,7 @@ export type ConfirmProductsOrderInput = {
 /** Datos para confirmar los productos del traslado */
 export type ConfirmStockTransferInput = {
   /** Productos para confirmar */
-  details: DetailConfirmStockTransferInput[];
+  details: Array<DetailConfirmStockTransferInput>;
 };
 
 /** Modelo para la transportadora */
@@ -527,6 +554,8 @@ export type Conveyor = {
   _id: Scalars['String'];
   /** Fecha de creación de la transportadora */
   createdAt: Scalars['DateTime'];
+  /** Precio por defecto */
+  defaultPrice: Scalars['Float'];
   /** Logo de la tranportadora */
   logo: Image;
   /** Mensaje para el usuario */
@@ -534,7 +563,7 @@ export type Conveyor = {
   /** Nombre de la transportadora */
   name: Scalars['String'];
   /** Precios por región solo para type ZONE */
-  rates?: Maybe<RatesRegion[]>;
+  rates?: Maybe<Array<RatesRegion>>;
   /** Tipo de transportadora */
   type: ConveyorType;
   /** Fecha de actualización de la transportadora */
@@ -548,6 +577,8 @@ export type ConveyorOrder = {
   __typename?: 'ConveyorOrder';
   /** Datos del transportista */
   conveyor: Conveyor;
+  /** Error del médio de pago */
+  error?: Maybe<Scalars['String']>;
   /** Código de la guia del transportista */
   guideCode?: Maybe<Scalars['String']>;
   /** Fecha en el que se realiza el envío */
@@ -614,8 +645,20 @@ export type CreateAttribInput = {
 
 /** Datos para la creación de una autorización */
 export type CreateAuthorizationInput = {
+  /** Fecha de finalización de la resolución */
+  dateFinal?: InputMaybe<Scalars['DateTime']>;
+  /** Fecha de inicio de la resolución */
+  dateInitial?: InputMaybe<Scalars['DateTime']>;
+  /** Numero final de la resolución */
+  numberFinal?: InputMaybe<Scalars['Float']>;
+  /** Numero inicial de la resolución */
+  numberInitial?: InputMaybe<Scalars['Float']>;
   /** Prefijo de facturación */
   prefix: Scalars['String'];
+  /** Si es una habilitación true */
+  qualification?: InputMaybe<Scalars['Boolean']>;
+  /** resolución de facturacion */
+  resolution?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para crear la caja */
@@ -704,6 +747,8 @@ export type CreateCompanyInput = {
   address: Scalars['String'];
   /** Documento de la empresa */
   document: Scalars['String'];
+  /** Email de la empresa */
+  email: Scalars['String'];
   /** Url del logo de la empresa */
   logo: Scalars['String'];
   /** Nombre de la empresa */
@@ -737,7 +782,7 @@ export type CreateCreditInput = {
 /** Datos para crear un cliente */
 export type CreateCustomerInput = {
   /** Direcciones del cliente */
-  addresses?: InputMaybe<AddressInput[]>;
+  addresses?: InputMaybe<Array<AddressInput>>;
   /** Fecha de nacimiento */
   birthday?: InputMaybe<Scalars['DateTime']>;
   /** Identificación de tipo de cliente */
@@ -771,7 +816,7 @@ export type CreateDiscountRuleInput = {
   /** Porcentaje del descuento */
   percent?: InputMaybe<Scalars['Float']>;
   /** Reglas a aplicar */
-  rules: RuleInput[];
+  rules: Array<RuleInput>;
   /** Valor del descuento */
   value?: InputMaybe<Scalars['Float']>;
 };
@@ -798,6 +843,8 @@ export type CreatePaymentInput = {
   color?: InputMaybe<Scalars['String']>;
   /** Identificador de la imagen del método de pago */
   logoId?: InputMaybe<Scalars['String']>;
+  /** Mensaje para el medio de pago */
+  message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name: Scalars['String'];
   /** Tipo de método de pago */
@@ -821,7 +868,7 @@ export type CreateProductInput = {
   /** Identificador del producto */
   colorId: Scalars['String'];
   /** Identificador de las imagenes del producto */
-  imagesId?: InputMaybe<Scalars['String'][]>;
+  imagesId?: InputMaybe<Array<Scalars['String']>>;
   /** Identificador de la referencia */
   referenceId: Scalars['String'];
   /** Identificador del producto */
@@ -835,9 +882,13 @@ export type CreateReceiptInput = {
   /** Concepto del recibo */
   concept: Scalars['String'];
   /** Pedidos a los que afecta el recibo */
-  details?: InputMaybe<DetailReceiptOrder[]>;
+  details?: InputMaybe<Array<DetailReceiptOrder>>;
+  /** Cruza crédito el recibo */
+  isCredit: Scalars['Boolean'];
   /** Identificador del medio de pago */
   paymentId: Scalars['String'];
+  /** Identificador del punto de venta */
+  pointOfSaleId: Scalars['String'];
   /** Valor del recibo */
   value: Scalars['Float'];
 };
@@ -847,7 +898,7 @@ export type CreateReferenceInput = {
   /** Estado de la referencia */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Atributos de la referencia */
-  attribIds: Scalars['String'][];
+  attribIds?: InputMaybe<Array<Scalars['String']>>;
   /** Marca de la referencia */
   brandId: Scalars['String'];
   /** Categoría nivel 1 de la referencia */
@@ -859,7 +910,7 @@ export type CreateReferenceInput = {
   /** Se puede cambiar */
   changeable?: InputMaybe<Scalars['Boolean']>;
   /** Combinaciones de talla y color para crear los productos */
-  combinations?: InputMaybe<CombinationInput[]>;
+  combinations?: InputMaybe<Array<CombinationInput>>;
   /** Costo de la referencia */
   cost: Scalars['Float'];
   /** Descripción de la referencia */
@@ -882,7 +933,7 @@ export type CreateReferenceInput = {
 
 export type CreateReturnOrderInput = {
   /** Productos que se devuelven del pedido */
-  details: DetailReturnInput[];
+  details: Array<DetailReturnInput>;
   /** Pedido al que afecta la devolución */
   orderId: Scalars['String'];
 };
@@ -896,7 +947,7 @@ export type CreateRoleInput = {
   /** Nombre del rol */
   name: Scalars['String'];
   /** Identificadores de los permisos asignados */
-  permissionIds: Scalars['String'][];
+  permissionIds: Array<Scalars['String']>;
 };
 
 /** Datos para la creación de la tienda */
@@ -928,7 +979,7 @@ export type CreateSizeInput = {
 /** Datos para crear el ajuste de productos */
 export type CreateStockAdjustmentInput = {
   /** Productos del ajuste */
-  details: DetailStockAdjustmentCreateInput[];
+  details: Array<DetailStockAdjustmentCreateInput>;
   /** Observación del que realiza el ajuste */
   observation?: InputMaybe<Scalars['String']>;
   /** Estado del ajuste */
@@ -940,7 +991,7 @@ export type CreateStockAdjustmentInput = {
 /** Datos para crear la entrada de productos */
 export type CreateStockInputInput = {
   /** Productos de la entrada */
-  details: DetailStockInputCreateInput[];
+  details: Array<DetailStockInputCreateInput>;
   /** Observación del que realiza la entrada */
   observation?: InputMaybe<Scalars['String']>;
   /** Estado de la entrada */
@@ -952,7 +1003,7 @@ export type CreateStockInputInput = {
 /** Datos para crear la salida de productos */
 export type CreateStockOutputInput = {
   /** Productos de la salida */
-  details: DetailStockOutputCreateInput[];
+  details: Array<DetailStockOutputCreateInput>;
   /** Observación del que realiza la salida */
   observation?: InputMaybe<Scalars['String']>;
   /** Estado de la salida */
@@ -964,7 +1015,7 @@ export type CreateStockOutputInput = {
 /** Datos para crear la solicitud de productos */
 export type CreateStockRequestInput = {
   /** Productos de la solicitud */
-  details: DetailStockRequestCreateInput[];
+  details: Array<DetailStockRequestCreateInput>;
   /** Observación de la solicitud */
   observation?: InputMaybe<Scalars['String']>;
   /** Estado de la solicitud */
@@ -978,11 +1029,11 @@ export type CreateStockRequestInput = {
 /** Productos para marcar agregados para el historial */
 export type CreateStockTransferInput = {
   /** Productos del traslado */
-  details: DetailStockTransferCreateInput[];
+  details: Array<DetailStockTransferCreateInput>;
   /** Observación del que realiza el traslado */
   observationOrigin?: InputMaybe<Scalars['String']>;
   /** Solicitudes usadas */
-  requests?: InputMaybe<Scalars['String'][]>;
+  requests?: InputMaybe<Array<Scalars['String']>>;
   /** Estado del traslado */
   status?: InputMaybe<StatusStockTransfer>;
   /** Identificador de la bodega de destino del traslado */
@@ -995,6 +1046,8 @@ export type CreateStockTransferInput = {
 export type CreateUserInput = {
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
+  /** Identifica si el usuario es web */
+  isWeb?: InputMaybe<Scalars['Boolean']>;
   /** Nombre del usuario */
   name: Scalars['String'];
   /** Contraseña de usuario */
@@ -1039,7 +1092,7 @@ export type Credit = {
   /** Cliente al que pertenece el crédito */
   customer: Customer;
   /** Detalle de la afectación del crédito */
-  details?: Maybe<DetailCredit[]>;
+  details?: Maybe<Array<DetailCredit>>;
   /** Monto congelado que no ha sido finalizado */
   frozenAmount: Scalars['Float'];
   /** Estado del crédito */
@@ -1072,12 +1125,14 @@ export type CreditHistory = {
 /** Cliente */
 export type Customer = {
   __typename?: 'Customer';
+  /** Fecha de mayorista */
+  WolesalerDate?: Maybe<Scalars['DateTime']>;
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Se encuentra activo el usuario */
   active: Scalars['Boolean'];
   /** Direcciones del cliente */
-  addresses?: Maybe<Address[]>;
+  addresses?: Maybe<Array<Address>>;
   /** Fecha de nacimiento */
   birthday?: Maybe<Scalars['DateTime']>;
   /** Fecha de creación */
@@ -1104,6 +1159,17 @@ export type Customer = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el cliente */
   user: User;
+};
+
+/** Ventas de tipos de clientes */
+export type CustomerSalesReport = {
+  __typename?: 'CustomerSalesReport';
+  /** Cantidad de ventas */
+  quantity: Scalars['Float'];
+  /** Valor total de las ventas */
+  total: Scalars['Float'];
+  /** Tipo de cliente */
+  typeCustomer: CustomerType;
 };
 
 /** Tipos de clientes */
@@ -1388,6 +1454,23 @@ export type DetailTransfer = {
   updatedAt: Scalars['DateTime'];
 };
 
+/** Detalle del traslado de productos */
+export type DetailTransferError = {
+  __typename?: 'DetailTransferError';
+  /** Producto del detalle */
+  product: Product;
+  /** Cantidad del productos en el traslado */
+  quantity: Scalars['Float'];
+  /** Motivo del proceso */
+  reason?: Maybe<Scalars['String']>;
+  /** Estado del producto */
+  status: StatusDetailTransferError;
+  /** Fecha de actualización del traslado */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que valida el error */
+  user?: Maybe<User>;
+};
+
 /** Producto para confirmar en el pedido */
 export type DetailsConfirm = {
   /** Producto a confirmar */
@@ -1414,7 +1497,7 @@ export type DiscountRule = {
   /** Valor del porcentaje del descuento */
   percent: Scalars['Float'];
   /** Reglas para aplicar el descuento */
-  rules: Rule[];
+  rules: Array<Rule>;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el descuento */
@@ -1444,7 +1527,37 @@ export enum DocumentTypesRule {
   Categories = 'CATEGORIES',
   Company = 'COMPANY',
   Customertypes = 'CUSTOMERTYPES',
+  Shops = 'SHOPS',
 }
+
+/** Errores de traslado de efectivo */
+export type ErrorCash = {
+  __typename?: 'ErrorCash';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Caja hacia donde se realiza el movimiento */
+  boxDestination: Box;
+  /** Caja desde donde se realiza el movimiento */
+  boxOrigin: Box;
+  /** Cierre que efectúa el error */
+  closeZ?: Maybe<CloseZInvoicing>;
+  /** Compañía a la que pertenece el error */
+  company: Scalars['String'];
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Motivo del proceso */
+  reason?: Maybe<Scalars['String']>;
+  /** Tipo de error */
+  typeError: TypeErrorCash;
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó la caja */
+  user: User;
+  /** Valor del movimiento */
+  value: Scalars['Float'];
+  /** Si ya fue verificados */
+  verified: Scalars['Boolean'];
+};
 
 /** Egreso de dinero */
 export type Expense = {
@@ -1474,7 +1587,7 @@ export type Expense = {
 /** Filtros para la lista de atributos */
 export type FiltersAttribsInput = {
   /** Identificadores de los atributos */
-  _ids?: InputMaybe<Scalars['String'][]>;
+  _ids?: InputMaybe<Array<Scalars['String']>>;
   /** Estado del atributo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
@@ -1503,6 +1616,8 @@ export type FiltersAuthorizationInput = {
 export type FiltersBoxesInput = {
   /** Identificador de la caja */
   _id?: InputMaybe<Scalars['String']>;
+  /** Es caja principal */
+  isMain?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Nombre de la caja para buscar coincidencias */
@@ -1643,6 +1758,8 @@ export type FiltersCompaniesInput = {
 
 /** Filtros para obtener listado de transportadoras */
 export type FiltersConveyorsInput = {
+  /** Identificador de la transportadora */
+  _id?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Nombre de la transportadora */
@@ -1731,6 +1848,8 @@ export type FiltersCustomerTypesInput = {
 
 /** Filtros de listado de clientes */
 export type FiltersCustomersInput = {
+  /** Identificdor de un usuario */
+  _id?: InputMaybe<Scalars['String']>;
   /** Si el cliente se encuentra activo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** comodin para la busque de documento, nombre, apellido, teléfono, correo,  */
@@ -1769,6 +1888,24 @@ export type FiltersDocumentTypesInput = {
   name?: InputMaybe<Scalars['String']>;
 };
 
+/** Listado de errores de efectivo */
+export type FiltersErrorsCashInput = {
+  /** Número del cierre que efectúa el error */
+  closeZNumber?: InputMaybe<Scalars['Float']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Página actual */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortErrosCash>;
+  /** Tipo de error */
+  typeError?: InputMaybe<TypeErrorCash>;
+  /** cantidad de efectivo */
+  value?: InputMaybe<Scalars['Float']>;
+  /** Si ya fue verificado */
+  verified?: InputMaybe<Scalars['Boolean']>;
+};
+
 /** Filtros para obtener el listado de egresos */
 export type FiltersExpensesInput = {
   /** Caja a la que afecta el egreso */
@@ -1787,6 +1924,14 @@ export type FiltersExpensesInput = {
   sort?: InputMaybe<SortExpense>;
   /** Estado del egreso */
   status?: InputMaybe<StatusExpense>;
+};
+
+/** Datos para consultar el estado de la meta */
+export type FiltersGoalStatusInput = {
+  /** Mes a evaluar la meta */
+  month: Scalars['String'];
+  /** Identificador de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Filtros para la lista de imagenes */
@@ -1827,6 +1972,8 @@ export type FiltersOrdersInput = {
   dateInitial?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
+  /** Estado del pedido que no quiere consultar */
+  nonStatus?: InputMaybe<Array<StatusOrder>>;
   /** Número consecutivo del pedido */
   number?: InputMaybe<Scalars['Float']>;
   /** Trae los pedidos POS solamente */
@@ -1835,10 +1982,14 @@ export type FiltersOrdersInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
   paymentId?: InputMaybe<Scalars['String']>;
+  /** Filtro por tienda */
+  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortOrder>;
   /** Estado del pedido */
   status?: InputMaybe<StatusOrder>;
+  /** Estado del pedido Web */
+  statusWeb?: InputMaybe<StatusWeb>;
 };
 
 /** Filtros para obtener el listado de tipos de medios de pago */
@@ -1897,7 +2048,7 @@ export type FiltersProductsInput = {
   /** Id de color */
   colorId?: InputMaybe<Scalars['String']>;
   /** Identificadores de mongo */
-  ids?: InputMaybe<Scalars['String'][]>;
+  ids?: InputMaybe<Array<Scalars['String']>>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Comodín para la busqueda del producto, barcode, referencem description */
@@ -1934,6 +2085,8 @@ export type FiltersReceiptsInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
   paymentId?: InputMaybe<Scalars['String']>;
+  /** Punto de venta del pago */
+  pointOfSaleId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortReceipt>;
   /** Estado del recibo */
@@ -2004,6 +2157,20 @@ export type FiltersRolesInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortRole>;
+};
+
+/** Filtros para el reporte de ventas */
+export type FiltersSalesReportInput = {
+  /** Fecha final del reporte */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial del reporte */
+  dateInitial: Scalars['String'];
+  /** Agrupar por dia, mes o año */
+  groupDates: GroupDates;
+  /** Si es true se agrupan por categoria */
+  isGroupByCategory: Scalars['Boolean'];
+  /** Id de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Filtros usados para consultar las tiendas */
@@ -2137,6 +2304,18 @@ export type FiltersStockRequestsInput = {
 };
 
 /** Filtros para el listado de traslados de productos */
+export type FiltersStockTransfersErrorInput = {
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortStockTransferError>;
+  /** Si el traslado esta o no verificado por completo */
+  verifield?: InputMaybe<Scalars['Boolean']>;
+};
+
+/** Filtros para el listado de traslados de productos */
 export type FiltersStockTransfersInput = {
   /** Fecha final para la busqueda */
   dateFinal?: InputMaybe<Scalars['String']>;
@@ -2162,6 +2341,8 @@ export type FiltersStockTransfersInput = {
 export type FiltersUsersInput = {
   /** Identificador del tipo de cliente */
   customerTypeId?: InputMaybe<Scalars['String']>;
+  /** Selecciona si es usuario web o no */
+  isWeb?: InputMaybe<Scalars['Boolean']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Comodín para la busqueda por nombre,nombre de usuario, documento o correo */
@@ -2193,6 +2374,12 @@ export type FiltersWarehousesInput = {
   /** Ordenamiento */
   sort?: InputMaybe<SortWarehouse>;
 };
+
+export enum GroupDates {
+  Day = 'DAY',
+  Month = 'MONTH',
+  Year = 'YEAR',
+}
 
 /** Indexación de las imagenes */
 export type Image = {
@@ -2238,11 +2425,11 @@ export type Invoice = {
   /** Cliente para la factura */
   customer: Customer;
   /** Productos de la factura */
-  details?: Maybe<DetailInvoice[]>;
+  details?: Maybe<Array<DetailInvoice>>;
   /** Número de factura */
   number: Scalars['Float'];
   /** Métodos de pago usados en la factura */
-  payments?: Maybe<PaymentInvoice[]>;
+  payments?: Maybe<Array<PaymentInvoice>>;
   /** Tienda donde se realiza la factura */
   shop: Shop;
   /** Resumen de los pagos y totales */
@@ -2280,6 +2467,8 @@ export type Mutation = {
   addProductsOrder: ResponseOrder;
   /** Se encarga de cambiar la clave al usuario con base al tokenu */
   changePasswordToken: LoginResponse;
+  /** Se encarga de confirmar o desconfirmar pagos de un pedido */
+  confirmPaymentsOrder: ResponseOrder;
   /** Se encarga de confirmar o desconfirmar productos de un pedido */
   confirmProductsOrder: ResponseOrder;
   /** Confirma los productos del traslado */
@@ -2412,6 +2601,10 @@ export type Mutation = {
   updateUser: User;
   /** Actualiza una bodega */
   updateWarehouse: Warehouse;
+  /** Verifica un producto de un traslado en error */
+  verifiedErrorsCash: ErrorCash;
+  /** Verifica un producto de un traslado en error */
+  verifiedProductStockTransfer: StockTransferError;
 };
 
 export type MutationAddPaymentsOrderArgs = {
@@ -2425,6 +2618,10 @@ export type MutationAddProductsOrderArgs = {
 export type MutationChangePasswordTokenArgs = {
   password: Scalars['String'];
   token: Scalars['String'];
+};
+
+export type MutationConfirmPaymentsOrderArgs = {
+  confirmPaymentsOrderInput: ConfirmPaymentsOrderInput;
 };
 
 export type MutationConfirmProductsOrderArgs = {
@@ -2725,11 +2922,19 @@ export type MutationUpdateWarehouseArgs = {
   updateWarehouseInput: UpdateWarehouseInput;
 };
 
+export type MutationVerifiedErrorsCashArgs = {
+  verifiedErrorsCashInput: VerifiedErrorsCashInput;
+};
+
+export type MutationVerifiedProductStockTransferArgs = {
+  verifiedProductTransferErrorInput: VerifiedProductTransferErrorInput;
+};
+
 /** Opción del permiso */
 export type OptionPermission = {
   __typename?: 'OptionPermission';
   /** Acciones a realizan en la opción */
-  actions: ActionPermission[];
+  actions: Array<ActionPermission>;
   /** Nombre de la opción */
   name: Scalars['String'];
 };
@@ -2741,6 +2946,8 @@ export type Order = {
   _id: Scalars['String'];
   /** Usuario que creó o editó el pedido */
   address?: Maybe<Address>;
+  /** Fecha de cierre del pedido */
+  closeDate: Scalars['DateTime'];
   /** Empresa a la que perteneces el pedido */
   company: Company;
   /** Trasportadora */
@@ -2750,21 +2957,28 @@ export type Order = {
   /** Cliente que solicita el pedido */
   customer: Customer;
   /** Productos que tiene el pedido */
-  details?: Maybe<DetailOrder[]>;
+  details?: Maybe<Array<DetailOrder>>;
   /** Factura generada al facturar */
   invoice?: Maybe<Invoice>;
+  /**
+   * Número de la factura vieja
+   * @deprecated facturas viejas
+   */
+  invoiceNumber?: Maybe<Scalars['Float']>;
   /** Número de pedido */
   number: Scalars['Float'];
   /** Pedido de POS */
   orderPos: Scalars['Boolean'];
   /** Métodos de pago usados en el pedido */
-  payments?: Maybe<PaymentOrder[]>;
+  payments?: Maybe<Array<PaymentOrder>>;
   /** Punto de venta asigando */
   pointOfSale: PointOfSale;
   /** Tienda donde se solicita el pedido */
   shop: Shop;
   /** Estado del pedido */
   status: StatusOrder;
+  /** Estado de transición pedido web */
+  statusWeb?: Maybe<StatusWeb>;
   /** Resumen de los pagosy totales */
   summary: SummaryOrder;
   /** Fecha de actualización */
@@ -2786,6 +3000,8 @@ export type Payment = {
   createdAt: Scalars['DateTime'];
   /** Logo para el medio de pago */
   logo?: Maybe<Image>;
+  /** Mensaje para el usuario web */
+  message?: Maybe<Scalars['String']>;
   /** Nombre del medio de pago */
   name: Scalars['String'];
   /** Tipo de medio de pago */
@@ -2794,6 +3010,25 @@ export type Payment = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el medio de pago */
   user: User;
+};
+
+/** Producto para confirmar en el pedido */
+export type PaymentConfirm = {
+  /** Médio de pago a confirmar */
+  paymentId: Scalars['String'];
+  /** Estado del producto, si es diferente a confirm */
+  status?: InputMaybe<StatusOrderDetail>;
+};
+
+/** Pagos que cruzan créditos */
+export type PaymentCredit = {
+  __typename?: 'PaymentCredit';
+  /** Medio de pago */
+  payment: Payment;
+  /** Cantidad de las pagos del medio */
+  quantity: Scalars['Float'];
+  /** Valor del medio de pago */
+  value: Scalars['Float'];
 };
 
 /** Medios de pago de la factura */
@@ -2816,6 +3051,8 @@ export type PaymentOrder = {
   payment: Payment;
   /** Total pagado */
   receipt?: Maybe<Receipt>;
+  /** Estado del pago */
+  status: StatusOrderDetail;
   /** Total pagado */
   total: Scalars['Float'];
   /** Fecha de actualizado del pago al pedido */
@@ -2845,6 +3082,17 @@ export type PaymentsOrderInput = {
   total: Scalars['Float'];
 };
 
+/** Medios de pago */
+export type PaymentsSalesReport = {
+  __typename?: 'PaymentsSalesReport';
+  /** Medio de pago */
+  payment: Payment;
+  /** Cantidad de veces de uso del medio de pago */
+  quantity: Scalars['Float'];
+  /** Valor total recaudado con el recibo de pago */
+  total: Scalars['Float'];
+};
+
 /** Permisos a los que tiene el usuario */
 export type Permission = {
   __typename?: 'Permission';
@@ -2868,7 +3116,7 @@ export type PermissionData = {
   /** Nombre del módulo */
   module: Scalars['String'];
   /** Opciones del módulo */
-  options: OptionPermission[];
+  options: Array<OptionPermission>;
 };
 
 export enum Permissions {
@@ -2938,6 +3186,7 @@ export enum Permissions {
   CreateTreasuryExpense = 'CREATE_TREASURY_EXPENSE',
   CreateTreasuryPayment = 'CREATE_TREASURY_PAYMENT',
   CreateTreasuryReceipt = 'CREATE_TREASURY_RECEIPT',
+  InventoryTransfersVerified = 'INVENTORY_TRANSFERS_VERIFIED',
   PrintCrmCoupon = 'PRINT_CRM_COUPON',
   PrintInventoryAdjustment = 'PRINT_INVENTORY_ADJUSTMENT',
   PrintInventoryInput = 'PRINT_INVENTORY_INPUT',
@@ -2983,9 +3232,12 @@ export enum Permissions {
   ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
   ReadInvoicingReturns = 'READ_INVOICING_RETURNS',
   ReadTreasuryBoxes = 'READ_TREASURY_BOXES',
+  ReadTreasuryErrorsCash = 'READ_TREASURY_ERRORS_CASH',
   ReadTreasuryExpenses = 'READ_TREASURY_EXPENSES',
   ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
   ReadTreasuryReceipts = 'READ_TREASURY_RECEIPTS',
+  ReportInvoicingGoalStatus = 'REPORT_INVOICING_GOAL_STATUS',
+  ReportInvoicingSales = 'REPORT_INVOICING_SALES',
   UpdateConfigurationRole = 'UPDATE_CONFIGURATION_ROLE',
   UpdateConfigurationShop = 'UPDATE_CONFIGURATION_SHOP',
   UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
@@ -3014,6 +3266,7 @@ export enum Permissions {
   UpdateTreasuryExpense = 'UPDATE_TREASURY_EXPENSE',
   UpdateTreasuryPayment = 'UPDATE_TREASURY_PAYMENT',
   UpdateTreasuryReceipt = 'UPDATE_TREASURY_RECEIPT',
+  VerifiedTreasuryErrrorsCash = 'VERIFIED_TREASURY_ERRRORS_CASH',
 }
 
 /** Punto de venta de la tienda */
@@ -3053,7 +3306,7 @@ export type Product = {
   /** Fecha de creación del producto */
   createdAt: Scalars['DateTime'];
   /** Imagenes del producto */
-  images?: Maybe<Image[]>;
+  images?: Maybe<Array<Image>>;
   /** Referencia del producto */
   reference: Reference;
   /** Talla del producto */
@@ -3061,7 +3314,7 @@ export type Product = {
   /** Estado del producto */
   status: StatusProduct;
   /** Inventario del producto por bodegas */
-  stock?: Maybe<Stock[]>;
+  stock?: Maybe<Array<Stock>>;
   /** Fecha de actualización del producto */
   updatedAt: Scalars['DateTime'];
   /** Usuario que crea el producto */
@@ -3095,7 +3348,7 @@ export type Query = {
   /** Lista de transportadoras */
   conveyors: ResponseConveyors;
   /** Lista de transportadoras para el pedido */
-  conveyorsOrder: ConveyorOrder[];
+  conveyorsOrder: Array<ConveyorOrder>;
   /** Consultar cupón */
   coupon: Coupon;
   /** Consultar cupones */
@@ -3117,9 +3370,13 @@ export type Query = {
   /** Listado de descuentos */
   discountRules: ResponseDiscountRules;
   /** Listado de tipos de documento */
-  documentTypes: DocumentType[];
+  documentTypes: Array<DocumentType>;
+  /** Obtiene listado de traslados en error de productos entre bodegas */
+  errorsCash: ResponseErrorCash;
   /** Se encarga de listar los egresos */
   expenses: ResponseExpenses;
+  /** Consulta usada para ver el estado de la meta */
+  goalStatus: ResponseGoalStatus;
   /** Listado de imagenes */
   images: ResponseImages;
   /** Lista de facturas */
@@ -3129,11 +3386,11 @@ export type Query = {
   /** Obtener las ordenes */
   orders: ResponseOrders;
   /** Obtener las ordenes por punto de venta */
-  ordersByPointOfSale: Order[];
+  ordersByPointOfSale: Array<Order>;
   /** Se encarga de listar los metodos de pago */
   payments: ResponsePayments;
   /** Se encarga de listar los permisos */
-  permissions: PermissionData[];
+  permissions: Array<PermissionData>;
   /** Lista de puntos de venta */
   pointOfSales: ResponsePointOfSales;
   /** Obtiene un producto */
@@ -3146,6 +3403,8 @@ export type Query = {
   referenceId: ReferenceData;
   /** Listado de las referencias */
   references: ResponseReferences;
+  /** Consulta las ventas por rango de fechas */
+  reportSales: ResponseReportSales;
   /** Lista de devoluciones de pedidos */
   returnsOrder: ResponseReturnsOrder;
   /** Obtiene el rol por el identificador */
@@ -3178,6 +3437,8 @@ export type Query = {
   stockTransferId: StockTransfer;
   /** Obtiene listado de traslados de productos entre bodegas */
   stockTransfers: ResponseStockTransfers;
+  /** Obtiene listado de traslados en error de productos entre bodegas */
+  stockTransfersError: ResponseStockTransfersError;
   /** Consulta todos los usuarios con base a los filtros */
   users: ResponseUsers;
   /** Se encarga de traer bodega por identificador */
@@ -3278,8 +3539,16 @@ export type QueryDocumentTypesArgs = {
   filtersDocumentTypesInput?: InputMaybe<FiltersDocumentTypesInput>;
 };
 
+export type QueryErrorsCashArgs = {
+  filtersErrorsCashInput: FiltersErrorsCashInput;
+};
+
 export type QueryExpensesArgs = {
   filtersExpensesInput?: InputMaybe<FiltersExpensesInput>;
+};
+
+export type QueryGoalStatusArgs = {
+  filtersGoalStatus: FiltersGoalStatusInput;
 };
 
 export type QueryImagesArgs = {
@@ -3326,6 +3595,10 @@ export type QueryReferenceIdArgs = {
 export type QueryReferencesArgs = {
   companyId: Scalars['String'];
   filtersReferencesInput?: InputMaybe<FiltersReferencesInput>;
+};
+
+export type QueryReportSalesArgs = {
+  filtersSalesReportInput: FiltersSalesReportInput;
 };
 
 export type QueryReturnsOrderArgs = {
@@ -3392,6 +3665,10 @@ export type QueryStockTransfersArgs = {
   filtersStockTransfersInput?: InputMaybe<FiltersStockTransfersInput>;
 };
 
+export type QueryStockTransfersErrorArgs = {
+  filtersStockTransfersErrorInput?: InputMaybe<FiltersStockTransfersErrorInput>;
+};
+
 export type QueryUsersArgs = {
   filtersUsersInput?: InputMaybe<FiltersUsersInput>;
 };
@@ -3427,11 +3704,15 @@ export type Receipt = {
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Detalle del cruce del recibo */
-  details: DetailReceipt[];
+  details: Array<DetailReceipt>;
+  /** Valida si el recibo de caja es crédito */
+  isCredit: Scalars['Boolean'];
   /** Consecutivo del recibo de caja */
   number: Scalars['Float'];
   /** Método de pago del recibo de caja */
   payment: Payment;
+  /** Punto de venta que genera el recibo */
+  pointOfSale: Box;
   /** Estado del recibo de caja */
   status: StatusReceipt;
   /** Fecha de actualización */
@@ -3450,7 +3731,7 @@ export type Reference = {
   /** Estado de la referencia */
   active: Scalars['Boolean'];
   /** Atributos de la referencia */
-  attribs?: Maybe<Attrib[]>;
+  attribs?: Maybe<Array<Attrib>>;
   /** Marca de la referencia */
   brand: Brand;
   /** Categoría Nivel 1 de la referencia */
@@ -3462,7 +3743,7 @@ export type Reference = {
   /** Determina si la referencia se puede cambiar */
   changeable: Scalars['Boolean'];
   /** Compañias que pueden usar la referencia */
-  companies: Company[];
+  companies: Array<Company>;
   /** Costo de la referencia */
   cost: Scalars['Float'];
   /** Fecha de creación de la referencia */
@@ -3489,7 +3770,7 @@ export type ReferenceData = {
   /** Estado de la referencia */
   active: Scalars['Boolean'];
   /** Atributos de la referencia */
-  attribs?: Maybe<Attrib[]>;
+  attribs?: Maybe<Array<Attrib>>;
   /** Marca de la referencia */
   brand: Brand;
   /** Categoría Nivel 1 de la referencia */
@@ -3501,7 +3782,7 @@ export type ReferenceData = {
   /** Determina si la referencia se puede cambiar */
   changeable: Scalars['Boolean'];
   /** Compañias que pueden usar la referencia */
-  companies: Company[];
+  companies: Array<Company>;
   /** Costo de la referencia */
   cost: Scalars['Float'];
   /** Fecha de creación de la referencia */
@@ -3515,7 +3796,7 @@ export type ReferenceData = {
   /** Precio de la referencia */
   price: Scalars['Float'];
   /** Productos de la referencia */
-  products: Product[];
+  products: Array<Product>;
   /** Medidas de la referencia */
   shipping: Shipping;
   /** Fecha de actualización de la referencia */
@@ -3527,7 +3808,7 @@ export type ReferenceData = {
 /** Resumen de los pagos */
 export type RefundOrderClose = {
   __typename?: 'RefundOrderClose';
-  /** Cantidad de devoluciones */
+  /** Cantidad de productos devueltos */
   quantity?: Maybe<Scalars['Float']>;
   /** Valor de las devoluciones */
   value?: Maybe<Scalars['Float']>;
@@ -3537,7 +3818,7 @@ export type RefundOrderClose = {
 export type ResponseAttribs = {
   __typename?: 'ResponseAttribs';
   /** Lista de atributos */
-  docs: Attrib[];
+  docs: Array<Attrib>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3561,7 +3842,7 @@ export type ResponseAttribs = {
 export type ResponseAuthorizations = {
   __typename?: 'ResponseAuthorizations';
   /** Lista de autorización de facturación */
-  docs: AuthorizationDian[];
+  docs: Array<AuthorizationDian>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3585,7 +3866,7 @@ export type ResponseAuthorizations = {
 export type ResponseBoxes = {
   __typename?: 'ResponseBoxes';
   /** Lista de cajas */
-  docs: Box[];
+  docs: Array<Box>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3609,7 +3890,7 @@ export type ResponseBoxes = {
 export type ResponseBrands = {
   __typename?: 'ResponseBrands';
   /** Lista de marcas */
-  docs: Brand[];
+  docs: Array<Brand>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3633,7 +3914,7 @@ export type ResponseBrands = {
 export type ResponseCategories = {
   __typename?: 'ResponseCategories';
   /** Lista de categorías */
-  docs: CategoryLevel1[];
+  docs: Array<CategoryLevel1>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3657,7 +3938,7 @@ export type ResponseCategories = {
 export type ResponseCities = {
   __typename?: 'ResponseCities';
   /** Lista de ciudades */
-  docs: City[];
+  docs: Array<City>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3681,7 +3962,7 @@ export type ResponseCities = {
 export type ResponseClosesXInvoicing = {
   __typename?: 'ResponseClosesXInvoicing';
   /** Lista de cierres X */
-  docs: CloseXInvoicing[];
+  docs: Array<CloseXInvoicing>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3705,7 +3986,7 @@ export type ResponseClosesXInvoicing = {
 export type ResponseClosesZInvoicing = {
   __typename?: 'ResponseClosesZInvoicing';
   /** Lista de cierres Z */
-  docs: CloseZInvoicing[];
+  docs: Array<CloseZInvoicing>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3729,7 +4010,7 @@ export type ResponseClosesZInvoicing = {
 export type ResponseColors = {
   __typename?: 'ResponseColors';
   /** Lista de colores */
-  docs: Color[];
+  docs: Array<Color>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3753,7 +4034,7 @@ export type ResponseColors = {
 export type ResponseCompanies = {
   __typename?: 'ResponseCompanies';
   /** Lista de compañías */
-  docs: Company[];
+  docs: Array<Company>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3777,7 +4058,7 @@ export type ResponseCompanies = {
 export type ResponseConveyors = {
   __typename?: 'ResponseConveyors';
   /** Lista de transportadoras */
-  docs: Conveyor[];
+  docs: Array<Conveyor>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3801,7 +4082,7 @@ export type ResponseConveyors = {
 export type ResponseCoupons = {
   __typename?: 'ResponseCoupons';
   /** Lista de cupones */
-  docs: Coupon[];
+  docs: Array<Coupon>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3825,7 +4106,7 @@ export type ResponseCoupons = {
 export type ResponseCreditHistory = {
   __typename?: 'ResponseCreditHistory';
   /** Lista del historial de créditos */
-  docs: CreditHistory[];
+  docs: Array<CreditHistory>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3849,7 +4130,7 @@ export type ResponseCreditHistory = {
 export type ResponseCredits = {
   __typename?: 'ResponseCredits';
   /** Lista de créditos */
-  docs: Credit[];
+  docs: Array<Credit>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3873,7 +4154,7 @@ export type ResponseCredits = {
 export type ResponseCustomerTypes = {
   __typename?: 'ResponseCustomerTypes';
   /** Lista de tipos de cliente */
-  docs: CustomerType[];
+  docs: Array<CustomerType>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3897,7 +4178,7 @@ export type ResponseCustomerTypes = {
 export type ResponseCustomers = {
   __typename?: 'ResponseCustomers';
   /** Lista de clientes */
-  docs: Customer[];
+  docs: Array<Customer>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3921,7 +4202,31 @@ export type ResponseCustomers = {
 export type ResponseDiscountRules = {
   __typename?: 'ResponseDiscountRules';
   /** Lista de reglas de descuento */
-  docs: DiscountRule[];
+  docs: Array<DiscountRule>;
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta a la consulta de cajas */
+export type ResponseErrorCash = {
+  __typename?: 'ResponseErrorCash';
+  /** Lista de errores de efectivo */
+  docs: Array<ErrorCash>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3945,7 +4250,7 @@ export type ResponseDiscountRules = {
 export type ResponseExpenses = {
   __typename?: 'ResponseExpenses';
   /** Lista de egresos */
-  docs: Expense[];
+  docs: Array<Expense>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3965,11 +4270,20 @@ export type ResponseExpenses = {
   totalPages: Scalars['Float'];
 };
 
+/** Datos resultado de la consulta de Estado de la meta */
+export type ResponseGoalStatus = {
+  __typename?: 'ResponseGoalStatus';
+  /** Meta */
+  goal: Scalars['Float'];
+  /** Venta neta generada por el usuario */
+  netSales: Scalars['Float'];
+};
+
 /** Respuesta al listado de las imagenes */
 export type ResponseImages = {
   __typename?: 'ResponseImages';
   /** Lista de imagenes */
-  docs: Image[];
+  docs: Array<Image>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -3993,7 +4307,7 @@ export type ResponseImages = {
 export type ResponseInvoices = {
   __typename?: 'ResponseInvoices';
   /** Lista de facturas */
-  docs: Invoice[];
+  docs: Array<Invoice>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4026,7 +4340,7 @@ export type ResponseOrder = {
 export type ResponseOrders = {
   __typename?: 'ResponseOrders';
   /** Lista de pedidos */
-  docs: Order[];
+  docs: Array<Order>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4050,7 +4364,7 @@ export type ResponseOrders = {
 export type ResponsePayments = {
   __typename?: 'ResponsePayments';
   /** Lista de metodos de pago */
-  docs: Payment[];
+  docs: Array<Payment>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4074,7 +4388,7 @@ export type ResponsePayments = {
 export type ResponsePointOfSales = {
   __typename?: 'ResponsePointOfSales';
   /** Lista de puntos de venta */
-  docs: PointOfSale[];
+  docs: Array<PointOfSale>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4098,7 +4412,7 @@ export type ResponsePointOfSales = {
 export type ResponseProducts = {
   __typename?: 'ResponseProducts';
   /** Lista de productos */
-  docs: Product[];
+  docs: Array<Product>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4131,7 +4445,7 @@ export type ResponseReceipt = {
 export type ResponseReceipts = {
   __typename?: 'ResponseReceipts';
   /** Lista de recibos de caja */
-  docs: Receipt[];
+  docs: Array<Receipt>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4155,7 +4469,7 @@ export type ResponseReceipts = {
 export type ResponseReferences = {
   __typename?: 'ResponseReferences';
   /** Lista de referencias */
-  docs: ReferenceData[];
+  docs: Array<ReferenceData>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4175,11 +4489,24 @@ export type ResponseReferences = {
   totalPages: Scalars['Float'];
 };
 
+/** Reportde de ventas generales */
+export type ResponseReportSales = {
+  __typename?: 'ResponseReportSales';
+  /** Ventas por tipo de cliente */
+  customerSalesReport: Array<CustomerSalesReport>;
+  /** Medios de pago */
+  paymentsSalesReport: Array<PaymentsSalesReport>;
+  /** Ventas detalladas */
+  salesReport: Array<SalesReport>;
+  /** Resumen de ventas */
+  summarySalesReport: SummarySalesReport;
+};
+
 /** Lista de devoluciones de ordenes */
 export type ResponseReturnsOrder = {
   __typename?: 'ResponseReturnsOrder';
   /** Lista de devoluci0nes */
-  docs: ReturnOrder[];
+  docs: Array<ReturnOrder>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4203,7 +4530,7 @@ export type ResponseReturnsOrder = {
 export type ResponseRoles = {
   __typename?: 'ResponseRoles';
   /** Lista de roles */
-  docs: Role[];
+  docs: Array<Role>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4227,7 +4554,7 @@ export type ResponseRoles = {
 export type ResponseShops = {
   __typename?: 'ResponseShops';
   /** Lista de tiendas */
-  docs: Shop[];
+  docs: Array<Shop>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4251,7 +4578,7 @@ export type ResponseShops = {
 export type ResponseSizes = {
   __typename?: 'ResponseSizes';
   /** Lista de tallas */
-  docs: Size[];
+  docs: Array<Size>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4275,7 +4602,7 @@ export type ResponseSizes = {
 export type ResponseStockAdjustments = {
   __typename?: 'ResponseStockAdjustments';
   /** Lista de ajustes */
-  docs: StockAdjustment[];
+  docs: Array<StockAdjustment>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4299,7 +4626,7 @@ export type ResponseStockAdjustments = {
 export type ResponseStockInputs = {
   __typename?: 'ResponseStockInputs';
   /** Lista de entradas */
-  docs: StockInput[];
+  docs: Array<StockInput>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4323,7 +4650,7 @@ export type ResponseStockInputs = {
 export type ResponseStockOutputs = {
   __typename?: 'ResponseStockOutputs';
   /** Lista de salidas */
-  docs: StockOutput[];
+  docs: Array<StockOutput>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4347,7 +4674,7 @@ export type ResponseStockOutputs = {
 export type ResponseStockRequests = {
   __typename?: 'ResponseStockRequests';
   /** Lista de solicitudes */
-  docs: StockRequest[];
+  docs: Array<StockRequest>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4371,7 +4698,31 @@ export type ResponseStockRequests = {
 export type ResponseStockTransfers = {
   __typename?: 'ResponseStockTransfers';
   /** Lista de traslados */
-  docs: StockTransfer[];
+  docs: Array<StockTransfer>;
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Lista de traslados en error de productos */
+export type ResponseStockTransfersError = {
+  __typename?: 'ResponseStockTransfersError';
+  /** Lista de traslados en error */
+  docs: Array<StockTransferError>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4395,7 +4746,7 @@ export type ResponseStockTransfers = {
 export type ResponseUsers = {
   __typename?: 'ResponseUsers';
   /** Lista de usuarios */
-  docs: User[];
+  docs: Array<User>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4419,7 +4770,7 @@ export type ResponseUsers = {
 export type ResponseWarehouses = {
   __typename?: 'ResponseWarehouses';
   /** Lista de salidas */
-  docs: Warehouse[];
+  docs: Array<Warehouse>;
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -4453,13 +4804,13 @@ export type ReturnOrder = {
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Productos de la devolución */
-  details?: Maybe<DetailReturnInvoice[]>;
+  details?: Maybe<Array<DetailReturnInvoice>>;
   /** Número consecutivo */
   number: Scalars['Float'];
   /** Pedido de la devolución */
   order: Order;
-  /** Tienda */
-  shop: Shop;
+  /** Punto de venta */
+  pointOfSale: Shop;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
@@ -4480,7 +4831,7 @@ export type Role = {
   /** Nombre asignado al rol */
   name: Scalars['String'];
   /** Permisos al los quie tiene el rol */
-  permissions: Permission[];
+  permissions: Array<Permission>;
   /** Fecha en la que se actualizó el rol */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o modificó el rol */
@@ -4491,7 +4842,7 @@ export type Role = {
 export type Rule = {
   __typename?: 'Rule';
   /** Identificador de los documentos */
-  documentIds: Scalars['String'][];
+  documentIds: Array<Scalars['String']>;
   /** Tipo de documento para validar el descuento */
   documentType: DocumentTypesRule;
   /** Tipo de regla que deben cumplir los documentos */
@@ -4501,11 +4852,24 @@ export type Rule = {
 /** Regla de descuento */
 export type RuleInput = {
   /** Identificador de los documentos */
-  documentIds: Scalars['String'][];
+  documentIds: Array<Scalars['String']>;
   /** Tipo de documento para validar el descuento */
   documentType: DocumentTypesRule;
   /** Tipo de regla que deben cumplir los documentos */
   type: TypesRule;
+};
+
+/** Ventas detalladas con base a los filtros */
+export type SalesReport = {
+  __typename?: 'SalesReport';
+  /** Categoría */
+  category?: Maybe<CategoryLevel1>;
+  /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
+  quantity: Scalars['Float'];
+  /** Tienda */
+  shop: Shop;
+  /** Valor total de la venta */
+  total: Scalars['Float'];
 };
 
 /** Datos de medidas para el envío de los productos */
@@ -4793,6 +5157,12 @@ export type SortDiscountRule = {
   value?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamient */
+export type SortErrosCash = {
+  value?: InputMaybe<Scalars['Float']>;
+  verified?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento de los egresos */
 export type SortExpense = {
   createdAt?: InputMaybe<Scalars['Float']>;
@@ -4995,6 +5365,14 @@ export type SortStockTransfer = {
   warehouseOrigin?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento del traslado de productos */
+export type SortStockTransferError = {
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de actualización */
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento de los usuarios */
 export type SortUser = {
   createdAt?: InputMaybe<Scalars['Float']>;
@@ -5031,6 +5409,12 @@ export enum StatusDetailTransfer {
   Sent = 'SENT',
 }
 
+export enum StatusDetailTransferError {
+  Confirmed = 'CONFIRMED',
+  Missing = 'MISSING',
+  Surplus = 'SURPLUS',
+}
+
 export enum StatusExpense {
   Active = 'ACTIVE',
   Cancelled = 'CANCELLED',
@@ -5040,8 +5424,7 @@ export enum StatusOrder {
   Cancelled = 'CANCELLED',
   Closed = 'CLOSED',
   Open = 'OPEN',
-  Pending = 'PENDING',
-  Sent = 'SENT',
+  Pendding = 'PENDDING',
 }
 
 export enum StatusOrderDetail {
@@ -5105,6 +5488,17 @@ export enum StatusUser {
   Suspend = 'SUSPEND',
 }
 
+export enum StatusWeb {
+  Cancelled = 'CANCELLED',
+  Delivered = 'DELIVERED',
+  Open = 'OPEN',
+  PaymentConfirmed = 'PAYMENT_CONFIRMED',
+  Pendding = 'PENDDING',
+  PenddingCredit = 'PENDDING_CREDIT',
+  Preparing = 'PREPARING',
+  Sent = 'SENT',
+}
+
 /** Inventario por bodegas del producto */
 export type Stock = {
   __typename?: 'Stock';
@@ -5130,7 +5524,7 @@ export type StockAdjustment = {
   /** Fecha de creación de la entrada */
   createdAt: Scalars['DateTime'];
   /** Detalles del ajuste */
-  details: DetailAdjustment[];
+  details: Array<DetailAdjustment>;
   /** Número consecutivo */
   number: Scalars['Float'];
   /** Observación de la entrada */
@@ -5157,7 +5551,7 @@ export type StockInput = {
   /** Fecha de creación de la entrada */
   createdAt: Scalars['DateTime'];
   /** Detalles de la entrada */
-  details: DetailInput[];
+  details: Array<DetailInput>;
   /** Número consecutivo */
   number: Scalars['Float'];
   /** Observación de la entrada */
@@ -5184,7 +5578,7 @@ export type StockOutput = {
   /** Fecha de creación de la salida */
   createdAt: Scalars['DateTime'];
   /** Detalles de la salida */
-  details: DetailOutput[];
+  details: Array<DetailOutput>;
   /** Número consecutivo */
   number: Scalars['Float'];
   /** Observación de la entrada */
@@ -5216,7 +5610,7 @@ export type StockRequest = {
   /** Fecha de creación de la solicitud */
   createdAt: Scalars['DateTime'];
   /** Detalles de la solicitud */
-  details: DetailRequest[];
+  details: Array<DetailRequest>;
   /** Número consecutivo de identificación */
   number: Scalars['Float'];
   /** Observación de la solicitud */
@@ -5243,7 +5637,7 @@ export type StockTransfer = {
   /** Fecha de creación del traslado */
   createdAt: Scalars['DateTime'];
   /** Detalle de los productos */
-  details: DetailTransfer[];
+  details: Array<DetailTransfer>;
   /** Consecutivo del traslado */
   number: Scalars['Float'];
   /** Observación general */
@@ -5253,7 +5647,7 @@ export type StockTransfer = {
   /** Observación del que crea el traslado */
   observationOrigin?: Maybe<Scalars['String']>;
   /** Solicitudes usadas */
-  requests?: Maybe<StockRequest[]>;
+  requests?: Maybe<Array<StockRequest>>;
   /** Estado del traslado */
   status: StatusStockTransfer;
   /** Fecha de actualización del traslado */
@@ -5266,6 +5660,23 @@ export type StockTransfer = {
   warehouseDestination: Warehouse;
   /** Bodega de origen del traslado */
   warehouseOrigin: Warehouse;
+};
+
+/** Errores en traslados de productos */
+export type StockTransferError = {
+  __typename?: 'StockTransferError';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Fecha de creación del traslado */
+  createdAt: Scalars['DateTime'];
+  /** Detalle de los productos que están en error */
+  details: Array<DetailTransferError>;
+  /** Traslado al que está relacionado */
+  stockTransfer: StockTransfer;
+  /** Fecha de actualización del traslado */
+  updatedAt: Scalars['DateTime'];
+  /** Si ya fue verificados todos los errores */
+  verified: Scalars['Boolean'];
 };
 
 /** Resumen de la factura */
@@ -5309,10 +5720,27 @@ export type SummaryOrderClose = {
   quantityCancel: Scalars['Float'];
   /** Cantidad de las ordenes finalizadas */
   quantityClosed: Scalars['Float'];
+  /** Cantidad de los cupones redimidos */
+  quantityCoupons: Scalars['Float'];
   /** Cantidad de las ordenes abiertas */
   quantityOpen: Scalars['Float'];
   /** Valor de las ordenes finalizadas */
   value: Scalars['Float'];
+  /** Valor de los cupones redimidos */
+  valueCoupons: Scalars['Float'];
+};
+
+/** Resumen de ventas */
+export type SummarySalesReport = {
+  __typename?: 'SummarySalesReport';
+  /** CMV */
+  cmv: Scalars['Float'];
+  /** Margen de ventas en porcentaje */
+  margin: Scalars['Float'];
+  /** Cantidad de ventas */
+  quantity: Scalars['Float'];
+  /** Valor total de las ventas */
+  total: Scalars['Float'];
 };
 
 export enum TypeCreditHistory {
@@ -5320,6 +5748,11 @@ export enum TypeCreditHistory {
   Debit = 'DEBIT',
   Frozen = 'FROZEN',
   Thawed = 'THAWED',
+}
+
+export enum TypeErrorCash {
+  Missing = 'MISSING',
+  Surplus = 'SURPLUS',
 }
 
 export enum TypePayment {
@@ -5365,8 +5798,20 @@ export type UpdateAttribInput = {
 
 /** Datos para actualizar la autorización */
 export type UpdateAuthorizationInput = {
+  /** Fecha de finalización de la resolución */
+  dateFinal?: InputMaybe<Scalars['DateTime']>;
+  /** Fecha de inicio de la resolución */
+  dateInitial?: InputMaybe<Scalars['DateTime']>;
+  /** Numero final de la resolución */
+  numberFinal?: InputMaybe<Scalars['Float']>;
+  /** Numero inicial de la resolución */
+  numberInitial?: InputMaybe<Scalars['Float']>;
   /** Prefijo de facturación */
   prefix?: InputMaybe<Scalars['String']>;
+  /** Si es una habilitación true */
+  qualification?: InputMaybe<Scalars['Boolean']>;
+  /** resolución de facturacion */
+  resolution?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para actualizar caja */
@@ -5417,6 +5862,8 @@ export type UpdateCompanyInput = {
   address?: InputMaybe<Scalars['String']>;
   /** Documento de la empresa */
   document?: InputMaybe<Scalars['String']>;
+  /** Email de la empresa */
+  email?: InputMaybe<Scalars['String']>;
   /** Url del logo de la empresa */
   logo?: InputMaybe<Scalars['String']>;
   /** Nombre de la empresa */
@@ -5448,7 +5895,7 @@ export type UpdateCustomerInput = {
   /** Cliente activo */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Direcciones del cliente */
-  addresses?: InputMaybe<AddressInput[]>;
+  addresses?: InputMaybe<Array<AddressInput>>;
   /** Fecha de nacimiento */
   birthday?: InputMaybe<Scalars['DateTime']>;
   /** Identificación de tipo de cliente */
@@ -5484,7 +5931,7 @@ export type UpdateDiscountRuleInput = {
   /** Porcentaje del descuento */
   percent?: InputMaybe<Scalars['Float']>;
   /** Reglas a aplicar */
-  rules?: InputMaybe<RuleInput[]>;
+  rules?: InputMaybe<Array<RuleInput>>;
   /** Valor del descuento */
   value?: InputMaybe<Scalars['Float']>;
 };
@@ -5505,6 +5952,8 @@ export type UpdateOrderInput = {
   customerId?: InputMaybe<Scalars['String']>;
   /** Estado del pedido */
   status?: InputMaybe<StatusOrder>;
+  /** Estado que se aplicará al pedid web */
+  statusWeb?: InputMaybe<StatusWeb>;
 };
 
 /** Datos para actualizar método de pago */
@@ -5515,6 +5964,8 @@ export type UpdatePaymentInput = {
   color?: InputMaybe<Scalars['String']>;
   /** Identificador de la imagen del método de pago */
   logoId?: InputMaybe<Scalars['String']>;
+  /** Mensaje para el medio de pago */
+  message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name?: InputMaybe<Scalars['String']>;
   /** Tipo de método de pago */
@@ -5534,7 +5985,7 @@ export type UpdateProductInput = {
   /** Identificador del color */
   colorId?: InputMaybe<Scalars['String']>;
   /** Identificador de las imagenes del producto */
-  imagesId?: InputMaybe<Scalars['String'][]>;
+  imagesId?: InputMaybe<Array<Scalars['String']>>;
   /** Identificador de la talla */
   sizeId?: InputMaybe<Scalars['String']>;
   /** Estado del producto */
@@ -5552,7 +6003,7 @@ export type UpdateReferenceInput = {
   /** Estado de la referencia */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Identificador de los atributos de la referencia */
-  attribIds?: InputMaybe<Scalars['String'][]>;
+  attribIds?: InputMaybe<Array<Scalars['String']>>;
   /** Identificador de la marca de la referencia */
   brandId?: InputMaybe<Scalars['String']>;
   /** Identificador de la categoría level 1 de la referencia */
@@ -5592,7 +6043,7 @@ export type UpdateRoleInput = {
   /** Nombre del rol */
   name: Scalars['String'];
   /** Identificadores de los permisos seleccionados */
-  permissionIds?: InputMaybe<Scalars['String'][]>;
+  permissionIds?: InputMaybe<Array<Scalars['String']>>;
 };
 
 /** Datos para actualizar la tienda */
@@ -5630,7 +6081,7 @@ export type UpdateSizeInput = {
 /** Datos para actualizar el ajuste de productos */
 export type UpdateStockAdjustmentInput = {
   /** Productos del ajuste */
-  details?: InputMaybe<DetailStockAdjustmentInput[]>;
+  details?: InputMaybe<Array<DetailStockAdjustmentInput>>;
   /** Observación del ajuste */
   observation?: InputMaybe<Scalars['String']>;
   /** Estado del ajuste */
@@ -5640,7 +6091,7 @@ export type UpdateStockAdjustmentInput = {
 /** Datos para actualizar la entrada de productos */
 export type UpdateStockInputInput = {
   /** Productos de la entrada */
-  details?: InputMaybe<DetailStockInputInput[]>;
+  details?: InputMaybe<Array<DetailStockInputInput>>;
   /** Observación de la entrada */
   observation?: InputMaybe<Scalars['String']>;
   /** Estado de la entrada */
@@ -5650,7 +6101,7 @@ export type UpdateStockInputInput = {
 /** Datos para actualizar la salida de productos */
 export type UpdateStockOutputInput = {
   /** Productos de la salida */
-  details?: InputMaybe<DetailStockOutputInput[]>;
+  details?: InputMaybe<Array<DetailStockOutputInput>>;
   /** Observación de la salida */
   observation?: InputMaybe<Scalars['String']>;
   /** Estado de la salida */
@@ -5660,7 +6111,7 @@ export type UpdateStockOutputInput = {
 /** Datos para actualizar la solicitud de productos */
 export type UpdateStockRequestInput = {
   /** Productos de la solicitud */
-  details?: InputMaybe<DetailStockRequestInput[]>;
+  details?: InputMaybe<Array<DetailStockRequestInput>>;
   /** Observación de la solicitud */
   observation?: InputMaybe<Scalars['String']>;
   /** Estado de la solicitud */
@@ -5670,7 +6121,7 @@ export type UpdateStockRequestInput = {
 /** Datos para actualizar el traslado de productos */
 export type UpdateStockTransferInput = {
   /** Productos del traslado */
-  details?: InputMaybe<DetailStockTransferInput[]>;
+  details?: InputMaybe<Array<DetailStockTransferInput>>;
   /** Observación general */
   observation?: InputMaybe<Scalars['String']>;
   /** Observación del que recibe el traslado */
@@ -5678,7 +6129,7 @@ export type UpdateStockTransferInput = {
   /** Observación del que envía el traslado */
   observationOrigin?: InputMaybe<Scalars['String']>;
   /** Solicitudes usadas */
-  requests?: InputMaybe<Scalars['String'][]>;
+  requests?: InputMaybe<Array<Scalars['String']>>;
   /** Estado del traslado */
   status?: InputMaybe<StatusStockTransfer>;
 };
@@ -5687,6 +6138,8 @@ export type UpdateStockTransferInput = {
 export type UpdateUserInput = {
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
+  /** Identifica si el usuario es web */
+  isWeb?: InputMaybe<Scalars['Boolean']>;
   /** Nombre del usuario */
   name?: InputMaybe<Scalars['String']>;
   /** Contraseña de usuario */
@@ -5732,11 +6185,13 @@ export type User = {
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Empresas a la que pertenece el usuario */
-  companies: Company[];
+  companies: Array<Company>;
   /** Nombre de usuario */
   createdAt: Scalars['DateTime'];
   /** Cliente asignado */
   customer?: Maybe<Customer>;
+  /** Usado para diferenciar la creación de los usuarios */
+  isWeb: Scalars['Boolean'];
   /** Nombre de para mostrar del usuario */
   name: Scalars['String'];
   /** Contraseña de usuario */
@@ -5755,6 +6210,26 @@ export type User = {
   user?: Maybe<User>;
   /** Cuenta de usuario */
   username: Scalars['String'];
+};
+
+/** Datos para verificar los errores de pedido */
+export type VerifiedErrorsCashInput = {
+  /** Identificador del error de efectivo */
+  errorCashId: Scalars['String'];
+  /** Motivo por el cual se verificar el error */
+  reason: Scalars['String'];
+};
+
+/** Datos para verificar los productos */
+export type VerifiedProductTransferErrorInput = {
+  /** Identificador del producto */
+  productId: Scalars['String'];
+  /** Motivo por el cual se verifica el producto */
+  reason: Scalars['String'];
+  /** Proceso a realizar, si se envia al origen true, si se envia al destino false */
+  returnInventory: Scalars['Boolean'];
+  /** Identificador del traslado en error */
+  stockTransferErrorId: Scalars['String'];
 };
 
 /** Modelo de la bodega */
@@ -5814,13 +6289,13 @@ export type UpdateStockAdjustmentMutation = {
     total: number;
     company: { __typename?: 'Company'; _id: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
-    details: {
+    details: Array<{
       __typename?: 'DetailAdjustment';
       product: {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
         reference: { __typename?: 'Reference'; description: string };
         size: { __typename?: 'Size'; value: string };
         color: {
@@ -5836,7 +6311,7 @@ export type UpdateStockAdjustmentMutation = {
           } | null;
         };
       };
-    }[];
+    }>;
   };
 };
 
@@ -5956,26 +6431,22 @@ export type CreateCategoryMutation = {
     createdAt: any;
     updatedAt: any;
     name: string;
-    childs?:
-      | {
-          __typename?: 'CategoryLevel2';
-          _id: string;
-          createdAt: any;
-          updatedAt: any;
-          parentId?: string | null;
-          name?: string | null;
-          childs?:
-            | {
-                __typename?: 'CategoryLevel3';
-                _id: string;
-                name?: string | null;
-                createdAt: any;
-                updatedAt: any;
-                parentId?: string | null;
-              }[]
-            | null;
-        }[]
-      | null;
+    childs?: Array<{
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      parentId?: string | null;
+      name?: string | null;
+      childs?: Array<{
+        __typename?: 'CategoryLevel3';
+        _id: string;
+        name?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        parentId?: string | null;
+      }> | null;
+    }> | null;
   };
 };
 
@@ -5992,26 +6463,22 @@ export type UpdateCategoryMutation = {
     createdAt: any;
     updatedAt: any;
     name: string;
-    childs?:
-      | {
-          __typename?: 'CategoryLevel2';
-          _id: string;
-          createdAt: any;
-          updatedAt: any;
-          parentId?: string | null;
-          name?: string | null;
-          childs?:
-            | {
-                __typename?: 'CategoryLevel3';
-                _id: string;
-                name?: string | null;
-                createdAt: any;
-                updatedAt: any;
-                parentId?: string | null;
-              }[]
-            | null;
-        }[]
-      | null;
+    childs?: Array<{
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      createdAt: any;
+      updatedAt: any;
+      parentId?: string | null;
+      name?: string | null;
+      childs?: Array<{
+        __typename?: 'CategoryLevel3';
+        _id: string;
+        name?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        parentId?: string | null;
+      }> | null;
+    }> | null;
   };
 };
 
@@ -6065,7 +6532,7 @@ export type CreateCloseXInvoicingMutation = {
       name: string;
       shop: { __typename?: 'Shop'; name: string };
     };
-    expenses?: { __typename?: 'Expense'; value: number }[] | null;
+    expenses?: Array<{ __typename?: 'Expense'; value: number }> | null;
     refunds?: {
       __typename?: 'RefundOrderClose';
       quantity?: number | null;
@@ -6078,14 +6545,12 @@ export type CreateCloseXInvoicingMutation = {
       quantityCancel: number;
       quantityOpen: number;
     };
-    payments?:
-      | {
-          __typename?: 'PaymentOrderClose';
-          quantity: number;
-          value: number;
-          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
-        }[]
-      | null;
+    payments?: Array<{
+      __typename?: 'PaymentOrderClose';
+      quantity: number;
+      value: number;
+      payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+    }> | null;
     user: { __typename?: 'User'; name: string };
   };
 };
@@ -6121,7 +6586,7 @@ export type CreateCloseZInvoicingMutation = {
       name: string;
       shop: { __typename?: 'Shop'; name: string };
     };
-    expenses?: { __typename?: 'Expense'; value: number }[] | null;
+    expenses?: Array<{ __typename?: 'Expense'; value: number }> | null;
     refunds?: {
       __typename?: 'RefundOrderClose';
       quantity?: number | null;
@@ -6134,14 +6599,12 @@ export type CreateCloseZInvoicingMutation = {
       quantityCancel: number;
       quantityOpen: number;
     };
-    payments?:
-      | {
-          __typename?: 'PaymentOrderClose';
-          quantity: number;
-          value: number;
-          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
-        }[]
-      | null;
+    payments?: Array<{
+      __typename?: 'PaymentOrderClose';
+      quantity: number;
+      value: number;
+      payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+    }> | null;
     user: { __typename?: 'User'; name: string };
   };
 };
@@ -6346,7 +6809,7 @@ export type UpdateStockInputMutation = {
     observation?: string | null;
     status: StatusStockInput;
     total: number;
-    details: {
+    details: Array<{
       __typename?: 'DetailInput';
       product: {
         __typename?: 'Product';
@@ -6366,9 +6829,9 @@ export type UpdateStockInputMutation = {
         };
         reference: { __typename?: 'Reference'; description: string; name: string };
         size: { __typename?: 'Size'; value: string };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
       };
-    }[];
+    }>;
     user: { __typename?: 'User'; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
   };
@@ -6409,48 +6872,39 @@ export type UpdateOrderMutation = {
         documentType: { __typename?: 'DocumentType'; abbreviation: string };
         customerType: { __typename?: 'CustomerType'; name: string };
       };
-      details?:
-        | {
-            __typename?: 'DetailOrder';
-            discount: number;
-            quantity: number;
-            price: number;
-            product: {
-              __typename?: 'Product';
-              _id: string;
-              barcode: string;
-              status: StatusProduct;
-              reference: {
-                __typename?: 'Reference';
-                name: string;
-                cost: number;
-                description: string;
-              };
-              size: { __typename?: 'Size'; value: string };
-              color: {
-                __typename?: 'Color';
-                html: string;
-                name: string;
-                name_internal: string;
-                image?: {
-                  __typename?: 'Image';
-                  urls?: {
-                    __typename?: 'Urls';
-                    webp?: { __typename?: 'ImageTypes'; small: string } | null;
-                  } | null;
-                } | null;
-              };
-              stock?: { __typename?: 'Stock'; quantity: number }[] | null;
-            };
-          }[]
-        | null;
-      payments?:
-        | {
-            __typename?: 'PaymentOrder';
-            total: number;
-            payment: { __typename?: 'Payment'; type: TypePayment; name: string };
-          }[]
-        | null;
+      details?: Array<{
+        __typename?: 'DetailOrder';
+        discount: number;
+        quantity: number;
+        price: number;
+        product: {
+          __typename?: 'Product';
+          _id: string;
+          barcode: string;
+          status: StatusProduct;
+          reference: { __typename?: 'Reference'; name: string; cost: number; description: string };
+          size: { __typename?: 'Size'; value: string };
+          color: {
+            __typename?: 'Color';
+            html: string;
+            name: string;
+            name_internal: string;
+            image?: {
+              __typename?: 'Image';
+              urls?: {
+                __typename?: 'Urls';
+                webp?: { __typename?: 'ImageTypes'; small: string } | null;
+              } | null;
+            } | null;
+          };
+          stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
+        };
+      }> | null;
+      payments?: Array<{
+        __typename?: 'PaymentOrder';
+        total: number;
+        payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+      }> | null;
       summary: {
         __typename?: 'SummaryOrder';
         discount: number;
@@ -6472,28 +6926,24 @@ export type UpdateOrderMutation = {
           phone?: string | null;
           documentType: { __typename?: 'DocumentType'; abbreviation: string };
         };
-        details?:
-          | {
-              __typename?: 'DetailInvoice';
-              quantity: number;
-              price: number;
-              discount: number;
-              product: {
-                __typename?: 'Product';
-                barcode: string;
-                color: { __typename?: 'Color'; name: string };
-                reference: { __typename?: 'Reference'; name: string; description: string };
-                size: { __typename?: 'Size'; value: string };
-              };
-            }[]
-          | null;
-        payments?:
-          | {
-              __typename?: 'PaymentInvoice';
-              total: number;
-              payment: { __typename?: 'Payment'; _id: string; name: string };
-            }[]
-          | null;
+        details?: Array<{
+          __typename?: 'DetailInvoice';
+          quantity: number;
+          price: number;
+          discount: number;
+          product: {
+            __typename?: 'Product';
+            barcode: string;
+            color: { __typename?: 'Color'; name: string };
+            reference: { __typename?: 'Reference'; name: string; description: string };
+            size: { __typename?: 'Size'; value: string };
+          };
+        }> | null;
+        payments?: Array<{
+          __typename?: 'PaymentInvoice';
+          total: number;
+          payment: { __typename?: 'Payment'; _id: string; name: string };
+        }> | null;
         shop: { __typename?: 'Shop'; name: string };
         summary: {
           __typename?: 'SummaryInvoice';
@@ -6533,48 +6983,39 @@ export type AddPaymentsOrderMutation = {
         documentType: { __typename?: 'DocumentType'; abbreviation: string };
         customerType: { __typename?: 'CustomerType'; name: string };
       };
-      details?:
-        | {
-            __typename?: 'DetailOrder';
-            discount: number;
-            quantity: number;
-            price: number;
-            product: {
-              __typename?: 'Product';
-              _id: string;
-              barcode: string;
-              status: StatusProduct;
-              reference: {
-                __typename?: 'Reference';
-                name: string;
-                cost: number;
-                description: string;
-              };
-              size: { __typename?: 'Size'; value: string };
-              color: {
-                __typename?: 'Color';
-                html: string;
-                name: string;
-                name_internal: string;
-                image?: {
-                  __typename?: 'Image';
-                  urls?: {
-                    __typename?: 'Urls';
-                    webp?: { __typename?: 'ImageTypes'; small: string } | null;
-                  } | null;
-                } | null;
-              };
-              stock?: { __typename?: 'Stock'; quantity: number }[] | null;
-            };
-          }[]
-        | null;
-      payments?:
-        | {
-            __typename?: 'PaymentOrder';
-            total: number;
-            payment: { __typename?: 'Payment'; type: TypePayment; name: string };
-          }[]
-        | null;
+      details?: Array<{
+        __typename?: 'DetailOrder';
+        discount: number;
+        quantity: number;
+        price: number;
+        product: {
+          __typename?: 'Product';
+          _id: string;
+          barcode: string;
+          status: StatusProduct;
+          reference: { __typename?: 'Reference'; name: string; cost: number; description: string };
+          size: { __typename?: 'Size'; value: string };
+          color: {
+            __typename?: 'Color';
+            html: string;
+            name: string;
+            name_internal: string;
+            image?: {
+              __typename?: 'Image';
+              urls?: {
+                __typename?: 'Urls';
+                webp?: { __typename?: 'ImageTypes'; small: string } | null;
+              } | null;
+            } | null;
+          };
+          stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
+        };
+      }> | null;
+      payments?: Array<{
+        __typename?: 'PaymentOrder';
+        total: number;
+        payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+      }> | null;
       summary: {
         __typename?: 'SummaryOrder';
         discount: number;
@@ -6607,48 +7048,39 @@ export type AddProductsOrderMutation = {
         documentType: { __typename?: 'DocumentType'; abbreviation: string };
         customerType: { __typename?: 'CustomerType'; name: string };
       };
-      details?:
-        | {
-            __typename?: 'DetailOrder';
-            discount: number;
-            quantity: number;
-            price: number;
-            product: {
-              __typename?: 'Product';
-              _id: string;
-              barcode: string;
-              status: StatusProduct;
-              reference: {
-                __typename?: 'Reference';
-                name: string;
-                cost: number;
-                description: string;
-              };
-              size: { __typename?: 'Size'; value: string };
-              color: {
-                __typename?: 'Color';
-                html: string;
-                name: string;
-                name_internal: string;
-                image?: {
-                  __typename?: 'Image';
-                  urls?: {
-                    __typename?: 'Urls';
-                    webp?: { __typename?: 'ImageTypes'; small: string } | null;
-                  } | null;
-                } | null;
-              };
-              stock?: { __typename?: 'Stock'; quantity: number }[] | null;
-            };
-          }[]
-        | null;
-      payments?:
-        | {
-            __typename?: 'PaymentOrder';
-            total: number;
-            payment: { __typename?: 'Payment'; name: string };
-          }[]
-        | null;
+      details?: Array<{
+        __typename?: 'DetailOrder';
+        discount: number;
+        quantity: number;
+        price: number;
+        product: {
+          __typename?: 'Product';
+          _id: string;
+          barcode: string;
+          status: StatusProduct;
+          reference: { __typename?: 'Reference'; name: string; cost: number; description: string };
+          size: { __typename?: 'Size'; value: string };
+          color: {
+            __typename?: 'Color';
+            html: string;
+            name: string;
+            name_internal: string;
+            image?: {
+              __typename?: 'Image';
+              urls?: {
+                __typename?: 'Urls';
+                webp?: { __typename?: 'ImageTypes'; small: string } | null;
+              } | null;
+            } | null;
+          };
+          stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
+        };
+      }> | null;
+      payments?: Array<{
+        __typename?: 'PaymentOrder';
+        total: number;
+        payment: { __typename?: 'Payment'; name: string };
+      }> | null;
       summary: {
         __typename?: 'SummaryOrder';
         discount: number;
@@ -6685,7 +7117,7 @@ export type UpdateStockOutputMutation = {
     observation?: string | null;
     status: StatusStockOutput;
     total: number;
-    details: {
+    details: Array<{
       __typename?: 'DetailOutput';
       product: {
         __typename?: 'Product';
@@ -6705,9 +7137,9 @@ export type UpdateStockOutputMutation = {
         };
         reference: { __typename?: 'Reference'; description: string };
         size: { __typename?: 'Size'; value: string };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
       };
-    }[];
+    }>;
     user: { __typename?: 'User'; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
   };
@@ -6765,16 +7197,14 @@ export type UpdateProductMutation = {
     status: StatusProduct;
     color: { __typename?: 'Color'; _id: string; name: string };
     size: { __typename?: 'Size'; _id: string; value: string };
-    images?:
-      | {
-          __typename?: 'Image';
-          _id: string;
-          urls?: {
-            __typename?: 'Urls';
-            webp?: { __typename?: 'ImageTypes'; small: string } | null;
-          } | null;
-        }[]
-      | null;
+    images?: Array<{
+      __typename?: 'Image';
+      _id: string;
+      urls?: {
+        __typename?: 'Urls';
+        webp?: { __typename?: 'ImageTypes'; small: string } | null;
+      } | null;
+    }> | null;
   };
 };
 
@@ -6791,16 +7221,14 @@ export type CreateProductMutation = {
     status: StatusProduct;
     color: { __typename?: 'Color'; _id: string; name: string };
     size: { __typename?: 'Size'; _id: string; value: string };
-    images?:
-      | {
-          __typename?: 'Image';
-          _id: string;
-          urls?: {
-            __typename?: 'Urls';
-            webp?: { __typename?: 'ImageTypes'; small: string } | null;
-          } | null;
-        }[]
-      | null;
+    images?: Array<{
+      __typename?: 'Image';
+      _id: string;
+      urls?: {
+        __typename?: 'Urls';
+        webp?: { __typename?: 'ImageTypes'; small: string } | null;
+      } | null;
+    }> | null;
   };
 };
 
@@ -6877,18 +7305,18 @@ export type UpdateReferenceMutation = {
       weight: number;
     };
     brand: { __typename?: 'Brand'; _id: string; name: string };
-    attribs?: { __typename?: 'Attrib'; _id: string; name: string }[] | null;
+    attribs?: Array<{ __typename?: 'Attrib'; _id: string; name: string }> | null;
     categoryLevel1: {
       __typename?: 'CategoryLevel1';
       _id: string;
       name: string;
-      childs?: { __typename?: 'CategoryLevel2'; _id: string; name?: string | null }[] | null;
+      childs?: Array<{ __typename?: 'CategoryLevel2'; _id: string; name?: string | null }> | null;
     };
     categoryLevel2?: {
       __typename?: 'CategoryLevel2';
       _id: string;
       name?: string | null;
-      childs?: { __typename?: 'CategoryLevel3'; _id: string; name?: string | null }[] | null;
+      childs?: Array<{ __typename?: 'CategoryLevel3'; _id: string; name?: string | null }> | null;
     } | null;
     categoryLevel3?: { __typename?: 'CategoryLevel3'; _id: string; name?: string | null } | null;
   };
@@ -6918,7 +7346,7 @@ export type UpdateStockRequestMutation = {
     createdAt: any;
     updatedAt: any;
     observation?: string | null;
-    details: {
+    details: Array<{
       __typename?: 'DetailRequest';
       quantity: number;
       product: {
@@ -6939,9 +7367,9 @@ export type UpdateStockRequestMutation = {
         };
         reference: { __typename?: 'Reference'; description: string };
         size: { __typename?: 'Size'; value: string };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
       };
-    }[];
+    }>;
     user: { __typename?: 'User'; name: string };
     warehouseDestination: { __typename?: 'Warehouse'; name: string };
     warehouseOrigin: { __typename?: 'Warehouse'; name: string };
@@ -6994,7 +7422,7 @@ export type CreateRoleMutation = {
     active: boolean;
     changeWarehouse: boolean;
     name: string;
-    permissions: { __typename?: 'Permission'; _id: string }[];
+    permissions: Array<{ __typename?: 'Permission'; _id: string }>;
   };
 };
 
@@ -7011,7 +7439,7 @@ export type UpdateRoleMutation = {
     active: boolean;
     changeWarehouse: boolean;
     name: string;
-    permissions: { __typename?: 'Permission'; _id: string }[];
+    permissions: Array<{ __typename?: 'Permission'; _id: string }>;
   };
 };
 
@@ -7085,7 +7513,7 @@ export type CreateStockTransferMutation = {
     observationOrigin?: string | null;
     status: StatusStockTransfer;
     updatedAt: any;
-    details: {
+    details: Array<{
       __typename?: 'DetailTransfer';
       quantity: number;
       quantityConfirmed?: number | null;
@@ -7096,10 +7524,10 @@ export type CreateStockTransferMutation = {
         color: { __typename?: 'Color'; name: string };
         reference: { __typename?: 'Reference'; name: string; description: string };
         size: { __typename?: 'Size'; value: string };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
       };
-    }[];
-    requests?: { __typename?: 'StockRequest'; _id: string; number: number }[] | null;
+    }>;
+    requests?: Array<{ __typename?: 'StockRequest'; _id: string; number: number }> | null;
     userDestination?: { __typename?: 'User'; name: string } | null;
     userOrigin: { __typename?: 'User'; name: string };
     warehouseDestination: { __typename?: 'Warehouse'; name: string };
@@ -7124,7 +7552,7 @@ export type UpdateStockTransferMutation = {
     observationOrigin?: string | null;
     status: StatusStockTransfer;
     updatedAt: any;
-    details: {
+    details: Array<{
       __typename?: 'DetailTransfer';
       quantity: number;
       quantityConfirmed?: number | null;
@@ -7135,10 +7563,10 @@ export type UpdateStockTransferMutation = {
         color: { __typename?: 'Color'; name: string };
         reference: { __typename?: 'Reference'; name: string; description: string };
         size: { __typename?: 'Size'; value: string };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
       };
-    }[];
-    requests?: { __typename?: 'StockRequest'; _id: string; number: number }[] | null;
+    }>;
+    requests?: Array<{ __typename?: 'StockRequest'; _id: string; number: number }> | null;
     userDestination?: { __typename?: 'User'; name: string } | null;
     userOrigin: { __typename?: 'User'; name: string };
     warehouseDestination: { __typename?: 'Warehouse'; name: string };
@@ -7156,7 +7584,7 @@ export type ConfirmProductsStockTransferMutation = {
   confirmProductsStockTransfer: {
     __typename?: 'StockTransfer';
     _id: string;
-    details: {
+    details: Array<{
       __typename?: 'DetailTransfer';
       quantity: number;
       quantityConfirmed?: number | null;
@@ -7168,9 +7596,9 @@ export type ConfirmProductsStockTransferMutation = {
         color: { __typename?: 'Color'; name: string };
         reference: { __typename?: 'Reference'; name: string; description: string };
         size: { __typename?: 'Size'; value: string };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
       };
-    }[];
+    }>;
   };
 };
 
@@ -7199,7 +7627,7 @@ export type LoginMutation = {
         __typename?: 'Role';
         changeWarehouse: boolean;
         name: string;
-        permissions: { __typename?: 'Permission'; action: Permissions }[];
+        permissions: Array<{ __typename?: 'Permission'; action: Permissions }>;
       };
     };
   };
@@ -7267,7 +7695,7 @@ export type StockAdjustmentQuery = {
     updatedAt: any;
     user: { __typename?: 'User'; _id: string; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
-    details: {
+    details: Array<{
       __typename?: 'DetailAdjustment';
       quantity: number;
       product: {
@@ -7289,10 +7717,10 @@ export type StockAdjustmentQuery = {
             } | null;
           } | null;
         };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
         user: { __typename?: 'User'; name: string };
       };
-    }[];
+    }>;
   };
 };
 
@@ -7307,7 +7735,7 @@ export type StockAdjustmentsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'StockAdjustment';
       _id: string;
       number: number;
@@ -7317,7 +7745,7 @@ export type StockAdjustmentsQuery = {
       createdAt: any;
       updatedAt: any;
       warehouse: { __typename?: 'Warehouse'; name: string };
-      details: {
+      details: Array<{
         __typename?: 'DetailAdjustment';
         quantity: number;
         product: {
@@ -7326,7 +7754,7 @@ export type StockAdjustmentsQuery = {
           barcode: string;
           reference: { __typename?: 'Reference'; description: string; cost: number; name: string };
           size: { __typename?: 'Size'; value: string };
-          stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+          stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
           color: {
             __typename?: 'Color';
             html: string;
@@ -7340,8 +7768,8 @@ export type StockAdjustmentsQuery = {
             } | null;
           };
         };
-      }[];
-    }[];
+      }>;
+    }>;
   };
 };
 
@@ -7356,14 +7784,14 @@ export type AttribsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Attrib';
       _id: string;
       active: boolean;
       createdAt: any;
       name: string;
       updatedAt: any;
-    }[];
+    }>;
   };
 };
 
@@ -7378,7 +7806,7 @@ export type AuthorizationsQuery = {
     totalDocs: number;
     page: number;
     totalPages: number;
-    docs: { __typename?: 'AuthorizationDian'; _id: string; updatedAt: any; prefix: string }[];
+    docs: Array<{ __typename?: 'AuthorizationDian'; _id: string; updatedAt: any; prefix: string }>;
   };
 };
 
@@ -7393,7 +7821,7 @@ export type BoxesQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Box';
       _id: string;
       base: number;
@@ -7401,7 +7829,7 @@ export type BoxesQuery = {
       total: number;
       name: string;
       isMain: boolean;
-    }[];
+    }>;
   };
 };
 
@@ -7416,14 +7844,14 @@ export type BrandsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Brand';
       _id: string;
       active: boolean;
       createdAt: any;
       updatedAt: any;
       name: string;
-    }[];
+    }>;
   };
 };
 
@@ -7439,33 +7867,29 @@ export type CategoriesQuery = {
     limit: number;
     page: number;
     totalPages: number;
-    docs: {
+    docs: Array<{
       __typename?: 'CategoryLevel1';
       _id: string;
       createdAt: any;
       updatedAt: any;
       name: string;
-      childs?:
-        | {
-            __typename?: 'CategoryLevel2';
-            _id: string;
-            parentId?: string | null;
-            createdAt: any;
-            updatedAt: any;
-            name?: string | null;
-            childs?:
-              | {
-                  __typename?: 'CategoryLevel3';
-                  _id: string;
-                  parentId?: string | null;
-                  createdAt: any;
-                  updatedAt: any;
-                  name?: string | null;
-                }[]
-              | null;
-          }[]
-        | null;
-    }[];
+      childs?: Array<{
+        __typename?: 'CategoryLevel2';
+        _id: string;
+        parentId?: string | null;
+        createdAt: any;
+        updatedAt: any;
+        name?: string | null;
+        childs?: Array<{
+          __typename?: 'CategoryLevel3';
+          _id: string;
+          parentId?: string | null;
+          createdAt: any;
+          updatedAt: any;
+          name?: string | null;
+        }> | null;
+      }> | null;
+    }>;
   };
 };
 
@@ -7481,13 +7905,13 @@ export type CategoriesLevelQuery = {
     limit: number;
     page: number;
     totalPages: number;
-    docs: {
+    docs: Array<{
       __typename?: 'CategoryLevel1';
       _id: string;
       createdAt: any;
       updatedAt: any;
       name: string;
-    }[];
+    }>;
   };
 };
 
@@ -7502,7 +7926,7 @@ export type CitiesQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'City';
       _id: string;
       name: string;
@@ -7510,7 +7934,7 @@ export type CitiesQuery = {
       updatedAt: any;
       country: { __typename?: 'Country'; name: string; prefix: string };
       user: { __typename?: 'User'; name: string };
-    }[];
+    }>;
   };
 };
 
@@ -7525,7 +7949,7 @@ export type ClosesXInvoicingQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'CloseXInvoicing';
       _id: string;
       number: number;
@@ -7550,7 +7974,7 @@ export type ClosesXInvoicingQuery = {
         name: string;
         shop: { __typename?: 'Shop'; name: string };
       };
-      expenses?: { __typename?: 'Expense'; value: number }[] | null;
+      expenses?: Array<{ __typename?: 'Expense'; value: number }> | null;
       refunds?: {
         __typename?: 'RefundOrderClose';
         quantity?: number | null;
@@ -7563,16 +7987,14 @@ export type ClosesXInvoicingQuery = {
         quantityCancel: number;
         quantityOpen: number;
       };
-      payments?:
-        | {
-            __typename?: 'PaymentOrderClose';
-            quantity: number;
-            value: number;
-            payment: { __typename?: 'Payment'; type: TypePayment; name: string };
-          }[]
-        | null;
+      payments?: Array<{
+        __typename?: 'PaymentOrderClose';
+        quantity: number;
+        value: number;
+        payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+      }> | null;
       user: { __typename?: 'User'; name: string };
-    }[];
+    }>;
   };
 };
 
@@ -7587,7 +8009,7 @@ export type ClosesZInvoicingQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'CloseZInvoicing';
       _id: string;
       number: number;
@@ -7612,7 +8034,7 @@ export type ClosesZInvoicingQuery = {
         name: string;
         shop: { __typename?: 'Shop'; name: string };
       };
-      expenses?: { __typename?: 'Expense'; value: number }[] | null;
+      expenses?: Array<{ __typename?: 'Expense'; value: number }> | null;
       refunds?: {
         __typename?: 'RefundOrderClose';
         quantity?: number | null;
@@ -7625,16 +8047,14 @@ export type ClosesZInvoicingQuery = {
         quantityCancel: number;
         quantityOpen: number;
       };
-      payments?:
-        | {
-            __typename?: 'PaymentOrderClose';
-            quantity: number;
-            value: number;
-            payment: { __typename?: 'Payment'; type: TypePayment; name: string };
-          }[]
-        | null;
+      payments?: Array<{
+        __typename?: 'PaymentOrderClose';
+        quantity: number;
+        value: number;
+        payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+      }> | null;
       user: { __typename?: 'User'; name: string };
-    }[];
+    }>;
   };
 };
 
@@ -7649,7 +8069,7 @@ export type ColorsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Color';
       _id: string;
       name: string;
@@ -7666,7 +8086,7 @@ export type ColorsQuery = {
           webp?: { __typename?: 'ImageTypes'; small: string } | null;
         } | null;
       } | null;
-    }[];
+    }>;
   };
 };
 
@@ -7681,7 +8101,7 @@ export type CompaniesQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Company';
       name: string;
       document: string;
@@ -7692,7 +8112,7 @@ export type CompaniesQuery = {
       updatedAt: any;
       _id: string;
       logo: string;
-    }[];
+    }>;
   };
 };
 
@@ -7728,7 +8148,7 @@ export type CouponsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Coupon';
       _id: string;
       number: number;
@@ -7740,7 +8160,7 @@ export type CouponsQuery = {
       expiration: any;
       updatedAt: any;
       createdAt: any;
-    }[];
+    }>;
   };
 };
 
@@ -7753,20 +8173,18 @@ export type CreditQuery = {
   credit: {
     __typename?: 'Credit';
     balance: number;
-    details?:
-      | {
-          __typename?: 'DetailCredit';
-          balance: number;
-          total: number;
-          order: {
-            __typename?: 'Order';
-            _id: string;
-            number: number;
-            updatedAt: any;
-            summary: { __typename?: 'SummaryOrder'; total: number };
-          };
-        }[]
-      | null;
+    details?: Array<{
+      __typename?: 'DetailCredit';
+      balance: number;
+      total: number;
+      order: {
+        __typename?: 'Order';
+        _id: string;
+        number: number;
+        updatedAt: any;
+        summary: { __typename?: 'SummaryOrder'; total: number };
+      };
+    }> | null;
   };
 };
 
@@ -7781,7 +8199,7 @@ export type CreditsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Credit';
       _id: string;
       amount: number;
@@ -7791,8 +8209,8 @@ export type CreditsQuery = {
       updatedAt: any;
       status: StatusCredit;
       customer: { __typename?: 'Customer'; document: string; firstName: string; lastName: string };
-      details?: { __typename?: 'DetailCredit'; balance: number; total: number }[] | null;
-    }[];
+      details?: Array<{ __typename?: 'DetailCredit'; balance: number; total: number }> | null;
+    }>;
   };
 };
 
@@ -7807,7 +8225,7 @@ export type CreditHistoryQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'CreditHistory';
       type: TypeCreditHistory;
       amount: number;
@@ -7818,7 +8236,7 @@ export type CreditHistoryQuery = {
         balance: number;
         updatedAt: any;
       };
-    }[];
+    }>;
   };
 };
 
@@ -7833,7 +8251,7 @@ export type CustomersQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Customer';
       _id: string;
       document: string;
@@ -7847,23 +8265,21 @@ export type CustomersQuery = {
       isWhatsapp: boolean;
       active: boolean;
       documentType: { __typename?: 'DocumentType'; _id: string; abbreviation: string };
-      addresses?:
-        | {
-            __typename?: 'Address';
-            contact: string;
-            extra?: string | null;
-            field1: string;
-            isMain?: boolean | null;
-            loteNumber: string;
-            neighborhood: string;
-            number1: string;
-            number2: string;
-            phone: string;
-            city: { __typename?: 'City'; _id: string; name: string };
-          }[]
-        | null;
+      addresses?: Array<{
+        __typename?: 'Address';
+        contact: string;
+        extra?: string | null;
+        field1: string;
+        isMain?: boolean | null;
+        loteNumber: string;
+        neighborhood: string;
+        number1: string;
+        number2: string;
+        phone: string;
+        city: { __typename?: 'City'; _id: string; name: string };
+      }> | null;
       customerType: { __typename?: 'CustomerType'; name: string; _id: string };
-    }[];
+    }>;
   };
 };
 
@@ -7875,7 +8291,7 @@ export type CustomerTypesQuery = {
   __typename?: 'Query';
   customerTypes: {
     __typename?: 'ResponseCustomerTypes';
-    docs: { __typename?: 'CustomerType'; _id: string; name: string }[];
+    docs: Array<{ __typename?: 'CustomerType'; _id: string; name: string }>;
   };
 };
 
@@ -7890,7 +8306,7 @@ export type DiscountRulesQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'DiscountRule';
       _id: string;
       active: boolean;
@@ -7900,13 +8316,13 @@ export type DiscountRulesQuery = {
       name: string;
       percent: number;
       value: number;
-      rules: {
+      rules: Array<{
         __typename?: 'Rule';
         documentType: DocumentTypesRule;
-        documentIds: string[];
+        documentIds: Array<string>;
         type: TypesRule;
-      }[];
-    }[];
+      }>;
+    }>;
   };
 };
 
@@ -7916,7 +8332,7 @@ export type DocumentTypesQueryVariables = Exact<{
 
 export type DocumentTypesQuery = {
   __typename?: 'Query';
-  documentTypes: { __typename?: 'DocumentType'; _id: string; abbreviation: string }[];
+  documentTypes: Array<{ __typename?: 'DocumentType'; _id: string; abbreviation: string }>;
 };
 
 export type ExpensesQueryVariables = Exact<{
@@ -7930,7 +8346,7 @@ export type ExpensesQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Expense';
       _id: string;
       number: number;
@@ -7940,7 +8356,7 @@ export type ExpensesQuery = {
       createdAt: any;
       user: { __typename?: 'User'; name: string };
       box: { __typename?: 'Box'; _id: string; name: string };
-    }[];
+    }>;
   };
 };
 
@@ -7956,7 +8372,7 @@ export type ImagesQuery = {
     totalPages: number;
     page: number;
     limit: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Image';
       name: string;
       _id: string;
@@ -7964,7 +8380,7 @@ export type ImagesQuery = {
         __typename?: 'Urls';
         webp?: { __typename?: 'ImageTypes'; small: string } | null;
       } | null;
-    }[];
+    }>;
   };
 };
 
@@ -7983,7 +8399,7 @@ export type StockInputQuery = {
     status: StatusStockInput;
     observation?: string | null;
     number: number;
-    details: {
+    details: Array<{
       __typename?: 'DetailInput';
       quantity: number;
       product: {
@@ -8003,10 +8419,10 @@ export type StockInputQuery = {
             } | null;
           } | null;
         };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
         size: { __typename?: 'Size'; value: string };
       };
-    }[];
+    }>;
     user: { __typename?: 'User'; _id: string; name: string };
     warehouse: { __typename?: 'Warehouse'; _id: string; name: string };
   };
@@ -8023,7 +8439,7 @@ export type StockInputsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'StockInput';
       _id: string;
       number: number;
@@ -8033,7 +8449,7 @@ export type StockInputsQuery = {
       updatedAt: any;
       warehouse: { __typename?: 'Warehouse'; name: string };
       user: { __typename?: 'User'; name: string };
-      details: {
+      details: Array<{
         __typename?: 'DetailInput';
         quantity: number;
         product: {
@@ -8049,8 +8465,8 @@ export type StockInputsQuery = {
           color: { __typename?: 'Color'; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
-      }[];
-    }[];
+      }>;
+    }>;
   };
 };
 
@@ -8062,7 +8478,7 @@ export type InvoicesQuery = {
   __typename?: 'Query';
   invoices: {
     __typename?: 'ResponseInvoices';
-    docs: {
+    docs: Array<{
       __typename?: 'Invoice';
       _id: string;
       active: boolean;
@@ -8075,26 +8491,24 @@ export type InvoicesQuery = {
         document: string;
         documentType: { __typename?: 'DocumentType'; abbreviation: string };
       };
-      details?:
-        | {
-            __typename?: 'DetailInvoice';
-            price: number;
-            quantity: number;
-            product: {
-              __typename?: 'Product';
-              barcode: string;
-              reference: {
-                __typename?: 'Reference';
-                changeable: boolean;
-                name: string;
-                description: string;
-              };
-              color: { __typename?: 'Color'; name: string };
-              size: { __typename?: 'Size'; value: string };
-            };
-          }[]
-        | null;
-    }[];
+      details?: Array<{
+        __typename?: 'DetailInvoice';
+        price: number;
+        quantity: number;
+        product: {
+          __typename?: 'Product';
+          barcode: string;
+          reference: {
+            __typename?: 'Reference';
+            changeable: boolean;
+            name: string;
+            description: string;
+          };
+          color: { __typename?: 'Color'; name: string };
+          size: { __typename?: 'Size'; value: string };
+        };
+      }> | null;
+    }>;
   };
 };
 
@@ -8121,48 +8535,39 @@ export type OrderIdQuery = {
         documentType: { __typename?: 'DocumentType'; abbreviation: string };
         customerType: { __typename?: 'CustomerType'; name: string };
       };
-      details?:
-        | {
-            __typename?: 'DetailOrder';
-            discount: number;
-            quantity: number;
-            price: number;
-            product: {
-              __typename?: 'Product';
-              _id: string;
-              barcode: string;
-              status: StatusProduct;
-              reference: {
-                __typename?: 'Reference';
-                name: string;
-                cost: number;
-                description: string;
-              };
-              size: { __typename?: 'Size'; value: string };
-              color: {
-                __typename?: 'Color';
-                html: string;
-                name: string;
-                name_internal: string;
-                image?: {
-                  __typename?: 'Image';
-                  urls?: {
-                    __typename?: 'Urls';
-                    webp?: { __typename?: 'ImageTypes'; small: string } | null;
-                  } | null;
-                } | null;
-              };
-              stock?: { __typename?: 'Stock'; quantity: number }[] | null;
-            };
-          }[]
-        | null;
-      payments?:
-        | {
-            __typename?: 'PaymentOrder';
-            total: number;
-            payment: { __typename?: 'Payment'; name: string; type: TypePayment };
-          }[]
-        | null;
+      details?: Array<{
+        __typename?: 'DetailOrder';
+        discount: number;
+        quantity: number;
+        price: number;
+        product: {
+          __typename?: 'Product';
+          _id: string;
+          barcode: string;
+          status: StatusProduct;
+          reference: { __typename?: 'Reference'; name: string; cost: number; description: string };
+          size: { __typename?: 'Size'; value: string };
+          color: {
+            __typename?: 'Color';
+            html: string;
+            name: string;
+            name_internal: string;
+            image?: {
+              __typename?: 'Image';
+              urls?: {
+                __typename?: 'Urls';
+                webp?: { __typename?: 'ImageTypes'; small: string } | null;
+              } | null;
+            } | null;
+          };
+          stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
+        };
+      }> | null;
+      payments?: Array<{
+        __typename?: 'PaymentOrder';
+        total: number;
+        payment: { __typename?: 'Payment'; name: string; type: TypePayment };
+      }> | null;
       summary: {
         __typename?: 'SummaryOrder';
         discount: number;
@@ -8174,11 +8579,11 @@ export type OrderIdQuery = {
   };
 };
 
-export type OrdersByPosQueryVariables = Exact<Record<string, never>>;
+export type OrdersByPosQueryVariables = Exact<{ [key: string]: never }>;
 
 export type OrdersByPosQuery = {
   __typename?: 'Query';
-  ordersByPointOfSale: {
+  ordersByPointOfSale: Array<{
     __typename?: 'Order';
     _id: string;
     number: number;
@@ -8193,21 +8598,19 @@ export type OrdersByPosQuery = {
       lastName: string;
       documentType: { __typename?: 'DocumentType'; abbreviation: string };
     };
-    details?:
-      | {
-          __typename?: 'DetailOrder';
-          price: number;
-          quantity: number;
-          product: {
-            __typename?: 'Product';
-            _id: string;
-            barcode: string;
-            color: { __typename?: 'Color'; name: string };
-            size: { __typename?: 'Size'; value: string };
-            reference: { __typename?: 'Reference'; name: string };
-          };
-        }[]
-      | null;
+    details?: Array<{
+      __typename?: 'DetailOrder';
+      price: number;
+      quantity: number;
+      product: {
+        __typename?: 'Product';
+        _id: string;
+        barcode: string;
+        color: { __typename?: 'Color'; name: string };
+        size: { __typename?: 'Size'; value: string };
+        reference: { __typename?: 'Reference'; name: string };
+      };
+    }> | null;
     summary: {
       __typename?: 'SummaryOrder';
       discount: number;
@@ -8215,7 +8618,7 @@ export type OrdersByPosQuery = {
       total: number;
       totalPaid: number;
     };
-  }[];
+  }>;
 };
 
 export type OrdersQueryVariables = Exact<{
@@ -8229,7 +8632,7 @@ export type OrdersQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Order';
       _id: string;
       createdAt: any;
@@ -8239,28 +8642,26 @@ export type OrdersQuery = {
       summary: { __typename?: 'SummaryOrder'; total: number };
       customer: { __typename?: 'Customer'; document: string; firstName: string; lastName: string };
       shop: { __typename?: 'Shop'; name: string };
-      details?:
-        | {
-            __typename?: 'DetailOrder';
-            price: number;
-            quantity: number;
-            quantityReturn: number;
-            product: {
-              __typename?: 'Product';
-              _id: string;
-              barcode: string;
-              reference: {
-                __typename?: 'Reference';
-                changeable: boolean;
-                name: string;
-                description: string;
-              };
-              color: { __typename?: 'Color'; name: string };
-              size: { __typename?: 'Size'; value: string };
-            };
-          }[]
-        | null;
-    }[];
+      details?: Array<{
+        __typename?: 'DetailOrder';
+        price: number;
+        quantity: number;
+        quantityReturn: number;
+        product: {
+          __typename?: 'Product';
+          _id: string;
+          barcode: string;
+          reference: {
+            __typename?: 'Reference';
+            changeable: boolean;
+            name: string;
+            description: string;
+          };
+          color: { __typename?: 'Color'; name: string };
+          size: { __typename?: 'Size'; value: string };
+        };
+      }> | null;
+    }>;
   };
 };
 
@@ -8279,7 +8680,7 @@ export type StockOutputQuery = {
     status: StatusStockOutput;
     observation?: string | null;
     number: number;
-    details: {
+    details: Array<{
       __typename?: 'DetailOutput';
       quantity: number;
       product: {
@@ -8299,10 +8700,10 @@ export type StockOutputQuery = {
             } | null;
           } | null;
         };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
         size: { __typename?: 'Size'; value: string };
       };
-    }[];
+    }>;
     user: { __typename?: 'User'; _id: string; name: string };
     warehouse: { __typename?: 'Warehouse'; _id: string; name: string };
   };
@@ -8319,7 +8720,7 @@ export type StockOutputsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'StockOutput';
       _id: string;
       createdAt: any;
@@ -8329,7 +8730,7 @@ export type StockOutputsQuery = {
       total: number;
       user: { __typename?: 'User'; name: string };
       warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
-      details: {
+      details: Array<{
         __typename?: 'DetailOutput';
         quantity: number;
         product: {
@@ -8345,8 +8746,8 @@ export type StockOutputsQuery = {
           color: { __typename?: 'Color'; name: string; name_internal: string };
           size: { __typename?: 'Size'; value: string };
         };
-      }[];
-    }[];
+      }>;
+    }>;
   };
 };
 
@@ -8361,7 +8762,7 @@ export type PaymentsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Payment';
       _id: string;
       active: boolean;
@@ -8378,28 +8779,28 @@ export type PaymentsQuery = {
           webp?: { __typename?: 'ImageTypes'; small: string } | null;
         } | null;
       } | null;
-    }[];
+    }>;
   };
 };
 
-export type PermissionsQueryVariables = Exact<Record<string, never>>;
+export type PermissionsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type PermissionsQuery = {
   __typename?: 'Query';
-  permissions: {
+  permissions: Array<{
     __typename?: 'PermissionData';
     module: string;
-    options: {
+    options: Array<{
       __typename?: 'OptionPermission';
       name: string;
-      actions: {
+      actions: Array<{
         __typename?: 'ActionPermission';
         _id: string;
         description: string;
         name: string;
-      }[];
-    }[];
-  }[];
+      }>;
+    }>;
+  }>;
 };
 
 export type PointOfSalesQueryVariables = Exact<{
@@ -8413,7 +8814,7 @@ export type PointOfSalesQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'PointOfSale';
       _id: string;
       name: string;
@@ -8422,7 +8823,7 @@ export type PointOfSalesQuery = {
       shop: { __typename?: 'Shop'; _id: string; name: string };
       box: { __typename?: 'Box'; _id: string; name: string };
       authorization: { __typename?: 'AuthorizationDian'; _id: string; prefix: string };
-    }[];
+    }>;
   };
 };
 
@@ -8437,7 +8838,7 @@ export type ProductsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Product';
       _id: string;
       barcode: string;
@@ -8456,8 +8857,8 @@ export type ProductsQuery = {
         } | null;
       };
       size: { __typename?: 'Size'; value: string; weight: number };
-      stock?: { __typename?: 'Stock'; quantity: number }[] | null;
-    }[];
+      stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
+    }>;
   };
 };
 
@@ -8472,7 +8873,7 @@ export type ProductQuery = {
     _id: string;
     barcode: string;
     status: StatusProduct;
-    stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+    stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
     color: {
       __typename?: 'Color';
       name_internal: string;
@@ -8501,7 +8902,7 @@ export type ReceiptsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Receipt';
       _id: string;
       number: number;
@@ -8513,7 +8914,7 @@ export type ReceiptsQuery = {
       box?: { __typename?: 'Box'; name: string } | null;
       user: { __typename?: 'User'; name: string };
       payment: { __typename?: 'Payment'; name: string; type: TypePayment };
-    }[];
+    }>;
   };
 };
 
@@ -8532,16 +8933,14 @@ export type ReferenceIdQuery = {
     description: string;
     name: string;
     price: number;
-    attribs?:
-      | {
-          __typename?: 'Attrib';
-          _id: string;
-          active: boolean;
-          createdAt: any;
-          updatedAt: any;
-          name: string;
-        }[]
-      | null;
+    attribs?: Array<{
+      __typename?: 'Attrib';
+      _id: string;
+      active: boolean;
+      createdAt: any;
+      updatedAt: any;
+      name: string;
+    }> | null;
     brand: { __typename?: 'Brand'; _id: string; active: boolean; name: string };
     categoryLevel1: { __typename?: 'CategoryLevel1'; _id: string };
     categoryLevel2?: { __typename?: 'CategoryLevel2'; _id: string } | null;
@@ -8554,21 +8953,19 @@ export type ReferenceIdQuery = {
       width: number;
       weight: number;
     };
-    products: {
+    products: Array<{
       __typename?: 'Product';
       _id: string;
       barcode: string;
       status: StatusProduct;
-      images?:
-        | {
-            __typename?: 'Image';
-            _id: string;
-            urls?: {
-              __typename?: 'Urls';
-              webp?: { __typename?: 'ImageTypes'; small: string } | null;
-            } | null;
-          }[]
-        | null;
+      images?: Array<{
+        __typename?: 'Image';
+        _id: string;
+        urls?: {
+          __typename?: 'Urls';
+          webp?: { __typename?: 'ImageTypes'; small: string } | null;
+        } | null;
+      }> | null;
       color: {
         __typename?: 'Color';
         _id: string;
@@ -8584,7 +8981,7 @@ export type ReferenceIdQuery = {
         } | null;
       };
       size: { __typename?: 'Size'; _id: string; value: string };
-    }[];
+    }>;
   };
 };
 
@@ -8601,7 +8998,7 @@ export type ReferencesQuery = {
     totalDocs: number;
     totalPages: number;
     limit: number;
-    docs: {
+    docs: Array<{
       __typename?: 'ReferenceData';
       _id: string;
       name: string;
@@ -8611,7 +9008,44 @@ export type ReferencesQuery = {
       price: number;
       changeable: boolean;
       updatedAt: any;
-    }[];
+    }>;
+  };
+};
+
+export type ReportSalesQueryVariables = Exact<{
+  input: FiltersSalesReportInput;
+}>;
+
+export type ReportSalesQuery = {
+  __typename?: 'Query';
+  reportSales: {
+    __typename?: 'ResponseReportSales';
+    customerSalesReport: Array<{
+      __typename?: 'CustomerSalesReport';
+      quantity: number;
+      total: number;
+      typeCustomer: { __typename?: 'CustomerType'; name: string };
+    }>;
+    paymentsSalesReport: Array<{
+      __typename?: 'PaymentsSalesReport';
+      quantity: number;
+      total: number;
+      payment: { __typename?: 'Payment'; name: string };
+    }>;
+    salesReport: Array<{
+      __typename?: 'SalesReport';
+      quantity: number;
+      total: number;
+      category?: { __typename?: 'CategoryLevel1'; name: string } | null;
+      shop: { __typename?: 'Shop'; name: string };
+    }>;
+    summarySalesReport: {
+      __typename?: 'SummarySalesReport';
+      cmv: number;
+      margin: number;
+      quantity: number;
+      total: number;
+    };
   };
 };
 
@@ -8629,14 +9063,14 @@ export type StockRequestQuery = {
     observation?: string | null;
     status: StatusStockRequest;
     updatedAt: any;
-    details: {
+    details: Array<{
       __typename?: 'DetailRequest';
       quantity: number;
       product: {
         __typename?: 'Product';
         _id: string;
         barcode: string;
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
         color: {
           __typename?: 'Color';
           html: string;
@@ -8652,7 +9086,7 @@ export type StockRequestQuery = {
         reference: { __typename?: 'Reference'; cost: number; description: string; name: string };
         size: { __typename?: 'Size'; value: string };
       };
-    }[];
+    }>;
     user: { __typename?: 'User'; _id: string; name: string };
     warehouseDestination: { __typename?: 'Warehouse'; _id: string; name: string };
     warehouseOrigin: { __typename?: 'Warehouse'; _id: string; name: string };
@@ -8670,7 +9104,7 @@ export type StockRequestsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'StockRequest';
       _id: string;
       number: number;
@@ -8680,7 +9114,7 @@ export type StockRequestsQuery = {
       updatedAt: any;
       warehouseOrigin: { __typename?: 'Warehouse'; _id: string; name: string };
       warehouseDestination: { __typename?: 'Warehouse'; _id: string; name: string };
-      details: {
+      details: Array<{
         __typename?: 'DetailRequest';
         quantity: number;
         product: {
@@ -8701,11 +9135,11 @@ export type StockRequestsQuery = {
             } | null;
           };
           size: { __typename?: 'Size'; value: string };
-          stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+          stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
         };
-      }[];
+      }>;
       user: { __typename?: 'User'; name: string };
-    }[];
+    }>;
   };
 };
 
@@ -8720,7 +9154,7 @@ export type ReturnsOrderQuery = {
     totalPages: number;
     totalDocs: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'ReturnOrder';
       active: boolean;
       createdAt: any;
@@ -8740,27 +9174,24 @@ export type ReturnsOrderQuery = {
         message: string;
         expiration: any;
       };
-      shop: { __typename?: 'Shop'; name: string };
       order: {
         __typename?: 'Order';
         number: number;
         summary: { __typename?: 'SummaryOrder'; discount: number; total: number };
       };
-      details?:
-        | {
-            __typename?: 'DetailReturnInvoice';
-            price: number;
-            quantity: number;
-            product: {
-              __typename?: 'Product';
-              barcode: string;
-              color: { __typename?: 'Color'; name: string };
-              size: { __typename?: 'Size'; value: string };
-              reference: { __typename?: 'Reference'; name: string; description: string };
-            };
-          }[]
-        | null;
-    }[];
+      details?: Array<{
+        __typename?: 'DetailReturnInvoice';
+        price: number;
+        quantity: number;
+        product: {
+          __typename?: 'Product';
+          barcode: string;
+          color: { __typename?: 'Color'; name: string };
+          size: { __typename?: 'Size'; value: string };
+          reference: { __typename?: 'Reference'; name: string; description: string };
+        };
+      }> | null;
+    }>;
   };
 };
 
@@ -8777,7 +9208,7 @@ export type RoleIdQuery = {
     changeWarehouse: boolean;
     active: boolean;
     user: { __typename?: 'User'; name: string };
-    permissions: { __typename?: 'Permission'; _id: string }[];
+    permissions: Array<{ __typename?: 'Permission'; _id: string }>;
   };
 };
 
@@ -8792,14 +9223,14 @@ export type RolesQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Role';
       _id: string;
       changeWarehouse: boolean;
       name: string;
       active: boolean;
-      permissions: { __typename?: 'Permission'; description: string }[];
-    }[];
+      permissions: Array<{ __typename?: 'Permission'; description: string }>;
+    }>;
   };
 };
 
@@ -8814,7 +9245,7 @@ export type ShopsQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Shop';
       _id: string;
       name: string;
@@ -8827,7 +9258,7 @@ export type ShopsQuery = {
       user: { __typename?: 'User'; name: string };
       defaultWarehouse: { __typename?: 'Warehouse'; name: string; _id: string };
       warehouseMain?: { __typename?: 'Warehouse'; name: string; _id: string } | null;
-    }[];
+    }>;
   };
 };
 
@@ -8843,7 +9274,7 @@ export type SizesQuery = {
     totalPages: number;
     page: number;
     limit: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Size';
       createdAt: any;
       updatedAt: any;
@@ -8851,7 +9282,7 @@ export type SizesQuery = {
       value: string;
       active: boolean;
       weight: number;
-    }[];
+    }>;
   };
 };
 
@@ -8866,7 +9297,7 @@ export type StockTransfersQuery = {
     page: number;
     totalDocs: number;
     totalPages: number;
-    docs: {
+    docs: Array<{
       __typename?: 'StockTransfer';
       _id: string;
       number: number;
@@ -8876,7 +9307,7 @@ export type StockTransfersQuery = {
       observation?: string | null;
       observationOrigin?: string | null;
       observationDestination?: string | null;
-      details: {
+      details: Array<{
         __typename?: 'DetailTransfer';
         quantity: number;
         product: {
@@ -8898,13 +9329,13 @@ export type StockTransfersQuery = {
           };
           reference: { __typename?: 'Reference'; name: string; description: string };
           size: { __typename?: 'Size'; value: string };
-          stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+          stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
         };
-      }[];
+      }>;
       warehouseDestination: { __typename?: 'Warehouse'; name: string };
       warehouseOrigin: { __typename?: 'Warehouse'; name: string };
       userOrigin: { __typename?: 'User'; name: string };
-    }[];
+    }>;
   };
 };
 
@@ -8924,7 +9355,7 @@ export type StockTransferIdQuery = {
     observationOrigin?: string | null;
     status: StatusStockTransfer;
     updatedAt: any;
-    details: {
+    details: Array<{
       __typename?: 'DetailTransfer';
       quantity: number;
       quantityConfirmed?: number | null;
@@ -8948,10 +9379,10 @@ export type StockTransferIdQuery = {
         };
         reference: { __typename?: 'Reference'; name: string; description: string };
         size: { __typename?: 'Size'; value: string };
-        stock?: { __typename?: 'Stock'; quantity: number }[] | null;
+        stock?: Array<{ __typename?: 'Stock'; quantity: number }> | null;
       };
-    }[];
-    requests?: { __typename?: 'StockRequest'; _id: string; number: number }[] | null;
+    }>;
+    requests?: Array<{ __typename?: 'StockRequest'; _id: string; number: number }> | null;
     userDestination?: { __typename?: 'User'; name: string } | null;
     userOrigin: { __typename?: 'User'; _id: string; name: string };
     warehouseDestination: { __typename?: 'Warehouse'; _id: string; name: string };
@@ -8959,7 +9390,7 @@ export type StockTransferIdQuery = {
   };
 };
 
-export type CurrentUserQueryVariables = Exact<Record<string, never>>;
+export type CurrentUserQueryVariables = Exact<{ [key: string]: never }>;
 
 export type CurrentUserQuery = {
   __typename?: 'Query';
@@ -8983,7 +9414,7 @@ export type CurrentUserQuery = {
       __typename?: 'Role';
       changeWarehouse: boolean;
       name: string;
-      permissions: { __typename?: 'Permission'; action: Permissions }[];
+      permissions: Array<{ __typename?: 'Permission'; action: Permissions }>;
     };
   };
 };
@@ -8999,7 +9430,7 @@ export type UsersQuery = {
     totalDocs: number;
     totalPages: number;
     page: number;
-    docs: {
+    docs: Array<{
       __typename?: 'User';
       _id: string;
       createdAt: any;
@@ -9010,7 +9441,7 @@ export type UsersQuery = {
       role: { __typename?: 'Role'; name: string; _id: string };
       shop: { __typename?: 'Shop'; name: string; _id: string };
       pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
-    }[];
+    }>;
   };
 };
 
@@ -9025,7 +9456,7 @@ export type WarehousesQuery = {
     page: number;
     totalDocs: number;
     totalPages: number;
-    docs: {
+    docs: Array<{
       __typename?: 'Warehouse';
       max: number;
       min: number;
@@ -9034,7 +9465,7 @@ export type WarehousesQuery = {
       updatedAt: any;
       active: boolean;
       user: { __typename?: 'User'; name: string };
-    }[];
+    }>;
   };
 };
 
@@ -18637,6 +19068,125 @@ export const ReferencesDocument = {
     },
   ],
 } as unknown as DocumentNode<ReferencesQuery, ReferencesQueryVariables>;
+export const ReportSalesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'reportSales' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersSalesReportInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'reportSales' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersSalesReportInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'customerSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'typeCustomer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'paymentsSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payment' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'salesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'category' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'summarySalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'cmv' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'margin' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReportSalesQuery, ReportSalesQueryVariables>;
 export const StockRequestDocument = {
   kind: 'Document',
   definitions: [
@@ -19074,14 +19624,6 @@ export const ReturnsOrderDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'shop' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                       {
                         kind: 'Field',
