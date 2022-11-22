@@ -601,8 +601,8 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
             </TabPane>
           </>
         )}
-        <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
       </Tabs>
+      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </Modal>
   );
 };
