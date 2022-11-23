@@ -49,6 +49,7 @@ import SearchCustomer from '@/components/SearchCustomer';
 import OrderReport from '../report/order/Order';
 
 import styles from '../styles';
+import SelectShop from '@/components/SelectShop';
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
@@ -454,6 +455,11 @@ const OrderList = () => {
             <Col xs={24} md={8} lg={6} xl={6}>
               <FormItem label="Cliente" name="customerId">
                 <SearchCustomer disabled={paramsGetOrders?.loading || paramsUpdateOrder?.loading} />
+              </FormItem>
+            </Col>
+            <Col xs={24} md={8} lg={6} xl={6}>
+              <FormItem label="Tienda" name="shopId">
+                <SelectShop disabled={paramsGetOrders?.loading || paramsUpdateOrder?.loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={8} lg={6} xl={7}>
