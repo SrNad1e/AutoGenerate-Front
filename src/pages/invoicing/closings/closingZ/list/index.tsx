@@ -48,8 +48,7 @@ import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import type { Location } from 'umi';
-import { useModel } from 'umi';
+import { Location, useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -75,6 +74,7 @@ const ClosingZList = () => {
   const [visible, setVisible] = useState(false);
   const [cashRegister, setCashRegister] = useState<Partial<CashRegister>>({});
   const [visibleNewClose, setVisibleNewClose] = useState(false);
+  const [filters, setFilters] = useState<Partial<FormValues>>();
   const [closeData, setCloseData] = useState<Partial<CloseZInvoicing>>({});
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -207,7 +207,8 @@ const ClosingZList = () => {
       const datos = Object.keys(props)
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
-      form?.setFieldsValue(props);
+
+      form.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
     } catch (error: any) {
       messageError(error?.message);
@@ -246,22 +247,31 @@ const ClosingZList = () => {
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({
-      limit: 10,
-      page: 1,
-    });
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({
+        limit: 10,
+        page: 1,
+      });
+      setFilters({});
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   useEffect(() => {
-    const queryParams: any = location.query;
+    try {
+      const queryParams: any = location.query;
 
-    const newFilters = {};
-    Object.keys(queryParams).forEach((item) => {
-      newFilters[item] = JSON.parse(queryParams[item]);
-    });
-    onFinish(newFilters);
+      const newFilters = {};
+      Object.keys(queryParams).forEach((item) => {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      });
+      onFinish(newFilters);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   }, []);
 
   useEffect(() => {

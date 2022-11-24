@@ -81,7 +81,9 @@ const ListOfRules = ({ onCancel, visible, isNew, discountData, rules, setRules }
             ? DocumentType.CATEGORIES.label
             : documentType === DocumentTypesRule.Customertypes
             ? DocumentType.CUSTOMERTYPES.label
-            : documentType === DocumentTypesRule.Company && DocumentType.COMPANY.label}
+            : documentType === DocumentTypesRule.Company
+            ? DocumentType.COMPANY.label
+            : documentType === DocumentTypesRule.Shops && DocumentType.SHOPS.label}
         </Tag>
       ),
     },

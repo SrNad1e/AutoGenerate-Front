@@ -11,4 +11,8 @@ export const DocumentType = {
     label: 'Compañia',
     textColor: '#fff',
   },
+  SHOPS: {
+    label: 'Tiendas',
+    textColor: '#fff',
+  },
 };

@@ -253,7 +253,7 @@ const CitiesList = () => {
       render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
-      title: <Text>{<MoreOutlined />} Opciones</Text>,
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',

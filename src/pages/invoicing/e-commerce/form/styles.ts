@@ -18,22 +18,22 @@ export default {
   textRight: {
     textAlign: 'right',
   },
-  firstGrid: {
-    paddingBottom: 48,
-  },
-  rowFGrid: {
-    marginTop: 5,
-  },
-  secondGrid: {
-    paddingBottom: 63,
-  },
-  rowSGrid: {
-    marginTop: 10,
-  },
-  thirdGrid: {
-    paddingBottom: 29,
-  },
+
   divGrid: {
     marginTop: 15,
+  },
+  affixStyle: {
+    width: 'auto',
+    borderRadius: 10,
+    borderColor: '#dc9575',
+  },
+  buttonR: {
+    borderRadius: 5,
+  },
+  widthMax: {
+    width: '100%',
+  },
+  marginB: {
+    marginBottom: 22,
   },
 };

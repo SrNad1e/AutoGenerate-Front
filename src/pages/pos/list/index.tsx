@@ -12,6 +12,7 @@ import SaveOrder from '../components/SaveOrder';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import style from './styles';
+import Dashboard from '../components/Dashboard';
 
 const PosList = () => {
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
@@ -112,7 +113,7 @@ const PosList = () => {
         </Row>
       </Col>
       <Col span={24}>
-        <Card>Estadisticas</Card>
+        <Dashboard />
       </Col>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </Row>

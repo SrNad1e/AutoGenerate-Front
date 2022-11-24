@@ -1,5 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { AliyunOutlined, BankOutlined, BgColorsOutlined, DollarOutlined } from '@ant-design/icons';
+import {
+  AliyunOutlined,
+  BankOutlined,
+  BgColorsOutlined,
+  DollarOutlined,
+  MessageOutlined,
+} from '@ant-design/icons';
 import { Col, Form, Input, Modal, Row, Select, Space, Switch, Typography } from 'antd';
 import { useCreatePayments, useUpdatePayment } from '@/hooks/payment.hooks';
 import type { Payment } from '@/graphql/graphql';
@@ -11,6 +17,7 @@ import { StatusTypePayment } from '../paymentMethod.data';
 import ImageAdmin from '@/components/ImageAdmin';
 
 import styles from '../styles';
+import { FirstVersion } from '@/components/HtmlEdit';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -72,6 +79,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
    */
   const updatePaymentMethod = async () => {
     const values = await form.validateFields();
+    const message = values.message;
 
     try {
       const response = await updatePayment({
@@ -79,6 +87,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
           id: paymentMethod._id,
           input: {
             ...values,
+            message: message,
             logoId: values?.logoId[0]?._id,
           },
         },
@@ -102,6 +111,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
    */
   const createNewPaymentMethod = async () => {
     const values = await form.validateFields();
+    const message = values.message;
 
     try {
       if (values?.logoId?.length > 0) {
@@ -112,7 +122,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
 
       const response = await createPayment({
         variables: {
-          input: values,
+          input: { ...values, message },
         },
       });
       if (response?.data?.createPayment) {
@@ -227,6 +237,17 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
               type="color"
               disabled={paramsCreatePayment?.loading || paramsUpdatePayment?.loading}
             />
+          </FormItem>
+          <FormItem
+            label={
+              <Space>
+                <MessageOutlined />
+                <Text>Mensaje</Text>
+              </Space>
+            }
+            name="message"
+          >
+            <FirstVersion />
           </FormItem>
           <FormItem
             label={

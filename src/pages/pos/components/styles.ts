@@ -171,9 +171,10 @@ export default {
     textAlign: 'right',
   },
   payButtonStyle: {
-    fontSize: 25,
+    borderRadius: 5,
+    fontSize: 20,
     width: '100%',
-    height: 'auto',
+    height: '100%',
   },
   dividerStyle: {
     backgroundColor: 'black',
@@ -195,7 +196,7 @@ export default {
     height: '17.6px',
   },
   listResumenStyle: {
-    height: '58vh',
+    height: '48vh',
     overflow: 'scroll',
     borderBottom: 'solid 1px black',
   },
@@ -207,7 +208,7 @@ export default {
     textAlign: 'right',
   },
   inputNumberWidth: {
-    width: 70,
+    width: 65,
   },
   cardNoPadding: {
     padding: 0,

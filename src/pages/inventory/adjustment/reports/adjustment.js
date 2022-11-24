@@ -8,34 +8,41 @@ import './styles.css';
 const classes = {
   content: {
     margin: '20px 2cm',
+    color: 'black',
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    color: 'black',
   },
   text: {
     fontSize: 18,
+    color: 'black',
   },
   textBold: {
     fontWeight: 'bold',
     marginRight: 18,
+    color: 'black',
   },
   body: {
     width: '100%',
     marginTop: 15,
+    color: 'black',
   },
   bodyHeaders: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     fontWeight: 'bold',
+    color: 'black',
   },
   bodyContent: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
+    color: 'black',
   },
   footer: {
     width: '100%',
@@ -45,11 +52,13 @@ const classes = {
     flexDirection: 'column',
     alignItems: 'end',
     lineHeight: 1.5,
+    color: 'black',
   },
   title: {
     fontSize: 30,
     fontWeight: 'bold',
     lineHeight: 1,
+    color: 'black',
   },
 };
 
@@ -135,7 +144,7 @@ export default class ReportAdjustment extends React.PureComponent {
     return (
       <div style={classes.content}>
         <div style={classes.header}>
-          <div style={classes.title}>Ajuste DE MERCANCIA</div>
+          <div style={classes.title}>AJUSTE DE MERCANCIA</div>
           <div style={classes.title}>No. {data?.number}</div>
           <div style={classes.body}>
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>

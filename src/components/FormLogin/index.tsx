@@ -58,7 +58,7 @@ const FormLogin = () => {
         );
 
         if (response?.data?.login?.access_token) {
-          localStorage.setItem('token', response?.data?.login?.access_token);
+          sessionStorage.setItem('token', response?.data?.login?.access_token);
 
           if (!allowERP && !allowPOS) {
             setPropsAlert({

@@ -318,7 +318,6 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
       </Tooltip>
     </FormItem>
   );
-
   return (
     <Modal
       visible={visible}
@@ -590,8 +589,8 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
           <>
             <TabPane tab="Direcciones" key="2">
               <AddressComponent
-                setValuesAdressField={setValuesAdressField}
                 deliveryAddress={addresses}
+                setAddresses={setAddresses}
                 customer={customerData}
               />
             </TabPane>

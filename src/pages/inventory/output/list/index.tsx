@@ -206,39 +206,46 @@ const OutputList = () => {
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
-
     let sort = {};
 
-    if (sorter.field) {
-      sort = {
-        [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-      };
-    } else {
-      sort = {
-        createdAt: -1,
-      };
-    }
+    try {
+      if (sorter.field) {
+        sort = {
+          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+        };
+      } else {
+        sort = {
+          createdAt: -1,
+        };
+      }
 
-    onFinish(params, sort, current);
+      onFinish(params, sort, current);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({
-      limit: 10,
-      page: 1,
-    });
-    if (!canChangeWarehouse) {
-      form.setFieldsValue({
-        warehouseId: defaultWarehouse,
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({
+        limit: 10,
+        page: 1,
       });
-      setFilters({ warehouseId: defaultWarehouse });
-    } else {
-      setFilters({});
+      if (!canChangeWarehouse) {
+        form.setFieldsValue({
+          warehouseId: defaultWarehouse,
+        });
+        setFilters({ warehouseId: defaultWarehouse });
+      } else {
+        setFilters({});
+      }
+    } catch (error: any) {
+      messageError(error?.message);
     }
   };
 
@@ -247,23 +254,25 @@ const OutputList = () => {
    */
   const loadingData = () => {
     const queryParams: any = location?.query;
-
     const newFilters = {};
+    try {
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'dates') {
+          const dataItem = JSON.parse(queryParams[item]);
+          newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+        } else {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        }
+      });
 
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'dates') {
-        const dataItem = JSON.parse(queryParams[item]);
-        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
-      } else {
-        newFilters[item] = JSON.parse(queryParams[item]);
+      if (!canChangeWarehouse) {
+        newFilters['warehouseId'] = defaultWarehouse;
       }
-    });
 
-    if (!canChangeWarehouse) {
-      newFilters['warehouseId'] = defaultWarehouse;
+      onFinish(newFilters);
+    } catch (error: any) {
+      messageError(error?.message);
     }
-
-    onFinish(newFilters);
   };
 
   useEffect(() => {

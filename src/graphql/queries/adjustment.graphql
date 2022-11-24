@@ -24,6 +24,7 @@ query stockAdjustment($id: String!) {
           cost
           description
           name
+          price
         }
         status
         size {

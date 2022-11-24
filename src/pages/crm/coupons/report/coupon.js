@@ -9,18 +9,22 @@ const classes = {
   content: {
     margin: 20,
     maxWidth: '60mm',
+    color: 'black',
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    color: 'black',
   },
   text: {
     fontSize: 12,
+    color: 'black',
   },
   textFooter: {
     fontSize: 10,
+    color: 'black',
   },
   textMain: {
     fontSize: 22,
@@ -29,29 +33,35 @@ const classes = {
     justifyContent: 'center',
     alignItems: 'center',
     margin: '10px 0',
+    color: 'black',
   },
   textBold: {
     fontWeight: 'bold',
     marginRight: 10,
+    color: 'black',
   },
   textBoldMain: {
     fontWeight: 'bold',
     fontSize: 25,
+    color: 'black',
   },
   body: {
     width: '100%',
     marginTop: 15,
+    color: 'black',
   },
   bodyHeaders: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     fontWeight: 'bold',
+    color: 'black',
   },
   bodyContent: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
+    color: 'black',
   },
   footer: {
     width: '60mm',
@@ -62,6 +72,7 @@ const classes = {
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
     lineHeight: 1.5,
+    color: 'black',
   },
 };
 

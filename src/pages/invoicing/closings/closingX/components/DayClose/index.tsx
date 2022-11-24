@@ -35,6 +35,8 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     type: 'error',
     visible: false,
   });
+  const [expensesSize, setExpensesSize] = useState(0);
+  const [quantityBankState, setQuantityBankState] = useState(0);
 
   const [form] = Form.useForm();
 
@@ -78,10 +80,30 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     );
   };
 
+  const getTotalExpenses = () => {
+    const totalExpenses = data?.createCloseXInvoicing?.expenses?.reduce(
+      (sum, current) => sum + current.value,
+      0,
+    );
+    return totalExpenses;
+  };
+
   const getDifferenceBank = () => {
     return (data?.createCloseXInvoicing?.quantityBank || 0) - getTotalBank();
   };
+  const totalExpenses = data?.createCloseXInvoicing?.expenses?.reduce(
+    (sum, expense) => sum + expense?.value,
+    0,
+  );
 
+  const diff = getTotal() + totalExpenses - getTotalCash();
+
+  const quantityBank = data?.createCloseXInvoicing?.payments?.reduce(
+    (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
+    0,
+  );
+
+  const diffBank = data?.createCloseXInvoicing?.quantityBank - quantityBank;
   /**
    * @description se encarga de cerrar la alerta informativa
    */
@@ -151,6 +173,8 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                   response?.data?.createCloseXInvoicing?.closeDate,
                 ).format(FORMAT_DATE_API)}`,
               );
+              setQuantityBankState(response?.data?.createCloseXInvoicing?.quantityBank);
+              setExpensesSize(response?.data?.createCloseXInvoicing?.expenses?.length);
               setCurrentStep(2);
             }
           } catch (e: any) {
@@ -307,7 +331,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
             >
               <Text>{numeral(getTotal()).format('$ 0,0')}</Text>
             </Col>
-            {getDifferenceCash() !== 0 && (
+            {getDifferenceCash() !== 0 && expensesSize === 0 && (
               <>
                 <Col span={20}>
                   <Text strong>{getDifferenceCash() > 0 ? 'Sobrante' : 'Faltante'}</Text>
@@ -324,6 +348,38 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                       getDifferenceCash() > 0 ? getDifferenceCash() : -getDifferenceCash(),
                     ).format('$ 0,0')}
                   </Text>
+                </Col>
+              </>
+            )}
+            {diff !== 0 && expensesSize > 0 && (
+              <>
+                <Col span={20}>
+                  <Text strong>{diff > 0 ? 'Sobrante' : 'Faltante'}</Text>
+                </Col>
+                <Col
+                  span={4}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Text>{numeral(diff > 0 ? diff : diff * -1).format('$ 0,0')}</Text>
+                </Col>
+              </>
+            )}
+            {expensesSize > 0 && (
+              <>
+                <Col span={20}>
+                  <Text strong>{'Egresos'}</Text>
+                </Col>
+                <Col
+                  span={4}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Text>{numeral(getTotalExpenses()).format('$ 0,0')}</Text>
                 </Col>
               </>
             )}
@@ -351,7 +407,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
             >
               <Text>{data?.createCloseXInvoicing?.quantityBank}</Text>
             </Col>
-            {getDifferenceBank() !== 0 && (
+            {getDifferenceBank() > 0 && expensesSize === 0 && quantityBankState > 0 && (
               <>
                 <Col span={20}>
                   <Text strong>{getDifferenceBank() > 0 ? 'Sobrante' : 'Faltante'}</Text>
@@ -366,6 +422,22 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                   <Text>
                     {getDifferenceBank() > 0 ? getDifferenceBank() : -getDifferenceBank()}
                   </Text>
+                </Col>
+              </>
+            )}
+            {diffBank !== 0 && expensesSize > 0 && (
+              <>
+                <Col span={20}>
+                  <Text strong>{diffBank > 0 ? 'Sobrante' : 'Faltante'}</Text>
+                </Col>
+                <Col
+                  span={4}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Text>{diffBank > 0 ? diffBank : diffBank * -1}</Text>
                 </Col>
               </>
             )}

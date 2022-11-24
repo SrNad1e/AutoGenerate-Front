@@ -59,9 +59,9 @@ const RequestForm = () => {
 
   const allowEdit = isNew
     ? true
-    : initialState?.currentUser?._id === request?.user?._id &&
-      request?.status === StatusStockRequest.Open &&
-      canEdit;
+    : request?.status === StatusStockRequest.Open &&
+      canEdit &&
+      initialState?.currentUser?.shop?.defaultWarehouse?._id === request?.warehouseDestination?._id;
 
   /**
    * @description se encarga de abrir aviso de información
@@ -138,7 +138,11 @@ const RequestForm = () => {
 
   useEffect(() => {
     if (data?.stockRequestId) {
-      setRequest(data?.stockRequestId as StockRequest);
+      try {
+        setRequest(data?.stockRequestId as StockRequest);
+      } catch (error: any) {
+        onShowError(error?.message);
+      }
     }
   }, [data]);
 
@@ -148,22 +152,27 @@ const RequestForm = () => {
    * @returns componente
    */
   const renderSteps = (step: number) => {
-    switch (step) {
-      case 0:
-        return (
-          <SelectWarehouseStep
-            warehouseId={initialState?.currentUser?.shop?.defaultWarehouse._id}
-            changeCurrentStep={changeCurrentStep}
-            label="Bodega Origen"
-          />
-        );
-      case 1:
-        return (
-          <FormRequest allowEdit={allowEdit} request={request} setCurrentStep={setCurrentStep} />
-        );
-      default:
-        return <></>;
+    try {
+      switch (step) {
+        case 0:
+          return (
+            <SelectWarehouseStep
+              warehouseId={initialState?.currentUser?.shop?.defaultWarehouse._id}
+              changeCurrentStep={changeCurrentStep}
+              label="Bodega Origen"
+            />
+          );
+        case 1:
+          return (
+            <FormRequest allowEdit={allowEdit} request={request} setCurrentStep={setCurrentStep} />
+          );
+        default:
+          return <></>;
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
+    return 0;
   };
 
   return (

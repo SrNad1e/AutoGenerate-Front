@@ -98,11 +98,7 @@ const FormGeneralData = () => {
         <DescriptionsItem span={2} label="Atributos">
           <Row>
             <Col xs={12} md={19} lg={20}>
-              <FormItem
-                style={styles.marginIntial}
-                name="attribIds"
-                rules={[{ required: true, message: 'Obligatorio' }]}
-              >
+              <FormItem style={styles.marginIntial} name="attribIds">
                 <SelectListAttrib disabled={false} />
               </FormItem>
             </Col>

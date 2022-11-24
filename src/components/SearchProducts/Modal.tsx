@@ -1,4 +1,4 @@
-import { BarcodeOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { BarcodeOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import {
   Modal,
   Row,
@@ -15,6 +15,7 @@ import {
   InputNumber,
   Space,
   Badge,
+  Checkbox,
 } from 'antd';
 import type { TablePaginationConfig, ColumnsType } from 'antd/es/table/interface';
 import { useState } from 'react';
@@ -24,13 +25,18 @@ import type {
   Color,
   DetailRequest,
   FiltersProductsInput,
+  Order,
   Product,
   Reference,
   Size,
   Stock,
 } from '@/graphql/graphql';
+import { StatusOrderDetail } from '@/graphql/graphql';
 import SelectColor from '../SelectColor';
 import SelectSize from '../SelectSize';
+import validateCodeBar from '@/libs/validateCodeBar';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -44,15 +50,18 @@ export type Props = {
   deleteDetail: (productId: string) => void;
   onCancel: () => void;
   warehouseId: string | undefined;
+  order?: Order;
 };
 
 export type FormValues = {
   name?: string;
   colorId?: string;
   sizeId?: string;
+  withStock?: boolean;
 };
 
 const ModalSearchProducts = ({
+  order,
   visible,
   validateStock,
   details = [],
@@ -63,41 +72,71 @@ const ModalSearchProducts = ({
   deleteDetail,
 }: Props) => {
   const [filters, setFilters] = useState<Partial<FiltersProductsInput>>({
-    limit: 10,
+    limit: 12,
     page: 0,
+  });
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
   });
 
   const [getProducts, { data, loading, error }] = useGetProducts();
+
+  const onCloseAlert = () => {
+    setPropsAlert({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  const showError = (message: string) => {
+    setPropsAlert({
+      message,
+      type: 'error',
+      visible: true,
+    });
+  };
 
   /**
    * @description se encarga de consultar los productos con los filtros
    * @param params filtros para buscar productos
    */
   const onSearch = (params: Partial<FiltersProductsInput>) => {
-    getProducts({
-      variables: {
-        input: {
-          ...params,
-          warehouseId,
-          status: 'active',
+    try {
+      getProducts({
+        variables: {
+          input: {
+            ...params,
+            warehouseId,
+            status: 'active',
+          },
         },
-      },
-    });
+      });
+    } catch (err: any) {
+      showError(err?.message);
+    }
   };
 
   /**
    * @description realiza la busqueda de los productos con base al filtro
    * @param values valores del formulario
    */
-  const onFinish = ({ colorId, name, sizeId }: FormValues) => {
-    const params: Partial<FiltersProductsInput> = {
-      page: 1,
-      colorId,
-      name: name,
-      sizeId,
-    };
-    setFilters({ ...filters, ...params });
-    onSearch({ ...filters, ...params });
+  const onFinish = ({ colorId, name, sizeId, withStock }: FormValues) => {
+    try {
+      const params: Partial<FiltersProductsInput> = {
+        page: 1,
+        colorId,
+        name: name && validateCodeBar(name),
+        sizeId,
+        withStock,
+      };
+      setFilters({ ...filters, ...params });
+      onSearch({ ...filters, ...params });
+    } catch (err: any) {
+      showError(err?.message);
+    }
   };
 
   /**
@@ -107,9 +146,49 @@ const ModalSearchProducts = ({
    * @param sorter evento de ordenamientos
    */
   const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
-    const { current } = paginationLocal;
-    setFilters({ ...filters, page: current });
-    onSearch({ ...filters, page: current });
+    try {
+      const { current } = paginationLocal;
+      setFilters({ ...filters, page: current });
+      onSearch({ ...filters, page: current });
+    } catch (err: any) {
+      showError(err?.message);
+    }
+  };
+
+  /**
+   * @description agrega producto al pedido y  cierra el modal
+   * @param product producto que se agrega
+   */
+  const createAndClose = (product: Product) => {
+    createDetail(product, 1);
+    onCancel();
+  };
+
+  /**
+   * @description bloquea el boton de eliminar y deshabilita la actualizacion de cantidad si el producto ya esta confirmado
+   * @param productId identificador del producto
+   * @returns retorna un boolean
+   */
+  const disabledButtonConfirmProduct = (productId: string) => {
+    try {
+      if (order?.details)
+        for (let i = 0; i < order?.details?.length; i++) {
+          if (
+            productId === order.details[i].product._id &&
+            order?.details[i].status === StatusOrderDetail.Confirmed
+          ) {
+            return true;
+          } else if (
+            productId === order.details[i].product._id &&
+            order?.details[i].status !== StatusOrderDetail.Confirmed
+          ) {
+            return false;
+          }
+        }
+    } catch (err: any) {
+      showError(err?.message);
+    }
+    return;
   };
 
   const columns: ColumnsType<Product> = [
@@ -174,19 +253,23 @@ const ModalSearchProducts = ({
           return (
             <Space>
               <Space>
-                <InputNumber
-                  value={detailFind.quantity}
-                  min={1}
-                  max={
-                    validateStock ? (product.stock ? product?.stock[0]?.quantity : 0) : undefined
-                  }
-                  onChange={(value) => updateDetail(product, value)}
-                />
+                {!order && (
+                  <InputNumber
+                    value={detailFind.quantity}
+                    min={1}
+                    max={
+                      validateStock ? (product.stock ? product?.stock[0]?.quantity : 0) : undefined
+                    }
+                    disabled={order && disabledButtonConfirmProduct(product?._id)}
+                    onChange={(value) => updateDetail(product, value)}
+                  />
+                )}
               </Space>
               <Tooltip title="Eliminar">
                 <Button
                   type="primary"
                   danger
+                  disabled={order && disabledButtonConfirmProduct(product?._id)}
                   icon={<DeleteOutlined />}
                   onClick={() => deleteDetail(_id)}
                 />
@@ -199,7 +282,7 @@ const ModalSearchProducts = ({
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => createDetail(product, 1)}
+              onClick={order ? () => createAndClose(product) : () => createDetail(product, 1)}
               disabled={
                 validateStock ? !!(product.stock && product?.stock[0]?.quantity === 0) : false
               }
@@ -235,13 +318,13 @@ const ModalSearchProducts = ({
         <Row>
           <Col span={21}>
             <Form layout="vertical" autoComplete="off" onFinish={onFinish}>
-              <Row gutter={[10, 10]}>
-                <Col lg={9} md={9} xs={24}>
+              <Row gutter={[20, 10]}>
+                <Col lg={7} md={7} xs={24}>
                   <FormItem label="Búsqueda" name="name">
                     <Input autoFocus placeholder="referencia, descripción, código" />
                   </FormItem>
                 </Col>
-                <Col lg={8} md={8} xs={24}>
+                <Col lg={7} md={7} xs={24}>
                   <Form.Item label="Color" name="colorId">
                     <SelectColor disabled={loading} />
                   </Form.Item>
@@ -251,9 +334,20 @@ const ModalSearchProducts = ({
                     <SelectSize disabled={loading} />
                   </Form.Item>
                 </Col>
+                <Col xs={24} md={3} lg={3}>
+                  <Form.Item valuePropName="checked" label="Con stock" name="withStock">
+                    <Checkbox defaultChecked />
+                  </Form.Item>
+                </Col>
                 <Col xs={24} md={2} lg={2}>
                   <Form.Item label=" " colon={false}>
-                    <Button type="primary" htmlType="submit" loading={loading}>
+                    <Button
+                      icon={<SearchOutlined />}
+                      style={{ borderRadius: 5 }}
+                      type="primary"
+                      htmlType="submit"
+                      loading={loading}
+                    >
                       Buscar
                     </Button>
                   </Form.Item>
@@ -270,6 +364,8 @@ const ModalSearchProducts = ({
               pagination={{
                 current: data?.products?.page,
                 total: data?.products?.totalDocs,
+                defaultPageSize: 12,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}
@@ -277,6 +373,7 @@ const ModalSearchProducts = ({
           </Col>
         </Row>
       </>
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </Modal>
   );
 };

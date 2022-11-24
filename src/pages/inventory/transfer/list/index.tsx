@@ -11,6 +11,7 @@ import {
   FieldNumberOutlined,
   FileDoneOutlined,
   FileSyncOutlined,
+  FireOutlined,
   MoreOutlined,
   PrinterFilled,
   SearchOutlined,
@@ -49,6 +50,7 @@ import { useReactToPrint } from 'react-to-print';
 import { StatusType } from '../tranfer.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { StatusStockTransfer } from '@/graphql/graphql';
 import { useGetTransfers } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -57,6 +59,7 @@ import ReportTransfer from '../reports/transfer';
 import styles from './styles.less';
 import './styles.less';
 import style from './styles';
+import Inconsistencies from '../components/Inconsistencies';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -79,6 +82,7 @@ const TransferList = () => {
     type: 'error',
     visible: false,
   });
+  const [visibleInconsistencies, setVisibleInconsistencies] = useState(false);
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -92,7 +96,7 @@ const TransferList = () => {
   });
 
   const {
-    transfer: { canPrint, canConfirm },
+    transfer: { canPrint, canConfirm, canVerified },
   } = useAccess();
 
   const { initialState } = useModel('@@initialState');
@@ -111,6 +115,22 @@ const TransferList = () => {
       type: 'error',
       visible: true,
     });
+  };
+
+  const historyConfirmConfig = (_id: string) => {
+    if (history.location.pathname.includes('pos')) {
+      history.push(`/pos/transfer/confirm/${_id}`);
+    } else {
+      history.push(`/inventory/transfer/confirm/${_id}`);
+    }
+  };
+
+  const historyEditConfig = (_id: string) => {
+    if (history.location.pathname.includes('pos')) {
+      history.push(`/pos/transfer/${_id}`);
+    } else {
+      history.push(`/inventory/transfer/${_id}`);
+    }
   };
 
   /**
@@ -212,35 +232,43 @@ const TransferList = () => {
 
     let sort = {};
 
-    if (sorter?.field) {
-      sort = {
-        [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
-      };
-    } else {
-      sort = {
-        createdAt: -1,
-      };
-    }
+    try {
+      if (sorter?.field) {
+        sort = {
+          [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
+        };
+      } else {
+        sort = {
+          createdAt: -1,
+        };
+      }
 
-    onFinish(params, sort, current);
+      onFinish(params, sort, current);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    onSearch({});
-    form.resetFields();
-    form.setFieldsValue({
-      type: 'received',
-    });
-    if (!canChangeWarehouse) {
-      onFinish({ warehouseId: defaultWarehouse });
-      setShowFilterType(true);
-    } else {
-      onFinish({});
-      setShowFilterType(false);
+    try {
+      history.replace(location.pathname);
+      onSearch({});
+      form.resetFields();
+      form.setFieldsValue({
+        type: 'received',
+      });
+      if (!canChangeWarehouse) {
+        onFinish({ warehouseId: defaultWarehouse });
+        setShowFilterType(true);
+      } else {
+        onFinish({});
+        setShowFilterType(false);
+      }
+    } catch (error: any) {
+      messageError(error?.message);
     }
   };
 
@@ -249,31 +277,34 @@ const TransferList = () => {
    */
   const loadingData = () => {
     const queryParams: any = location?.query;
-
     const newFilters = {};
+    try {
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'dates') {
+          const dataItem = JSON.parse(queryParams[item]);
+          newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+        }
+        if (item === 'warehouseId') {
+          newFilters[item] = JSON.parse(queryParams[item]);
+          setShowFilterType(true);
+        } else {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        }
+      });
 
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'dates') {
-        const dataItem = JSON.parse(queryParams[item]);
-        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      form.setFieldsValue({
+        type: 'received',
+      });
+
+      if (!canChangeWarehouse) {
+        newFilters['warehouseId'] = defaultWarehouse;
+        setShowFilterType(true);
       }
-      if (item === 'warehouseId') {
-        delete newFilters[item];
-      } else {
-        newFilters[item] = JSON.parse(queryParams[item]);
-      }
-    });
 
-    form.setFieldsValue({
-      type: 'received',
-    });
-
-    if (!canChangeWarehouse) {
-      newFilters['warehouseId'] = defaultWarehouse;
-      setShowFilterType(true);
+      onFinish(newFilters);
+    } catch (error: any) {
+      messageError(error?.message);
     }
-
-    onFinish(newFilters);
   };
 
   /**
@@ -291,10 +322,14 @@ const TransferList = () => {
 
   useEffect(() => {
     loadingData();
-    if (!canChangeWarehouse) {
-      form.setFieldsValue({
-        warehouseId: defaultWarehouse,
-      });
+    try {
+      if (!canChangeWarehouse) {
+        form.setFieldsValue({
+          warehouseId: defaultWarehouse,
+        });
+      }
+    } catch (error: any) {
+      messageError(error?.message);
     }
   }, []);
 
@@ -362,7 +397,7 @@ const TransferList = () => {
                   type="primary"
                   color="secondary"
                   icon={<EditOutlined />}
-                  onClick={() => history.push(`/inventory/transfer/${_id}`)}
+                  onClick={() => historyEditConfig(_id)}
                 />
               </Tooltip>
             ) : (
@@ -378,7 +413,7 @@ const TransferList = () => {
                       <EyeOutlined />
                     )
                   }
-                  onClick={() => history.push(`/inventory/transfer/confirm/${_id}`)}
+                  onClick={() => historyConfirmConfig(_id)}
                 />
               </Tooltip>
             )}
@@ -466,8 +501,20 @@ const TransferList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]}>
-          <Col span={24} className={styles.marginFilters}>
+        <Row gutter={[0, 20]} align="middle" style={{ marginTop: 20 }}>
+          <Col span={12}>
+            <Button
+              icon={<FireOutlined />}
+              type="primary"
+              shape="round"
+              loading={loading}
+              disabled={!canVerified}
+              onClick={() => setVisibleInconsistencies(true)}
+            >
+              Inconsistencias
+            </Button>
+          </Col>
+          <Col span={12} className={styles.marginFilters}>
             <Text strong>Total Encontrados:</Text> {data?.stockTransfers?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.stockTransfers?.page} /{' '}
             {data?.stockTransfers?.totalPages || 0}
@@ -488,6 +535,10 @@ const TransferList = () => {
           </Col>
         </Row>
       </Card>
+      <Inconsistencies
+        onCancel={() => setVisibleInconsistencies(false)}
+        visible={visibleInconsistencies}
+      />
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>
         <ReportTransfer ref={reportRef} data={transferData} />

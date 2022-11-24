@@ -48,7 +48,7 @@
     "not ie <= 10"
   ],
   "dependencies": {
-    "@ant-design/charts": "^0.9.4",
+    "@ant-design/charts": "^1.2.13",
     "@ant-design/icons": "^4.5.0",
     "@ant-design/plots": "^1.2.1",
     "@ant-design/pro-descriptions": "^1.6.8",
@@ -80,6 +80,7 @@
     "react-dom": "^17.0.0",
     "react-fittext": "^1.0.0",
     "react-helmet-async": "^1.0.4",
+    "react-quill": "^2.0.0",
     "react-router": "^4.3.1",
     "react-spring": "^9.4.3",
     "react-to-print": "^2.14.4",

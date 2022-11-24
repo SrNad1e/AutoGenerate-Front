@@ -7,37 +7,45 @@ const classes = {
   content: {
     margin: 20,
     maxWidth: '60mm',
+    color: 'black',
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    color: 'black',
   },
   text: {
     fontSize: 12,
     width: '100%',
+    color: 'black',
   },
   textBold: {
     fontWeight: 'bold',
     marginRight: 10,
+    color: 'black',
   },
   title: {
     fontWeight: 'bold',
     textAlign: 'center',
     width: '100%',
     marginTop: 10,
+    color: 'black',
   },
   row: {
     display: 'flex',
+    color: 'black',
   },
   col1: {
     width: '50%',
     textAlign: 'left',
+    color: 'black',
   },
   col2: {
     width: '50%',
     textAlign: 'right',
+    color: 'black',
   },
   body: {
     display: 'flex',
@@ -45,6 +53,7 @@ const classes = {
     justifyContent: 'space-around',
     width: '100%',
     marginTop: 10,
+    color: 'black',
   },
 };
 
@@ -167,7 +176,7 @@ export default class ReportCloseX extends React.PureComponent {
             </div>
             <div style={classes.title}>
               <div style={classes.row}>
-                <div>Devoluciones</div>
+                <div>Cupones Redimidos</div>
               </div>
             </div>
             <div style={classes.text}>

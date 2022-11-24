@@ -29,8 +29,7 @@ import {
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import type { SorterResult } from 'antd/lib/table/interface';
-import type { DiscountRule, FiltersDiscountRulesInput, Rule } from '@/graphql/graphql';
-import { Permissions } from '@/graphql/graphql';
+import { DiscountRule, FiltersDiscountRulesInput, Permissions, Rule } from '@/graphql/graphql';
 import { useEffect, useState } from 'react';
 import { useAccess, useModel } from 'umi';
 import type { Location } from 'umi';

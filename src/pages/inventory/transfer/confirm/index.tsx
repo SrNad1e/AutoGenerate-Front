@@ -50,6 +50,7 @@ import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
 import styles from './styles.less';
+import validateCodeBar from '@/libs/validateCodeBar';
 
 const { Text, Title } = Typography;
 const FormItem = Form.Item;
@@ -175,9 +176,11 @@ const ConfirmTransfer = () => {
     try {
       const values = await form.validateFields();
 
-      const detail = details.find((item) => item?.product?.barcode === values.barcode);
+      const barcode = values.barcode && validateCodeBar(values.barcode);
 
-      const newDetails = details.filter((item) => item?.product?.barcode !== values.barcode);
+      const detail = details.find((item) => item?.product?.barcode === barcode);
+
+      const newDetails = details.filter((item) => item?.product?.barcode !== barcode);
 
       if (detail) {
         if (detail?.status === StatusDetailTransfer.New || detail?.quantityConfirmed === 0) {
@@ -211,37 +214,44 @@ const ConfirmTransfer = () => {
    * @param _id identificador del producto
    */
   const confirmZero = (_id: string) => {
-    const newDetails = details.map((item) => {
-      if (item?.product?._id === _id) {
-        return {
-          ...item,
-          status: StatusDetailTransfer.Confirmed,
-          quantityConfirmed: 0,
-        };
-      }
-      return item;
-    });
-    setDetails(newDetails);
+    try {
+      const newDetails = details.map((item) => {
+        if (item?.product?._id === _id) {
+          return {
+            ...item,
+            status: StatusDetailTransfer.Confirmed,
+            quantityConfirmed: 0,
+          };
+        }
+        return item;
+      });
+      setDetails(newDetails);
+    } catch (e: any) {
+      onShowError(e?.message);
+    }
   };
 
   /**
    * @description funcion usada para confirmar los productos en el traslado
    */
   const confirmProducts = () => {
-    const productsConfirm = details.filter(
-      (item) =>
-        ((item?.status === StatusDetailTransfer.New && item?.quantityConfirmed) || 0) > 0 ||
-        (item?.status === StatusDetailTransfer.Confirmed && item?.quantityConfirmed === 0),
-    );
-
-    if (productsConfirm.length > 0) {
-      setPropsAlertSave({
-        visible: true,
-        message: '¿Está seguro que desea confirmar los productos?',
-        type: 'warning',
-      });
-    } else {
-      onShowError('No hay productos para confirmar');
+    try {
+      const productsConfirm = details.filter(
+        (item) =>
+          ((item?.status === StatusDetailTransfer.New && item?.quantityConfirmed) || 0) > 0 ||
+          (item?.status === StatusDetailTransfer.Confirmed && item?.quantityConfirmed === 0),
+      );
+      if (productsConfirm.length > 0) {
+        setPropsAlertSave({
+          visible: true,
+          message: '¿Está seguro que desea confirmar los productos?',
+          type: 'warning',
+        });
+      } else {
+        onShowError('No hay productos para confirmar');
+      }
+    } catch (e: any) {
+      onShowError(e?.message);
     }
   };
 
@@ -249,46 +259,56 @@ const ConfirmTransfer = () => {
    * @description funcion usada para confirmar la transferencia si los productos fueron confirmados anteriormente
    */
   const confirmTransfer = () => {
-    const productsConfirm = details.find((item) => item?.status !== StatusDetailTransfer.Confirmed);
+    try {
+      const productsConfirm = details.find(
+        (item) => item?.status !== StatusDetailTransfer.Confirmed,
+      );
 
-    if (!productsConfirm) {
-      setPropsAlertSave({
-        visible: true,
-        message: 'Se enviaran las unidades confirmadas a la bodega, ¿Está Seguro?',
-        type: 'warning',
-        status: StatusStockTransfer.Confirmed,
-      });
-    } else {
-      onShowError('Debe confirmar todos los productos');
+      if (!productsConfirm) {
+        setPropsAlertSave({
+          visible: true,
+          message: 'Se enviaran las unidades confirmadas a la bodega, ¿Está Seguro?',
+          type: 'warning',
+          status: StatusStockTransfer.Confirmed,
+        });
+      } else {
+        onShowError('Debe confirmar todos los productos');
+      }
+    } catch (e: any) {
+      onShowError(e?.message);
     }
   };
 
   const saveTransfer = async (status?: StatusStockTransfer) => {
     if (status === StatusStockTransfer.Confirmed) {
-      const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.New);
+      try {
+        const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.New);
 
-      if (!confirm) {
-        onShowError('Debe confirmar todos los productos antes de enviar');
-      } else {
-        if (id) {
-          const response = await updateTransfer({
-            variables: {
-              id,
-              input: {
-                observationDestination: observation,
-                status,
+        if (!confirm) {
+          onShowError('Debe confirmar todos los productos antes de enviar');
+        } else {
+          if (id) {
+            const response = await updateTransfer({
+              variables: {
+                id,
+                input: {
+                  observationDestination: observation,
+                  status,
+                },
               },
-            },
-          });
-          if (response?.data?.updateStockTransfer) {
-            setPropsAlert({
-              message: 'Productos confirmados correctamente',
-              visible: true,
-              type: 'success',
-              redirect: '/inventory/transfer/list',
             });
+            if (response?.data?.updateStockTransfer) {
+              setPropsAlert({
+                message: 'Productos confirmados correctamente',
+                visible: true,
+                type: 'success',
+                redirect: '/inventory/transfer/list',
+              });
+            }
           }
         }
+      } catch (e: any) {
+        onShowError(e?.message);
       }
     } else {
       const newDetails = details.filter(
@@ -369,21 +389,17 @@ const ConfirmTransfer = () => {
     {
       title: 'Talla',
       dataIndex: 'product',
-      render: ({ size }: Product) => size.value,
-    },
-    {
-      title: 'Enviado',
-      dataIndex: 'quantity',
       align: 'center',
+      render: ({ size }: Product) => size.value,
     },
     {
       title: 'Confirmado',
       dataIndex: 'quantityConfirmed',
       align: 'center',
-      render: (quantityConfirmed: number, record) => (
+      render: (quantityConfirmed: number) => (
         <Badge
           style={{
-            backgroundColor: record?.quantity === quantityConfirmed ? 'green' : 'red',
+            backgroundColor: '#dc9575',
           }}
           count={quantityConfirmed || 0}
           showZero
@@ -483,21 +499,22 @@ const ConfirmTransfer = () => {
                 {moment(data?.stockTransferId?.updatedAt).format(FORMAT_DATE)}
               </DescriptionsItem>
               <DescriptionsItem label="Solicitudes" span={1}>
-                {data?.stockTransferId?.requests?.map((request) => {
+                {data?.stockTransferId?.requests?.map((request) => (
                   <Tag key={request?._id} color="volcano" icon={<CheckCircleOutlined />}>
                     {request?.number}
-                  </Tag>;
-                })}
+                  </Tag>
+                ))}
               </DescriptionsItem>
-              <DescriptionsItem label="Observación">
+              <DescriptionsItem label="Observación" span={2} style={{ width: 200 }}>
                 {allowConfirm ? (
                   <TextArea
+                    maxLength={100}
                     defaultValue={data?.stockTransferId?.observationDestination || ''}
                     value={observation}
                     onChange={(e) => setObservation(e?.target?.value)}
                   />
                 ) : (
-                  data?.stockTransferId?.observationDestination
+                  data?.stockTransferId?.observationOrigin
                 )}
               </DescriptionsItem>
             </Descriptions>
@@ -532,7 +549,7 @@ const ConfirmTransfer = () => {
                   .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
                   .reverse() as any
               }
-              scroll={{ x: 800 }}
+              scroll={{ x: 300 }}
               pagination={{ size: 'small' }}
             />
           </Col>

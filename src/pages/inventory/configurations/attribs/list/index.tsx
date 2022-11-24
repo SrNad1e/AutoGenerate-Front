@@ -24,8 +24,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import type { Location } from 'umi';
-import { useModel } from 'umi';
+import { Location, useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
 
@@ -33,8 +32,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useGetAttribs } from '@/hooks/attrib.hooks';
 import CreateAttrib from '@/components/CreateAttrib';
-import type { Attrib, FiltersAttribsInput } from '@/graphql/graphql';
-import { Permissions } from '@/graphql/graphql';
+import { Attrib, FiltersAttribsInput, Permissions } from '@/graphql/graphql';
 
 import styles from './styles.less';
 import Filters from '@/components/Filters';
@@ -196,39 +194,47 @@ const AttribsList = () => {
 
     const filters = { ...filterArg };
 
-    Object.keys(filters).forEach((i) => {
-      if (filters[i] === null) {
-        delete filters[i];
-      } else {
-        filters[i] = filters[i][0];
-      }
-    });
+    try {
+      Object.keys(filters).forEach((i) => {
+        if (filters[i] === null) {
+          delete filters[i];
+        } else {
+          filters[i] = filters[i][0];
+        }
+      });
 
-    let sort = {};
+      let sort = {};
 
-    if (sorter.field) {
-      if (['ascend', 'descend'].includes(sorter?.order || '')) {
-        sort = {
-          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-        };
+      if (sorter.field) {
+        if (['ascend', 'descend'].includes(sorter?.order || '')) {
+          sort = {
+            [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+          };
+        }
       }
+
+      setQueryParams(filters);
+      onSearch({ ...prop, sort, page: current, ...filters });
+      setSorterTable(sorter);
+      setFilterTable(filterArg);
+    } catch (error: any) {
+      showError(error?.message);
     }
-
-    setQueryParams(filters);
-    onSearch({ ...prop, sort, page: current, ...filters });
-    setSorterTable(sorter);
-    setFilterTable(filterArg);
   };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({});
-    setSorterTable({});
-    setFilterTable({});
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({});
+      setSorterTable({});
+      setFilterTable({});
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -240,16 +246,20 @@ const AttribsList = () => {
     const tableFilters = {
       active: queryParams.active ? [queryParams.active === 'true'] : null,
     };
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'active') {
-        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
-      } else {
-        params[item] = JSON.parse(queryParams[item]);
-      }
-    });
-    form.setFieldsValue(params);
-    setFilterTable(tableFilters);
-    onSearch(params);
+    try {
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'active') {
+          params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+        } else {
+          params[item] = JSON.parse(queryParams[item]);
+        }
+      });
+      form.setFieldsValue(params);
+      setFilterTable(tableFilters);
+      onSearch(params);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   useEffect(() => {
