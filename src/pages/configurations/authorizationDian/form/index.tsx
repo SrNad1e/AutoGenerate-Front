@@ -1,6 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Col, Form, Input, Modal, Row, Space, Typography } from 'antd';
-import { FieldNumberOutlined, FileProtectOutlined } from '@ant-design/icons';
+import { Col, DatePicker, Form, Input, InputNumber, Modal, Row, Space, Typography } from 'antd';
+import {
+  CalendarOutlined,
+  FieldNumberOutlined,
+  FileProtectOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons';
 import type { AuthorizationDian } from '@/graphql/graphql';
 import { useCreateAuthorization, useUpdateAuthorization } from '@/hooks/authorization.hooks';
 import { useEffect, useState } from 'react';
@@ -9,9 +14,11 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
+import moment from 'moment';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
+const { RangePicker } = DatePicker;
 
 type Props = {
   visible: boolean;
@@ -71,6 +78,13 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
     const values = await form.validateFields();
 
     try {
+      if (values.dates) {
+        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE_API);
+        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE_API);
+        values.dateFinal = dateFinal;
+        values.dateInitial = dateInitial;
+      }
+      delete values.dates;
       const response = await updateAuthorization({
         variables: {
           input: values,
@@ -98,6 +112,13 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
     const values = await form.validateFields();
 
     try {
+      if (values.dates) {
+        const dateInitial = moment(values.dates[0]).format(FORMAT_DATE_API);
+        const dateFinal = moment(values.dates[1]).format(FORMAT_DATE_API);
+        values.dateFinal = dateFinal;
+        values.dateInitial = dateInitial;
+      }
+      delete values.dates;
       const response = await createAuthorization({
         variables: {
           input: { ...values },
@@ -121,6 +142,10 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
     form.resetFields();
     form.setFieldsValue({
       ...authorizationData,
+      dates:
+        authorizationData?.dateInitial && authorizationData?.dateFinal
+          ? [moment(authorizationData?.dateInitial), moment(authorizationData?.dateFinal)]
+          : [undefined, undefined],
     });
   }, [visible]);
 
@@ -169,33 +194,32 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
               />
             </FormItem>
             <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="prefix"
+              name="resolution"
               label={
                 <Space>
-                  <FileProtectOutlined />
+                  <FileTextOutlined />
                   <Text>Resolución de Facturación</Text>
                 </Space>
               }
             >
               <Input
-                placeholder="Ingrese prefijo"
+                placeholder="Ingrese resolución"
                 disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
               />
             </FormItem>
             <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="prefix"
+              name="dates"
+              label={
+                <Space>
+                  <CalendarOutlined />
+                  <Text>Fechas</Text>
+                </Space>
+              }
+            >
+              <RangePicker placeholder={['Fecha Inicial', 'Fecha Final']} />
+            </FormItem>
+            <FormItem
+              name="numberInitial"
               label={
                 <Space>
                   <FieldNumberOutlined />
@@ -203,19 +227,10 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
                 </Space>
               }
             >
-              <Input
-                placeholder="Ingrese prefijo"
-                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
-              />
+              <InputNumber controls={false} />
             </FormItem>
             <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="prefix"
+              name="numberFinal"
               label={
                 <Space>
                   <FieldNumberOutlined />
@@ -223,130 +238,7 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
                 </Space>
               }
             >
-              <Input
-                placeholder="Ingrese prefijo"
-                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
-              />
-            </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="prefix"
-              label={
-                <Space>
-                  <FileProtectOutlined />
-                  <Text>Fechas</Text>
-                </Space>
-              }
-            >
-              <Input
-                placeholder="Ingrese prefijo"
-                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
-              />
-            </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="prefix"
-              label={
-                <Space>
-                  <FileProtectOutlined />
-                  <Text>Dirección del Local</Text>
-                </Space>
-              }
-            >
-              <Input
-                placeholder="Ingrese prefijo"
-                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
-              />
-            </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="prefix"
-              label={
-                <Space>
-                  <FileProtectOutlined />
-                  <Text>Teléfono</Text>
-                </Space>
-              }
-            >
-              <Input
-                placeholder="Ingrese prefijo"
-                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
-              />
-            </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="prefix"
-              label={
-                <Space>
-                  <FileProtectOutlined />
-                  <Text>E-mail</Text>
-                </Space>
-              }
-            >
-              <Input
-                placeholder="Ingrese prefijo"
-                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
-              />
-            </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="prefix"
-              label={
-                <Space>
-                  <FileProtectOutlined />
-                  <Text>Nombre del establecimiento comercial</Text>
-                </Space>
-              }
-            >
-              <Input
-                placeholder="Ingrese prefijo"
-                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
-              />
-            </FormItem>
-            <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
-              name="prefix"
-              label={
-                <Space>
-                  <FileProtectOutlined />
-                  <Text>NIT</Text>
-                </Space>
-              }
-            >
-              <Input
-                placeholder="Ingrese prefijo"
-                disabled={paramsCreateAuthorization?.loading || paramsUpdateAuthorization?.loading}
-              />
+              <InputNumber controls={false} />
             </FormItem>
           </Col>
         </Row>
