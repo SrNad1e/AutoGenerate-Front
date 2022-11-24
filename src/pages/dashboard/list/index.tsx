@@ -64,15 +64,16 @@ const Dashboard = () => {
   };
 
   const onSearchData = (filters?: FiltersSalesReportInput) => {
+    const values = form.getFieldValue('dates');
+    console.log(values);
     try {
       getReportSales({
         variables: {
           input: {
-            ...filters,
             isGroupByCategory: false,
-            groupDates: GroupDates.Month,
-            dateInitial: new Date(),
-            dateFinal: new Date(),
+            groupDates: GroupDates.Day,
+            dateInitial: moment('2022-10-01T14:14:58.831Z').format(FORMAT_DATE_API),
+            dateFinal: moment('2022-10-31T14:14:58.831Z').format(FORMAT_DATE_API),
           },
         },
       });
@@ -115,7 +116,7 @@ const Dashboard = () => {
   };
 
   const config = {
-    data: onFinish(),
+    data: [0, 1],
     isStack: true,
     xField: 'id',
     yField: 'price',
@@ -219,7 +220,7 @@ const Dashboard = () => {
   return (
     <PageContainer title="Admin Dashboard">
       <Card>
-        <Form>
+        <Form form={form}>
           <Row gutter={20}>
             <Col xs={24} xl={6}>
               <FormItem label="Período">
@@ -265,6 +266,7 @@ const Dashboard = () => {
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
+                    onClick={() => onSearchData()}
                   >
                     Buscar
                   </Button>

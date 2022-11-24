@@ -1,6 +1,6 @@
 query reportSales($input: FiltersSalesReportInput!) {
   reportSales(filtersSalesReportInput: $input) {
-    customerSalesReport {
+    customersSalesReport {
       quantity
       total
       typeCustomer {

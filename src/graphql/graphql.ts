@@ -4493,13 +4493,13 @@ export type ResponseReferences = {
 export type ResponseReportSales = {
   __typename?: 'ResponseReportSales';
   /** Ventas por tipo de cliente */
-  customerSalesReport: Array<CustomerSalesReport>;
+  customersSalesReport?: Maybe<Array<CustomerSalesReport>>;
   /** Medios de pago */
-  paymentsSalesReport: Array<PaymentsSalesReport>;
+  paymentsSalesReport?: Maybe<Array<PaymentsSalesReport>>;
   /** Ventas detalladas */
-  salesReport: Array<SalesReport>;
+  salesReport?: Maybe<Array<SalesReport>>;
   /** Resumen de ventas */
-  summarySalesReport: SummarySalesReport;
+  summarySalesReport?: Maybe<SummarySalesReport>;
 };
 
 /** Lista de devoluciones de ordenes */
@@ -9020,32 +9020,32 @@ export type ReportSalesQuery = {
   __typename?: 'Query';
   reportSales: {
     __typename?: 'ResponseReportSales';
-    customerSalesReport: Array<{
+    customersSalesReport?: Array<{
       __typename?: 'CustomerSalesReport';
       quantity: number;
       total: number;
       typeCustomer: { __typename?: 'CustomerType'; name: string };
-    }>;
-    paymentsSalesReport: Array<{
+    }> | null;
+    paymentsSalesReport?: Array<{
       __typename?: 'PaymentsSalesReport';
       quantity: number;
       total: number;
       payment: { __typename?: 'Payment'; name: string };
-    }>;
-    salesReport: Array<{
+    }> | null;
+    salesReport?: Array<{
       __typename?: 'SalesReport';
       quantity: number;
       total: number;
       category?: { __typename?: 'CategoryLevel1'; name: string } | null;
       shop: { __typename?: 'Shop'; name: string };
-    }>;
-    summarySalesReport: {
+    }> | null;
+    summarySalesReport?: {
       __typename?: 'SummarySalesReport';
       cmv: number;
       margin: number;
       quantity: number;
       total: number;
-    };
+    } | null;
   };
 };
 
@@ -19103,7 +19103,7 @@ export const ReportSalesDocument = {
               selections: [
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'customerSalesReport' },
+                  name: { kind: 'Name', value: 'customersSalesReport' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
