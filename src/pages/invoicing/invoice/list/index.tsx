@@ -28,7 +28,7 @@ import {
 } from 'antd';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { useHistory, useLocation } from 'umi';
+import { useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
 
 import { useEffect, useState } from 'react';
@@ -40,6 +40,7 @@ import type { Moment } from 'moment';
 import moment from 'moment';
 import { useGetInvoices } from '@/hooks/invoice.hooks';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
+import ModalInvoicing from '../components/ModalInvoicing';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -57,6 +58,8 @@ const InvoiceList = () => {
     visible: false,
   });
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
+  const [showInvoicing, setShowInvoicing] = useState<boolean>(false);
+  const { initialState } = useModel('@@initialState');
 
   const location: Location = useLocation();
 
@@ -389,6 +392,14 @@ const InvoiceList = () => {
             </Col>
           </Row>
         </Form>
+        {initialState?.currentUser?.username === 'admin' && (
+          <>
+            <Button type="primary" onClick={() => setShowInvoicing(true)}>
+              AutoFacturación
+            </Button>
+            <ModalInvoicing open={showInvoicing} />
+          </>
+        )}
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
           <Col span={24} style={styles.texRigth}>
             <Space>
