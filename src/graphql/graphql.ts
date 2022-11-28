@@ -865,7 +865,7 @@ export type CreateReferenceInput = {
   /** Estado de la referencia */
   active?: InputMaybe<Scalars['Boolean']>;
   /** Atributos de la referencia */
-  attribIds: Scalars['String'][];
+  attribIds?: InputMaybe<Scalars['String'][]>;
   /** Marca de la referencia */
   brandId: Scalars['String'];
   /** Categoría nivel 1 de la referencia */
@@ -3711,7 +3711,7 @@ export type ReferenceData = {
 /** Resumen de los pagos */
 export type RefundOrderClose = {
   __typename?: 'RefundOrderClose';
-  /** Cantidad de devoluciones */
+  /** Cantidad de productos devueltos */
   quantity?: Maybe<Scalars['Float']>;
   /** Valor de las devoluciones */
   value?: Maybe<Scalars['Float']>;
@@ -4699,8 +4699,8 @@ export type ReturnOrder = {
   number: Scalars['Float'];
   /** Pedido de la devolución */
   order: Order;
-  /** Tienda */
-  shop: Shop;
+  /** Punto de venta */
+  pointOfSale: Shop;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
@@ -5597,10 +5597,14 @@ export type SummaryOrderClose = {
   quantityCancel: Scalars['Float'];
   /** Cantidad de las ordenes finalizadas */
   quantityClosed: Scalars['Float'];
+  /** Cantidad de los cupones redimidos */
+  quantityCoupons: Scalars['Float'];
   /** Cantidad de las ordenes abiertas */
   quantityOpen: Scalars['Float'];
   /** Valor de las ordenes finalizadas */
   value: Scalars['Float'];
+  /** Valor de los cupones redimidos */
+  valueCoupons: Scalars['Float'];
 };
 
 export enum TypeCreditHistory {
@@ -9419,7 +9423,6 @@ export type ReturnsOrderQuery = {
         message: string;
         expiration: any;
       };
-      shop: { __typename?: 'Shop'; name: string };
       order: {
         __typename?: 'Order';
         number: number;
@@ -20829,14 +20832,6 @@ export const ReturnsOrderDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'shop' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
                       {
                         kind: 'Field',

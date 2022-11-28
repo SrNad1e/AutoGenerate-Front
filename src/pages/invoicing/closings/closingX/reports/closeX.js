@@ -38,7 +38,7 @@ const classes = {
     color: 'black',
   },
   col1: {
-    width: '50%',
+    width: '100%',
     textAlign: 'left',
     color: 'black',
   },
@@ -187,8 +187,25 @@ export default class ReportCloseX extends React.PureComponent {
             </div>
             <div style={classes.text}>
               <div style={classes.row}>
-                <div style={classes.col1}> Valor:</div>
+                <div style={classes.col1}> Valor de Cupones:</div>
                 <div style={classes.col2}>{numeral(totalBonus).format('$ 0,0')}</div>
+              </div>
+            </div>
+            <div style={classes.title}>
+              <div style={classes.row}>
+                <div>Devoluciones</div>
+              </div>
+            </div>
+            <div style={classes.text}>
+              <div style={classes.row}>
+                <div style={classes.col1}>Valor:</div>
+                <div style={classes.col2}>{numeral(data?.refunds?.value).format('$ 0,0')}</div>
+              </div>
+            </div>
+            <div style={classes.text}>
+              <div style={classes.row}>
+                <div style={classes.col1}>Cantidad de Productos:</div>
+                <div style={classes.col2}>{data?.refunds?.quantity || 0}</div>
               </div>
             </div>
             <div style={classes.title}>
