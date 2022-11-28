@@ -138,8 +138,6 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
     const values = await form.validateFields();
 
     try {
-      console.log(values);
-
       const phoneString = (values.phone !== undefined && values.phone.toString()) || undefined;
       const response = await createShop({
         variables: {
@@ -232,6 +230,26 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                   message: 'Este campo no puede estar vacio',
                 },
               ]}
+              name="name"
+              label={
+                <Space>
+                  <ShopOutlined />
+                  <Text>Nombre Comercial</Text>
+                </Space>
+              }
+            >
+              <Input
+                disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading}
+                placeholder="Ingrese nombre de la tienda"
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
               name="defaultWarehouseId"
               label={
                 <Space>
@@ -280,6 +298,28 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading}
                 controls={false}
               />
+            </FormItem>
+            <FormItem
+              name="email"
+              label={
+                <Space>
+                  <PhoneOutlined />
+                  <Text>Correo</Text>
+                </Space>
+              }
+            >
+              <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
+            </FormItem>
+            <FormItem
+              name="email"
+              label={
+                <Space>
+                  <PhoneOutlined />
+                  <Text>NIT</Text>
+                </Space>
+              }
+            >
+              <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
             </FormItem>
             <FormItem
               name="goal"
