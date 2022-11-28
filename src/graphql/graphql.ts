@@ -11,7 +11,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format. */
   DateTime: any;
 };
 
@@ -187,8 +186,20 @@ export type AuthorizationDian = {
   company: Scalars['String'];
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
+  /** Fecha de finalización de la resolución */
+  dateFinal?: Maybe<Scalars['DateTime']>;
+  /** Fecha de inicio de la resolución */
+  dateInitial?: Maybe<Scalars['DateTime']>;
+  /** Numero final de la resolución */
+  numberFinal?: Maybe<Scalars['Float']>;
+  /** Numero inicial de la resolución */
+  numberInitial?: Maybe<Scalars['Float']>;
   /** Prefijo de autorización */
   prefix: Scalars['String'];
+  /** Si es una habilitación true */
+  qualification: Scalars['Boolean'];
+  /** Resolución de la autorización o de la habilitación */
+  resolution?: Maybe<Scalars['String']>;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la autorización de facturación */
@@ -401,6 +412,8 @@ export type CloseXInvoicing = {
   number: Scalars['Float'];
   /** Listado de pagos */
   payments?: Maybe<PaymentOrderClose[]>;
+  /** Medios de pago usados para cruzar créditos */
+  paymentsCredit?: Maybe<PaymentCredit[]>;
   /** Punto de venta que registra el cierre */
   pointOfSale: PointOfSale;
   /** Transacciones reportadas por el usuario */
@@ -434,6 +447,8 @@ export type CloseZInvoicing = {
   number: Scalars['Float'];
   /** Listado de pagos */
   payments?: Maybe<PaymentOrderClose[]>;
+  /** Medios de pago usados para cruzar créditos */
+  paymentsCredit?: Maybe<PaymentCredit[]>;
   /** Punto de venta que registra el cierre */
   pointOfSale: PointOfSale;
   /** Transacciones reportadas por el usuario */
@@ -494,6 +509,8 @@ export type Company = {
   createdAt: Scalars['DateTime'];
   /** Documento de la compañía */
   document: Scalars['String'];
+  /** Correo de la compañia */
+  email: Scalars['String'];
   /** Url del logo de la compañía */
   logo: Scalars['String'];
   /** Nombre de la compañía */
@@ -628,8 +645,20 @@ export type CreateAttribInput = {
 
 /** Datos para la creación de una autorización */
 export type CreateAuthorizationInput = {
+  /** Fecha de finalización de la resolución */
+  dateFinal?: InputMaybe<Scalars['DateTime']>;
+  /** Fecha de inicio de la resolución */
+  dateInitial?: InputMaybe<Scalars['DateTime']>;
+  /** Numero final de la resolución */
+  numberFinal?: InputMaybe<Scalars['Float']>;
+  /** Numero inicial de la resolución */
+  numberInitial?: InputMaybe<Scalars['Float']>;
   /** Prefijo de facturación */
   prefix: Scalars['String'];
+  /** Si es una habilitación true */
+  qualification?: InputMaybe<Scalars['Boolean']>;
+  /** resolución de facturacion */
+  resolution?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para crear la caja */
@@ -718,6 +747,8 @@ export type CreateCompanyInput = {
   address: Scalars['String'];
   /** Documento de la empresa */
   document: Scalars['String'];
+  /** Email de la empresa */
+  email: Scalars['String'];
   /** Url del logo de la empresa */
   logo: Scalars['String'];
   /** Nombre de la empresa */
@@ -852,6 +883,8 @@ export type CreateReceiptInput = {
   concept: Scalars['String'];
   /** Pedidos a los que afecta el recibo */
   details?: InputMaybe<DetailReceiptOrder[]>;
+  /** Cruza crédito el recibo */
+  isCredit: Scalars['Boolean'];
   /** Identificador del medio de pago */
   paymentId: Scalars['String'];
   /** Identificador del punto de venta */
@@ -1126,6 +1159,17 @@ export type Customer = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el cliente */
   user: User;
+};
+
+/** Ventas de tipos de clientes */
+export type CustomerSalesReport = {
+  __typename?: 'CustomerSalesReport';
+  /** Cantidad de ventas */
+  quantity: Scalars['Float'];
+  /** Valor total de las ventas */
+  total: Scalars['Float'];
+  /** Tipo de cliente */
+  typeCustomer: CustomerType;
 };
 
 /** Tipos de clientes */
@@ -1938,6 +1982,8 @@ export type FiltersOrdersInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
   paymentId?: InputMaybe<Scalars['String']>;
+  /** Filtro por tienda */
+  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortOrder>;
   /** Estado del pedido */
@@ -2111,6 +2157,20 @@ export type FiltersRolesInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortRole>;
+};
+
+/** Filtros para el reporte de ventas */
+export type FiltersSalesReportInput = {
+  /** Fecha final del reporte */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial del reporte */
+  dateInitial: Scalars['String'];
+  /** Agrupar por dia, mes o año */
+  groupDates: GroupDates;
+  /** Si es true se agrupan por categoria */
+  isGroupByCategory: Scalars['Boolean'];
+  /** Id de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Filtros usados para consultar las tiendas */
@@ -2314,6 +2374,12 @@ export type FiltersWarehousesInput = {
   /** Ordenamiento */
   sort?: InputMaybe<SortWarehouse>;
 };
+
+export enum GroupDates {
+  Day = 'DAY',
+  Month = 'MONTH',
+  Year = 'YEAR',
+}
 
 /** Indexación de las imagenes */
 export type Image = {
@@ -2954,6 +3020,17 @@ export type PaymentConfirm = {
   status?: InputMaybe<StatusOrderDetail>;
 };
 
+/** Pagos que cruzan créditos */
+export type PaymentCredit = {
+  __typename?: 'PaymentCredit';
+  /** Medio de pago */
+  payment: Payment;
+  /** Cantidad de las pagos del medio */
+  quantity: Scalars['Float'];
+  /** Valor del medio de pago */
+  value: Scalars['Float'];
+};
+
 /** Medios de pago de la factura */
 export type PaymentInvoice = {
   __typename?: 'PaymentInvoice';
@@ -3002,6 +3079,17 @@ export type PaymentsOrderInput = {
   /** Identificador medio de pago agregado al pedido */
   paymentId: Scalars['String'];
   /** Valor total agregado */
+  total: Scalars['Float'];
+};
+
+/** Medios de pago */
+export type PaymentsSalesReport = {
+  __typename?: 'PaymentsSalesReport';
+  /** Medio de pago */
+  payment: Payment;
+  /** Cantidad de veces de uso del medio de pago */
+  quantity: Scalars['Float'];
+  /** Valor total recaudado con el recibo de pago */
   total: Scalars['Float'];
 };
 
@@ -3149,6 +3237,7 @@ export enum Permissions {
   ReadTreasuryPayments = 'READ_TREASURY_PAYMENTS',
   ReadTreasuryReceipts = 'READ_TREASURY_RECEIPTS',
   ReportInvoicingGoalStatus = 'REPORT_INVOICING_GOAL_STATUS',
+  ReportInvoicingSales = 'REPORT_INVOICING_SALES',
   UpdateConfigurationRole = 'UPDATE_CONFIGURATION_ROLE',
   UpdateConfigurationShop = 'UPDATE_CONFIGURATION_SHOP',
   UpdateConfigurationUser = 'UPDATE_CONFIGURATION_USER',
@@ -3314,6 +3403,8 @@ export type Query = {
   referenceId: ReferenceData;
   /** Listado de las referencias */
   references: ResponseReferences;
+  /** Consulta las ventas por rango de fechas */
+  reportSales: ResponseReportSales;
   /** Lista de devoluciones de pedidos */
   returnsOrder: ResponseReturnsOrder;
   /** Obtiene el rol por el identificador */
@@ -3506,6 +3597,10 @@ export type QueryReferencesArgs = {
   filtersReferencesInput?: InputMaybe<FiltersReferencesInput>;
 };
 
+export type QueryReportSalesArgs = {
+  filtersSalesReportInput: FiltersSalesReportInput;
+};
+
 export type QueryReturnsOrderArgs = {
   filtersReturnsOrder?: InputMaybe<FiltersReturnsOrderInput>;
 };
@@ -3610,6 +3705,8 @@ export type Receipt = {
   createdAt: Scalars['DateTime'];
   /** Detalle del cruce del recibo */
   details: DetailReceipt[];
+  /** Valida si el recibo de caja es crédito */
+  isCredit: Scalars['Boolean'];
   /** Consecutivo del recibo de caja */
   number: Scalars['Float'];
   /** Método de pago del recibo de caja */
@@ -4392,6 +4489,19 @@ export type ResponseReferences = {
   totalPages: Scalars['Float'];
 };
 
+/** Reportde de ventas generales */
+export type ResponseReportSales = {
+  __typename?: 'ResponseReportSales';
+  /** Ventas por tipo de cliente */
+  customersSalesReport?: Maybe<CustomerSalesReport[]>;
+  /** Medios de pago */
+  paymentsSalesReport?: Maybe<PaymentsSalesReport[]>;
+  /** Ventas detalladas */
+  salesReport?: Maybe<SalesReport[]>;
+  /** Resumen de ventas */
+  summarySalesReport?: Maybe<SummarySalesReport>;
+};
+
 /** Lista de devoluciones de ordenes */
 export type ResponseReturnsOrder = {
   __typename?: 'ResponseReturnsOrder';
@@ -4747,6 +4857,19 @@ export type RuleInput = {
   documentType: DocumentTypesRule;
   /** Tipo de regla que deben cumplir los documentos */
   type: TypesRule;
+};
+
+/** Ventas detalladas con base a los filtros */
+export type SalesReport = {
+  __typename?: 'SalesReport';
+  /** Categoría */
+  category?: Maybe<CategoryLevel1>;
+  /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
+  quantity: Scalars['Float'];
+  /** Tienda */
+  shop: Shop;
+  /** Valor total de la venta */
+  total: Scalars['Float'];
 };
 
 /** Datos de medidas para el envío de los productos */
@@ -5607,6 +5730,19 @@ export type SummaryOrderClose = {
   valueCoupons: Scalars['Float'];
 };
 
+/** Resumen de ventas */
+export type SummarySalesReport = {
+  __typename?: 'SummarySalesReport';
+  /** CMV */
+  cmv: Scalars['Float'];
+  /** Margen de ventas en porcentaje */
+  margin: Scalars['Float'];
+  /** Cantidad de ventas */
+  quantity: Scalars['Float'];
+  /** Valor total de las ventas */
+  total: Scalars['Float'];
+};
+
 export enum TypeCreditHistory {
   Credit = 'CREDIT',
   Debit = 'DEBIT',
@@ -5662,8 +5798,20 @@ export type UpdateAttribInput = {
 
 /** Datos para actualizar la autorización */
 export type UpdateAuthorizationInput = {
+  /** Fecha de finalización de la resolución */
+  dateFinal?: InputMaybe<Scalars['DateTime']>;
+  /** Fecha de inicio de la resolución */
+  dateInitial?: InputMaybe<Scalars['DateTime']>;
+  /** Numero final de la resolución */
+  numberFinal?: InputMaybe<Scalars['Float']>;
+  /** Numero inicial de la resolución */
+  numberInitial?: InputMaybe<Scalars['Float']>;
   /** Prefijo de facturación */
   prefix?: InputMaybe<Scalars['String']>;
+  /** Si es una habilitación true */
+  qualification?: InputMaybe<Scalars['Boolean']>;
+  /** resolución de facturacion */
+  resolution?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para actualizar caja */
@@ -5714,6 +5862,8 @@ export type UpdateCompanyInput = {
   address?: InputMaybe<Scalars['String']>;
   /** Documento de la empresa */
   document?: InputMaybe<Scalars['String']>;
+  /** Email de la empresa */
+  email?: InputMaybe<Scalars['String']>;
   /** Url del logo de la empresa */
   logo?: InputMaybe<Scalars['String']>;
   /** Nombre de la empresa */
