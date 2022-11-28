@@ -47,6 +47,9 @@ query returnsOrder($input: FiltersReturnsOrderInput) {
         }
         quantity
       }
+      pointOfSale {
+        name
+      }
     }
   }
 }
