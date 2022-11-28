@@ -464,6 +464,16 @@ const EcommerceForm = () => {
               <Space>
                 <Popconfirm
                   title="¿Esta seguro que desea cancelar el pedido?"
+                  disabled={
+                    paramsGetOrder?.data?.orderId?.order?.statusWeb === StatusWeb.Cancelled ||
+                    (paramsGetOrder?.data?.orderId?.order?.statusWeb !== StatusWeb.Cancelled
+                      ? initialState?.currentUser?.role?.name === 'Administrador'
+                        ? false
+                        : disabledCancelButton()
+                      : true) ||
+                    paramsGetOrder.data?.orderId.order.statusWeb === StatusWeb.Sent ||
+                    paramsGetOrder.data?.orderId.order.status === StatusOrder.Closed
+                  }
                   okText="Si"
                   cancelText="No"
                   onConfirm={() => onCancelOrder()}
