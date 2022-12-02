@@ -251,6 +251,7 @@ const EcommerceList = () => {
         </Text>
       ),
       dataIndex: 'number',
+      width: 100,
     },
     {
       title: <Text>{<UserOutlined />} Cliente</Text>,
@@ -371,10 +372,31 @@ const EcommerceList = () => {
       ),
     },
     {
+      title: (
+        <Text>
+          <ScheduleOutlined /> Cierre
+        </Text>
+      ),
+      dataIndex: 'closeDate',
+      sorter: false,
+      showSorterTooltip: false,
+      width: 130,
+      render: (closeDate: string) => (
+        <>
+          {moment(closeDate).format(FORMAT_DATE)}
+
+          <Tag style={styles.tagStyle}>
+            {moment(closeDate).fromNow()} <ClockCircleFilled />
+          </Tag>
+        </>
+      ),
+    },
+    {
       title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
+      width: 100,
       render: (_id: string) => (
         <Tooltip title="Editar">
           <Button
@@ -454,7 +476,7 @@ const EcommerceList = () => {
             <Table
               columns={columns as any}
               onChange={handleChangeTable}
-              scroll={{ x: 1200 }}
+              scroll={{ x: 1300 }}
               dataSource={data?.orders?.docs}
               loading={loading}
               pagination={{
