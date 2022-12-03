@@ -423,9 +423,9 @@ const EcommerceForm = () => {
                     {paramsGetOrder?.data?.orderId?.order?.address?.field1}{' '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.number1}
                     {' # '}
-                    {paramsGetOrder?.data?.orderId?.order?.address?.number2}
-                    {' - '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.loteNumber}
+                    {' - '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.number2}
                     {' - '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.city?.name},{' '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.city?.state}
