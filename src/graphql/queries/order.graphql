@@ -199,6 +199,7 @@ query orderId($id: String!) {
         updatedAt
         total
         status
+        code
         payment {
           _id
           name

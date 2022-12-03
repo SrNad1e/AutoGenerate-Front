@@ -185,9 +185,9 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
 
     const paymenSave = paramsGetOrder?.data?.orderId?.order?.payments;
     const paymentSave = paymenSave?.sort(compare_lname);
-    const paymentCurrent = payments.sort(compare_lname);
+    const paymentCurrent = payments?.sort(compare_lname);
 
-    if (paymentSave?.length > paymentCurrent.length) {
+    if (paymentSave?.length > paymentCurrent?.length) {
       for (let i = 0; i < payments?.length; i++) {
         if (paymentSave[i + 1]?.payment?._id === paymentCurrent[i]?.payment?._id) {
           arr.push({
@@ -232,6 +232,38 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
             total: payments[i]?.total,
             code: payments[i]?.code,
           });
+          console.log(1);
+        } else if (paymentCurrent.length > paymentSave?.length) {
+          if (
+            paymentCurrent[i + 1]?.payment?._id === paymentSave[i]?.payment?._id &&
+            paymentSave[i] !== undefined
+          ) {
+            arr.push({
+              paymentId: paymentCurrent[i + 1]?.payment?._id,
+              action: ActionPaymentsOrder.Update,
+              total: paymentCurrent[i + 1]?.total,
+              code: paymentCurrent[i + 1]?.code,
+            });
+          } else if (paymentCurrent[i]?.payment?._id !== paymentSave[i]?.payment?._id) {
+            if (paymentSave?.length > 0) {
+              const payFound = paymentCurrent.find(
+                (payment) => payment.payment._id !== paymentSave[i]?.payment?._id,
+              );
+              arr.push({
+                paymentId: payFound?.payment?._id, // paymentCurrent[i]?.payment?._id,
+                action: ActionPaymentsOrder.Create,
+                total: payFound?.total, // paymentCurrent[i]?.total,
+                code: payFound?.code, //paymentCurrent[i]?.code,
+              });
+            } else {
+              arr.push({
+                paymentId: paymentCurrent[i]?.payment?._id,
+                action: ActionPaymentsOrder.Create,
+                total: paymentCurrent[i]?.total,
+                code: paymentCurrent[i]?.code,
+              });
+            }
+          }
         } else if (paymentCurrent[i]?.payment?._id !== paymentSave[i]?.payment?._id) {
           arr.push({
             paymentId: paymentCurrent[i]?.payment?._id,
@@ -239,16 +271,16 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
             total: paymentCurrent[i]?.total,
             code: paymentCurrent[i]?.code,
           });
-          break;
         }
         if (paymentCurrent[i]?.payment?._id !== paymentSave[i]?.payment?._id) {
           if (paymentSave.includes(paymentCurrent[i])) {
-            arr.push({
-              paymentId: paymentSave[i]?.payment?._id,
-              action: ActionPaymentsOrder.Update,
-              total: paymentCurrent[i + 1]?.total,
-              code: paymentSave[i]?.code,
-            });
+            if (paymentSave?.[i]?.payment?._id)
+              arr.push({
+                paymentId: paymentSave[i]?.payment?._id,
+                action: ActionPaymentsOrder.Update,
+                total: paymentCurrent[i + 1]?.total,
+                code: paymentSave[i]?.code,
+              });
             break;
           }
         }

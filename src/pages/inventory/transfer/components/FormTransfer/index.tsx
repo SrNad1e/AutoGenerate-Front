@@ -26,7 +26,6 @@ import { StatusStockTransfer } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
-import SearchProducts from '@/components/SearchProducts';
 import { useCreateTransfer, useUpdateTransfer } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
@@ -34,6 +33,7 @@ import AlertSave from '@/components/Alerts/AlertSave';
 
 import Footer from './footer';
 import Header from './header';
+import SelectProducts from '@/components/SelectProducts';
 
 const { Text } = Typography;
 const FormItem = Form.Item;
@@ -488,7 +488,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         <Card bordered={false} size="small">
           <Form layout="vertical">
             <FormItem label="Código de barras">
-              <SearchProducts {...propsSearchProduct} />
+              <SelectProducts {...propsSearchProduct} />
             </FormItem>
           </Form>
         </Card>
