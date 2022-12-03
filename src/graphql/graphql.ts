@@ -8598,6 +8598,7 @@ export type OrderIdQuery = {
     credit?: { __typename?: 'Credit'; available: number; amount: number } | null;
     order: {
       __typename?: 'Order';
+      closeDate: any;
       statusWeb?: StatusWeb | null;
       status: StatusOrder;
       _id: string;
@@ -8860,6 +8861,7 @@ export type OrdersQuery = {
     page: number;
     docs: {
       __typename?: 'Order';
+      closeDate: any;
       statusWeb?: StatusWeb | null;
       _id: string;
       createdAt: any;
@@ -9154,6 +9156,7 @@ export type ProductQuery = {
     stock?: { __typename?: 'Stock'; quantity: number }[] | null;
     color: {
       __typename?: 'Color';
+      name: string;
       name_internal: string;
       html: string;
       image?: {
@@ -18288,6 +18291,7 @@ export const OrderIdDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'statusWeb' } },
                       {
                         kind: 'Field',
@@ -19031,6 +19035,7 @@ export const OrdersDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'address' },
@@ -19965,6 +19970,7 @@ export const ProductDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'html' } },
                       {

@@ -160,7 +160,7 @@ export default class OrderProduction extends React.PureComponent {
           </div>
           <div style={classes.text}>
             <span>Fecha: </span>
-            {moment(data.createdAt).format('YYYY/MM/DD HH:mm:SS')}
+            {moment(data?.closeDate).format('YYYY/MM/DD HH:mm:SS')}
           </div>
           <div style={{ width: '100%', lineHeight: 1.2, marginTop: 10 }}>
             <div style={classes.text}>

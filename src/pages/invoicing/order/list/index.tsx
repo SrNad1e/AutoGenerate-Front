@@ -386,7 +386,7 @@ const OrderList = () => {
     {
       title: (
         <Text>
-          <CalendarOutlined /> Fecha
+          <CalendarOutlined /> Fecha Creación
         </Text>
       ),
       dataIndex: 'updatedAt',
@@ -394,6 +394,18 @@ const OrderList = () => {
       showSorterTooltip: false,
       align: 'center',
       render: (updatedAt: Date) => moment(updatedAt).format('DD/MM/YYYY HH:mm:ss'),
+    },
+    {
+      title: (
+        <Text>
+          <CalendarOutlined /> Fecha Cierre
+        </Text>
+      ),
+      dataIndex: 'closeDate',
+      sorter: false,
+      showSorterTooltip: false,
+      align: 'center',
+      render: (closeDate: Date) => moment(closeDate).format('DD/MM/YYYY HH:mm:ss'),
     },
     {
       title: (

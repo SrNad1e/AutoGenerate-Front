@@ -285,7 +285,8 @@ const TransferList = () => {
           newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
         }
         if (item === 'warehouseId') {
-          delete newFilters[item];
+          newFilters[item] = JSON.parse(queryParams[item]);
+          setShowFilterType(true);
         } else {
           newFilters[item] = JSON.parse(queryParams[item]);
         }
