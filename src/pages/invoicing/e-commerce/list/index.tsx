@@ -335,25 +335,6 @@ const EcommerceList = () => {
     {
       title: (
         <Text>
-          <ScheduleOutlined /> Creado
-        </Text>
-      ),
-      dataIndex: 'createdAt',
-      sorter: true,
-      showSorterTooltip: false,
-      width: 120,
-      render: (createdAt: string) => (
-        <>
-          {moment(createdAt).format(FORMAT_DATE)}
-          <Tag style={styles.tagStyle}>
-            {moment(createdAt).fromNow()} <ClockCircleFilled />
-          </Tag>
-        </>
-      ),
-    },
-    {
-      title: (
-        <Text>
           <ScheduleOutlined /> Actualizado
         </Text>
       ),
@@ -476,7 +457,7 @@ const EcommerceList = () => {
             <Table
               columns={columns as any}
               onChange={handleChangeTable}
-              scroll={{ x: 1300 }}
+              scroll={{ x: 1000 }}
               dataSource={data?.orders?.docs}
               loading={loading}
               pagination={{
