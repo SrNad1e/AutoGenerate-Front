@@ -9596,6 +9596,7 @@ export type ReturnsOrderQuery = {
             };
           }[]
         | null;
+      pointOfSale: { __typename?: 'Shop'; name: string };
     }[];
   };
 };
@@ -21065,6 +21066,14 @@ export const ReturnsOrderDocument = {
                             },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
                           ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                         },
                       },
                     ],
