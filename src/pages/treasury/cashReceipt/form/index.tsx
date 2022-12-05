@@ -234,6 +234,7 @@ const CashReceiptForm = ({ visible, onCancel }: Props) => {
             ...values,
             details: detailsCreate,
             boxId: paramsGetPos.data?.pointOfSales?.docs[0]?.box?._id,
+            isCredit: true,
           },
         },
       });
