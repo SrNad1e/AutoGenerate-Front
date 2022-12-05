@@ -26,7 +26,7 @@
     "start:dev": "cross-env REACT_APP_ENV=dev MOCK=none UMI_ENV=dev umi dev",
     "start:no-mock": "cross-env MOCK=none UMI_ENV=dev umi dev",
     "start:no-ui": "cross-env UMI_UI=none UMI_ENV=dev umi dev",
-    "start:pre": "cross-env REACT_APP_ENV=pre UMI_ENV=pre umi dev",
+    "start:pre": "export NODE_OPTIONS='--max-old-space-size=4096' && export NODE_OPTIONS=--openssl-legacy-provider && cross-env REACT_APP_ENV=pre UMI_ENV=pre umi dev",
     "start:test": "cross-env REACT_APP_ENV=test MOCK=none UMI_ENV=dev umi dev",
     "pretest": "node ./tests/beforeTest",
     "test": "umi test",
