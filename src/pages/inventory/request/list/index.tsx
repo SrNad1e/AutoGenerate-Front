@@ -420,7 +420,7 @@ const RequestList = () => {
   ];
 
   return (
-    <PageContainer title={<Title level={4}>Historial de solicitudes</Title>}>
+    <PageContainer title={<Title level={4}>Lista de solicitudes</Title>}>
       <Card>
         <Form form={form} style={style.marginFilters} onFinish={onFinish}>
           <Row gutter={[40, 0]} align="middle">
