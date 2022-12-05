@@ -13,6 +13,7 @@ import {
   CalendarOutlined,
   ClearOutlined,
   ContainerOutlined,
+  DollarCircleFilled,
   DollarCircleOutlined,
   FieldNumberOutlined,
   LaptopOutlined,
@@ -316,7 +317,7 @@ const ClosingZList = () => {
       dataIndex: 'closeDate',
       sorter: true,
       showSorterTooltip: false,
-      render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE_API),
+      render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE),
     },
     {
       title: (
@@ -340,6 +341,26 @@ const ClosingZList = () => {
       dataIndex: 'user',
       align: 'center',
       render: (user: User) => user?.name,
+    },
+    {
+      title: <Text>{<DollarCircleFilled />} Ingreso Neto</Text>,
+      dataIndex: 'payments',
+      align: 'center',
+      render: (payments: PaymentOrderClose[]) => {
+        const incomings = payments?.reduce((sum, payment) => sum + payment?.value, 0);
+        const valueBonus = payments?.find((item) => item?.payment?.type === 'BONUS')?.value || 0;
+
+        return numeral(incomings - valueBonus).format('$ 0,0');
+      },
+    },
+    {
+      title: <Text>{<DollarCircleFilled />} Bonos Redimidos</Text>,
+      dataIndex: 'payments',
+      align: 'center',
+      render: (payments: PaymentOrderClose[]) =>
+        numeral(payments?.find((item) => item?.payment?.type === 'BONUS')?.value || 0).format(
+          '$ 0,0',
+        ),
     },
     {
       title: (
@@ -442,10 +463,11 @@ const ClosingZList = () => {
               pagination={{
                 current: data?.closesZInvoicing?.page,
                 total: data?.closesZInvoicing?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               columns={columns}
-              scroll={{ x: 900 }}
+              scroll={{ x: 1000 }}
               loading={loading}
               dataSource={data?.closesZInvoicing?.docs as any}
             />

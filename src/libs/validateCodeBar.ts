@@ -1,6 +1,6 @@
 export default (value: string) => {
   const valueInt = parseInt(value);
-  if (value.length < 12 || isNaN(valueInt)) {
+  if (value?.length < 12 || isNaN(valueInt)) {
     return value;
   } else {
     if (isNaN(valueInt)) {

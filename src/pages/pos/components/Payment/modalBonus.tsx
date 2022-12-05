@@ -72,8 +72,6 @@ const ModalBonus = ({ payment, visible, setPayments, payments, onCancel }: Param
         } else if (response?.data?.coupon?.status === StatusCoupon.Inactive) {
           onShowError('El bono se encuentra inactivo');
         } else {
-          console.log(e?.target?.value);
-
           setPayments(
             payments.concat({
               payment,

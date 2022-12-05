@@ -90,8 +90,8 @@ export default class OrderProduction extends React.PureComponent {
               {data?.user?.name}
             </div>
             <div style={classes.text}>
-              <span style={classes.textBold}>Tienda:</span>
-              {data?.shop?.name}
+              <span style={classes.textBold}>Punto de Venta:</span>
+              {data?.pointOfSale?.name}
             </div>
           </div>
           <div style={classes.body}>
