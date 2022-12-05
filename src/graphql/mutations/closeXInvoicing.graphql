@@ -44,6 +44,14 @@ mutation createCloseXInvoicing($input: CreateCloseXInvoicingInput!) {
       quantity
       value
     }
+    paymentsCredit {
+      payment {
+        type
+        name
+      }
+      quantity
+      value
+    }
     user {
       name
     }

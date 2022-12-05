@@ -29,7 +29,7 @@ import {
   Col,
   DatePicker,
   Form,
-  Input,
+  InputNumber,
   Row,
   Space,
   Table,
@@ -48,7 +48,8 @@ import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import { Location, useModel } from 'umi';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -370,7 +371,12 @@ const ClosingZList = () => {
           <Row gutter={[20, 0]}>
             <Col xs={24} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">
-                <Input style={{ width: '100%' }} disabled={loading} placeholder="Ejem: 10" />
+                <InputNumber
+                  controls={false}
+                  style={{ width: '100%' }}
+                  disabled={loading}
+                  placeholder="Ejem: 10"
+                />
               </FormItem>
             </Col>
             <Col xs={24} md={7} lg={7} xl={7}>

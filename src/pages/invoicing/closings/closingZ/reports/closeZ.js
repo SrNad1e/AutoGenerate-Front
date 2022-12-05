@@ -105,6 +105,26 @@ export default class ReportCloseZ extends React.PureComponent {
       0,
     );
 
+    const paymentCreditCash = data?.paymentsCredit?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'CASH' ? payment?.value : 0),
+      0,
+    );
+
+    const paymentCreditBank = data?.paymentsCredit?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.value : 0),
+      0,
+    );
+
+    const paymentCreditBonus = data?.paymentsCredit?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'BONUS' ? payment?.value : 0),
+      0,
+    );
+
+    const totalCreditPayments = data?.paymentsCredit?.reduce(
+      (sum, payment) => sum + payment?.value,
+      0,
+    );
+
     const diff = totalCashRegister + totalExpenses - totalCash;
     const diffBank = data?.quantityBank - quantityBank;
 
@@ -306,7 +326,7 @@ export default class ReportCloseZ extends React.PureComponent {
             <div style={classes.text}>
               <div style={classes.row}>
                 <div style={classes.col1}>Abonos a Crédito:</div>
-                <div style={classes.col2}> {numeral(0).format('$ 0,0')}</div>
+                <div style={classes.col2}> {numeral(totalCreditPayments).format('$ 0,0')}</div>
               </div>
             </div>
           </div>
