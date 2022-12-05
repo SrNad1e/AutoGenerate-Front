@@ -9,13 +9,16 @@ import moment from 'moment';
 import { useRef } from 'react';
 export interface Props {
   open: boolean;
+  onCancel: () => void;
 }
 
 const FormItem = Form.Item;
 
 const { Title, Text } = Typography;
 
-const ModalInvoicing = ({ open }: Props) => {
+const { RangePicker } = DatePicker;
+
+const ModalInvoicing = ({ open, onCancel }: Props) => {
   const [form] = Form.useForm();
 
   const refCash = useRef(null);
@@ -23,18 +26,19 @@ const ModalInvoicing = ({ open }: Props) => {
   const [reportSales, { loading, data }] = useReportSales();
 
   const getPayments = async () => {
-    form.validateFields(['shopId', 'date']);
+    form.validateFields(['shopId', 'dates']);
     const shopId = form.getFieldValue('shopId');
-    const date = form.getFieldValue('date');
+    const dates: Moment[] = form.getFieldValue('dates');
 
-    const dateFormat = date.format(FORMAT_DATE_API);
+    const dateInitial = dates[0].format(FORMAT_DATE_API);
+    const dateFinal = dates[1].format(FORMAT_DATE_API);
 
     await reportSales({
       variables: {
         input: {
-          dateFinal: dateFormat,
-          dateInitial: dateFormat,
-          groupDates: GroupDates.Month,
+          dateFinal,
+          dateInitial,
+          groupDates: GroupDates.Day,
           isGroupByCategory: false,
           shopId,
         },
@@ -45,14 +49,14 @@ const ModalInvoicing = ({ open }: Props) => {
   };
 
   const invoicing = () => {
-    form.validateFields(['shopId', 'date', 'cash']);
+    form.validateFields(['shopId', 'dates', 'cash']);
 
     const shopId = form.getFieldValue('shopId');
-    const date: Moment = form.getFieldValue('date');
+    const dates: Moment[] = form.getFieldValue('dates');
     const cash = form.getFieldValue('cash');
 
-    const dateInitial = date.startOf('month').format(FORMAT_DATE_API);
-    const dateFinal = date.endOf('month').format(FORMAT_DATE_API);
+    const dateInitial = dates[0].startOf('day').format(FORMAT_DATE_API);
+    const dateFinal = dates[1].endOf('day').format(FORMAT_DATE_API);
 
     console.log('shopId', shopId);
     console.log('dateInitial', dateInitial);
@@ -62,11 +66,11 @@ const ModalInvoicing = ({ open }: Props) => {
 
   const disabledDate: RangePickerProps['disabledDate'] = (current) => {
     // Can not select days before today and today
-    return current && current > moment().subtract(1, 'M').endOf('day');
+    return current && current > moment().subtract(1, 'd').endOf('day');
   };
 
   return (
-    <Modal open={open} footer={null}>
+    <Modal open={open} footer={null} onCancel={onCancel}>
       <Form layout="vertical" form={form}>
         <FormItem
           rules={[
@@ -88,9 +92,9 @@ const ModalInvoicing = ({ open }: Props) => {
             },
           ]}
           label="Selecciona las fechas"
-          name="date"
+          name="dates"
         >
-          <DatePicker disabledDate={disabledDate} disabled={loading} picker="month" />
+          <RangePicker disabledDate={disabledDate} disabled={loading} />
         </FormItem>
         <Button loading={loading} onClick={getPayments} type="primary">
           Consultar Resumen

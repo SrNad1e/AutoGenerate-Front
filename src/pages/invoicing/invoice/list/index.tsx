@@ -397,7 +397,7 @@ const InvoiceList = () => {
             <Button type="primary" onClick={() => setShowInvoicing(true)}>
               AutoFacturación
             </Button>
-            <ModalInvoicing open={showInvoicing} />
+            <ModalInvoicing open={showInvoicing} onCancel={() => setShowInvoicing(false)} />
           </>
         )}
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
