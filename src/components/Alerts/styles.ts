@@ -22,6 +22,7 @@ export const useStyle = (
       display: 'block',
       marginLeft: 'auto',
       marginRight: 'auto',
+      borderRadius: 5,
     },
   };
 };

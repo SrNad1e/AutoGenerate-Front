@@ -208,6 +208,9 @@ const ConfirmTransfer = () => {
       setError(e?.message);
     }
   };
+  useEffect(() => {
+    console.log(details);
+  }, [details]);
 
   /**
    * @description funcion usada para confirmar un producto con la cantidad en 0

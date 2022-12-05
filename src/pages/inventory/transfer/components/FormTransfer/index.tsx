@@ -25,6 +25,7 @@ import { ActionDetailTransfer } from '@/graphql/graphql';
 import { StatusStockTransfer } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
+import type { Props as PropsAlertConfirm } from '@/components/Alerts/AlertConfirm';
 import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
 import { useCreateTransfer, useUpdateTransfer } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -34,6 +35,7 @@ import AlertSave from '@/components/Alerts/AlertSave';
 import Footer from './footer';
 import Header from './header';
 import SelectProducts from '@/components/SelectProducts';
+import AlertConfirm from '@/components/Alerts/AlertConfirm';
 
 const { Text } = Typography;
 const FormItem = Form.Item;
@@ -64,6 +66,12 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     visible: false,
     message: '',
     type: 'error',
+  });
+  const [propsAlertConfirm, setPropsAlertConfirm] = useState<PropsAlertConfirm>({
+    message: '',
+    type: 'warning',
+    visible: false,
+    arr: details,
   });
 
   const { initialState } = useModel('@@initialState');
@@ -151,7 +159,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
 
         const newDetails = detailsFilter.map((detail) => ({
           productId: detail?.product?._id || '',
-          quantity: detail?.quantity || 1,
+          quantity: detail?.quantity,
           action: detail?.action as ActionDetailTransfer,
         }));
         if (newDetails.length > 0 || status || observation !== transfer?.observationOrigin) {
@@ -218,7 +226,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         } else {
           const newDetails = details.map((detail) => ({
             productId: detail?.product?._id || '',
-            quantity: detail?.quantity || 1,
+            quantity: detail?.quantity,
           }));
           const props = {
             details: newDetails,
@@ -298,19 +306,20 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Product, quantity: number) => {
+    const newDetails = [];
     try {
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product._id) {
-            return {
-              ...detail,
-              quantity: quantity || 0,
-              action: detail?.action ?? ActionDetailTransfer.Update,
-            };
-          }
-          return detail;
-        }),
-      );
+      for (let i = 0; i < details.length; i++) {
+        if (details[i]?.product?._id === product?._id) {
+          newDetails.unshift({
+            ...details[i],
+            quantity: quantity,
+            action: details[i]?.action ?? ActionDetailTransfer.Update,
+          });
+        } else {
+          newDetails.push(details[i]);
+        }
+      }
+      setDetails(newDetails);
     } catch (error: any) {
       showError(error?.message);
     }
@@ -321,13 +330,45 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param product producto del detalle
    * @param quantity cantidad del producto
    */
-  const createDetail = (product: Product, quantity: number) => {
+  const createDetail = async (product: Product, quantity: number) => {
+    const newDetails = [];
     try {
-      setDetails([...details, { product, quantity, action: ActionDetailTransfer.Create }]);
+      if (requests.length > 0) {
+        if (details.includes(product)) {
+          details.map((detail) => {
+            if (detail?.product?._id === product._id) {
+              newDetails.push({
+                ...detail,
+                quantity: quantity || 0,
+                action: detail?.action ?? ActionDetailTransfer.Update,
+              });
+              setDetails(newDetails);
+            }
+            newDetails.push(detail);
+            setDetails(newDetails);
+          });
+        } else {
+          setPropsAlertConfirm({
+            message: 'El producto que intenta agregar no existe en la solicitud, ¿desea agregarlo?',
+            type: 'warning',
+            visible: true,
+            onOk: setDetails([
+              { product, quantity, action: ActionDetailTransfer.Create },
+              ...details,
+            ]),
+          });
+        }
+      } else {
+        setDetails([{ product, quantity, action: ActionDetailTransfer.Create }, ...details]);
+      }
     } catch (error: any) {
       showError(error?.message);
     }
   };
+
+  useEffect(() => {
+    console.log(details);
+  }, [details]);
 
   /**
    * @description se encarga de cerrar la alerta information
@@ -344,6 +385,17 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    */
   const onCancelAlert = () => {
     setPropsAlertSave({
+      visible: false,
+      message: '',
+      type: 'error',
+    });
+  };
+
+  /**
+   * @description se encarga de cerrar la alerta Save
+   */
+  const onCancelAlertConfirm = () => {
+    setPropsAlertConfirm({
       visible: false,
       message: '',
       type: 'error',
@@ -423,7 +475,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       dataIndex: 'product',
       align: 'center',
       width: 30,
-      render: ({ stock = [] }: Product) =>
+      render: ({ stock }: Product) =>
         (stock?.length || 0) > 0 && (
           <Badge
             overflowCount={99999}
@@ -443,8 +495,8 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       render: (quantity: number, { product = {} }) => (
         <InputNumber
           value={quantity || 0}
-          min={1}
-          max={product?.stock ? product?.stock[0]?.quantity : 0}
+          min={0}
+          max={product?.stock ? product?.stock[0]?.quantity : 10}
           onChange={(value) => updateDetail(product as Product, value)}
           disabled={!allowEdit}
           style={{ color: 'black', backgroundColor: 'white' }}
@@ -488,7 +540,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         <Card bordered={false} size="small">
           <Form layout="vertical">
             <FormItem label="Código de barras">
-              <SelectProducts {...propsSearchProduct} />
+              <SelectProducts {...propsSearchProduct} order={requests.length > 0 ? true : false} />
             </FormItem>
           </Form>
         </Card>
@@ -497,9 +549,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         <Table
           columns={columns}
           dataSource={
-            details
-              .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
-              .reverse() as any
+            details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
           }
           scroll={{ x: 800, y: 400 }}
           pagination={{ size: 'small' }}
@@ -513,6 +563,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         details={details}
       />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
+      <AlertConfirm {...propsAlertConfirm} onCancel={onCancelAlertConfirm} arr={details} />
       <AlertLoading visible={paramsCreate?.loading} message="Creando traslado" />
       <AlertLoading visible={paramsUpdate.loading} message="Guardando  Traslado" />
       <AlertSave {...propsAlertSaveFinal} />
