@@ -73,6 +73,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     visible: false,
     arr: details,
   });
+  const [withCode, setWithCode] = useState(false);
 
   const { initialState } = useModel('@@initialState');
 
@@ -305,9 +306,17 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param product producto a actualizar
    * @param quantity cantidad nueva a asignar
    */
-  const updateDetail = (product: Product, quantity: number) => {
+  const updateDetail = async (product: Product, quantity: number) => {
     const newDetails = [];
     try {
+      const firstvalue = await document.getElementsByClassName('ant-input-number-input').item(1);
+      await firstvalue?.setAttribute('id', 'quantitySelect');
+      const firstEle = await document.getElementById(firstvalue?.id);
+      if (!withCode) {
+        firstEle?.focus();
+      }
+      const value = await document.getElementsByClassName('ant-table-body').item(0);
+      value.scrollTop = 0;
       for (let i = 0; i < details.length; i++) {
         if (details[i]?.product?._id === product?._id) {
           newDetails.unshift({
@@ -365,10 +374,6 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       showError(error?.message);
     }
   };
-
-  useEffect(() => {
-    console.log(details);
-  }, [details]);
 
   /**
    * @description se encarga de cerrar la alerta information
@@ -494,11 +499,12 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       width: 50,
       render: (quantity: number, { product = {} }) => (
         <InputNumber
+          defaultValue={0}
           value={quantity || 0}
           min={0}
           max={product?.stock ? product?.stock[0]?.quantity : 10}
           onChange={(value) => updateDetail(product as Product, value)}
-          disabled={!allowEdit}
+          disabled={!allowEdit || withCode}
           style={{ color: 'black', backgroundColor: 'white' }}
         />
       ),
@@ -540,7 +546,11 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         <Card bordered={false} size="small">
           <Form layout="vertical">
             <FormItem label="Código de barras">
-              <SelectProducts {...propsSearchProduct} order={requests.length > 0 ? true : false} />
+              <SelectProducts
+                {...propsSearchProduct}
+                order={requests.length > 0 ? true : false}
+                setWithStock={setWithCode}
+              />
             </FormItem>
           </Form>
         </Card>
