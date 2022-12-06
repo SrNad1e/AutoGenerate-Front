@@ -311,9 +311,9 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     try {
       const firstvalue = await document.getElementsByClassName('ant-input-number-input').item(1);
       await firstvalue?.setAttribute('id', 'quantitySelect');
-      const firstEle = await document.getElementById(firstvalue?.id);
+      const firstElement = await document.getElementById(firstvalue?.id);
       if (!withCode) {
-        firstEle?.focus();
+        firstElement?.focus();
       }
       const value = await document.getElementsByClassName('ant-table-body').item(0);
       value.scrollTop = 0;
