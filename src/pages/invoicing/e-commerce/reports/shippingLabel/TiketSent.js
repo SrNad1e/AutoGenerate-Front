@@ -63,9 +63,9 @@ export default class ShippingLabel extends React.PureComponent {
             <span style={classes.title}>Dirección: </span>
             {data?.address?.field1} {data?.address?.number1}
             {' # '}
-            {data?.address?.loteNumber}
+            {data?.address?.number2}
             {' - '}
-            {data?.address?.number2}{' '}
+            {data?.address?.loteNumber}
           </div>
           <div style={classes.text}>
             <span style={classes.title}>Ciudad: </span>
