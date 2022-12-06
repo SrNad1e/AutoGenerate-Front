@@ -108,6 +108,9 @@ const AuthorizationDianList = () => {
         variables: {
           input: {
             limit: 10,
+            sort: {
+              prefix: 1,
+            },
             ...filters,
           },
         },

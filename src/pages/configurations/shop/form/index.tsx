@@ -19,6 +19,8 @@ import {
   HomeOutlined,
   PhoneOutlined,
   ShopOutlined,
+  FileProtectOutlined,
+  MailOutlined,
 } from '@ant-design/icons';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import type { Shop } from '@/graphql/graphql';
@@ -230,7 +232,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                   message: 'Este campo no puede estar vacio',
                 },
               ]}
-              name="name"
+              name="companyName"
               label={
                 <Space>
                   <ShopOutlined />
@@ -238,10 +240,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 </Space>
               }
             >
-              <Input
-                disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading}
-                placeholder="Ingrese nombre de la tienda"
-              />
+              <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
             </FormItem>
             <FormItem
               rules={[
@@ -303,7 +302,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
               name="email"
               label={
                 <Space>
-                  <PhoneOutlined />
+                  <MailOutlined />
                   <Text>Correo</Text>
                 </Space>
               }
@@ -311,10 +310,10 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
               <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
             </FormItem>
             <FormItem
-              name="email"
+              name="document"
               label={
                 <Space>
-                  <PhoneOutlined />
+                  <FileProtectOutlined />
                   <Text>NIT</Text>
                 </Space>
               }
