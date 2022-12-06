@@ -7,6 +7,7 @@ import numeral from 'numeral';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { useRef } from 'react';
+import { useInvoicing } from '@/hooks/invoice.hooks';
 export interface Props {
   open: boolean;
   onCancel: () => void;
@@ -25,8 +26,10 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
 
   const [reportSales, { loading, data }] = useReportSales();
 
+  const [generateInvoicing, dataInvoicing] = useInvoicing();
+
   const getPayments = async () => {
-    form.validateFields(['shopId', 'dates']);
+    await form.validateFields(['shopId', 'dates']);
     const shopId = form.getFieldValue('shopId');
     const dates: Moment[] = form.getFieldValue('dates');
 
@@ -48,8 +51,8 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
     refCash.current?.select();
   };
 
-  const invoicing = () => {
-    form.validateFields(['shopId', 'dates', 'cash']);
+  const invoicing = async () => {
+    await form.validateFields(['shopId', 'dates', 'cash']);
 
     const shopId = form.getFieldValue('shopId');
     const dates: Moment[] = form.getFieldValue('dates');
@@ -58,10 +61,21 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
     const dateInitial = dates[0].startOf('day').format(FORMAT_DATE_API);
     const dateFinal = dates[1].endOf('day').format(FORMAT_DATE_API);
 
-    console.log('shopId', shopId);
-    console.log('dateInitial', dateInitial);
-    console.log('dateFinal', dateFinal);
-    console.log('cash', cash);
+    try {
+      const response = await generateInvoicing({
+        variables: {
+          input: {
+            cash,
+            dateFinal,
+            dateInitial,
+            shopId,
+          },
+        },
+      });
+      console.log(response);
+    } catch (e) {
+      console.log(e?.message);
+    }
   };
 
   const disabledDate: RangePickerProps['disabledDate'] = (current) => {
@@ -82,7 +96,7 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
           label="Seleccione la tienda"
           name="shopId"
         >
-          <SelectShop disabled={loading} />
+          <SelectShop disabled={loading || dataInvoicing?.loading} />
         </FormItem>
         <FormItem
           rules={[
@@ -94,12 +108,12 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
           label="Selecciona las fechas"
           name="dates"
         >
-          <RangePicker disabledDate={disabledDate} disabled={loading} />
+          <RangePicker disabledDate={disabledDate} disabled={loading || dataInvoicing?.loading} />
         </FormItem>
-        <Button loading={loading} onClick={getPayments} type="primary">
+        <Button loading={loading || dataInvoicing?.loading} onClick={getPayments} type="primary">
           Consultar Resumen
         </Button>
-        <Card loading={loading}>
+        <Card loading={loading || dataInvoicing?.loading}>
           <Title level={4}>Resumen de ingresos</Title>
 
           {data?.reportSales?.paymentsSalesReport?.map(({ payment, total }) => (
@@ -130,7 +144,7 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
             disabled={!data?.reportSales}
           />
         </FormItem>
-        <Button loading={loading} type="primary" onClick={invoicing}>
+        <Button loading={loading || dataInvoicing?.loading} type="primary" onClick={invoicing}>
           Facturar
         </Button>
       </Form>

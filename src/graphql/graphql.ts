@@ -190,6 +190,10 @@ export type AuthorizationDian = {
   dateFinal?: Maybe<Scalars['DateTime']>;
   /** Fecha de inicio de la resolución */
   dateInitial?: Maybe<Scalars['DateTime']>;
+  /** Última fecha de facturación */
+  lastDateInvoicing?: Maybe<Scalars['DateTime']>;
+  /** Ultimo numero usado para facturar */
+  lastNumber: Scalars['Float'];
   /** Numero final de la resolución */
   numberFinal?: Maybe<Scalars['Float']>;
   /** Numero inicial de la resolución */
@@ -954,8 +958,14 @@ export type CreateRoleInput = {
 export type CreateShopInput = {
   /** Dirección de la tienda */
   address: Scalars['String'];
+  /** Nombre comercial de la tienda */
+  companyName?: InputMaybe<Scalars['String']>;
   /** Identificador de la bodega predeterminada para la tienda */
   defaultWarehouseId: Scalars['String'];
+  /** Documento de la tienda */
+  document?: InputMaybe<Scalars['String']>;
+  /** Email de la tienda */
+  email?: InputMaybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal?: InputMaybe<Scalars['Float']>;
   /** Es centro de distribución */
@@ -1185,6 +1195,18 @@ export type CustomerType = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el tipo de cliente */
   user: User;
+};
+
+/** Datos para generar la facturación */
+export type DataGenerateInvoicesInput = {
+  /** Efectivo para facturar */
+  cash: Scalars['Float'];
+  /** Fecha final para la facturación */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial para la facturación */
+  dateInitial: Scalars['String'];
+  /** Identificador de la tienda a facturar */
+  shopId: Scalars['String'];
 };
 
 /** Detalle para agregar al crédito */
@@ -1982,8 +2004,6 @@ export type FiltersOrdersInput = {
   page?: InputMaybe<Scalars['Float']>;
   /** Identificador del medio de pago */
   paymentId?: InputMaybe<Scalars['String']>;
-  /** Filtro por tienda */
-  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortOrder>;
   /** Estado del pedido */
@@ -2538,6 +2558,8 @@ export type Mutation = {
   createWarehouse: Warehouse;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
+  /** Generador de facturas */
+  invoicing: ResponseInvoicing;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
   login: LoginResponse;
   /** Se encarga de enviar correo de recuperación de contraseña */
@@ -2763,6 +2785,10 @@ export type MutationCreateWarehouseArgs = {
 
 export type MutationGenerateStockRequestArgs = {
   shopId: Scalars['String'];
+};
+
+export type MutationInvoicingArgs = {
+  dataGenerateInvoicesInput: DataGenerateInvoicesInput;
 };
 
 export type MutationLoginArgs = {
@@ -4327,6 +4353,19 @@ export type ResponseInvoices = {
   totalPages: Scalars['Float'];
 };
 
+/** Resultado de facturación */
+export type ResponseInvoicing = {
+  __typename?: 'ResponseInvoicing';
+  /** Cantidad de facturas generadas */
+  invoiceQuantityBank: Scalars['Float'];
+  /** Cantidad de facturas generadas */
+  invoiceQuantityCash: Scalars['Float'];
+  /** Valor total facturado */
+  valueInvoicingBank: Scalars['Float'];
+  /** Valor total facturado */
+  valueInvoicingCash: Scalars['Float'];
+};
+
 /** Respuesta para obtener la orden */
 export type ResponseOrder = {
   __typename?: 'ResponseOrder';
@@ -4810,7 +4849,7 @@ export type ReturnOrder = {
   /** Pedido de la devolución */
   order: Order;
   /** Punto de venta */
-  pointOfSale: Shop;
+  pointOfSale: PointOfSale;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
@@ -4901,10 +4940,16 @@ export type Shop = {
   address?: Maybe<Scalars['String']>;
   /** Empresa que usa la tienda */
   company: Warehouse;
+  /** Nombre comercial de la tienda */
+  companyName?: Maybe<Scalars['String']>;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Bodega predeterminada para la tienda */
   defaultWarehouse: Warehouse;
+  /** Documento de la tienda(NIT) */
+  document?: Maybe<Scalars['String']>;
+  /** Correo de la tienda */
+  email?: Maybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal: Scalars['Float'];
   /** Es centro de distribución */
@@ -5802,6 +5847,10 @@ export type UpdateAuthorizationInput = {
   dateFinal?: InputMaybe<Scalars['DateTime']>;
   /** Fecha de inicio de la resolución */
   dateInitial?: InputMaybe<Scalars['DateTime']>;
+  /** Fecha de cierre */
+  lastDateInvoicing?: InputMaybe<Scalars['DateTime']>;
+  /** Ultimo número usado para facturar */
+  lastNumber: Scalars['Float'];
   /** Numero final de la resolución */
   numberFinal?: InputMaybe<Scalars['Float']>;
   /** Numero inicial de la resolución */
@@ -6052,8 +6101,14 @@ export type UpdateShopInput = {
   address?: InputMaybe<Scalars['String']>;
   /** Identificador de la empresa para la tienda */
   companyId?: InputMaybe<Scalars['String']>;
+  /** Nombre comercial de la tienda */
+  companyName?: InputMaybe<Scalars['String']>;
   /** Identificador de la bodega predeterminada para la tienda */
   defaultWarehouseId?: InputMaybe<Scalars['String']>;
+  /** Documento de la tienda */
+  document?: InputMaybe<Scalars['String']>;
+  /** Email de la tienda */
+  email?: InputMaybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal?: InputMaybe<Scalars['Float']>;
   /** Es centro de distribución */
@@ -6865,6 +6920,21 @@ export type UpdateStockInputMutation = {
     }[];
     user: { __typename?: 'User'; name: string };
     warehouse: { __typename?: 'Warehouse'; name: string; _id: string };
+  };
+};
+
+export type InvoicingMutationVariables = Exact<{
+  input: DataGenerateInvoicesInput;
+}>;
+
+export type InvoicingMutation = {
+  __typename?: 'Mutation';
+  invoicing: {
+    __typename?: 'ResponseInvoicing';
+    invoiceQuantityBank: number;
+    valueInvoicingCash: number;
+    invoiceQuantityCash: number;
+    valueInvoicingBank: number;
   };
 };
 
@@ -9643,7 +9713,7 @@ export type ReturnsOrderQuery = {
             };
           }[]
         | null;
-      pointOfSale: { __typename?: 'Shop'; name: string };
+      pointOfSale: { __typename?: 'PointOfSale'; name: string };
     }[];
   };
 };
@@ -12201,6 +12271,51 @@ export const UpdateStockInputDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateStockInputMutation, UpdateStockInputMutationVariables>;
+export const InvoicingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'invoicing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'DataGenerateInvoicesInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'invoicing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'dataGenerateInvoicesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'invoiceQuantityBank' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueInvoicingCash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'invoiceQuantityCash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueInvoicingBank' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<InvoicingMutation, InvoicingMutationVariables>;
 export const CreateOrderDocument = {
   kind: 'Document',
   definitions: [
