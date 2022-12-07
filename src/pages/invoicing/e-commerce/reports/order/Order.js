@@ -175,9 +175,9 @@ export default class OrderProduction extends React.PureComponent {
               <span style={classes.textBold}>Dirección: </span>
               {data?.address?.field1 || '(N/A)'} {data?.address?.number1 || '(N/A)'}
               {' # '}
-              {data?.address?.loteNumber || '(N/A)'}
+              {data?.address?.number2 || '(N/A)'}
               {' - '}
-              {data?.address?.number2 || '(N/A)'} {data?.address?.city?.name || '(N/A)'} /{' '}
+              {data?.address?.loteNumber || '(N/A)'} {data?.address?.city?.name || '(N/A)'} /{' '}
               {data?.address?.city?.state || '(N/A)'}
             </div>
             <div style={classes.text}>
