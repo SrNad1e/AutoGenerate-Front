@@ -6,8 +6,9 @@ import type { RangePickerProps } from 'antd/lib/date-picker';
 import numeral from 'numeral';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useInvoicing } from '@/hooks/invoice.hooks';
+import AlertSuccess from './AlertSuccess';
 export interface Props {
   open: boolean;
   onCancel: () => void;
@@ -20,6 +21,8 @@ const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
 const ModalInvoicing = ({ open, onCancel }: Props) => {
+  const [showModal, setShowModal] = useState(false);
+
   const [form] = Form.useForm();
 
   const refCash = useRef(null);
@@ -62,7 +65,7 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
     const dateFinal = dates[1].endOf('day').format(FORMAT_DATE_API);
 
     try {
-      const response = await generateInvoicing({
+      await generateInvoicing({
         variables: {
           input: {
             cash,
@@ -72,9 +75,9 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
           },
         },
       });
-      console.log(response);
+      setShowModal(true);
     } catch (e) {
-      console.log(e?.message);
+      setShowModal(true);
     }
   };
 
@@ -84,7 +87,7 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
   };
 
   return (
-    <Modal open={open} footer={null} onCancel={onCancel}>
+    <Modal open={open} footer={null} onCancel={onCancel} centered>
       <Form layout="vertical" form={form}>
         <FormItem
           rules={[
@@ -148,6 +151,12 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
           Facturar
         </Button>
       </Form>
+      <AlertSuccess
+        open={showModal}
+        onCancel={() => setShowModal(false)}
+        data={dataInvoicing.data}
+        error={dataInvoicing.error}
+      />
     </Modal>
   );
 };
