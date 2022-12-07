@@ -190,6 +190,10 @@ export type AuthorizationDian = {
   dateFinal?: Maybe<Scalars['DateTime']>;
   /** Fecha de inicio de la resolución */
   dateInitial?: Maybe<Scalars['DateTime']>;
+  /** Última fecha de facturación */
+  lastDateInvoicing?: Maybe<Scalars['DateTime']>;
+  /** Ultimo numero usado para facturar */
+  lastNumber: Scalars['Float'];
   /** Numero final de la resolución */
   numberFinal?: Maybe<Scalars['Float']>;
   /** Numero inicial de la resolución */
@@ -954,8 +958,14 @@ export type CreateRoleInput = {
 export type CreateShopInput = {
   /** Dirección de la tienda */
   address: Scalars['String'];
+  /** Nombre comercial de la tienda */
+  companyName?: InputMaybe<Scalars['String']>;
   /** Identificador de la bodega predeterminada para la tienda */
   defaultWarehouseId: Scalars['String'];
+  /** Documento de la tienda */
+  document?: InputMaybe<Scalars['String']>;
+  /** Email de la tienda */
+  email?: InputMaybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal?: InputMaybe<Scalars['Float']>;
   /** Es centro de distribución */
@@ -4810,7 +4820,7 @@ export type ReturnOrder = {
   /** Pedido de la devolución */
   order: Order;
   /** Punto de venta */
-  pointOfSale: Shop;
+  pointOfSale: PointOfSale;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
@@ -4901,10 +4911,16 @@ export type Shop = {
   address?: Maybe<Scalars['String']>;
   /** Empresa que usa la tienda */
   company: Warehouse;
+  /** Nombre comercial de la tienda */
+  companyName?: Maybe<Scalars['String']>;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Bodega predeterminada para la tienda */
   defaultWarehouse: Warehouse;
+  /** Documento de la tienda(NIT) */
+  document?: Maybe<Scalars['String']>;
+  /** Correo de la tienda */
+  email?: Maybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal: Scalars['Float'];
   /** Es centro de distribución */
@@ -5802,6 +5818,10 @@ export type UpdateAuthorizationInput = {
   dateFinal?: InputMaybe<Scalars['DateTime']>;
   /** Fecha de inicio de la resolución */
   dateInitial?: InputMaybe<Scalars['DateTime']>;
+  /** Fecha de cierre */
+  lastDateInvoicing?: InputMaybe<Scalars['DateTime']>;
+  /** Ultimo número usado para facturar */
+  lastNumber?: InputMaybe<Scalars['Float']>;
   /** Numero final de la resolución */
   numberFinal?: InputMaybe<Scalars['Float']>;
   /** Numero inicial de la resolución */
@@ -6052,8 +6072,14 @@ export type UpdateShopInput = {
   address?: InputMaybe<Scalars['String']>;
   /** Identificador de la empresa para la tienda */
   companyId?: InputMaybe<Scalars['String']>;
+  /** Nombre comercial de la tienda */
+  companyName?: InputMaybe<Scalars['String']>;
   /** Identificador de la bodega predeterminada para la tienda */
   defaultWarehouseId?: InputMaybe<Scalars['String']>;
+  /** Documento de la tienda */
+  document?: InputMaybe<Scalars['String']>;
+  /** Email de la tienda */
+  email?: InputMaybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal?: InputMaybe<Scalars['Float']>;
   /** Es centro de distribución */
@@ -7950,7 +7976,17 @@ export type AuthorizationsQuery = {
     totalDocs: number;
     page: number;
     totalPages: number;
-    docs: { __typename?: 'AuthorizationDian'; _id: string; updatedAt: any; prefix: string }[];
+    docs: {
+      __typename?: 'AuthorizationDian';
+      _id: string;
+      updatedAt: any;
+      prefix: string;
+      resolution?: string | null;
+      dateInitial?: any | null;
+      dateFinal?: any | null;
+      numberInitial?: number | null;
+      numberFinal?: number | null;
+    }[];
   };
 };
 
@@ -9612,7 +9648,7 @@ export type ReturnsOrderQuery = {
             };
           }[]
         | null;
-      pointOfSale: { __typename?: 'Shop'; name: string };
+      pointOfSale: { __typename?: 'PointOfSale'; name: string };
     }[];
   };
 };
@@ -16217,6 +16253,11 @@ export const AuthorizationsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'resolution' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dateInitial' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dateFinal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'numberInitial' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'numberFinal' } },
                     ],
                   },
                 },
