@@ -203,7 +203,6 @@ export default class OrderProduction extends React.PureComponent {
               </div>
             )}
           </div>
-          <br />
           <div style={classes.text}>
             <div style={classes.text}>
               <span style={classes.textBold}>Registrado por:</span>
