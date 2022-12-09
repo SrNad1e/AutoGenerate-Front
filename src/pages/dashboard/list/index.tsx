@@ -1,15 +1,27 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import SelectShop from '@/components/SelectShop';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Button, Card, Col, DatePicker, Divider, Form, Row, Select, Space, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  Row,
+  Select,
+  Space,
+  Typography,
+} from 'antd';
 import { Column, Pie, Bullet } from '@ant-design/plots';
 import numeral from 'numeral';
-import SelectCategory from '@/components/SelectCategory';
 import { ClearOutlined, SearchOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import type { Moment } from 'moment';
 import moment from 'moment';
-import { FiltersSalesReportInput, GroupDates } from '@/graphql/graphql';
+import type { FiltersSalesReportInput } from '@/graphql/graphql';
+import { GroupDates } from '@/graphql/graphql';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useHistory } from 'umi';
@@ -28,12 +40,14 @@ type FormValues = {
 };
 
 const Dashboard = () => {
-  const [period, setPeriod] = useState(false);
+  const [period, setPeriod] = useState(true);
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
+  const [agroup, setAgroup] = useState(false);
+  const [customers, setCustomers] = useState<any[]>([]);
 
   const [getReportSales, paramsGetReportSales] = useGetReportSales();
 
@@ -63,20 +77,22 @@ const Dashboard = () => {
     });
   };
 
-  const onSearchData = (filters?: FiltersSalesReportInput) => {
-    const values = form.getFieldValue('dates');
-    console.log(values);
+  const onSearchData = async (filters?: FiltersSalesReportInput) => {
     try {
-      getReportSales({
+      const response = await getReportSales({
         variables: {
           input: {
-            isGroupByCategory: false,
-            groupDates: GroupDates.Day,
-            dateInitial: moment('2022-10-01T14:14:58.831Z').format(FORMAT_DATE_API),
-            dateFinal: moment('2022-10-31T14:14:58.831Z').format(FORMAT_DATE_API),
+            dateInitial: moment(new Date()).format(FORMAT_DATE_API),
+            dateFinal: moment(new Date()).format(FORMAT_DATE_API),
+            isGroupByCategory: true,
+            groupDates: GroupDates.Month,
+            ...filters,
           },
         },
       });
+      if (response?.data?.reportSales) {
+        setCustomers(response?.data?.reportSales?.customersSalesReport);
+      }
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -115,6 +131,52 @@ const Dashboard = () => {
     }
   };
 
+  const customerData = () => {
+    if (paramsGetReportSales.data) {
+      const arr = customers?.map((item) => {
+        return {
+          cashSales: item.total,
+          customer: item.typeCustomer.name,
+          quantitySales: item.quantity,
+        };
+      });
+      return arr;
+    } else {
+      console.log('No');
+    }
+  };
+
+  const renderPie = () => {
+    onFinish();
+    const configPie = {
+      appendPadding: 10,
+      data: customers?.map((item) => {
+        return {
+          cashSales: item.total,
+          customer: item.typeCustomer.name,
+          quantitySales: item.quantity,
+        };
+      }),
+      angleField: 'quantity',
+      colorField: 'customer',
+      radius: 0.75,
+      label: {
+        type: 'spider',
+        labelHeight: 30,
+        content: ({ percent }) => `${(percent * 100).toFixed(0)}%`,
+      },
+      interactions: [
+        {
+          type: 'element-selected',
+        },
+        {
+          type: 'element-active',
+        },
+      ],
+    };
+    return <Pie {...configPie} loading={paramsGetReportSales?.loading} style={{ height: 187 }} />;
+  };
+
   const config = {
     data: [0, 1],
     isStack: true,
@@ -135,27 +197,6 @@ const Dashboard = () => {
         },
       ],
     },
-  };
-
-  const configPie = {
-    appendPadding: 10,
-    data: [], //data1,
-    angleField: 'price',
-    colorField: 'name',
-    radius: 0.75,
-    label: {
-      type: 'spider',
-      labelHeight: 30,
-      content: '{percentage}',
-    },
-    interactions: [
-      {
-        type: 'element-selected',
-      },
-      {
-        type: 'element-active',
-      },
-    ],
   };
 
   const configBullet = {
@@ -213,7 +254,12 @@ const Dashboard = () => {
 
   useEffect(() => {
     onSearchData();
+    form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
   }, []);
+
+  useEffect(() => {
+    console.log(customerData());
+  }, [customerData()]);
 
   const summaryData = paramsGetReportSales.data?.reportSales?.summarySalesReport;
 
@@ -224,9 +270,13 @@ const Dashboard = () => {
           <Row gutter={20}>
             <Col xs={24} xl={6}>
               <FormItem label="Período">
-                <Select defaultValue={'Diaria'} onChange={(e) => onChangePeriod(e)}>
-                  <Option key={1}>Diaria</Option>
-                  <Option key={2}>Mensual</Option>
+                <Select defaultValue={'Mensual'} onChange={(e) => onChangePeriod(e)}>
+                  <Option key={1} value={GroupDates.Day}>
+                    Diaria
+                  </Option>
+                  <Option key={2} value={GroupDates.Month}>
+                    Mensual
+                  </Option>
                 </Select>
               </FormItem>
             </Col>
@@ -246,15 +296,15 @@ const Dashboard = () => {
             </Col>
             <Col xs={24} xl={6}>
               <FormItem label="Criterio">
-                <Select placeholder="Seleccione un Criterio">
+                <Select defaultValue={'Unidades Vendidas'} placeholder="Seleccione un Criterio">
                   <Option key={1}>Unidades Vendidas</Option>
                   <Option key={2}>Pesos</Option>
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} xl={6}>
-              <FormItem label="Categorias" name="categoryLevel1Id">
-                <SelectCategory level={1} disabled={false} />
+            <Col xs={24} xl={5}>
+              <FormItem label="Agrupar por categorías" name="categoryLevel1Id">
+                <Checkbox onChange={() => setAgroup(agroup === false ? true : false)} />
               </FormItem>
             </Col>
             <Col xs={24} md={7} lg={7} xl={7}>
@@ -293,15 +343,17 @@ const Dashboard = () => {
           <Col span={10}>
             <Row>
               <Col span={24}>
-                <Card size="small">
-                  <Pie {...configPie} style={{ height: 187 }} />
-                </Card>
+                <Card size="small">{customerData()?.length > 0 && renderPie()}</Card>
               </Col>
-              <Col span={24}>
+              {/* <Col span={24}>
                 <Card size="small">
-                  <Pie {...configPie} style={{ height: 187 }} />
+                  <Pie
+                    {...configPie}
+                    loading={paramsGetReportSales?.loading}
+                    style={{ height: 187 }}
+                  />
                 </Card>
-              </Col>
+                  </Col>*/}
             </Row>
           </Col>
           <Col span={14}>
