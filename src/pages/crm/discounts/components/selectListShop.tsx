@@ -1,10 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Alert, Select, Typography } from 'antd';
+import { Alert, Select } from 'antd';
 import { useEffect } from 'react';
 import type { CustomerType } from '@/graphql/graphql';
 import { useGetShops } from '@/hooks/shop.hooks';
 
-const { Text } = Typography;
 const { Option } = Select;
 
 export type Params = {
@@ -41,15 +40,15 @@ const SelectListShop = ({ onChange, value, disabled }: Params) => {
         showSearch
         loading={loading}
         placeholder="Seleccione Tiendas"
-        optionFilterProp="child"
+        optionFilterProp="children"
         onChange={onChange}
         value={value?.length > 0 ? value : undefined}
         onSearch={onSearch}
         disabled={disabled}
       >
         {data?.shops?.docs?.map((type) => (
-          <Option key={type?._id} name={type?.name}>
-            <Text style={{ marginLeft: 10 }}>{type?.name}</Text>
+          <Option key={type?._id} value={type?._id}>
+            {type?.name}
           </Option>
         ))}
       </Select>
