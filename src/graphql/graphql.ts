@@ -6606,6 +6606,14 @@ export type CreateCloseXInvoicingMutation = {
           payment: { __typename?: 'Payment'; type: TypePayment; name: string };
         }[]
       | null;
+    paymentsCredit?:
+      | {
+          __typename?: 'PaymentCredit';
+          quantity: number;
+          value: number;
+          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+        }[]
+      | null;
     user: { __typename?: 'User'; name: string };
   };
 };
@@ -6657,6 +6665,14 @@ export type CreateCloseZInvoicingMutation = {
     payments?:
       | {
           __typename?: 'PaymentOrderClose';
+          quantity: number;
+          value: number;
+          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+        }[]
+      | null;
+    paymentsCredit?:
+      | {
+          __typename?: 'PaymentCredit';
           quantity: number;
           value: number;
           payment: { __typename?: 'Payment'; type: TypePayment; name: string };
@@ -11071,6 +11087,28 @@ export const CreateCloseXInvoicingDocument = {
                 },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'paymentsCredit' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payment' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'user' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -11198,6 +11236,28 @@ export const CreateCloseZInvoicingDocument = {
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'payments' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payment' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'paymentsCredit' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
