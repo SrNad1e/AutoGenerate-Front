@@ -7775,6 +7775,7 @@ export type VerifiedProducttStockTransferMutation = {
         _id: string;
         barcode: string;
         reference: { __typename?: 'Reference'; name: string };
+        size: { __typename?: 'Size'; value: string };
         color: { __typename?: 'Color'; name: string };
       };
     }[];
@@ -15507,6 +15508,16 @@ export const VerifiedProducttStockTransferDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'size' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'value' } },
                                 ],
                               },
                             },
