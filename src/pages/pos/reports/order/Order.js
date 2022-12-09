@@ -5,6 +5,7 @@ import numeral from 'numeral';
 import Barcode from 'react-barcode';
 
 import style from './styles.css';
+import '../styles.css';
 import { TypePayment } from '@/graphql/graphql';
 
 const classes = {
@@ -78,7 +79,7 @@ const classes = {
   },
 };
 
-export default class OrderProduction extends React.PureComponent {
+export default class OrderReport extends React.PureComponent {
   render() {
     const { data } = this.props;
 
@@ -89,7 +90,7 @@ export default class OrderProduction extends React.PureComponent {
           <Barcode value={data?.number} height={50} text={`No. ${data?.number}`} fontSize={12} />
           <div style={classes.text}>
             <div style={classes.title}>TICKET DE VENTA</div>
-            Fecha: {moment(data?.createdAt).format('YYYY/MM/DD HH:mm:ss')}
+            Fecha: {moment(data?.closeDate).format('YYYY/MM/DD HH:mm:ss')}
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>
             <div style={classes.text}>
@@ -203,6 +204,7 @@ export default class OrderProduction extends React.PureComponent {
               </div>
             )}
           </div>
+          <br />
           <div style={classes.text}>
             <div style={classes.text}>
               <span style={classes.textBold}>Registrado por:</span>
