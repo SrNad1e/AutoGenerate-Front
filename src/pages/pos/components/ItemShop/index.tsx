@@ -56,14 +56,14 @@ const ShopItem = ({ product, addProductOrder }: Params) => {
                   </Space>
                 </Col>
                 <Col sm={24}>
-                  <Row gutter={5}>
-                    <Col span={8}>
+                  <Row>
+                    <Col span={7}>
                       <Text strong>Color:</Text>
                     </Col>
-                    <Col span={8}>
+                    <Col span={9}>
                       <Text>{color?.name}</Text>
                     </Col>
-                    <Col span={8}>
+                    <Col span={6}>
                       <Avatar
                         size="small"
                         src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
