@@ -7,37 +7,45 @@ const classes = {
   content: {
     margin: 20,
     maxWidth: '60mm',
+    color: 'black',
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    color: 'black',
   },
   text: {
     fontSize: 12,
     width: '100%',
+    color: 'black',
   },
   textBold: {
     fontWeight: 'bold',
     marginRight: 10,
+    color: 'black',
   },
   title: {
     fontWeight: 'bold',
     textAlign: 'center',
     width: '100%',
     marginTop: 10,
+    color: 'black',
   },
   row: {
     display: 'flex',
+    color: 'black',
   },
   col1: {
-    width: '50%',
+    width: '100%',
     textAlign: 'left',
+    color: 'black',
   },
   col2: {
     width: '50%',
     textAlign: 'right',
+    color: 'black',
   },
   body: {
     display: 'flex',
@@ -45,6 +53,7 @@ const classes = {
     justifyContent: 'space-around',
     width: '100%',
     marginTop: 10,
+    color: 'black',
   },
 };
 
@@ -96,8 +105,33 @@ export default class ReportCloseX extends React.PureComponent {
       0,
     );
 
-    const diff = totalCashRegister + totalExpenses - totalCash;
-    const diffBank = data?.quantityBank - quantityBank;
+    const paymentCreditCash = data?.paymentsCredit?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'CASH' ? payment?.value : 0),
+      0,
+    );
+
+    const paymentCreditBank = data?.paymentsCredit?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.value : 0),
+      0,
+    );
+
+    const quantityCreditBank = data?.paymentsCredit?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
+      0,
+    );
+
+    const paymentCreditBonus = data?.paymentsCredit?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'BONUS' ? payment?.value : 0),
+      0,
+    );
+
+    const totalCreditPayments = data?.paymentsCredit?.reduce(
+      (sum, payment) => sum + payment?.value,
+      0,
+    );
+
+    const diff = totalCashRegister + totalExpenses - (totalCash + paymentCreditCash);
+    const diffBank = data?.quantityBank + quantityCreditBank - (quantityBank + quantityCreditBank);
 
     return (
       <div style={classes.content}>
@@ -162,7 +196,9 @@ export default class ReportCloseX extends React.PureComponent {
             <div style={classes.text}>
               <div style={classes.row}>
                 <div style={classes.col1}>Total Pagos:</div>
-                <div style={classes.col2}>{numeral(totalPayments).format('$ 0,0')}</div>
+                <div style={classes.col2}>
+                  {numeral(totalPayments + totalCreditPayments).format('$ 0,0')}
+                </div>
               </div>
             </div>
             <div style={classes.title}>
@@ -178,8 +214,25 @@ export default class ReportCloseX extends React.PureComponent {
             </div>
             <div style={classes.text}>
               <div style={classes.row}>
-                <div style={classes.col1}> Valor:</div>
+                <div style={classes.col1}> Valor de Cupones:</div>
                 <div style={classes.col2}>{numeral(totalBonus).format('$ 0,0')}</div>
+              </div>
+            </div>
+            <div style={classes.title}>
+              <div style={classes.row}>
+                <div>Devoluciones</div>
+              </div>
+            </div>
+            <div style={classes.text}>
+              <div style={classes.row}>
+                <div style={classes.col1}>Valor:</div>
+                <div style={classes.col2}>{numeral(data?.refunds?.value).format('$ 0,0')}</div>
+              </div>
+            </div>
+            <div style={classes.text}>
+              <div style={classes.row}>
+                <div style={classes.col1}>Cantidad de Productos:</div>
+                <div style={classes.col2}>{data?.refunds?.quantity || 0}</div>
               </div>
             </div>
             <div style={classes.title}>
@@ -190,7 +243,9 @@ export default class ReportCloseX extends React.PureComponent {
             <div style={classes.text}>
               <div style={classes.row}>
                 <div style={classes.col1}>Registrado:</div>
-                <div style={classes.col2}>{numeral(totalCash).format('$ 0,0')}</div>
+                <div style={classes.col2}>
+                  {numeral(totalCash + paymentCreditCash).format('$ 0,0')}
+                </div>
               </div>
             </div>
             <div style={classes.text}>
@@ -223,13 +278,15 @@ export default class ReportCloseX extends React.PureComponent {
             <div style={classes.text}>
               <div style={classes.row}>
                 <div style={classes.col1}>Cantidad Registrado:</div>
-                <div style={classes.col2}>{quantityBank}</div>
+                <div style={classes.col2}>{quantityBank + quantityCreditBank}</div>
               </div>
             </div>
             <div style={classes.text}>
               <div style={classes.row}>
                 <div style={classes.col1}>Total Registrado:</div>
-                <div style={classes.col2}>{numeral(totalBank).format('$ 0,0')}</div>
+                <div style={classes.col2}>
+                  {numeral(totalBank + paymentCreditBank).format('$ 0,0')}
+                </div>
               </div>
             </div>
             <div style={classes.text}>
@@ -251,19 +308,53 @@ export default class ReportCloseX extends React.PureComponent {
                 <div>Detalle pagos</div>
               </div>
             </div>
-            {data?.payments?.map(({ payment, value }) => (
-              <div key={payment?._id} style={classes.text}>
-                <div style={classes.row}>
-                  <div style={classes.col1}>{payment?.name}:</div>
-                  <div style={classes.col2}> {numeral(value).format('$ 0,0')}</div>
-                </div>
-              </div>
-            ))}
-
+            {data?.paymentsCredit?.length < data?.payment?.length
+              ? data?.payments?.map(({ payment, value }) => (
+                  <div key={payment?._id} style={classes.text}>
+                    <div style={classes.row}>
+                      <div style={classes.col1}>{payment?.name}:</div>
+                      {payment.type === 'BANK' ? (
+                        <div style={classes.col2}>
+                          {' '}
+                          {numeral(value + paymentCreditBank).format('$ 0,0')}
+                        </div>
+                      ) : payment.type === 'CASH' ? (
+                        <div style={classes.col2}>
+                          {' '}
+                          {numeral(value + paymentCreditCash).format('$ 0,0')}
+                        </div>
+                      ) : (
+                        <div style={classes.col2}> {numeral(value).format('$ 0,0')}</div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              : data?.paymentsCredit?.map(({ payment, value }) => (
+                  <div key={payment?._id} style={classes.text}>
+                    <div style={classes.row}>
+                      <div style={classes.col1}>{payment?.name}:</div>
+                      {payment.type === 'BANK' ? (
+                        <div style={classes.col2}>
+                          {' '}
+                          {numeral(value + totalBank).format('$ 0,0')}
+                        </div>
+                      ) : payment.type === 'CASH' ? (
+                        <div style={classes.col2}>
+                          {' '}
+                          {numeral(value + totalCash).format('$ 0,0')}
+                        </div>
+                      ) : (
+                        <div style={classes.col2}> {numeral(value).format('$ 0,0')}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
             <div style={classes.text}>
               <div style={classes.row}>
                 <div style={classes.col1}>Total Pagos:</div>
-                <div style={classes.col2}>{numeral(totalPayments).format('$ 0,0')}</div>
+                <div style={classes.col2}>
+                  {numeral(totalPayments + totalCreditPayments).format('$ 0,0')}
+                </div>
               </div>
             </div>
             <div style={classes.title}>
@@ -280,7 +371,7 @@ export default class ReportCloseX extends React.PureComponent {
             <div style={classes.text}>
               <div style={classes.row}>
                 <div style={classes.col1}>Abonos a Crédito:</div>
-                <div style={classes.col2}> {numeral(0).format('$ 0,0')}</div>
+                <div style={classes.col2}> {numeral(totalCreditPayments).format('$ 0,0')}</div>
               </div>
             </div>
           </div>

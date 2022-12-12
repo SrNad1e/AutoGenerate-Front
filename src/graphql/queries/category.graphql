@@ -38,6 +38,18 @@ query categoriesLevel($input: FiltersCategoriesLevelInput) {
       createdAt
       updatedAt
       name
+      childs {
+        _id
+        name
+        createdAt
+        updatedAt
+        childs {
+          _id
+          createdAt
+          updatedAt
+          name
+        }
+      }
     }
   }
 }
