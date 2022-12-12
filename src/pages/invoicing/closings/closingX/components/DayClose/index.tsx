@@ -171,7 +171,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                   response?.data?.createCloseXInvoicing?.pointOfSale?.shop?.name
                 } / ${response?.data?.createCloseXInvoicing?.pointOfSale?.name} a la fecha ${moment(
                   response?.data?.createCloseXInvoicing?.closeDate,
-                ).format(FORMAT_DATE_API)}`,
+                ).format(FORMAT_DATE)}`,
               );
               setQuantityBankState(response?.data?.createCloseXInvoicing?.quantityBank);
               setExpensesSize(response?.data?.createCloseXInvoicing?.expenses?.length);

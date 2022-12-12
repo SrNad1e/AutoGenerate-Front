@@ -6606,6 +6606,14 @@ export type CreateCloseXInvoicingMutation = {
           payment: { __typename?: 'Payment'; type: TypePayment; name: string };
         }[]
       | null;
+    paymentsCredit?:
+      | {
+          __typename?: 'PaymentCredit';
+          quantity: number;
+          value: number;
+          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+        }[]
+      | null;
     user: { __typename?: 'User'; name: string };
   };
 };
@@ -6657,6 +6665,14 @@ export type CreateCloseZInvoicingMutation = {
     payments?:
       | {
           __typename?: 'PaymentOrderClose';
+          quantity: number;
+          value: number;
+          payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+        }[]
+      | null;
+    paymentsCredit?:
+      | {
+          __typename?: 'PaymentCredit';
           quantity: number;
           value: number;
           payment: { __typename?: 'Payment'; type: TypePayment; name: string };
@@ -7977,7 +7993,17 @@ export type AuthorizationsQuery = {
     totalDocs: number;
     page: number;
     totalPages: number;
-    docs: { __typename?: 'AuthorizationDian'; _id: string; updatedAt: any; prefix: string }[];
+    docs: {
+      __typename?: 'AuthorizationDian';
+      _id: string;
+      updatedAt: any;
+      prefix: string;
+      resolution?: string | null;
+      dateInitial?: any | null;
+      dateFinal?: any | null;
+      numberInitial?: number | null;
+      numberFinal?: number | null;
+    }[];
   };
 };
 
@@ -8201,6 +8227,14 @@ export type ClosesXInvoicingQuery = {
             payment: { __typename?: 'Payment'; type: TypePayment; name: string };
           }[]
         | null;
+      paymentsCredit?:
+        | {
+            __typename?: 'PaymentCredit';
+            quantity: number;
+            value: number;
+            payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+          }[]
+        | null;
       user: { __typename?: 'User'; name: string };
     }[];
   };
@@ -8258,6 +8292,14 @@ export type ClosesZInvoicingQuery = {
       payments?:
         | {
             __typename?: 'PaymentOrderClose';
+            quantity: number;
+            value: number;
+            payment: { __typename?: 'Payment'; type: TypePayment; name: string };
+          }[]
+        | null;
+      paymentsCredit?:
+        | {
+            __typename?: 'PaymentCredit';
             quantity: number;
             value: number;
             payment: { __typename?: 'Payment'; type: TypePayment; name: string };
@@ -11046,6 +11088,28 @@ export const CreateCloseXInvoicingDocument = {
                 },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'paymentsCredit' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payment' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'user' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -11173,6 +11237,28 @@ export const CreateCloseZInvoicingDocument = {
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'payments' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payment' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'paymentsCredit' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
@@ -16238,6 +16324,11 @@ export const AuthorizationsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'resolution' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dateInitial' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dateFinal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'numberInitial' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'numberFinal' } },
                     ],
                   },
                 },
@@ -16815,6 +16906,28 @@ export const ClosesXInvoicingDocument = {
                       },
                       {
                         kind: 'Field',
+                        name: { kind: 'Name', value: 'paymentsCredit' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payment' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
                         name: { kind: 'Name', value: 'user' },
                         selectionSet: {
                           kind: 'SelectionSet',
@@ -16953,6 +17066,28 @@ export const ClosesZInvoicingDocument = {
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'payments' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payment' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'paymentsCredit' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
