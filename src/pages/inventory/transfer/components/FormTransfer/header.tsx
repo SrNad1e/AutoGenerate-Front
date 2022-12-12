@@ -104,19 +104,19 @@ const Header = ({
             if (productFind) {
               update.push({
                 product: detail?.product,
-                quantity: detail?.quantity,
+                quantity: 0,
               });
             } else {
               if (productFindLocal >= 0) {
                 create[productFindLocal] = {
                   product: detail?.product,
-                  quantity: detail?.quantity,
+                  quantity: 0,
                   action: ActionDetailRequest.Create,
                 };
               } else {
                 create.push({
                   product: detail?.product,
-                  quantity: detail?.quantity,
+                  quantity: 0,
                   action: ActionDetailRequest.Create,
                 });
               }
@@ -129,7 +129,7 @@ const Header = ({
           if (find) {
             return {
               ...item,
-              quantity: find?.quantity,
+              quantity: 0,
             };
           }
           return item;

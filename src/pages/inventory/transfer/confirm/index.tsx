@@ -231,6 +231,9 @@ const ConfirmTransfer = () => {
       setError(e?.message);
     }
   };
+  useEffect(() => {
+    console.log(details);
+  }, [details]);
 
   /* const confirmZero = (_id: string) => {
     try {
