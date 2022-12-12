@@ -8143,6 +8143,24 @@ export type CategoriesLevelQuery = {
       createdAt: any;
       updatedAt: any;
       name: string;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel2';
+            _id: string;
+            name?: string | null;
+            createdAt: any;
+            updatedAt: any;
+            childs?:
+              | {
+                  __typename?: 'CategoryLevel3';
+                  _id: string;
+                  createdAt: any;
+                  updatedAt: any;
+                  name?: string | null;
+                }[]
+              | null;
+          }[]
+        | null;
     }[];
   };
 };
@@ -9445,9 +9463,26 @@ export type ReferenceIdQuery = {
         }[]
       | null;
     brand: { __typename?: 'Brand'; _id: string; active: boolean; name: string };
-    categoryLevel1: { __typename?: 'CategoryLevel1'; _id: string };
+    categoryLevel1: {
+      __typename?: 'CategoryLevel1';
+      _id: string;
+      name: string;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel2';
+            _id: string;
+            name?: string | null;
+            childs?: { __typename?: 'CategoryLevel3'; _id: string; name?: string | null }[] | null;
+          }[]
+        | null;
+    };
     categoryLevel2?: { __typename?: 'CategoryLevel2'; _id: string } | null;
-    categoryLevel3?: { __typename?: 'CategoryLevel3'; _id: string } | null;
+    categoryLevel3?: {
+      __typename?: 'CategoryLevel3';
+      _id: string;
+      parentId?: string | null;
+      name?: string | null;
+    } | null;
     shipping: {
       __typename?: 'Shipping';
       height: number;
@@ -16680,6 +16715,32 @@ export const CategoriesLevelDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'childs' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -20513,7 +20574,32 @@ export const ReferenceIdDocument = {
                   name: { kind: 'Name', value: 'categoryLevel1' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'childs' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
                   },
                 },
                 {
@@ -20529,7 +20615,11 @@ export const ReferenceIdDocument = {
                   name: { kind: 'Name', value: 'categoryLevel3' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
                   },
                 },
                 {

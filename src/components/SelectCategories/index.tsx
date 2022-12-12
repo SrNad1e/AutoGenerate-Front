@@ -68,6 +68,8 @@ const SelectCategories = ({ value, onChange }: Params) => {
         allowClear
         defaultValue={value?.split('-')}
         value={value}
+        onTreeExpand={() => onSearch()}
+        onDropdownVisibleChange={(e) => e && onSearch()}
         onChange={onChange}
         onSearch={onSearch}
       >
