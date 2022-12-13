@@ -60,6 +60,7 @@ import styles from './styles.less';
 import './styles.less';
 import style from './styles';
 import Inconsistencies from '../components/Inconsistencies';
+import Comparative from '../confirm/comparative';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -83,6 +84,8 @@ const TransferList = () => {
     visible: false,
   });
   const [visibleInconsistencies, setVisibleInconsistencies] = useState(false);
+  const [visibleComparative, setVisibleComparative] = useState(false);
+  const [dataComparative, setDataComparative] = useState<Partial<StockTransfer>>({});
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -104,6 +107,14 @@ const TransferList = () => {
   const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const [getTransfers, { data, loading }] = useGetTransfers();
+
+  const rolesAllow = [
+    'Administrador',
+    'super_admin OK',
+    'coordi_tienda OK',
+    'admin_distri OK',
+    'cajera OK',
+  ];
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -140,6 +151,11 @@ const TransferList = () => {
   const printPage = async (record: Partial<StockTransfer>) => {
     await setTransferData(record);
     handlePrint();
+  };
+
+  const onOpenComparative = (dataTable: StockTransfer) => {
+    setDataComparative(dataTable);
+    setVisibleComparative(true);
   };
 
   /**
@@ -386,7 +402,7 @@ const TransferList = () => {
     {
       title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
-      align: 'center',
+      align: 'left',
       fixed: 'right',
       render: (_id: string, record) => {
         return (
@@ -426,6 +442,19 @@ const TransferList = () => {
                 icon={<PrinterFilled />}
               />
             </Tooltip>
+            {rolesAllow.includes(initialState?.currentUser?.role.name || '') &&
+              record.status === 'CONFIRMED' && (
+                <>
+                  <Tooltip title="Comparación">
+                    <Button
+                      type="default"
+                      disabled={!canPrint}
+                      onClick={() => onOpenComparative(record)}
+                      icon={<FireOutlined />}
+                    />
+                  </Tooltip>
+                </>
+              )}
           </Space>
         );
       },
@@ -543,6 +572,11 @@ const TransferList = () => {
       <div style={{ display: 'none' }}>
         <ReportTransfer ref={reportRef} data={transferData} />
       </div>
+      <Comparative
+        dataDetail={dataComparative}
+        visible={visibleComparative}
+        onCancel={() => setVisibleComparative(false)}
+      />
     </PageContainer>
   );
 };

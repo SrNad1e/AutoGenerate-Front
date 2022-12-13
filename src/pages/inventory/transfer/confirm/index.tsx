@@ -50,6 +50,7 @@ import AlertSave from '@/components/Alerts/AlertSave';
 
 import validateCodeBar from '@/libs/validateCodeBar';
 import { useGetProduct } from '@/hooks/product.hooks';
+import Comparative from './comparative';
 
 const { Text, Title } = Typography;
 const FormItem = Form.Item;
@@ -57,6 +58,7 @@ const DescriptionsItem = Descriptions.Item;
 const { TextArea } = Input;
 
 const ConfirmTransfer = () => {
+  const [visibleComparative, setVisibleComparative] = useState(false);
   const [observation, setObservation] = useState('');
   const [details, setDetails] = useState<
     Partial<DetailTransfer & { action: ActionDetailTransfer }>[]
@@ -273,7 +275,7 @@ const ConfirmTransfer = () => {
 
   const productsConfirmed = transferData?.filter((i) => i.status !== StatusDetailTransfer.New);
 
-  const confirmTransfer = () => {
+  const confirmTransfer = async () => {
     try {
       const productsConfirm = details.find(
         (item) => item?.status !== StatusDetailTransfer.Confirmed,
@@ -313,12 +315,13 @@ const ConfirmTransfer = () => {
               },
             });
             if (response?.data?.updateStockTransfer) {
-              setPropsAlert({
+              await setPropsAlert({
                 message: 'Productos confirmados correctamente',
                 visible: true,
                 type: 'success',
                 redirect: '/inventory/transfer/list',
               });
+              setVisibleComparative(true);
             }
           }
         }
@@ -372,6 +375,10 @@ const ConfirmTransfer = () => {
   useEffect(() => {
     getTransferId();
   }, [data]);
+
+  useEffect(() => {
+    console.log(transferData);
+  }, [transferData]);
 
   const propsAlertSaveFinal: PropsAlertSave = {
     ...propsAlertSave,
@@ -601,6 +608,11 @@ const ConfirmTransfer = () => {
       <div style={{ display: 'none' }}>
         <ReportTransfer ref={reportRef} data={data?.stockTransferId} />
       </div>
+      <Comparative
+        dataDetail={transferData}
+        visible={visibleComparative}
+        onCancel={() => setVisibleComparative(false)}
+      />
     </PageContainer>
   );
 };
