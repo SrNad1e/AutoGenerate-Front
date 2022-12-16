@@ -190,6 +190,10 @@ export type AuthorizationDian = {
   dateFinal?: Maybe<Scalars['DateTime']>;
   /** Fecha de inicio de la resolución */
   dateInitial?: Maybe<Scalars['DateTime']>;
+  /** Última fecha de facturación */
+  lastDateInvoicing?: Maybe<Scalars['DateTime']>;
+  /** Ultimo numero usado para facturar */
+  lastNumber: Scalars['Float'];
   /** Numero final de la resolución */
   numberFinal?: Maybe<Scalars['Float']>;
   /** Numero inicial de la resolución */
@@ -200,6 +204,8 @@ export type AuthorizationDian = {
   qualification: Scalars['Boolean'];
   /** Resolución de la autorización o de la habilitación */
   resolution?: Maybe<Scalars['String']>;
+  /** Tienda a la que pertenece */
+  shop: Shop;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la autorización de facturación */
@@ -659,6 +665,8 @@ export type CreateAuthorizationInput = {
   qualification?: InputMaybe<Scalars['Boolean']>;
   /** resolución de facturacion */
   resolution?: InputMaybe<Scalars['String']>;
+  /** Id de la tienda */
+  shopId: Scalars['String'];
 };
 
 /** Datos para crear la caja */
@@ -954,8 +962,14 @@ export type CreateRoleInput = {
 export type CreateShopInput = {
   /** Dirección de la tienda */
   address: Scalars['String'];
+  /** Nombre comercial de la tienda */
+  companyName?: InputMaybe<Scalars['String']>;
   /** Identificador de la bodega predeterminada para la tienda */
   defaultWarehouseId: Scalars['String'];
+  /** Documento de la tienda */
+  document?: InputMaybe<Scalars['String']>;
+  /** Email de la tienda */
+  email?: InputMaybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal?: InputMaybe<Scalars['Float']>;
   /** Es centro de distribución */
@@ -4810,7 +4824,7 @@ export type ReturnOrder = {
   /** Pedido de la devolución */
   order: Order;
   /** Punto de venta */
-  pointOfSale: Shop;
+  pointOfSale: PointOfSale;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la factrura */
@@ -4864,6 +4878,8 @@ export type SalesReport = {
   __typename?: 'SalesReport';
   /** Categoría */
   category?: Maybe<CategoryLevel1>;
+  /** Fecha de la venta */
+  date: Scalars['DateTime'];
   /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
   quantity: Scalars['Float'];
   /** Tienda */
@@ -4901,10 +4917,16 @@ export type Shop = {
   address?: Maybe<Scalars['String']>;
   /** Empresa que usa la tienda */
   company: Warehouse;
+  /** Nombre comercial de la tienda */
+  companyName?: Maybe<Scalars['String']>;
   /** Fecha de creación */
   createdAt: Scalars['DateTime'];
   /** Bodega predeterminada para la tienda */
   defaultWarehouse: Warehouse;
+  /** Documento de la tienda(NIT) */
+  document?: Maybe<Scalars['String']>;
+  /** Correo de la tienda */
+  email?: Maybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal: Scalars['Float'];
   /** Es centro de distribución */
@@ -5802,6 +5824,10 @@ export type UpdateAuthorizationInput = {
   dateFinal?: InputMaybe<Scalars['DateTime']>;
   /** Fecha de inicio de la resolución */
   dateInitial?: InputMaybe<Scalars['DateTime']>;
+  /** Fecha de cierre */
+  lastDateInvoicing?: InputMaybe<Scalars['DateTime']>;
+  /** Ultimo número usado para facturar */
+  lastNumber?: InputMaybe<Scalars['Float']>;
   /** Numero final de la resolución */
   numberFinal?: InputMaybe<Scalars['Float']>;
   /** Numero inicial de la resolución */
@@ -5812,6 +5838,8 @@ export type UpdateAuthorizationInput = {
   qualification?: InputMaybe<Scalars['Boolean']>;
   /** resolución de facturacion */
   resolution?: InputMaybe<Scalars['String']>;
+  /** Id de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para actualizar caja */
@@ -6052,8 +6080,14 @@ export type UpdateShopInput = {
   address?: InputMaybe<Scalars['String']>;
   /** Identificador de la empresa para la tienda */
   companyId?: InputMaybe<Scalars['String']>;
+  /** Nombre comercial de la tienda */
+  companyName?: InputMaybe<Scalars['String']>;
   /** Identificador de la bodega predeterminada para la tienda */
   defaultWarehouseId?: InputMaybe<Scalars['String']>;
+  /** Documento de la tienda */
+  document?: InputMaybe<Scalars['String']>;
+  /** Email de la tienda */
+  email?: InputMaybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal?: InputMaybe<Scalars['Float']>;
   /** Es centro de distribución */
@@ -9596,7 +9630,7 @@ export type ReturnsOrderQuery = {
             };
           }[]
         | null;
-      pointOfSale: { __typename?: 'Shop'; name: string };
+      pointOfSale: { __typename?: 'PointOfSale'; name: string };
     }[];
   };
 };
@@ -9825,7 +9859,7 @@ export type StockTransfersErrorQuery = {
           barcode: string;
           size: { __typename?: 'Size'; value: string };
           reference: { __typename?: 'Reference'; name: string };
-          color: { __typename?: 'Color'; name: string };
+          color: { __typename?: 'Color'; name: string; name_internal: string; html: string };
         };
       }[];
       stockTransfer: {
@@ -21828,6 +21862,11 @@ export const StockTransfersErrorDocument = {
                                       kind: 'SelectionSet',
                                       selections: [
                                         { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'name_internal' },
+                                        },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'html' } },
                                       ],
                                     },
                                   },

@@ -2,6 +2,8 @@ import { Button, Col, Modal, Row, Space, Typography } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined } from '@ant-design/icons';
 
 import styles from './index.less';
+import { useStyle } from '../styles';
+import { TypesAlert } from '../alert.data';
 
 const { Title } = Typography;
 
@@ -10,8 +12,22 @@ export type Props = {
   visible: boolean;
   type: TYPES;
   onOk?: any;
-  onCancel?: () => void;
+  onCancel: () => void;
   arr?: any[];
+  transfer?: boolean;
+  setDetail?: any;
+  onCloseConfirm?: any;
+  setUsed?: any;
+  keysSelected?: string[];
+  details?: any;
+  setRequest?: any;
+  requestSelected?: any;
+  request?: any;
+  discardProduct?: any;
+  detailRequest?: any[];
+  setDetailRequest?: any;
+  setRequestSelected?: any;
+  used?: string[];
 };
 
 const selectIcon = (type: TYPES, style: React.CSSProperties | undefined): JSX.Element => {
@@ -25,20 +41,66 @@ const selectIcon = (type: TYPES, style: React.CSSProperties | undefined): JSX.El
   }
 };
 
-const AlertConfirm = ({ message, visible, onOk, onCancel, type, arr }: Props) => {
-  const icon = selectIcon(type, styles.general);
+const AlertConfirm = ({
+  message,
+  visible,
+  onOk,
+  setDetail,
+  onCancel,
+  type,
+  arr,
+  transfer,
+  onCloseConfirm,
+  setUsed,
+  keysSelected,
+  details,
+  setRequest,
+  requestSelected,
+  request,
+  discardProduct,
+  setDetailRequest,
+  setRequestSelected,
+  used,
+}: Props) => {
+  const color = TypesAlert[type]?.color;
+  const style = useStyle(color);
+  const icon = selectIcon(type, style.general);
 
-  const onFinish = () => {
-    if (onOk) {
-      onOk();
-      onCancel();
+  const onFinish = async () => {
+    if (!transfer) {
+      if (onOk) {
+        onOk();
+        onCancel();
+      } else {
+        onCancel();
+      }
     } else {
-      onCancel();
+      if (discardProduct) {
+        onCancel();
+      }
+      if (arr && !discardProduct) {
+        setDetail([...arr, ...details]);
+      }
+      if (!discardProduct) {
+        await onCancel();
+        setUsed([...keysSelected, ...used]);
+        setRequest(request.concat(requestSelected));
+        onCloseConfirm();
+        setRequestSelected([]);
+      }
     }
   };
 
   const discard = async (array: any[]) => {
     await array?.shift();
+    onCancel();
+  };
+
+  const onCloseF = async (detail: any[]) => {
+    if (discardProduct) {
+      await detail?.shift();
+      setDetailRequest([...detail]);
+    }
     onCancel();
   };
 
@@ -58,7 +120,7 @@ const AlertConfirm = ({ message, visible, onOk, onCancel, type, arr }: Props) =>
             </Button>
             <Button
               style={{ borderRadius: 5 }}
-              onClick={() => discard(arr)}
+              onClick={transfer ? () => onCloseF(arr) : () => discard(arr)}
               type="ghost"
               danger
               size="large"

@@ -1,5 +1,6 @@
 import type {
   ActionDetailTransfer,
+  DetailRequest,
   DetailTransfer,
   StockRequest,
   StockTransfer,
@@ -45,6 +46,8 @@ const Header = ({
     type: 'error',
     visible: false,
   });
+  const [detailsRequest, setDetailsRequest] = useState<DetailRequest[]>([]);
+  const [visibleConfirmRequest, setVisibleConfirmRequest] = useState(false);
 
   const onShowError = (message: string) => {
     setPropsAlertInformation({
@@ -94,7 +97,7 @@ const Header = ({
           const request = requestsAdd[i];
           for (let j = 0; j < request?.details?.length; j++) {
             const detail = request?.details[j];
-            const productFind = details?.find(
+            const productFind = detailsRequest?.find(
               (item) => item?.product?._id === detail?.product?._id,
             );
             const productFindLocal = create?.findIndex(
@@ -124,7 +127,7 @@ const Header = ({
           }
         }
 
-        const newDetails = details.map((item) => {
+        const newDetails = detailsRequest.map((item) => {
           const find = update.find((detail) => detail?.product?._id === item?.product?._id);
           if (find) {
             return {
@@ -134,10 +137,8 @@ const Header = ({
           }
           return item;
         });
-        setDetails(newDetails.concat(create));
-        setRequests(requests.concat(requestsAdd));
+        setDetailsRequest([...newDetails.concat(create)]);
       }
-      closeModalSelectRequests();
     } catch (error: any) {
       onShowError(error?.message);
     }
@@ -200,6 +201,13 @@ const Header = ({
         </DescriptionsItem>
       </Descriptions>
       <SearchRequest
+        details={details}
+        setRequests={setRequests}
+        setDetails={setDetails}
+        setVisibleConfirmRequest={setVisibleConfirmRequest}
+        visibleConfirmRequest={visibleConfirmRequest}
+        detailRequest={detailsRequest}
+        setDetailRequest={setDetailsRequest}
         transfer={transfer}
         visible={showSelectRequests}
         onCancel={closeModalSelectRequests}
