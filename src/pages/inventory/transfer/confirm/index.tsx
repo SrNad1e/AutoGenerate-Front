@@ -231,9 +231,6 @@ const ConfirmTransfer = () => {
       setError(e?.message);
     }
   };
-  useEffect(() => {
-    console.log(details);
-  }, [details]);
 
   /* const confirmZero = (_id: string) => {
     try {
@@ -317,7 +314,7 @@ const ConfirmTransfer = () => {
             });
             if (response?.data?.updateStockTransfer) {
               setPropsAlert({
-                message: 'Productos confirmados correctamente',
+                message: 'Traslado confirmado correctamente',
                 visible: true,
                 type: 'success',
                 redirect: '/inventory/transfer/list',
