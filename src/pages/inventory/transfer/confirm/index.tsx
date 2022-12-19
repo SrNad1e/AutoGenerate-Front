@@ -180,17 +180,13 @@ const ConfirmTransfer = () => {
       const newDetails = details.filter((item) => item?.product?.barcode !== barcode);
 
       const existingDetail = details.find((item) => item?.product?.barcode === barcode);
-
-      const response = await getProduct({
-        variables: {
-          input: {
-            barcode: barcode,
-            warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
-          },
-        },
-      });
-      if (response?.data?.product) {
-        const product = response?.data?.product;
+      let productExist;
+      for (let i = 0; i < transferData.length; i++) {
+        if (transferData[i]?.product?.barcode === barcode) {
+          productExist = transferData[i]?.product;
+        }
+      }
+      if (productExist) {
         if (existingDetail) {
           newDetails.push({
             ...existingDetail,
@@ -207,7 +203,7 @@ const ConfirmTransfer = () => {
           setDetails(newDetails);
         } else {
           const objDetail: Partial<DetailTransfer> = {
-            product: product,
+            product: productExist,
             quantity: detail?.quantity || 0,
             status: detail?.status,
             quantityConfirmed: detail?.quantityConfirmed || 0,
@@ -218,11 +214,56 @@ const ConfirmTransfer = () => {
             quantityConfirmed: objDetail?.quantityConfirmed || 1,
           });
           setError(
-            `Confirmado ${product?.reference?.name} / ${product?.color?.name} / ${
-              product?.size?.value
+            `Confirmado ${productExist?.reference?.name} / ${productExist?.color?.name} / ${
+              productExist?.size?.value
             }, cantidad: ${objDetail?.quantityConfirmed || 1}`,
           );
           setDetails(newDetails);
+        }
+      } else {
+        const response = await getProduct({
+          variables: {
+            input: {
+              barcode: barcode,
+              warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
+            },
+          },
+        });
+        if (response?.data?.product) {
+          const product = response?.data?.product;
+          if (existingDetail) {
+            newDetails.push({
+              ...existingDetail,
+              status: StatusDetailTransfer.New,
+              quantityConfirmed: (existingDetail?.quantityConfirmed || 0) + 1,
+            });
+            setError(
+              `Confirmado ${existingDetail?.product?.reference?.name} / ${
+                existingDetail?.product?.color?.name
+              } / ${existingDetail?.product?.size?.value}, cantidad: ${
+                (existingDetail?.quantityConfirmed || 0) + 1
+              }`,
+            );
+            setDetails(newDetails);
+          } else {
+            const objDetail: Partial<DetailTransfer> = {
+              product: product,
+              quantity: detail?.quantity || 0,
+              status: detail?.status,
+              quantityConfirmed: detail?.quantityConfirmed || 0,
+            };
+            newDetails.push({
+              ...objDetail,
+              status: StatusDetailTransfer.New,
+              quantityConfirmed: objDetail?.quantityConfirmed || 1,
+            });
+            setError(
+              `Confirmado ${product?.reference?.name} / ${product?.color?.name} / ${
+                product?.size?.value
+              }, cantidad: ${objDetail?.quantityConfirmed || 1}`,
+            );
+            setDetails(newDetails);
+          }
         }
       }
 
@@ -231,24 +272,6 @@ const ConfirmTransfer = () => {
       setError(e?.message);
     }
   };
-
-  /* const confirmZero = (_id: string) => {
-    try {
-      const newDetails = details.map((item) => {
-        if (item?.product?._id === _id) {
-          return {
-            ...item,
-            status: StatusDetailTransfer.Confirmed,
-            quantityConfirmed: 0,
-          };
-        }
-        return item;
-      });
-      setDetails(newDetails);
-    } catch (e: any) {
-      onShowError(e?.message);
-    }
-  };*/
 
   const confirmProducts = () => {
     try {
