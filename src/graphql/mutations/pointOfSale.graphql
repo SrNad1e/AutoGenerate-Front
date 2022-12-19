@@ -1,0 +1,13 @@
+mutation createPointOfSale($input: CreatePointOfSaleInput!) {
+  createPointOfSale(createPointOfSaleInput: $input) {
+    _id
+    name
+  }
+}
+
+mutation updatePointOfSale($id: String!, $input: UpdatePointOfSaleInput!) {
+  updatePointOfSale(id: $id, updatePointOfSaleInput: $input) {
+    _id
+    name
+  }
+}

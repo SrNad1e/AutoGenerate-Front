@@ -126,3 +126,33 @@ mutation confirmProductsStockTransfer($id: String!, $input: ConfirmStockTransfer
   }
 }
 
+mutation verifiedProducttStockTransfer($input: VerifiedProductTransferErrorInput!) {
+  verifiedProductStockTransfer(verifiedProductTransferErrorInput: $input) {
+    _id
+    createdAt
+    updatedAt
+    verified
+    details {
+      product {
+        _id
+        reference {
+          name
+        }
+        size {
+          value
+        }
+        color {
+          name
+        }
+        barcode
+      }
+      quantity
+      reason
+      status
+      updatedAt
+    }
+    stockTransfer {
+      _id
+    }
+  }
+}

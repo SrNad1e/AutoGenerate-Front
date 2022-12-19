@@ -50,6 +50,7 @@ const FormReference = () => {
   const [combinations, setCombinations] = useState<Partial<Product>[]>([]);
   const [activeKey, setActiveKey] = useState('1');
   const [editProduct, setEditProduct] = useState(false);
+  const [missingValue, setMissingValue] = useState(false);
   const [product, setProduct] = useState<Product>();
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -140,7 +141,9 @@ const FormReference = () => {
       }
 
       if (!values?.long) {
+        setMissingValue(true);
         setActiveKey('2');
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
         return;
       }
 
@@ -355,20 +358,28 @@ const FormReference = () => {
    * @description elimina la combinacion seleccionada
    */
   const deleteProduct = ({ color, size }: Product) => {
-    const newCombinations = combinations?.filter(
-      (combination) =>
-        !(combination?.color?._id === color?._id && combination?.size?._id === size?._id),
-    );
-    setCombinations(newCombinations);
+    try {
+      const newCombinations = combinations?.filter(
+        (combination) =>
+          !(combination?.color?._id === color?._id && combination?.size?._id === size?._id),
+      );
+      setCombinations(newCombinations);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   useEffect(() => {
-    if (id) {
-      getReference({
-        variables: {
-          id,
-        },
-      });
+    try {
+      if (id) {
+        getReference({
+          variables: {
+            id,
+          },
+        });
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, []);
 
@@ -409,6 +420,25 @@ const FormReference = () => {
       setCombinations((data?.referenceId?.products as Product[]) || []);
     }
   }, [data]);
+
+  const dataOrdered = combinations
+    ?.slice()
+    .sort((a, b) => {
+      return b?.size?.weight - a?.size?.weight;
+    })
+    .sort((a, b) => {
+      const nameA = a?.color?.name?.toUpperCase();
+      const nameB = b?.color?.name?.toUpperCase();
+
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+
+      return 0;
+    }) as any;
 
   const columns: ColumnsType<Product> = [
     {
@@ -508,7 +538,7 @@ const FormReference = () => {
               <FormGeneralData />
             </TabPane>
             <TabPane tab="Datos de envio" key="2">
-              <FormShipping />
+              <FormShipping missingValue={missingValue} form={form} />
             </TabPane>
           </Tabs>
         </Form>
@@ -517,7 +547,7 @@ const FormReference = () => {
         <Divider />
         <Table
           loading={loading}
-          dataSource={combinations}
+          dataSource={dataOrdered}
           columns={columns}
           pagination={false}
           bordered
@@ -525,7 +555,7 @@ const FormReference = () => {
         />
         <Affix offsetBottom={0}>
           <Card loading={loading} bodyStyle={styles.bodyStyle} size="small">
-            <Button type="primary" onClick={onFinish}>
+            <Button type="primary" loading={loading} style={{ borderRadius: 5 }} onClick={onFinish}>
               Guardar
             </Button>
           </Card>

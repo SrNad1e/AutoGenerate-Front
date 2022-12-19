@@ -6,6 +6,23 @@ query shops($input: FiltersShopsInput) {
     docs {
       _id
       name
+      user {
+        name
+      }
+      status
+      updatedAt
+      address
+      goal
+      phone
+      defaultWarehouse {
+        name
+        _id
+      }
+      isMain
+      warehouseMain {
+        name
+        _id
+      }
     }
   }
 }

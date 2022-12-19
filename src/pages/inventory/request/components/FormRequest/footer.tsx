@@ -1,9 +1,11 @@
 import { Affix, Card, Col, Row, Space, Button, Typography, Divider } from 'antd';
 
 import type { DetailRequest, StockRequest } from '@/graphql/graphql';
+import { ActionDetailRequest } from '@/graphql/graphql';
 import { StatusStockRequest } from '@/graphql/graphql';
 
 import styles from '../styles.less';
+import style from './styles';
 
 const { Title } = Typography;
 
@@ -23,11 +25,12 @@ const Footer = ({ request, saveRequest, details, allowEdit }: Props) => {
     return (
       <Space align="center" className={styles.alignCenter}>
         <Title level={3}>
-          REFERENCIAS: {details.filter((detail) => detail?.action !== 'delete').length}
+          REFERENCIAS:{' '}
+          {details.filter((detail) => detail?.action !== ActionDetailRequest.Delete).length}
           <Divider type="vertical" />
           PRODUCTOS:{' '}
           {details
-            .filter((detail) => detail?.action !== 'delete')
+            .filter((detail) => detail?.action !== ActionDetailRequest.Delete)
             .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
         </Title>
       </Space>
@@ -43,6 +46,7 @@ const Footer = ({ request, saveRequest, details, allowEdit }: Props) => {
               disabled={!allowEdit}
               type={request?._id ? 'primary' : 'default'}
               danger={!!request?._id}
+              style={style.buttonR}
               onClick={() => saveRequest(StatusStockRequest.Cancelled)}
             >
               Cancelar
@@ -53,12 +57,17 @@ const Footer = ({ request, saveRequest, details, allowEdit }: Props) => {
           </Col>
           <Col xs={24} md={5}>
             <Space className={styles.alignRigth}>
-              <Button disabled={!allowEdit} onClick={() => saveRequest()}>
+              <Button
+                disabled={!allowEdit}
+                style={style.buttonR}
+                onClick={() => saveRequest(StatusStockRequest.Open)}
+              >
                 Guardar
               </Button>
               <Button
                 type="primary"
                 disabled={!allowEdit}
+                style={style.buttonR}
                 onClick={() => saveRequest(StatusStockRequest.Pending)}
               >
                 Enviar

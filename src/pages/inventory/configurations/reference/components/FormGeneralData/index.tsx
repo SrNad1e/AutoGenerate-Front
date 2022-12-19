@@ -71,7 +71,7 @@ const FormGeneralData = () => {
         </DescriptionsItem>
         <DescriptionsItem span={2} label="Categoría">
           <Row>
-            <Col xs={18} md={19} lg={20}>
+            <Col xs={12} md={19} lg={20}>
               <FormItem
                 style={styles.marginIntial}
                 name="categoriesId"
@@ -80,7 +80,7 @@ const FormGeneralData = () => {
                 <SelectCategories />
               </FormItem>
             </Col>
-            <Col xs={6} md={5} lg={4}>
+            <Col xs={12} md={5} lg={4}>
               <Divider type="vertical" />
               <Tooltip title="Crear nueva categoría">
                 <Link to="/inventory/configurations/categories" target="_blank">
@@ -97,16 +97,12 @@ const FormGeneralData = () => {
         </DescriptionsItem>
         <DescriptionsItem span={2} label="Atributos">
           <Row>
-            <Col xs={18} md={19} lg={20}>
-              <FormItem
-                style={styles.marginIntial}
-                name="attribIds"
-                rules={[{ required: true, message: 'Obligatorio' }]}
-              >
+            <Col xs={12} md={19} lg={20}>
+              <FormItem style={styles.marginIntial} name="attribIds">
                 <SelectListAttrib disabled={false} />
               </FormItem>
             </Col>
-            <Col xs={6} md={5} lg={4}>
+            <Col xs={12} md={5} lg={4}>
               <Divider type="vertical" />
               <Tooltip title="Crear nuevo atributo">
                 <Button
@@ -135,7 +131,7 @@ const FormGeneralData = () => {
         </DescriptionsItem>
         <DescriptionsItem span={2} label="Marca">
           <Row>
-            <Col xs={18} md={19} lg={20}>
+            <Col xs={12} md={19} lg={20}>
               <FormItem
                 style={styles.marginIntial}
                 name="brandId"
@@ -144,7 +140,7 @@ const FormGeneralData = () => {
                 <SelectBrand disabled={false} />
               </FormItem>
             </Col>
-            <Col xs={6} md={5} lg={4}>
+            <Col xs={12} md={5} lg={4}>
               <Divider type="vertical" />
               <Tooltip title="Crear nueva marca">
                 <Button

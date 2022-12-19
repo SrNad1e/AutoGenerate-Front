@@ -1,11 +1,23 @@
 import { Descriptions, Form, InputNumber } from 'antd';
+import { useEffect } from 'react';
 
 import styles from '../styles';
 
 const DescriptionsItem = Descriptions.Item;
 const FormItem = Form.Item;
 
-const FormShipping = () => {
+type Props = {
+  missingValue: boolean;
+  form: any;
+};
+
+const FormShipping = ({ missingValue, form }: Props) => {
+  useEffect(() => {
+    if (missingValue) {
+      form.validateFields();
+    }
+  }, [missingValue]);
+
   return (
     <Descriptions bordered size="small">
       <DescriptionsItem label="Ancho" span={1}>

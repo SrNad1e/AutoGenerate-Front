@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Avatar,
   Badge,
@@ -25,7 +26,6 @@ import { StatusStockTransfer } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
 import type { Props as PropsSearchProduct } from '@/components/SearchProducts';
-import SearchProducts from '@/components/SearchProducts';
 import { useCreateTransfer, useUpdateTransfer } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import AlertLoading from '@/components/Alerts/AlertLoading';
@@ -33,6 +33,7 @@ import AlertSave from '@/components/Alerts/AlertSave';
 
 import Footer from './footer';
 import Header from './header';
+import SelectProducts from '@/components/SelectProducts';
 
 const { Text } = Typography;
 const FormItem = Form.Item;
@@ -74,7 +75,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
+   * @param message mensaje que se muestra en la alerta
    */
   const onShowInformation = (message: string) => {
     setPropsAlert({
@@ -101,28 +102,41 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param status estado actual de la solicitud
    */
   const showAlertSave = (status?: StatusStockTransfer) => {
-    if (
-      details.length > 0 ||
-      status === StatusStockTransfer.Cancelled ||
-      observation !== transfer?.observation
-    ) {
-      if (status === StatusStockTransfer.Cancelled) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea cancelar el traslado?',
-          type: 'error',
-        });
+    try {
+      if (
+        details.length > 0 ||
+        status === StatusStockTransfer.Cancelled ||
+        observation !== (transfer?.observation || '')
+      ) {
+        if (status === StatusStockTransfer.Cancelled) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea cancelar el traslado?',
+            type: 'error',
+          });
+        } else if (status === StatusStockTransfer.Sent) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea enviar el traslado?',
+            type: 'warning',
+          });
+        } else if (status === StatusStockTransfer.Open) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea guardar el traslado?',
+            type: 'warning',
+          });
+        } else {
+          onShowInformation('El traslado no tiene productos');
+        }
       } else {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea guardar el traslado?',
-          type: 'warning',
-        });
+        onShowInformation('No se encontraron cambios en el traslado');
       }
-    } else {
-      onShowInformation('El traslado no tiene productos');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -141,8 +155,6 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
           action: detail?.action as ActionDetailTransfer,
         }));
         if (newDetails.length > 0 || status || observation !== transfer?.observationOrigin) {
-          console.log(observation);
-
           const props = {
             details: newDetails,
             requests: requests?.map((request) => request?._id),
@@ -150,24 +162,50 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
             status,
           };
 
+          if (props.status === StatusStockTransfer.Open) {
+            delete props.status;
+          }
+
           const response = await updateTransfer({
             variables: {
               input: props,
               id,
             },
           });
+
           if (response?.data?.updateStockTransfer) {
-            if (response?.data?.updateStockTransfer?.status === StatusStockTransfer.Cancelled) {
+            if (status === StatusStockTransfer.Open) {
               setPropsAlert({
-                message: `Traslado cancelado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
-                type: 'warning',
-                visible: true,
-              });
-            } else {
-              setPropsAlert({
-                message: `Traslado actualizado correctamente No. ${response?.data?.updateStockTransfer?.number}`,
+                message: `Traslado No. ${response?.data?.updateStockTransfer?.number} actualizado correctamente`,
                 type: 'success',
                 visible: true,
+                redirect: [StatusStockTransfer.Sent, StatusStockTransfer.Confirmed].includes(
+                  response?.data?.updateStockTransfer?.status,
+                )
+                  ? '/inventory/transfer/list'
+                  : undefined,
+              });
+            } else if (props.status === StatusStockTransfer.Sent) {
+              setPropsAlert({
+                message: `Traslado No. ${response?.data?.updateStockTransfer?.number} creado correctamente `,
+                type: 'success',
+                visible: true,
+                redirect: [StatusStockTransfer.Sent, StatusStockTransfer.Confirmed].includes(
+                  response?.data?.updateStockTransfer?.status,
+                )
+                  ? '/inventory/transfer/list'
+                  : undefined,
+              });
+            } else if (status === StatusStockTransfer.Cancelled) {
+              setPropsAlert({
+                message: `Traslado No. ${response?.data?.updateStockTransfer?.number} cancelado correctamente `,
+                type: 'success',
+                visible: true,
+                redirect: [StatusStockTransfer.Sent, StatusStockTransfer.Confirmed].includes(
+                  response?.data?.updateStockTransfer?.status,
+                )
+                  ? '/inventory/transfer/list'
+                  : undefined,
               });
             }
           }
@@ -199,9 +237,19 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
             },
           });
 
-          if (response?.data?.createStockTransfer) {
+          if (response?.data?.createStockTransfer && status === StatusStockTransfer.Sent) {
             setPropsAlert({
               message: `Traslado creado correctamente No. ${response?.data?.createStockTransfer?.number}`,
+              type: 'success',
+              visible: true,
+              redirect:
+                status === StatusStockTransfer.Sent
+                  ? '/inventory/transfer/list'
+                  : `/inventory/transfer/${response?.data?.createStockTransfer?._id}`,
+            });
+          } else if (response?.data?.createStockTransfer && status === StatusStockTransfer.Open) {
+            setPropsAlert({
+              message: `Traslado guardado correctamente No. ${response?.data?.createStockTransfer?.number}`,
               type: 'success',
               visible: true,
               redirect: `/inventory/transfer/${response?.data?.createStockTransfer?._id}`,
@@ -219,24 +267,28 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param _id identificador del producto a eliminar
    */
   const deleteDetail = (_id: string) => {
-    if (setDetails) {
-      const productFind = details.find((detail) => detail?.product?._id);
+    try {
+      if (setDetails) {
+        const productFind = details.find((detail) => detail?.product?._id);
 
-      if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product?._id !== _id));
-      } else {
-        setDetails(
-          details.map((detail) => {
-            if (detail?.product?._id === _id) {
-              return {
-                ...detail,
-                action: ActionDetailTransfer.Delete,
-              };
-            }
-            return detail;
-          }),
-        );
+        if (productFind && !productFind.__typename) {
+          setDetails(details.filter((detail) => detail?.product?._id !== _id));
+        } else {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === _id) {
+                return {
+                  ...detail,
+                  action: ActionDetailTransfer.Delete,
+                };
+              }
+              return detail;
+            }),
+          );
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -246,18 +298,22 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Product, quantity: number) => {
-    setDetails(
-      details.map((detail) => {
-        if (detail?.product?._id === product._id) {
-          return {
-            ...detail,
-            quantity: quantity || 0,
-            action: detail?.action ?? ActionDetailTransfer.Update,
-          };
-        }
-        return detail;
-      }),
-    );
+    try {
+      setDetails(
+        details.map((detail) => {
+          if (detail?.product?._id === product._id) {
+            return {
+              ...detail,
+              quantity: quantity || 0,
+              action: detail?.action ?? ActionDetailTransfer.Update,
+            };
+          }
+          return detail;
+        }),
+      );
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -266,7 +322,11 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad del producto
    */
   const createDetail = (product: Product, quantity: number) => {
-    setDetails([...details, { product, quantity, action: ActionDetailTransfer.Create }]);
+    try {
+      setDetails([...details, { product, quantity, action: ActionDetailTransfer.Create }]);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -291,10 +351,16 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
   };
 
   useEffect(() => {
-    if (id) {
-      setDetails(transfer?.details || []);
-      setRequests(transfer?.requests || []);
-      setObservation(transfer?.observationOrigin || '');
+    try {
+      if (id) {
+        if (details?.length === 0) {
+          setDetails(transfer?.details || []);
+        }
+        setRequests(transfer?.requests || []);
+        setObservation(transfer?.observationOrigin || '');
+      }
+    } catch (error: any) {
+      showError(error?.mesage);
     }
   }, [transfer, id]);
 
@@ -386,14 +452,19 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       ),
     },
     {
-      title: 'Opciones',
+      title: 'Opción',
       dataIndex: 'product',
       align: 'center',
       width: 30,
       fixed: 'right',
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Popconfirm title="¿Seguro desea eliminar?" onConfirm={() => deleteDetail(_id)}>
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
             <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
           </Popconfirm>
         </Tooltip>
@@ -417,7 +488,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         <Card bordered={false} size="small">
           <Form layout="vertical">
             <FormItem label="Código de barras">
-              <SearchProducts {...propsSearchProduct} />
+              <SelectProducts {...propsSearchProduct} />
             </FormItem>
           </Form>
         </Card>
@@ -426,10 +497,13 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         <Table
           columns={columns}
           dataSource={
-            details.filter((detail) => detail?.action !== ActionDetailTransfer.Delete) as any
+            details
+              .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
+              .reverse() as any
           }
-          scroll={{ x: 800, y: 200 }}
+          scroll={{ x: 800, y: 400 }}
           pagination={{ size: 'small' }}
+          loading={paramsCreate?.loading || paramsUpdate?.loading}
         />
       </Card>
       <Footer
@@ -439,10 +513,8 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         details={details}
       />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <AlertLoading
-        visible={paramsCreate?.loading || paramsUpdate?.loading}
-        message="Guardando traslado"
-      />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando traslado" />
+      <AlertLoading visible={paramsUpdate.loading} message="Guardando  Traslado" />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );

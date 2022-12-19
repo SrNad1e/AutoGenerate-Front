@@ -5,4 +5,7 @@ export default {
   whiteColor: {
     backgroundColor: 'white',
   },
+  buttonR: {
+    borderRadius: 5,
+  },
 };

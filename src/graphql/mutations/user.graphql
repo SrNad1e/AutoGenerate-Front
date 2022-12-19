@@ -16,6 +16,7 @@ mutation login($input: LoginUserInput!) {
         }
       }
       role {
+        changeWarehouse
         name
         permissions {
           action

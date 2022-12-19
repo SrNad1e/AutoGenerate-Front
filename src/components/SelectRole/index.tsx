@@ -3,6 +3,8 @@ import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetRoles } from '@/hooks/rol.hooks';
+import { Permissions } from '@/graphql/graphql';
+import { useModel } from 'umi';
 
 const { Option } = Select;
 
@@ -14,6 +16,11 @@ export type Params = {
 
 const SelectRole = ({ onChange, disabled, value }: Params) => {
   const [getRoles, { loading, data, error }] = useGetRoles();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryRoles = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadConfigurationRoles,
+  );
 
   /**
    * @description se encarga de consultar con base a un comodín
@@ -33,16 +40,18 @@ const SelectRole = ({ onChange, disabled, value }: Params) => {
   };
 
   useEffect(() => {
-    getRoles({
-      variables: {
-        input: {
-          _id: value,
-          sort: {
-            name: 1,
+    if (canQueryRoles) {
+      getRoles({
+        variables: {
+          input: {
+            _id: value,
+            sort: {
+              name: 1,
+            },
           },
         },
-      },
-    });
+      });
+    }
   }, []);
 
   return (
@@ -64,6 +73,9 @@ const SelectRole = ({ onChange, disabled, value }: Params) => {
           </Option>
         ))}
       </Select>
+      {!canQueryRoles && (
+        <Alert message="No tiene permiso para consultar los roles" type="error" showIcon />
+      )}
       {error && <Alert message={error} type="info" showIcon />}
     </>
   );

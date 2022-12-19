@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import type { ColumnsType } from 'antd/lib/table';
 import Table from 'antd/lib/table';
 import {
@@ -8,6 +9,7 @@ import {
   Col,
   Form,
   InputNumber,
+  Popconfirm,
   Row,
   Space,
   Tag,
@@ -17,6 +19,7 @@ import {
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useModel, useParams } from 'umi';
+import numeral from 'numeral';
 
 import { useCreateAdjustment, useUpdateAdjustment } from '@/hooks/adjustment.hooks';
 import AlertLoading from '@/components/Alerts/AlertLoading';
@@ -99,30 +102,41 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
    * @param status estado actual del ajuste
    */
   const showAlertSave = (status?: StatusStockAdjustment) => {
-    if (
-      details.length > 0 ||
-      status === StatusStockAdjustment.Cancelled ||
-      observation !== (adjustment?.observation || '')
-    ) {
-      if (status === StatusStockAdjustment.Cancelled) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea cancelar el ajuste?',
-          type: 'error',
-        });
-      } else if (details.length > 0) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea guardar el ajuste?',
-          type: 'warning',
-        });
+    try {
+      if (
+        details.length > 0 ||
+        status === StatusStockAdjustment.Cancelled ||
+        observation !== (adjustment?.observation || '')
+      ) {
+        if (status === StatusStockAdjustment.Cancelled) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea cancelar el ajuste?',
+            type: 'error',
+          });
+        } else if (status === StatusStockAdjustment.Open) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea guardar el ajuste?',
+            type: 'warning',
+          });
+        } else if (status === StatusStockAdjustment.Confirmed) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea enviar el ajuste?',
+            type: 'warning',
+          });
+        } else {
+          onShowInformation('El ajuste no tiene productos');
+        }
       } else {
-        onShowInformation('El ajuste no tiene productos');
+        onShowInformation('No se encontraron cambios en el ajuste');
       }
-    } else {
-      onShowInformation('No se encontraron cambios en el ajuste');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -147,17 +161,51 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
             status,
           };
 
+          if (props.status === StatusStockAdjustment.Open) {
+            delete props.status;
+          }
+
           const response = await updateAdjustment({
             variables: {
               input: props,
               id,
             },
           });
-          if (response?.data?.updateStockAdjustment) {
+          if (response?.data?.updateStockAdjustment && status === StatusStockAdjustment.Open) {
             setPropsAlert({
-              message: `Ajuste actualizado correctamente No. ${response?.data?.updateStockAdjustment?.number}`,
+              message: `Ajuste No. ${response?.data?.updateStockAdjustment?.number} actualizado correctamente`,
               type: 'success',
               visible: true,
+              redirect:
+                response?.data?.updateStockAdjustment?.status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : undefined,
+            });
+          } else if (
+            response?.data?.updateStockAdjustment &&
+            status === StatusStockAdjustment.Confirmed
+          ) {
+            setPropsAlert({
+              message: `Ajuste No. ${response?.data?.updateStockAdjustment?.number} creado correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockAdjustment?.status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : undefined,
+            });
+          } else if (
+            response?.data?.updateStockAdjustment &&
+            status === StatusStockAdjustment.Cancelled
+          ) {
+            setPropsAlert({
+              message: `Ajuste No. ${response?.data?.updateStockAdjustment?.number} cancelado correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockAdjustment?.status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : undefined,
             });
           }
         } else {
@@ -185,10 +233,22 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
               input: props,
             },
           });
-
-          if (response?.data?.createStockAdjustment) {
+          if (response?.data?.createStockAdjustment && status === StatusStockAdjustment.Confirmed) {
             setPropsAlert({
               message: `Ajuste creado correctamente No. ${response?.data?.createStockAdjustment?.number}`,
+              type: 'success',
+              visible: true,
+              redirect:
+                status === StatusStockAdjustment.Confirmed
+                  ? '/inventory/adjustment/list'
+                  : `/inventory/adjustment/${response?.data?.createStockAdjustment?._id}`,
+            });
+          } else if (
+            response?.data?.createStockAdjustment &&
+            status === StatusStockAdjustment.Open
+          ) {
+            setPropsAlert({
+              message: `Ajuste guardado correctamente No. ${response?.data?.createStockAdjustment?.number}`,
               type: 'success',
               visible: true,
               redirect: `/inventory/adjustment/${response?.data?.createStockAdjustment?._id}`,
@@ -206,24 +266,28 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
    * @param _id identificador del producto a eliminar
    */
   const deleteDetail = (_id: string) => {
-    if (setDetails) {
-      const productFind = details.find((detail) => detail?.product?._id);
+    try {
+      if (setDetails) {
+        const productFind = details.find((detail) => detail?.product?._id);
 
-      if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product?._id !== _id));
-      } else {
-        setDetails(
-          details.map((detail) => {
-            if (detail?.product?._id === _id) {
-              return {
-                ...detail,
-                action: ActionDetailAdjustment.Delete,
-              };
-            }
-            return detail;
-          }),
-        );
+        if (productFind && !productFind.__typename) {
+          setDetails(details.filter((detail) => detail?.product?._id !== _id));
+        } else {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === _id) {
+                return {
+                  ...detail,
+                  action: ActionDetailAdjustment.Delete,
+                };
+              }
+              return detail;
+            }),
+          );
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -233,22 +297,26 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Product, quantity: number) => {
-    if (setDetails) {
-      const productFind = adjustment?.details?.find(
-        (detail) => detail?.product?._id === product?._id,
-      );
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product?._id) {
-            return {
-              ...detail,
-              quantity: quantity || 0,
-              action: productFind ? ActionDetailAdjustment.Update : ActionDetailAdjustment.Create,
-            };
-          }
-          return detail;
-        }),
-      );
+    try {
+      if (setDetails) {
+        const productFind = adjustment?.details?.find(
+          (detail) => detail?.product?._id === product?._id,
+        );
+        setDetails(
+          details.map((detail) => {
+            if (detail?.product?._id === product?._id) {
+              return {
+                ...detail,
+                quantity: quantity || 0,
+                action: productFind ? ActionDetailAdjustment.Update : ActionDetailAdjustment.Create,
+              };
+            }
+            return detail;
+          }),
+        );
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -258,13 +326,19 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad  a asignar
    */
   const createDetail = (product: Product, quantity: number) => {
-    const findProduct = adjustment?.details?.find((detail) => detail?.product?._id === product._id);
-    if (findProduct) {
-      updateDetail(product, quantity);
-    } else {
-      if (setDetails) {
-        setDetails([...details, { product, quantity, action: ActionDetailAdjustment.Create }]);
+    try {
+      const findProduct = adjustment?.details?.find(
+        (detail) => detail?.product?._id === product._id,
+      );
+      if (findProduct) {
+        updateDetail(product, quantity);
+      } else {
+        if (setDetails) {
+          setDetails([...details, { product, quantity, action: ActionDetailAdjustment.Create }]);
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -290,9 +364,15 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
   };
 
   useEffect(() => {
-    if (id) {
-      setDetails(adjustment?.details || []);
-      setObservation(adjustment?.observation || '');
+    try {
+      if (id) {
+        if (details?.length === 0) {
+          setDetails(adjustment?.details || []);
+        }
+        setObservation(adjustment?.observation || '');
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, [adjustment, id]);
 
@@ -348,6 +428,11 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
       render: ({ size }: Product) => size.value,
     },
     {
+      title: 'Costo Unitario',
+      dataIndex: 'product',
+      render: (product: Product) => numeral(product?.reference?.price).format('$ 0,0'),
+    },
+    {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
@@ -381,13 +466,14 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
       align: 'center',
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
+          </Popconfirm>
         </Tooltip>
       ),
     },
@@ -413,7 +499,9 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== ActionDetailAdjustment.Delete)}
+          dataSource={details
+            .filter((detail) => detail?.action !== ActionDetailAdjustment.Delete)
+            .reverse()}
           scroll={{ x: 1000 }}
           pagination={{ size: 'small' }}
         />

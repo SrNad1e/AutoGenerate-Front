@@ -1,9 +1,11 @@
 import { Affix, Button, Card, Col, Divider, Row, Space, Typography } from 'antd';
 
 import type { DetailAdjustment, StockAdjustment } from '@/graphql/graphql';
+import { ActionDetailAdjustment } from '@/graphql/graphql';
 import { StatusStockAdjustment } from '@/graphql/graphql';
 
 import styles from '../styles.less';
+import style from './styles';
 
 const { Title } = Typography;
 
@@ -19,11 +21,12 @@ const Footer = ({ adjustment, saveAdjustment, details, allowEdit }: Props) => {
     return (
       <Space align="center" className={styles.alignCenter}>
         <Title level={3}>
-          REFERENCIAS: {details.filter((detail) => detail?.action !== 'delete').length}
+          REFERENCIAS:{' '}
+          {details.filter((detail) => detail?.action !== ActionDetailAdjustment.Delete).length}
           <Divider type="vertical" />
           PRODUCTOS:{' '}
           {details
-            .filter((detail) => detail?.action !== 'delete')
+            .filter((detail) => detail?.action !== ActionDetailAdjustment.Delete)
             .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
         </Title>
       </Space>
@@ -36,6 +39,7 @@ const Footer = ({ adjustment, saveAdjustment, details, allowEdit }: Props) => {
         <Row>
           <Col xs={24} md={3}>
             <Button
+              style={style.buttonR}
               disabled={!allowEdit}
               type={adjustment?._id ? 'primary' : 'default'}
               danger={!!adjustment?._id}
@@ -49,15 +53,20 @@ const Footer = ({ adjustment, saveAdjustment, details, allowEdit }: Props) => {
           </Col>
           <Col xs={24} md={5}>
             <Space align="end" className={styles.alignRigth}>
-              <Button disabled={!allowEdit} onClick={() => saveAdjustment()}>
+              <Button
+                style={style.buttonR}
+                disabled={!allowEdit}
+                onClick={() => saveAdjustment(StatusStockAdjustment.Open)}
+              >
                 Guardar
               </Button>
               <Button
+                style={style.buttonR}
                 type="primary"
                 disabled={!allowEdit}
                 onClick={() => saveAdjustment(StatusStockAdjustment.Confirmed)}
               >
-                Enviar
+                Confirmar
               </Button>
             </Space>
           </Col>

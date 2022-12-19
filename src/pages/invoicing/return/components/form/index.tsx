@@ -7,12 +7,11 @@ import { useCreateReturnOrder } from '@/hooks/return-order.hooks';
 import { useEffect, useState } from 'react';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import RenderStep1 from '../components/Step1';
-import RenderStep2 from '../components/Step2';
+import RenderStep1 from '../Step1';
+import RenderStep2 from '../Step2';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from './styles';
-import AlertInformation from '@/components/Alerts/AlertInformation';
-import { LoadingOutlined } from '@ant-design/icons';
 
 type Props = {
   visible?: boolean;
@@ -94,7 +93,7 @@ const FormReturn = ({ visible, onCancel }: Props) => {
         });
       }
     } catch (error: any) {
-      messageError(error.message);
+      messageError(error?.message);
     }
   };
 
@@ -103,21 +102,29 @@ const FormReturn = ({ visible, onCancel }: Props) => {
    * @param params Variables para ejecutar la consulta
    */
   const onSearch = (params?: FiltersOrdersInput) => {
-    getOrders({
-      variables: {
-        input: {
-          status: StatusOrder.Closed,
-          ...params,
+    try {
+      getOrders({
+        variables: {
+          input: {
+            status: StatusOrder.Closed,
+            ...params,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   useEffect(() => {
-    getOrders({ variables: { input: {} } });
-    setOrderSelected({});
-    setProductsSelected([]);
-    setCurrentStep(0);
+    try {
+      getOrders({ variables: { input: { status: StatusOrder.Closed, sort: { createdAt: -1 } } } });
+      setOrderSelected({});
+      setProductsSelected([]);
+      setCurrentStep(0);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   }, [visible]);
 
   return (
@@ -130,6 +137,7 @@ const FormReturn = ({ visible, onCancel }: Props) => {
         currentStep > -1 && [
           <Button
             style={styles.borderR}
+            loading={paramsCreate?.loading || loading}
             key={1}
             onClick={
               currentStep === 0
@@ -143,7 +151,7 @@ const FormReturn = ({ visible, onCancel }: Props) => {
           </Button>,
           <Button
             style={styles.borderR}
-            icon={paramsCreate.loading && <LoadingOutlined />}
+            loading={paramsCreate?.loading || loading}
             key={2}
             disabled={productsSelected.length < 1}
             type="primary"
@@ -160,10 +168,16 @@ const FormReturn = ({ visible, onCancel }: Props) => {
         <Step key="2" title="Productos" />
       </Steps>
       {currentStep === 0 && (
-        <RenderStep1 loading={loading} data={data} onSearch={onSearch} selectOrder={selectOrder} />
+        <RenderStep1
+          loading={loading || paramsCreate?.loading}
+          data={data}
+          onSearch={onSearch}
+          selectOrder={selectOrder}
+        />
       )}
       {currentStep === 1 && (
         <RenderStep2
+          loading={loading || paramsCreate?.loading}
           currentStep={currentStep}
           orderSelected={orderSelected}
           productsSelected={productsSelected}

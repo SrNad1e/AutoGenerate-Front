@@ -16,6 +16,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 
 import styles from '../styles';
 import { useCreateCloseZInvoicing } from '@/hooks/closeZInvoicing.hooks';
+import { useGetCurrentUser } from '@/hooks/user.hooks';
 
 const { Text, Title } = Typography;
 const { Step } = Steps;
@@ -34,12 +35,15 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     type: 'error',
     visible: false,
   });
+  const [expensesSize, setExpensesSize] = useState(0);
+  const [quantityBankState, setQuantityBankState] = useState(0);
 
   const [form] = Form.useForm();
 
   const reportRef = useRef(null);
 
   const [createClose, { loading, data }] = useCreateCloseZInvoicing();
+  const currentUser = useGetCurrentUser();
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
@@ -69,15 +73,36 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     return (
       data?.createCloseZInvoicing?.payments?.reduce(
         (sum, payment) =>
-          sum + (payment?.payment?.type === TypePayment.Cash ? payment?.quantity : 0),
+          sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
         0,
       ) || 0
     );
   };
 
+  const getTotalExpenses = () => {
+    const totalExpenses = data?.createCloseZInvoicing?.expenses?.reduce(
+      (sum, current) => sum + current.value,
+      0,
+    );
+    return totalExpenses;
+  };
+
   const getDifferenceBank = () => {
     return (data?.createCloseZInvoicing?.quantityBank || 0) - getTotalBank();
   };
+  const totalExpenses = data?.createCloseZInvoicing?.expenses?.reduce(
+    (sum, expense) => sum + expense?.value,
+    0,
+  );
+
+  const diff = getTotal() + totalExpenses - getTotalCash();
+
+  const quantityBank = data?.createCloseZInvoicing?.payments?.reduce(
+    (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
+    0,
+  );
+
+  const diffBank = data?.createCloseZInvoicing?.quantityBank - quantityBank;
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -144,6 +169,8 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                   response?.data?.createCloseZInvoicing?.closeDate,
                 ).format(FORMAT_DATE_API)}, ya no se pude facturar`,
               );
+              setQuantityBankState(response?.data?.createCloseZInvoicing?.quantityBank);
+              setExpensesSize(response?.data?.createCloseZInvoicing?.expenses?.length);
               setCurrentStep(2);
             }
           } catch (e: any) {
@@ -166,11 +193,16 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
 
   useEffect(() => {
     setCurrentStep(0);
-    form.resetFields();
-    form.setFieldsValue({
+    form?.resetFields();
+    form?.setFieldsValue({
       closeDate: moment(),
       total: getTotal(),
     });
+
+    if (!currentUser?.data?.currentUser?.role?.changeWarehouse) {
+      setCurrentStep(1);
+      form.setFieldsValue({ pointOfSaleId: currentUser?.data?.currentUser?.pointOfSale?._id });
+    }
   }, [visible]);
 
   return (
@@ -181,7 +213,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
       onCancel={onCancel}
       footer={
         <>
-          <Button loading={loading} onClick={onCancel}>
+          <Button loading={loading} style={{ borderRadius: 5 }} onClick={onCancel}>
             {currentStep !== 2 ? 'Cancelar' : 'Cerrar'}
           </Button>
           {visible &&
@@ -191,11 +223,17 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 loading={loading}
                 type="primary"
                 onClick={onFinish}
+                style={{ borderRadius: 5 }}
               >
                 Imprimir
               </Button>
             ) : (
-              <Button loading={loading} type="primary" onClick={onFinish}>
+              <Button
+                loading={loading}
+                type="primary"
+                onClick={onFinish}
+                style={{ borderRadius: 5 }}
+              >
                 {currentStep === 1 ? 'Crear Cierre' : 'Siguiente'}
               </Button>
             ))}
@@ -292,7 +330,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
             >
               <Text>{numeral(getTotal()).format('$ 0,0')}</Text>
             </Col>
-            {getDifferenceCash() !== 0 && (
+            {getDifferenceCash() !== 0 && expensesSize === 0 && (
               <>
                 <Col span={20}>
                   <Text strong>{getDifferenceCash() > 0 ? 'Sobrante' : 'Faltante'}</Text>
@@ -312,6 +350,38 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 </Col>
               </>
             )}
+            {diff !== 0 && expensesSize > 0 && (
+              <>
+                <Col span={20}>
+                  <Text strong>{diff > 0 ? 'Sobrante' : 'Faltante'}</Text>
+                </Col>
+                <Col
+                  span={4}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Text>{numeral(diff > 0 ? diff : diff * -1).format('$ 0,0')}</Text>
+                </Col>
+              </>
+            )}
+            {expensesSize > 0 && (
+              <>
+                <Col span={20}>
+                  <Text strong>{'Egresos'}</Text>
+                </Col>
+                <Col
+                  span={4}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Text>{numeral(getTotalExpenses()).format('$ 0,0')}</Text>
+                </Col>
+              </>
+            )}
             <Col span={20}>
               <Text strong>Transacciones:</Text>
             </Col>
@@ -322,7 +392,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Text>{data?.createCloseZInvoicing?.quantityBank}</Text>
+              <Text>{getTotalBank()}</Text>
             </Col>
             <Col span={20}>
               <Text strong>Transacciones reportadas:</Text>
@@ -334,9 +404,9 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Text>{getTotalBank()}</Text>
+              <Text>{data?.createCloseZInvoicing?.quantityBank}</Text>
             </Col>
-            {getDifferenceBank() !== 0 && (
+            {getDifferenceBank() > 0 && expensesSize === 0 && quantityBankState > 0 && (
               <>
                 <Col span={20}>
                   <Text strong>{getDifferenceBank() > 0 ? 'Sobrante' : 'Faltante'}</Text>
@@ -351,6 +421,22 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                   <Text>
                     {getDifferenceBank() > 0 ? getDifferenceBank() : -getDifferenceBank()}
                   </Text>
+                </Col>
+              </>
+            )}
+            {diffBank !== 0 && expensesSize > 0 && (
+              <>
+                <Col span={20}>
+                  <Text strong>{diffBank > 0 ? 'Sobrante' : 'Faltante'}</Text>
+                </Col>
+                <Col
+                  span={4}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Text>{diffBank > 0 ? diffBank : diffBank * -1}</Text>
                 </Col>
               </>
             )}

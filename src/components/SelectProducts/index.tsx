@@ -27,6 +27,7 @@ export type Props = {
   createDetail: (product: Product, quantity: number) => void;
   updateDetail: (product: Product, quantity: number) => void;
   deleteDetail: (productId: string) => void;
+  order?: any;
 };
 
 type FormValues = {
@@ -35,7 +36,7 @@ type FormValues = {
 };
 
 const SelectProducts = (props: Props) => {
-  const [withCode, setWithCode] = useState(true);
+  const [withCode, setWithCode] = useState(false);
   const [quantity, setQuantity] = useState(1);
 
   const onValuesChange = (values: FormValues) => {

@@ -1,0 +1,22 @@
+query discountRules($input: FiltersDiscountRulesInput) {
+  discountRules(filtersDiscountRulesInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      active
+      updatedAt
+      dateFinal
+      dateInitial
+      name
+      percent
+      rules {
+        documentType
+        documentIds
+        type
+      }
+      value
+    }
+  }
+}

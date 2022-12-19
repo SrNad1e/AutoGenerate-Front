@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import type { ColumnsType } from 'antd/lib/table';
 import {
+  ClearOutlined,
   CrownOutlined,
   EditOutlined,
   FieldNumberOutlined,
@@ -61,21 +62,7 @@ const RolesList = () => {
   const [form] = Form.useForm();
   const history = useHistory();
 
-  const [getRoles, { data }] = useGetRoles();
-
-  /**
-   * @description se encarga de preparar los datos y realizar la consulta
-   * @param params filtros para la consulta
-   */
-  const onSearch = (params?: FiltersRolesInput) => {
-    getRoles({
-      variables: {
-        input: {
-          ...params,
-        },
-      },
-    });
-  };
+  const [getRoles, { data, loading }] = useGetRoles();
 
   /**
    * @description funcion usada para mostrar los errores
@@ -87,6 +74,24 @@ const RolesList = () => {
       type: 'error',
       visible: true,
     });
+  };
+
+  /**
+   * @description se encarga de preparar los datos y realizar la consulta
+   * @param params filtros para la consulta
+   */
+  const onSearch = (params?: FiltersRolesInput) => {
+    try {
+      getRoles({
+        variables: {
+          input: {
+            ...params,
+          },
+        },
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
   };
 
   /**
@@ -280,7 +285,7 @@ const RolesList = () => {
       ),
     },
     {
-      title: <>{<MoreOutlined />} Opciones</>,
+      title: <>{<MoreOutlined />} Opción</>,
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
@@ -290,6 +295,7 @@ const RolesList = () => {
             disabled={!canEdit}
             type="primary"
             color="secondary"
+            loading={loading}
             icon={<EditOutlined />}
             onClick={() => history.push(`/configurations/roles/${_id}`)}
           />
@@ -301,40 +307,55 @@ const RolesList = () => {
   return (
     <PageContainer title="Lista de roles">
       <Card>
-        <Form layout="inline" form={form} onFinish={onFinish}>
-          <FormItem label="Nombre" name="name">
-            <Input placeholder="Nombre del rol" />
-          </FormItem>
-          <FormItem>
-            <Space>
-              <Button
-                type="primary"
-                htmlType="submit"
-                style={styles.buttonR}
-                icon={<SearchOutlined />}
-              >
-                Buscar
-              </Button>
-              <Button htmlType="reset" onClick={() => onClear()} style={styles.buttonR}>
-                Limpiar
-              </Button>
-            </Space>
-          </FormItem>
+        <Form form={form} onFinish={onFinish}>
+          <Row gutter={20}>
+            <Col xs={24} md={8} lg={8}>
+              <FormItem label="Nombre" name="name">
+                <Input placeholder="Nombre del rol" disabled={loading} />
+              </FormItem>
+            </Col>
+            <Col xs={24} md={8} lg={8} xl={6}>
+              <FormItem>
+                <Space>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={styles.buttonR}
+                    loading={loading}
+                    icon={<SearchOutlined />}
+                  >
+                    Buscar
+                  </Button>
+                  <Button
+                    htmlType="reset"
+                    icon={<ClearOutlined />}
+                    onClick={() => onClear()}
+                    loading={loading}
+                    style={styles.buttonR}
+                  >
+                    Limpiar
+                  </Button>
+                </Space>
+              </FormItem>
+            </Col>
+          </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={styles.marginFIlters}>
           <Col span={24} style={styles.alignText}>
-            <Text strong>Total Encontrados: </Text> {data?.roles?.totalDocs}{' '}
-            <Text strong>Páginas: </Text> {data?.roles?.page} / {data?.roles?.totalPages || 0}
+            <Text strong>Total Encontrados: </Text> {data?.roles?.totalDocs || 0}{' '}
+            <Text strong>Páginas: </Text> {data?.roles?.page || 0} / {data?.roles?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
               onChange={handleChangeTable}
               columns={column}
+              loading={loading}
               dataSource={data?.roles.docs}
               scroll={{ x: 'auto' }}
               pagination={{
                 current: data?.roles?.page,
                 total: data?.roles?.totalDocs,
+                showSizeChanger: false,
               }}
             />
           </Col>

@@ -1,0 +1,63 @@
+query credit($input: FiltersCreditInput!) {
+  credit(filtersCreditInput: $input) {
+    balance
+    details {
+      balance
+      total
+      order {
+        _id
+        summary {
+          total
+        }
+        number
+        updatedAt
+      }
+    }
+  }
+}
+
+query credits($input: FiltersCreditsInput) {
+  credits(filtersCreditsInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      amount
+      available
+      frozenAmount
+      balance
+      createdAt
+      updatedAt
+      customer {
+        document
+        firstName
+        lastName
+      }
+      status
+      details {
+        balance
+        total
+      }
+    }
+  }
+}
+
+query creditHistory($input: FiltersCreditHistoryInput!) {
+  creditHistory(FiltersCreditHistoryInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      type
+      amount
+      credit {
+        frozenAmount
+        amount
+        available
+        balance
+        updatedAt
+      }
+    }
+  }
+}

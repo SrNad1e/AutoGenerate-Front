@@ -9,6 +9,12 @@ export const typesAccess = {
       Permissions.AccessInventoryOutputs,
       Permissions.AccessInventoryRequests,
       Permissions.AccessInventoryTransfers,
+      Permissions.AccessInventoryReferences,
+      Permissions.AccessInventoryColors,
+      Permissions.AccessInventoryCategories,
+      Permissions.AccessInventorySizes,
+      Permissions.AccessInventoryAttribs,
+      Permissions.AccessInventoryBrands,
     ],
   },
   '/inventory/request': {
@@ -70,7 +76,7 @@ export const typesAccess = {
     ],
   },
   '/inventory/configurations/reference': {
-    access: [Permissions.ReadInventoryReferences],
+    access: [Permissions.AccessInventoryReferences],
   },
   '/inventory/configurations/reference/new': {
     access: [Permissions.CreateInventoryReference],
@@ -79,19 +85,19 @@ export const typesAccess = {
     access: [Permissions.UpdateInventoryReference],
   },
   '/inventory/configurations/color': {
-    access: [Permissions.ReadInventoryColors],
+    access: [Permissions.AccessInventoryColors],
   },
   '/inventory/configurations/categories': {
-    access: [Permissions.ReadInventoryCategories],
+    access: [Permissions.AccessInventoryCategories],
   },
   '/inventory/configurations/size': {
-    access: [Permissions.ReadInventorySizes],
+    access: [Permissions.AccessInventorySizes],
   },
   '/inventory/configurations/attribs': {
-    access: [Permissions.ReadInventoryAttribs],
+    access: [Permissions.AccessInventoryAttribs],
   },
   '/inventory/configurations/brand': {
-    access: [Permissions.ReadInventoryBrands],
+    access: [Permissions.AccessInventoryBrands],
   },
   '/inventory/transfer': {
     access: [Permissions.AccessInventoryTransfers],
@@ -113,22 +119,40 @@ export const typesAccess = {
       Permissions.AccessInvoicingClosesx,
       Permissions.AccessInvoicingClosesz,
       Permissions.AccessInvoicingReturns,
+      Permissions.AccessPos,
+      Permissions.Order,
     ],
+  },
+  '/invoicing/pos': {
+    access: [Permissions.AccessPos],
   },
   '/invoicing/closings': {
     access: [Permissions.AccessInvoicingClosesx, Permissions.AccessInvoicingClosesz],
   },
   '/invoicing/closings/closingX': {
-    access: [Permissions.ReadInvoicingClosesx],
+    access: [Permissions.AccessInvoicingClosesx],
   },
   '/invoicing/closings/closingZ': {
-    access: [Permissions.ReadInvoicingClosesz],
+    access: [Permissions.AccessInvoicingClosesz],
   },
   '/configurations': {
-    access: [Permissions.AccessConfigurationRoles, Permissions.AccessConfigurationUsers],
+    access: [
+      Permissions.AccessConfigurationRoles,
+      Permissions.AccessConfigurationUsers,
+      Permissions.AccessConfigurationShops,
+      Permissions.AccessInvoicingPointofsales,
+      Permissions.AccessInvoicingAuthorizations,
+      Permissions.AccessConfigurationWarehouses,
+    ],
+  },
+  '/configurations/pointOfSale': {
+    access: [Permissions.AccessInvoicingPointofsales],
+  },
+  '/configurations/authorizationDian': {
+    access: [Permissions.AccessInvoicingAuthorizations],
   },
   '/configurations/users': {
-    access: [Permissions.ReadConfigurationUsers],
+    access: [Permissions.AccessConfigurationUsers],
   },
   '/configurations/roles': {
     access: [Permissions.AccessConfigurationRoles],
@@ -142,8 +166,14 @@ export const typesAccess = {
   '/configurations/roles/:id': {
     access: [Permissions.UpdateConfigurationRole],
   },
+  '/configurations/warehouse': {
+    access: [Permissions.AccessConfigurationWarehouses],
+  },
+  '/configurations/shop': {
+    access: [Permissions.AccessConfigurationShops],
+  },
   '/invoicing/return': {
-    access: [Permissions.ReadInvoicingReturns],
+    access: [Permissions.AccessInvoicingReturns],
   },
   //POS
   '/pos': {
@@ -156,9 +186,91 @@ export const typesAccess = {
     access: [Permissions.AccessPos],
   },
   '/pos/closes/closingX': {
-    access: [Permissions.ReadInvoicingClosesx],
+    access: [Permissions.AccessInvoicingClosesx],
   },
   '/pos/closes/closingZ': {
-    access: [Permissions.ReadInvoicingClosesz],
+    access: [Permissions.AccessInvoicingClosesz],
+  },
+  '/pos/return': {
+    access: [Permissions.AccessInvoicingReturns],
+  },
+  '/pos/transfer': {
+    access: [Permissions.AccessInventoryTransfers],
+  },
+  '/pos/transfer/list': {
+    access: [Permissions.ReadInventoryTransfers],
+  },
+  '/pos/transfer/new': {
+    access: [Permissions.CreateInventoryTransfer],
+  },
+  '/pos/transfer/confirm/:id': {
+    access: [Permissions.ConfirmInventoryTransfer],
+  },
+  '/pos/transfer/:id': {
+    access: [Permissions.UpdateInventoryTransfer],
+  },
+  '/pos/request': {
+    access: [Permissions.AccessInventoryRequests],
+  },
+  '/pos/request/list': {
+    access: [Permissions.ReadInventoryRequests],
+  },
+  '/pos/request/new': {
+    access: [Permissions.CreateInventoryRequest],
+  },
+  '/pos/request/:id': {
+    access: [Permissions.UpdateInventoryRequest],
+  },
+  '/pos/expenses': {
+    access: [Permissions.AccessTreasuryExpenses],
+  },
+  //Treasury
+  '/treasury': {
+    access: [
+      Permissions.AccessTreasuryExpenses,
+      Permissions.AccessTreasuryReceipt,
+      Permissions.AccessTreasuryPayments,
+      Permissions.AccessTreasuryBoxes,
+    ],
+  },
+  '/treasury/boxes': {
+    access: [Permissions.AccessTreasuryBoxes],
+  },
+  '/treasury/expenses': {
+    access: [Permissions.AccessTreasuryExpenses],
+  },
+  '/treasury/cashReceipt': {
+    access: [Permissions.AccessTreasuryReceipt],
+  },
+  '/treasury/paymentMethods': {
+    access: [Permissions.AccessTreasuryPayments],
+  },
+  //Wallets
+  '/credits': {
+    access: [Permissions.AccessCredits],
+  },
+  '/credits/list': {
+    access: [Permissions.AccessCredits],
+  },
+  //crm
+  '/crm': {
+    access: [
+      Permissions.AccessCrmCustomers,
+      Permissions.AccessCrmCoupons,
+      Permissions.AccessCrmCities,
+      Permissions.AccessCrmDiscountrules,
+    ],
+  },
+  '/crm/customer': {
+    access: [Permissions.AccessCrmCustomers],
+  },
+  '/crm/cities': {
+    access: [Permissions.AccessCrmCities],
+  },
+  '/crm/coupon': {
+    access: [Permissions.AccessCrmCoupons],
+  },
+  '/crm/discount': {
+    access: [Permissions.AccessCrmDiscountrules],
   },
 };

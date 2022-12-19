@@ -22,6 +22,7 @@ query products($input: FiltersProductsInput!) {
       }
       size {
         value
+        weight
       }
       stock {
         quantity
@@ -40,10 +41,8 @@ query product($input: FiltersProductInput!) {
     }
     _id
     barcode
-    stock {
-      quantity
-    }
     color {
+      name
       name_internal
       html
       image {
@@ -57,9 +56,7 @@ query product($input: FiltersProductInput!) {
     reference {
       description
       name
-    }
-    stock {
-      quantity
+      price
     }
     size {
       value

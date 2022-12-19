@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import ImageAdmin from '@/components/ImageAdmin';
 import SelectColor from '@/components/SelectColor';
 import SelectSize from '@/components/SelectSize';
-import { Image, Product, StatusProduct, UpdateProductInput } from '@/graphql/graphql';
+import type { Image, Product, UpdateProductInput } from '@/graphql/graphql';
 import { StatusType } from '../../product.data';
 import { useUpdateProduct } from '@/hooks/product.hooks';
 
@@ -63,6 +63,8 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
 
       if (JSON.stringify(currentImagesId) !== JSON.stringify(imagesId) || copyImages) {
         values.imagesId = imagesId;
+      } else {
+        values.imagesId = currentImagesId;
       }
 
       if (Object.keys(values).length === 0) {
@@ -120,13 +122,6 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
         values.imagesId = values?.images?.map((image: Image) => image?._id);
       }
 
-      console.log(values);
-      console.log(StatusProduct[values?.status]);
-
-      /* if (values?.status) {
-        values.status = StatusProduct[values?.status];
-      }*/
-
       delete values?.images;
       const response = await saveProduct(values, current?._id);
       if (response?.data?.updateProduct) {
@@ -161,6 +156,14 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
       visible={visible}
       width="80%"
       onCancel={onClose}
+      okButtonProps={{
+        style: { borderRadius: 5 },
+        loading: loading,
+      }}
+      cancelButtonProps={{
+        style: { borderRadius: 5 },
+        loading: loading,
+      }}
     >
       <Form form={form} layout="horizontal">
         <Row gutter={20}>
@@ -193,7 +196,7 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
               label="Estado"
               rules={[{ required: true, message: 'Obligatorio' }]}
             >
-              <Select disabled={loading}>
+              <Select loading={loading}>
                 {Object.keys(StatusType).map((name) => (
                   <Option key={name} value={name}>
                     {StatusType[name].title}
@@ -210,7 +213,7 @@ const EditModal = ({ visible, current, onClose, products }: Params) => {
         </Row>
       </Form>
       {error && <Alert type="error" message={error} showIcon />}
-      {progress > 0 && <Progress strokeColor="primary.main" percent={progress} />}
+      {progress > 0 && <Progress strokeColor="primary.main" percent={parseInt(progress)} />}
     </Modal>
   );
 };

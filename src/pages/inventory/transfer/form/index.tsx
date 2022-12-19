@@ -68,7 +68,7 @@ const Form = () => {
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
+   * @param message mensaje que se muestra en la alerta
    */
   const onShowError = (message: string) => {
     setPropsAlert({
@@ -141,8 +141,12 @@ const Form = () => {
   }, [isNew]);
 
   useEffect(() => {
-    if (data?.stockTransferId) {
-      setTransfer(data?.stockTransferId as StockTransfer);
+    try {
+      if (data?.stockTransferId) {
+        setTransfer(data?.stockTransferId as StockTransfer);
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
   }, [data]);
 
@@ -156,22 +160,31 @@ const Form = () => {
    * @returns componente
    */
   const renderSteps = (step: number) => {
-    switch (step) {
-      case 0:
-        return (
-          <SelectWarehouseStep
-            warehouseId={initialState?.currentUser?.shop?.defaultWarehouse._id}
-            changeCurrentStep={changeCurrentStep}
-            label="Bodega Destino"
-          />
-        );
-      case 1:
-        return (
-          <FormTransfer allowEdit={allowEdit} transfer={transfer} setCurrentStep={setCurrentStep} />
-        );
-      default:
-        return <ErrorStep />;
+    try {
+      switch (step) {
+        case 0:
+          return (
+            <SelectWarehouseStep
+              warehouseId={initialState?.currentUser?.shop?.defaultWarehouse._id}
+              changeCurrentStep={changeCurrentStep}
+              label="Bodega Destino"
+            />
+          );
+        case 1:
+          return (
+            <FormTransfer
+              allowEdit={allowEdit}
+              transfer={transfer}
+              setCurrentStep={setCurrentStep}
+            />
+          );
+        default:
+          return <ErrorStep />;
+      }
+    } catch (error: any) {
+      onShowError(error?.message);
     }
+    return 0;
   };
 
   return (

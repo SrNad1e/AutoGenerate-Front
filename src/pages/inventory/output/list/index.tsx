@@ -1,5 +1,17 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EyeOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  DollarCircleOutlined,
+  DropboxOutlined,
+  EyeOutlined,
+  FieldNumberOutlined,
+  FileSyncOutlined,
+  MoreOutlined,
+  PrinterFilled,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   Badge,
   Button,
@@ -25,6 +37,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useHistory, useLocation } from 'umi';
 import { useEffect, useRef, useState } from 'react';
@@ -46,6 +59,7 @@ import type {
 } from '@/graphql/graphql';
 
 import styles from './styles.less';
+import style from './styles';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -75,6 +89,10 @@ const OutputList = () => {
   const location: Location = useLocation();
 
   const reportRef = useRef(null);
+
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop.defaultWarehouse._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const [getOutputs, { data, loading }] = useGetOutputs();
 
@@ -123,16 +141,20 @@ const OutputList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersStockOutputsInput) => {
-    getOutputs({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+    try {
+      getOutputs({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -184,33 +206,47 @@ const OutputList = () => {
   ) => {
     const { current } = paginationLocal;
     const params = form.getFieldsValue();
-
     let sort = {};
 
-    if (sorter.field) {
-      sort = {
-        [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-      };
-    } else {
-      sort = {
-        createdAt: -1,
-      };
-    }
+    try {
+      if (sorter.field) {
+        sort = {
+          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+        };
+      } else {
+        sort = {
+          createdAt: -1,
+        };
+      }
 
-    onFinish(params, sort, current);
+      onFinish(params, sort, current);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({
-      limit: 10,
-      page: 1,
-    });
-    setFilters({});
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({
+        limit: 10,
+        page: 1,
+      });
+      if (!canChangeWarehouse) {
+        form.setFieldsValue({
+          warehouseId: defaultWarehouse,
+        });
+        setFilters({ warehouseId: defaultWarehouse });
+      } else {
+        setFilters({});
+      }
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -218,19 +254,25 @@ const OutputList = () => {
    */
   const loadingData = () => {
     const queryParams: any = location?.query;
-
     const newFilters = {};
+    try {
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'dates') {
+          const dataItem = JSON.parse(queryParams[item]);
+          newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+        } else {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        }
+      });
 
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'dates') {
-        const dataItem = JSON.parse(queryParams[item]);
-        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
-      } else {
-        newFilters[item] = JSON.parse(queryParams[item]);
+      if (!canChangeWarehouse) {
+        newFilters['warehouseId'] = defaultWarehouse;
       }
-    });
 
-    onFinish(newFilters);
+      onFinish(newFilters);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   useEffect(() => {
@@ -239,14 +281,18 @@ const OutputList = () => {
 
   const columns: ColumnsType<Partial<StockOutput>> = [
     {
-      title: 'Número',
+      title: (
+        <Text className={styles.iconTable}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: 'Bodega',
+      title: <Text>{<DropboxOutlined />} Bodega</Text>,
       dataIndex: 'warehouse',
       align: 'center',
       sorter: true,
@@ -254,13 +300,17 @@ const OutputList = () => {
       render: (warehouse: Warehouse) => warehouse?.name,
     },
     {
-      title: 'Referencia',
+      title: (
+        <Text>
+          <FieldNumberOutlined /> Referencias
+        </Text>
+      ),
       dataIndex: 'details',
       align: 'center',
       render: (details: DetailOutput[]) => details?.length,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
       align: 'center',
       render: (status: string) => {
@@ -269,7 +319,11 @@ const OutputList = () => {
       },
     },
     {
-      title: 'Total',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Total
+        </Text>
+      ),
       dataIndex: 'total',
       align: 'center',
       sorter: true,
@@ -277,15 +331,7 @@ const OutputList = () => {
       render: (total: number) => numeral(total).format('$ 0,0'),
     },
     {
-      title: 'Creado',
-      dataIndex: 'createdAt',
-      align: 'center',
-      sorter: true,
-      showSorterTooltip: false,
-      render: (createdAt: Date) => moment(createdAt).format(FORMAT_DATE),
-    },
-    {
-      title: 'Actualizado',
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
@@ -293,7 +339,7 @@ const OutputList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -339,15 +385,15 @@ const OutputList = () => {
           onFinish={onFinish}
           initialValues={filters}
         >
-          <Row gutter={20} className={styles.form}>
-            <Col xs={24} md={5} lg={5} xl={3}>
+          <Row gutter={40} align="middle">
+            <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
-                <InputNumber className={styles.item} disabled={loading} min={1} controls={false} />
+                <InputNumber style={style.maxWidth} disabled={loading} min={1} controls={false} />
               </FormItem>
             </Col>
-            <Col xs={24} md={8} lg={9} xl={5}>
+            <Col xs={24} md={5} lg={5} xl={5}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item} allowClear disabled={loading}>
+                <Select className={styles.item} allowClear loading={loading}>
                   {Object.keys(StatusTypeOutput).map((key) => (
                     <Option key={key}>
                       <Badge
@@ -359,17 +405,21 @@ const OutputList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={10} lg={10} xl={5}>
+            <Col xs={24} md={6} lg={6} xl={7}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses />
+                <SelectWarehouses disabled={!canChangeWarehouse || loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={9} xl={6}>
+            <Col xs={24} md={7} lg={7} xl={8}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker className={styles.item} disabled={loading} />
+                <RangePicker
+                  className={styles.item}
+                  disabled={loading}
+                  placeholder={['Fecha Inicial', 'Fecha Final']}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={5}>
+            <Col xs={24} md={7} lg={24} xl={24}>
               <FormItem>
                 <Space className={styles.buttons}>
                   <Button
@@ -377,10 +427,17 @@ const OutputList = () => {
                     type="primary"
                     htmlType="submit"
                     loading={loading}
+                    style={style.buttonR}
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button
+                    icon={<ClearOutlined />}
+                    htmlType="button"
+                    style={style.buttonR}
+                    onClick={onClear}
+                    loading={loading}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -401,6 +458,7 @@ const OutputList = () => {
               pagination={{
                 current: data?.stockOutputs?.page,
                 total: data?.stockOutputs?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

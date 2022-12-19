@@ -5,12 +5,12 @@ import {
   CalendarOutlined,
   ClearOutlined,
   DollarCircleOutlined,
+  FieldNumberOutlined,
+  LaptopOutlined,
   MoreOutlined,
-  NumberOutlined,
   PlusOutlined,
   PrinterFilled,
   SearchOutlined,
-  ShopOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -32,6 +32,7 @@ import type { ColumnsType, FilterValue, SorterResult } from 'antd/es/table/inter
 import moment from 'moment';
 import type { Moment } from 'moment';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useHistory, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
 import { useEffect, useState, useRef } from 'react';
@@ -44,11 +45,12 @@ import type {
   FiltersReturnsOrderInput,
   Coupon,
 } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { useReactToPrint } from 'react-to-print';
 
 import { useGetReturnsOrder } from '@/hooks/return-order.hooks';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import FormReturn from '../form';
+import FormReturn from '../components/form';
 import SelectShop from '@/components/SelectShop';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import Filters from '@/components/Filters';
@@ -97,6 +99,11 @@ const ReturnList = () => {
   const handlePrintReturn = useReactToPrint({
     content: () => reportRef1?.current,
   });
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryReturn = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingReturns,
+  );
 
   /**
    * @description se encarga de seleccionar el ajuste e imprime
@@ -153,14 +160,18 @@ const ReturnList = () => {
    * @param values filtros necesarios para la busqueda
    */
   const onSearch = (values?: FiltersReturnsOrderInput) => {
-    getReturns({
-      variables: {
-        input: {
-          sort: { createdAt: -1 },
-          ...values,
+    try {
+      getReturns({
+        variables: {
+          input: {
+            sort: { createdAt: -1 },
+            ...values,
+          },
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -298,14 +309,22 @@ const ReturnList = () => {
   };
 
   useEffect(() => {
-    getFiltersQuery();
+    if (canQueryReturn) {
+      getFiltersQuery();
+    }
   }, []);
+
+  useEffect(() => {
+    if (!canQueryReturn) {
+      messageError('No tiene permisos para consultar las devoluciones');
+    }
+  }, [canQueryReturn]);
 
   const columns: ColumnsType<ReturnOrder> = [
     {
       title: (
-        <Text>
-          <NumberOutlined /> Número
+        <Text style={styles.iconSize}>
+          <FieldNumberOutlined />
         </Text>
       ),
       dataIndex: 'number',
@@ -324,12 +343,12 @@ const ReturnList = () => {
     {
       title: (
         <Text>
-          <ShopOutlined /> Tienda
+          <LaptopOutlined /> Punto de Venta
         </Text>
       ),
-      dataIndex: 'shop',
+      dataIndex: 'pointOfSale',
       align: 'center',
-      render: (shop: Shop) => <>{shop?.name}</>,
+      render: (pointOfSale: Shop) => <>{pointOfSale?.name}</>,
     },
     {
       title: (
@@ -395,15 +414,21 @@ const ReturnList = () => {
         return (
           <Space>
             <Tooltip title="Imprimir Devolución">
-              <Button type="primary" onClick={() => printReturn(record)} icon={<PrinterFilled />} />
+              <Button
+                type="primary"
+                onClick={() => printReturn(record)}
+                loading={loading}
+                icon={<PrinterFilled />}
+              />
             </Tooltip>
             <Space>
               <Tooltip title="Imprimir Cupon">
                 <Button
                   type="ghost"
-                  onClick={() => printCoupon(record.coupon)}
+                  onClick={() => printCoupon(record?.coupon)}
                   icon={<PrinterFilled />}
                   disabled={!allowPrint}
+                  loading={loading}
                 />
               </Tooltip>
             </Space>
@@ -418,12 +443,17 @@ const ReturnList = () => {
       <Card bordered={false}>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={30}>
-            <Col xs={24} md={7} lg={5} xl={5}>
+            <Col xs={24} md={7} lg={6} xl={5}>
               <FormItem label="Número Pedido" name="number">
-                <InputNumber controls={false} placeholder="Ejem: 10" style={styles.allWidth} />
+                <InputNumber
+                  disabled={loading}
+                  controls={false}
+                  placeholder="Ejem: 10"
+                  style={styles.allWidth}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={6} xl={6}>
+            <Col xs={24} md={7} lg={5} xl={6}>
               <FormItem label="Tienda" name="shopId">
                 <SelectShop disabled={loading} />
               </FormItem>
@@ -431,6 +461,7 @@ const ReturnList = () => {
             <Col xs={24} md={9} lg={6} xl={7}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker
+                  disabled={loading}
                   style={styles.allWidth}
                   placeholder={['Fecha Inicial', 'Fecha Final']}
                 />
@@ -444,6 +475,7 @@ const ReturnList = () => {
                     type="primary"
                     htmlType="submit"
                     style={styles.borderR}
+                    loading={loading}
                   >
                     Buscar
                   </Button>
@@ -451,6 +483,7 @@ const ReturnList = () => {
                     htmlType="reset"
                     onClick={() => onClear()}
                     style={styles.borderR}
+                    loading={loading}
                     icon={<ClearOutlined />}
                   >
                     Limpiar
@@ -461,30 +494,32 @@ const ReturnList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
-          <Col xs={8} md={15} lg={15}>
+          <Col xs={12} md={15} lg={15}>
             <Button
               onClick={() => setVisible(true)}
               icon={<PlusOutlined />}
               shape="round"
               type="primary"
+              loading={loading}
               disabled={!allowCreate}
             >
               Nuevo
             </Button>
           </Col>
-          <Col xs={16} md={9} lg={9} style={styles.texRigth}>
+          <Col xs={24} md={9} lg={9} style={styles.texRigth}>
             <Space>
               <Text strong>Total Encontrados:</Text>
               <Text>{data?.returnsOrder?.totalDocs || 0}</Text>
               <Text strong>Pagina:</Text>
               <Text>
-                {data?.returnsOrder.page || 0}/ {data?.returnsOrder?.totalPages || 0}
+                {data?.returnsOrder?.page || 0}/ {data?.returnsOrder?.totalPages || 0}
               </Text>
             </Space>
           </Col>
           <Col span={24}>
             <Table
               onChange={handleChangeTable}
+              loading={loading}
               columns={columns}
               scroll={{ x: 1000 }}
               pagination={{

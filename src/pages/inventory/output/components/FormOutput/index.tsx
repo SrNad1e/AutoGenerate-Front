@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
   Avatar,
@@ -13,10 +14,12 @@ import {
   Tooltip,
   Typography,
   Table,
+  Popconfirm,
 } from 'antd';
 import { useModel, useParams } from 'umi';
 import type { ColumnsType } from 'antd/es/table/interface';
 import { useEffect, useState } from 'react';
+import numeral from 'numeral';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertSave } from '@/components/Alerts/AlertSave';
@@ -98,30 +101,41 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @param status estado actual de la salida
    */
   const showAlertSave = (status?: StatusStockOutput) => {
-    if (
-      details.length > 0 ||
-      status === StatusStockOutput.Cancelled ||
-      observation !== (output?.observation || '')
-    ) {
-      if (status === StatusStockOutput.Cancelled) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea cancelar la salida?',
-          type: 'error',
-        });
-      } else if (details.length > 0) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea guardar la salida?',
-          type: 'warning',
-        });
+    try {
+      if (
+        details.length > 0 ||
+        status === StatusStockOutput.Cancelled ||
+        observation !== (output?.observation || '')
+      ) {
+        if (status === StatusStockOutput.Cancelled) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea cancelar la salida?',
+            type: 'error',
+          });
+        } else if (status === StatusStockOutput.Open) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea guardar la salida?',
+            type: 'warning',
+          });
+        } else if (status === StatusStockOutput.Confirmed) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea enviar la salida?',
+            type: 'warning',
+          });
+        } else {
+          onShowInformation('La salida no tiene productos');
+        }
       } else {
-        onShowInformation('La salida no tiene productos');
+        onShowInformation('No se encontraron cambios en la salida');
       }
-    } else {
-      onShowInformation('No se encontraron cambios en la salida');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -146,17 +160,45 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
             status,
           };
 
+          if (props.status === StatusStockOutput.Open) {
+            delete props.status;
+          }
+
           const response = await updateOutput({
             variables: {
               input: props,
               id,
             },
           });
-          if (response?.data?.updateStockOutput) {
+          if (response?.data?.updateStockOutput && status === StatusStockOutput.Open) {
             setPropsAlert({
-              message: `Salida actualizada correctamente No. ${response?.data?.updateStockOutput?.number}`,
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} actualizada correctamente `,
               type: 'success',
               visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockOutput && status === StatusStockOutput.Confirmed) {
+            setPropsAlert({
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} creada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockOutput && status === StatusStockOutput.Cancelled) {
+            setPropsAlert({
+              message: `Salida No. ${response?.data?.updateStockOutput?.number} cancelada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockOutput?.status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : undefined,
             });
           }
         } else {
@@ -184,9 +226,19 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
               input: props,
             },
           });
-          if (response?.data?.createStockOutput) {
+          if (response?.data?.createStockOutput && status === StatusStockOutput.Confirmed) {
             setPropsAlert({
               message: `Salida creada correctamente No. ${response?.data?.createStockOutput?.number}`,
+              type: 'success',
+              visible: true,
+              redirect:
+                status === StatusStockOutput.Confirmed
+                  ? '/inventory/output/list'
+                  : `/inventory/output/${response?.data?.createStockOutput?._id}`,
+            });
+          } else if (response?.data?.createStockOutput && status === StatusStockOutput.Open) {
+            setPropsAlert({
+              message: `Salida guardada correctamente No. ${response?.data?.createStockOutput?.number}`,
               type: 'success',
               visible: true,
               redirect: `/inventory/output/${response?.data?.createStockOutput?._id}`,
@@ -204,24 +256,27 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @param _id identificador del producto a eliminar
    */
   const deleteDetail = (_id: string) => {
-    if (setDetails) {
-      const productFind = details.find((detail) => detail?.product?._id);
-
-      if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product?._id !== _id));
-      } else {
-        setDetails(
-          details.map((detail) => {
-            if (detail?.product?._id === _id) {
-              return {
-                ...detail,
-                action: ActionDetailOutput.Delete,
-              };
-            }
-            return detail;
-          }),
-        );
+    try {
+      if (setDetails) {
+        const productFind = details.find((detail) => detail?.product?._id);
+        if (productFind && !productFind.__typename) {
+          setDetails(details.filter((detail) => detail?.product?._id !== _id));
+        } else {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === _id) {
+                return {
+                  ...detail,
+                  action: ActionDetailOutput.Delete,
+                };
+              }
+              return detail;
+            }),
+          );
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -231,30 +286,34 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Partial<Product>, quantity: number) => {
-    if (setDetails) {
-      if (product.stock && product?.stock[0].quantity) {
-        if (product?.stock[0].quantity >= quantity) {
-          const productFind = output?.details?.find(
-            (detail) => detail?.product?._id === product?._id,
-          );
-          setDetails(
-            details.map((detail) => {
-              if (detail?.product?._id === product?._id) {
-                return {
-                  ...detail,
-                  quantity: quantity || 1,
-                  action: productFind ? ActionDetailOutput.Update : ActionDetailOutput.Create,
-                };
-              }
-              return detail;
-            }) || [],
-          );
-        } else {
-          onShowInformation(
-            `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
-          );
+    try {
+      if (setDetails) {
+        if (product.stock && product?.stock[0].quantity) {
+          if (product?.stock[0].quantity >= quantity) {
+            const productFind = output?.details?.find(
+              (detail) => detail?.product?._id === product?._id,
+            );
+            setDetails(
+              details.map((detail) => {
+                if (detail?.product?._id === product?._id) {
+                  return {
+                    ...detail,
+                    quantity: quantity || 1,
+                    action: productFind ? ActionDetailOutput.Update : ActionDetailOutput.Create,
+                  };
+                }
+                return detail;
+              }) || [],
+            );
+          } else {
+            onShowInformation(
+              `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
+            );
+          }
         }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -264,23 +323,27 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad  a asignar
    */
   const createDetail = (product: Product, quantity: number) => {
-    if (setDetails) {
-      if (product?.stock && product.stock[0].quantity) {
-        if (product?.stock[0].quantity >= quantity) {
-          const findProduct = output?.details?.find(
-            (detail) => detail?.product?._id === product._id,
-          );
-          if (findProduct) {
-            updateDetail(product, quantity);
+    try {
+      if (setDetails) {
+        if (product?.stock && product.stock[0].quantity) {
+          if (product?.stock[0].quantity >= quantity) {
+            const findProduct = output?.details?.find(
+              (detail) => detail?.product?._id === product._id,
+            );
+            if (findProduct) {
+              updateDetail(product, quantity);
+            } else {
+              setDetails([...details, { product, quantity, action: ActionDetailOutput.Create }]);
+            }
           } else {
-            setDetails([...details, { product, quantity, action: ActionDetailOutput.Create }]);
+            onShowInformation(
+              `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
+            );
           }
-        } else {
-          onShowInformation(
-            `El producto ${product?.barcode} / ${product?.reference?.name} no tiene unidades suficientes, Inventario: ${product?.stock[0].quantity}`,
-          );
         }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -306,9 +369,15 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
   };
 
   useEffect(() => {
-    if (id) {
-      setDetails(output?.details || []);
-      setObservation(output?.observation || '');
+    try {
+      if (id) {
+        if (details?.length === 0) {
+          setDetails(output?.details || []);
+        }
+        setObservation(output?.observation || '');
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   }, [output, id]);
 
@@ -364,6 +433,11 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       render: ({ size }: Product) => size.value,
     },
     {
+      title: 'Costo Unitario',
+      dataIndex: 'product',
+      render: (product: Product) => numeral(product?.reference?.price).format('$ 0,0'),
+    },
+    {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
@@ -397,13 +471,14 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       align: 'center',
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button icon={<DeleteOutlined />} type="primary" danger disabled={!allowEdit} />
+          </Popconfirm>
         </Tooltip>
       ),
     },
@@ -429,7 +504,9 @@ const FormOutput = ({ output, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== ActionDetailOutput.Delete)}
+          dataSource={details
+            .filter((detail) => detail?.action !== ActionDetailOutput.Delete)
+            .reverse()}
           scroll={{ x: 1000 }}
           pagination={{ size: 'small' }}
         />

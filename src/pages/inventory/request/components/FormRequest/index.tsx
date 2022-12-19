@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/dot-notation */
 import type { ColumnsType } from 'antd/lib/table';
 import { BarcodeOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -15,6 +16,7 @@ import {
   Avatar,
   Typography,
   Tooltip,
+  Popconfirm,
 } from 'antd';
 import { useModel, useParams } from 'umi';
 import { useEffect, useState } from 'react';
@@ -73,7 +75,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
+   * @param message  mensaje que se muestra en la alerta
    */
   const onShowInformation = (message: string) => {
     setPropsAlert({
@@ -100,33 +102,46 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
    * @param status estado actual de la solicitud
    */
   const showAlertSave = (status?: StatusStockRequest) => {
-    if (
-      details.length > 0 ||
-      status === StatusStockRequest.Cancelled ||
-      observation !== request?.observation
-    ) {
-      if (status === StatusStockRequest.Cancelled) {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea cancelar la solicitud?',
-          type: 'error',
-        });
+    try {
+      if (
+        details.length > 0 ||
+        status === StatusStockRequest.Cancelled ||
+        observation !== (request?.observation || '')
+      ) {
+        if (status === StatusStockRequest.Cancelled) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea cancelar la solicitud?',
+            type: 'error',
+          });
+        } else if (status === StatusStockRequest.Pending) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea enviar la solicitud?',
+            type: 'warning',
+          });
+        } else if (status === StatusStockRequest.Open) {
+          setPropsAlertSave({
+            status,
+            visible: true,
+            message: '¿Está seguro que desea guardar la solicitud?',
+            type: 'warning',
+          });
+        } else {
+          onShowInformation('La solicitud no tiene productos');
+        }
       } else {
-        setPropsAlertSave({
-          status,
-          visible: true,
-          message: '¿Está seguro que desea guardar la solicitud?',
-          type: 'warning',
-        });
+        onShowInformation('No se encontraron cambios en la solicitud');
       }
-    } else {
-      onShowInformation('La solicitud no tiene productos');
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
   /**
-   * @description se encarga de guardar el traslado
+   * @description se encarga de guardar la solicitud
    * @param status se usa para definir el estado de la solicitud
    */
   const saveRequest = async (status?: StatusStockRequest) => {
@@ -146,7 +161,14 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
             observation,
             status,
           };
-          console.log(props);
+
+          if (props.status === StatusStockRequest.Open) {
+            delete props.status;
+          }
+
+          if (props.status === StatusStockRequest.Pending) {
+            props.details = [];
+          }
 
           const response = await updateRequest({
             variables: {
@@ -154,11 +176,38 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
               id,
             },
           });
-          if (response?.data?.updateStockRequest) {
+          if (response?.data?.updateStockRequest && status === StatusStockRequest.Open) {
             setPropsAlert({
-              message: `Solicitud creada correctamente No. ${response?.data?.updateStockRequest?.number}`,
+              message: `Solicitud No. ${response?.data?.updateStockRequest?.number} actualizada correctamente `,
               type: 'success',
               visible: true,
+              redirect:
+                response?.data?.updateStockRequest?.status === StatusStockRequest.Pending
+                  ? '/inventory/request/list'
+                  : undefined,
+            });
+          } else if (response?.data?.updateStockRequest && status === StatusStockRequest.Pending) {
+            setPropsAlert({
+              message: `Solicitud No. ${response?.data?.updateStockRequest?.number} creada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockRequest?.status === StatusStockRequest.Pending
+                  ? '/inventory/request/list'
+                  : undefined,
+            });
+          } else if (
+            response?.data?.updateStockRequest &&
+            status === StatusStockRequest.Cancelled
+          ) {
+            setPropsAlert({
+              message: `Solicitud No. ${response?.data?.updateStockRequest?.number} cancelada correctamente `,
+              type: 'success',
+              visible: true,
+              redirect:
+                response?.data?.updateStockRequest?.status === StatusStockRequest.Pending
+                  ? '/inventory/request/list'
+                  : undefined,
             });
           }
         } else {
@@ -188,9 +237,19 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
             },
           });
 
-          if (response?.data?.createStockRequest) {
+          if (response?.data?.createStockRequest && status === StatusStockRequest.Pending) {
             setPropsAlert({
               message: `Solicitud creada correctamente No. ${response?.data?.createStockRequest?.number}`,
+              type: 'success',
+              visible: true,
+              redirect:
+                status === StatusStockRequest.Pending
+                  ? '/inventory/request/list'
+                  : `/inventory/request/${response?.data?.createStockRequest?._id}`,
+            });
+          } else if (response?.data?.createStockRequest && status === StatusStockRequest.Open) {
+            setPropsAlert({
+              message: `Solicitud guardada correctamente No. ${response?.data?.createStockRequest?.number}`,
               type: 'success',
               visible: true,
               redirect: `/inventory/request/${response?.data?.createStockRequest?._id}`,
@@ -208,24 +267,28 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
    * @param _id identificador del producto a eliminar
    */
   const deleteDetail = (_id: string) => {
-    if (setDetails) {
-      const productFind = details.find((detail) => detail?.product?._id);
+    try {
+      if (setDetails) {
+        const productFind = details.find((detail) => detail?.product?._id);
 
-      if (productFind && !productFind.__typename) {
-        setDetails(details.filter((detail) => detail?.product?._id !== _id));
-      } else {
-        setDetails(
-          details.map((detail) => {
-            if (detail?.product?._id === _id) {
-              return {
-                ...detail,
-                action: ActionDetailRequest.Delete,
-              };
-            }
-            return detail;
-          }),
-        );
+        if (productFind && !productFind.__typename) {
+          setDetails(details.filter((detail) => detail?.product?._id !== _id));
+        } else {
+          setDetails(
+            details.map((detail) => {
+              if (detail?.product?._id === _id) {
+                return {
+                  ...detail,
+                  action: ActionDetailRequest.Delete,
+                };
+              }
+              return detail;
+            }),
+          );
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -235,20 +298,24 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad nueva a asignar
    */
   const updateDetail = (product: Product, quantity: number) => {
-    const productFind = request?.details?.find((detail) => detail?.product?._id === product?._id);
-    if (setDetails) {
-      setDetails(
-        details.map((detail) => {
-          if (detail?.product?._id === product._id) {
-            return {
-              ...detail,
-              quantity: quantity || 1,
-              action: productFind ? ActionDetailRequest.Update : ActionDetailRequest.Create,
-            };
-          }
-          return detail;
-        }),
-      );
+    try {
+      const productFind = request?.details?.find((detail) => detail?.product?._id === product?._id);
+      if (setDetails) {
+        setDetails(
+          details.map((detail) => {
+            if (detail?.product?._id === product._id) {
+              return {
+                ...detail,
+                quantity: quantity || 1,
+                action: productFind ? ActionDetailRequest.Update : ActionDetailRequest.Create,
+              };
+            }
+            return detail;
+          }),
+        );
+      }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -258,13 +325,17 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
    * @param quantity cantidad del producto
    */
   const createDetail = (product: Product, quantity: number) => {
-    const findProduct = request?.details?.find((detail) => detail?.product?._id === product._id);
-    if (findProduct) {
-      updateDetail(product, quantity);
-    } else {
-      if (setDetails) {
-        setDetails([...details, { product, quantity, action: ActionDetailRequest.Create }]);
+    try {
+      const findProduct = request?.details?.find((detail) => detail?.product?._id === product._id);
+      if (findProduct) {
+        updateDetail(product, quantity);
+      } else {
+        if (setDetails) {
+          setDetails([...details, { product, quantity, action: ActionDetailRequest.Create }]);
+        }
       }
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -291,7 +362,9 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
 
   useEffect(() => {
     if (id) {
-      setDetails(request?.details || []);
+      if (details?.length === 0) {
+        setDetails(request?.details || []);
+      }
       setObservation(request?.observation || '');
     }
   }, [request, id]);
@@ -312,8 +385,9 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
 
   const columns: ColumnsType<Partial<DetailRequest>> = [
     {
-      title: 'Referencia',
+      title: 'Producto',
       dataIndex: 'product',
+      width: 80,
       render: ({ reference, barcode }: Product) => (
         <Row>
           <Col span={24}>
@@ -328,6 +402,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
     {
       title: 'Color',
       dataIndex: 'product',
+      width: 60,
       render: ({ color }: Product) => {
         return (
           <Space>
@@ -344,30 +419,30 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
     {
       title: 'Talla',
       dataIndex: 'product',
+      width: 30,
       render: ({ size }: Product) => size.value,
     },
     {
       title: 'Inventario',
       dataIndex: 'product',
       align: 'center',
-      render: ({ stock = [] }: Product, record) =>
-        record?.__typename ? (
-          <Badge
-            overflowCount={99999}
-            count={(stock && stock[0]?.quantity) || 0}
-            style={{
-              backgroundColor: ((stock && stock[0]?.quantity) || 0) > 0 ? '#dc9575' : 'red',
-            }}
-            showZero
-          />
-        ) : (
-          'Pendiente'
-        ),
+      width: 30,
+      render: ({ stock = [] }: Product) => (
+        <Badge
+          overflowCount={99999}
+          count={(stock && stock[0]?.quantity) || 0}
+          style={{
+            backgroundColor: ((stock && stock[0]?.quantity) || 0) > 0 ? '#dc9575' : 'red',
+          }}
+          showZero
+        />
+      ),
     },
     {
       title: 'Cantidad',
       dataIndex: 'quantity',
       align: 'center',
+      width: 50,
       render: (quantity: number, { product = {} }) => (
         <InputNumber
           value={quantity || 0}
@@ -379,18 +454,27 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       ),
     },
     {
-      title: 'Opciones',
+      title: 'Opción',
       dataIndex: 'product',
       align: 'center',
+      fixed: 'right',
+      width: 30,
       render: ({ _id = '' }: Product) => (
         <Tooltip title="Eliminar">
-          <Button
-            icon={<DeleteOutlined />}
-            type="primary"
-            danger
-            onClick={() => deleteDetail(_id)}
-            disabled={!allowEdit}
-          />
+          <Popconfirm
+            title="¿Está seguro que desea eliminar?"
+            onConfirm={() => deleteDetail(_id)}
+            okText="Aceptar"
+            cancelText="Cancelar"
+          >
+            <Button
+              icon={<DeleteOutlined />}
+              type="primary"
+              danger
+              disabled={!allowEdit}
+              loading={paramsCreate.loading || paramsUpdate.loading}
+            />
+          </Popconfirm>
         </Tooltip>
       ),
     },
@@ -407,7 +491,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       {allowEdit && (
         <Card bordered={false} size="small">
           <Form layout="vertical">
-            <FormItem label="Código de barras">
+            <FormItem label="Búsqueda de Referencias">
               <SearchProducts {...propsSearchProduct} />
             </FormItem>
           </Form>
@@ -416,9 +500,12 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       <Card>
         <Table
           columns={columns}
-          dataSource={details.filter((detail) => detail?.action !== ActionDetailRequest.Delete)}
-          scroll={{ x: 800, y: 200 }}
+          dataSource={details
+            .filter((detail) => detail?.action !== ActionDetailRequest.Delete)
+            .reverse()}
+          scroll={{ x: 800, y: 400 }}
           pagination={{ size: 'small' }}
+          loading={paramsCreate?.loading || paramsUpdate?.loading}
         />
       </Card>
       <Footer
@@ -428,10 +515,8 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
         details={details}
       />
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
-      <AlertLoading
-        visible={paramsCreate?.loading || paramsUpdate?.loading}
-        message="Guardando Solicitud"
-      />
+      <AlertLoading visible={paramsCreate?.loading} message="Creando Solicitud" />
+      <AlertLoading visible={paramsUpdate?.loading} message="Guardando Solicitud" />
       <AlertSave {...propsAlertSaveFinal} />
     </>
   );

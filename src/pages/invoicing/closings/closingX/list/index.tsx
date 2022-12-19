@@ -8,8 +8,21 @@ import type {
   SummaryOrderClose,
   User,
 } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { useGetClosesXInvoicing } from '@/hooks/closeXInvoicing.hooks';
-import { PlusOutlined, PrinterFilled, SearchOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  ContainerOutlined,
+  DollarCircleOutlined,
+  FieldNumberOutlined,
+  LaptopOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  PrinterFilled,
+  SearchOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
   Button,
@@ -17,7 +30,7 @@ import {
   Col,
   DatePicker,
   Form,
-  Input,
+  InputNumber,
   Row,
   Space,
   Table,
@@ -37,6 +50,7 @@ import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
 import { useEffect, useRef, useState } from 'react';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 
 import CloseDay from '../components/DayClose';
@@ -86,6 +100,11 @@ const ClosingXList = () => {
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryClosingX = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInvoicingClosesx,
+  );
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -147,16 +166,20 @@ const ClosingXList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersClosesXInvoicingInput) => {
-    getCloses({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+    try {
+      getCloses({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -186,7 +209,7 @@ const ClosingXList = () => {
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
         .slice(1);
 
-      form.setFieldsValue(props);
+      form?.setFieldsValue(props);
       history.replace(`${location.pathname}?${datos}`);
     } catch (error: any) {
       messageError(error?.message);
@@ -225,71 +248,105 @@ const ClosingXList = () => {
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({
-      limit: 10,
-      page: 1,
-    });
-    setFilters({});
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({
+        limit: 10,
+        page: 1,
+      });
+      setFilters({});
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   useEffect(() => {
-    const queryParams: any = location.query;
+    try {
+      const queryParams: any = location.query;
 
-    const newFilters = {};
-    Object.keys(queryParams).forEach((item) => {
-      newFilters[item] = JSON.parse(queryParams[item]);
-    });
-    onFinish(newFilters);
+      const newFilters = {};
+      Object.keys(queryParams).forEach((item) => {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      });
+      onFinish(newFilters);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   }, []);
+
+  useEffect(() => {
+    if (!canQueryClosingX) {
+      messageError('No tiene permisos para consultar los cierre x');
+    }
+  }, [canQueryClosingX]);
 
   const columns: ColumnsType<Partial<CloseXInvoicing>> = [
     {
-      title: 'Número',
+      title: (
+        <Text style={styles.iconSize}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       sorter: true,
       showSorterTooltip: false,
     },
     {
-      title: 'Punto de venta',
+      title: (
+        <Text>
+          <LaptopOutlined /> Punto de Venta
+        </Text>
+      ),
       dataIndex: 'pointOfSale',
       width: 150,
       render: ({ shop, name }: PointOfSale) => (
         <Space direction="vertical" size={0}>
           <Text>{shop?.name}</Text>
-          <Tag>{name}</Tag>
+          <Tag style={styles.tagStyle}>{name}</Tag>
         </Space>
       ),
     },
     {
-      title: 'Fecha Cierre',
+      title: (
+        <Text>
+          <CalendarOutlined /> Fecha Cierre
+        </Text>
+      ),
       dataIndex: 'closeDate',
       sorter: true,
       showSorterTooltip: false,
       render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE_API),
     },
     {
-      title: 'Ingresos',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Ingresos
+        </Text>
+      ),
       dataIndex: 'payments',
       align: 'right',
       render: (payments: PaymentOrderClose[]) =>
         numeral(payments?.reduce((sum, payment) => sum + payment?.value, 0)).format('$ 0,0'),
     },
     {
-      title: 'Facturas',
+      title: <Text>{<ContainerOutlined />} Facturas</Text>,
       dataIndex: 'summaryOrder',
       align: 'right',
       render: (summary: SummaryOrderClose) => numeral(summary?.value).format('$ 0,0'),
     },
     {
-      title: 'Registrado Por',
+      title: <Text>{<UserOutlined />} Registrado Por</Text>,
       dataIndex: 'user',
       align: 'center',
       render: (user: User) => user?.name,
     },
     {
-      title: 'Acción',
+      title: (
+        <Text>
+          <MoreOutlined /> Opción
+        </Text>
+      ),
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
@@ -309,19 +366,28 @@ const ClosingXList = () => {
   return (
     <PageContainer>
       <Card bordered={false}>
-        <Form form={form} onFinish={onFinish} initialValues={filters} style={{ marginBottom: 30 }}>
-          <Row gutter={[20, 15]} align="middle">
-            <Col xs={13} md={4} lg={4} xl={4}>
+        <Form form={form} onFinish={onFinish} initialValues={filters}>
+          <Row gutter={[20, 0]}>
+            <Col xs={24} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">
-                <Input style={{ width: '100%' }} />
+                <InputNumber
+                  controls={false}
+                  style={{ width: '100%' }}
+                  disabled={loading}
+                  placeholder="Ejem: 10"
+                />
               </FormItem>
             </Col>
-            <Col xs={11} md={7} lg={7} xl={7}>
+            <Col xs={24} md={7} lg={7} xl={7}>
               <FormItem label="Fecha de Cierre" name="date">
-                <DatePicker placeholder="Seleccione una fecha" style={{ width: '100%' }} />
+                <DatePicker
+                  disabled={loading}
+                  placeholder="Seleccione una fecha"
+                  style={{ width: '100%' }}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={7} xxl={6}>
+            <Col xs={24} md={5} lg={6} xl={7} xxl={6}>
               <FormItem label="Tienda" name="shopId">
                 <SelectShop disabled={loading} />
               </FormItem>
@@ -329,10 +395,22 @@ const ClosingXList = () => {
             <Col xs={24} md={4} lg={4} xl={3} xxl={4}>
               <FormItem label=" " colon={false}>
                 <Space>
-                  <Button htmlType="submit" icon={<SearchOutlined />} type="primary">
+                  <Button
+                    loading={loading}
+                    htmlType="submit"
+                    style={styles.buttonR}
+                    icon={<SearchOutlined />}
+                    type="primary"
+                  >
                     Buscar
                   </Button>
-                  <Button htmlType="button" onClick={onClear} loading={loading}>
+                  <Button
+                    htmlType="button"
+                    onClick={onClear}
+                    style={styles.buttonR}
+                    icon={<ClearOutlined />}
+                    loading={loading}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -340,37 +418,38 @@ const ClosingXList = () => {
             </Col>
           </Row>
         </Form>
-        <Row align="middle">
-          <Col span={8}>
+        <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
+          <Col xs={12} md={15} lg={15}>
             <Button
               disabled={!canCreate}
               icon={<PlusOutlined />}
               onClick={() => setVisible(true)}
               shape="round"
+              loading={loading}
               type="primary"
             >
               Registrar
             </Button>
           </Col>
-          <Col span={16} style={{ textAlign: 'right' }}>
+          <Col xs={24} md={9} lg={9} style={{ textAlign: 'right' }}>
             <Text strong>Total Encontrados:</Text> {data?.closesXInvoicing?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.closesXInvoicing?.page} /{' '}
             {data?.closesXInvoicing?.totalPages || 0}
           </Col>
+          <Col span={24}>
+            <Table
+              pagination={{
+                current: data?.closesXInvoicing?.page,
+                total: data?.closesXInvoicing?.totalDocs,
+              }}
+              onChange={handleChangeTable}
+              columns={columns}
+              scroll={{ x: 900 }}
+              loading={loading}
+              dataSource={data?.closesXInvoicing?.docs as any}
+            />
+          </Col>
         </Row>
-      </Card>
-      <Card bordered={false} bodyStyle={styles.bodyPadding}>
-        <Table
-          pagination={{
-            current: data?.closesXInvoicing?.page,
-            total: data?.closesXInvoicing?.totalDocs,
-          }}
-          onChange={handleChangeTable}
-          columns={columns}
-          scroll={{ x: 900 }}
-          loading={loading}
-          dataSource={data?.closesXInvoicing?.docs as any}
-        />
       </Card>
       <CashRegisterModal visible={visible} onCancel={closeModal} onOk={saveCashRegister} />
       <CloseDay

@@ -64,7 +64,7 @@ const InputForm = () => {
 
   /**
    * @description se encarga de abrir aviso de información
-   * @param error error de apollo
+   * @param message error de apollo
    */
   const onShowError = (message: string) => {
     setPropsAlert({
@@ -142,15 +142,25 @@ const InputForm = () => {
     }
   }, [data]);
 
+  /**
+   * @description se encarga de renderizar los componentes con base al step
+   * @param step paso en el cual se encuentra
+   * @returns componente
+   */
   const renderSteps = (step: number) => {
-    switch (step) {
-      case 0:
-        return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
-      case 1:
-        return <FormInput allowEdit={allowEdit} input={input} setCurrentStep={setCurrentStep} />;
-      default:
-        return <></>;
+    try {
+      switch (step) {
+        case 0:
+          return <SelectWarehouseStep changeCurrentStep={changeCurrentStep} label="Bodega" />;
+        case 1:
+          return <FormInput allowEdit={allowEdit} input={input} setCurrentStep={setCurrentStep} />;
+        default:
+          return <></>;
+      }
+    } catch (error: any) {
+      onShowError(error.message);
     }
+    return 0;
   };
 
   return (

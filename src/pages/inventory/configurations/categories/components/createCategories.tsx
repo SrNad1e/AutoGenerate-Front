@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Alert, Form, Input, Modal } from 'antd';
+import { Alert, Col, Form, Input, Modal, Row, Space, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -7,8 +7,10 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { CategoryLevel1, CategoryLevel2, CategoryLevel3 } from '@/graphql/graphql';
 import { useCreateCategory, useUpdateCategory } from '@/hooks/category.hooks';
 import SelectCategory from '@/components/SelectCategory';
+import { GatewayOutlined } from '@ant-design/icons';
 
 const FormItem = Form.Item;
+const { Text } = Typography;
 
 export type Props = {
   modalVisible: boolean;
@@ -28,8 +30,8 @@ const CreateCategories = ({ level, current, modalVisible, onCancel, isNew }: Pro
 
   const [form] = Form.useForm();
 
-  const [createCategory] = useCreateCategory();
-  const [updateCategory] = useUpdateCategory();
+  const [createCategory, paramsCreate] = useCreateCategory();
+  const [updateCategory, paramsUpdate] = useUpdateCategory();
 
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
@@ -144,13 +146,21 @@ const CreateCategories = ({ level, current, modalVisible, onCancel, isNew }: Pro
 
   return (
     <Modal
-      okText="Aceptar"
+      okText={isNew ? 'Crear' : 'Actualizar'}
       cancelText="Cancelar"
       destroyOnClose
-      title={isNew ? 'Nuevo' : 'Editar'}
+      title={isNew ? 'Crear Categoria' : 'Actualizar Categoria'}
       visible={modalVisible}
       onCancel={() => closeAndClear()}
       onOk={() => (isNew ? createNewCategory() : editCategory())}
+      okButtonProps={{
+        style: { borderRadius: 5 },
+        loading: paramsCreate.loading || paramsUpdate.loading,
+      }}
+      cancelButtonProps={{
+        style: { borderRadius: 5 },
+        loading: paramsCreate.loading || paramsUpdate.loading,
+      }}
     >
       <Form
         form={form}
@@ -161,31 +171,45 @@ const CreateCategories = ({ level, current, modalVisible, onCancel, isNew }: Pro
               }
             : current
         }
+        layout="vertical"
+        style={{ display: 'flex', justifyContent: 'center' }}
       >
-        {!isNew && level !== 1 && (
-          <FormItem
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 12 }}
-            label="Categoria Padre"
-            name="parentId"
-          >
-            <SelectCategory
-              parentId={isNew ? current?._id : current?.parentId}
-              disabled={isNew}
-              level={level === 1 ? 1 : isNew ? level : level - 1}
-            />
-          </FormItem>
-        )}
-        <FormItem
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          label="Nombre"
-          name="name"
-          rules={[{ required: true, message: 'Nombre de Categoria obligatorio', min: 1 }]}
-        >
-          <Input placeholder="" autoFocus />
-        </FormItem>
-        {error && <Alert type="error" message={error} showIcon />}
+        <Row>
+          {!isNew && level !== 1 && (
+            <Col offset={6} span={12}>
+              <FormItem
+                label={
+                  <Space>
+                    <GatewayOutlined />
+                    <Text>Categoria Padre</Text>
+                  </Space>
+                }
+                name="parentId"
+              >
+                <SelectCategory
+                  parentId={isNew ? current?._id : current?.parentId}
+                  disabled={isNew}
+                  level={level === 1 ? 1 : isNew ? level : level - 1}
+                />
+              </FormItem>
+            </Col>
+          )}
+          <Col offset={6} span={12}>
+            <FormItem
+              label={
+                <Space>
+                  <GatewayOutlined />
+                  <Text>Nombre</Text>
+                </Space>
+              }
+              name="name"
+              rules={[{ required: true, message: 'Nombre de Categoria obligatorio', min: 1 }]}
+            >
+              <Input placeholder="" autoFocus />
+            </FormItem>
+          </Col>
+          {error && <Alert type="error" message={error} showIcon />}
+        </Row>
       </Form>
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </Modal>

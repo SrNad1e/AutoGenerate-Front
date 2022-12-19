@@ -1,10 +1,18 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import SelectWarehouses from '@/components/SelectWarehouses';
 import {
+  CalendarOutlined,
+  ClearOutlined,
+  DropboxOutlined,
   EditOutlined,
   EyeOutlined,
+  FieldNumberOutlined,
   FileDoneOutlined,
+  FileSyncOutlined,
+  FireOutlined,
+  MoreOutlined,
   PrinterFilled,
   SearchOutlined,
 } from '@ant-design/icons';
@@ -34,6 +42,7 @@ import type {
   TablePaginationConfig,
 } from 'antd/es/table/interface';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useHistory, useLocation, useAccess } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
@@ -41,6 +50,7 @@ import { useReactToPrint } from 'react-to-print';
 import { StatusType } from '../tranfer.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { StatusStockTransfer } from '@/graphql/graphql';
 import { useGetTransfers } from '@/hooks/transfer.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -49,6 +59,7 @@ import ReportTransfer from '../reports/transfer';
 import styles from './styles.less';
 import './styles.less';
 import style from './styles';
+import Inconsistencies from '../components/Inconsistencies';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -56,7 +67,7 @@ const { Text, Title } = Typography;
 const { RangePicker } = DatePicker;
 
 export type FormValues = {
-  status?: string;
+  status?: StatusStockTransfer;
   number?: number;
   warehouseId?: string;
   dates?: Moment[];
@@ -65,11 +76,13 @@ export type FormValues = {
 
 const TransferList = () => {
   const [transferData, setTransferData] = useState<Partial<StockTransfer>>({});
+  const [showFilterType, setShowFilterType] = useState(false);
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
+  const [visibleInconsistencies, setVisibleInconsistencies] = useState(false);
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -83,8 +96,12 @@ const TransferList = () => {
   });
 
   const {
-    transfer: { canPrint, canConfirm },
+    transfer: { canPrint, canConfirm, canVerified },
   } = useAccess();
+
+  const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop?.defaultWarehouse?._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const [getTransfers, { data, loading }] = useGetTransfers();
 
@@ -98,6 +115,22 @@ const TransferList = () => {
       type: 'error',
       visible: true,
     });
+  };
+
+  const historyConfirmConfig = (_id: string) => {
+    if (history.location.pathname.includes('pos')) {
+      history.push(`/pos/transfer/confirm/${_id}`);
+    } else {
+      history.push(`/inventory/transfer/confirm/${_id}`);
+    }
+  };
+
+  const historyEditConfig = (_id: string) => {
+    if (history.location.pathname.includes('pos')) {
+      history.push(`/pos/transfer/${_id}`);
+    } else {
+      history.push(`/inventory/transfer/${_id}`);
+    }
   };
 
   /**
@@ -125,16 +158,20 @@ const TransferList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersStockTransfersInput) => {
-    getTransfers({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+    try {
+      getTransfers({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -142,7 +179,7 @@ const TransferList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouseId, dates, type = 'sent' } = props;
+    const { status, number, warehouseId, dates, type = 'received' } = props;
     try {
       const params: FiltersStockTransfersInput = {
         page: pageCurrent || 1,
@@ -186,7 +223,7 @@ const TransferList = () => {
    */
   const handleChangeTable = (
     paginationLocal: TablePaginationConfig,
-    filters: Record<string, FilterValue | null>,
+    __: Record<string, FilterValue | null>,
     sorter: SorterResult<StockTransfer> | SorterResult<StockTransfer>[] | any,
     _: TableCurrentDataSource<StockTransfer>,
   ) => {
@@ -195,29 +232,44 @@ const TransferList = () => {
 
     let sort = {};
 
-    if (sorter?.field) {
-      sort = {
-        [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
-      };
-    } else {
-      sort = {
-        createdAt: -1,
-      };
-    }
+    try {
+      if (sorter?.field) {
+        sort = {
+          [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
+        };
+      } else {
+        sort = {
+          createdAt: -1,
+        };
+      }
 
-    onFinish(params, sort, current);
+      onFinish(params, sort, current);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch();
-    form.setFieldsValue({
-      type: 'sent',
-    });
+    try {
+      history.replace(location.pathname);
+      onSearch({});
+      form.resetFields();
+      form.setFieldsValue({
+        type: 'received',
+      });
+      if (!canChangeWarehouse) {
+        onFinish({ warehouseId: defaultWarehouse });
+        setShowFilterType(true);
+      } else {
+        onFinish({});
+        setShowFilterType(false);
+      }
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -225,69 +277,106 @@ const TransferList = () => {
    */
   const loadingData = () => {
     const queryParams: any = location?.query;
-
     const newFilters = {};
+    try {
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'dates') {
+          const dataItem = JSON.parse(queryParams[item]);
+          newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+        }
+        if (item === 'warehouseId') {
+          newFilters[item] = JSON.parse(queryParams[item]);
+          setShowFilterType(true);
+        } else {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        }
+      });
 
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'dates') {
-        const dataItem = JSON.parse(queryParams[item]);
-        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
-      } else {
-        newFilters[item] = JSON.parse(queryParams[item]);
+      form.setFieldsValue({
+        type: 'received',
+      });
+
+      if (!canChangeWarehouse) {
+        newFilters['warehouseId'] = defaultWarehouse;
+        setShowFilterType(true);
       }
-    });
 
-    form.setFieldsValue({
-      type: 'sent',
-    });
+      onFinish(newFilters);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
+  };
 
-    onFinish(newFilters);
+  /**
+   * @description funcion usada para controlar el visible del filtro tipo
+   */
+  const onChangeWarehouse = async () => {
+    const warehouseId = await form.getFieldValue('warehouseId');
+
+    if (warehouseId) {
+      setShowFilterType(true);
+    } else {
+      setShowFilterType(false);
+    }
   };
 
   useEffect(() => {
     loadingData();
+    try {
+      if (!canChangeWarehouse) {
+        form.setFieldsValue({
+          warehouseId: defaultWarehouse,
+        });
+      }
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   }, []);
 
   const columns: ColumnsType<StockTransfer> = [
     {
-      title: 'Número',
+      title: (
+        <Text className={styles.iconTable}>
+          <FieldNumberOutlined />
+        </Text>
+      ),
       dataIndex: 'number',
       sorter: true,
       showSorterTooltip: false,
       align: 'center',
-      width: 100,
     },
     {
-      title: 'Origen',
+      title: <Text>{<DropboxOutlined />} Origen</Text>,
       dataIndex: 'warehouseOrigin',
       align: 'center',
-      width: 200,
       render: (warehouseOrigin) => warehouseOrigin.name,
     },
     {
-      title: 'Destino',
+      title: <Text>{<DropboxOutlined />} Destino</Text>,
       dataIndex: 'warehouseDestination',
       align: 'center',
-      width: 200,
       render: (warehouseDestination) => warehouseDestination.name,
     },
     {
-      title: 'Referencias',
+      title: (
+        <Text>
+          <FieldNumberOutlined /> Referencias
+        </Text>
+      ),
       dataIndex: 'details',
       align: 'center',
-      width: 110,
       render: (details) => details?.length,
     },
     {
-      title: 'Estado',
+      title: <Text>{<FileSyncOutlined />} Estado</Text>,
       dataIndex: 'status',
-      width: 120,
+      align: 'center',
       render: (status: string) => {
         return <Badge color={StatusType[status]?.color} text={StatusType[status]?.text} />;
       },
     },
     {
-      title: 'Fecha',
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       sorter: true,
       showSorterTooltip: false,
@@ -295,11 +384,10 @@ const TransferList = () => {
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
     },
     {
-      title: 'Opciones',
+      title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
-      width: 100,
       render: (_id: string, record) => {
         return (
           <Space>
@@ -309,7 +397,7 @@ const TransferList = () => {
                   type="primary"
                   color="secondary"
                   icon={<EditOutlined />}
-                  onClick={() => history.push(`/inventory/transfer/${_id}`)}
+                  onClick={() => historyEditConfig(_id)}
                 />
               </Tooltip>
             ) : (
@@ -325,7 +413,7 @@ const TransferList = () => {
                       <EyeOutlined />
                     )
                   }
-                  onClick={() => history.push(`/inventory/transfer/confirm/${_id}`)}
+                  onClick={() => historyConfirmConfig(_id)}
                 />
               </Tooltip>
             )}
@@ -345,24 +433,18 @@ const TransferList = () => {
   ];
 
   return (
-    <PageContainer
-      title={
-        <Title level={4} style={{ margin: 0 }}>
-          Lista de traslados
-        </Title>
-      }
-    >
+    <PageContainer title={<Title level={4}>Lista de traslados</Title>}>
       <Card>
         <Form form={form} layout="horizontal" className={styles.filters} onFinish={onFinish}>
-          <Row gutter={20} className={styles.form}>
-            <Col xs={24} md={5} lg={5} xl={3}>
+          <Row gutter={[40, 0]} align="middle">
+            <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
-                <InputNumber controls={false} style={style.maxWidth} />
+                <InputNumber controls={false} style={style.maxWidth} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={5}>
+            <Col xs={24} md={6} lg={5} xl={5}>
               <FormItem label="Estado" name="status">
-                <Select className={styles.item}>
+                <Select className={styles.item} loading={loading}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
                       <Badge text={StatusType[key]?.text} color={StatusType[key]?.color} />
@@ -371,31 +453,47 @@ const TransferList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={4}>
-              <FormItem label="Tipo" name="type">
-                <Select className={styles.item} disabled={loading}>
-                  <Option key="sent">Enviados</Option>
-                  <Option key="received">Recibidos</Option>
-                </Select>
-              </FormItem>
-            </Col>
-            <Col xs={24} md={7} lg={7} xl={6}>
+            <Col xs={24} md={8} lg={7} xl={7}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses />
+                <SelectWarehouses
+                  onChange={onChangeWarehouse}
+                  disabled={!canChangeWarehouse || loading}
+                />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={9} xl={6}>
+            {showFilterType && (
+              <Col xs={24} md={5} lg={6} xl={6}>
+                <FormItem label="Tipo" name="type">
+                  <Select className={styles.item} loading={loading}>
+                    <Option key="sent">Enviados</Option>
+                    <Option key="received">Recibidos</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+            )}
+            <Col xs={24} md={9} lg={7} xl={8}>
               <FormItem label="Fechas" name="dates">
-                <RangePicker disabled={loading} />
+                <RangePicker disabled={loading} placeholder={['Fecha Inicial', 'Fecha Final']} />
               </FormItem>
             </Col>
-            <Col xs={24} md={7} lg={7} xl={24}>
+            <Col xs={24} md={7} lg={7} xl={7}>
               <FormItem>
                 <Space className={styles.buttons}>
-                  <Button icon={<SearchOutlined />} type="primary" htmlType="submit">
+                  <Button
+                    icon={<SearchOutlined />}
+                    loading={loading}
+                    type="primary"
+                    htmlType="submit"
+                    style={style.buttonR}
+                  >
                     Buscar
                   </Button>
-                  <Button htmlType="reset" onClick={onClear} loading={loading}>
+                  <Button
+                    onClick={onClear}
+                    icon={<ClearOutlined />}
+                    loading={loading}
+                    style={style.buttonR}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -403,8 +501,20 @@ const TransferList = () => {
             </Col>
           </Row>
         </Form>
-        <Row gutter={[0, 20]}>
-          <Col span={24} className={styles.marginFilters}>
+        <Row gutter={[0, 20]} align="middle" style={{ marginTop: 20 }}>
+          <Col span={12}>
+            <Button
+              icon={<FireOutlined />}
+              type="primary"
+              shape="round"
+              loading={loading}
+              disabled={!canVerified}
+              onClick={() => setVisibleInconsistencies(true)}
+            >
+              Inconsistencias
+            </Button>
+          </Col>
+          <Col span={12} className={styles.marginFilters}>
             <Text strong>Total Encontrados:</Text> {data?.stockTransfers?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.stockTransfers?.page} /{' '}
             {data?.stockTransfers?.totalPages || 0}
@@ -417,6 +527,7 @@ const TransferList = () => {
               pagination={{
                 current: data?.stockTransfers?.page,
                 total: data?.stockTransfers?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}
@@ -424,6 +535,10 @@ const TransferList = () => {
           </Col>
         </Row>
       </Card>
+      <Inconsistencies
+        onCancel={() => setVisibleInconsistencies(false)}
+        visible={visibleInconsistencies}
+      />
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>
         <ReportTransfer ref={reportRef} data={transferData} />

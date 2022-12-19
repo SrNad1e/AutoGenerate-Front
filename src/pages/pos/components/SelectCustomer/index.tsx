@@ -239,14 +239,14 @@ const SelectCustomer = ({ visible, onCancel, editOrder }: Props) => {
               const number = parseInt(value);
 
               if (!value) {
-                return Promise.reject(new Error('*Campo Obligatorio'));
+                return Promise.resolve();
               }
 
               if (!isNaN(number) && number == value) {
                 return Promise.resolve();
+              } else {
+                return Promise.reject(new Error('*Solo números'));
               }
-
-              return Promise.reject(new Error('*Solo números'));
             },
           },
         ]}

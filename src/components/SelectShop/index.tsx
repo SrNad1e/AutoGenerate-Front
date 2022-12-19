@@ -3,6 +3,8 @@ import { Select, Alert } from 'antd';
 import { useEffect } from 'react';
 
 import { useGetShops } from '@/hooks/shop.hooks';
+import { useModel } from 'umi';
+import { Permissions } from '@/graphql/graphql';
 
 const { Option } = Select;
 
@@ -14,6 +16,11 @@ export type Params = {
 
 const SelectShop = ({ onChange, disabled, value }: Params) => {
   const [getShops, { loading, data, error }] = useGetShops();
+
+  const { initialState } = useModel('@@initialState');
+  const canQueryShops = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadConfigurationShops,
+  );
 
   /**
    * @description se encarga de consultar con base a un comodín
@@ -33,16 +40,18 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
   };
 
   useEffect(() => {
-    getShops({
-      variables: {
-        input: {
-          _id: value,
-          sort: {
-            name: 1,
+    if (canQueryShops) {
+      getShops({
+        variables: {
+          input: {
+            _id: value,
+            sort: {
+              name: 1,
+            },
           },
         },
-      },
-    });
+      });
+    }
   }, []);
 
   return (
@@ -64,6 +73,9 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
           </Option>
         ))}
       </Select>
+      {!canQueryShops && (
+        <Alert message="No tiene permiso para consultar las tiendas" type="error" showIcon />
+      )}
       {error && <Alert message={error} type="info" showIcon />}
     </>
   );

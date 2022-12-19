@@ -1,5 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CalendarOutlined,
+  ClearOutlined,
+  DollarCircleOutlined,
+  EditOutlined,
+  FileTextOutlined,
+  MoreOutlined,
+  PlusOutlined,
+  RetweetOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   Badge,
   Button,
@@ -10,26 +20,28 @@ import {
   Row,
   Space,
   Table,
+  Tag,
   Tooltip,
   Typography,
 } from 'antd';
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
-import type { Location } from 'umi';
+import { Location, useModel } from 'umi';
 import { history, Link, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-import type { FiltersReferencesInput, Reference } from '@/graphql/graphql';
+import { FiltersReferencesInput, Permissions, Reference } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectBrand from '@/components/SelectBrand';
 import EditModal from '../components/EditModal';
 import { useGetReferences } from '@/hooks/reference.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import Filters from '@/components/Filters';
 
 import style from './styles.less';
-import Filters from '@/components/Filters';
+import styles from './styles';
 
 const { Title, Text } = Typography;
 const FormItem = Form.Item;
@@ -58,18 +70,10 @@ const ReferenceList = () => {
 
   const [getReferences, { data, loading }] = useGetReferences();
 
-  /**
-   * @description se encarga de preparar los datos y realizar la consulta
-   * @param filters filtros para la consulta
-   */
-  const onSearch = (filters?: FiltersReferencesInput) => {
-    getReferences({
-      variables: {
-        id: COMPANY_ID,
-        input: { ...filters },
-      },
-    });
-  };
+  const { initialState } = useModel('@@initialState');
+  const canQueryReference = initialState?.currentUser?.role.permissions.find(
+    (permission) => permission.action === Permissions.ReadInventoryReferences,
+  );
 
   /**
    * @description funcion usada para mostrar los errores
@@ -92,6 +96,23 @@ const ReferenceList = () => {
       type: 'error',
       visible: false,
     });
+  };
+
+  /**
+   * @description se encarga de preparar los datos y realizar la consulta
+   * @param filters filtros para la consulta
+   */
+  const onSearch = (filters?: FiltersReferencesInput) => {
+    try {
+      getReferences({
+        variables: {
+          id: COMPANY_ID,
+          input: { ...filters },
+        },
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
   };
 
   /**
@@ -124,32 +145,40 @@ const ReferenceList = () => {
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch({});
-    setSorterTable({});
-    setFilterTable({});
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      onSearch({});
+      setSorterTable({});
+      setFilterTable({});
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
    * @description se encarga de cargar los datos con base a la query
    */
   const getFiltersQuery = () => {
-    const queryParams: any = location.query;
-    const params = {};
-    const tableFilters = {
-      active: queryParams.active ? [queryParams.active === 'true'] : null,
-    };
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'active') {
-        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
-      } else {
-        params[item] = JSON.parse(queryParams[item]);
-      }
-    });
-    form.setFieldsValue(params);
-    setFilterTable(tableFilters);
-    onSearch(params);
+    try {
+      const queryParams: any = location.query;
+      const params = {};
+      const tableFilters = {
+        active: queryParams.active ? [queryParams.active === 'true'] : null,
+      };
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'active') {
+          params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+        } else {
+          params[item] = JSON.parse(queryParams[item]);
+        }
+      });
+      form.setFieldsValue(params);
+      setFilterTable(tableFilters);
+      onSearch(params);
+    } catch (error: any) {
+      showError(error?.message);
+    }
   };
 
   /**
@@ -158,20 +187,23 @@ const ReferenceList = () => {
    */
   const onFinish = (values: FormData) => {
     const filters = { ...filterTable };
+    try {
+      Object.keys(filters).forEach((i) => {
+        if (filters[i] === null) {
+          delete filters[i];
+        } else {
+          filters[i] = filters[i][0];
+        }
+      });
 
-    Object.keys(filters).forEach((i) => {
-      if (filters[i] === null) {
-        delete filters[i];
-      } else {
-        filters[i] = filters[i][0];
-      }
-    });
-
-    onSearch({ ...filters, ...values });
-    setQueryParams({
-      ...values,
-      ...filters,
-    });
+      onSearch({ ...filters, ...values });
+      setQueryParams({
+        ...values,
+        ...filters,
+      });
+    } catch (error: any) {
+      showError(error.message);
+    }
   };
 
   /**
@@ -189,29 +221,32 @@ const ReferenceList = () => {
     const prop = form.getFieldsValue();
 
     const filters = { ...filterArg };
+    try {
+      Object.keys(filters).forEach((i) => {
+        if (filters[i] === null) {
+          delete filters[i];
+        } else {
+          filters[i] = filters[i][0];
+        }
+      });
 
-    Object.keys(filters).forEach((i) => {
-      if (filters[i] === null) {
-        delete filters[i];
-      } else {
-        filters[i] = filters[i][0];
+      let sort = {};
+
+      if (sorter.field) {
+        if (['ascend', 'descend'].includes(sorter?.order || '')) {
+          sort = {
+            [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
+          };
+        }
       }
-    });
 
-    let sort = {};
-
-    if (sorter.field) {
-      if (['ascend', 'descend'].includes(sorter?.order || '')) {
-        sort = {
-          [sorter.field]: sorter.order === 'ascend' ? 1 : -1,
-        };
-      }
+      setQueryParams(filters);
+      onSearch({ ...prop, sort, page: current, ...filters });
+      setSorterTable(sorter);
+      setFilterTable(filterArg);
+    } catch (error: any) {
+      showError(error?.message);
     }
-
-    setQueryParams(filters);
-    onSearch({ ...prop, sort, page: current, ...filters });
-    setSorterTable(sorter);
-    setFilterTable(filterArg);
   };
 
   useEffect(() => {
@@ -219,38 +254,49 @@ const ReferenceList = () => {
     getFiltersQuery();
   }, []);
 
+  useEffect(() => {
+    if (!canQueryReference) {
+      showError('No tiene permisos para consultar las referencias');
+    }
+  }, [canQueryReference]);
+
   const columns: ColumnsType<Partial<Reference>> = [
     {
-      title: 'Referencia',
+      title: <Text>{<FileTextOutlined />} Referencia</Text>,
       dataIndex: 'name',
       sorter: true,
-      width: 200,
       sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
       showSorterTooltip: false,
       render: (name: string, reference) => (
         <>
-          <Text>{name}</Text>
+          <Tag style={styles.tagStyle}>{name}</Tag>
           <br />
           <Text>{reference?.description}</Text>
         </>
       ),
     },
     {
-      title: 'Costo',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Costo
+        </Text>
+      ),
       dataIndex: 'cost',
       sorter: true,
-      align: 'right',
-      width: 120,
+      align: 'center',
       sortOrder: sorterTable?.field === 'cost' ? sorterTable.order : undefined,
       showSorterTooltip: false,
       render: (cost: number) => <span>{numeral(cost).format('$ 0,0')}</span>,
     },
     {
-      title: 'Precio',
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Precio
+        </Text>
+      ),
       dataIndex: 'price',
       sorter: true,
-      align: 'right',
-      width: 120,
+      align: 'center',
       sortOrder: sorterTable?.field === 'price' ? sorterTable.order : undefined,
       showSorterTooltip: false,
       render: (price: number) => <span>{numeral(price).format('$ 0,0')}</span>,
@@ -258,7 +304,6 @@ const ReferenceList = () => {
     {
       title: 'Activo',
       dataIndex: 'active',
-      width: 120,
       align: 'center',
       filteredValue: filterTable?.active || null,
       filterDropdown: (props) => (
@@ -281,9 +326,12 @@ const ReferenceList = () => {
       },
     },
     {
-      title: 'Cambiable',
+      title: (
+        <Text>
+          <RetweetOutlined /> Cambiable
+        </Text>
+      ),
       dataIndex: 'changeable',
-      width: 120,
       align: 'center',
       filteredValue: filterTable?.changeable || null,
       filterDropdown: (props) => (
@@ -308,20 +356,18 @@ const ReferenceList = () => {
       },
     },
     {
-      title: 'Fecha Actualización',
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
       dataIndex: 'updatedAt',
       align: 'center',
       sorter: true,
-      width: 180,
       sortOrder: sorterTable?.field === 'updatedAt' ? sorterTable.order : undefined,
       showSorterTooltip: false,
       render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
-      title: 'Acción',
+      title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
-      width: 80,
       fixed: 'right',
       render: (id: string) => (
         <Tooltip title="Editar" placement="topLeft">
@@ -344,33 +390,45 @@ const ReferenceList = () => {
       <Card>
         <Form layout="horizontal" form={form} onReset={onClear} onFinish={onFinish}>
           <Row gutter={[20, 0]}>
-            <Col xs={24} md={9} lg={9} xl={10}>
+            <Col xs={24} md={8} lg={8} xl={7}>
               <FormItem label="Nombre" name="name">
                 <Input placeholder="Nombre, Descripción" autoComplete="off" disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={9} xl={9}>
+            <Col xs={24} md={8} lg={8} xl={7}>
               <FormItem label="Marca" name="brandId">
                 <SelectBrand disabled={loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={6} lg={6} xl={5}>
               <Space>
-                <Button type="primary" htmlType="submit" loading={loading}>
+                <Button
+                  style={{ borderRadius: 5 }}
+                  icon={<SearchOutlined />}
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                >
                   Buscar
                 </Button>
-                <Button htmlType="reset" loading={loading}>
+                <Button
+                  style={{ borderRadius: 5 }}
+                  loading={loading}
+                  htmlType="reset"
+                  icon={<ClearOutlined />}
+                >
                   Limpiar
                 </Button>
               </Space>
             </Col>
           </Row>
-          <Row gutter={[0, 20]} align="middle">
+          <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
             <Col span={12}>
               <Button
                 icon={<PlusOutlined />}
                 type="primary"
                 shape="round"
+                loading={loading}
                 disabled={!canCreate}
                 onClick={() => history.push('/inventory/configurations/reference/new')}
               >
@@ -379,9 +437,9 @@ const ReferenceList = () => {
             </Col>
             <Col span={12} className={style.textRight}>
               <Text>
-                <Text strong>Total Encontrados:</Text> {data?.references?.totalDocs}{' '}
-                <Text strong>Páginas:</Text> {data?.references.page} /{' '}
-                {data?.references?.totalPages || 1}
+                <Text strong>Total Encontrados:</Text> {data?.references?.totalDocs || 0}{' '}
+                <Text strong>Páginas:</Text> {data?.references?.page || 0} /{' '}
+                {data?.references?.totalPages || 0}
               </Text>
             </Col>
             <Col span={24}>

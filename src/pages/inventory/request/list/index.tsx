@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
@@ -9,7 +10,6 @@ import {
   DropboxOutlined,
   FileSyncOutlined,
   CalendarOutlined,
-  NumberOutlined,
   ClearOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -71,6 +71,7 @@ export type FormValues = {
 
 const RequestList = () => {
   const [requestData, setRequestData] = useState<Partial<StockRequest>>({});
+  const [showFilterType, setShowFilterType] = useState(false);
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -78,6 +79,8 @@ const RequestList = () => {
   });
 
   const { initialState } = useModel('@@initialState');
+  const defaultWarehouse = initialState?.currentUser?.shop?.defaultWarehouse?._id;
+  const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const {
     request: { canAutoCreate, canPrint },
@@ -109,6 +112,14 @@ const RequestList = () => {
     });
   };
 
+  const historyEditConfig = (_id: string) => {
+    if (history.location.pathname.includes('pos')) {
+      history.push(`/pos/request/${_id}`);
+    } else {
+      history.push(`/inventory/request/${_id}`);
+    }
+  };
+
   /**
    * @description se encarga de cerrar la alerta informativa
    */
@@ -134,16 +145,20 @@ const RequestList = () => {
    * @param params filtros necesarios para la busqueda
    */
   const onSearch = (params?: FiltersStockRequestsInput) => {
-    getRequests({
-      variables: {
-        input: {
-          sort: {
-            createdAt: -1,
+    try {
+      getRequests({
+        variables: {
+          input: {
+            sort: {
+              createdAt: -1,
+            },
+            ...params,
           },
-          ...params,
         },
-      },
-    });
+      });
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -151,7 +166,7 @@ const RequestList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { status, number, warehouseId, dates, type = 'received' } = props;
+    const { status, number, warehouseId, dates, type = 'sent' } = props;
     try {
       const params: FiltersStockRequestsInput = {
         page: pageCurrent || 1,
@@ -203,29 +218,42 @@ const RequestList = () => {
 
     let sort = {};
 
-    if (sorter?.field) {
-      sort = {
-        [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
-      };
-    } else {
-      sort = {
-        createdAt: -1,
-      };
+    try {
+      if (sorter?.field) {
+        sort = {
+          [sorter?.field]: sorter?.order === 'ascend' ? 1 : -1,
+        };
+      } else {
+        sort = {
+          createdAt: -1,
+        };
+      }
+      onFinish(params, sort, current);
+    } catch (error: any) {
+      messageError(error?.message);
     }
-
-    onFinish(params, sort, current);
   };
 
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
   const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields();
-    onSearch();
-    form.setFieldsValue({
-      type: 'received',
-    });
+    try {
+      history.replace(location.pathname);
+      form.resetFields();
+      form.setFieldsValue({
+        type: 'sent',
+      });
+      if (!canChangeWarehouse) {
+        onFinish({ warehouseId: defaultWarehouse });
+        setShowFilterType(true);
+      } else {
+        onFinish({});
+        setShowFilterType(false);
+      }
+    } catch (error: any) {
+      messageError(error?.message);
+    }
   };
 
   /**
@@ -257,23 +285,45 @@ const RequestList = () => {
    */
   const loadingData = () => {
     const queryParams: any = location?.query;
-
     const newFilters = {};
+    try {
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'dates') {
+          const dataItem = JSON.parse(queryParams[item]);
+          newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+        }
+        if (item === 'warehouseId') {
+          delete newFilters[item];
+        } else {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        }
+      });
 
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'dates') {
-        const dataItem = JSON.parse(queryParams[item]);
-        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
-      } else {
-        newFilters[item] = JSON.parse(queryParams[item]);
+      form.setFieldsValue({
+        type: 'sent',
+      });
+
+      if (!canChangeWarehouse) {
+        newFilters['warehouseId'] = defaultWarehouse;
+        setShowFilterType(true);
       }
-    });
 
-    form.setFieldsValue({
-      type: 'received',
-    });
+      onFinish(newFilters);
+    } catch (error: any) {
+      messageError(error?.message);
+    }
+  };
 
-    onFinish(newFilters);
+  /**
+   * @description funcion usada para controlar el visible del filtro tipo
+   */
+  const onChangeWarehouse = async () => {
+    const warehouseId = await form.getFieldValue('warehouseId');
+    if (warehouseId) {
+      setShowFilterType(true);
+    } else {
+      setShowFilterType(false);
+    }
   };
 
   useEffect(() => {
@@ -311,7 +361,7 @@ const RequestList = () => {
     {
       title: (
         <Text>
-          <NumberOutlined /> Referencia
+          <FieldNumberOutlined /> Referencias
         </Text>
       ),
       dataIndex: 'details',
@@ -347,7 +397,8 @@ const RequestList = () => {
               <Button
                 type="primary"
                 icon={<EyeOutlined />}
-                onClick={() => history.push(`/inventory/request/${_id}`)}
+                loading={loading}
+                onClick={() => historyEditConfig(_id)}
               />
             </Tooltip>
             <Space>
@@ -355,6 +406,7 @@ const RequestList = () => {
                 <Button
                   type="ghost"
                   disabled={!canPrint}
+                  loading={loading}
                   style={{ backgroundColor: 'white' }}
                   onClick={() => printPage(record)}
                   icon={<PrinterFilled />}
@@ -371,15 +423,15 @@ const RequestList = () => {
     <PageContainer title={<Title level={4}>Lista de solicitudes</Title>}>
       <Card>
         <Form form={form} style={style.marginFilters} onFinish={onFinish}>
-          <Row gutter={[20, 0]} align="middle">
+          <Row gutter={[40, 0]} align="middle">
             <Col xs={24} md={5} lg={5} xl={4}>
               <FormItem label="Número" name="number">
                 <InputNumber controls={false} min={1} style={style.maxWidth} disabled={loading} />
               </FormItem>
             </Col>
-            <Col xs={24} md={6} lg={6} xl={6}>
+            <Col xs={24} md={6} lg={5} xl={5}>
               <FormItem label="Estado" name="status">
-                <Select allowClear disabled={loading}>
+                <Select allowClear loading={loading}>
                   {Object.keys(StatusType).map((key) => (
                     <Option key={key}>
                       <Badge text={StatusType[key].label} color={StatusType[key].color} />
@@ -388,20 +440,22 @@ const RequestList = () => {
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} md={5} lg={5} xl={5}>
-              <FormItem label="Tipo" name="type">
-                <Select disabled={loading}>
-                  <Option key="sent">Enviado</Option>
-                  <Option key="received">Recibido</Option>
-                </Select>
-              </FormItem>
-            </Col>
-            <Col xs={24} md={8} lg={8} xl={8}>
+            <Col xs={24} md={8} lg={7} xl={7}>
               <FormItem label="Bodega" name="warehouseId">
-                <SelectWarehouses />
+                <SelectWarehouses onChange={onChangeWarehouse} disabled={!canChangeWarehouse} />
               </FormItem>
             </Col>
-            <Col xs={24} md={9} lg={9} xl={8}>
+            {showFilterType && (
+              <Col xs={24} md={5} lg={6} xl={6}>
+                <FormItem label="Tipo" name="type">
+                  <Select loading={loading}>
+                    <Option key="sent">Enviado</Option>
+                    <Option key="received">Recibido</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+            )}
+            <Col xs={24} md={9} lg={7} xl={8}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker disabled={loading} placeholder={['Fecha Inicial', 'Fecha Final']} />
               </FormItem>
@@ -410,6 +464,7 @@ const RequestList = () => {
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button
+                    loading={loading}
                     style={style.buttonR}
                     icon={<SearchOutlined />}
                     type="primary"
@@ -419,8 +474,8 @@ const RequestList = () => {
                   </Button>
                   <Button
                     icon={<ClearOutlined />}
+                    loading={loading}
                     style={style.buttonR}
-                    htmlType="reset"
                     onClick={() => onClear()}
                   >
                     Limpiar
@@ -431,12 +486,18 @@ const RequestList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 20]} align="middle">
-          <Col span={8}>
-            <Button shape="round" type="primary" onClick={autoRequest} disabled={!canAutoCreate}>
+          <Col span={9}>
+            <Button
+              shape="round"
+              type="primary"
+              loading={propsGenerate?.loading || loading}
+              onClick={autoRequest}
+              disabled={!canAutoCreate}
+            >
               AutoGenerar
             </Button>
           </Col>
-          <Col span={16} className={styles.alignText}>
+          <Col span={14} className={styles.alignText}>
             <Text strong>Total Encontrados:</Text> {data?.stockRequests?.totalDocs}{' '}
             <Text strong>Páginas: </Text> {data?.stockRequests?.page} /{' '}
             {data?.stockRequests?.totalPages || 0}
@@ -448,6 +509,7 @@ const RequestList = () => {
               pagination={{
                 current: data?.stockRequests?.page,
                 total: data?.stockRequests?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               loading={loading}

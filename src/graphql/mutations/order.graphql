@@ -16,6 +16,7 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
       updatedAt
       _id
       number
+      status
       user {
         name
       }
@@ -77,6 +78,60 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
         total
         totalPaid
         change
+      }
+      invoice {
+        authorization {
+          prefix
+        }
+        createdAt
+        customer {
+          documentType {
+            abbreviation
+          }
+          document
+          firstName
+          lastName
+          phone
+        }
+        details {
+          product {
+            barcode
+            color {
+              name
+            }
+            reference {
+              name
+              description
+            }
+            size {
+              value
+            }
+          }
+          quantity
+          price
+          discount
+        }
+        number
+        payments {
+          total
+          payment {
+            _id
+            name
+          }
+        }
+        shop {
+          name
+        }
+        summary {
+          total
+          subtotal
+          change
+          discount
+          totalPaid
+        }
+        user {
+          name
+        }
       }
     }
   }
@@ -221,6 +276,34 @@ mutation addProductsOrder($input: AddProductsOrderInput!) {
         subtotal
         total
         totalPaid
+      }
+    }
+  }
+}
+
+mutation confirmProductsOrder($input: ConfirmProductsOrderInput!) {
+  confirmProductsOrder(confirmProductsOrderInput: $input) {
+    order {
+      details {
+        product {
+          _id
+          barcode
+          reference {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation confirmPaymentsOrder($input: ConfirmPaymentsOrderInput!) {
+  confirmPaymentsOrder(confirmPaymentsOrderInput: $input) {
+    order {
+      payments {
+        payment {
+          name
+        }
       }
     }
   }

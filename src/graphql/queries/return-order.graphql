@@ -22,13 +22,10 @@ query returnsOrder($input: FiltersReturnsOrderInput) {
       createdAt
       updatedAt
       _id
-      shop {
-        name
-      }
       number
       order {
         number
-        summary{
+        summary {
           discount
           total
         }
@@ -49,6 +46,9 @@ query returnsOrder($input: FiltersReturnsOrderInput) {
           }
         }
         quantity
+      }
+      pointOfSale {
+        name
       }
     }
   }

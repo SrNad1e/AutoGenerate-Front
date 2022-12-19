@@ -85,7 +85,7 @@ const ImageAdmin = ({ limit, value = [], onChange, onCopyImage, disabled }: Prop
     accept: '.png,.jpg,.jpeg,.webp',
     showUploadList: false,
     headers: {
-      authorization: `bearer ${localStorage.getItem('token')}`,
+      authorization: `bearer ${sessionStorage.getItem('token')}`,
     },
     action: `${API_URL}/upload/image`,
     onChange: setPic,
@@ -93,6 +93,8 @@ const ImageAdmin = ({ limit, value = [], onChange, onCopyImage, disabled }: Prop
     multiple: false,
     style: { width: 148, margin: '0 10px' },
   };
+  console.log(`${CDN_URL}`);
+  console.log({ value });
 
   return (
     <Row gutter={24}>

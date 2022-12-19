@@ -1,0 +1,46 @@
+query boxes($input: FiltersBoxesInput) {
+  boxes(filtersBoxesInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      base
+      updatedAt
+      total
+      name
+      isMain
+    }
+  }
+}
+
+query errorCash($input: FiltersErrorsCashInput!) {
+  errorsCash(filtersErrorsCashInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
+      _id
+      boxDestination {
+        _id
+        name
+      }
+      boxOrigin {
+        name
+        _id
+      }
+      closeZ {
+        _id
+        number
+        pointOfSale {
+          name
+        }
+      }
+      reason
+      typeError
+      value
+      verified
+      updatedAt
+    }
+  }
+}

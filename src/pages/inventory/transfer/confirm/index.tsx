@@ -8,8 +8,8 @@ import {
   ArrowLeftOutlined,
   BarcodeOutlined,
   CheckCircleOutlined,
+  LikeOutlined,
   PrinterOutlined,
-  StopOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -24,7 +24,6 @@ import {
   Divider,
   Form,
   Input,
-  Popconfirm,
   Row,
   Space,
   Table,
@@ -49,7 +48,8 @@ import ReportTransfer from '../reports/transfer';
 import AlertLoading from '@/components/Alerts/AlertLoading';
 import AlertSave from '@/components/Alerts/AlertSave';
 
-import styles from './styles.less';
+import validateCodeBar from '@/libs/validateCodeBar';
+import { useGetProduct } from '@/hooks/product.hooks';
 
 const { Text, Title } = Typography;
 const FormItem = Form.Item;
@@ -59,6 +59,9 @@ const { TextArea } = Input;
 const ConfirmTransfer = () => {
   const [observation, setObservation] = useState('');
   const [details, setDetails] = useState<
+    Partial<DetailTransfer & { action: ActionDetailTransfer }>[]
+  >([]);
+  const [transferData, setTransferData] = useState<
     Partial<DetailTransfer & { action: ActionDetailTransfer }>[]
   >([]);
   const [error, setError] = useState('');
@@ -96,6 +99,7 @@ const ConfirmTransfer = () => {
   const [getTransfer, { loading, data }] = useGetTransfer();
   const [confirmProductsTransfer, paramsConfirmProducts] = useConfirmProductsTransfer();
   const [updateTransfer, paramsUpdate] = useUpdateTransfer();
+  const [getProduct] = useGetProduct();
 
   const {
     transfer: { canPrint, canConfirm },
@@ -106,10 +110,6 @@ const ConfirmTransfer = () => {
     initialState?.currentUser?.shop?.defaultWarehouse?._id ===
       data?.stockTransferId?.warehouseDestination?._id &&
     canConfirm;
-
-  const allowConfirmTransfer = !data?.stockTransferId?.details?.find(
-    (item) => item.status === StatusDetailTransfer.New,
-  );
 
   /**
    * @description se encarga de abrir aviso de información
@@ -155,9 +155,8 @@ const ConfirmTransfer = () => {
           id: id || '',
         },
       });
-
       if (response?.data?.stockTransferId) {
-        setDetails(
+        setTransferData(
           response?.data?.stockTransferId?.details as Partial<
             DetailTransfer & { action: ActionDetailTransfer }
           >[],
@@ -171,109 +170,160 @@ const ConfirmTransfer = () => {
   const confirmProduct = async () => {
     try {
       const values = await form.validateFields();
+      const barcode = values.barcode && validateCodeBar(values.barcode);
+      const detail = transferData.find((item) => item.product?.barcode === barcode);
 
-      const detail = details.find((item) => item?.product?.barcode === values.barcode);
+      if (detail?.status === StatusDetailTransfer.Confirmed) {
+        throw new Error('Producto ya se encuentran confirmado');
+      }
 
-      const newDetails = details.filter((item) => item?.product?.barcode !== values.barcode);
+      const newDetails = details.filter((item) => item?.product?.barcode !== barcode);
 
-      if (detail) {
-        if (detail?.status === StatusDetailTransfer.New || detail?.quantityConfirmed === 0) {
+      const existingDetail = details.find((item) => item?.product?.barcode === barcode);
+
+      const response = await getProduct({
+        variables: {
+          input: {
+            barcode: barcode,
+            warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
+          },
+        },
+      });
+      if (response?.data?.product) {
+        const product = response?.data?.product;
+        if (existingDetail) {
           newDetails.push({
-            ...detail,
+            ...existingDetail,
             status: StatusDetailTransfer.New,
-            quantityConfirmed: (detail.quantityConfirmed || 0) + 1,
+            quantityConfirmed: (existingDetail?.quantityConfirmed || 0) + 1,
           });
           setError(
-            `Confirmado ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${detail?.product?.size?.value}, cantidad: ${detail?.quantityConfirmed}`,
+            `Confirmado ${existingDetail?.product?.reference?.name} / ${
+              existingDetail?.product?.color?.name
+            } / ${existingDetail?.product?.size?.value}, cantidad: ${
+              (existingDetail?.quantityConfirmed || 0) + 1
+            }`,
           );
           setDetails(newDetails);
         } else {
+          const objDetail: Partial<DetailTransfer> = {
+            product: product,
+            quantity: detail?.quantity || 0,
+            status: detail?.status,
+            quantityConfirmed: detail?.quantityConfirmed || 0,
+          };
+          newDetails.push({
+            ...objDetail,
+            status: StatusDetailTransfer.New,
+            quantityConfirmed: objDetail?.quantityConfirmed || 1,
+          });
           setError(
-            `Producto ${detail?.product?.reference?.name} / ${detail?.product?.color?.name} / ${detail?.product?.size?.value}, ya se encuentra confirmado`,
+            `Confirmado ${product?.reference?.name} / ${product?.color?.name} / ${
+              product?.size?.value
+            }, cantidad: ${objDetail?.quantityConfirmed || 1}`,
           );
+          setDetails(newDetails);
         }
-      } else {
-        setError('El producto no se encuentra registrado');
       }
+
       barcodeRef?.current?.select();
     } catch (e: any) {
       setError(e?.message);
     }
   };
 
-  const confirmZero = (_id: string) => {
-    const newDetails = details.map((item) => {
-      if (item?.product?._id === _id) {
-        return {
-          ...item,
-          status: StatusDetailTransfer.Confirmed,
-          quantityConfirmed: 0,
-        };
-      }
-      return item;
-    });
-    setDetails(newDetails);
-  };
+  /* const confirmZero = (_id: string) => {
+    try {
+      const newDetails = details.map((item) => {
+        if (item?.product?._id === _id) {
+          return {
+            ...item,
+            status: StatusDetailTransfer.Confirmed,
+            quantityConfirmed: 0,
+          };
+        }
+        return item;
+      });
+      setDetails(newDetails);
+    } catch (e: any) {
+      onShowError(e?.message);
+    }
+  };*/
 
   const confirmProducts = () => {
-    const productsConfirm = details.filter(
-      (item) =>
-        ((item?.status === StatusDetailTransfer.New && item?.quantityConfirmed) || 0) > 0 ||
-        (item?.status === StatusDetailTransfer.Confirmed && item?.quantityConfirmed === 0),
-    );
-
-    if (productsConfirm.length > 0) {
-      setPropsAlertSave({
-        visible: true,
-        message: '¿Está seguro que desea confirmar los productos?',
-        type: 'warning',
-      });
-    } else {
-      onShowError('No hay productos para confirmar');
+    try {
+      const productsConfirm = details.filter(
+        (item) =>
+          ((item?.status === StatusDetailTransfer.New && item?.quantityConfirmed) || 0) > 0 ||
+          (item?.status === StatusDetailTransfer.Confirmed && item?.quantityConfirmed === 0),
+      );
+      if (productsConfirm.length > 0) {
+        setPropsAlertSave({
+          visible: true,
+          message: '¿Está seguro que desea confirmar los productos?',
+          type: 'warning',
+        });
+      } else {
+        onShowError('No hay productos para confirmar');
+      }
+    } catch (e: any) {
+      onShowError(e?.message);
     }
   };
 
-  const confirmTransfer = () => {
-    const productsConfirm = details.find((item) => item?.status !== StatusDetailTransfer.Confirmed);
+  const productsConfirmed = transferData?.filter((i) => i.status !== StatusDetailTransfer.New);
 
-    if (!productsConfirm) {
-      setPropsAlertSave({
-        visible: true,
-        message: 'Se enviaran las unidades confirmadas a la bodega, ¿Está Seguro?',
-        type: 'warning',
-        status: StatusStockTransfer.Confirmed,
-      });
-    } else {
-      onShowError('Debe confirmar todos los productos');
+  const confirmTransfer = () => {
+    try {
+      const productsConfirm = details.find(
+        (item) => item?.status !== StatusDetailTransfer.Confirmed,
+      );
+
+      if (!productsConfirm) {
+        setPropsAlertSave({
+          visible: true,
+          message: 'Se enviaran las unidades confirmadas a la bodega, ¿Está Seguro?',
+          type: 'warning',
+          status: StatusStockTransfer.Confirmed,
+        });
+      } else {
+        onShowError('Debe confirmar todos los productos');
+      }
+    } catch (e: any) {
+      onShowError(e?.message);
     }
   };
 
   const saveTransfer = async (status?: StatusStockTransfer) => {
     if (status === StatusStockTransfer.Confirmed) {
-      const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.New);
+      try {
+        const confirm = !details?.find((item) => item?.status === StatusDetailTransfer.New);
 
-      if (!confirm) {
-        onShowError('Debe confirmar todos los productos antes de enviar');
-      } else {
-        if (id) {
-          const response = await updateTransfer({
-            variables: {
-              id,
-              input: {
-                observationDestination: observation,
-                status,
+        if (!confirm) {
+          onShowError('Debe confirmar todos los productos antes de enviar');
+        } else {
+          if (id) {
+            const response = await updateTransfer({
+              variables: {
+                id,
+                input: {
+                  observationDestination: observation,
+                  status,
+                },
               },
-            },
-          });
-          if (response?.data?.updateStockTransfer) {
-            setPropsAlert({
-              message: 'Productos confirmados correctamente',
-              visible: true,
-              type: 'success',
-              redirect: '/inventory/transfer/list',
             });
+            if (response?.data?.updateStockTransfer) {
+              setPropsAlert({
+                message: 'Productos confirmados correctamente',
+                visible: true,
+                type: 'success',
+                redirect: '/inventory/transfer/list',
+              });
+            }
           }
         }
+      } catch (e: any) {
+        onShowError(e?.message);
       }
     } else {
       const newDetails = details.filter(
@@ -295,6 +345,7 @@ const ConfirmTransfer = () => {
               },
             },
           });
+          setDetails([...productsConfirmed]);
 
           if (response?.data?.confirmProductsStockTransfer) {
             setPropsAlert({
@@ -309,6 +360,14 @@ const ConfirmTransfer = () => {
       }
     }
   };
+  const barcode = form.getFieldValue('barcode');
+  const newDetail = details.find((item) => item.product?.barcode === barcode);
+
+  useEffect(() => {
+    if (productsConfirmed.length > 0 && newDetail?.status !== StatusDetailTransfer.New) {
+      setDetails([...productsConfirmed]);
+    }
+  }, [transferData]);
 
   useEffect(() => {
     getTransferId();
@@ -324,13 +383,13 @@ const ConfirmTransfer = () => {
     {
       title: 'Producto',
       dataIndex: 'product',
-      render: ({ reference, barcode }: Product) => (
+      render: (product: Product) => (
         <Row>
           <Col span={24}>
-            {reference?.name} / {reference?.description}
+            {product?.reference?.name} / {product?.reference?.description}
           </Col>
           <Col span={24}>
-            <Tag icon={<BarcodeOutlined />}>{barcode}</Tag>
+            <Tag icon={<BarcodeOutlined />}>{product?.barcode}</Tag>
           </Col>
         </Row>
       ),
@@ -338,15 +397,15 @@ const ConfirmTransfer = () => {
     {
       title: 'Color',
       dataIndex: 'product',
-      render: ({ color }: Product) => {
+      render: (product: Product) => {
         return (
           <Space>
             <Avatar
               size="small"
-              style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
-              src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
+              style={{ backgroundColor: product?.color?.html, border: 'solid 1px black' }}
+              src={`${CDN_URL}/${product?.color?.image?.urls?.webp?.small}`}
             />
-            <Text style={{ marginLeft: 10 }}>{color?.name_internal}</Text>
+            <Text style={{ marginLeft: 10 }}>{product?.color?.name_internal}</Text>
           </Space>
         );
       },
@@ -354,55 +413,23 @@ const ConfirmTransfer = () => {
     {
       title: 'Talla',
       dataIndex: 'product',
-      render: ({ size }: Product) => size.value,
-    },
-    {
-      title: 'Enviado',
-      dataIndex: 'quantity',
       align: 'center',
+      render: (product: Product) => product?.size?.value,
     },
     {
       title: 'Confirmado',
       dataIndex: 'quantityConfirmed',
       align: 'center',
-      render: (quantityConfirmed: number, record) => (
+      render: (quantityConfirmed: number) => (
         <Badge
           style={{
-            backgroundColor: record?.quantity === quantityConfirmed ? 'green' : 'red',
+            backgroundColor: '#dc9575',
           }}
           count={quantityConfirmed || 0}
           showZero
         />
       ),
     },
-    allowConfirm
-      ? {
-          title: 'Opciones',
-          dataIndex: 'product',
-          align: 'center',
-          fixed: 'right',
-          render: ({ _id = '' }: Product, record) => (
-            <Popconfirm
-              disabled={!allowConfirm || record?.status === StatusDetailTransfer.Confirmed}
-              title="¿Desea confirmar en 0?"
-              okText="Si, confirmar"
-              cancelText="Cancelar"
-              onConfirm={() => confirmZero(_id)}
-            >
-              <Tooltip title="Confirmar en 0">
-                <Button
-                  icon={<StopOutlined />}
-                  type="primary"
-                  disabled={!allowConfirm || record?.status === StatusDetailTransfer.Confirmed}
-                  danger
-                />
-              </Tooltip>
-            </Popconfirm>
-          ),
-        }
-      : {
-          width: 0,
-        },
   ];
 
   return (
@@ -468,21 +495,22 @@ const ConfirmTransfer = () => {
                 {moment(data?.stockTransferId?.updatedAt).format(FORMAT_DATE)}
               </DescriptionsItem>
               <DescriptionsItem label="Solicitudes" span={1}>
-                {data?.stockTransferId?.requests?.map((request) => {
+                {data?.stockTransferId?.requests?.map((request) => (
                   <Tag key={request?._id} color="volcano" icon={<CheckCircleOutlined />}>
                     {request?.number}
-                  </Tag>;
-                })}
+                  </Tag>
+                ))}
               </DescriptionsItem>
-              <DescriptionsItem label="Observación">
+              <DescriptionsItem label="Observación" span={2} style={{ width: 200 }}>
                 {allowConfirm ? (
                   <TextArea
+                    maxLength={100}
                     defaultValue={data?.stockTransferId?.observationDestination || ''}
                     value={observation}
                     onChange={(e) => setObservation(e?.target?.value)}
                   />
                 ) : (
-                  data?.stockTransferId?.observationDestination
+                  data?.stockTransferId?.observationOrigin
                 )}
               </DescriptionsItem>
             </Descriptions>
@@ -512,7 +540,7 @@ const ConfirmTransfer = () => {
                   .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
                   .reverse() as any
               }
-              scroll={{ x: 800 }}
+              scroll={{ x: 300 }}
               pagination={{ size: 'small' }}
             />
           </Col>
@@ -520,8 +548,8 @@ const ConfirmTransfer = () => {
       </Card>
       <Affix offsetBottom={0}>
         <Card bordered={false}>
-          <Row justify="center" align="middle">
-            <Col xs={12} md={18} lg={20}>
+          <Row justify="center" align="middle" gutter={40}>
+            <Col xs={12} md={12} lg={12}>
               <Title
                 level={3}
                 style={{
@@ -535,20 +563,30 @@ const ConfirmTransfer = () => {
                 PRODUCTOS:{' '}
                 {details
                   .filter((detail) => detail?.action !== ActionDetailTransfer.Delete)
-                  .reduce((sum, detail) => sum + (detail?.quantity || 0), 0)}
+                  .reduce((sum, detail) => sum + (detail?.quantityConfirmed || 0), 0)}
               </Title>
             </Col>
-            <Col xs={12} md={6} lg={4}>
-              <Space align="end" className={styles.alignRigth}>
-                {allowConfirmTransfer ? (
-                  <Button onClick={confirmTransfer} type="primary" disabled={!allowConfirm}>
-                    Confirmar Traslado
-                  </Button>
-                ) : (
-                  <Button type="primary" onClick={confirmProducts} disabled={!allowConfirm}>
-                    Confirmar Productos
-                  </Button>
-                )}
+            <Col xs={12} md={8} lg={6}>
+              <Space>
+                <Button
+                  style={{ borderRadius: 5 }}
+                  type="primary"
+                  icon={<LikeOutlined />}
+                  onClick={confirmProducts}
+                  loading={loading || paramsUpdate.loading || paramsConfirmProducts.loading}
+                  disabled={!allowConfirm}
+                >
+                  Confirmar Productos
+                </Button>
+                <Button
+                  style={{ borderRadius: 5 }}
+                  onClick={confirmTransfer}
+                  type="primary"
+                  loading={loading || paramsUpdate.loading || paramsConfirmProducts.loading}
+                  disabled={!allowConfirm}
+                >
+                  Confirmar Traslado
+                </Button>
               </Space>
             </Col>
           </Row>

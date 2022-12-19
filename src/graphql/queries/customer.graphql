@@ -1,17 +1,41 @@
-query customers ($input:FiltersCustomersInput){
-  customers(filtersCustomerInput:$input){
-    docs{
+query customers($input: FiltersCustomersInput) {
+  customers(filtersCustomerInput: $input) {
+    totalDocs
+    totalPages
+    page
+    docs {
       _id
-      documentType{
+      documentType {
+        _id
+        abbreviation
+      }
+      addresses {
+        city {
           _id
-          abbreviation
+          name
+        }
+        contact
+        extra
+        field1
+        isMain
+        loteNumber
+        neighborhood
+        number1
+        number2
+        phone
       }
       document
       firstName
       lastName
-      customerType{
-        _id
+      email
+      updatedAt
+      phone
+      birthday
+      isWhatsapp
+      active
+      customerType {
         name
+        _id
       }
     }
   }
