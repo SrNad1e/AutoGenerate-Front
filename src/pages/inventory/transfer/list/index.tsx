@@ -277,7 +277,7 @@ const TransferList = () => {
    */
   const loadingData = () => {
     const queryParams: any = location?.query;
-    const newFilters = {};
+    const newFilters: any = {};
     try {
       Object.keys(queryParams).forEach((item) => {
         if (item === 'dates') {
@@ -291,6 +291,14 @@ const TransferList = () => {
           newFilters[item] = JSON.parse(queryParams[item]);
         }
       });
+      if (newFilters.dates) {
+        const date1 = moment(newFilters.dates[0]);
+        const date2 = moment(newFilters.dates[1]);
+
+        const arr = [date1, date2];
+
+        newFilters.dates = arr;
+      }
 
       form.setFieldsValue({
         type: 'received',
