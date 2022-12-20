@@ -11,6 +11,7 @@ import {
   FieldNumberOutlined,
   FileDoneOutlined,
   FileSyncOutlined,
+  FileTextOutlined,
   FireOutlined,
   MoreOutlined,
   PrinterFilled,
@@ -49,7 +50,7 @@ import { useReactToPrint } from 'react-to-print';
 
 import { StatusType } from '../tranfer.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
+import type { DetailTransfer, FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
 import { Permissions } from '@/graphql/graphql';
 import { StatusStockTransfer } from '@/graphql/graphql';
 import { useGetTransfers } from '@/hooks/transfer.hooks';
@@ -61,6 +62,7 @@ import './styles.less';
 import style from './styles';
 import Inconsistencies from '../components/Inconsistencies';
 import Comparative from '../confirm/comparative';
+import ReportTransferComparative from '../reports/comparative';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -85,7 +87,7 @@ const TransferList = () => {
   });
   const [visibleInconsistencies, setVisibleInconsistencies] = useState(false);
   const [visibleComparative, setVisibleComparative] = useState(false);
-  const [dataComparative, setDataComparative] = useState<Partial<StockTransfer>>({});
+  const [dataComparative, setDataComparative] = useState<Partial<DetailTransfer>>({});
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -94,8 +96,13 @@ const TransferList = () => {
 
   const reportRef = useRef(null);
 
+  const reportComparativeRef = useRef(null);
+
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
+  });
+  const onHandlePrint = useReactToPrint({
+    content: () => reportComparativeRef?.current,
   });
 
   const {
@@ -153,9 +160,9 @@ const TransferList = () => {
     handlePrint();
   };
 
-  const onOpenComparative = (dataTable: StockTransfer) => {
-    setDataComparative(dataTable);
-    setVisibleComparative(true);
+  const printComparative = async (dataTable: Partial<DetailTransfer>) => {
+    await setDataComparative(dataTable);
+    onHandlePrint();
   };
 
   /**
@@ -449,8 +456,8 @@ const TransferList = () => {
                     <Button
                       type="default"
                       disabled={!canPrint}
-                      onClick={() => onOpenComparative(record)}
-                      icon={<FireOutlined />}
+                      onClick={() => printComparative(record?.details)}
+                      icon={<FileTextOutlined />}
                     />
                   </Tooltip>
                 </>
@@ -571,6 +578,9 @@ const TransferList = () => {
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <div style={{ display: 'none' }}>
         <ReportTransfer ref={reportRef} data={transferData} />
+      </div>
+      <div style={{ display: 'none' }}>
+        <ReportTransferComparative ref={reportComparativeRef} data={dataComparative} />
       </div>
       <Comparative
         dataDetail={dataComparative}

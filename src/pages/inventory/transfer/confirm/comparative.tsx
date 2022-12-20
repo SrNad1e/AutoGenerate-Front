@@ -23,18 +23,6 @@ const Comparative = ({ onCancel, visible, dataDetail }: Props) => {
   });
 
   /**
-   * @description funcion usada por los hook para mostrar los errores
-   * @param message mensaje de error a mostrar
-   */
-  /* const messageError = (message: string) => {
-    setPropsAlertInformation({
-      message,
-      type: 'error',
-      visible: true,
-    });
-  };*/
-
-  /**
    * @description se encarga de cerrar la alerta informativa
    */
   const closeAlertInformation = () => {

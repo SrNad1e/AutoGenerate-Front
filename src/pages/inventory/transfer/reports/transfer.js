@@ -76,19 +76,8 @@ const columnsHeader = [
   <div
     style={{
       ...styleBorders,
-      width: '18.7%',
       borderBottom: 'none',
-      borderRight: 'none',
-      fontWeight: 'bold',
-    }}
-  >
-    Referencia
-  </div>,
-  <div
-    style={{
-      ...styleBorders,
-      borderBottom: 'none',
-      width: '19%',
+      width: '20%',
       fontWeight: 'bold',
     }}
   >
@@ -97,20 +86,20 @@ const columnsHeader = [
   <div
     style={{
       ...styleBorders,
-      borderLeft: 'none',
+      width: '43%',
       borderBottom: 'none',
-      width: '12%',
+      borderLeft: 'none',
       fontWeight: 'bold',
     }}
   >
-    Talla
+    Producto - Referencia
   </div>,
   <div
     style={{
       ...styleBorders,
       borderLeft: 'none',
       borderBottom: 'none',
-      width: '10.7%',
+      width: '15%',
       fontWeight: 'bold',
     }}
   >
@@ -121,53 +110,170 @@ const columnsHeader = [
       ...styleBorders,
       borderLeft: 'none',
       borderBottom: 'none',
-      width: '13%',
-      fontWeight: 'bold',
-    }}
-  >
-    Cantidades en el Traslado
-  </div>,
-  <div
-    style={{
-      ...styleBorders,
-      borderLeft: 'none',
-      borderBottom: 'none',
-      width: '13.5%',
-      fontWeight: 'bold',
-    }}
-  >
-    Cantidades Confirmadas en Tienda
-  </div>,
-  <div
-    style={{
-      ...styleBorders,
-      borderLeft: 'none',
-      borderBottom: 'none',
       width: '10%',
       fontWeight: 'bold',
     }}
   >
-    Faltante
+    Talla
   </div>,
   <div
     style={{
       ...styleBorders,
       borderLeft: 'none',
       borderBottom: 'none',
-      width: '10%',
+      width: '12%',
       fontWeight: 'bold',
     }}
   >
-    Sobrante
+    Cantidad
   </div>,
 ];
 
-export default class ReportTransferComparative extends React.PureComponent {
+export default class ReportTransfer extends React.PureComponent {
   render() {
     const { data } = this.props;
 
     return (
       <div style={classes.content}>
+        <div style={classes.header}>
+          <div style={classes.title}>TRASLADO DE MERCANCIA</div>
+          <div style={classes.title}>No. {data?.number}</div>
+          <div style={classes.body}>
+            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+              <div
+                style={{ ...styleBorders, width: '25%', borderRight: 'none', fontWeight: 'bold' }}
+              >
+                Bodega de despacho
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                }}
+              >
+                {data?.warehouseOrigin?.name}
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                  borderRight: 'none',
+                  borderLeft: 'none',
+                  fontWeight: 'bold',
+                }}
+              >
+                Bodega que recibe
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                }}
+              >
+                {data?.warehouseDestination?.name}
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '12%',
+                  borderRight: 'none',
+                  borderTop: 'none',
+                  fontWeight: 'bold',
+                }}
+              >
+                Estado
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  borderTop: 'none',
+                  width: '15%',
+                }}
+              >
+                {StatusType[data?.status || '']?.text}
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '20%',
+                  borderRight: 'none',
+                  borderLeft: 'none',
+                  borderTop: 'none',
+                  fontWeight: 'bold',
+                }}
+              >
+                Fecha Creación
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  borderTop: 'none',
+                  width: '25%',
+                }}
+              >
+                {moment(data?.createdAt).format('YYYY/MM/DD HH:mm:ss')}
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '20%',
+                  borderRight: 'none',
+                  borderLeft: 'none',
+                  borderTop: 'none',
+                  fontWeight: 'bold',
+                }}
+              >
+                Última fecha
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  borderTop: 'none',
+                  width: '25%',
+                }}
+              >
+                {moment(data?.updatedAt).format('YYYY/MM/DD HH:mm:ss')}
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+              <div
+                style={{ ...styleBorders, width: '25%', borderRight: 'none', fontWeight: 'bold' }}
+              >
+                Observación Origen
+              </div>
+              <div
+                style={{
+                  border: 'solid 1pt black',
+                  width: '25%',
+                  wordWrap: 'break-word',
+                }}
+              >
+                {data?.observationOrigin}
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                  borderRight: 'none',
+                  borderLeft: 'none',
+                  fontWeight: 'bold',
+                }}
+              >
+                Observación Destino
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '25%',
+                }}
+              >
+                {data?.observationDestination}
+              </div>
+            </div>
+          </div>
+        </div>
         <div style={classes.body}>
           <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
             {columnsHeader?.map((item) => item)}
@@ -184,16 +290,6 @@ export default class ReportTransferComparative extends React.PureComponent {
                 <div
                   style={{
                     ...styleBorders,
-                    width: '19.8%',
-                    borderRight: 'none',
-                    borderBottom: 'none',
-                  }}
-                >
-                  {detail?.product?.reference?.name}
-                </div>
-                <div
-                  style={{
-                    ...styleBorders,
                     borderBottom: 'none',
                     width: '20%',
                   }}
@@ -203,9 +299,29 @@ export default class ReportTransferComparative extends React.PureComponent {
                 <div
                   style={{
                     ...styleBorders,
+                    width: '43%',
                     borderLeft: 'none',
                     borderBottom: 'none',
-                    width: '12%',
+                  }}
+                >
+                  {detail?.product?.reference?.name} / {detail?.product?.reference?.description}
+                </div>
+                <div
+                  style={{
+                    ...styleBorders,
+                    borderLeft: 'none',
+                    borderBottom: 'none',
+                    width: '15%',
+                  }}
+                >
+                  {detail?.product?.color?.name_internal}
+                </div>
+                <div
+                  style={{
+                    ...styleBorders,
+                    borderLeft: 'none',
+                    borderBottom: 'none',
+                    width: '10%',
                   }}
                 >
                   {detail?.product?.size?.value}
@@ -218,47 +334,7 @@ export default class ReportTransferComparative extends React.PureComponent {
                     width: '12%',
                   }}
                 >
-                  {detail?.product?.color?.name_internal}
-                </div>
-                <div
-                  style={{
-                    ...styleBorders,
-                    borderLeft: 'none',
-                    borderBottom: 'none',
-                    width: '12%',
-                  }}
-                >
-                  {'Cantidad confirmada'}
-                </div>
-                <div
-                  style={{
-                    ...styleBorders,
-                    borderLeft: 'none',
-                    borderBottom: 'none',
-                    width: '12%',
-                  }}
-                >
-                  {'Cantidad'}
-                </div>
-                <div
-                  style={{
-                    ...styleBorders,
-                    borderLeft: 'none',
-                    borderBottom: 'none',
-                    width: '12%',
-                  }}
-                >
-                  {'Cantidad'}
-                </div>
-                <div
-                  style={{
-                    ...styleBorders,
-                    borderLeft: 'none',
-                    borderBottom: 'none',
-                    width: '12%',
-                  }}
-                >
-                  {'Cantidad'}
+                  {detail?.quantity}
                 </div>
               </div>
             ))}
@@ -273,9 +349,7 @@ export default class ReportTransferComparative extends React.PureComponent {
             }}
           >
             <div style={{ width: '75%' }} />
-            <div style={{ ...styleBorders, width: '18%', fontWeight: 'bold' }}>
-              Total Referencias Traslados
-            </div>
+            <div style={{ ...styleBorders, width: '18%', fontWeight: 'bold' }}>Referencias:</div>
             <div
               style={{
                 ...styleBorders,
@@ -298,7 +372,7 @@ export default class ReportTransferComparative extends React.PureComponent {
           >
             <div style={{ width: '75%' }} />
             <div style={{ ...styleBorders, width: '18%', fontWeight: 'bold', borderTop: 'none' }}>
-              Total Unds con Inconsistencias
+              Productos:
             </div>
             <div
               style={{
@@ -314,6 +388,7 @@ export default class ReportTransferComparative extends React.PureComponent {
               {data?.details?.reduce((sum, detail) => sum + detail?.quantity, 0)}
             </div>
           </div>
+          <div style={{ fontSize: 12, marginTop: 10 }}>Creado por: {data?.userOrigin?.name}</div>
         </div>
       </div>
     );
