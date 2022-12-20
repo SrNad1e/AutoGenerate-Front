@@ -252,7 +252,7 @@ const InvoiceList = () => {
     },
     {
       title: <Text>{<UserOutlined />} Creado Por</Text>,
-      dataIndex: 'name',
+      dataIndex: 'user.name',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
