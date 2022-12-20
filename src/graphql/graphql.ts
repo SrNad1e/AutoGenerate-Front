@@ -204,6 +204,8 @@ export type AuthorizationDian = {
   qualification: Scalars['Boolean'];
   /** Resolución de la autorización o de la habilitación */
   resolution?: Maybe<Scalars['String']>;
+  /** Tienda a la que pertenece */
+  shop: Shop;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la autorización de facturación */
@@ -663,6 +665,8 @@ export type CreateAuthorizationInput = {
   qualification?: InputMaybe<Scalars['Boolean']>;
   /** resolución de facturacion */
   resolution?: InputMaybe<Scalars['String']>;
+  /** Id de la tienda */
+  shopId: Scalars['String'];
 };
 
 /** Datos para crear la caja */
@@ -1195,6 +1199,18 @@ export type CustomerType = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el tipo de cliente */
   user: User;
+};
+
+/** Datos para generar la facturación */
+export type DataGenerateInvoicesInput = {
+  /** Efectivo para facturar */
+  cash: Scalars['Float'];
+  /** Fecha final para la facturación */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial para la facturación */
+  dateInitial: Scalars['String'];
+  /** Identificador de la tienda a facturar */
+  shopId: Scalars['String'];
 };
 
 /** Detalle para agregar al crédito */
@@ -2548,6 +2564,8 @@ export type Mutation = {
   createWarehouse: Warehouse;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
+  /** Generador de facturas */
+  invoicing: ResponseInvoicing;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
   login: LoginResponse;
   /** Se encarga de enviar correo de recuperación de contraseña */
@@ -2773,6 +2791,10 @@ export type MutationCreateWarehouseArgs = {
 
 export type MutationGenerateStockRequestArgs = {
   shopId: Scalars['String'];
+};
+
+export type MutationInvoicingArgs = {
+  dataGenerateInvoicesInput: DataGenerateInvoicesInput;
 };
 
 export type MutationLoginArgs = {
@@ -4337,6 +4359,19 @@ export type ResponseInvoices = {
   totalPages: Scalars['Float'];
 };
 
+/** Resultado de facturación */
+export type ResponseInvoicing = {
+  __typename?: 'ResponseInvoicing';
+  /** Cantidad de facturas generadas */
+  invoiceQuantityBank: Scalars['Float'];
+  /** Cantidad de facturas generadas */
+  invoiceQuantityCash: Scalars['Float'];
+  /** Valor total facturado */
+  valueInvoicingBank: Scalars['Float'];
+  /** Valor total facturado */
+  valueInvoicingCash: Scalars['Float'];
+};
+
 /** Respuesta para obtener la orden */
 export type ResponseOrder = {
   __typename?: 'ResponseOrder';
@@ -4874,6 +4909,8 @@ export type SalesReport = {
   __typename?: 'SalesReport';
   /** Categoría */
   category?: Maybe<CategoryLevel1>;
+  /** Fecha de la venta */
+  date: Scalars['DateTime'];
   /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
   quantity: Scalars['Float'];
   /** Tienda */
@@ -5832,6 +5869,8 @@ export type UpdateAuthorizationInput = {
   qualification?: InputMaybe<Scalars['Boolean']>;
   /** resolución de facturacion */
   resolution?: InputMaybe<Scalars['String']>;
+  /** Id de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para actualizar caja */
@@ -8003,6 +8042,14 @@ export type AuthorizationsQuery = {
       dateFinal?: any | null;
       numberInitial?: number | null;
       numberFinal?: number | null;
+      shop: {
+        __typename?: 'Shop';
+        name: string;
+        email?: string | null;
+        phone?: string | null;
+        document?: string | null;
+        address?: string | null;
+      };
     }[];
   };
 };
@@ -16380,6 +16427,20 @@ export const AuthorizationsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'dateFinal' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'numberInitial' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'numberFinal' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
