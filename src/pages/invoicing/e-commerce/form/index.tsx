@@ -373,7 +373,7 @@ const EcommerceForm = () => {
               </Row>
             </Col>
             <Col span={12} style={styles.textRight}>
-              <Row gutter={[0, 6]}>
+              <Row gutter={[0, 6]} align="middle">
                 <Col span={24}>
                   <Text strong>{numeral(total).format('$ 0,0')}</Text>
                 </Col>
