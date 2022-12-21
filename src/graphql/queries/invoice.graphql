@@ -6,8 +6,9 @@ query invoices($input: FiltersInvoicesInput) {
       authorization {
         prefix
       }
+      number
       user {
-        name
+        username
       }
       updatedAt
       summary {

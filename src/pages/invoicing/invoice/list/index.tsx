@@ -23,23 +23,34 @@ import {
   Row,
   Space,
   Table,
+  Tag,
   Tooltip,
   Typography,
 } from 'antd';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { useHistory, useLocation } from 'umi';
+import { useHistory, useLocation, useModel } from 'umi';
 import type { Location } from 'umi';
+import numeral from 'numeral';
 
 import { useEffect, useState } from 'react';
 import styles from '../styles';
-import type { FiltersInvoicesInput, Invoice, ResponseInvoices, Shop } from '@/graphql/graphql';
+import type {
+  Customer,
+  FiltersInvoicesInput,
+  Invoice,
+  ResponseInvoices,
+  Shop,
+  SummaryInvoice,
+  User,
+} from '@/graphql/graphql';
 import type { ColumnsType } from 'antd/lib/table';
 import Filters from '@/components/Filters';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { useGetInvoices } from '@/hooks/invoice.hooks';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
+import ModalInvoicing from '../components/ModalInvoicing';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -57,6 +68,8 @@ const InvoiceList = () => {
     visible: false,
   });
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
+  const [showInvoicing, setShowInvoicing] = useState<boolean>(false);
+  const { initialState } = useModel('@@initialState');
 
   const location: Location = useLocation();
 
@@ -249,20 +262,30 @@ const InvoiceList = () => {
       ),
       dataIndex: 'number',
       align: 'center',
+      render: (number: number, invoice: Invoice) => `${invoice?.authorization?.prefix} ${number}`,
     },
     {
       title: <Text>{<UserOutlined />} Creado Por</Text>,
-      dataIndex: 'user.name',
+      dataIndex: 'user',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
+      render: (user: User) => user.username,
     },
     {
       title: <Text>{<UserAddOutlined />} Cliente</Text>,
-      dataIndex: 'username',
+      dataIndex: 'customer',
       align: 'center',
       sorter: true,
       showSorterTooltip: false,
+      render: ({ documentType, document, firstName, lastName }: Customer) => (
+        <>
+          {firstName} {lastName}
+          <Tag>
+            {documentType?.abbreviation} {document}
+          </Tag>
+        </>
+      ),
     },
     {
       title: (
@@ -280,8 +303,9 @@ const InvoiceList = () => {
           <DollarCircleOutlined /> Valor
         </Text>
       ),
-      dataIndex: 'details',
+      dataIndex: 'summary',
       align: 'center',
+      render: (summary: SummaryInvoice) => numeral(summary?.total).format('$ 0,0'),
     },
     {
       title: 'Activo',
@@ -389,6 +413,14 @@ const InvoiceList = () => {
             </Col>
           </Row>
         </Form>
+        {initialState?.currentUser?.username === 'admin' && (
+          <>
+            <Button type="primary" onClick={() => setShowInvoicing(true)}>
+              AutoFacturación
+            </Button>
+            <ModalInvoicing open={showInvoicing} onCancel={() => setShowInvoicing(false)} />
+          </>
+        )}
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
           <Col span={24} style={styles.texRigth}>
             <Space>
