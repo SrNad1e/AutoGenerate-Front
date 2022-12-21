@@ -1,0 +1,8 @@
+mutation invoicing($input: DataGenerateInvoicesInput!) {
+  invoicing(dataGenerateInvoicesInput: $input) {
+    invoiceQuantityBank
+    valueInvoicingCash
+    invoiceQuantityCash
+    valueInvoicingBank
+  }
+}

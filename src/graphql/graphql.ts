@@ -6949,6 +6949,21 @@ export type UpdateStockInputMutation = {
   };
 };
 
+export type InvoicingMutationVariables = Exact<{
+  input: DataGenerateInvoicesInput;
+}>;
+
+export type InvoicingMutation = {
+  __typename?: 'Mutation';
+  invoicing: {
+    __typename?: 'ResponseInvoicing';
+    invoiceQuantityBank: number;
+    valueInvoicingCash: number;
+    invoiceQuantityCash: number;
+    valueInvoicingBank: number;
+  };
+};
+
 export type CreateOrderMutationVariables = Exact<{
   input: CreateOrderInput;
 }>;
@@ -8839,8 +8854,13 @@ export type InvoicesQuery = {
       __typename?: 'Invoice';
       _id: string;
       active: boolean;
+      number: number;
+      updatedAt: any;
       createdAt: any;
       authorization: { __typename?: 'AuthorizationDian'; prefix: string };
+      user: { __typename?: 'User'; username: string };
+      summary: { __typename?: 'SummaryInvoice'; total: number };
+      shop: { __typename?: 'Shop'; name: string };
       customer: {
         __typename?: 'Customer';
         firstName: string;
@@ -8868,6 +8888,49 @@ export type InvoicesQuery = {
           }[]
         | null;
     }[];
+  };
+};
+
+export type ReportSalesQueryVariables = Exact<{
+  input: FiltersSalesReportInput;
+}>;
+
+export type ReportSalesQuery = {
+  __typename?: 'Query';
+  reportSales: {
+    __typename?: 'ResponseReportSales';
+    customersSalesReport?:
+      | {
+          __typename?: 'CustomerSalesReport';
+          quantity: number;
+          total: number;
+          typeCustomer: { __typename?: 'CustomerType'; name: string };
+        }[]
+      | null;
+    paymentsSalesReport?:
+      | {
+          __typename?: 'PaymentsSalesReport';
+          quantity: number;
+          total: number;
+          payment: { __typename?: 'Payment'; name: string };
+        }[]
+      | null;
+    salesReport?:
+      | {
+          __typename?: 'SalesReport';
+          quantity: number;
+          total: number;
+          category?: { __typename?: 'CategoryLevel1'; name: string } | null;
+          shop: { __typename?: 'Shop'; name: string };
+        }[]
+      | null;
+    summarySalesReport?: {
+      __typename?: 'SummarySalesReport';
+      cmv: number;
+      margin: number;
+      quantity: number;
+      total: number;
+    } | null;
   };
 };
 
@@ -12365,6 +12428,51 @@ export const UpdateStockInputDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateStockInputMutation, UpdateStockInputMutationVariables>;
+export const InvoicingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'invoicing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'DataGenerateInvoicesInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'invoicing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'dataGenerateInvoicesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'invoiceQuantityBank' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueInvoicingCash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'invoiceQuantityCash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueInvoicingBank' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<InvoicingMutation, InvoicingMutationVariables>;
 export const CreateOrderDocument = {
   kind: 'Document',
   definitions: [
@@ -18610,6 +18718,34 @@ export const InvoicesDocument = {
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'prefix' } }],
                         },
                       },
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'summary' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'total' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       {
                         kind: 'Field',
@@ -18703,6 +18839,125 @@ export const InvoicesDocument = {
     },
   ],
 } as unknown as DocumentNode<InvoicesQuery, InvoicesQueryVariables>;
+export const ReportSalesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'reportSales' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersSalesReportInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'reportSales' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersSalesReportInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'customersSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'typeCustomer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'paymentsSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payment' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'salesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'category' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'summarySalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'cmv' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'margin' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReportSalesQuery, ReportSalesQueryVariables>;
 export const OrderIdDocument = {
   kind: 'Document',
   definitions: [
