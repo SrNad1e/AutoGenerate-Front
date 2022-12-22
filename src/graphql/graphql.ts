@@ -9819,6 +9819,7 @@ export type StockTransfersQuery = {
       observationDestination?: string | null;
       details: {
         __typename?: 'DetailTransfer';
+        quantityConfirmed?: number | null;
         quantity: number;
         product: {
           __typename?: 'Product';
@@ -21668,6 +21669,7 @@ export const StockTransfersDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantityConfirmed' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
                             {
                               kind: 'Field',
