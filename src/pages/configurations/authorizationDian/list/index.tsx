@@ -236,43 +236,43 @@ const AuthorizationDianList = () => {
       render: (prefix: string) => <Tag style={styles.tagStyle}>{prefix}</Tag>,
     },
     {
-      title: <Text>{<ShopOutlined />} Tiendas</Text>,
+      title: <Text>{<ShopOutlined />} Tienda</Text>,
       dataIndex: 'shop',
       align: 'center',
       sorter: false,
       showSorterTooltip: false,
-      render: (shop: Shop) => shop?.name,
+      render: (shop: Shop) => (
+        <>
+          <Text>{shop?.name}</Text>
+          <br />
+          <Text>{shop?.address}</Text>
+          <br />
+          <Tag>
+            {<PhoneOutlined />} {shop?.phone || '(No Registra)'}
+          </Tag>
+        </>
+      ),
     },
     {
-      title: <Text>{<PhoneOutlined />} Teléfono</Text>,
-      dataIndex: 'shop',
-      align: 'center',
-      sorter: false,
-      showSorterTooltip: false,
-      render: (shop: Shop) => shop?.phone || '(No Registra)',
-    },
-    {
-      title: <Text>{<MailOutlined />} E-Mail</Text>,
+      title: <Text>{<MailOutlined />} Compañía</Text>,
       dataIndex: 'shop',
       align: 'center',
       sorter: false,
       showSorterTooltip: false,
       width: 150,
-      render: (shop: Shop) => shop?.email || '(No Registra)',
-    },
-    {
-      title: <Text>{<FileDoneOutlined />} NIT</Text>,
-      dataIndex: 'shop',
-      align: 'center',
-      sorter: false,
-      showSorterTooltip: false,
-      render: (shop: Shop) => shop?.document || '(No Registra)',
-    },
-    {
-      title: <Text>{<CalendarOutlined />} Fecha</Text>,
-      dataIndex: 'updatedAt',
-      align: 'center',
-      render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
+      render: (shop: Shop) => (
+        <>
+          <Text>{shop?.companyName || '(No Registra)'}</Text>
+          <br />
+          <Text>
+            {<FileDoneOutlined />} {shop?.document || '(No Registra)'}
+          </Text>
+          <br />
+          <Tag>
+            {<MailOutlined />} {shop?.email || '(No Registra)'}
+          </Tag>
+        </>
+      ),
     },
     {
       title: <Text>{<ReconciliationOutlined />} Resolution</Text>,
@@ -288,7 +288,7 @@ const AuthorizationDianList = () => {
       align: 'center',
       sorter: false,
       showSorterTooltip: false,
-      render: (numberInitial: any) => numberInitial || '(No Registra)',
+      render: (numberInitial: number) => numberInitial || '(No Registra)',
     },
     {
       title: <Text>{<FieldNumberOutlined />} Final</Text>,
@@ -296,7 +296,19 @@ const AuthorizationDianList = () => {
       align: 'center',
       sorter: false,
       showSorterTooltip: false,
-      render: (numberFinal: any) => numberFinal || '(No Registra)',
+      render: (numberFinal: number) => numberFinal || '(No Registra)',
+    },
+    {
+      title: <Text>{<CalendarOutlined />} Fecha Inicial</Text>,
+      dataIndex: 'dateInitial',
+      align: 'center',
+      render: (dateInitial: string) => moment(dateInitial).format('YYYY-MM-DD'),
+    },
+    {
+      title: <Text>{<CalendarOutlined />} Fecha Final</Text>,
+      dataIndex: 'dateFinal',
+      align: 'center',
+      render: (dateFinal: string) => moment(dateFinal).format('YYYY-MM-DD'),
     },
     {
       title: <Text>{<MoreOutlined />} Opción</Text>,
