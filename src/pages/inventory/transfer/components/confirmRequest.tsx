@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Avatar, Badge, Col, Form, Modal, Row, Space, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { DetailRequest, Product, StockTransfer } from '@/graphql/graphql';
 import { ActionDetailTransfer } from '@/graphql/graphql';
@@ -216,6 +216,10 @@ const ConfirmRequest = ({
     updateDetail,
     deleteDetail,
   };
+
+  useEffect(() => {
+    console.log(detailRequest);
+  }, [detailRequest]);
 
   const columns: ColumnsType<StockTransfer> = [
     {
