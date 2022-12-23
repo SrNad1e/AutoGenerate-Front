@@ -27,6 +27,8 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 //import { useHistory } from 'umi';
 import { useGetReportSales } from '@/hooks/reportSales.hooks';
 //import { useGetGoal } from '@/hooks/goal.hooks';
+import React from 'react';
+import 'moment/locale/es-mx';
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
@@ -82,16 +84,15 @@ const Dashboard = () => {
     });
   };
 
-  const orderDays = (month: number, year: number) => {
+  /*const orderDays = (month: number, year: number) => {
     const date = new Date(year, month, 1);
-    console.log(date, 1);
     const days: any[] = [];
     while (date.getMonth() === month) {
       days.push(new Date(date));
       date.setDate(date.getDate() + 1);
     }
     return days;
-  };
+  };*/
 
   const onSearchData = async (filters?: FiltersSalesReportInput) => {
     try {
@@ -124,12 +125,38 @@ const Dashboard = () => {
           }),
         );
 
+        /* const arrOrder: any[] = [];
+        for (let i = 0; i < response?.data?.reportSales?.salesReport?.length; i++) {
+          const item = response?.data?.reportSales?.salesReport[i];
+          const item1 = response?.data?.reportSales?.salesReport[i + 1];
+          const dD = item.date.slice(8, 10);
+          const dD1 = item1?.date.slice(8, 10);
+          const aAA = item.date.slice(0, 4);
+          const mM = item.date.slice(5, 7);
+        }*/
+
+        //console.log(arrOrder);
+
         setSales(
           response?.data?.reportSales?.salesReport?.map((item) => {
-            return {
-              ...item,
-              categoryName: item?.category?.name,
-            };
+            const aAA = item.date.slice(0, 4);
+            const mM = item.date.slice(5, 7);
+            const dD = item.date.slice(8, 10);
+            const dateFormat = `${aAA}-${mM}-${dD}`;
+            /* const totalQuantity = response?.data?.reportSales?.salesReport.reduce(
+              (sum, index) => sum + index.quantity,
+              0,
+            );*/
+            const totalFormat = numeral(item.total).format('$ 0,0');
+
+            console.log(aAA < 2023);
+            if (item)
+              return {
+                ...item,
+                categoryName: item?.category?.name,
+                dateOrder: dateFormat,
+                totalOrder: totalFormat,
+              };
           }),
         );
       }
@@ -146,7 +173,7 @@ const Dashboard = () => {
    * @description se encarga de realizar el proceso de busqueda con los filtros
    * @param props filtros seleccionados en el formulario
    */
-  /*const onFinish = (props: FormValues) => {
+  /* const onFinish = (props: FormValues) => {
     const { dates, groupDates, isGroupByCategory, shopId } = props;
     try {
       const params: Partial<FiltersSalesReportInput> = {
@@ -240,7 +267,8 @@ const Dashboard = () => {
   const config = {
     data: sales,
     isStack: true,
-    xField: 'categoryName',
+    parser: {},
+    xField: 'dateOrder',
     yField: 'quantity',
     seriesField: 'categoryName',
     label: {
@@ -318,8 +346,8 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    console.log(orderDays(11, 2022));
-  }, []);
+    console.log(sales);
+  }, [sales]);
 
   const summaryData = paramsGetReportSales.data?.reportSales?.summarySalesReport;
 

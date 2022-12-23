@@ -15,6 +15,7 @@ query reportSales($input: FiltersSalesReportInput!) {
       total
     }
     salesReport {
+      date
       category {
         name
       }
