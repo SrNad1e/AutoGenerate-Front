@@ -13,28 +13,34 @@ const classes = {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    color: 'black',
   },
   text: {
     fontSize: 18,
+    color: 'black',
   },
   textBold: {
     fontWeight: 'bold',
     marginRight: 18,
+    color: 'black',
   },
   body: {
     width: '100%',
     marginTop: 15,
+    color: 'black',
   },
   bodyHeaders: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     fontWeight: 'bold',
+    color: 'black',
   },
   bodyContent: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
+    color: 'black',
   },
   footer: {
     width: '100%',
@@ -44,6 +50,7 @@ const classes = {
     flexDirection: 'column',
     alignItems: 'end',
     lineHeight: 1.5,
+    color: 'black',
   },
 };
 
@@ -62,7 +69,7 @@ export default class OrderProduction extends React.PureComponent {
     const columnsHeader1 = [
       <div
         key={0}
-        style={{ ...styleBorders, width: '43%', borderBottom: 'none', fontWeight: 'bold' }}
+        style={{ ...styleBorders, width: '42%', borderBottom: 'none', fontWeight: 'bold' }}
       >
         Producto - Referencia
       </div>,
@@ -72,11 +79,11 @@ export default class OrderProduction extends React.PureComponent {
           ...styleBorders,
           borderLeft: 'none',
           borderBottom: 'none',
-          width: '15%',
+          width: '25%',
           fontWeight: 'bold',
         }}
       >
-        Color
+        Color - Color Interno
       </div>,
       <div
         key={4}
@@ -153,7 +160,7 @@ export default class OrderProduction extends React.PureComponent {
           </div>
           <div style={classes.text}>
             <span>Fecha: </span>
-            {moment(data.createdAt).format('YYYY/MM/DD HH:mm:SS')}
+            {moment(data?.closeDate).format('YYYY/MM/DD HH:mm:SS')}
           </div>
           <div style={{ width: '100%', lineHeight: 1.2, marginTop: 10 }}>
             <div style={classes.text}>
@@ -168,9 +175,9 @@ export default class OrderProduction extends React.PureComponent {
               <span style={classes.textBold}>Dirección: </span>
               {data?.address?.field1 || '(N/A)'} {data?.address?.number1 || '(N/A)'}
               {' # '}
-              {data?.address?.loteNumber || '(N/A)'}
+              {data?.address?.number2 || '(N/A)'}
               {' - '}
-              {data?.address?.number2 || '(N/A)'} {data?.address?.city?.name || '(N/A)'} /{' '}
+              {data?.address?.loteNumber || '(N/A)'} {data?.address?.city?.name || '(N/A)'} /{' '}
               {data?.address?.city?.state || '(N/A)'}
             </div>
             <div style={classes.text}>
@@ -193,18 +200,18 @@ export default class OrderProduction extends React.PureComponent {
                   width: '100%',
                 }}
               >
-                <div style={{ ...styleBorders, width: '43%', borderBottom: 'none' }}>
+                <div style={{ ...styleBorders, width: '42%', borderBottom: 'none' }}>
                   {detail?.product?.reference?.description} {detail?.product?.reference?.name}
                 </div>
                 <div
                   style={{
                     ...styleBorders,
                     borderLeft: 'none',
-                    width: '15%',
+                    width: '25%',
                     borderBottom: 'none',
                   }}
                 >
-                  {detail?.product?.color?.name}
+                  {detail?.product?.color?.name} - {detail?.product?.color?.name_internal}
                 </div>
                 <div
                   style={{

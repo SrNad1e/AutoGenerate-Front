@@ -8,34 +8,41 @@ import './styles.css';
 const classes = {
   content: {
     margin: '20px 2cm',
+    color: 'black',
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    color: 'black',
   },
   text: {
     fontSize: 18,
+    color: 'black',
   },
   textBold: {
     fontWeight: 'bold',
     marginRight: 18,
+    color: 'black',
   },
   body: {
     width: '100%',
     marginTop: 15,
+    color: 'black',
   },
   bodyHeaders: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     fontWeight: 'bold',
+    color: 'black',
   },
   bodyContent: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
+    color: 'black',
   },
   footer: {
     width: '100%',
@@ -45,11 +52,13 @@ const classes = {
     flexDirection: 'column',
     alignItems: 'end',
     lineHeight: 1.5,
+    color: 'black',
   },
   title: {
     fontSize: 30,
     fontWeight: 'bold',
     lineHeight: 1,
+    color: 'black',
   },
 };
 

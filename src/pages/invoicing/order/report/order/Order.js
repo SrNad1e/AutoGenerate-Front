@@ -11,40 +11,48 @@ const classes = {
   content: {
     margin: 20,
     maxWidth: '60mm',
+    color: 'black',
   },
   title: {
     textAlign: 'center',
     fontWeight: 'bold',
     lineHeight: 1,
     marginTop: 2,
+    color: 'black',
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    color: 'black',
   },
   text: {
     fontSize: 12,
+    color: 'black',
   },
   textBold: {
     fontWeight: 'bold',
     marginRight: 10,
+    color: 'black',
   },
   body: {
     width: '100%',
     marginTop: 15,
+    color: 'black',
   },
   bodyHeaders: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     fontWeight: 'bold',
+    color: 'black',
   },
   bodyContent: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
+    color: 'black',
   },
   footer: {
     width: '60mm',
@@ -55,15 +63,18 @@ const classes = {
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
     lineHeight: 1.5,
+    color: 'black',
   },
   lineItems: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
+    color: 'black',
   },
   spaceItems: {
     fontWeight: 'bold',
     marginRight: 90,
+    color: 'black',
   },
 };
 
@@ -78,7 +89,7 @@ export default class OrderReport extends React.PureComponent {
           <Barcode value={data?.number} height={50} text={`No. ${data?.number}`} fontSize={12} />
           <div style={classes.text}>
             <div style={classes.title}>TICKET DE VENTA</div>
-            Fecha: {moment(data?.createdAt).format('YYYY/MM/DD HH:mm:ss')}
+            Fecha: {moment(data?.closeDate).format('YYYY/MM/DD HH:mm:ss')}
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>
             <div style={classes.text}>
