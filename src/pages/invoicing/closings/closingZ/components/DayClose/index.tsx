@@ -74,7 +74,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
         (sum, payment) =>
           sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
         0,
-      ) || 0
+      ) || data?.createCloseZInvoicing?.quantityBank
     );
   };
 
