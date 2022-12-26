@@ -238,40 +238,43 @@ const AuthorizationDianList = () => {
     {
       title: <Text>{<ShopOutlined />} Tienda</Text>,
       dataIndex: 'shop',
-      align: 'center',
+      align: 'left',
       sorter: false,
       showSorterTooltip: false,
       render: (shop: Shop) => (
-        <>
+        <Space direction="vertical">
           <Text>{shop?.name}</Text>
-          <br />
-          <Text>{shop?.address}</Text>
-          <br />
           <Tag>
             {<PhoneOutlined />} {shop?.phone || '(No Registra)'}
           </Tag>
-        </>
+        </Space>
       ),
     },
     {
       title: <Text>{<MailOutlined />} Compañía</Text>,
       dataIndex: 'shop',
-      align: 'center',
+      align: 'left',
       sorter: false,
       showSorterTooltip: false,
-      width: 150,
+      width: 200,
       render: (shop: Shop) => (
-        <>
-          <Text>{shop?.companyName || '(No Registra)'}</Text>
-          <br />
-          <Text>
-            {<FileDoneOutlined />} {shop?.document || '(No Registra)'}
-          </Text>
-          <br />
-          <Tag>
-            {<MailOutlined />} {shop?.email || '(No Registra)'}
-          </Tag>
-        </>
+        <Space direction="vertical">
+          <Row>
+            <Col span={24}>
+              <Text>{shop?.companyName || '(No Registra)'}</Text>
+            </Col>
+            <Col span={24}>
+              <Text>
+                {<FileDoneOutlined />} {shop?.document || '(No Registra)'}
+              </Text>
+            </Col>
+            <Col span={8}>
+              <Tag>
+                {<MailOutlined />} {shop?.email || '(No Registra)'}
+              </Tag>
+            </Col>
+          </Row>
+        </Space>
       ),
     },
     {
@@ -302,13 +305,15 @@ const AuthorizationDianList = () => {
       title: <Text>{<CalendarOutlined />} Fecha Inicial</Text>,
       dataIndex: 'dateInitial',
       align: 'center',
-      render: (dateInitial: string) => moment(dateInitial).format('YYYY-MM-DD'),
+      render: (dateInitial: string) =>
+        dateInitial ? moment(dateInitial).format('YYYY-MM-DD') : '(No Registra)',
     },
     {
       title: <Text>{<CalendarOutlined />} Fecha Final</Text>,
       dataIndex: 'dateFinal',
       align: 'center',
-      render: (dateFinal: string) => moment(dateFinal).format('YYYY-MM-DD'),
+      render: (dateFinal: string) =>
+        dateFinal ? moment(dateFinal).format('YYYY-MM-DD') : '(No Registra)',
     },
     {
       title: <Text>{<MoreOutlined />} Opción</Text>,

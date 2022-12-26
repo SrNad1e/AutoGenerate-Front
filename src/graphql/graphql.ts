@@ -1128,6 +1128,8 @@ export type CreditHistory = {
   createdAt: Scalars['DateTime'];
   /** Crédito que genera el movimiento */
   credit: Credit;
+  /** Pedido que gestiona el crédito */
+  order: Order;
   /** Tipo de movimiento de cartera */
   type: TypeCreditHistory;
   /** Fecha de actualización */
@@ -1198,6 +1200,31 @@ export type CustomerType = {
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el tipo de cliente */
+  user: User;
+};
+
+/** Cierre diario */
+export type DailyClosing = {
+  __typename?: 'DailyClosing';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Fecha de cierre */
+  closeDate: Scalars['DateTime'];
+  /** Compañía a la que pertence el cierre */
+  company: Company;
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Facturas del cierre */
+  invoices: Invoice[];
+  /** Punto de venta que registra el cierre */
+  pointOfSale: PointOfSale;
+  /** Resumen del cierre */
+  summary: SummaryClose;
+  /** Resumen de pagos del cierre */
+  summaryPayments: SummaryPayment[];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó el cierre */
   user: User;
 };
 
@@ -1888,6 +1915,21 @@ export type FiltersCustomersInput = {
   sort?: InputMaybe<SortCustomer>;
 };
 
+/** Filtros para cierre fiscal */
+export type FiltersDailyClosing = {
+  /** Fecha final del cierre del cierre */
+  dateFinal?: InputMaybe<Scalars['String']>;
+  /** Fecha inicial del cierre del cierre */
+  dateInitial?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  pointOfSaleId?: InputMaybe<Scalars['String']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortDailyClosing>;
+};
+
 /** Filtros para consultar las reglas de descuentos */
 export type FiltersDiscountRulesInput = {
   /** Si el descuento se encuentra activo */
@@ -1984,6 +2026,8 @@ export type FiltersInvoicesInput = {
   limit?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
+  /** Identificador del punto de venta */
+  pointOfSaleId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortInovice>;
 };
@@ -2401,6 +2445,16 @@ export type FiltersWarehousesInput = {
   sort?: InputMaybe<SortWarehouse>;
 };
 
+/** Datos para crear cierre diario por fechas */
+export type GenerateDailyClosingInput = {
+  /** Fecha inicial */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial */
+  dateInitial: Scalars['String'];
+  /** Id de punto de venta */
+  pointOfSaleId: Scalars['String'];
+};
+
 export enum GroupDates {
   Day = 'DAY',
   Month = 'MONTH',
@@ -2454,6 +2508,8 @@ export type Invoice = {
   details?: Maybe<DetailInvoice[]>;
   /** Número de factura */
   number: Scalars['Float'];
+  /** Pedido basado para la factura */
+  order: Order;
   /** Métodos de pago usados en la factura */
   payments?: Maybe<PaymentInvoice[]>;
   /** Tienda donde se realiza la factura */
@@ -2562,6 +2618,8 @@ export type Mutation = {
   createUser: User;
   /** Crea una bodega */
   createWarehouse: Warehouse;
+  /** Genera los cierres diarios */
+  generateDailyClosing: ResponseGenerateDailyClosing;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
   /** Generador de facturas */
@@ -2787,6 +2845,10 @@ export type MutationCreateUserArgs = {
 
 export type MutationCreateWarehouseArgs = {
   createWarehouseInput: CreateWarehouseInput;
+};
+
+export type MutationGenerateDailyClosingArgs = {
+  generateDailyClosingInput?: InputMaybe<GenerateDailyClosingInput>;
 };
 
 export type MutationGenerateStockRequestArgs = {
@@ -3218,6 +3280,7 @@ export enum Permissions {
   CreateTreasuryExpense = 'CREATE_TREASURY_EXPENSE',
   CreateTreasuryPayment = 'CREATE_TREASURY_PAYMENT',
   CreateTreasuryReceipt = 'CREATE_TREASURY_RECEIPT',
+  GenerateInvoicingDailyClosing = 'GENERATE_INVOICING_DAILY_CLOSING',
   InventoryTransfersVerified = 'INVENTORY_TRANSFERS_VERIFIED',
   PrintCrmCoupon = 'PRINT_CRM_COUPON',
   PrintInventoryAdjustment = 'PRINT_INVENTORY_ADJUSTMENT',
@@ -3259,6 +3322,7 @@ export enum Permissions {
   ReadInvoicingAuthorizations = 'READ_INVOICING_AUTHORIZATIONS',
   ReadInvoicingClosesx = 'READ_INVOICING_CLOSESX',
   ReadInvoicingClosesz = 'READ_INVOICING_CLOSESZ',
+  ReadInvoicingDailyClosing = 'READ_INVOICING_DAILY_CLOSING',
   ReadInvoicingInvoices = 'READ_INVOICING_INVOICES',
   ReadInvoicingOrders = 'READ_INVOICING_ORDERS',
   ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
@@ -3399,6 +3463,8 @@ export type Query = {
   customerTypes: ResponseCustomerTypes;
   /** Listado de clientes */
   customers: ResponseCustomers;
+  /** Lista de cierres fiscales */
+  dailyClosings: ResponseDailyClosing;
   /** Listado de descuentos */
   discountRules: ResponseDiscountRules;
   /** Listado de tipos de documento */
@@ -3561,6 +3627,10 @@ export type QueryCustomerTypesArgs = {
 
 export type QueryCustomersArgs = {
   filtersCustomerInput?: InputMaybe<FiltersCustomersInput>;
+};
+
+export type QueryDailyClosingsArgs = {
+  filtersDailyClosing?: InputMaybe<FiltersDailyClosing>;
 };
 
 export type QueryDiscountRulesArgs = {
@@ -4230,6 +4300,30 @@ export type ResponseCustomers = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de cierres fiscales */
+export type ResponseDailyClosing = {
+  __typename?: 'ResponseDailyClosing';
+  /** Lista de cierres fiscales */
+  docs: DailyClosing[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta del listado de reglas de descuento */
 export type ResponseDiscountRules = {
   __typename?: 'ResponseDiscountRules';
@@ -4300,6 +4394,15 @@ export type ResponseExpenses = {
   totalDocs: Scalars['Float'];
   /** Total de páginas */
   totalPages: Scalars['Float'];
+};
+
+/** Respuesta de la creación de los cierres diarios de facturación */
+export type ResponseGenerateDailyClosing = {
+  __typename?: 'ResponseGenerateDailyClosing';
+  /** Mensaje de respuesta */
+  message: Scalars['String'];
+  /** Cantidad de cierres diarios creados */
+  quantity: Scalars['Float'];
 };
 
 /** Datos resultado de la consulta de Estado de la meta */
@@ -5198,6 +5301,14 @@ export type SortCustomer = {
   phone?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de cierre z */
+export type SortDailyClosing = {
+  /** Ordenamiento por fecha de cierre */
+  closeDate?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Datos para el ordenamiento */
 export type SortDiscountRule = {
   active?: InputMaybe<Scalars['Float']>;
@@ -5732,6 +5843,17 @@ export type StockTransferError = {
   verified: Scalars['Boolean'];
 };
 
+/** Resumen del cierre */
+export type SummaryClose = {
+  __typename?: 'SummaryClose';
+  /** Subtotal del cierre */
+  subtotal: Scalars['Float'];
+  /** Impuestos del cierre */
+  tax: Scalars['Float'];
+  /** Total del cierre */
+  total: Scalars['Float'];
+};
+
 /** Resumen de la factura */
 export type SummaryInvoice = {
   __typename?: 'SummaryInvoice';
@@ -5781,6 +5903,17 @@ export type SummaryOrderClose = {
   value: Scalars['Float'];
   /** Valor de los cupones redimidos */
   valueCoupons: Scalars['Float'];
+};
+
+/** Resumen pagos del cierre */
+export type SummaryPayment = {
+  __typename?: 'SummaryPayment';
+  /** Medios de pago */
+  payment: Payment;
+  /** Cantidad */
+  quantity: Scalars['Float'];
+  /** Total pagado */
+  total: Scalars['Float'];
 };
 
 /** Resumen de ventas */
@@ -8059,6 +8192,7 @@ export type AuthorizationsQuery = {
       numberFinal?: number | null;
       shop: {
         __typename?: 'Shop';
+        _id: string;
         name: string;
         email?: string | null;
         phone?: string | null;
@@ -16542,6 +16676,7 @@ export const AuthorizationsDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'phone' } },

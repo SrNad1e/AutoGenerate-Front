@@ -13,6 +13,7 @@ query authorizations($input: FiltersAuthorizationInput) {
       numberInitial
       numberFinal
       shop {
+        _id
         name
         email
         phone
