@@ -830,12 +830,16 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
               <Tooltip title="Reversar Pago">
                 <Button
                   disabled={
-                    (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
-                    (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
-                    detail.status === StatusOrderDetail.New ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled
+                    detail.status === StatusOrderDetail.New
+                      ? true
+                      : initialState?.currentUser?.role.name === 'Administrador'
+                      ? false
+                      : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                        (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled ||
+                        orderData?.statusWeb === StatusWeb.PaymentConfirmed
                   }
                   loading={
                     paramsAddPayment?.loading ||
@@ -852,13 +856,17 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
             <Tooltip title="Confirmar pago">
               <Button
                 disabled={
-                  (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
-                  (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
-                  detail?.status === StatusOrderDetail.Confirmed ||
-                  balance > 0 ||
-                  orderData?.statusWeb === StatusWeb.Sent ||
-                  orderData?.status === StatusOrder.Closed ||
-                  orderData?.statusWeb === StatusWeb.Cancelled
+                  detail?.status === StatusOrderDetail.Confirmed
+                    ? true
+                    : initialState?.currentUser?.role.name === 'Administrador'
+                    ? false
+                    : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                      (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
+                      balance > 0 ||
+                      orderData?.statusWeb === StatusWeb.Sent ||
+                      orderData?.status === StatusOrder.Closed ||
+                      orderData?.statusWeb === StatusWeb.Cancelled ||
+                      orderData?.statusWeb === StatusWeb.PaymentConfirmed
                 }
                 loading={
                   paramsAddPayment?.loading ||
@@ -876,12 +884,15 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
               <Tooltip title={editable ? 'Guardar Valor' : 'Editar Valor'} placement="topLeft">
                 <Button
                   disabled={
-                    (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
-                    (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
-                    detail?.status === StatusOrderDetail.Confirmed ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled
+                    initialState?.currentUser?.role.name === 'Administrador'
+                      ? false
+                      : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                        (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
+                        detail?.status === StatusOrderDetail.Confirmed ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled ||
+                        orderData?.statusWeb === StatusWeb.PaymentConfirmed
                   }
                   loading={
                     paramsAddPayment?.loading ||
@@ -899,11 +910,14 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
             <Tooltip title="Eliminar">
               <Button
                 disabled={
-                  (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
-                  detail?.status === StatusOrderDetail.Confirmed ||
-                  orderData?.statusWeb === StatusWeb.Sent ||
-                  orderData?.status === StatusOrder.Closed ||
-                  orderData?.statusWeb === StatusWeb.Cancelled
+                  initialState?.currentUser?.role.name === 'Administrador'
+                    ? false
+                    : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                      detail?.status === StatusOrderDetail.Confirmed ||
+                      orderData?.statusWeb === StatusWeb.Sent ||
+                      orderData?.status === StatusOrder.Closed ||
+                      orderData?.statusWeb === StatusWeb.Cancelled ||
+                      orderData?.statusWeb === StatusWeb.PaymentConfirmed
                 }
                 danger
                 type="primary"
@@ -940,10 +954,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                     paramsGetCoupon?.loading
                   }
                   disabled={
-                    orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled
+                    initialState?.currentUser?.role.name === 'Administrador'
+                      ? false
+                      : orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled
                   }
                   type="primary"
                   icon={<SaveOutlined />}
@@ -955,11 +971,13 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
               {tabKey !== '4' && (
                 <Button
                   disabled={
-                    balance === 0 ||
-                    change > 0 ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled
+                    initialState?.currentUser?.role.name === 'Administrador'
+                      ? false
+                      : balance === 0 ||
+                        change > 0 ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled
                   }
                   loading={
                     paramsAddPayment?.loading ||
@@ -982,14 +1000,16 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                   style={styles.buttonR}
                   icon={<CheckCircleOutlined />}
                   disabled={
-                    balance > 0 ||
-                    validateAllPayConfirmed() ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled ||
-                    orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
-                    orderData?.statusWeb === StatusWeb.Preparing ||
-                    orderData?.statusWeb === StatusWeb.Delivered
+                    initialState?.currentUser?.role.name === 'Administrador'
+                      ? false
+                      : balance > 0 ||
+                        validateAllPayConfirmed() ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled ||
+                        orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
+                        orderData?.statusWeb === StatusWeb.Preparing ||
+                        orderData?.statusWeb === StatusWeb.Delivered
                   }
                   onClick={() => onPayOrder()}
                   loading={
