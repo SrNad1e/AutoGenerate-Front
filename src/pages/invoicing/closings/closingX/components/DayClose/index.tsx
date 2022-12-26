@@ -94,17 +94,17 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     return total + totalExpenses - (totalCash + paymentCreditCash);
   };
 
+  const quantityCreditBank = data?.createCloseXInvoicing?.paymentsCredit?.reduce(
+    (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
+    0,
+  );
+
   const getDifferenceBank = () => {
-    return (data?.createCloseXInvoicing?.quantityBank || 0) - getTotalBank();
+    return (data?.createCloseXInvoicing?.quantityBank || 0) - (getTotalBank() + quantityCreditBank);
   };
 
   const totalExpenses = data?.createCloseXInvoicing?.expenses?.reduce(
     (sum, expense) => sum + expense?.value,
-    0,
-  );
-
-  const quantityCreditBank = data?.createCloseXInvoicing?.paymentsCredit?.reduce(
-    (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
     0,
   );
 
@@ -115,10 +115,8 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     0,
   );
 
-  const diffBank =
-    data?.createCloseXInvoicing?.quantityBank +
-    quantityCreditBank -
-    (quantityBank + quantityCreditBank);
+  const diffBank = data?.createCloseXInvoicing?.quantityBank - (quantityBank + quantityCreditBank);
+
   /**
    * @description se encarga de cerrar la alerta informativa
    */
@@ -408,7 +406,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Text>{getTotalBank()}</Text>
+              <Text>{getTotalBank() + quantityCreditBank}</Text>
             </Col>
             <Col span={20}>
               <Text strong>Transacciones reportadas:</Text>

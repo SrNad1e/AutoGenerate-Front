@@ -132,9 +132,7 @@ export default class ReportCloseZ extends React.PureComponent {
 
     const diff = totalCashRegister + totalExpenses - (totalCash + paymentCreditCash);
     const diffBank =
-      data?.quantityBank +
-      quantityCreditBank -
-      ((quantityBank || data?.quantityBank) + quantityCreditBank);
+      data?.quantityBank - ((quantityBank || data?.quantityBank) + quantityCreditBank);
 
     return (
       <div style={classes.content}>
