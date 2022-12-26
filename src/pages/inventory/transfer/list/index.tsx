@@ -463,7 +463,6 @@ const TransferList = () => {
                   <Tooltip title="Comparación">
                     <Button
                       type="default"
-                      disabled={!canPrint}
                       onClick={() => printComparative(record?.details)}
                       icon={<FileTextOutlined />}
                     />
