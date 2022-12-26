@@ -46,6 +46,7 @@ const Header = ({
     type: 'error',
     visible: false,
   });
+  const [saveDetails, setSaveDetails] = useState([]);
   const [detailsRequest, setDetailsRequest] = useState<DetailRequest[]>([]);
   const [visibleConfirmRequest, setVisibleConfirmRequest] = useState(false);
 
@@ -137,7 +138,11 @@ const Header = ({
           }
           return item;
         });
-        setDetailsRequest([...newDetails.concat(create)]);
+        if (saveDetails.length > 0) {
+          setDetailsRequest([...saveDetails]);
+        } else {
+          setDetailsRequest([...newDetails.concat(create)]);
+        }
       }
     } catch (error: any) {
       onShowError(error?.message);
@@ -201,6 +206,8 @@ const Header = ({
         </DescriptionsItem>
       </Descriptions>
       <SearchRequest
+        setSaveDetails={setSaveDetails}
+        saveDetails={saveDetails}
         details={details}
         setRequests={setRequests}
         setDetails={setDetails}

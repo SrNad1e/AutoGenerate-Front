@@ -535,10 +535,6 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     },
   ];
 
-  useEffect(() => {
-    console.log(withCode);
-  }, [withCode]);
-
   return (
     <>
       <Header

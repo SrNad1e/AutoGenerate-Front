@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Avatar, Badge, Col, Form, Modal, Row, Space, Table, Tag, Typography } from 'antd';
+import { Avatar, Badge, Button, Col, Form, Modal, Row, Space, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { DetailRequest, Product, StockTransfer } from '@/graphql/graphql';
 import { ActionDetailTransfer } from '@/graphql/graphql';
@@ -9,7 +9,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectProducts from '@/components/SelectProducts';
 import { useModel } from 'umi';
-import { BarcodeOutlined } from '@ant-design/icons';
+import { BarcodeOutlined, SaveOutlined } from '@ant-design/icons';
 import AlertConfirm from '@/components/Alerts/AlertConfirm';
 import type { Props as PropsAlertConfirm } from '@/components/Alerts/AlertConfirm';
 
@@ -30,6 +30,8 @@ export type Params = {
   setRequest: any;
   request: any;
   setRequesSelected: any;
+  setSaveDetails: any;
+  saveDetails: any[];
 };
 
 const ConfirmRequest = ({
@@ -46,6 +48,8 @@ const ConfirmRequest = ({
   request,
   setRequesSelected,
   used,
+  setSaveDetails,
+  saveDetails,
 }: Params) => {
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -58,6 +62,8 @@ const ConfirmRequest = ({
     visible: false,
     arr: detailRequest,
   });
+  const [isDisabled, setIsDisabled] = useState(false);
+
   const [, /*withCode*/ setWithCode] = useState(false);
   const { initialState } = useModel('@@initialState');
 
@@ -120,6 +126,21 @@ const ConfirmRequest = ({
     }
   };
 
+  const onDisabledSaved = () => {
+    let isD = false;
+    for (let i = 0; i < detailRequest.length; i++) {
+      if (
+        saveDetails.length > 0 &&
+        detailRequest[i]?.product?._id === saveDetails[i]?.product?._id &&
+        detailRequest[i]?.quantity === saveDetails[i]?.quantity
+      ) {
+        isD = true;
+      }
+    }
+
+    setIsDisabled(isD);
+  };
+
   /**
    * @description elimina un producto
    * @param _id identificador del producto a eliminar
@@ -174,6 +195,7 @@ const ConfirmRequest = ({
         }
       }
       setDetailRequest(newDetails);
+      await onDisabledSaved();
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -209,6 +231,16 @@ const ConfirmRequest = ({
     }
   };
 
+  const onSaveDetails = () => {
+    if (saveDetails.length > 0) {
+      setSaveDetails([...detailRequest]);
+      // setUsed([...keysSelected, ...used]);
+    } else {
+      setSaveDetails([...detailRequest]);
+      //setUsed([...keysSelected, ...used]);
+    }
+  };
+
   const propsSearchProduct = {
     details: detailRequest?.filter((item) => item.action !== ActionDetailTransfer.Delete),
     warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
@@ -216,6 +248,10 @@ const ConfirmRequest = ({
     updateDetail,
     deleteDetail,
   };
+
+  useEffect(() => {
+    console.log(detailRequest, saveDetails);
+  }, [detailRequest, saveDetails]);
 
   const columns: ColumnsType<StockTransfer> = [
     {
@@ -288,9 +324,20 @@ const ConfirmRequest = ({
       cancelButtonProps={{ style: { borderRadius: 5 } }}
     >
       <Space size="middle" style={{ width: '100%' }} direction="vertical">
-        <Form layout="horizontal">
-          <FormItem label="" style={{ width: '100%' }} name="search">
+        <Form layout="inline">
+          <FormItem label="" style={{ width: '80%' }} name="search">
             <SelectProducts {...propsSearchProduct} order={true} setWithStock={setWithCode} />
+          </FormItem>
+          <FormItem label="" style={{ marginTop: 40 }}>
+            <Button
+              style={{ borderRadius: 5 }}
+              icon={<SaveOutlined />}
+              type="primary"
+              disabled={isDisabled}
+              onClick={() => onSaveDetails()}
+            >
+              Guardar
+            </Button>
           </FormItem>
         </Form>
         <Table columns={columns} dataSource={detailRequest} />
