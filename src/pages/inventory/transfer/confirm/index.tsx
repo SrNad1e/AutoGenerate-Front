@@ -274,6 +274,9 @@ const ConfirmTransfer = () => {
       setError(e?.message);
     }
   };
+  useEffect(() => {
+    console.log(details);
+  }, [details]);
 
   const confirmProducts = () => {
     try {
