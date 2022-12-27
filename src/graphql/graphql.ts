@@ -1201,6 +1201,18 @@ export type CustomerType = {
   user: User;
 };
 
+/** Datos para generar la facturación */
+export type DataGenerateInvoicesInput = {
+  /** Efectivo para facturar */
+  cash: Scalars['Float'];
+  /** Fecha final para la facturación */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial para la facturación */
+  dateInitial: Scalars['String'];
+  /** Identificador de la tienda a facturar */
+  shopId: Scalars['String'];
+};
+
 /** Detalle para agregar al crédito */
 export type DetailAddCredit = {
   /** Pedido que afecta la cartera */
@@ -2552,6 +2564,8 @@ export type Mutation = {
   createWarehouse: Warehouse;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
+  /** Generador de facturas */
+  invoicing: ResponseInvoicing;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
   login: LoginResponse;
   /** Se encarga de enviar correo de recuperación de contraseña */
@@ -2777,6 +2791,10 @@ export type MutationCreateWarehouseArgs = {
 
 export type MutationGenerateStockRequestArgs = {
   shopId: Scalars['String'];
+};
+
+export type MutationInvoicingArgs = {
+  dataGenerateInvoicesInput: DataGenerateInvoicesInput;
 };
 
 export type MutationLoginArgs = {
@@ -4339,6 +4357,19 @@ export type ResponseInvoices = {
   totalDocs: Scalars['Float'];
   /** Total de páginas */
   totalPages: Scalars['Float'];
+};
+
+/** Resultado de facturación */
+export type ResponseInvoicing = {
+  __typename?: 'ResponseInvoicing';
+  /** Cantidad de facturas generadas */
+  invoiceQuantityBank: Scalars['Float'];
+  /** Cantidad de facturas generadas */
+  invoiceQuantityCash: Scalars['Float'];
+  /** Valor total facturado */
+  valueInvoicingBank: Scalars['Float'];
+  /** Valor total facturado */
+  valueInvoicingCash: Scalars['Float'];
 };
 
 /** Respuesta para obtener la orden */
@@ -8011,6 +8042,14 @@ export type AuthorizationsQuery = {
       dateFinal?: any | null;
       numberInitial?: number | null;
       numberFinal?: number | null;
+      shop: {
+        __typename?: 'Shop';
+        name: string;
+        email?: string | null;
+        phone?: string | null;
+        document?: string | null;
+        address?: string | null;
+      };
     }[];
   };
 };
@@ -9484,7 +9523,20 @@ export type ReferenceIdQuery = {
           }[]
         | null;
     };
-    categoryLevel2?: { __typename?: 'CategoryLevel2'; _id: string } | null;
+    categoryLevel2?: {
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      parentId?: string | null;
+      name?: string | null;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel3';
+            parentId?: string | null;
+            _id: string;
+            name?: string | null;
+          }[]
+        | null;
+    } | null;
     categoryLevel3?: {
       __typename?: 'CategoryLevel3';
       _id: string;
@@ -9771,6 +9823,9 @@ export type ShopsQuery = {
       updatedAt: any;
       address?: string | null;
       goal: number;
+      email?: string | null;
+      document?: string | null;
+      companyName?: string | null;
       phone?: string | null;
       isMain: boolean;
       user: { __typename?: 'User'; name: string };
@@ -16373,6 +16428,20 @@ export const AuthorizationsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'dateFinal' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'numberInitial' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'numberFinal' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -20616,7 +20685,23 @@ export const ReferenceIdDocument = {
                   name: { kind: 'Name', value: 'categoryLevel2' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                    ],
                   },
                 },
                 {
@@ -21536,6 +21621,9 @@ export const ShopsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'address' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'goal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'companyName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
                       {
                         kind: 'Field',
