@@ -254,7 +254,7 @@ const AuthorizationDianList = () => {
       ),
     },
     {
-      title: <Text>{<MailOutlined />} Compañía</Text>,
+      title: <Text>{<MailOutlined />} Nombre comercial</Text>,
       dataIndex: 'shop',
       align: 'center',
       sorter: false,

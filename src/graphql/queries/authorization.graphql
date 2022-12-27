@@ -18,6 +18,7 @@ query authorizations($input: FiltersAuthorizationInput) {
         phone
         document
         address
+        companyName
       }
     }
   }
