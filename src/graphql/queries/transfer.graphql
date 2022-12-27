@@ -137,6 +137,8 @@ query stockTransfersError($input: FiltersStockTransfersErrorInput) {
           }
           color {
             name
+            name_internal
+            html
           }
           barcode
         }

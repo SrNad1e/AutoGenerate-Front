@@ -67,7 +67,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
     message: '',
     type: 'error',
   });
-  const [propsAlertConfirm, setPropsAlertConfirm] = useState<PropsAlertConfirm>({
+  const [propsAlertConfirm, setPropsAlertConfirm] = useState<Partial<PropsAlertConfirm>>({
     message: '',
     type: 'warning',
     visible: false,
@@ -309,12 +309,14 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
   const updateDetail = async (product: Product, quantity: number) => {
     const newDetails = [];
     try {
-      const firstvalue = await document.getElementsByClassName('ant-input-number-input').item(1);
+      const firstvalue = await document.getElementsByClassName('ant-input-number-input').item(0);
       await firstvalue?.setAttribute('id', 'quantitySelect');
       const firstElement = await document.getElementById(firstvalue?.id);
-      if (!withCode) {
-        firstElement?.focus();
-      }
+
+      await firstElement?.focus();
+
+      console.log(firstElement);
+
       const value = await document.getElementsByClassName('ant-table-body').item(0);
       value.scrollTop = 0;
       for (let i = 0; i < details.length; i++) {
@@ -357,8 +359,11 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
             setDetails(newDetails);
           });
         } else {
-          setPropsAlertConfirm({
-            message: 'El producto que intenta agregar no existe en la solicitud, ¿desea agregarlo?',
+          await setPropsAlertConfirm({
+            message:
+              requests.length > 1
+                ? 'El producto que intenta agregar no existe en las solicitudes, ¿desea agregarlo?'
+                : 'El producto que intenta agregar no existe en la solicitud, ¿desea agregarlo?',
             type: 'warning',
             visible: true,
             onOk: setDetails([
@@ -501,7 +506,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
         <InputNumber
           defaultValue={0}
           value={quantity || 0}
-          min={0}
+          min={1}
           max={product?.stock ? product?.stock[0]?.quantity : 10}
           onChange={(value) => updateDetail(product as Product, value)}
           disabled={!allowEdit || withCode}
@@ -529,6 +534,10 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       ),
     },
   ];
+
+  useEffect(() => {
+    console.log(withCode);
+  }, [withCode]);
 
   return (
     <>

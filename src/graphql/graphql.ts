@@ -204,6 +204,8 @@ export type AuthorizationDian = {
   qualification: Scalars['Boolean'];
   /** Resolución de la autorización o de la habilitación */
   resolution?: Maybe<Scalars['String']>;
+  /** Tienda a la que pertenece */
+  shop: Shop;
   /** Fecha de actualización */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó la autorización de facturación */
@@ -663,6 +665,8 @@ export type CreateAuthorizationInput = {
   qualification?: InputMaybe<Scalars['Boolean']>;
   /** resolución de facturacion */
   resolution?: InputMaybe<Scalars['String']>;
+  /** Id de la tienda */
+  shopId: Scalars['String'];
 };
 
 /** Datos para crear la caja */
@@ -4874,6 +4878,8 @@ export type SalesReport = {
   __typename?: 'SalesReport';
   /** Categoría */
   category?: Maybe<CategoryLevel1>;
+  /** Fecha de la venta */
+  date: Scalars['DateTime'];
   /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
   quantity: Scalars['Float'];
   /** Tienda */
@@ -5832,6 +5838,8 @@ export type UpdateAuthorizationInput = {
   qualification?: InputMaybe<Scalars['Boolean']>;
   /** resolución de facturacion */
   resolution?: InputMaybe<Scalars['String']>;
+  /** Id de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para actualizar caja */
@@ -9930,7 +9938,7 @@ export type StockTransfersErrorQuery = {
           barcode: string;
           size: { __typename?: 'Size'; value: string };
           reference: { __typename?: 'Reference'; name: string };
-          color: { __typename?: 'Color'; name: string };
+          color: { __typename?: 'Color'; name: string; name_internal: string; html: string };
         };
       }[];
       stockTransfer: {
@@ -22092,6 +22100,11 @@ export const StockTransfersErrorDocument = {
                                       kind: 'SelectionSet',
                                       selections: [
                                         { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'name_internal' },
+                                        },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'html' } },
                                       ],
                                     },
                                   },
