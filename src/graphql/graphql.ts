@@ -8183,6 +8183,7 @@ export type AuthorizationsQuery = {
         phone?: string | null;
         document?: string | null;
         address?: string | null;
+        companyName?: string | null;
       };
     }[];
   };
@@ -16574,6 +16575,7 @@ export const AuthorizationsDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'companyName' } },
                           ],
                         },
                       },
