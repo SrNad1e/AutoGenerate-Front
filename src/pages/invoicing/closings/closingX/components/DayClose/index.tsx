@@ -70,12 +70,9 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
   };
 
   const getTotalBank = () => {
-    return (
-      data?.createCloseXInvoicing?.payments?.reduce(
-        (sum, payment) =>
-          sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
-        0,
-      ) || data?.createCloseXInvoicing?.quantityBank
+    return data?.createCloseXInvoicing?.payments?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
+      0,
     );
   };
 
