@@ -97,10 +97,6 @@ const TransferProducts = ({ onCancel, visible, data, loading }: Props) => {
     }
   }, [data]);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
   const columns: ColumnsType<DetailTransferError> = [
     {
       title: 'Referencia',

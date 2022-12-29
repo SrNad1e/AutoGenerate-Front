@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Avatar, Badge, Button, Col, Form, Modal, Row, Space, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { message as messages } from 'antd';
 
 import type { DetailRequest, Product, StockTransfer } from '@/graphql/graphql';
 import { ActionDetailTransfer } from '@/graphql/graphql';
@@ -33,6 +34,10 @@ export type Params = {
   setSaveDetails: any;
   saveDetails: any[];
 };
+/*
+Ajustar boton de guardar al agregar un producto que no existe en la solicitud inicial
+
+*/
 
 const ConfirmRequest = ({
   visible,
@@ -49,7 +54,6 @@ const ConfirmRequest = ({
   setRequesSelected,
   used,
   setSaveDetails,
-  saveDetails,
 }: Params) => {
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -62,7 +66,7 @@ const ConfirmRequest = ({
     visible: false,
     arr: detailRequest,
   });
-  const [isDisabled, setIsDisabled] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
 
   const [, /*withCode*/ setWithCode] = useState(false);
   const { initialState } = useModel('@@initialState');
@@ -76,6 +80,16 @@ const ConfirmRequest = ({
       message,
       type: 'error',
       visible: true,
+    });
+  };
+
+  /**
+   *@description funcion usada para mostrar mensaje de éxito
+   * @param message mensaje a mostrar
+   */
+  const alertSuccess = (message: string) => {
+    messages.success({
+      content: message,
     });
   };
 
@@ -124,21 +138,6 @@ const ConfirmRequest = ({
         visible: true,
       });
     }
-  };
-
-  const onDisabledSaved = () => {
-    let isD = false;
-    for (let i = 0; i < detailRequest.length; i++) {
-      if (
-        saveDetails.length > 0 &&
-        detailRequest[i]?.product?._id === saveDetails[i]?.product?._id &&
-        detailRequest[i]?.quantity === saveDetails[i]?.quantity
-      ) {
-        isD = true;
-      }
-    }
-
-    setIsDisabled(isD);
   };
 
   /**
@@ -194,8 +193,8 @@ const ConfirmRequest = ({
           newDetails.push(detailRequest[i]);
         }
       }
+      setIsDisabled(false);
       setDetailRequest(newDetails);
-      await onDisabledSaved();
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -232,26 +231,18 @@ const ConfirmRequest = ({
   };
 
   const onSaveDetails = () => {
-    if (saveDetails.length > 0) {
-      setSaveDetails([...detailRequest]);
-      // setUsed([...keysSelected, ...used]);
-    } else {
-      setSaveDetails([...detailRequest]);
-      //setUsed([...keysSelected, ...used]);
-    }
+    setSaveDetails([...detailRequest]);
+    setIsDisabled(true);
+    alertSuccess('Productos Guardados Correctamente');
   };
 
   const propsSearchProduct = {
-    details: detailRequest?.filter((item) => item.action !== ActionDetailTransfer.Delete),
+    details: detailRequest?.filter((item) => item?.action !== ActionDetailTransfer.Delete),
     warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
     createDetail,
     updateDetail,
     deleteDetail,
   };
-
-  useEffect(() => {
-    console.log(detailRequest, saveDetails);
-  }, [detailRequest, saveDetails]);
 
   const columns: ColumnsType<StockTransfer> = [
     {
@@ -345,6 +336,8 @@ const ConfirmRequest = ({
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <AlertConfirm
         {...propsAlertConfirm}
+        setIsDisabled={setIsDisabled}
+        setSaveDetails={setSaveDetails}
         details={details}
         onCloseConfirm={onCancel}
         onCancel={onCancelAlertConfirm}

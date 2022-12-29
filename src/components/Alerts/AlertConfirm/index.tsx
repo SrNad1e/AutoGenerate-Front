@@ -28,6 +28,8 @@ export type Props = {
   setDetailRequest?: any;
   setRequestSelected?: any;
   used?: string[];
+  setSaveDetails?: any;
+  setIsDisabled: any;
 };
 
 const selectIcon = (type: TYPES, style: React.CSSProperties | undefined): JSX.Element => {
@@ -61,6 +63,8 @@ const AlertConfirm = ({
   setDetailRequest,
   setRequestSelected,
   used,
+  setSaveDetails,
+  setIsDisabled,
 }: Props) => {
   const color = TypesAlert[type]?.color;
   const style = useStyle(color);
@@ -76,10 +80,12 @@ const AlertConfirm = ({
       }
     } else {
       if (discardProduct) {
+        setIsDisabled(false);
         onCancel();
       }
       if (arr && !discardProduct) {
         setDetail([...arr, ...details]);
+        setSaveDetails([]);
       }
       if (!discardProduct) {
         await onCancel();
