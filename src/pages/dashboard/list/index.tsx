@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/rules-of-hooks */
 import SelectShop from '@/components/SelectShop';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -18,7 +19,7 @@ import { Column, Pie, Bullet } from '@ant-design/plots';
 import numeral from 'numeral';
 import { ClearOutlined, SearchOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-//import type { Moment } from 'moment';
+import type { Moment } from 'moment';
 import moment from 'moment';
 import type { FiltersSalesReportInput } from '@/graphql/graphql';
 import { GroupDates } from '@/graphql/graphql';
@@ -35,12 +36,12 @@ const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Title, Text } = Typography;
 
-/*type FormValues = {
+type FormValues = {
   shopId?: string;
   groupDates: GroupDates;
   isGroupByCategory: boolean;
   dates: Moment[];
-};*/
+};
 
 const Dashboard = () => {
   const [period, setPeriod] = useState(true);
@@ -50,9 +51,9 @@ const Dashboard = () => {
     visible: false,
   });
   const [agroup, setAgroup] = useState(true);
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [typePayment, setTypePayment] = useState([]);
-  const [sales, setSales] = useState([]);
+  const [customers, setCustomers] = useState<Partial<any[]>>([]);
+  const [typePayment, setTypePayment] = useState<Partial<any[]>>([]);
+  const [sales, setSales] = useState<Partial<any[]>>([]);
   const [shopSelected, setShopSelected] = useState(false);
 
   const [getReportSales, paramsGetReportSales] = useGetReportSales();
@@ -125,38 +126,64 @@ const Dashboard = () => {
           }),
         );
 
-        /* const arrOrder: any[] = [];
-        for (let i = 0; i < response?.data?.reportSales?.salesReport?.length; i++) {
-          const item = response?.data?.reportSales?.salesReport[i];
-          const item1 = response?.data?.reportSales?.salesReport[i + 1];
-          const dD = item.date.slice(8, 10);
-          const dD1 = item1?.date.slice(8, 10);
+        const arr = response?.data?.reportSales?.salesReport?.map((item) => {
           const aAA = item.date.slice(0, 4);
           const mM = item.date.slice(5, 7);
-        }*/
+          const dD = item.date.slice(8, 10);
+          const dateFormat = `${aAA}-${mM}-${dD}`;
+          const totalFormat = numeral(item.total).format('$ 0,0');
 
-        //console.log(arrOrder);
+          if (item)
+            return {
+              ...item,
+              categoryName: item?.category?.name,
+              dateOrder: dateFormat,
+              totalOrder: totalFormat,
+            };
+        });
+        /*const arrOrdered = arr.sort(function (a, b) {
+          return new Date(a.dateOrder) - new Date(b.dateOrder);
+        });*/
+        /*const obj = {
+          dateOrder: arrOrdered[0]?.dateOrder,
+          category: arrOrdered[0]?.category,
+          categoryName: arrOrdered[0]?.categoryName,
+          date: arrOrdered[0]?.date,
+          quantity: arrOrdered[0]?.quantity,
+          total: arrOrdered[0]?.total,
+          totalOrder: arrOrdered[0]?.totalOrder,
+          shop: arrOrdered[0]?.shop,
+        };
+        let arrObjs = [];*/
+        /* arrOrdered.map((index) => {
+          if (arrObjs.length > 0) {
+            for (let j = 0; j < arrObjs.length; j++) {
+              for (let i = 0; i < arrObjs[j].length; i++) {
+                let arrOrder = arrObjs[0];
+                if (arrObjs[j][i]?.dateOrder === index?.dateOrder) {
+                  arrObjs.push(arrOrder);
+                  console.log(arrObjs, arrOrder, index, 1);
+                  break;
+                } else if (
+                  arrOrder[j][i]?.dateOrder !== index?.dateOrder &&
+                  !arrObjs?.includes(index)
+                ) {
+                  arrOrder.push([index]);
+                  console.log(arrOrder, index, 2);
+                  break;
+                }
+              }
+            }
+          } else {
+            const arrOne = [index];
+            arrObjs.push([index]);
+            console.log(arrOne, arrObjs, 3);
+          }
+        });*/
 
         setSales(
-          response?.data?.reportSales?.salesReport?.map((item) => {
-            const aAA = item.date.slice(0, 4);
-            const mM = item.date.slice(5, 7);
-            const dD = item.date.slice(8, 10);
-            const dateFormat = `${aAA}-${mM}-${dD}`;
-            /* const totalQuantity = response?.data?.reportSales?.salesReport.reduce(
-              (sum, index) => sum + index.quantity,
-              0,
-            );*/
-            const totalFormat = numeral(item.total).format('$ 0,0');
-
-            console.log(aAA < 2023);
-            if (item)
-              return {
-                ...item,
-                categoryName: item?.category?.name,
-                dateOrder: dateFormat,
-                totalOrder: totalFormat,
-              };
+          arr.sort(function (a, b) {
+            return new Date(a.dateOrder) - new Date(b.dateOrder);
           }),
         );
       }
@@ -173,7 +200,7 @@ const Dashboard = () => {
    * @description se encarga de realizar el proceso de busqueda con los filtros
    * @param props filtros seleccionados en el formulario
    */
-  /* const onFinish = (props: FormValues) => {
+  const onFinish = (props: FormValues) => {
     const { dates, groupDates, isGroupByCategory, shopId } = props;
     try {
       const params: Partial<FiltersSalesReportInput> = {
@@ -200,7 +227,7 @@ const Dashboard = () => {
     } catch (error: any) {
       messageError(error?.message);
     }
-  };*/
+  };
 
   const renderPie = () => {
     const configPie = {
@@ -267,7 +294,6 @@ const Dashboard = () => {
   const config = {
     data: sales,
     isStack: true,
-    parser: {},
     xField: 'dateOrder',
     yField: 'quantity',
     seriesField: 'categoryName',
@@ -343,6 +369,7 @@ const Dashboard = () => {
   useEffect(() => {
     onSearchData();
     form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
+    onFinish();
   }, []);
 
   useEffect(() => {
