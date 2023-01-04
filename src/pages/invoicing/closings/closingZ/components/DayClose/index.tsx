@@ -69,12 +69,9 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
   };
 
   const getTotalBank = () => {
-    return (
-      data?.createCloseZInvoicing?.payments?.reduce(
-        (sum, payment) =>
-          sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
-        0,
-      ) || data?.createCloseZInvoicing?.quantityBank
+    return data?.createCloseZInvoicing?.payments?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
+      0,
     );
   };
 
@@ -93,17 +90,17 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     return total + totalExpenses - (totalCash + paymentCreditCash);
   };
 
+  const quantityCreditBank = data?.createCloseZInvoicing?.paymentsCredit?.reduce(
+    (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
+    0,
+  );
+
   const getDifferenceBank = () => {
-    return (data?.createCloseZInvoicing?.quantityBank || 0) - getTotalBank();
+    return (data?.createCloseZInvoicing?.quantityBank || 0) - (getTotalBank() + quantityCreditBank);
   };
 
   const totalExpenses = data?.createCloseZInvoicing?.expenses?.reduce(
     (sum, expense) => sum + expense?.value,
-    0,
-  );
-
-  const quantityCreditBank = data?.createCloseZInvoicing?.paymentsCredit?.reduce(
-    (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
     0,
   );
 
@@ -114,10 +111,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     0,
   );
 
-  const diffBank =
-    data?.createCloseZInvoicing?.quantityBank +
-    quantityCreditBank -
-    (quantityBank + quantityCreditBank);
+  const diffBank = data?.createCloseZInvoicing?.quantityBank - (quantityBank + quantityCreditBank);
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -407,7 +401,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Text>{getTotalBank()}</Text>
+              <Text>{getTotalBank() + quantityCreditBank}</Text>
             </Col>
             <Col span={20}>
               <Text strong>Transacciones reportadas:</Text>
