@@ -338,8 +338,8 @@ const ConfirmTransfer = () => {
               },
             });
             if (response?.data?.updateStockTransfer) {
-              await setPropsAlert({
-                message: 'Productos confirmados correctamente',
+              setPropsAlert({
+                message: 'Traslado confirmado correctamente',
                 visible: true,
                 type: 'success',
                 redirect: '/inventory/transfer/list',
