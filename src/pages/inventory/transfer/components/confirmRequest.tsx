@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Avatar, Badge, Col, Form, Modal, Row, Space, Table, Tag, Typography } from 'antd';
+import { Avatar, Badge, Button, Col, Form, Modal, Row, Space, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
 import { useEffect, useState } from 'react';
+import { message as messages } from 'antd';
 
 import type { DetailRequest, Product, StockTransfer } from '@/graphql/graphql';
 import { ActionDetailTransfer } from '@/graphql/graphql';
@@ -9,7 +10,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectProducts from '@/components/SelectProducts';
 import { useModel } from 'umi';
-import { BarcodeOutlined } from '@ant-design/icons';
+import { BarcodeOutlined, SaveOutlined } from '@ant-design/icons';
 import AlertConfirm from '@/components/Alerts/AlertConfirm';
 import type { Props as PropsAlertConfirm } from '@/components/Alerts/AlertConfirm';
 
@@ -30,7 +31,13 @@ export type Params = {
   setRequest: any;
   request: any;
   setRequesSelected: any;
+  setSaveDetails: any;
+  saveDetails: any[];
 };
+/*
+Ajustar boton de guardar al agregar un producto que no existe en la solicitud inicial
+
+*/
 
 const ConfirmRequest = ({
   visible,
@@ -46,6 +53,7 @@ const ConfirmRequest = ({
   request,
   setRequesSelected,
   used,
+  setSaveDetails,
 }: Params) => {
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -58,6 +66,8 @@ const ConfirmRequest = ({
     visible: false,
     arr: detailRequest,
   });
+  const [isDisabled, setIsDisabled] = useState(true);
+
   const [, /*withCode*/ setWithCode] = useState(false);
   const { initialState } = useModel('@@initialState');
 
@@ -70,6 +80,16 @@ const ConfirmRequest = ({
       message,
       type: 'error',
       visible: true,
+    });
+  };
+
+  /**
+   *@description funcion usada para mostrar mensaje de éxito
+   * @param message mensaje a mostrar
+   */
+  const alertSuccess = (message: string) => {
+    messages.success({
+      content: message,
     });
   };
 
@@ -173,6 +193,7 @@ const ConfirmRequest = ({
           newDetails.push(detailRequest[i]);
         }
       }
+      setIsDisabled(false);
       setDetailRequest(newDetails);
     } catch (error: any) {
       messageError(error?.message);
@@ -209,8 +230,14 @@ const ConfirmRequest = ({
     }
   };
 
+  const onSaveDetails = () => {
+    setSaveDetails([...detailRequest]);
+    setIsDisabled(true);
+    alertSuccess('Productos Guardados Correctamente');
+  };
+
   const propsSearchProduct = {
-    details: detailRequest?.filter((item) => item.action !== ActionDetailTransfer.Delete),
+    details: detailRequest?.filter((item) => item?.action !== ActionDetailTransfer.Delete),
     warehouseId: initialState?.currentUser?.shop?.defaultWarehouse?._id,
     createDetail,
     updateDetail,
@@ -292,9 +319,20 @@ const ConfirmRequest = ({
       cancelButtonProps={{ style: { borderRadius: 5 } }}
     >
       <Space size="middle" style={{ width: '100%' }} direction="vertical">
-        <Form layout="horizontal">
-          <FormItem label="" style={{ width: '100%' }} name="search">
+        <Form layout="inline">
+          <FormItem label="" style={{ width: '80%' }} name="search">
             <SelectProducts {...propsSearchProduct} order={true} setWithStock={setWithCode} />
+          </FormItem>
+          <FormItem label="" style={{ marginTop: 40 }}>
+            <Button
+              style={{ borderRadius: 5 }}
+              icon={<SaveOutlined />}
+              type="primary"
+              disabled={isDisabled}
+              onClick={() => onSaveDetails()}
+            >
+              Guardar
+            </Button>
           </FormItem>
         </Form>
         <Table columns={columns} dataSource={detailRequest} />
@@ -302,6 +340,8 @@ const ConfirmRequest = ({
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <AlertConfirm
         {...propsAlertConfirm}
+        setIsDisabled={setIsDisabled}
+        setSaveDetails={setSaveDetails}
         details={details}
         onCloseConfirm={onCancel}
         onCancel={onCancelAlertConfirm}
