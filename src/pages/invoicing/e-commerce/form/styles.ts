@@ -1,6 +1,6 @@
 export default {
   textSize: {
-    fontSize: 17,
+    fontSize: 15,
   },
   iconStyle: {
     fontSize: 17,

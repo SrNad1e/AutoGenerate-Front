@@ -13,6 +13,9 @@ query shops($input: FiltersShopsInput) {
       updatedAt
       address
       goal
+      email
+      document
+      companyName
       phone
       defaultWarehouse {
         name

@@ -12,6 +12,15 @@ query authorizations($input: FiltersAuthorizationInput) {
       dateFinal
       numberInitial
       numberFinal
+      shop {
+        _id
+        name
+        email
+        phone
+        document
+        address
+        companyName
+      }
     }
   }
 }
