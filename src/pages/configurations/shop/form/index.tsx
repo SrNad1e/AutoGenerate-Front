@@ -226,12 +226,6 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
               />
             </FormItem>
             <FormItem
-              rules={[
-                {
-                  required: true,
-                  message: 'Este campo no puede estar vacio',
-                },
-              ]}
               name="companyName"
               label={
                 <Space>
