@@ -1128,6 +1128,8 @@ export type CreditHistory = {
   createdAt: Scalars['DateTime'];
   /** Crédito que genera el movimiento */
   credit: Credit;
+  /** Pedido que gestiona el crédito */
+  order: Order;
   /** Tipo de movimiento de cartera */
   type: TypeCreditHistory;
   /** Fecha de actualización */
@@ -1199,6 +1201,43 @@ export type CustomerType = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el tipo de cliente */
   user: User;
+};
+
+/** Cierre diario */
+export type DailyClosing = {
+  __typename?: 'DailyClosing';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Fecha de cierre */
+  closeDate: Scalars['DateTime'];
+  /** Compañía a la que pertence el cierre */
+  company: Company;
+  /** Fecha de creación */
+  createdAt: Scalars['DateTime'];
+  /** Facturas del cierre */
+  invoices: Invoice[];
+  /** Punto de venta que registra el cierre */
+  pointOfSale: PointOfSale;
+  /** Resumen del cierre */
+  summary: SummaryClose;
+  /** Resumen de pagos del cierre */
+  summaryPayments: SummaryPayment[];
+  /** Fecha de actualización */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o editó el cierre */
+  user: User;
+};
+
+/** Datos para generar la facturación */
+export type DataGenerateInvoicesInput = {
+  /** Efectivo para facturar */
+  cash: Scalars['Float'];
+  /** Fecha final para la facturación */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial para la facturación */
+  dateInitial: Scalars['String'];
+  /** Identificador de la tienda a facturar */
+  shopId: Scalars['String'];
 };
 
 /** Detalle para agregar al crédito */
@@ -1876,6 +1915,21 @@ export type FiltersCustomersInput = {
   sort?: InputMaybe<SortCustomer>;
 };
 
+/** Filtros para cierre fiscal */
+export type FiltersDailyClosing = {
+  /** Fecha final del cierre del cierre */
+  dateFinal?: InputMaybe<Scalars['String']>;
+  /** Fecha inicial del cierre del cierre */
+  dateInitial?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Desde donde arranca la página */
+  page?: InputMaybe<Scalars['Float']>;
+  pointOfSaleId?: InputMaybe<Scalars['String']>;
+  /** Ordenamiento (1 es ascendente, -1 es descendente) */
+  sort?: InputMaybe<SortDailyClosing>;
+};
+
 /** Filtros para consultar las reglas de descuentos */
 export type FiltersDiscountRulesInput = {
   /** Si el descuento se encuentra activo */
@@ -1972,6 +2026,8 @@ export type FiltersInvoicesInput = {
   limit?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
+  /** Identificador del punto de venta */
+  pointOfSaleId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortInovice>;
 };
@@ -2389,6 +2445,16 @@ export type FiltersWarehousesInput = {
   sort?: InputMaybe<SortWarehouse>;
 };
 
+/** Datos para crear cierre diario por fechas */
+export type GenerateDailyClosingInput = {
+  /** Fecha inicial */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial */
+  dateInitial: Scalars['String'];
+  /** Id de punto de venta */
+  pointOfSaleId: Scalars['String'];
+};
+
 export enum GroupDates {
   Day = 'DAY',
   Month = 'MONTH',
@@ -2442,6 +2508,8 @@ export type Invoice = {
   details?: Maybe<DetailInvoice[]>;
   /** Número de factura */
   number: Scalars['Float'];
+  /** Pedido basado para la factura */
+  order: Order;
   /** Métodos de pago usados en la factura */
   payments?: Maybe<PaymentInvoice[]>;
   /** Tienda donde se realiza la factura */
@@ -2550,8 +2618,12 @@ export type Mutation = {
   createUser: User;
   /** Crea una bodega */
   createWarehouse: Warehouse;
+  /** Genera los cierres diarios */
+  generateDailyClosing: ResponseGenerateDailyClosing;
   /** Autogenera una solicitud de productos por bodega */
   generateStockRequest: StockRequest;
+  /** Generador de facturas */
+  invoicing: ResponseInvoicing;
   /** Se encarga de realizar el ingreso al sistema por el usuario */
   login: LoginResponse;
   /** Se encarga de enviar correo de recuperación de contraseña */
@@ -2775,8 +2847,16 @@ export type MutationCreateWarehouseArgs = {
   createWarehouseInput: CreateWarehouseInput;
 };
 
+export type MutationGenerateDailyClosingArgs = {
+  generateDailyClosingInput?: InputMaybe<GenerateDailyClosingInput>;
+};
+
 export type MutationGenerateStockRequestArgs = {
   shopId: Scalars['String'];
+};
+
+export type MutationInvoicingArgs = {
+  dataGenerateInvoicesInput: DataGenerateInvoicesInput;
 };
 
 export type MutationLoginArgs = {
@@ -3200,6 +3280,7 @@ export enum Permissions {
   CreateTreasuryExpense = 'CREATE_TREASURY_EXPENSE',
   CreateTreasuryPayment = 'CREATE_TREASURY_PAYMENT',
   CreateTreasuryReceipt = 'CREATE_TREASURY_RECEIPT',
+  GenerateInvoicingDailyClosing = 'GENERATE_INVOICING_DAILY_CLOSING',
   InventoryTransfersVerified = 'INVENTORY_TRANSFERS_VERIFIED',
   PrintCrmCoupon = 'PRINT_CRM_COUPON',
   PrintInventoryAdjustment = 'PRINT_INVENTORY_ADJUSTMENT',
@@ -3241,6 +3322,7 @@ export enum Permissions {
   ReadInvoicingAuthorizations = 'READ_INVOICING_AUTHORIZATIONS',
   ReadInvoicingClosesx = 'READ_INVOICING_CLOSESX',
   ReadInvoicingClosesz = 'READ_INVOICING_CLOSESZ',
+  ReadInvoicingDailyClosing = 'READ_INVOICING_DAILY_CLOSING',
   ReadInvoicingInvoices = 'READ_INVOICING_INVOICES',
   ReadInvoicingOrders = 'READ_INVOICING_ORDERS',
   ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
@@ -3381,6 +3463,8 @@ export type Query = {
   customerTypes: ResponseCustomerTypes;
   /** Listado de clientes */
   customers: ResponseCustomers;
+  /** Lista de cierres fiscales */
+  dailyClosings: ResponseDailyClosing;
   /** Listado de descuentos */
   discountRules: ResponseDiscountRules;
   /** Listado de tipos de documento */
@@ -3543,6 +3627,10 @@ export type QueryCustomerTypesArgs = {
 
 export type QueryCustomersArgs = {
   filtersCustomerInput?: InputMaybe<FiltersCustomersInput>;
+};
+
+export type QueryDailyClosingsArgs = {
+  filtersDailyClosing?: InputMaybe<FiltersDailyClosing>;
 };
 
 export type QueryDiscountRulesArgs = {
@@ -4212,6 +4300,30 @@ export type ResponseCustomers = {
   totalPages: Scalars['Float'];
 };
 
+/** Lista de cierres fiscales */
+export type ResponseDailyClosing = {
+  __typename?: 'ResponseDailyClosing';
+  /** Lista de cierres fiscales */
+  docs: DailyClosing[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Respuesta del listado de reglas de descuento */
 export type ResponseDiscountRules = {
   __typename?: 'ResponseDiscountRules';
@@ -4284,6 +4396,15 @@ export type ResponseExpenses = {
   totalPages: Scalars['Float'];
 };
 
+/** Respuesta de la creación de los cierres diarios de facturación */
+export type ResponseGenerateDailyClosing = {
+  __typename?: 'ResponseGenerateDailyClosing';
+  /** Mensaje de respuesta */
+  message: Scalars['String'];
+  /** Cantidad de cierres diarios creados */
+  quantity: Scalars['Float'];
+};
+
 /** Datos resultado de la consulta de Estado de la meta */
 export type ResponseGoalStatus = {
   __typename?: 'ResponseGoalStatus';
@@ -4339,6 +4460,19 @@ export type ResponseInvoices = {
   totalDocs: Scalars['Float'];
   /** Total de páginas */
   totalPages: Scalars['Float'];
+};
+
+/** Resultado de facturación */
+export type ResponseInvoicing = {
+  __typename?: 'ResponseInvoicing';
+  /** Cantidad de facturas generadas */
+  invoiceQuantityBank: Scalars['Float'];
+  /** Cantidad de facturas generadas */
+  invoiceQuantityCash: Scalars['Float'];
+  /** Valor total facturado */
+  valueInvoicingBank: Scalars['Float'];
+  /** Valor total facturado */
+  valueInvoicingCash: Scalars['Float'];
 };
 
 /** Respuesta para obtener la orden */
@@ -5167,6 +5301,14 @@ export type SortCustomer = {
   phone?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento de cierre z */
+export type SortDailyClosing = {
+  /** Ordenamiento por fecha de cierre */
+  closeDate?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento por fecha de creación */
+  createdAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Datos para el ordenamiento */
 export type SortDiscountRule = {
   active?: InputMaybe<Scalars['Float']>;
@@ -5701,6 +5843,17 @@ export type StockTransferError = {
   verified: Scalars['Boolean'];
 };
 
+/** Resumen del cierre */
+export type SummaryClose = {
+  __typename?: 'SummaryClose';
+  /** Subtotal del cierre */
+  subtotal: Scalars['Float'];
+  /** Impuestos del cierre */
+  tax: Scalars['Float'];
+  /** Total del cierre */
+  total: Scalars['Float'];
+};
+
 /** Resumen de la factura */
 export type SummaryInvoice = {
   __typename?: 'SummaryInvoice';
@@ -5750,6 +5903,17 @@ export type SummaryOrderClose = {
   value: Scalars['Float'];
   /** Valor de los cupones redimidos */
   valueCoupons: Scalars['Float'];
+};
+
+/** Resumen pagos del cierre */
+export type SummaryPayment = {
+  __typename?: 'SummaryPayment';
+  /** Medios de pago */
+  payment: Payment;
+  /** Cantidad */
+  quantity: Scalars['Float'];
+  /** Total pagado */
+  total: Scalars['Float'];
 };
 
 /** Resumen de ventas */
@@ -6918,6 +7082,21 @@ export type UpdateStockInputMutation = {
   };
 };
 
+export type InvoicingMutationVariables = Exact<{
+  input: DataGenerateInvoicesInput;
+}>;
+
+export type InvoicingMutation = {
+  __typename?: 'Mutation';
+  invoicing: {
+    __typename?: 'ResponseInvoicing';
+    invoiceQuantityBank: number;
+    valueInvoicingCash: number;
+    invoiceQuantityCash: number;
+    valueInvoicingBank: number;
+  };
+};
+
 export type CreateOrderMutationVariables = Exact<{
   input: CreateOrderInput;
 }>;
@@ -8011,6 +8190,16 @@ export type AuthorizationsQuery = {
       dateFinal?: any | null;
       numberInitial?: number | null;
       numberFinal?: number | null;
+      shop: {
+        __typename?: 'Shop';
+        _id: string;
+        name: string;
+        email?: string | null;
+        phone?: string | null;
+        document?: string | null;
+        address?: string | null;
+        companyName?: string | null;
+      };
     }[];
   };
 };
@@ -8800,8 +8989,13 @@ export type InvoicesQuery = {
       __typename?: 'Invoice';
       _id: string;
       active: boolean;
+      number: number;
+      updatedAt: any;
       createdAt: any;
       authorization: { __typename?: 'AuthorizationDian'; prefix: string };
+      user: { __typename?: 'User'; username: string };
+      summary: { __typename?: 'SummaryInvoice'; total: number };
+      shop: { __typename?: 'Shop'; name: string };
       customer: {
         __typename?: 'Customer';
         firstName: string;
@@ -8829,6 +9023,49 @@ export type InvoicesQuery = {
           }[]
         | null;
     }[];
+  };
+};
+
+export type ReportSalesQueryVariables = Exact<{
+  input: FiltersSalesReportInput;
+}>;
+
+export type ReportSalesQuery = {
+  __typename?: 'Query';
+  reportSales: {
+    __typename?: 'ResponseReportSales';
+    customersSalesReport?:
+      | {
+          __typename?: 'CustomerSalesReport';
+          quantity: number;
+          total: number;
+          typeCustomer: { __typename?: 'CustomerType'; name: string };
+        }[]
+      | null;
+    paymentsSalesReport?:
+      | {
+          __typename?: 'PaymentsSalesReport';
+          quantity: number;
+          total: number;
+          payment: { __typename?: 'Payment'; name: string };
+        }[]
+      | null;
+    salesReport?:
+      | {
+          __typename?: 'SalesReport';
+          quantity: number;
+          total: number;
+          category?: { __typename?: 'CategoryLevel1'; name: string } | null;
+          shop: { __typename?: 'Shop'; name: string };
+        }[]
+      | null;
+    summarySalesReport?: {
+      __typename?: 'SummarySalesReport';
+      cmv: number;
+      margin: number;
+      quantity: number;
+      total: number;
+    } | null;
   };
 };
 
@@ -9484,7 +9721,20 @@ export type ReferenceIdQuery = {
           }[]
         | null;
     };
-    categoryLevel2?: { __typename?: 'CategoryLevel2'; _id: string } | null;
+    categoryLevel2?: {
+      __typename?: 'CategoryLevel2';
+      _id: string;
+      parentId?: string | null;
+      name?: string | null;
+      childs?:
+        | {
+            __typename?: 'CategoryLevel3';
+            parentId?: string | null;
+            _id: string;
+            name?: string | null;
+          }[]
+        | null;
+    } | null;
     categoryLevel3?: {
       __typename?: 'CategoryLevel3';
       _id: string;
@@ -9771,6 +10021,9 @@ export type ShopsQuery = {
       updatedAt: any;
       address?: string | null;
       goal: number;
+      email?: string | null;
+      document?: string | null;
+      companyName?: string | null;
       phone?: string | null;
       isMain: boolean;
       user: { __typename?: 'User'; name: string };
@@ -9827,6 +10080,7 @@ export type StockTransfersQuery = {
       observationDestination?: string | null;
       details: {
         __typename?: 'DetailTransfer';
+        quantityConfirmed?: number | null;
         quantity: number;
         product: {
           __typename?: 'Product';
@@ -12310,6 +12564,51 @@ export const UpdateStockInputDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateStockInputMutation, UpdateStockInputMutationVariables>;
+export const InvoicingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'invoicing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'DataGenerateInvoicesInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'invoicing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'dataGenerateInvoicesInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'invoiceQuantityBank' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueInvoicingCash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'invoiceQuantityCash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'valueInvoicingBank' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<InvoicingMutation, InvoicingMutationVariables>;
 export const CreateOrderDocument = {
   kind: 'Document',
   definitions: [
@@ -16372,6 +16671,22 @@ export const AuthorizationsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'dateFinal' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'numberInitial' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'numberFinal' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'companyName' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -18541,6 +18856,34 @@ export const InvoicesDocument = {
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'prefix' } }],
                         },
                       },
+                      { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'summary' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'total' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       {
                         kind: 'Field',
@@ -18634,6 +18977,125 @@ export const InvoicesDocument = {
     },
   ],
 } as unknown as DocumentNode<InvoicesQuery, InvoicesQueryVariables>;
+export const ReportSalesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'reportSales' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersSalesReportInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'reportSales' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersSalesReportInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'customersSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'typeCustomer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'paymentsSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payment' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'salesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'category' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'summarySalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'cmv' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'margin' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReportSalesQuery, ReportSalesQueryVariables>;
 export const OrderIdDocument = {
   kind: 'Document',
   definitions: [
@@ -20615,7 +21077,23 @@ export const ReferenceIdDocument = {
                   name: { kind: 'Name', value: 'categoryLevel2' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'childs' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'parentId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                          ],
+                        },
+                      },
+                    ],
                   },
                 },
                 {
@@ -21535,6 +22013,9 @@ export const ShopsDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'address' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'goal' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'companyName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'phone' } },
                       {
                         kind: 'Field',
@@ -21676,6 +22157,7 @@ export const StockTransfersDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantityConfirmed' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
                             {
                               kind: 'Field',

@@ -104,8 +104,7 @@ const AlertConfirm = ({
 
   const onCloseF = async (detail: any[]) => {
     if (discardProduct) {
-      await detail?.shift();
-      setDetailRequest([...detail]);
+      setDetailRequest([...detail?.splice(0, detail.length, detail[0])]);
     }
     onCancel();
   };

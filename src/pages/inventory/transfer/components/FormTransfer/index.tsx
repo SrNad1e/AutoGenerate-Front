@@ -309,7 +309,7 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
   const updateDetail = async (product: Product, quantity: number) => {
     const newDetails = [];
     try {
-      const firstvalue = await document.getElementsByClassName('ant-input-number-input').item(0);
+      const firstvalue = await document.getElementsByClassName('ant-input-number-input').item(1);
       await firstvalue?.setAttribute('id', 'quantitySelect');
       const firstElement = await document.getElementById(firstvalue?.id);
 

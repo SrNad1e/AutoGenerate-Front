@@ -54,6 +54,11 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     return keys.reduce((sum, item) => sum + cashRegister[item] * parseInt(item.slice(1)), 0) || 0;
   };
 
+  const paymentCreditCash = data?.createCloseZInvoicing?.paymentsCredit?.reduce(
+    (sum, payment) => sum + (payment?.payment?.type === 'CASH' ? payment?.value : 0),
+    0,
+  );
+
   const getTotalCash = () => {
     return (
       data?.createCloseZInvoicing?.payments?.reduce(
@@ -63,19 +68,10 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     );
   };
 
-  const getDifferenceCash = () => {
-    const total = getTotal();
-    const totalCash = getTotalCash();
-    return total - totalCash;
-  };
-
   const getTotalBank = () => {
-    return (
-      data?.createCloseZInvoicing?.payments?.reduce(
-        (sum, payment) =>
-          sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
-        0,
-      ) || 0
+    return data?.createCloseZInvoicing?.payments?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
+      0,
     );
   };
 
@@ -87,22 +83,35 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     return totalExpenses;
   };
 
-  const getDifferenceBank = () => {
-    return (data?.createCloseZInvoicing?.quantityBank || 0) - getTotalBank();
+  const getDifferenceCash = () => {
+    const total = getTotal();
+    const totalCash = getTotalCash();
+    const totalExpenses = getTotalExpenses();
+    return total + totalExpenses - (totalCash + paymentCreditCash);
   };
+
+  const quantityCreditBank = data?.createCloseZInvoicing?.paymentsCredit?.reduce(
+    (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
+    0,
+  );
+
+  const getDifferenceBank = () => {
+    return (data?.createCloseZInvoicing?.quantityBank || 0) - (getTotalBank() + quantityCreditBank);
+  };
+
   const totalExpenses = data?.createCloseZInvoicing?.expenses?.reduce(
     (sum, expense) => sum + expense?.value,
     0,
   );
 
-  const diff = getTotal() + totalExpenses - getTotalCash();
+  const diff = getTotal() + totalExpenses - (getTotalCash() + paymentCreditCash);
 
   const quantityBank = data?.createCloseZInvoicing?.payments?.reduce(
     (sum, payment) => sum + (payment?.payment?.type === 'BANK' ? payment?.quantity : 0),
     0,
   );
 
-  const diffBank = data?.createCloseZInvoicing?.quantityBank - quantityBank;
+  const diffBank = data?.createCloseZInvoicing?.quantityBank - (quantityBank + quantityCreditBank);
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -392,7 +401,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                 justifyContent: 'flex-end',
               }}
             >
-              <Text>{getTotalBank()}</Text>
+              <Text>{getTotalBank() + quantityCreditBank}</Text>
             </Col>
             <Col span={20}>
               <Text strong>Transacciones reportadas:</Text>

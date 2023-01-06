@@ -5,6 +5,7 @@ import {
   FieldNumberOutlined,
   FileProtectOutlined,
   FileTextOutlined,
+  ShopOutlined,
 } from '@ant-design/icons';
 import type { AuthorizationDian } from '@/graphql/graphql';
 import { useCreateAuthorization, useUpdateAuthorization } from '@/hooks/authorization.hooks';
@@ -15,6 +16,7 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 
 import styles from '../styles';
 import moment from 'moment';
+import SelectShop from '@/components/SelectShop';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -146,8 +148,13 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
         authorizationData?.dateInitial && authorizationData?.dateFinal
           ? [moment(authorizationData?.dateInitial), moment(authorizationData?.dateFinal)]
           : [undefined, undefined],
+      shopId: authorizationData?.shop?._id,
     });
   }, [visible]);
+
+  useEffect(() => {
+    console.log(authorizationData);
+  }, [authorizationData]);
 
   return (
     <Modal
@@ -208,6 +215,23 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
               />
             </FormItem>
             <FormItem
+              label={
+                <Space>
+                  <ShopOutlined />
+                  <Text>Tienda</Text>
+                </Space>
+              }
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="shopId"
+            >
+              <SelectShop disabled={false} />
+            </FormItem>
+            <FormItem
               name="dates"
               label={
                 <Space>
@@ -218,28 +242,34 @@ const AuthorizationDianForm = ({ authorizationData, onCancel, visible }: Props) 
             >
               <RangePicker placeholder={['Fecha Inicial', 'Fecha Final']} />
             </FormItem>
-            <FormItem
-              name="numberInitial"
-              label={
-                <Space>
-                  <FieldNumberOutlined />
-                  <Text>Inicio</Text>
-                </Space>
-              }
-            >
-              <InputNumber controls={false} />
-            </FormItem>
-            <FormItem
-              name="numberFinal"
-              label={
-                <Space>
-                  <FieldNumberOutlined />
-                  <Text>Final</Text>
-                </Space>
-              }
-            >
-              <InputNumber controls={false} />
-            </FormItem>
+            <Row gutter={40}>
+              <Col>
+                <FormItem
+                  name="numberInitial"
+                  label={
+                    <Space>
+                      <FieldNumberOutlined />
+                      <Text>Inicio</Text>
+                    </Space>
+                  }
+                >
+                  <InputNumber controls={false} />
+                </FormItem>
+              </Col>
+              <Col>
+                <FormItem
+                  name="numberFinal"
+                  label={
+                    <Space>
+                      <FieldNumberOutlined />
+                      <Text>Final</Text>
+                    </Space>
+                  }
+                >
+                  <InputNumber controls={false} />
+                </FormItem>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Form>
