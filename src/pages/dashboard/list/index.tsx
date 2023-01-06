@@ -3,9 +3,9 @@
 import SelectShop from '@/components/SelectShop';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
+  Avatar,
   Button,
   Card,
-  Checkbox,
   Col,
   DatePicker,
   Divider,
@@ -22,13 +22,13 @@ import { useEffect, useState } from 'react';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import type { FiltersSalesReportInput } from '@/graphql/graphql';
+import type { Location } from 'umi';
 import { GroupDates } from '@/graphql/graphql';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-//import { useHistory } from 'umi';
+import { useHistory, useLocation } from 'umi';
 import { useGetReportSales } from '@/hooks/reportSales.hooks';
-//import { useGetGoal } from '@/hooks/goal.hooks';
-import React from 'react';
+import { useGetGoal } from '@/hooks/goal.hooks';
 import 'moment/locale/es-mx';
 
 const FormItem = Form.Item;
@@ -50,17 +50,19 @@ const Dashboard = () => {
     type: 'error',
     visible: false,
   });
-  const [agroup, setAgroup] = useState(true);
   const [customers, setCustomers] = useState<Partial<any[]>>([]);
   const [typePayment, setTypePayment] = useState<Partial<any[]>>([]);
   const [sales, setSales] = useState<Partial<any[]>>([]);
   const [shopSelected, setShopSelected] = useState(false);
+  const [criterio, setCriterio] = useState(false);
+  const [bulletData, setBulletData] = useState<any[]>([]);
 
   const [getReportSales, paramsGetReportSales] = useGetReportSales();
-  //const [getSalesShop, paramsGetSalesShop] = useGetGoal();
+  const [getSalesShop /*paramsGetSalesShop*/] = useGetGoal();
 
   const [form] = Form.useForm();
-  // const history = useHistory();
+  const history = useHistory();
+  const location: Location = useLocation();
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -85,23 +87,13 @@ const Dashboard = () => {
     });
   };
 
-  /*const orderDays = (month: number, year: number) => {
-    const date = new Date(year, month, 1);
-    const days: any[] = [];
-    while (date.getMonth() === month) {
-      days.push(new Date(date));
-      date.setDate(date.getDate() + 1);
-    }
-    return days;
-  };*/
-
   const onSearchData = async (filters?: FiltersSalesReportInput) => {
     try {
       const response = await getReportSales({
         variables: {
           input: {
             dateInitial: moment('2022/12/1').format(FORMAT_DATE_API),
-            dateFinal: moment(new Date()).format(FORMAT_DATE_API),
+            dateFinal: moment('2022/12/1').format(FORMAT_DATE_API),
             isGroupByCategory: true,
             groupDates: GroupDates.Month,
             ...filters,
@@ -115,7 +107,7 @@ const Dashboard = () => {
               ...item,
               customer: item.typeCustomer.name,
             };
-          }),
+          }) as any,
         );
         setTypePayment(
           response?.data?.reportSales?.paymentsSalesReport?.map((item) => {
@@ -123,78 +115,76 @@ const Dashboard = () => {
               ...item,
               paymentName: item.payment.name,
             };
-          }),
+          }) as any,
         );
 
-        const arr = response?.data?.reportSales?.salesReport?.map((item) => {
-          const aAA = item.date.slice(0, 4);
-          const mM = item.date.slice(5, 7);
-          const dD = item.date.slice(8, 10);
-          const dateFormat = `${aAA}-${mM}-${dD}`;
-          const totalFormat = numeral(item.total).format('$ 0,0');
+        const responseFormat: any[] = [];
 
-          if (item)
-            return {
+        response?.data?.reportSales?.salesReport?.forEach((item) => {
+          const dateFormat = moment(item.date).utc().format('YYYY-MM-DD');
+          const totalFormat = numeral(item.total).format('$ 0,0');
+          const findIndex = responseFormat.findIndex(
+            (res) => item?.category?.name === res.categoryName && res.dateFormat === dateFormat,
+          );
+          if (findIndex >= 0) {
+            responseFormat[findIndex] = {
+              ...responseFormat[findIndex],
+              total: responseFormat[findIndex].total + item.total,
+              quantity: responseFormat[findIndex].quantity + item.quantity,
+            };
+          } else {
+            responseFormat.push({
               ...item,
               categoryName: item?.category?.name,
-              dateOrder: dateFormat,
-              totalOrder: totalFormat,
-            };
-        });
-        /*const arrOrdered = arr.sort(function (a, b) {
-          return new Date(a.dateOrder) - new Date(b.dateOrder);
-        });*/
-        /*const obj = {
-          dateOrder: arrOrdered[0]?.dateOrder,
-          category: arrOrdered[0]?.category,
-          categoryName: arrOrdered[0]?.categoryName,
-          date: arrOrdered[0]?.date,
-          quantity: arrOrdered[0]?.quantity,
-          total: arrOrdered[0]?.total,
-          totalOrder: arrOrdered[0]?.totalOrder,
-          shop: arrOrdered[0]?.shop,
-        };
-        let arrObjs = [];*/
-        /* arrOrdered.map((index) => {
-          if (arrObjs.length > 0) {
-            for (let j = 0; j < arrObjs.length; j++) {
-              for (let i = 0; i < arrObjs[j].length; i++) {
-                let arrOrder = arrObjs[0];
-                if (arrObjs[j][i]?.dateOrder === index?.dateOrder) {
-                  arrObjs.push(arrOrder);
-                  console.log(arrObjs, arrOrder, index, 1);
-                  break;
-                } else if (
-                  arrOrder[j][i]?.dateOrder !== index?.dateOrder &&
-                  !arrObjs?.includes(index)
-                ) {
-                  arrOrder.push([index]);
-                  console.log(arrOrder, index, 2);
-                  break;
-                }
-              }
-            }
-          } else {
-            const arrOne = [index];
-            arrObjs.push([index]);
-            console.log(arrOne, arrObjs, 3);
+              dateFormat: dateFormat,
+              totalFormat: totalFormat,
+            });
           }
-        });*/
+        });
 
-        setSales(
-          arr.sort(function (a, b) {
-            return new Date(a.dateOrder) - new Date(b.dateOrder);
-          }),
-        );
+        const arrOrdered = responseFormat?.sort(function (a, b) {
+          if (moment(a?.dateFormat).isBefore(moment(b?.dateFormat))) {
+            return -1;
+          } else {
+            return 1;
+          }
+        }) as any;
+
+        setSales(arrOrdered);
       }
     } catch (error: any) {
       messageError(error?.message);
     }
   };
 
-  /*const onSearchGoal = () => {
-    getSalesShop({});
-  };*/
+  const onSearchGoal = async () => {
+    const shop = form.getFieldValue('shopId');
+    let month = form.getFieldValue('dates');
+    try {
+      if (month) {
+        const dateInitial = moment(month[0]).format(FORMAT_DATE_API);
+        const dateFinal = moment(month[1]).format(FORMAT_DATE_API);
+        if (moment(dateInitial).isBefore(moment(dateFinal))) {
+          month = dateInitial;
+        } else {
+          month = dateFinal;
+        }
+      }
+      const response = await getSalesShop({
+        variables: {
+          input: {
+            month,
+            shopId: shop,
+          },
+        },
+      });
+      if (response?.data) {
+        setBulletData([response?.data?.goalStatus]);
+      }
+    } catch (error: any) {
+      messageError(error?.message);
+    }
+  };
 
   /**
    * @description se encarga de realizar el proceso de busqueda con los filtros
@@ -203,9 +193,9 @@ const Dashboard = () => {
   const onFinish = (props: FormValues) => {
     const { dates, groupDates, isGroupByCategory, shopId } = props;
     try {
-      const params: Partial<FiltersSalesReportInput> = {
-        groupDates,
-        isGroupByCategory,
+      const params: Partial<FiltersSalesReportInput> | any = {
+        groupDates: groupDates || GroupDates.Month,
+        isGroupByCategory: isGroupByCategory || true,
         shopId,
       };
 
@@ -215,8 +205,9 @@ const Dashboard = () => {
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
+      delete params.dates;
 
-      onSearchData(params);
+      onSearchData({ ...params });
 
       const datos = Object.keys(props)
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
@@ -226,6 +217,15 @@ const Dashboard = () => {
       history.replace(`${location.pathname}?${datos}`);
     } catch (error: any) {
       messageError(error?.message);
+    }
+  };
+
+  const onChangeShopSelected = async (e?: any) => {
+    if (e) {
+      setShopSelected(true);
+      onSearchGoal();
+    } else {
+      setShopSelected(false);
     }
   };
 
@@ -294,31 +294,96 @@ const Dashboard = () => {
   const config = {
     data: sales,
     isStack: true,
-    xField: 'dateOrder',
-    yField: 'quantity',
+    xField: 'dateFormat',
+    yField: criterio === true ? 'total' : 'quantity',
     seriesField: 'categoryName',
+    tooltip: {
+      customContent: (title: string, data: any) => (
+        <Row>
+          <Col style={{ marginBottom: 5 }} span={24}>
+            {title}
+          </Col>
+          <Col span={24}>
+            {data.map((item: any) => {
+              return (
+                <Row key={item.name}>
+                  <Col style={{ marginRight: 10 }}>
+                    <Avatar size={10} style={{ backgroundColor: item.color }} />
+                  </Col>
+                  <Col style={{ marginRight: 5 }}>{item.name}: </Col>
+                  <Col style={{ marginBottom: 5 }}>
+                    {criterio === true ? numeral(item.value).format('$0,0') : item.value}
+                  </Col>
+                </Row>
+              );
+            })}
+          </Col>
+        </Row>
+      ),
+    },
     label: {
-      position: 'top',
+      formatter: criterio === true ? (e: any) => numeral(e.total).format('$0,0') : false,
+      position: 'middle',
       layout: [
         {
           type: 'interval-adjust-position',
-        },
-        {
-          type: 'interval-hide-overlap',
         },
         {
           type: 'adjust-color',
         },
       ],
     },
+    meta: {
+      total: {
+        formatter: (value) => numeral(value).format('$0,0'),
+      },
+    },
   };
 
   const configBullet = {
-    data: [],
+    data: bulletData.map((item) => {
+      const date = form.getFieldValue('dates');
+      const obj = {
+        Meta: item.goal,
+        Ventas: item.netSales,
+        title: moment(date[0]).format('YYYY-MM'),
+      };
+      return obj;
+    }),
     measureField: 'Ventas',
-    rangeField: 'ranges',
+    rangeField: 'Meta',
     targetField: 'Meta',
     xField: 'title',
+    tooltip: {
+      customContent: (title: string, data: any) => (
+        <Row>
+          <Col style={{ marginBottom: 5 }} span={24}>
+            {title}
+          </Col>
+          <Col span={24}>
+            {data.map((item: any) => {
+              return (
+                <Row key={item.name}>
+                  <Col style={{ marginRight: 10 }}>
+                    <Avatar size={10} style={{ backgroundColor: item.color }} />
+                  </Col>
+                  <Col style={{ marginRight: 5 }}>{item.name}: </Col>
+                  <Col style={{ marginBottom: 5 }}>{numeral(item.value).format('$0,0')}</Col>
+                </Row>
+              );
+            })}
+          </Col>
+        </Row>
+      ),
+    },
+    label: {
+      measure: {
+        formatter: (e: any) => numeral(e.Ventas).format('$0,0'),
+      },
+      target: {
+        formatter: (e: any) => numeral(e.Meta).format('$0,0'),
+      },
+    },
     color: {
       range: '#f0efff',
       measure: '#5B8FF9',
@@ -333,7 +398,7 @@ const Dashboard = () => {
       position: 'bottom',
       items: [
         {
-          value: 'Ventas',
+          value: 'ventas',
           name: 'Ventas',
           marker: {
             symbol: 'square',
@@ -344,7 +409,7 @@ const Dashboard = () => {
           },
         },
         {
-          value: 'Meta',
+          value: 'meta',
           name: 'Meta',
           marker: {
             symbol: 'line',
@@ -359,33 +424,61 @@ const Dashboard = () => {
   };
 
   const onChangePeriod = (e: string) => {
-    if (e === '2') {
+    if (e === 'MONTH') {
       setPeriod(true);
     } else {
       setPeriod(false);
     }
   };
 
-  useEffect(() => {
-    onSearchData();
-    form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
-    onFinish();
-  }, []);
+  const loadingData = () => {
+    const queryParams: any = location?.query;
+
+    const newFilters = {};
+
+    Object.keys(queryParams).forEach((item) => {
+      if (item === 'dates') {
+        const dataItem = JSON.parse(queryParams[item]);
+        newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
+      } else {
+        newFilters[item] = JSON.parse(queryParams[item]);
+      }
+    });
+    form.setFieldsValue(newFilters);
+    onFinish(newFilters);
+  };
 
   useEffect(() => {
-    console.log(sales);
-  }, [sales]);
+    loadingData();
+    form.setFieldValue('dates', [moment(new Date('2022/12/1')), moment(new Date('2022/12/1'))]);
+  }, []);
+
+  /**
+   * @description se encarga de limpiar los estados e inicializarlos
+   */
+  const onClear = () => {
+    history.replace(location.pathname);
+    form.resetFields(['shopId']);
+    onSearchData();
+    form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
+  };
 
   const summaryData = paramsGetReportSales.data?.reportSales?.summarySalesReport;
 
   return (
     <PageContainer title="Admin Dashboard">
       <Card>
-        <Form form={form}>
+        <Form form={form} onFinish={onFinish}>
           <Row gutter={20}>
-            <Col xs={24} xl={6}>
-              <FormItem label="Período">
-                <Select defaultValue={'Mensual'} onChange={(e) => onChangePeriod(e)}>
+            <Col xs={24} md={3} lg={3} xl={5}>
+              <FormItem label="Período" name="period">
+                <Select
+                  loading={paramsGetReportSales?.loading}
+                  disabled={paramsGetReportSales?.loading}
+                  style={{ width: '100%' }}
+                  defaultValue={'Mensual'}
+                  onChange={(e) => onChangePeriod(e)}
+                >
                   <Option key={1} value={GroupDates.Day}>
                     Diaria
                   </Option>
@@ -398,54 +491,69 @@ const Dashboard = () => {
             <Col xs={24} xl={6}>
               <FormItem label="Fechas" name="dates">
                 {period === false ? (
-                  <RangePicker picker="date" placeholder={['Fecha Inicial', 'Fecha Final']} />
+                  <RangePicker
+                    disabled={paramsGetReportSales?.loading}
+                    picker="date"
+                    placeholder={['Fecha Inicial', 'Fecha Final']}
+                  />
                 ) : (
-                  <RangePicker picker="month" placeholder={['Fecha Inicial', 'Fecha Final']} />
+                  <RangePicker
+                    disabled={paramsGetReportSales?.loading}
+                    picker="month"
+                    placeholder={['Fecha Inicial', 'Fecha Final']}
+                  />
                 )}
               </FormItem>
             </Col>
             <Col xs={24} xl={6}>
               <FormItem label="Tiendas" name="shopId">
                 <SelectShop
-                  disabled={false}
-                  onChange={(e) => (e ? setShopSelected(true) : setShopSelected(false))}
+                  disabled={paramsGetReportSales?.loading}
+                  onChange={(e) => onChangeShopSelected(e)}
                 />
               </FormItem>
             </Col>
             <Col xs={24} xl={6}>
-              <FormItem label="Criterio">
-                <Select defaultValue={'Unidades Vendidas'} placeholder="Seleccione un Criterio">
-                  <Option key={1}>Unidades Vendidas</Option>
-                  <Option key={2}>Pesos</Option>
+              <FormItem label="Criterio" name="criterio">
+                <Select
+                  loading={paramsGetReportSales?.loading}
+                  disabled={paramsGetReportSales?.loading}
+                  defaultValue={false}
+                  onChange={(e: boolean) => setCriterio(e)}
+                  placeholder="Seleccione un Criterio"
+                >
+                  <Option key={1} value={false}>
+                    Unidades Vendidas
+                  </Option>
+                  <Option key={2} value={true}>
+                    Pesos
+                  </Option>
                 </Select>
               </FormItem>
             </Col>
-            <Col xs={24} xl={5}>
-              <FormItem label="Agrupar por categorías" name="categoryLevel1Id">
-                <Checkbox
-                  defaultChecked
-                  onChange={() => setAgroup(agroup === false ? true : false)}
-                />
-              </FormItem>
-            </Col>
-            <Col xs={24} md={7} lg={7} xl={7}>
+            <Col
+              xs={24}
+              md={23}
+              lg={23}
+              xl={23}
+              style={{ display: 'flex', justifyContent: 'right' }}
+            >
               <FormItem label=" " colon={false}>
                 <Space>
                   <Button
-                    loading={false}
+                    loading={paramsGetReportSales?.loading}
                     style={{ borderRadius: 5 }}
                     icon={<SearchOutlined />}
                     type="primary"
                     htmlType="submit"
-                    onClick={() => onSearchData()}
                   >
                     Buscar
                   </Button>
                   <Button
                     icon={<ClearOutlined />}
-                    loading={false}
+                    loading={paramsGetReportSales?.loading}
                     style={{ borderRadius: 5 }}
-                    onClick={() => console.log(1)}
+                    onClick={() => onClear()}
                   >
                     Limpiar
                   </Button>
@@ -458,7 +566,7 @@ const Dashboard = () => {
         <Row gutter={[40, 40]}>
           <Col span={14}>
             <Card size="small">
-              <Column {...config} />
+              <Column loading={paramsGetReportSales?.loading} {...config} />
             </Card>
           </Col>
           <Col span={10}>
@@ -477,7 +585,11 @@ const Dashboard = () => {
                 <Title level={4} style={{ display: 'flex', justifyContent: 'center' }}>
                   Meta vs Ventas
                 </Title>
-                <Bullet {...configBullet} style={{ width: 500, height: 100 }} />
+                <Bullet
+                  loading={paramsGetReportSales?.loading}
+                  {...configBullet}
+                  style={{ width: 500, height: 100 }}
+                />
               </Card>
             ) : (
               <Card>
