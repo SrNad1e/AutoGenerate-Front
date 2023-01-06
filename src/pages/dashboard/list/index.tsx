@@ -92,8 +92,8 @@ const Dashboard = () => {
       const response = await getReportSales({
         variables: {
           input: {
-            dateInitial: moment('2022/12/1').format(FORMAT_DATE_API),
-            dateFinal: moment('2022/12/1').format(FORMAT_DATE_API),
+            dateInitial: moment(new Date()).format(FORMAT_DATE_API),
+            dateFinal: moment(new Date()).format(FORMAT_DATE_API),
             isGroupByCategory: true,
             groupDates: GroupDates.Month,
             ...filters,
@@ -450,7 +450,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadingData();
-    form.setFieldValue('dates', [moment(new Date('2022/12/1')), moment(new Date('2022/12/1'))]);
+    form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
   }, []);
 
   /**
@@ -634,7 +634,7 @@ const Dashboard = () => {
                       <Title level={5}>{numeral(summaryData?.cmv).format('$ 0,00')}</Title>
                     </Col>
                     <Col span={24}>
-                      <Title level={5}>{`${(summaryData?.margin * 100).toFixed(2)}%`}</Title>
+                      <Title level={5}>{`${(summaryData?.margin * 100).toFixed(2)}%` || 0}</Title>
                     </Col>
                   </Row>
                 </Col>
