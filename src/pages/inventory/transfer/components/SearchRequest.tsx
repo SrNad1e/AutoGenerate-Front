@@ -35,6 +35,8 @@ export type Params = {
   setDetails: any;
   setRequests: any;
   details: any;
+  setSaveDetails: any;
+  saveDetails: any[];
 };
 
 type FormValues = {
@@ -56,6 +58,8 @@ const SearchRequest = ({
   setDetails,
   setRequests,
   details,
+  setSaveDetails,
+  saveDetails,
 }: Params) => {
   const [requestsSelected, setRequestSelected] = useState<StockRequest[]>([]);
   const [keysSelected, setKeysSelected] = useState<React.Key[]>([]);
@@ -92,7 +96,9 @@ const SearchRequest = ({
 
   const onCloseConfirm = () => {
     setVisibleConfirmRequest(false);
-    setDetailRequest([]);
+    if (saveDetails.length === 0) {
+      setDetailRequest([]);
+    }
   };
 
   /**
@@ -126,6 +132,7 @@ const SearchRequest = ({
       messageError(error?.message);
     }
   };
+
   /**
    * @description selecciona las solicitudes y las almacena en un array
    */
@@ -186,14 +193,10 @@ const SearchRequest = ({
 
   useEffect(() => {
     onSearchPendings();
-    if (visible === false) {
+    if (visible === false && saveDetails.length === 0) {
       setKeysSelected([]);
     }
   }, [visible]);
-
-  useEffect(() => {
-    console.log(requests, requestsSelected, used);
-  }, [requests, requestsSelected, used]);
 
   const columns: ColumnsType<StockRequest> = [
     {
@@ -293,6 +296,8 @@ const SearchRequest = ({
       </Space>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <ConfirmRequest
+        saveDetails={saveDetails}
+        setSaveDetails={setSaveDetails}
         setRequesSelected={setRequestSelected}
         request={requests}
         setRequest={setRequests}
