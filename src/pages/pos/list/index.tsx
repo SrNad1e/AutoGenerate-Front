@@ -14,6 +14,8 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import style from './styles';
 import Dashboard from '../components/Dashboard';
 
+const shopId = process.env.SHOP_ID || '';
+
 const PosList = () => {
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -60,6 +62,7 @@ const PosList = () => {
         variables: {
           input: {
             status: StatusOrder.Open,
+            shopId,
           },
         },
       });

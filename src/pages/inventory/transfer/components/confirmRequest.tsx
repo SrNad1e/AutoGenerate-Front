@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Avatar, Badge, Button, Col, Form, Modal, Row, Space, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { message as messages } from 'antd';
 
 import type { DetailRequest, Product, StockTransfer } from '@/graphql/graphql';
