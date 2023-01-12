@@ -843,8 +843,6 @@ export type CreateExpenseInput = {
 export type CreateOrderInput = {
   /** Estado del pedido */
   status: StatusOrder;
-  /** Estado del pedido */
-  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para crear un método de pago */
@@ -1130,8 +1128,10 @@ export type CreditHistory = {
   createdAt: Scalars['DateTime'];
   /** Crédito que genera el movimiento */
   credit: Credit;
-  /** Pedido que gestiona el crédito */
-  order: Order;
+  /** Número del documento que relaiza el proceso del pedido */
+  documentNumber?: Maybe<Scalars['Float']>;
+  /** Tipo de documento que genera el movimiento */
+  documentType?: Maybe<TypeDocument>;
   /** Tipo de movimiento de cartera */
   type: TypeCreditHistory;
   /** Fecha de actualización */
@@ -1857,6 +1857,8 @@ export type FiltersCreditHistoryInput = {
   creditId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente */
   customerId?: InputMaybe<Scalars['String']>;
+  /** Número del documento que realiza el nmovimiento */
+  documentNumber?: InputMaybe<Scalars['Float']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Página actual */
@@ -3378,6 +3380,8 @@ export type PointOfSale = {
   box: Box;
   /** Fecha de cierre */
   closeDate?: Maybe<Scalars['DateTime']>;
+  /** Se encuentra en proceso de cierre */
+  closing?: Maybe<Scalars['Boolean']>;
   /** Compañia a la que pertenece el punto de venta */
   company: Company;
   /** Fecha de creación */
@@ -5938,6 +5942,11 @@ export enum TypeCreditHistory {
   Thawed = 'THAWED',
 }
 
+export enum TypeDocument {
+  Order = 'ORDER',
+  Receipt = 'RECEIPT',
+}
+
 export enum TypeErrorCash {
   Missing = 'MISSING',
   Surplus = 'SURPLUS',
@@ -6170,6 +6179,8 @@ export type UpdatePaymentInput = {
 export type UpdatePointOfSaleInput = {
   /** Fecha de cierre del punto de venta */
   closeDate?: InputMaybe<Scalars['String']>;
+  /** Cerrando punto de venta */
+  closing?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** Datos para actualizar el producto */
@@ -8720,6 +8731,8 @@ export type CreditHistoryQuery = {
       __typename?: 'CreditHistory';
       type: TypeCreditHistory;
       amount: number;
+      documentNumber?: number | null;
+      documentType?: TypeDocument | null;
       credit: {
         __typename?: 'Credit';
         frozenAmount: number;
@@ -18082,6 +18095,8 @@ export const CreditHistoryDocument = {
                           ],
                         },
                       },
+                      { kind: 'Field', name: { kind: 'Name', value: 'documentNumber' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'documentType' } },
                     ],
                   },
                 },
