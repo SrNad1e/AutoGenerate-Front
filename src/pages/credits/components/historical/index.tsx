@@ -7,6 +7,7 @@ import type {
   FiltersCreditHistoryInput,
   TypeCreditHistory,
 } from '@/graphql/graphql';
+import { TypeDocument } from '@/graphql/graphql';
 import moment from 'moment';
 import numeral from 'numeral';
 
@@ -35,8 +36,14 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
     },
     {
       title: 'Documento',
-      dataIndex: 'credit',
-      render: (credits: Credit) => credits?.details?.find((i) => i?.order?.number)?.order?.number,
+      dataIndex: 'documentNumber',
+      render: (documentNumber: number) => documentNumber || '(No aplica)',
+    },
+    {
+      title: 'Tipo de Documento',
+      dataIndex: 'documentType',
+      render: (documentType: TypeDocument) =>
+        documentType === TypeDocument.Order ? 'Pedido' : 'Recibo de Caja',
     },
     {
       title: 'Movimiento',
@@ -126,7 +133,7 @@ const CreditsHistorical = ({ onCancel, credit }: Props) => {
         columns={column}
         loading={loading}
         dataSource={data?.creditHistory?.docs}
-        scroll={{ x: 700, y: 200 }}
+        scroll={{ x: 800, y: 200 }}
         onChange={handleChangeTable}
         pagination={{
           current: data?.creditHistory?.page,

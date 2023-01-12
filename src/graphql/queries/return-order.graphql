@@ -22,9 +22,6 @@ query returnsOrder($input: FiltersReturnsOrderInput) {
       createdAt
       updatedAt
       _id
-      shop {
-        name
-      }
       number
       order {
         number
