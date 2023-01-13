@@ -2,22 +2,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import SelectShop from '@/components/SelectShop';
 import { PageContainer } from '@ant-design/pro-layout';
-import {
-  Avatar,
-  Button,
-  Card,
-  Col,
-  DatePicker,
-  Divider,
-  Form,
-  Row,
-  Select,
-  Space,
-  Typography,
-} from 'antd';
+import { Avatar, Card, Col, DatePicker, Divider, Form, Row, Select, Typography } from 'antd';
 import { Column, Pie, Bullet } from '@ant-design/plots';
 import numeral from 'numeral';
-import { ClearOutlined, SearchOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import type { Moment } from 'moment';
 import moment from 'moment';
@@ -56,6 +43,7 @@ const Dashboard = () => {
   const [shopSelected, setShopSelected] = useState(false);
   const [criterio, setCriterio] = useState(false);
   const [bulletData, setBulletData] = useState<any[]>([]);
+  const [dateSelected, setDateSelected] = useState(false);
 
   const [getReportSales, paramsGetReportSales] = useGetReportSales();
   const [getSalesShop /*paramsGetSalesShop*/] = useGetGoal();
@@ -190,9 +178,10 @@ const Dashboard = () => {
    * @description se encarga de realizar el proceso de busqueda con los filtros
    * @param props filtros seleccionados en el formulario
    */
-  const onFinish = (props: FormValues) => {
-    const { dates, groupDates, isGroupByCategory, shopId } = props;
+  const onFinish = async (props: FormValues) => {
+    const { groupDates, isGroupByCategory, shopId } = props;
     try {
+      const dates = await form.getFieldValue('dates');
       const params: Partial<FiltersSalesReportInput> | any = {
         groupDates: groupDates || GroupDates.Month,
         isGroupByCategory: isGroupByCategory || true,
@@ -200,6 +189,7 @@ const Dashboard = () => {
       };
 
       if (dates) {
+        props.dates = dates;
         const dateInitial = moment(dates[0]).format(FORMAT_DATE_API);
         const dateFinal = moment(dates[1]).format(FORMAT_DATE_API);
         params.dateFinal = dateFinal;
@@ -220,12 +210,43 @@ const Dashboard = () => {
     }
   };
 
+  const onChangeForm = async () => {
+    const values = await form.getFieldsValue();
+    if (dateSelected) {
+      onFinish(values);
+      if (shopSelected) {
+        onSearchGoal();
+      }
+    }
+  };
+
   const onChangeShopSelected = async (e?: any) => {
     if (e) {
       setShopSelected(true);
       onSearchGoal();
+      onChangeForm();
     } else {
       setShopSelected(false);
+      onChangeForm();
+    }
+  };
+
+  const onChangeDateSelected = async (e?: any, obj?: any) => {
+    if (e) {
+      setDateSelected(true);
+      if (obj.range === 'end') {
+        onChangeForm();
+      }
+    } else {
+      setDateSelected(false);
+    }
+  };
+
+  const onChangeCriterio = (e: any) => {
+    if (e === true) {
+      setCriterio(e);
+    } else {
+      setCriterio(e);
     }
   };
 
@@ -346,7 +367,7 @@ const Dashboard = () => {
       const obj = {
         Meta: item.goal,
         Ventas: item.netSales,
-        title: moment(date[0]).format('YYYY-MM'),
+        title: dateSelected ? moment(date[0]).format('YYYY-MM') : 'Seleccione Fecha',
       };
       return obj;
     }),
@@ -435,7 +456,10 @@ const Dashboard = () => {
 
     Object.keys(queryParams).forEach((item) => {
       if (item === 'dates') {
+        setDateSelected(true);
         const dataItem = JSON.parse(queryParams[item]);
+        console.log(dataItem);
+
         newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
       } else {
         newFilters[item] = JSON.parse(queryParams[item]);
@@ -445,31 +469,46 @@ const Dashboard = () => {
     onFinish(newFilters);
   };
 
+  const valueShop = form.getFieldValue('shopId');
+  const valueDates = form.getFieldValue('dates');
+
+  useEffect(() => {
+    if (valueShop) {
+      setShopSelected(true);
+    }
+  }, [valueShop]);
+
   useEffect(() => {
     loadingData();
-    form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
+    const valueDate = form.getFieldValue('dates');
+    if (!valueDate) {
+      form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
+    }
   }, []);
 
   useEffect(() => {
-    console.log(sales);
-  }, [sales]);
+    if (valueDates) {
+      setDateSelected(true);
+    }
+  }, [valueDates]);
 
-  /**
-   * @description se encarga de limpiar los estados e inicializarlos
-   */
-  const onClear = () => {
-    history.replace(location.pathname);
-    form.resetFields(['shopId']);
-    onSearchData();
-    form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
-  };
+  useEffect(() => {
+    if (shopSelected && dateSelected) {
+      onSearchGoal();
+    }
+  }, [shopSelected, dateSelected]);
+
+  const dateV = form.getFieldValue('dates');
+  useEffect(() => {
+    console.log(dateV);
+  }, [dateV]);
 
   const summaryData = paramsGetReportSales.data?.reportSales?.summarySalesReport;
 
   return (
     <PageContainer title="Admin Dashboard">
       <Card>
-        <Form form={form} onFinish={onFinish}>
+        <Form form={form}>
           <Row gutter={20}>
             <Col xs={24} md={3} lg={3} xl={5}>
               <FormItem label="Período" name="period">
@@ -494,12 +533,14 @@ const Dashboard = () => {
                 {period === false ? (
                   <RangePicker
                     disabled={paramsGetReportSales?.loading}
+                    onCalendarChange={(e, _, obj) => onChangeDateSelected(e, obj)}
                     picker="date"
                     placeholder={['Fecha Inicial', 'Fecha Final']}
                   />
                 ) : (
                   <RangePicker
                     disabled={paramsGetReportSales?.loading}
+                    onCalendarChange={(e, _, obj) => onChangeDateSelected(e, obj)}
                     picker="month"
                     placeholder={['Fecha Inicial', 'Fecha Final']}
                   />
@@ -520,7 +561,7 @@ const Dashboard = () => {
                   loading={paramsGetReportSales?.loading}
                   disabled={paramsGetReportSales?.loading}
                   defaultValue={false}
-                  onChange={(e: boolean) => setCriterio(e)}
+                  onChange={(e: boolean) => onChangeCriterio(e)}
                   placeholder="Seleccione un Criterio"
                 >
                   <Option key={1} value={false}>
@@ -530,35 +571,6 @@ const Dashboard = () => {
                     Pesos
                   </Option>
                 </Select>
-              </FormItem>
-            </Col>
-            <Col
-              xs={24}
-              md={23}
-              lg={23}
-              xl={23}
-              style={{ display: 'flex', justifyContent: 'right' }}
-            >
-              <FormItem label=" " colon={false}>
-                <Space>
-                  <Button
-                    loading={paramsGetReportSales?.loading}
-                    style={{ borderRadius: 5 }}
-                    icon={<SearchOutlined />}
-                    type="primary"
-                    htmlType="submit"
-                  >
-                    Buscar
-                  </Button>
-                  <Button
-                    icon={<ClearOutlined />}
-                    loading={paramsGetReportSales?.loading}
-                    style={{ borderRadius: 5 }}
-                    onClick={() => onClear()}
-                  >
-                    Limpiar
-                  </Button>
-                </Space>
               </FormItem>
             </Col>
           </Row>
@@ -603,7 +615,7 @@ const Dashboard = () => {
             </Row>
           </Col>
           <Col span={14}>
-            {shopSelected ? (
+            {shopSelected && dateSelected ? (
               <Card>
                 <Title level={4} style={{ display: 'flex', justifyContent: 'center' }}>
                   Meta vs Ventas
@@ -620,7 +632,7 @@ const Dashboard = () => {
                   Meta vs Ventas
                 </Title>
                 <Text strong style={{ display: 'flex', justifyContent: 'center' }}>
-                  {'(Seleccione una tienda)'}
+                  {'(Seleccione una tienda y una fecha)'}
                 </Text>
               </Card>
             )}
@@ -657,7 +669,9 @@ const Dashboard = () => {
                       <Title level={5}>{numeral(summaryData?.cmv).format('$ 0,00')}</Title>
                     </Col>
                     <Col span={24}>
-                      <Title level={5}>{`${(summaryData?.margin * 100).toFixed(2)}%` || 0}</Title>
+                      <Title level={5}>
+                        {!summaryData?.margin ? 0 : `${(summaryData?.margin * 100).toFixed(2)}%`}
+                      </Title>
                     </Col>
                   </Row>
                 </Col>
