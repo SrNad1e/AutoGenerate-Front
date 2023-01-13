@@ -123,14 +123,14 @@ const Dashboard = () => {
         response?.data?.reportSales?.salesReport?.forEach((item) => {
           const dateFormat = moment(item.date).utc().format('YYYY-MM-DD');
           const totalFormat = numeral(item.total).format('$ 0,0');
-          const findIndex = responseFormat.findIndex(
+          const findInd = responseFormat.findIndex(
             (res) => item?.category?.name === res.categoryName && res.dateFormat === dateFormat,
           );
-          if (findIndex >= 0) {
-            responseFormat[findIndex] = {
-              ...responseFormat[findIndex],
-              total: responseFormat[findIndex].total + item.total,
-              quantity: responseFormat[findIndex].quantity + item.quantity,
+          if (findInd >= 0) {
+            responseFormat[findInd] = {
+              ...responseFormat[findInd],
+              total: responseFormat[findInd].total + item.total,
+              quantity: responseFormat[findInd].quantity + item.quantity,
             };
           } else {
             responseFormat.push({
@@ -236,7 +236,7 @@ const Dashboard = () => {
       colorField: 'customer',
       radius: 0.75,
       label: {
-        type: 'spider',
+        type: 'outer',
         labelHeight: 30,
         content: ({ percent }) => `${(percent * 100).toFixed(0)}%`,
       },
@@ -266,8 +266,32 @@ const Dashboard = () => {
       angleField: 'quantity',
       colorField: 'paymentName',
       radius: 0.75,
+      tooltip: {
+        customContent: (title: string, data: any) => (
+          <Row>
+            <Col style={{ marginBottom: 5 }} span={24}>
+              <Avatar size={10} style={{ backgroundColor: data[0]?.color, marginRight: 5 }} />
+              {title}
+            </Col>
+            <Col span={24}>
+              {data.map((item: any) => {
+                return (
+                  <Row key={item.name}>
+                    <Col span={24} style={{ marginLeft: 15, marginBottom: 5 }}>
+                      {'- Cantidad'}: {item?.data?.quantity}
+                    </Col>
+                    <Col style={{ marginLeft: 15, marginBottom: 10 }}>
+                      {'- Total'}: {numeral(item?.data?.total).format('$0,0')}
+                    </Col>
+                  </Row>
+                );
+              })}
+            </Col>
+          </Row>
+        ),
+      },
       label: {
-        type: 'spider',
+        type: 'outer',
         labelHeight: 30,
         content: ({ percent }) => `${(percent * 100).toFixed(0)}%`,
       },
@@ -297,41 +321,17 @@ const Dashboard = () => {
     xField: 'dateFormat',
     yField: criterio === true ? 'total' : 'quantity',
     seriesField: 'categoryName',
-    tooltip: {
-      customContent: (title: string, data: any) => (
-        <Row>
-          <Col style={{ marginBottom: 5 }} span={24}>
-            {title}
-          </Col>
-          <Col span={24}>
-            {data.map((item: any) => {
-              return (
-                <Row key={item.name}>
-                  <Col style={{ marginRight: 10 }}>
-                    <Avatar size={10} style={{ backgroundColor: item.color }} />
-                  </Col>
-                  <Col style={{ marginRight: 5 }}>{item.name}: </Col>
-                  <Col style={{ marginBottom: 5 }}>
-                    {criterio === true ? numeral(item.value).format('$0,0') : item.value}
-                  </Col>
-                </Row>
-              );
-            })}
-          </Col>
-        </Row>
-      ),
-    },
-    label: {
-      formatter: criterio === true ? (e: any) => numeral(e.total).format('$0,0') : false,
-      position: 'middle',
-      layout: [
-        {
-          type: 'interval-adjust-position',
+    label: false,
+    xAxis: {
+      label: {
+        rotate: false,
+        autoHide: false,
+        autoRotate: false,
+        style: {
+          fontSize: 9,
+          fontWeight: 'bold',
         },
-        {
-          type: 'adjust-color',
-        },
-      ],
+      },
     },
     meta: {
       total: {
@@ -453,6 +453,10 @@ const Dashboard = () => {
     form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
   }, []);
 
+  useEffect(() => {
+    console.log(sales);
+  }, [sales]);
+
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
@@ -572,10 +576,32 @@ const Dashboard = () => {
           <Col span={10}>
             <Row>
               <Col span={24}>
-                <Card size="small">{renderPie()}</Card>
+                <Card
+                  size="small"
+                  headStyle={{
+                    border: 'none',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                  }}
+                  title="Proporción de Clientes"
+                >
+                  {renderPie()}
+                </Card>
               </Col>
               <Col span={24}>
-                <Card size="small">{renderPiePayment()}</Card>
+                <Card
+                  size="small"
+                  headStyle={{
+                    border: 'none',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                  }}
+                  title="Proporción de Medios de Pago"
+                >
+                  {renderPiePayment()}
+                </Card>
               </Col>
             </Row>
           </Col>
