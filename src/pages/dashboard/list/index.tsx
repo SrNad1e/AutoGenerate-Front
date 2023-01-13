@@ -380,13 +380,10 @@ const Dashboard = () => {
       measure: {
         formatter: (e: any) => numeral(e.Ventas).format('$0,0'),
       },
-      target: {
-        formatter: (e: any) => numeral(e.Meta).format('$0,0'),
-      },
     },
     color: {
       range: '#f0efff',
-      measure: '#5B8FF9',
+      measure: '#ADD8E6',
       target: '#3D76DD',
     },
     xAxis: {
@@ -403,7 +400,7 @@ const Dashboard = () => {
           marker: {
             symbol: 'square',
             style: {
-              fill: '#5B8FF9',
+              fill: '#ADD8E6',
               r: 5,
             },
           },
@@ -651,10 +648,10 @@ const Dashboard = () => {
                   <Row>
                     <Col span={24}>
                       {' '}
-                      <Title level={5}>{numeral(summaryData?.quantity).format('0,00')}</Title>
+                      <Title level={5}> {numeral(summaryData?.total).format('$ 0,00')}</Title>
                     </Col>
                     <Col span={24}>
-                      <Title level={5}>{numeral(summaryData?.total).format('$ 0,00')}</Title>{' '}
+                      <Title level={5}>{numeral(summaryData?.quantity).format('0,00')}</Title>{' '}
                     </Col>
                     <Col span={24}>
                       <Title level={5}>{numeral(summaryData?.cmv).format('$ 0,00')}</Title>
