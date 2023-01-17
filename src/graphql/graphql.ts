@@ -7997,7 +7997,11 @@ export type LoginMutation = {
       _id: string;
       username: string;
       name: string;
-      pointOfSale?: { __typename?: 'PointOfSale'; _id: string } | null;
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        _id: string;
+        box: { __typename?: 'Box'; _id: string };
+      } | null;
       shop: {
         __typename?: 'Shop';
         _id: string;
@@ -16007,7 +16011,19 @@ export const LoginDocument = {
                         name: { kind: 'Name', value: 'pointOfSale' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'box' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                ],
+                              },
+                            },
+                          ],
                         },
                       },
                       {
