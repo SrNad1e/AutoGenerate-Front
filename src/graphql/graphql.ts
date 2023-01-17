@@ -1128,8 +1128,10 @@ export type CreditHistory = {
   createdAt: Scalars['DateTime'];
   /** Crédito que genera el movimiento */
   credit: Credit;
-  /** Pedido que gestiona el crédito */
-  order: Order;
+  /** Número del documento que relaiza el proceso del pedido */
+  documentNumber?: Maybe<Scalars['Float']>;
+  /** Tipo de documento que genera el movimiento */
+  documentType?: Maybe<TypeDocument>;
   /** Tipo de movimiento de cartera */
   type: TypeCreditHistory;
   /** Fecha de actualización */
@@ -1855,6 +1857,8 @@ export type FiltersCreditHistoryInput = {
   creditId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente */
   customerId?: InputMaybe<Scalars['String']>;
+  /** Número del documento que realiza el nmovimiento */
+  documentNumber?: InputMaybe<Scalars['Float']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Página actual */
@@ -3376,6 +3380,8 @@ export type PointOfSale = {
   box: Box;
   /** Fecha de cierre */
   closeDate?: Maybe<Scalars['DateTime']>;
+  /** Se encuentra en proceso de cierre */
+  closing?: Maybe<Scalars['Boolean']>;
   /** Compañia a la que pertenece el punto de venta */
   company: Company;
   /** Fecha de creación */
@@ -5936,6 +5942,11 @@ export enum TypeCreditHistory {
   Thawed = 'THAWED',
 }
 
+export enum TypeDocument {
+  Order = 'ORDER',
+  Receipt = 'RECEIPT',
+}
+
 export enum TypeErrorCash {
   Missing = 'MISSING',
   Surplus = 'SURPLUS',
@@ -6168,6 +6179,8 @@ export type UpdatePaymentInput = {
 export type UpdatePointOfSaleInput = {
   /** Fecha de cierre del punto de venta */
   closeDate?: InputMaybe<Scalars['String']>;
+  /** Cerrando punto de venta */
+  closing?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** Datos para actualizar el producto */
@@ -7984,7 +7997,11 @@ export type LoginMutation = {
       _id: string;
       username: string;
       name: string;
-      pointOfSale?: { __typename?: 'PointOfSale'; _id: string } | null;
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        _id: string;
+        box: { __typename?: 'Box'; _id: string };
+      } | null;
       shop: {
         __typename?: 'Shop';
         _id: string;
@@ -15952,7 +15969,19 @@ export const LoginDocument = {
                         name: { kind: 'Name', value: 'pointOfSale' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'box' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                ],
+                              },
+                            },
+                          ],
                         },
                       },
                       {

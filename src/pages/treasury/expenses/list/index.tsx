@@ -61,6 +61,7 @@ type FormValues = {
   status?: StatusExpense;
   number?: number;
   shopId?: string;
+  boxId?: string;
 };
 
 const ExpensesList = () => {
@@ -79,6 +80,8 @@ const ExpensesList = () => {
   const {
     expense: { canCreate, canPrint, canCancelled },
   } = useAccess();
+
+  const rolesDenied = ['cajera OK', 'admin_tienda OK'];
 
   const location: Location = useLocation();
   const reportRef = useRef(null);
@@ -136,13 +139,24 @@ const ExpensesList = () => {
    */
   const onSearch = (filters?: FiltersExpensesInput) => {
     try {
-      getExpenses({
-        variables: {
-          input: {
-            ...filters,
+      if (!rolesDenied.includes(initialState?.currentUser?.role?.name as string)) {
+        getExpenses({
+          variables: {
+            input: {
+              ...filters,
+            },
           },
-        },
-      });
+        });
+      } else {
+        getExpenses({
+          variables: {
+            input: {
+              ...filters,
+              boxId: initialState?.currentUser?.pointOfSale?.box?._id,
+            },
+          },
+        });
+      }
     } catch (error: any) {
       showError(error?.message);
     }
@@ -185,7 +199,6 @@ const ExpensesList = () => {
       limit: 10,
       ...value,
     };
-
     onSearch({ ...params, ...filters });
     setQueryParams({ ...value, ...filters });
   };
@@ -267,24 +280,38 @@ const ExpensesList = () => {
   /**
    * @description se encarga de cargar los datos con base a la query
    */
-  const loadingData = () => {
+  const loadingData = (box: string) => {
     const queryParams: any = location?.query;
+    if (!rolesDenied.includes(initialState?.currentUser?.role?.name as string)) {
+      const params = {};
 
-    const params = {};
-
-    Object.keys(queryParams).forEach((item) => {
-      if (item === 'active') {
-        params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
-      } else {
-        params[item] = JSON.parse(queryParams[item]);
-      }
-    });
-    form.setFieldsValue(params);
-    onFinish(params);
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'active') {
+          params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+        } else {
+          params[item] = JSON.parse(queryParams[item]);
+        }
+      });
+      form.setFieldsValue(params);
+      onFinish(params);
+    } else {
+      const params = { boxId: box || initialState?.currentUser?.pointOfSale?.box?._id };
+      Object.keys(queryParams).forEach((item) => {
+        if (item === 'active') {
+          params[item] = ['true', true].includes(JSON.parse(queryParams[item]));
+        } else {
+          params[item] = JSON.parse(queryParams[item]);
+        }
+      });
+      form.setFieldsValue(params);
+      onFinish({ ...params });
+    }
   };
 
   useEffect(() => {
-    loadingData();
+    if (initialState?.currentUser?.pointOfSale) {
+      loadingData(initialState?.currentUser?.pointOfSale?.box?._id);
+    }
   }, []);
 
   useEffect(() => {
@@ -313,7 +340,7 @@ const ExpensesList = () => {
       ),
       dataIndex: 'box',
       align: 'center',
-      render: (box: Box) => <Tag style={styles.tagStyle}>{box.name}</Tag>,
+      render: (box: Box) => <Tag style={styles.tagStyle}>{box?.name}</Tag>,
     },
     {
       title: (
@@ -389,7 +416,7 @@ const ExpensesList = () => {
               okText="Si"
               cancelText="No"
               disabled={expenseId.status === StatusExpense.Cancelled}
-              onConfirm={() => cancelExpense(expenseId._id)}
+              onConfirm={() => cancelExpense(expenseId?._id)}
             >
               <Button
                 danger
@@ -421,7 +448,11 @@ const ExpensesList = () => {
             </Col>
             <Col xs={24} sm={7} md={8} lg={8} xl={6}>
               <FormItem label="Caja" name="boxId">
-                <SelectBox disabled={loading} />
+                <SelectBox
+                  disabled={
+                    loading || rolesDenied.includes(initialState?.currentUser?.role?.name as string)
+                  }
+                />
               </FormItem>
             </Col>
             <Col xs={24} sm={8} md={8} lg={8} xl={6}>
