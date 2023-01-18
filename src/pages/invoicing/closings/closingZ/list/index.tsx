@@ -98,6 +98,8 @@ const ClosingZList = () => {
 
   const [getCloses, { data, loading }] = useGetClosesZInvoicing();
 
+  const rolesDenied = ['cajera OK', 'admin_tienda OK'];
+
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
@@ -168,16 +170,30 @@ const ClosingZList = () => {
    */
   const onSearch = (params?: FiltersClosesZInvoicingInput) => {
     try {
-      getCloses({
-        variables: {
-          input: {
-            sort: {
-              createdAt: -1,
+      if (!rolesDenied.includes(initialState?.currentUser?.role?.name as string)) {
+        getCloses({
+          variables: {
+            input: {
+              sort: {
+                createdAt: -1,
+              },
+              ...params,
             },
-            ...params,
           },
-        },
-      });
+        });
+      } else {
+        getCloses({
+          variables: {
+            input: {
+              sort: {
+                createdAt: -1,
+              },
+              ...params,
+              shopId: initialState?.currentUser?.shop?._id,
+            },
+          },
+        });
+      }
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -264,13 +280,25 @@ const ClosingZList = () => {
 
   useEffect(() => {
     try {
-      const queryParams: any = location.query;
+      if (!rolesDenied.includes(initialState?.currentUser?.role?.name as string)) {
+        const queryParams: any = location.query;
 
-      const newFilters = {};
-      Object.keys(queryParams).forEach((item) => {
-        newFilters[item] = JSON.parse(queryParams[item]);
-      });
-      onFinish(newFilters);
+        const newFilters = {};
+        Object.keys(queryParams).forEach((item) => {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        });
+        onFinish(newFilters);
+      } else {
+        const queryParams: any = location.query;
+
+        const newFilters = {
+          shopId: initialState?.currentUser?.shop?._id,
+        };
+        Object.keys(queryParams).forEach((item) => {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        });
+        onFinish(newFilters);
+      }
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -411,7 +439,9 @@ const ClosingZList = () => {
             </Col>
             <Col xs={24} md={5} lg={6} xl={7} xxl={6}>
               <FormItem label="Tienda" name="shopId">
-                <SelectShop disabled={loading} />
+                <SelectShop
+                  disabled={rolesDenied.includes(initialState?.currentUser?.role?.name as string)}
+                />
               </FormItem>
             </Col>
             <Col xs={24} md={4} lg={4} xl={3} xxl={4}>
