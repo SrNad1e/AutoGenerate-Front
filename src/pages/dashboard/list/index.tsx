@@ -453,10 +453,6 @@ const Dashboard = () => {
     form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
   }, []);
 
-  useEffect(() => {
-    console.log(sales);
-  }, [sales]);
-
   /**
    * @description se encarga de limpiar los estados e inicializarlos
    */
@@ -466,6 +462,102 @@ const Dashboard = () => {
     onSearchData();
     form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
   };
+
+  const dateFormatTitle = () => {
+    const dateValue = form.getFieldValue('dates');
+    const newDates = [];
+    if (dateValue) {
+      const initialDate = moment(dateValue[0]).format('MM');
+      const finalDate = moment(dateValue[1]).format('MM');
+      switch (initialDate) {
+        case '01':
+          newDates.push('Enero');
+          break;
+        case '02':
+          newDates.push('Febrero');
+          break;
+        case '03':
+          newDates.push('Marzo');
+          break;
+        case '04':
+          newDates.push('Abril');
+          break;
+        case '05':
+          newDates.push('Mayo');
+          break;
+        case '06':
+          newDates.push('Junio');
+          break;
+        case '07':
+          newDates.push('Julio');
+          break;
+        case '08':
+          newDates.push('Agosto');
+          break;
+        case '09':
+          newDates.push('Septiembre');
+          break;
+        case '10':
+          newDates.push('Octubre');
+          break;
+        case '11':
+          newDates.push('Noviembre');
+          break;
+        case '12':
+          newDates.push('Diciembre');
+          break;
+
+        default:
+          break;
+      }
+      switch (finalDate) {
+        case '01':
+          newDates.push('Enero');
+          break;
+        case '02':
+          newDates.push('Febrero');
+          break;
+        case '03':
+          newDates.push('Marzo');
+          break;
+        case '04':
+          newDates.push('Abril');
+          break;
+        case '05':
+          newDates.push('Mayo');
+          break;
+        case '06':
+          newDates.push('Junio');
+          break;
+        case '07':
+          newDates.push('Julio');
+          break;
+        case '08':
+          newDates.push('Agosto');
+          break;
+        case '09':
+          newDates.push('Septiembre');
+          break;
+        case '10':
+          newDates.push('Octubre');
+          break;
+        case '11':
+          newDates.push('Noviembre');
+          break;
+        case '12':
+          newDates.push('Diciembre');
+          break;
+
+        default:
+          break;
+      }
+    }
+    return newDates;
+  };
+
+  useEffect(() => {
+    console.log(dateFormatTitle());
+  }, [paramsGetReportSales.data]);
 
   const summaryData = paramsGetReportSales.data?.reportSales?.summarySalesReport;
 
@@ -584,7 +676,11 @@ const Dashboard = () => {
                     justifyContent: 'center',
                     alignContent: 'center',
                   }}
-                  title="Proporción de Clientes"
+                  title={
+                    dateFormatTitle()[0] === dateFormatTitle()[1]
+                      ? `Proporción Clientes: ${dateFormatTitle()[0]}`
+                      : `Proporción Clientes: ${dateFormatTitle()[0]} - ${dateFormatTitle()[1]}`
+                  }
                 >
                   {renderPie()}
                 </Card>
@@ -598,7 +694,13 @@ const Dashboard = () => {
                     justifyContent: 'center',
                     alignContent: 'center',
                   }}
-                  title="Proporción de Medios de Pago"
+                  title={
+                    dateFormatTitle()[0] === dateFormatTitle()[1]
+                      ? `Proporción Medios de Pago: ${dateFormatTitle()[0]}`
+                      : `Proporción Medios de Pago: ${dateFormatTitle()[0]} - ${
+                          dateFormatTitle()[1]
+                        }`
+                  }
                 >
                   {renderPiePayment()}
                 </Card>
