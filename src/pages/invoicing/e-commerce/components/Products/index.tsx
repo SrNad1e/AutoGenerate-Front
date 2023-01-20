@@ -398,9 +398,9 @@ const Products = ({ orderdata }: Props) => {
       ),
     },
     {
-      title: 'Color',
+      title: 'Color - Color Interno',
       dataIndex: 'details',
-      width: 150,
+      width: 180,
       render: (_, detail) => (
         <Row align="middle">
           <Col>
@@ -414,7 +414,9 @@ const Products = ({ orderdata }: Props) => {
             />
           </Col>
           <Col>
-            <Text>{detail?.product?.color?.name}</Text>
+            <Text>
+              {detail?.product?.color?.name} - {detail?.product?.color?.name_internal}
+            </Text>
           </Col>
         </Row>
       ),
@@ -432,6 +434,7 @@ const Products = ({ orderdata }: Props) => {
     {
       title: 'Precio Facturado',
       dataIndex: 'details',
+      width: 120,
       render: (_, detail) =>
         numeral(detail?.product?.reference?.price - detail?.discount).format('$ 0,0'),
     },
@@ -520,9 +523,9 @@ const Products = ({ orderdata }: Props) => {
       ),
     },
     {
-      title: 'Color',
+      title: 'Color - Color Interno',
       dataIndex: 'details',
-      width: 150,
+      width: 180,
       render: (_, detail) => (
         <>
           <Avatar
@@ -533,7 +536,9 @@ const Products = ({ orderdata }: Props) => {
               marginRight: 10,
             }}
           />
-          <Text>{detail?.product?.color?.name}</Text>
+          <Text>
+            {detail?.product?.color?.name} - {detail?.product?.color?.name_internal}
+          </Text>
         </>
       ),
     },
@@ -566,6 +571,7 @@ const Products = ({ orderdata }: Props) => {
       title: 'Cantidad Confirmada',
       dataIndex: '_id',
       align: 'center',
+      fixed: 'right',
       render: (_id, detail) => {
         const bgColor =
           productsQuantityConfirm?.find((i) => i?.barcode === detail?.product?.barcode)
@@ -739,7 +745,7 @@ const Products = ({ orderdata }: Props) => {
               pagination={false}
               columns={visibleConfirmProduct ? columnConfirm : column}
               dataSource={sortedDesc}
-              scroll={{ x: 1000, y: 500 }}
+              scroll={{ x: 1050, y: 500 }}
               loading={paramsAddProduct.loading || paramsConfirmProductQuantity.loading}
             />
           </Col>

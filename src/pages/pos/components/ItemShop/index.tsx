@@ -56,19 +56,25 @@ const ShopItem = ({ product, addProductOrder }: Params) => {
                   </Space>
                 </Col>
                 <Col sm={24}>
-                  <Space>
-                    <Text strong>Color:</Text>
-                    <Text>{color?.name}</Text>
-                    <Avatar
-                      size="small"
-                      src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
-                      style={{
-                        backgroundColor: color?.html,
-                        borderRadius: '50%',
-                        border: 'solid 1px black',
-                      }}
-                    />
-                  </Space>
+                  <Row>
+                    <Col span={7}>
+                      <Text strong>Color:</Text>
+                    </Col>
+                    <Col span={9}>
+                      <Text>{color?.name}</Text>
+                    </Col>
+                    <Col span={6}>
+                      <Avatar
+                        size="small"
+                        src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
+                        style={{
+                          backgroundColor: color?.html,
+                          borderRadius: '50%',
+                          border: 'solid 1px black',
+                        }}
+                      />
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
             </Col>

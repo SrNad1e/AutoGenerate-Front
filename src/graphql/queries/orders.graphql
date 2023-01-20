@@ -4,6 +4,7 @@ query Orders($input: FiltersOrdersInput!) {
     totalPages
     page
     docs {
+      closeDate
       address {
         city {
           name

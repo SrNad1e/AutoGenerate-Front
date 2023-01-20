@@ -13,6 +13,7 @@ import {
   CalendarOutlined,
   ClearOutlined,
   ContainerOutlined,
+  DollarCircleFilled,
   DollarCircleOutlined,
   FieldNumberOutlined,
   LaptopOutlined,
@@ -29,7 +30,7 @@ import {
   Col,
   DatePicker,
   Form,
-  Input,
+  InputNumber,
   Row,
   Space,
   Table,
@@ -48,7 +49,8 @@ import moment from 'moment';
 import numeral from 'numeral';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import { Location, useModel } from 'umi';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
@@ -95,6 +97,8 @@ const ClosingZList = () => {
   } = useAccess();
 
   const [getCloses, { data, loading }] = useGetClosesZInvoicing();
+
+  const rolesDenied = ['cajera OK', 'admin_tienda OK'];
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
@@ -166,16 +170,30 @@ const ClosingZList = () => {
    */
   const onSearch = (params?: FiltersClosesZInvoicingInput) => {
     try {
-      getCloses({
-        variables: {
-          input: {
-            sort: {
-              createdAt: -1,
+      if (!rolesDenied.includes(initialState?.currentUser?.role?.name as string)) {
+        getCloses({
+          variables: {
+            input: {
+              sort: {
+                createdAt: -1,
+              },
+              ...params,
             },
-            ...params,
           },
-        },
-      });
+        });
+      } else {
+        getCloses({
+          variables: {
+            input: {
+              sort: {
+                createdAt: -1,
+              },
+              ...params,
+              shopId: initialState?.currentUser?.shop?._id,
+            },
+          },
+        });
+      }
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -262,13 +280,25 @@ const ClosingZList = () => {
 
   useEffect(() => {
     try {
-      const queryParams: any = location.query;
+      if (!rolesDenied.includes(initialState?.currentUser?.role?.name as string)) {
+        const queryParams: any = location.query;
 
-      const newFilters = {};
-      Object.keys(queryParams).forEach((item) => {
-        newFilters[item] = JSON.parse(queryParams[item]);
-      });
-      onFinish(newFilters);
+        const newFilters = {};
+        Object.keys(queryParams).forEach((item) => {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        });
+        onFinish(newFilters);
+      } else {
+        const queryParams: any = location.query;
+
+        const newFilters = {
+          shopId: initialState?.currentUser?.shop?._id,
+        };
+        Object.keys(queryParams).forEach((item) => {
+          newFilters[item] = JSON.parse(queryParams[item]);
+        });
+        onFinish(newFilters);
+      }
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -315,7 +345,7 @@ const ClosingZList = () => {
       dataIndex: 'closeDate',
       sorter: true,
       showSorterTooltip: false,
-      render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE_API),
+      render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE),
     },
     {
       title: (
@@ -339,6 +369,26 @@ const ClosingZList = () => {
       dataIndex: 'user',
       align: 'center',
       render: (user: User) => user?.name,
+    },
+    {
+      title: <Text>{<DollarCircleFilled />} Ingreso Neto</Text>,
+      dataIndex: 'payments',
+      align: 'center',
+      render: (payments: PaymentOrderClose[]) => {
+        const incomings = payments?.reduce((sum, payment) => sum + payment?.value, 0);
+        const valueBonus = payments?.find((item) => item?.payment?.type === 'BONUS')?.value || 0;
+
+        return numeral(incomings - valueBonus).format('$ 0,0');
+      },
+    },
+    {
+      title: <Text>{<DollarCircleFilled />} Bonos Redimidos</Text>,
+      dataIndex: 'payments',
+      align: 'center',
+      render: (payments: PaymentOrderClose[]) =>
+        numeral(payments?.find((item) => item?.payment?.type === 'BONUS')?.value || 0).format(
+          '$ 0,0',
+        ),
     },
     {
       title: (
@@ -370,7 +420,12 @@ const ClosingZList = () => {
           <Row gutter={[20, 0]}>
             <Col xs={24} md={4} lg={4} xl={4}>
               <FormItem label="Número" name="number">
-                <Input style={{ width: '100%' }} disabled={loading} placeholder="Ejem: 10" />
+                <InputNumber
+                  controls={false}
+                  style={{ width: '100%' }}
+                  disabled={loading}
+                  placeholder="Ejem: 10"
+                />
               </FormItem>
             </Col>
             <Col xs={24} md={7} lg={7} xl={7}>
@@ -384,7 +439,9 @@ const ClosingZList = () => {
             </Col>
             <Col xs={24} md={5} lg={6} xl={7} xxl={6}>
               <FormItem label="Tienda" name="shopId">
-                <SelectShop disabled={loading} />
+                <SelectShop
+                  disabled={rolesDenied.includes(initialState?.currentUser?.role?.name as string)}
+                />
               </FormItem>
             </Col>
             <Col xs={24} md={4} lg={4} xl={3} xxl={4}>
@@ -436,10 +493,11 @@ const ClosingZList = () => {
               pagination={{
                 current: data?.closesZInvoicing?.page,
                 total: data?.closesZInvoicing?.totalDocs,
+                showSizeChanger: false,
               }}
               onChange={handleChangeTable}
               columns={columns}
-              scroll={{ x: 900 }}
+              scroll={{ x: 1000 }}
               loading={loading}
               dataSource={data?.closesZInvoicing?.docs as any}
             />

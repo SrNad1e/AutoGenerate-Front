@@ -65,7 +65,7 @@ const ExpensesForm = ({ visible, onCancel }: Props) => {
   const valueBox = () => {
     if (!canChangeBox) {
       if (initialState?.currentUser?.pointOfSale?._id) {
-        form.setFieldsValue({ boxId: initialState?.currentUser?.pointOfSale?.box._id });
+        form.setFieldsValue({ boxId: initialState?.currentUser?.pointOfSale?.box?._id });
       } else {
         setAlertInformation({
           message: 'El usuario no tiene punto de venta asignado',

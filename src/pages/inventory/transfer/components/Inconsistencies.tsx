@@ -110,7 +110,7 @@ const Inconsistencies = ({ onCancel, visible }: Props) => {
       const params: FiltersStockTransfersErrorInput = {
         page: pageCurrent || 1,
         limit: 10,
-        verifield: verifield,
+        verifield: verifield || false,
       };
 
       onSearch(params);

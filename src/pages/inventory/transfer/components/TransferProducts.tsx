@@ -6,7 +6,7 @@ import {
   MoreOutlined,
   SendOutlined,
 } from '@ant-design/icons';
-import { Badge, Button, Modal, Space, Table, Tag, Typography } from 'antd';
+import { Avatar, Badge, Button, Modal, Space, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import type {
   DetailTransferError,
@@ -142,6 +142,22 @@ const TransferProducts = ({ onCancel, visible, data, loading }: Props) => {
       dataIndex: 'product',
       align: 'center',
       render: (product: Product) => product?.size?.value,
+    },
+    {
+      title: 'Color',
+      dataIndex: 'product',
+      align: 'center',
+      render: (product: Product) => (
+        <>
+          <Avatar
+            size="small"
+            style={{ backgroundColor: product?.color?.html, border: 'solid 1px black' }}
+            src={`${CDN_URL}/${product?.color?.image?.urls?.webp?.small}`}
+          />
+
+          <Text style={{ marginLeft: 10 }}>{product?.color?.name_internal}</Text>
+        </>
+      ),
     },
     {
       title: 'Cantidad Pendiente',

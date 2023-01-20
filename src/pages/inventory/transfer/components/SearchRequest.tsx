@@ -18,6 +18,7 @@ import { StatusStockRequest } from '@/graphql/graphql';
 import { StatusType } from '../../request/request.data';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
+import ConfirmRequest from './confirmRequest';
 
 const FormItem = Form.Item;
 
@@ -27,6 +28,15 @@ export type Params = {
   visible: boolean;
   onCancel: () => void;
   onOk: (requests: StockRequest[]) => void;
+  setDetailRequest: any;
+  detailRequest: any;
+  visibleConfirmRequest: boolean;
+  setVisibleConfirmRequest: any;
+  setDetails: any;
+  setRequests: any;
+  details: any;
+  setSaveDetails: any;
+  saveDetails: any[];
 };
 
 type FormValues = {
@@ -35,7 +45,22 @@ type FormValues = {
   all?: boolean;
 };
 
-const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) => {
+const SearchRequest = ({
+  requests,
+  visible,
+  onCancel,
+  onOk,
+  transfer,
+  detailRequest,
+  setDetailRequest,
+  visibleConfirmRequest,
+  setVisibleConfirmRequest,
+  setDetails,
+  setRequests,
+  details,
+  setSaveDetails,
+  saveDetails,
+}: Params) => {
   const [requestsSelected, setRequestSelected] = useState<StockRequest[]>([]);
   const [keysSelected, setKeysSelected] = useState<React.Key[]>([]);
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
@@ -43,7 +68,7 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
     type: 'error',
     visible: false,
   });
-
+  const [used, setUsed] = useState<any[]>([]);
   const [getRequests, { data, loading }] = useGetRequests();
 
   /**
@@ -69,6 +94,13 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
     });
   };
 
+  const onCloseConfirm = () => {
+    setVisibleConfirmRequest(false);
+    if (saveDetails.length === 0) {
+      setDetailRequest([]);
+    }
+  };
+
   /**
    * @description consulta las solicitudes
    * @param values filtros del formulario
@@ -92,21 +124,22 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
       onSearch({
         warehouseDestinationId: transfer?.warehouseDestination?._id,
         status: StatusStockRequest.Pending,
+        sort: {
+          createdAt: -1,
+        },
       });
     } catch (error: any) {
       messageError(error?.message);
     }
   };
+
   /**
    * @description selecciona las solicitudes y las almacena en un array
    */
-  const onSelect = () => {
+  const onSelect = async () => {
+    setVisibleConfirmRequest(true);
     try {
-      const newRequests = requestsSelected.filter(
-        (item) => !requests?.find((request) => request?._id === item?._id),
-      );
-
-      onOk(newRequests);
+      await onOk(requestsSelected);
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -137,21 +170,32 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
     }
   };
 
+  const arr: StockRequest[] = [];
   const rowSelection = {
     type: 'checkbox',
     selectedRowKeys: keysSelected,
     onChange: (selectedRowKeys: React.Key[], selectedRows: StockRequest[]) => {
       setKeysSelected(selectedRowKeys);
-
       setRequestSelected(selectedRows);
+      if (used.length > 0) {
+        for (let i = 0; i < selectedRows.length; i++) {
+          if (selectedRows[i]._id !== used[i]) {
+            arr.push(selectedRows[i]);
+          }
+        }
+        setRequestSelected(arr);
+      }
     },
     getCheckboxProps: (record: StockRequest) => ({
-      disabled: !!requests?.find((request) => request?._id === record?._id),
+      disabled: used.includes(record?._id) || !!requests.find((item) => item._id === record._id),
     }),
   };
 
   useEffect(() => {
     onSearchPendings();
+    if (visible === false && saveDetails.length === 0) {
+      setKeysSelected([]);
+    }
   }, [visible]);
 
   const columns: ColumnsType<StockRequest> = [
@@ -170,7 +214,7 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
       title: 'Referencias',
       dataIndex: 'details',
       align: 'center',
-      render: (details: DetailRequest[]) => details?.length,
+      render: (detail: DetailRequest[]) => detail?.length,
     },
     {
       title: 'Estado',
@@ -197,7 +241,11 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
       width={1000}
       okText="Seleccionar"
       cancelText="Salir"
-      okButtonProps={{ style: { borderRadius: 5 } }}
+      okButtonProps={{
+        style: { borderRadius: 5 },
+        disabled:
+          requestsSelected.length === 0 || used.length === data?.stockRequests?.docs?.length,
+      }}
       cancelButtonProps={{ style: { borderRadius: 5 } }}
     >
       <Space size="middle" style={{ width: '100%' }} direction="vertical">
@@ -247,6 +295,23 @@ const SearchRequest = ({ requests, visible, onCancel, onOk, transfer }: Params) 
         />
       </Space>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
+      <ConfirmRequest
+        saveDetails={saveDetails}
+        setSaveDetails={setSaveDetails}
+        setRequesSelected={setRequestSelected}
+        request={requests}
+        setRequest={setRequests}
+        details={details}
+        used={used}
+        requestsSelected={requestsSelected}
+        keysSelected={keysSelected}
+        setUsed={setUsed}
+        setDetail={setDetails}
+        setDetailRequest={setDetailRequest}
+        detailRequest={detailRequest}
+        visible={visibleConfirmRequest}
+        onCancel={onCloseConfirm}
+      />
     </Modal>
   );
 };

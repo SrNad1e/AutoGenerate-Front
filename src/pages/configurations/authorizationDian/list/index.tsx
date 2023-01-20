@@ -3,10 +3,16 @@ import {
   CalendarOutlined,
   ClearOutlined,
   EditOutlined,
+  FieldNumberOutlined,
+  FileDoneOutlined,
   FileProtectOutlined,
+  MailOutlined,
   MoreOutlined,
+  PhoneOutlined,
   PlusOutlined,
+  ReconciliationOutlined,
   SearchOutlined,
+  ShopOutlined,
 } from '@ant-design/icons';
 import type { TablePaginationConfig } from 'antd';
 import { Button, Card, Col, Form, Input, Row, Space, Table, Tag, Tooltip, Typography } from 'antd';
@@ -14,7 +20,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import type { ColumnsType, SorterResult } from 'antd/lib/table/interface';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import type { AuthorizationDian, FiltersAuthorizationInput } from '@/graphql/graphql';
+import type { AuthorizationDian, FiltersAuthorizationInput, Shop } from '@/graphql/graphql';
 import { Permissions } from '@/graphql/graphql';
 import type { Location } from 'umi';
 import { useModel } from 'umi';
@@ -108,6 +114,9 @@ const AuthorizationDianList = () => {
         variables: {
           input: {
             limit: 10,
+            sort: {
+              prefix: 1,
+            },
             ...filters,
           },
         },
@@ -227,10 +236,84 @@ const AuthorizationDianList = () => {
       render: (prefix: string) => <Tag style={styles.tagStyle}>{prefix}</Tag>,
     },
     {
-      title: <Text>{<CalendarOutlined />} Fecha</Text>,
-      dataIndex: 'updatedAt',
+      title: <Text>{<ShopOutlined />} Tienda</Text>,
+      dataIndex: 'shop',
+      align: 'left',
+      sorter: false,
+      showSorterTooltip: false,
+      render: (shop: Shop) => (
+        <Space direction="vertical">
+          <Text>{shop?.name}</Text>
+          <Tag>
+            {<PhoneOutlined />} {shop?.phone || '(No Registra)'}
+          </Tag>
+        </Space>
+      ),
+    },
+    {
+      title: <Text>{<MailOutlined />} Nombre comercial</Text>,
+      dataIndex: 'shop',
+      align: 'left',
+      sorter: false,
+      showSorterTooltip: false,
+      width: 200,
+      render: (shop: Shop) => (
+        <Space direction="vertical">
+          <Row>
+            <Col span={24}>
+              <Text>{shop?.companyName || '(No Registra)'}</Text>
+            </Col>
+            <Col span={24}>
+              <Text>
+                {<FileDoneOutlined />} {shop?.document || '(No Registra)'}
+              </Text>
+            </Col>
+            <Col span={8}>
+              <Tag>
+                {<MailOutlined />} {shop?.email || '(No Registra)'}
+              </Tag>
+            </Col>
+          </Row>
+        </Space>
+      ),
+    },
+    {
+      title: <Text>{<ReconciliationOutlined />} Resolution</Text>,
+      dataIndex: 'resolution',
       align: 'center',
-      render: (updatedAt: string) => moment(updatedAt).format('YYYY-MM-DD HH:mm:ss'),
+      sorter: false,
+      showSorterTooltip: false,
+      render: (resolution: string) => resolution || '(No Registra)',
+    },
+    {
+      title: <Text>{<FieldNumberOutlined />} Inicial</Text>,
+      dataIndex: 'numberInitial',
+      align: 'center',
+      sorter: false,
+      showSorterTooltip: false,
+      render: (numberInitial: number) => numberInitial || '(No Registra)',
+    },
+    {
+      title: <Text>{<FieldNumberOutlined />} Final</Text>,
+      dataIndex: 'numberFinal',
+      align: 'center',
+      sorter: false,
+      showSorterTooltip: false,
+      render: (numberFinal: number) => numberFinal || '(No Registra)',
+    },
+    {
+      title: <Text>{<CalendarOutlined />} Fecha Inicial</Text>,
+      dataIndex: 'dateInitial',
+      align: 'center',
+      render: (dateInitial: string) =>
+        dateInitial ? moment(dateInitial).format('YYYY-MM-DD') : '(No Registra)',
+    },
+    {
+      title: <Text>{<CalendarOutlined />} Fecha Final</Text>,
+      dataIndex: 'dateFinal',
+      align: 'center',
+      render: (dateFinal: string) =>
+        dateFinal ? moment(dateFinal).format('YYYY-MM-DD') : '(No Registra)',
     },
     {
       title: <Text>{<MoreOutlined />} Opción</Text>,
@@ -317,7 +400,7 @@ const AuthorizationDianList = () => {
               columns={column}
               loading={paramsGetAuthorizations?.loading}
               dataSource={paramsGetAuthorizations?.data?.authorizations?.docs}
-              scroll={{ x: 'auto' }}
+              scroll={{ x: 1200 }}
               pagination={{
                 current: paramsGetAuthorizations?.data?.authorizations?.page,
                 total: paramsGetAuthorizations?.data?.authorizations?.totalDocs,
