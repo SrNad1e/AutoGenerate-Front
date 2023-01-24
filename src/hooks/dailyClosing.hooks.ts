@@ -1,6 +1,11 @@
+import { GenerateDailyClosingDocument } from './../graphql/graphql';
 import { DailyClosingDocument } from '@/graphql/graphql';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 
 export const useGetDailyClosings = () => {
   return useLazyQuery(DailyClosingDocument);
+};
+
+export const useGenerateDailyClosing = () => {
+  return useMutation(GenerateDailyClosingDocument);
 };
