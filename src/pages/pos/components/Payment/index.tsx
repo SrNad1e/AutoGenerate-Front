@@ -360,10 +360,27 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
     }
   }, [paymentsSave]);
 
+  const paymentsSort: any[] = [];
+
+  data?.payments?.docs.forEach((payment) => {
+    if (payment.type === TypePayment.Cash) {
+      paymentsSort[0] = payment;
+    }
+    if (payment.type === TypePayment.Bank) {
+      paymentsSort[1] = payment;
+    }
+    if (payment.type === TypePayment.Bonus) {
+      paymentsSort[2] = payment;
+    }
+    if (payment.type === TypePayment.Credit) {
+      paymentsSort[3] = payment;
+    }
+  });
+
   return (
     <Modal
       centered
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       destroyOnClose
       footer={false}
@@ -376,7 +393,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
         <Col span={12}>
           <Title level={3}>Medios de pago</Title>
           <Row gutter={[24, 24]}>
-            {data?.payments?.docs
+            {paymentsSort
               ?.filter((payment) => (credit ? true : payment?.type !== TypePayment.Credit))
               ?.map((payment) => (
                 <Col key={payment?._id}>

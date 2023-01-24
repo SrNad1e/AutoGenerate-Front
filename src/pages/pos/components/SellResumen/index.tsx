@@ -168,7 +168,7 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
           </Row>
         </Col>
         <Divider style={styles.dividerStyle} />
-        <Col span={24} style={{ marginTop: 20 }}>
+        <Col span={24} style={{ marginTop: 20, bottom: 25 }}>
           <Row gutter={[10, 10]} align="middle" justify="center">
             <Col lg={10} xl={10}>
               <Button
