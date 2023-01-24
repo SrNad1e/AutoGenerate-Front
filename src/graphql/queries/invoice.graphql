@@ -45,5 +45,8 @@ query invoices($input: FiltersInvoicesInput) {
         quantity
       }
     }
+    page
+    totalDocs
+    totalPages
   }
 }

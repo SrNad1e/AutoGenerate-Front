@@ -9043,6 +9043,9 @@ export type InvoicesQuery = {
   __typename?: 'Query';
   invoices: {
     __typename?: 'ResponseInvoices';
+    page: number;
+    totalDocs: number;
+    totalPages: number;
     docs: {
       __typename?: 'Invoice';
       _id: string;
@@ -19234,6 +19237,9 @@ export const InvoicesDocument = {
                     ],
                   },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
               ],
             },
           },

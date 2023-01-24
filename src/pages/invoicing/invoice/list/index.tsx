@@ -376,6 +376,8 @@ const InvoiceList = () => {
     },
   ];
 
+  console.log('invoices', paramsGetInvoices?.data?.invoices?.docs);
+
   return (
     <PageContainer>
       <Card bordered={false}>
@@ -422,15 +424,11 @@ const InvoiceList = () => {
           </>
         )}
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
-          <Col span={24} style={styles.texRigth}>
-            <Space>
-              <Text strong>Total Encontrados:</Text>
-              <Text>{1 || 0}</Text>
-              <Text strong>Pagina:</Text>
-              <Text>
-                {1 || 0}/ {1 || 0}
-              </Text>
-            </Space>
+          <Col span={12} style={styles.alignText}>
+            <Text strong>Total Encontrados: </Text>{' '}
+            {paramsGetInvoices?.data?.invoices?.totalDocs || 0} <Text strong> Páginas: </Text>{' '}
+            {paramsGetInvoices?.data?.invoices?.page || 0} /{' '}
+            {paramsGetInvoices?.data?.invoices?.totalPages || 0}
           </Col>
           <Col span={24}>
             <Table
@@ -438,10 +436,11 @@ const InvoiceList = () => {
               columns={columns}
               scroll={{ x: 1000 }}
               pagination={{
-                current: 1,
-                total: 1,
+                current: paramsGetInvoices?.data?.invoices?.page,
+                total: paramsGetInvoices?.data?.invoices?.totalDocs,
+                pageSize: 20,
               }}
-              dataSource={paramsGetInvoices?.data?.invoices?.docs}
+              dataSource={paramsGetInvoices?.data?.invoices?.docs || []}
             />
           </Col>
         </Row>
