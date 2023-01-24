@@ -1128,10 +1128,8 @@ export type CreditHistory = {
   createdAt: Scalars['DateTime'];
   /** Crédito que genera el movimiento */
   credit: Credit;
-  /** Número del documento que relaiza el proceso del pedido */
-  documentNumber?: Maybe<Scalars['Float']>;
-  /** Tipo de documento que genera el movimiento */
-  documentType?: Maybe<TypeDocument>;
+  /** Pedido que gestiona el crédito */
+  order: Order;
   /** Tipo de movimiento de cartera */
   type: TypeCreditHistory;
   /** Fecha de actualización */
@@ -1857,8 +1855,6 @@ export type FiltersCreditHistoryInput = {
   creditId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente */
   customerId?: InputMaybe<Scalars['String']>;
-  /** Número del documento que realiza el nmovimiento */
-  documentNumber?: InputMaybe<Scalars['Float']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Página actual */
@@ -2455,8 +2451,8 @@ export type GenerateDailyClosingInput = {
   dateFinal: Scalars['String'];
   /** Fecha inicial */
   dateInitial: Scalars['String'];
-  /** Id de punto de venta */
-  pointOfSaleId: Scalars['String'];
+  /** Id de la tienda */
+  shopId: Scalars['String'];
 };
 
 export enum GroupDates {
@@ -5018,8 +5014,6 @@ export type SalesReport = {
   __typename?: 'SalesReport';
   /** Categoría */
   category?: Maybe<CategoryLevel1>;
-  /** Fecha de la venta */
-  date: Scalars['DateTime'];
   /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
   quantity: Scalars['Float'];
   /** Tienda */
@@ -5940,11 +5934,6 @@ export enum TypeCreditHistory {
   Debit = 'DEBIT',
   Frozen = 'FROZEN',
   Thawed = 'THAWED',
-}
-
-export enum TypeDocument {
-  Order = 'ORDER',
-  Receipt = 'RECEIPT',
 }
 
 export enum TypeErrorCash {
@@ -6989,6 +6978,19 @@ export type UpdateCustomerMutationVariables = Exact<{
 export type UpdateCustomerMutation = {
   __typename?: 'Mutation';
   updateCustomer: { __typename?: 'Customer'; _id: string; firstName: string; lastName: string };
+};
+
+export type GenerateDailyClosingMutationVariables = Exact<{
+  input: GenerateDailyClosingInput;
+}>;
+
+export type GenerateDailyClosingMutation = {
+  __typename?: 'Mutation';
+  generateDailyClosing: {
+    __typename?: 'ResponseGenerateDailyClosing';
+    message: string;
+    quantity: number;
+  };
 };
 
 export type CreateDiscountRuleMutationVariables = Exact<{
@@ -8800,6 +8802,45 @@ export type CustomerTypesQuery = {
   customerTypes: {
     __typename?: 'ResponseCustomerTypes';
     docs: { __typename?: 'CustomerType'; _id: string; name: string }[];
+  };
+};
+
+export type DailyClosingQueryVariables = Exact<{
+  input?: InputMaybe<FiltersDailyClosing>;
+}>;
+
+export type DailyClosingQuery = {
+  __typename?: 'Query';
+  dailyClosings: {
+    __typename?: 'ResponseDailyClosing';
+    totalDocs: number;
+    totalPages: number;
+    page: number;
+    docs: {
+      __typename?: 'DailyClosing';
+      _id: string;
+      closeDate: any;
+      invoices: {
+        __typename?: 'Invoice';
+        number: number;
+        createdAt: any;
+        order: { __typename?: 'Order'; number: number };
+        summary: { __typename?: 'SummaryInvoice'; total: number; subtotal: number; tax: number };
+      }[];
+      pointOfSale: {
+        __typename?: 'PointOfSale';
+        name: string;
+        shop: { __typename?: 'Shop'; name: string; document?: string | null };
+        box: { __typename?: 'Box'; name: string };
+      };
+      summary: { __typename?: 'SummaryClose'; total: number; tax: number };
+      summaryPayments: {
+        __typename?: 'SummaryPayment';
+        quantity: number;
+        total: number;
+        payment: { __typename?: 'Payment'; name: string; type: TypePayment };
+      }[];
+    }[];
   };
 };
 
@@ -12162,6 +12203,49 @@ export const UpdateCustomerDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+export const GenerateDailyClosingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'generateDailyClosing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'GenerateDailyClosingInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'generateDailyClosing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'generateDailyClosingInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GenerateDailyClosingMutation, GenerateDailyClosingMutationVariables>;
 export const CreateDiscountRuleDocument = {
   kind: 'Document',
   definitions: [
@@ -18243,6 +18327,156 @@ export const CustomerTypesDocument = {
     },
   ],
 } as unknown as DocumentNode<CustomerTypesQuery, CustomerTypesQueryVariables>;
+export const DailyClosingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'dailyClosing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersDailyClosing' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dailyClosings' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersDailyClosing' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'invoices' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'order' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'summary' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'tax' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'shop' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'box' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'summary' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'tax' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'summaryPayments' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payment' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DailyClosingQuery, DailyClosingQueryVariables>;
 export const DiscountRulesDocument = {
   kind: 'Document',
   definitions: [
