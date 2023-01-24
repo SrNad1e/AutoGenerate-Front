@@ -1,0 +1,6 @@
+mutation generateDailyClosing($input: GenerateDailyClosingInput!) {
+  generateDailyClosing(generateDailyClosingInput: $input) {
+    message
+    quantity
+  }
+}

@@ -9,18 +9,24 @@ const { Title, Text } = Typography;
 export interface Props {
   open: boolean;
   onCancel: () => void;
+  generateCloseDaily: () => void;
   data: InvoicingMutation | null | undefined;
   error: ApolloError | undefined;
+  loading: boolean;
 }
 
-const AlertSuccess = ({ open, onCancel, data, error }: Props) => {
+const AlertSuccess = ({ open, onCancel, generateCloseDaily, data, error, loading }: Props) => {
   const footer = error ? (
     <Space>
-      <Button onClick={onCancel}>Cerrar</Button>
+      <Button loading={loading} onClick={onCancel}>
+        Cerrar
+      </Button>
     </Space>
   ) : (
     <Space>
-      <Button type="primary">Generar cierres</Button>
+      <Button loading={loading} type="primary" onClick={() => generateCloseDaily()}>
+        Generar cierres
+      </Button>
       <Button onClick={onCancel}>Cerrar</Button>
     </Space>
   );

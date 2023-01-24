@@ -841,6 +841,8 @@ export type CreateExpenseInput = {
 
 /** Datos para crear el pedido */
 export type CreateOrderInput = {
+  /** Identificador de la tienda del pedido */
+  shopId: Scalars['String'];
   /** Estado del pedido */
   status: StatusOrder;
 };
@@ -2455,8 +2457,8 @@ export type GenerateDailyClosingInput = {
   dateFinal: Scalars['String'];
   /** Fecha inicial */
   dateInitial: Scalars['String'];
-  /** Id de punto de venta */
-  pointOfSaleId: Scalars['String'];
+  /** Id de la tienda */
+  shopId: Scalars['String'];
 };
 
 export enum GroupDates {
@@ -6989,6 +6991,19 @@ export type UpdateCustomerMutationVariables = Exact<{
 export type UpdateCustomerMutation = {
   __typename?: 'Mutation';
   updateCustomer: { __typename?: 'Customer'; _id: string; firstName: string; lastName: string };
+};
+
+export type GenerateDailyClosingMutationVariables = Exact<{
+  input: GenerateDailyClosingInput;
+}>;
+
+export type GenerateDailyClosingMutation = {
+  __typename?: 'Mutation';
+  generateDailyClosing: {
+    __typename?: 'ResponseGenerateDailyClosing';
+    message: string;
+    quantity: number;
+  };
 };
 
 export type CreateDiscountRuleMutationVariables = Exact<{
@@ -12204,6 +12219,49 @@ export const UpdateCustomerDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateCustomerMutation, UpdateCustomerMutationVariables>;
+export const GenerateDailyClosingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'generateDailyClosing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'GenerateDailyClosingInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'generateDailyClosing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'generateDailyClosingInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GenerateDailyClosingMutation, GenerateDailyClosingMutationVariables>;
 export const CreateDiscountRuleDocument = {
   kind: 'Document',
   definitions: [

@@ -4,11 +4,14 @@ import { useGetReportSales } from '@/hooks/reportSales.hooks';
 import { Button, Card, Col, DatePicker, Form, InputNumber, Modal, Row, Typography } from 'antd';
 import type { RangePickerProps } from 'antd/lib/date-picker';
 import numeral from 'numeral';
+import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import { useRef, useState } from 'react';
 import { useInvoicing } from '@/hooks/invoice.hooks';
 import AlertSuccess from './AlertSuccess';
+import { useGenerateDailyClosing } from '@/hooks/dailyClosing.hooks';
+import AlertInformation from '@/components/Alerts/AlertInformation';
 export interface Props {
   open: boolean;
   onCancel: () => void;
@@ -22,6 +25,11 @@ const { RangePicker } = DatePicker;
 
 const ModalInvoicing = ({ open, onCancel }: Props) => {
   const [showModal, setShowModal] = useState(false);
+  const [propsAlert, setPropsAlert] = useState<PropsAlertInformation>({
+    message: '',
+    type: 'error',
+    visible: false,
+  });
 
   const [form] = Form.useForm();
 
@@ -30,6 +38,8 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
   const [reportSales, { loading, data }] = useGetReportSales();
 
   const [generateInvoicing, dataInvoicing] = useInvoicing();
+
+  const [generateCloseDaily, dataCloseDaily] = useGenerateDailyClosing();
 
   const getPayments = async () => {
     await form.validateFields(['shopId', 'dates']);
@@ -81,9 +91,53 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
     }
   };
 
+  const onCloseAlert = () => {
+    setPropsAlert({
+      message: '',
+      type: 'error',
+      visible: false,
+    });
+  };
+
+  const showAlert = (message: string, type: 'error' | 'success') => {
+    setPropsAlert({
+      message,
+      type,
+      visible: true,
+    });
+  };
+
   const disabledDate: RangePickerProps['disabledDate'] = (current) => {
     // Can not select days before today and today
     return current && current > moment().subtract(1, 'd').endOf('day');
+  };
+
+  const createCloseDaily = async () => {
+    const shopId = form.getFieldValue('shopId');
+    const dates: Moment[] = form.getFieldValue('dates');
+
+    const dateInitial = dates[0].startOf('day').format(FORMAT_DATE_API);
+    const dateFinal = dates[1].endOf('day').format(FORMAT_DATE_API);
+
+    const response = await generateCloseDaily({
+      variables: {
+        input: {
+          dateFinal,
+          dateInitial,
+          shopId,
+        },
+      },
+    });
+
+    if (response.data?.generateDailyClosing) {
+      showAlert(
+        `${response.data?.generateDailyClosing?.message}, total: ${response.data?.generateDailyClosing?.quantity}`,
+        'success',
+      );
+      setShowModal(false);
+    } else {
+      showAlert('No se pudo generar el cierre diario', 'error');
+    }
   };
 
   return (
@@ -154,9 +208,12 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
       <AlertSuccess
         open={showModal}
         onCancel={() => setShowModal(false)}
+        generateCloseDaily={createCloseDaily}
         data={dataInvoicing.data}
         error={dataInvoicing.error}
+        loading={dataCloseDaily.loading}
       />
+      <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </Modal>
   );
 };
