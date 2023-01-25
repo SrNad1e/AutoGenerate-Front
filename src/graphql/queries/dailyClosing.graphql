@@ -9,6 +9,10 @@ query dailyClosing($input: FiltersDailyClosing) {
           number
         }
         createdAt
+        authorization {
+          prefix
+        }
+
         summary {
           total
           subtotal
@@ -28,7 +32,7 @@ query dailyClosing($input: FiltersDailyClosing) {
       summary {
         total
         tax
-        total
+        subtotal
       }
       summaryPayments {
         quantity

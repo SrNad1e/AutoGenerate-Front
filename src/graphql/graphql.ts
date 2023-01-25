@@ -1316,6 +1316,8 @@ export type DetailInvoice = {
   product: Product;
   /** Cantidad de productos en la factura */
   quantity: Scalars['Float'];
+  /** Impuestos */
+  tax: Scalars['Float'];
 };
 
 /** Productos del pedido */
@@ -8825,6 +8827,7 @@ export type DailyClosingQuery = {
         number: number;
         createdAt: any;
         order: { __typename?: 'Order'; number: number };
+        authorization: { __typename?: 'AuthorizationDian'; prefix: string };
         summary: { __typename?: 'SummaryInvoice'; total: number; subtotal: number; tax: number };
       }[];
       pointOfSale: {
@@ -8833,7 +8836,7 @@ export type DailyClosingQuery = {
         shop: { __typename?: 'Shop'; name: string; document?: string | null };
         box: { __typename?: 'Box'; name: string };
       };
-      summary: { __typename?: 'SummaryClose'; total: number; tax: number };
+      summary: { __typename?: 'SummaryClose'; total: number; tax: number; subtotal: number };
       summaryPayments: {
         __typename?: 'SummaryPayment';
         quantity: number;
@@ -18388,6 +18391,16 @@ export const DailyClosingDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                             {
                               kind: 'Field',
+                              name: { kind: 'Name', value: 'authorization' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
                               name: { kind: 'Name', value: 'summary' },
                               selectionSet: {
                                 kind: 'SelectionSet',
@@ -18440,7 +18453,7 @@ export const DailyClosingDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'tax' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
                           ],
                         },
                       },
