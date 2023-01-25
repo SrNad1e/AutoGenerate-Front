@@ -367,7 +367,7 @@ const Dashboard = () => {
       const obj = {
         Meta: item.goal,
         Ventas: item.netSales,
-        title: dateSelected ? moment(date[0]).format('YYYY-MM') : 'Seleccione Fecha',
+        title: date && dateSelected ? moment(date[0]).format('YYYY-MM') : 'Seleccione Fecha',
       };
       return obj;
     }),
