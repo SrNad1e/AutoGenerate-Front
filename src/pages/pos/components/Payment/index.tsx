@@ -375,6 +375,16 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
     if (payment.type === TypePayment.Credit) {
       paymentsSort[3] = payment;
     }
+    if (
+      paymentsSort[3]?.type === TypePayment.Credit &&
+      paymentsSort[0]?.type === TypePayment.Cash &&
+      payment.type !== TypePayment.Bank &&
+      payment.type !== TypePayment.Bonus &&
+      payment.type !== TypePayment.Credit &&
+      payment.type !== TypePayment.Cash
+    ) {
+      paymentsSort.push(payment);
+    }
   });
 
   return (
