@@ -252,7 +252,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       borderBottom: 'none',
                     }}
                   >
-                    {detail?.number}
+                    {detail?.authorization?.prefix} {detail?.number}
                   </div>
                   <div
                     style={{
@@ -262,7 +262,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       width: '12.5%',
                     }}
                   >
-                    {detail?.createdAt}
+                    {moment(detail?.createdAt).format('YYYY/MM/DD')}
                   </div>
                   <div
                     style={{
@@ -272,7 +272,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       width: '12.5%',
                     }}
                   >
-                    {detail?.summary?.subtotal}
+                    {numeral(detail?.summary?.subtotal).format('$ 0,0')}
                   </div>
                   <div
                     style={{
@@ -282,7 +282,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       width: '12.5%',
                     }}
                   >
-                    {detail?.summary?.tax}
+                    {numeral(detail?.summary?.tax).format('$ 0,0')}
                   </div>
                   <div
                     style={{
@@ -292,7 +292,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       width: '12.5%',
                     }}
                   >
-                    {detail?.summary?.total}
+                    {numeral(detail?.summary?.total).format('$ 0,0')}
                   </div>
                   <div
                     style={{
@@ -312,7 +312,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       width: '12.5%',
                     }}
                   >
-                    {detail?.summary?.subtotal}
+                    {numeral(detail?.summary?.subtotal).format('$ 0,0')}
                   </div>
                 </div>
               ))}
@@ -340,7 +340,7 @@ export default class DailyClosingReport extends React.PureComponent {
                   paddingRight: 10,
                 }}
               >
-                {data?.summary?.subtotal}
+                {numeral(data?.summary?.subtotal).format('$ 0,0')}
               </div>
               <div
                 style={{
@@ -353,7 +353,7 @@ export default class DailyClosingReport extends React.PureComponent {
                   paddingRight: 10,
                 }}
               >
-                {data?.summary?.tax}
+                {numeral(data?.summary?.tax).format('$ 0,0')}
               </div>
               <div
                 style={{
@@ -366,7 +366,7 @@ export default class DailyClosingReport extends React.PureComponent {
                   paddingRight: 10,
                 }}
               >
-                {data?.summary?.total}
+                {numeral(data?.summary?.total).format('$ 0,0')}
               </div>
               <div
                 style={{
@@ -392,7 +392,7 @@ export default class DailyClosingReport extends React.PureComponent {
                   paddingRight: 10,
                 }}
               >
-                {data?.summary?.subtotal}
+                {numeral(data?.summary?.subtotal).format('$ 0,0')}
               </div>
             </div>
           </div>
@@ -400,8 +400,8 @@ export default class DailyClosingReport extends React.PureComponent {
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
               {resumenColumn?.map((item) => item)}
             </div>
-            <div>
-              {data?.summaryPayments?.map((item) => {
+            {data?.summaryPayments?.map((item) => (
+              <>
                 <div
                   style={{
                     display: 'flex',
@@ -433,11 +433,11 @@ export default class DailyClosingReport extends React.PureComponent {
                       width: '12.6%',
                     }}
                   >
-                    {item?.total}
+                    {numeral(item?.total).format('$ 0,0')}
                   </div>
-                </div>;
-              })}
-            </div>
+                </div>
+              </>
+            ))}
           </div>
         </div>
       </div>
