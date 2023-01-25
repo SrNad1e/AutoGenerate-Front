@@ -550,8 +550,8 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
    * @description funcion usada para guardar los detalles de los pagos en el estado
    */
   const onAddPayment = async () => {
+    const values = await form.validateFields();
     try {
-      const values = await form.validateFields();
       const payment: PaymentOrder = {
         action: ActionPaymentsOrder.Update,
         total: values.total || 0,
