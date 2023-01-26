@@ -23,11 +23,11 @@ const Dashboard = () => {
 
   const goal = paramsGetGoal?.data?.goalStatus?.goal;
   const netSales = paramsGetGoal?.data?.goalStatus?.netSales;
-  const bonusStatic = (netSales - goal) * 0.15;
+  const bonusStatic = (netSales - goal * 0.8) * 0.04;
 
   const onChangeSimulator = (e: number) => {
-    if (e >= goal) {
-      setBonus((e - goal) * 0.15);
+    if (e >= goal * 0.8) {
+      setBonus((e - goal * 0.8) * 0.04);
     } else {
       setBonus(0);
     }
@@ -54,6 +54,10 @@ const Dashboard = () => {
   };
 
   const { initialState } = useModel('@@initialState');
+
+  useEffect(() => {
+    console.log(bonusStatic);
+  }, [bonusStatic]);
 
   useEffect(() => {
     try {
