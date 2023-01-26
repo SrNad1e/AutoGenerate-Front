@@ -144,6 +144,9 @@ const ExpensesList = () => {
           variables: {
             input: {
               ...filters,
+              sort: {
+                createdAt: -1,
+              },
             },
           },
         });
@@ -153,6 +156,9 @@ const ExpensesList = () => {
             input: {
               ...filters,
               boxId: initialState?.currentUser?.pointOfSale?.box?._id,
+              sort: {
+                createdAt: -1,
+              },
             },
           },
         });
