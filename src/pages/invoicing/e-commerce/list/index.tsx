@@ -42,12 +42,13 @@ import { useModel } from 'umi';
 import { useHistory, useLocation } from 'umi';
 import { useEffect, useState } from 'react';
 import { useGetOrders } from '@/hooks/order.hooks';
-import type {
+import {
   ConveyorOrder,
   Customer,
   FiltersOrdersInput,
   Order,
   PaymentOrder,
+  Permissions,
   StatusWeb,
 } from '@/graphql/graphql';
 import { StatusOrder } from '@/graphql/graphql';
@@ -96,6 +97,10 @@ const EcommerceList = () => {
   const { initialState } = useModel('@@initialState');
   const [getOrders, { data, loading }] = useGetOrders();
 
+  const canQueryShops = initialState?.currentUser?.role.permissions.find(
+    (permission: any) => permission.action === Permissions.ReadConfigurationShops,
+  );
+
   /**
    * @description se encarga de cerrar la alerta informativa
    */
@@ -125,18 +130,34 @@ const EcommerceList = () => {
    */
   const onSearch = (params?: FiltersOrdersInput) => {
     try {
-      getOrders({
-        variables: {
-          input: {
-            orderPos: false,
-            nonStatus: [StatusOrder.Pendding],
-            sort: {
-              createdAt: -1,
+      if (canQueryShops) {
+        getOrders({
+          variables: {
+            input: {
+              orderPos: false,
+              nonStatus: [StatusOrder.Pendding],
+              sort: {
+                createdAt: -1,
+              },
+              ...params,
             },
-            ...params,
           },
-        },
-      });
+        });
+      } else {
+        getOrders({
+          variables: {
+            input: {
+              orderPos: false,
+              nonStatus: [StatusOrder.Pendding],
+              sort: {
+                createdAt: -1,
+              },
+              shopId: initialState?.currentUser?.shop?._id,
+              ...params,
+            },
+          },
+        });
+      }
     } catch (error: any) {
       showError(error.message);
     }
@@ -213,7 +234,11 @@ const EcommerceList = () => {
   const onClear = () => {
     try {
       history.replace(location.pathname);
-      form.resetFields();
+      if (!canQueryShops) {
+        form.resetFields(['customerId', 'dates', 'statusWeb', 'number']);
+      } else {
+        form.resetFields();
+      }
       onSearch({
         limit: 10,
         page: 1,
