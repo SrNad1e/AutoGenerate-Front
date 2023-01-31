@@ -208,6 +208,15 @@ const InvoiceList = () => {
         createdAt: -1,
       };
     }
+
+    if (params.dates) {
+      const dateInitial = moment(params.dates[0]).format(FORMAT_DATE_API);
+      const dateFinal = moment(params.dates[1]).format(FORMAT_DATE_API);
+      params.dateFinal = dateFinal;
+      params.dateInitial = dateInitial;
+      delete params.dates;
+    }
+
     setQueryParams(filters);
     onSearch({ ...params, sort, page: current, ...filters });
     setFilterTable(filtersArg);
@@ -246,6 +255,15 @@ const InvoiceList = () => {
 
     form.setFieldsValue(newFilters);
     setFilterTable(tableFilters);
+
+    if (newFilters.dates) {
+      const dateInitial = moment(newFilters.dates[0]).format(FORMAT_DATE_API);
+      const dateFinal = moment(newFilters.dates[1]).format(FORMAT_DATE_API);
+      newFilters.dateFinal = dateFinal;
+      newFilters.dateInitial = dateInitial;
+      delete newFilters.dates;
+    }
+
     onSearch(newFilters);
   };
 
@@ -268,7 +286,7 @@ const InvoiceList = () => {
       title: <Text>{<UserOutlined />} Creado Por</Text>,
       dataIndex: 'user',
       align: 'center',
-      sorter: true,
+      //sorter: true,
       showSorterTooltip: false,
       render: (user: User) => user.username,
     },
@@ -276,7 +294,7 @@ const InvoiceList = () => {
       title: <Text>{<UserAddOutlined />} Cliente</Text>,
       dataIndex: 'customer',
       align: 'center',
-      sorter: true,
+      // sorter: true,
       showSorterTooltip: false,
       render: ({ documentType, document, firstName, lastName }: Customer) => (
         <>
