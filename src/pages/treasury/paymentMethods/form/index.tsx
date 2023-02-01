@@ -5,6 +5,7 @@ import {
   BgColorsOutlined,
   DollarOutlined,
   MessageOutlined,
+  ShopOutlined,
 } from '@ant-design/icons';
 import { Col, Form, Input, Modal, Row, Select, Space, Switch, Typography } from 'antd';
 import { useCreatePayments, useUpdatePayment } from '@/hooks/payment.hooks';
@@ -18,6 +19,7 @@ import ImageAdmin from '@/components/ImageAdmin';
 
 import styles from '../styles';
 import { FirstVersion } from '@/components/HtmlEdit';
+import SelectListShop from '@/pages/crm/discounts/components/selectListShop';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -79,6 +81,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
    */
   const updatePaymentMethod = async () => {
     const values = await form.validateFields();
+
     const message = values.message;
 
     try {
@@ -120,6 +123,8 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
         delete values?.logoId;
       }
 
+      console.log(values);
+
       const response = await createPayment({
         variables: {
           input: { ...values, message },
@@ -144,6 +149,7 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
     form.setFieldsValue({
       ...paymentMethod,
       logoId: paymentMethod?.logo ? [paymentMethod?.logo] : [],
+      shopIds: paymentMethod?.shops?.map((shop) => shop._id),
     });
   }, [visible]);
 
@@ -237,6 +243,23 @@ const PaymentMethodsForm = ({ onCancel, paymentMethod, visible }: Props) => {
               type="color"
               disabled={paramsCreatePayment?.loading || paramsUpdatePayment?.loading}
             />
+          </FormItem>
+          <FormItem
+            rules={[
+              {
+                required: true,
+                message: 'Este campo no puede estar vacio',
+              },
+            ]}
+            label={
+              <Space>
+                <ShopOutlined />
+                <Text>Tiendas</Text>
+              </Space>
+            }
+            name="shopIds"
+          >
+            <SelectListShop disabled={false} />
           </FormItem>
           <FormItem
             label={
