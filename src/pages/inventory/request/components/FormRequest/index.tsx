@@ -149,6 +149,16 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       if (id) {
         const detailsFilter = details.filter((detail) => detail?.action);
 
+        if (request?.details && request?.details.length > 0) {
+          for (let index = 0; index < request?.details?.length; index++) {
+            for (let i = 0; i < detailsFilter.length; i++) {
+              if (request?.details[index]?.product?._id === detailsFilter[i]?.product?._id) {
+                detailsFilter.splice(i, 1);
+              }
+            }
+          }
+        }
+
         const newDetails = detailsFilter.map((detail) => ({
           productId: detail?.product?._id || '',
           quantity: detail?.quantity || 1,
@@ -176,6 +186,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
               id,
             },
           });
+
           if (response?.data?.updateStockRequest && status === StatusStockRequest.Open) {
             setPropsAlert({
               message: `Solicitud No. ${response?.data?.updateStockRequest?.number} actualizada correctamente `,
