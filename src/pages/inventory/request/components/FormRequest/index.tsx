@@ -186,6 +186,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
               id,
             },
           });
+
           if (response?.data?.updateStockRequest && status === StatusStockRequest.Open) {
             setPropsAlert({
               message: `Solicitud No. ${response?.data?.updateStockRequest?.number} actualizada correctamente `,
