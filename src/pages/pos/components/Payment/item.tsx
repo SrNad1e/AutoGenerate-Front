@@ -26,8 +26,9 @@ const Item = ({ payment, setPayment, paymentsOrder, disabled }: Params) => {
       style={{
         backgroundColor: disabledLocal ? 'grey' : color || 'yellow',
         width: 230,
-        height: '100%',
+        height: '95%',
         padding: 20,
+        borderRadius: 10,
       }}
       disabled={disabledLocal}
       type="text"
