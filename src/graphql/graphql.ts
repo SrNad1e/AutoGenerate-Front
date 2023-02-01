@@ -2077,7 +2077,7 @@ export type FiltersPaymentsInput = {
   /** Página actual */
   page?: InputMaybe<Scalars['Float']>;
   /** Tienda para consultar el medio de pago */
-  shop_id?: InputMaybe<Scalars['String']>;
+  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortPayment>;
   /** Tipo de medio de pago (cash, bank, credit, bonus) */
