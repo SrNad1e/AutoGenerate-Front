@@ -386,9 +386,12 @@ const ClosingZList = () => {
       dataIndex: 'payments',
       align: 'center',
       render: (payments: PaymentOrderClose[]) =>
-        numeral(payments?.find((item) => item?.payment?.type === 'BONUS')?.value || 0).format(
-          '$ 0,0',
-        ),
+        numeral(
+          payments?.reduce(
+            (sum, payment) => sum + (payment?.payment?.type === 'BONUS' ? payment?.value : 0),
+            0,
+          ),
+        ).format('$ 0,0'),
     },
     {
       title: (
