@@ -149,6 +149,16 @@ const FormAdjustment = ({ adjustment, setCurrentStep, allowEdit }: Props) => {
       if (id) {
         const detailsFilter = details.filter((detail) => detail?.action);
 
+        if (adjustment?.details && adjustment?.details.length > 0) {
+          for (let index = 0; index < adjustment?.details?.length; index++) {
+            for (let i = 0; i < detailsFilter.length; i++) {
+              if (adjustment?.details[index]?.product?._id === detailsFilter[i]?.product?._id) {
+                detailsFilter.splice(i, 1);
+              }
+            }
+          }
+        }
+
         const newDetails = detailsFilter.map((detail) => ({
           productId: detail?.product?._id || '',
           quantity: detail?.quantity || 1,
