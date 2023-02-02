@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Col, Divider, Modal, Row, Typography } from 'antd';
-import { useParams } from 'umi';
+import { useModel, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
@@ -55,6 +55,8 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
   const orderRef = useRef(null);
 
   const { id } = useParams<Partial<{ id: string }>>();
+
+  const { initialState } = useModel('@@initialState');
 
   const [getPayments, { data }] = useGetPayments();
   const [addPayments, dataPayments] = useAddPaymentsOrder();
@@ -336,6 +338,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
         variables: {
           input: {
             active: true,
+            shopId: initialState?.currentUser?.shop?._id,
           },
         },
       });
