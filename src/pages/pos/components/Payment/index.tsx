@@ -363,25 +363,23 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
   const paymentsSort: any[] = [];
 
   data?.payments?.docs.forEach((payment) => {
-    if (payment.type === TypePayment.Cash) {
+    if (payment.name === 'Efectivo') {
       paymentsSort[0] = payment;
     }
-    if (payment.type === TypePayment.Bank) {
+    if (payment.name === 'Bancolombia') {
       paymentsSort[1] = payment;
     }
-    if (payment.type === TypePayment.Bonus) {
+    if (payment.name === 'Bono') {
       paymentsSort[2] = payment;
     }
-    if (payment.type === TypePayment.Credit) {
+    if (payment.name === 'Crédito') {
       paymentsSort[3] = payment;
     }
     if (
-      paymentsSort[3]?.type === TypePayment.Credit &&
-      paymentsSort[0]?.type === TypePayment.Cash &&
-      payment.type !== TypePayment.Bank &&
-      payment.type !== TypePayment.Bonus &&
-      payment.type !== TypePayment.Credit &&
-      payment.type !== TypePayment.Cash
+      payment.name !== 'Bancolombia' &&
+      payment.name !== 'Bono' &&
+      payment.name !== 'Crédito' &&
+      payment.name !== 'Efectivo'
     ) {
       paymentsSort.push(payment);
     }
