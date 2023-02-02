@@ -1,17 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Alert, TreeSelect } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 import { useGetCategories } from '@/hooks/category.hooks';
+import type { CategoryLevel1, CategoryLevel2 } from '@/graphql/graphql';
 
 const { TreeNode } = TreeSelect;
 
 export type Params = {
-  onChange?: (value: string[] | []) => void;
-  value?: string[];
-  disabled: boolean;
+  onChange?: (value: string) => void;
+  value?: string;
 };
 
-const SelectListCategory = ({ onChange, value, disabled }: Params) => {
+const SelectCategories = ({ value, onChange }: Params) => {
+  const [dataChild, setDataChild] = useState<Partial<CategoryLevel1 | any>>({});
   const [getCategories, { data, loading, error }] = useGetCategories();
 
   /**
@@ -23,42 +25,79 @@ const SelectListCategory = ({ onChange, value, disabled }: Params) => {
       variables: {
         input: {
           name,
+          limit: 100,
+          sort: {
+            name: 1,
+          },
         },
       },
     });
   };
 
+  const onSearchChild = async () => {
+    const response = await getCategories({
+      variables: {
+        input: {
+          _id: value?.split('-')[0],
+          sort: {
+            name: 1,
+          },
+        },
+      },
+    });
+    if (response?.data?.categories) {
+      setDataChild(response?.data?.categories?.docs[0]);
+    }
+  };
+
   useEffect(() => {
     onSearch();
-  }, []);
+  }, [value]);
+
+  useEffect(() => {
+    if (value) {
+      onSearchChild();
+    }
+  }, [!!value]);
 
   return (
     <>
       <TreeSelect
         placeholder="Seleccione categoría"
         loading={loading}
-        multiple
-        optionFilterProp="child"
-        showSearch
         allowClear
-        value={value?.length > 0 ? value : undefined}
-        disabled={disabled}
-        onSearch={onSearch}
+        defaultValue={value?.split('-')}
+        value={value}
+        onTreeExpand={() => onSearch()}
+        onDropdownVisibleChange={(e) => e && onSearch()}
         onChange={onChange}
+        onSearch={onSearch}
       >
-        {data?.categories.docs.map(({ _id, name, childs }) => (
+        {data?.categories?.docs?.map(({ _id, name, childs }) => (
           <TreeNode key={_id} value={_id} title={name}>
-            {childs?.map((child) => (
-              <TreeNode value={`${_id}-${child._id}`} key={child._id} title={child.name}>
-                {child.childs?.map((child1) => (
-                  <TreeNode
-                    value={`${_id}-${child._id}-${child1._id}`}
-                    key={child1._id}
-                    title={child1.name}
-                  />
+            {value
+              ? dataChild?.childs?.map((child: CategoryLevel2) => (
+                  <TreeNode value={`${_id}-${child?._id}`} key={child?._id} title={child?.name}>
+                    {child?.childs?.map((child1) => (
+                      <TreeNode
+                        value={`${_id}-${child._id}-${child1._id}`}
+                        key={child1._id}
+                        title={child1.name}
+                      />
+                    ))}
+                  </TreeNode>
+                ))
+              : childs?.map((child) => (
+                  <TreeNode value={`${_id}-${child?._id}`} key={child?._id} title={child?.name}>
+                    {child?.childs?.map((child1) => (
+                      <TreeNode
+                        value={`${_id}-${child._id}-${child1._id}`}
+                        key={child1._id}
+                        title={child1.name}
+                      />
+                    ))}
+                  </TreeNode>
                 ))}
-              </TreeNode>
-            ))}
           </TreeNode>
         ))}
       </TreeSelect>
@@ -67,4 +106,4 @@ const SelectListCategory = ({ onChange, value, disabled }: Params) => {
   );
 };
 
-export default SelectListCategory;
+export default SelectCategories;

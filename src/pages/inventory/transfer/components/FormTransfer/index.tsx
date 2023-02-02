@@ -158,6 +158,16 @@ const FormTransfer = ({ transfer, setCurrentStep, allowEdit }: Props) => {
       if (id) {
         const detailsFilter = details.filter((detail) => detail?.action);
 
+        if (transfer?.details && transfer?.details.length > 0) {
+          for (let index = 0; index < transfer?.details?.length; index++) {
+            for (let i = 0; i < detailsFilter.length; i++) {
+              if (transfer?.details[index]?.product?._id === detailsFilter[i]?.product?._id) {
+                detailsFilter.splice(i, 1);
+              }
+            }
+          }
+        }
+
         const newDetails = detailsFilter.map((detail) => ({
           productId: detail?.product?._id || '',
           quantity: detail?.quantity,
