@@ -14,10 +14,6 @@ query payments($input: FiltersPaymentsInput) {
       name
       type
       color
-      shops {
-        _id
-        name
-      }
       logo {
         _id
         urls {
