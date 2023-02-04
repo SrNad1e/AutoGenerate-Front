@@ -4,6 +4,7 @@ import {
   AliyunOutlined,
   HomeOutlined,
   IdcardOutlined,
+  MailOutlined,
   PhoneOutlined,
   ProfileOutlined,
 } from '@ant-design/icons';
@@ -134,7 +135,7 @@ const CompaniesForm = ({ onCancel, visible, companyData }: Props) => {
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       width={400}
       okText={isNew ? 'Crear' : 'Actualizar'}
       onCancel={closeAndClear}
@@ -171,6 +172,26 @@ const CompaniesForm = ({ onCancel, visible, companyData }: Props) => {
             >
               <Input
                 placeholder="Ingrese nombre"
+                disabled={paramsCreateCompany?.loading || paramsUpdateCompany?.loading}
+              />
+            </FormItem>
+            <FormItem
+              rules={[
+                {
+                  required: true,
+                  message: 'Este campo no puede estar vacio',
+                },
+              ]}
+              name="email"
+              label={
+                <Space>
+                  <MailOutlined />
+                  <Text>E-Mail</Text>
+                </Space>
+              }
+            >
+              <Input
+                placeholder="Ingrese Correo"
                 disabled={paramsCreateCompany?.loading || paramsUpdateCompany?.loading}
               />
             </FormItem>
