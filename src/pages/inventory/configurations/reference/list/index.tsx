@@ -26,13 +26,15 @@ import {
 } from 'antd';
 import type { ColumnsType, SorterResult, TablePaginationConfig } from 'antd/es/table/interface';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Location, useModel } from 'umi';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { history, Link, useLocation, useAccess } from 'umi';
 import numeral from 'numeral';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 
-import { FiltersReferencesInput, Permissions, Reference } from '@/graphql/graphql';
+import type { FiltersReferencesInput, Reference } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import SelectBrand from '@/components/SelectBrand';
 import EditModal from '../components/EditModal';
@@ -106,7 +108,7 @@ const ReferenceList = () => {
     try {
       getReferences({
         variables: {
-          id: COMPANY_ID,
+          id: initialState?.currentUser?.company?._id || '',
           input: { ...filters },
         },
       });
