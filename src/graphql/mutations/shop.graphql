@@ -11,3 +11,9 @@ mutation updateShop($id: String!, $input: UpdateShopInput!) {
     _id
   }
 }
+
+mutation addGoalHistory($input: AddGoalHistoryInput!) {
+  addGoalHistory(AddGoalHistoryInput: $input) {
+    goal
+  }
+}

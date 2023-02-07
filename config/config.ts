@@ -501,6 +501,11 @@ export default defineConfig({
           access: 'allowOption',
           routes: [
             {
+              name: 'Historial de Metas',
+              path: '/configurations/goalHistory',
+              component: './configurations/goalHistory/list',
+            },
+            {
               name: 'Tiendas',
               path: '/configurations/shop',
               component: './configurations/shop/list',
