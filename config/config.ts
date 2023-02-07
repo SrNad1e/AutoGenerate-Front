@@ -4,13 +4,12 @@ import { join } from 'path';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 
-const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API, COMPANY_ID } = process.env;
+const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API } = process.env;
 
 export default defineConfig({
   define: {
     API_URL: API_URL || 'http://192.168.70.254:8080',
     CDN_URL: CDN_URL || 'https://toulouse-storage.s3.amazonaws.com',
-    COMPANY_ID: COMPANY_ID || '629facb5e4251f089ecd274f',
     FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD HH:mm:ss',
   },

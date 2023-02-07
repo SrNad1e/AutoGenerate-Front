@@ -2539,8 +2539,6 @@ export type LoginResponse = {
 
 /** Datos para hacer login */
 export type LoginUserInput = {
-  /** Identificador de la compañía */
-  companyId: Scalars['String'];
   /** Contraseña de usuario */
   password: Scalars['String'];
   /** Usuario registrado */
@@ -6394,8 +6392,8 @@ export type User = {
   __typename?: 'User';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Empresas a la que pertenece el usuario */
-  companies: Company[];
+  /** Compañía de acceso para el usuario */
+  company: Company;
   /** Nombre de usuario */
   createdAt: Scalars['DateTime'];
   /** Cliente asignado */
