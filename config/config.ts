@@ -381,6 +381,11 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'Reporte Ventas',
+              path: '/invoicing/sales',
+              component: './invoicing/sales/list',
+            },
+            {
               name: 'Pedidos',
               path: '/invoicing/order',
               component: './invoicing/order/list',
