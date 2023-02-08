@@ -51,7 +51,7 @@ const SaveOrder = ({ _id, number, updatedAt, customer, summary }: Order) => {
                 <UserOutlined style={styles.icon} />
               </Tooltip>
             </Col>
-            <Col>
+            <Col span={16}>
               <Row>
                 <Col span={24}>
                   {customer?.firstName} {customer?.lastName}

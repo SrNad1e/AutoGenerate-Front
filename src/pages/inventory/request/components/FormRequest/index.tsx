@@ -130,7 +130,7 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
             type: 'warning',
           });
         } else {
-          onShowInformation('La salida no tiene productos');
+          onShowInformation('La solicitud no tiene productos');
         }
       } else {
         onShowInformation('No se encontraron cambios en la solicitud');
@@ -141,13 +141,23 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
   };
 
   /**
-   * @description se encarga de guardar el traslado
+   * @description se encarga de guardar la solicitud
    * @param status se usa para definir el estado de la solicitud
    */
   const saveRequest = async (status?: StatusStockRequest) => {
     try {
       if (id) {
         const detailsFilter = details.filter((detail) => detail?.action);
+
+        if (request?.details && request?.details.length > 0) {
+          for (let index = 0; index < request?.details?.length; index++) {
+            for (let i = 0; i < detailsFilter.length; i++) {
+              if (request?.details[index]?.product?._id === detailsFilter[i]?.product?._id) {
+                detailsFilter.splice(i, 1);
+              }
+            }
+          }
+        }
 
         const newDetails = detailsFilter.map((detail) => ({
           productId: detail?.product?._id || '',
@@ -166,12 +176,17 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
             delete props.status;
           }
 
+          if (props.status === StatusStockRequest.Pending) {
+            props.details = [];
+          }
+
           const response = await updateRequest({
             variables: {
               input: props,
               id,
             },
           });
+
           if (response?.data?.updateStockRequest && status === StatusStockRequest.Open) {
             setPropsAlert({
               message: `Solicitud No. ${response?.data?.updateStockRequest?.number} actualizada correctamente `,
@@ -423,19 +438,16 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
       dataIndex: 'product',
       align: 'center',
       width: 30,
-      render: ({ stock = [] }: Product, record) =>
-        record?.__typename ? (
-          <Badge
-            overflowCount={99999}
-            count={(stock && stock[0]?.quantity) || 0}
-            style={{
-              backgroundColor: ((stock && stock[0]?.quantity) || 0) > 0 ? '#dc9575' : 'red',
-            }}
-            showZero
-          />
-        ) : (
-          'Pendiente'
-        ),
+      render: ({ stock = [] }: Product) => (
+        <Badge
+          overflowCount={99999}
+          count={(stock && stock[0]?.quantity) || 0}
+          style={{
+            backgroundColor: ((stock && stock[0]?.quantity) || 0) > 0 ? '#dc9575' : 'red',
+          }}
+          showZero
+        />
+      ),
     },
     {
       title: 'Cantidad',

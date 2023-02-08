@@ -373,7 +373,7 @@ const EcommerceForm = () => {
               </Row>
             </Col>
             <Col span={12} style={styles.textRight}>
-              <Row gutter={[0, 6]}>
+              <Row gutter={[0, 6]} align="middle">
                 <Col span={24}>
                   <Text strong>{numeral(total).format('$ 0,0')}</Text>
                 </Col>
@@ -423,9 +423,9 @@ const EcommerceForm = () => {
                     {paramsGetOrder?.data?.orderId?.order?.address?.field1}{' '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.number1}
                     {' # '}
-                    {paramsGetOrder?.data?.orderId?.order?.address?.loteNumber}
-                    {' - '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.number2}
+                    {' - '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.loteNumber}
                     {' - '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.city?.name},{' '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.city?.state}
@@ -464,6 +464,16 @@ const EcommerceForm = () => {
               <Space>
                 <Popconfirm
                   title="¿Esta seguro que desea cancelar el pedido?"
+                  disabled={
+                    paramsGetOrder?.data?.orderId?.order?.statusWeb === StatusWeb.Cancelled ||
+                    (paramsGetOrder?.data?.orderId?.order?.statusWeb !== StatusWeb.Cancelled
+                      ? initialState?.currentUser?.role?.name === 'Administrador'
+                        ? false
+                        : disabledCancelButton()
+                      : true) ||
+                    paramsGetOrder.data?.orderId.order.statusWeb === StatusWeb.Sent ||
+                    paramsGetOrder.data?.orderId.order.status === StatusOrder.Closed
+                  }
                   okText="Si"
                   cancelText="No"
                   onConfirm={() => onCancelOrder()}

@@ -19,6 +19,8 @@ import {
   HomeOutlined,
   PhoneOutlined,
   ShopOutlined,
+  FileProtectOutlined,
+  MailOutlined,
 } from '@ant-design/icons';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import type { Shop } from '@/graphql/graphql';
@@ -138,8 +140,6 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
     const values = await form.validateFields();
 
     try {
-      console.log(values);
-
       const phoneString = (values.phone !== undefined && values.phone.toString()) || undefined;
       const response = await createShop({
         variables: {
@@ -226,6 +226,17 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
               />
             </FormItem>
             <FormItem
+              name="companyName"
+              label={
+                <Space>
+                  <ShopOutlined />
+                  <Text>Nombre Comercial</Text>
+                </Space>
+              }
+            >
+              <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
+            </FormItem>
+            <FormItem
               rules={[
                 {
                   required: true,
@@ -280,6 +291,28 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading}
                 controls={false}
               />
+            </FormItem>
+            <FormItem
+              name="email"
+              label={
+                <Space>
+                  <MailOutlined />
+                  <Text>Correo</Text>
+                </Space>
+              }
+            >
+              <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
+            </FormItem>
+            <FormItem
+              name="document"
+              label={
+                <Space>
+                  <FileProtectOutlined />
+                  <Text>NIT</Text>
+                </Space>
+              }
+            >
+              <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
             </FormItem>
             <FormItem
               name="goal"

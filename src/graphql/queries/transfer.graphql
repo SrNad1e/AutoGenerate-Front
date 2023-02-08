@@ -6,6 +6,7 @@ query stockTransfers($input: FiltersStockTransfersInput) {
     docs {
       _id
       details {
+        quantityConfirmed
         quantity
         product {
           _id
@@ -136,6 +137,8 @@ query stockTransfersError($input: FiltersStockTransfersErrorInput) {
           }
           color {
             name
+            name_internal
+            html
           }
           barcode
         }

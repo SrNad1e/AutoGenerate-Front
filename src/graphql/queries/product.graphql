@@ -42,6 +42,7 @@ query product($input: FiltersProductInput!) {
     _id
     barcode
     color {
+      name
       name_internal
       html
       image {

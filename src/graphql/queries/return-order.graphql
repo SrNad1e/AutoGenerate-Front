@@ -25,7 +25,7 @@ query returnsOrder($input: FiltersReturnsOrderInput) {
       number
       order {
         number
-        summary{
+        summary {
           discount
           total
         }
@@ -46,6 +46,9 @@ query returnsOrder($input: FiltersReturnsOrderInput) {
           }
         }
         quantity
+      }
+      pointOfSale {
+        name
       }
     }
   }

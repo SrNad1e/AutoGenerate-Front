@@ -381,6 +381,11 @@ export default defineConfig({
               // access: 'allowOption',
             },
             {
+              name: 'Cierres Fiscales',
+              path: '/invoicing/fiscalClose',
+              component: './invoicing/fiscalClose/list',
+            },
+            {
               name: 'Cierres',
               path: '/invoicing/closings',
               access: 'allowOption',
@@ -398,6 +403,11 @@ export default defineConfig({
                   access: 'allowOption',
                 },
               ],
+            },
+            {
+              name: 'Facturas',
+              path: '/invoicing/invoice',
+              component: './invoicing/invoice/list',
             },
           ],
         },

@@ -138,8 +138,13 @@ mutation verifiedProducttStockTransfer($input: VerifiedProductTransferErrorInput
         reference {
           name
         }
+        size {
+          value
+        }
         color {
           name
+          html
+          name_internal
         }
         barcode
       }

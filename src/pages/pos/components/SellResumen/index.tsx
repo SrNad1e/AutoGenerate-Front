@@ -4,12 +4,13 @@ import {
   CloseCircleOutlined,
   DollarOutlined,
   PrinterOutlined,
+  SaveOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Button, Card, Col, Divider, Empty, List, Row, Space, Tag, Typography } from 'antd';
 import numeral from 'numeral';
 import { useParams } from 'umi';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import ModalPayment from '../Payment';
 import ItemResume from './item';
@@ -17,6 +18,9 @@ import { useGetOrder } from '@/hooks/order.hooks';
 import type { DetailOrder, Product, SummaryOrder, UpdateOrderInput } from '@/graphql/graphql';
 
 import styles from '../styles';
+import { useReactToPrint } from 'react-to-print';
+import OrderProduction from './Resumen';
+import { history } from 'umi';
 
 const { Title } = Typography;
 
@@ -28,10 +32,17 @@ export type Params = {
 
 const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params) => {
   const [modalPaymentVisible, setModalPaymentVisible] = useState(false);
+  const [orderCurrentData, setOrderCurrentData] = useState({});
 
   const { id } = useParams<Partial<{ id: string }>>();
 
   const [getOrder, { data }] = useGetOrder();
+
+  const orderRef = useRef(null);
+
+  const handlePrint = useReactToPrint({
+    content: () => orderRef?.current,
+  });
 
   const totalProducts = data?.orderId?.order?.details?.reduce(
     (sum, detail) => detail?.quantity + sum,
@@ -54,6 +65,10 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
       });
     }
   }, [id]);
+
+  useEffect(() => {
+    setOrderCurrentData(data?.orderId?.order);
+  }, [data]);
 
   return (
     <Card bodyStyle={styles.bodyPadding} style={{ height: '100%' }}>
@@ -153,9 +168,9 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
           </Row>
         </Col>
         <Divider style={styles.dividerStyle} />
-        <Col span={24}>
-          <Row gutter={10}>
-            <Col span={10}>
+        <Col span={24} style={{ marginTop: 20, bottom: 25 }}>
+          <Row gutter={[10, 10]} align="middle" justify="center">
+            <Col lg={10} xl={10}>
               <Button
                 icon={<DollarOutlined />}
                 type="primary"
@@ -166,10 +181,33 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
                 PAGAR
               </Button>
             </Col>
-            <Col offset={2} span={12} style={styles.alignPrint}>
-              <Button ghost shape="round" icon={<PrinterOutlined />} size="small" type="primary">
-                Imprimir
-              </Button>
+            <Col lg={12} xl={12} style={styles.alignPrint}>
+              <Row gutter={[0, 15]} justify="center">
+                <Col span={24}>
+                  <Button
+                    ghost
+                    shape="round"
+                    icon={<PrinterOutlined />}
+                    onClick={() => handlePrint()}
+                    size="small"
+                    type="primary"
+                  >
+                    Imprimir
+                  </Button>
+                </Col>
+                <Col span={24}>
+                  <Button
+                    onClick={() => history.push('/pos/sales')}
+                    style={{ borderRadius: 5 }}
+                    shape="round"
+                    size="small"
+                    type="primary"
+                    icon={<SaveOutlined />}
+                  >
+                    Guardar
+                  </Button>
+                </Col>
+              </Row>
             </Col>
           </Row>
         </Col>
@@ -182,6 +220,9 @@ const Resumen = ({ addProductOrder, editOrder, setModalCustomerVisible }: Params
           onCancel={onCloseModalPayment}
         />
       </Row>
+      <div style={{ display: 'none' }}>
+        <OrderProduction data={orderCurrentData} ref={orderRef} />
+      </div>
     </Card>
   );
 };
