@@ -149,6 +149,16 @@ const FormInput = ({ input, setCurrentStep, allowEdit }: Props) => {
       if (id) {
         const detailsFilter = details.filter((detail) => detail?.action);
 
+        if (input?.details && input?.details.length > 0) {
+          for (let index = 0; index < input?.details?.length; index++) {
+            for (let i = 0; i < detailsFilter.length; i++) {
+              if (input?.details[index]?.product?._id === detailsFilter[i]?.product?._id) {
+                detailsFilter.splice(i, 1);
+              }
+            }
+          }
+        }
+
         const newDetails = detailsFilter.map((detail) => ({
           productId: detail?.product?._id || '',
           quantity: detail?.quantity || 1,
