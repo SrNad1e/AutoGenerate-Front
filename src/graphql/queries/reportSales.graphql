@@ -1,3 +1,49 @@
+query reportSalesInvoicing($input: FiltersSalesReportInvoicingInput!) {
+  reportSalesInvoicing(filtersSalesReportInput: $input) {
+    summarySalesReport {
+      idOrder
+      total
+      quantity
+      margin
+      cmv
+      closeDate
+      products {
+        name
+        barcode
+        price
+        cost
+        color
+        size
+        brand
+        categoryLevel1
+      }      
+    }
+    salesReport {
+      total
+      quantity
+      category {
+        _id
+      }
+      shop {
+        name
+      }
+    }
+    paymentsSalesReport {
+      total
+      quantity
+    }
+    customersSalesReport {
+      total
+      quantity
+      typeCustomer {
+        name
+      }
+      customerName
+      document
+    }
+  }
+}
+
 query reportSales($input: FiltersSalesReportInput!) {
   reportSales(filtersSalesReportInput: $input) {
     customersSalesReport {
@@ -15,7 +61,6 @@ query reportSales($input: FiltersSalesReportInput!) {
       total
     }
     salesReport {
-      date
       category {
         name
       }

@@ -76,6 +76,7 @@
     "omit.js": "^2.0.2",
     "react": "^17.0.0",
     "react-barcode": "^1.4.1",
+    "react-csv": "^2.2.2",
     "react-dev-inspector": "^1.1.1",
     "react-dom": "^17.0.0",
     "react-fittext": "^1.0.0",
