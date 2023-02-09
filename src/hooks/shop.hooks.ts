@@ -33,3 +33,17 @@ export const useUpdateShop = () => {
     },
   });
 };
+
+export const useAddGoal = () => {
+  return useMutation(AddGoalHistoryDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          shopId() {
+            return data?.addGoalHistory;
+          },
+        },
+      });
+    },
+  });
+};
