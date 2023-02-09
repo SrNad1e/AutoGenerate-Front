@@ -36,6 +36,7 @@ import EditPassword from '../EditPassword';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 
 import styles from './styles';
+//import { useModel } from 'umi';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -64,6 +65,8 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
   const isNew = !user._id;
 
   const [form] = Form.useForm();
+
+  // const { initialState } = useModel('@@initialState');
 
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
