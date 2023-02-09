@@ -36,6 +36,7 @@ import type { Order } from '@/graphql/graphql';
 import { StatusWeb } from '@/graphql/graphql';
 import { StatusOrder, StatusOrderDetail } from '@/graphql/graphql';
 import { useReactToPrint } from 'react-to-print';
+import OrderReport from '../../order/report/order/Order';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -66,6 +67,7 @@ const EcommerceForm = () => {
 
   const reportRef = useRef(null);
   const reportRef1 = useRef(null);
+  const orderRef = useRef(null);
 
   const [getOrder, paramsGetOrder] = useGetOrder();
   const [updateOrder, paramsUpdateOrder] = useUpdateOrder();
@@ -81,6 +83,18 @@ const EcommerceForm = () => {
   const handlePrintShippingLabel = useReactToPrint({
     content: () => reportRef1?.current,
   });
+  const handleOrderTicketPrint = useReactToPrint({
+    content: () => orderRef?.current,
+  });
+
+  /**
+   * @description se encarga de imprimir el ticket de pedido
+   * @param record pedido
+   */
+  const printOrderTicket = async (record: Partial<Order>) => {
+    await setOrderData(record);
+    handleOrderTicketPrint();
+  };
 
   /**
    * @description se encarga de seleccionar el pedido e imprime
@@ -498,6 +512,14 @@ const EcommerceForm = () => {
                   </Button>
                 </Popconfirm>
                 <Button
+                  icon={<PrinterOutlined />}
+                  type="primary"
+                  style={styles.buttonR}
+                  onClick={() => printOrderTicket(paramsGetOrder?.data?.orderId?.order)}
+                >
+                  Imprimir Ticket de Venta
+                </Button>
+                <Button
                   style={styles.buttonR}
                   loading={paramsGetOrder.loading || paramsUpdateOrder.loading}
                   icon={<PrinterOutlined />}
@@ -561,6 +583,9 @@ const EcommerceForm = () => {
       </div>
       <div style={{ display: 'none' }}>
         <ShippingLabel ref={reportRef1} data={shippingLabelData} />
+      </div>
+      <div style={{ display: 'none' }}>
+        <OrderReport ref={orderRef} data={orderData} />
       </div>
     </PageContainer>
   );
