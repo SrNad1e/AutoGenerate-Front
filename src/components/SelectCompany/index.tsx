@@ -1,12 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Select, Alert } from 'antd';
 import { useEffect, useState } from 'react';
-
-import { useGetCities } from '@/hooks/cities.hooks';
-/*import { Permissions } from '@/graphql/graphql';
-import { useModel } from 'umi';*/
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
+import { useGetCompanies } from '@/hooks/company.hooks';
 
 const { Option } = Select;
 
@@ -17,7 +14,7 @@ export type Params = {
 };
 
 const SelectCompany = ({ onChange, disabled, value }: Params) => {
-  const [getCities, { loading, data, error }] = useGetCities();
+  const [getCompanies, { loading, data, error }] = useGetCompanies();
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -47,18 +44,15 @@ const SelectCompany = ({ onChange, disabled, value }: Params) => {
     });
   };
 
-  /**
-   * @description se encarga de consultar con base a un comodín
-   * @param name comodín de coincidencia en el nombre
-   */
-  const onSearch = () => {
+  const onSearch = async () => {
     try {
-      getCities({
+      await getCompanies({
         variables: {
           input: {
             sort: {
               name: 1,
             },
+            limit: 100,
           },
         },
       });
@@ -68,17 +62,7 @@ const SelectCompany = ({ onChange, disabled, value }: Params) => {
   };
 
   useEffect(() => {
-    try {
-      getCities({
-        variables: {
-          input: {
-            _id: value,
-          },
-        },
-      });
-    } catch (e: any) {
-      showError(e?.message);
-    }
+    onSearch();
   }, []);
 
   return (
@@ -90,11 +74,10 @@ const SelectCompany = ({ onChange, disabled, value }: Params) => {
         placeholder="Seleccione Compañia"
         optionFilterProp="children"
         onChange={onChange}
-        onSearch={onSearch}
         disabled={disabled}
         value={value}
       >
-        {data?.cities?.docs?.map((city) => (
+        {data?.companies?.docs?.map((city) => (
           <Option key={city._id} value={city._id}>
             {city.name}
           </Option>

@@ -1153,8 +1153,6 @@ export type CreditHistory = {
 /** Cliente */
 export type Customer = {
   __typename?: 'Customer';
-  /** Fecha de mayorista */
-  WolesalerDate?: Maybe<Scalars['DateTime']>;
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Se encuentra activo el usuario */
@@ -1175,6 +1173,8 @@ export type Customer = {
   email?: Maybe<Scalars['String']>;
   /** Nombres del cliente */
   firstName: Scalars['String'];
+  /** Primera compra del cliente */
+  firstPurchase: Scalars['Boolean'];
   /** Cliente por defecto */
   isDefault: Scalars['Boolean'];
   /** Número telefonico tiene whatsapp */
@@ -1187,6 +1187,8 @@ export type Customer = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el cliente */
   user: User;
+  /** Fecha de mayorista */
+  wolesalerDate?: Maybe<Scalars['DateTime']>;
 };
 
 /** Ventas de tipos de clientes */
@@ -10322,6 +10324,7 @@ export type CurrentUserQuery = {
       _id: string;
       box: { __typename?: 'Box'; _id: string };
     } | null;
+    company: { __typename?: 'Company'; name: string; _id: string };
     shop: {
       __typename?: 'Shop';
       _id: string;
@@ -10357,6 +10360,7 @@ export type UsersQuery = {
       isWeb: boolean;
       status: StatusUser;
       username: string;
+      company: { __typename?: 'Company'; name: string; _id: string };
       role: { __typename?: 'Role'; name: string; _id: string };
       shop: { __typename?: 'Shop'; name: string; _id: string };
       pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
@@ -23009,6 +23013,17 @@ export const CurrentUserDocument = {
                 },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'company' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'shop' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -23103,6 +23118,17 @@ export const UsersDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isWeb' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'company' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'role' },
