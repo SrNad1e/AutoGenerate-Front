@@ -10,6 +10,10 @@ query currentUser {
         _id
       }
     }
+    company {
+      name
+      _id
+    }
     shop {
       _id
       name
@@ -39,6 +43,10 @@ query users($input: FiltersUsersInput!) {
       updatedAt
       name
       isWeb
+      company {
+        name
+        _id
+      }
       role {
         name
         _id
