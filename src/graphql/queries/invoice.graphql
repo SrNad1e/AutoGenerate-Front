@@ -5,6 +5,11 @@ query invoices($input: FiltersInvoicesInput) {
       active
       authorization {
         prefix
+        resolution
+        dateInitial
+        dateFinal
+        numberInitial
+        numberFinal
       }
       number
       user {
@@ -13,6 +18,8 @@ query invoices($input: FiltersInvoicesInput) {
       updatedAt
       summary {
         total
+        subtotal
+        tax
       }
       shop {
         name
@@ -43,6 +50,18 @@ query invoices($input: FiltersInvoicesInput) {
           }
         }
         quantity
+      }
+      company {
+        name
+        email
+        document
+        address
+        logo
+      }
+      payments {
+        payment {
+          name
+        }
       }
     }
     page
