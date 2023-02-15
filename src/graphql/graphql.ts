@@ -843,6 +843,8 @@ export type CreateExpenseInput = {
 export type CreateOrderInput = {
   /** Estado del pedido */
   status: StatusOrder;
+  /** Estado del pedido */
+  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para crear un método de pago */
