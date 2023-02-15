@@ -484,7 +484,11 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
           </Button>
         </Col>
       </Row>
-      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <AlertInformation
+        {...alertInformation}
+        onCancel={closeAlertInformation}
+        handlePrint={handlePrint}
+      />
       <AlertLoading
         visible={loading || dataPayments?.loading}
         message={dataPayments.loading ? 'Generando factura' : 'Guardando medios de pago'}
