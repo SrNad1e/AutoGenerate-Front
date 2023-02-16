@@ -52,6 +52,8 @@ import { useGetInvoices } from '@/hooks/invoice.hooks';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import ModalInvoicing from '../components/ModalInvoicing';
 import InvoiceReport from '../reports/Invoice';
+import InvoiceRangeReport from '../reports/InvoiceRange';
+import AlertLoading from '@/components/Alerts/AlertLoading';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -76,11 +78,13 @@ const InvoiceList = () => {
   const location: Location = useLocation();
 
   const reportRef = useRef(null);
+  const reportRangeRef = useRef(null);
 
   const [form] = Form.useForm();
   const history = useHistory();
 
   const [getInvoices, paramsGetInvoices] = useGetInvoices();
+  const [getInvoicesRange, { data, loading }] = useGetInvoices();
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -239,6 +243,43 @@ const InvoiceList = () => {
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
   });
+
+  const handlePrintRange = useReactToPrint({
+    content: () => reportRangeRef?.current,
+  });
+
+  const generateReangeReport = async () => {
+    try {
+      const props = form.getFieldsValue();
+      const { dates } = props;
+
+      const params: Partial<FiltersInvoicesInput> | any = {
+        page: 1,
+        limit: 1000,
+        sort: { createdAt: -1 },
+        ...props,
+      };
+      if (dates) {
+        const dateInitial = moment(dates[0]).format('YYYY/MM/DD 00:00:00');
+        const dateFinal = moment(dates[1]).format('YYYY/MM/DD 00:00:00');
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
+      }
+      delete params.date;
+      await getInvoicesRange({
+        variables: {
+          input: {
+            sort: { closeDate: -1 },
+            ...params,
+          },
+        },
+      });
+
+      handlePrintRange();
+    } catch (error: any) {
+      messageError(error?.message);
+    }
+  };
 
   /**
    * @description se encarga de seleccionar el pedido e imprime
@@ -401,8 +442,6 @@ const InvoiceList = () => {
     },
   ];
 
-  console.log('invoices', paramsGetInvoices?.data?.invoices?.docs);
-
   return (
     <PageContainer>
       <Card bordered={false}>
@@ -449,7 +488,12 @@ const InvoiceList = () => {
           </>
         )}
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
-          <Col span={12} style={styles.alignText}>
+          <Col span={12}>
+            <Button type="primary" onClick={() => generateReangeReport()}>
+              Generar PDF
+            </Button>
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
             <Text strong>Total Encontrados: </Text>{' '}
             {paramsGetInvoices?.data?.invoices?.totalDocs || 0} <Text strong> Páginas: </Text>{' '}
             {paramsGetInvoices?.data?.invoices?.page || 0} /{' '}
@@ -471,8 +515,12 @@ const InvoiceList = () => {
         </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
+      <AlertLoading visible={loading} message="Generando facturas" />
       <div style={{ display: 'none' }}>
         <InvoiceReport data={invoiceData} ref={reportRef} />
+      </div>
+      <div style={{ display: 'none' }}>
+        <InvoiceRangeReport dataArray={data?.invoices?.docs} ref={reportRangeRef} />
       </div>
     </PageContainer>
   );
