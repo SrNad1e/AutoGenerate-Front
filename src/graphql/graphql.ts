@@ -5040,8 +5040,6 @@ export type SalesReport = {
   __typename?: 'SalesReport';
   /** Categoría */
   category?: Maybe<CategoryLevel1>;
-  /** Fecha de la venta */
-  date: Scalars['DateTime'];
   /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
   quantity: Scalars['Float'];
   /** Tienda */
@@ -8867,6 +8865,13 @@ export type DailyClosingQuery = {
         order: { __typename?: 'Order'; number: number };
         authorization: { __typename?: 'AuthorizationDian'; prefix: string };
         summary: { __typename?: 'SummaryInvoice'; total: number; subtotal: number; tax: number };
+        payments?:
+          | {
+              __typename?: 'PaymentInvoice';
+              total: number;
+              payment: { __typename?: 'Payment'; name: string };
+            }[]
+          | null;
       }[];
       pointOfSale: {
         __typename?: 'PointOfSale';
@@ -9094,9 +9099,17 @@ export type InvoicesQuery = {
       number: number;
       updatedAt: any;
       createdAt: any;
-      authorization: { __typename?: 'AuthorizationDian'; prefix: string };
+      authorization: {
+        __typename?: 'AuthorizationDian';
+        prefix: string;
+        resolution?: string | null;
+        dateInitial?: any | null;
+        dateFinal?: any | null;
+        numberInitial?: number | null;
+        numberFinal?: number | null;
+      };
       user: { __typename?: 'User'; username: string };
-      summary: { __typename?: 'SummaryInvoice'; total: number };
+      summary: { __typename?: 'SummaryInvoice'; total: number; subtotal: number; tax: number };
       shop: { __typename?: 'Shop'; name: string };
       customer: {
         __typename?: 'Customer';
@@ -9123,6 +9136,17 @@ export type InvoicesQuery = {
               size: { __typename?: 'Size'; value: string };
             };
           }[]
+        | null;
+      company: {
+        __typename?: 'Company';
+        name: string;
+        email: string;
+        document: string;
+        address: string;
+        logo: string;
+      };
+      payments?:
+        | { __typename?: 'PaymentInvoice'; payment: { __typename?: 'Payment'; name: string } }[]
         | null;
     }[];
   };
@@ -18455,6 +18479,26 @@ export const DailyClosingDocument = {
                                 ],
                               },
                             },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payments' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'payment' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                                ],
+                              },
+                            },
                           ],
                         },
                       },
@@ -19178,7 +19222,14 @@ export const InvoicesDocument = {
                         name: { kind: 'Name', value: 'authorization' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'prefix' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'resolution' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'dateInitial' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'dateFinal' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'numberInitial' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'numberFinal' } },
+                          ],
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
@@ -19198,7 +19249,11 @@ export const InvoicesDocument = {
                         name: { kind: 'Name', value: 'summary' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'total' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'tax' } },
+                          ],
                         },
                       },
                       {
@@ -19288,6 +19343,39 @@ export const InvoicesDocument = {
                               },
                             },
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'company' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'logo' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payments' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payment' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
                           ],
                         },
                       },
