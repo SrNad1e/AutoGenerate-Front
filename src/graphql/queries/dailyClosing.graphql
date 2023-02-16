@@ -18,6 +18,12 @@ query dailyClosing($input: FiltersDailyClosing) {
           subtotal
           tax
         }
+        payments {
+          payment {
+            name
+          }
+          total
+        }
       }
       pointOfSale {
         name

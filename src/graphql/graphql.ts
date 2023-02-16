@@ -457,6 +457,8 @@ export type CloseZInvoicing = {
   paymentsCredit?: Maybe<PaymentCredit[]>;
   /** Punto de venta que registra el cierre */
   pointOfSale: PointOfSale;
+  /** Prefijo del número */
+  prefix: Scalars['String'];
   /** Transacciones reportadas por el usuario */
   quantityBank: Scalars['Float'];
   /** Devoluciones generadas */
@@ -841,10 +843,10 @@ export type CreateExpenseInput = {
 
 /** Datos para crear el pedido */
 export type CreateOrderInput = {
+  /** Identificador de la tienda del pedido */
+  shopId: Scalars['String'];
   /** Estado del pedido */
   status: StatusOrder;
-  /** Estado del pedido */
-  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para crear un método de pago */
@@ -8851,6 +8853,13 @@ export type DailyClosingQuery = {
         order: { __typename?: 'Order'; number: number };
         authorization: { __typename?: 'AuthorizationDian'; prefix: string };
         summary: { __typename?: 'SummaryInvoice'; total: number; subtotal: number; tax: number };
+        payments?:
+          | {
+              __typename?: 'PaymentInvoice';
+              total: number;
+              payment: { __typename?: 'Payment'; name: string };
+            }[]
+          | null;
       }[];
       pointOfSale: {
         __typename?: 'PointOfSale';
@@ -18452,6 +18461,26 @@ export const DailyClosingDocument = {
                                   { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'tax' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payments' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'payment' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                                 ],
                               },
                             },
