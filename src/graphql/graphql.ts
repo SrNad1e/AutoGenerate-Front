@@ -457,6 +457,8 @@ export type CloseZInvoicing = {
   paymentsCredit?: Maybe<PaymentCredit[]>;
   /** Punto de venta que registra el cierre */
   pointOfSale: PointOfSale;
+  /** Prefijo del número */
+  prefix: Scalars['String'];
   /** Transacciones reportadas por el usuario */
   quantityBank: Scalars['Float'];
   /** Devoluciones generadas */
@@ -517,6 +519,8 @@ export type Company = {
   document: Scalars['String'];
   /** Correo de la compañia */
   email: Scalars['String'];
+  /** Es la compañía principal */
+  isMain: Scalars['Boolean'];
   /** Url del logo de la compañía */
   logo: Scalars['String'];
   /** Nombre de la compañía */
@@ -841,10 +845,10 @@ export type CreateExpenseInput = {
 
 /** Datos para crear el pedido */
 export type CreateOrderInput = {
+  /** Identificador de la tienda del pedido */
+  shopId: Scalars['String'];
   /** Estado del pedido */
   status: StatusOrder;
-  /** Estado del pedido */
-  shopId?: InputMaybe<Scalars['String']>;
 };
 
 /** Datos para crear un método de pago */
@@ -1062,6 +1066,8 @@ export type CreateStockTransferInput = {
 
 /** Datos para la creación de un usuario */
 export type CreateUserInput = {
+  /** Compañía a la que pertecene el usuario */
+  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Identifica si el usuario es web */
@@ -1147,8 +1153,6 @@ export type CreditHistory = {
 /** Cliente */
 export type Customer = {
   __typename?: 'Customer';
-  /** Fecha de mayorista */
-  WolesalerDate?: Maybe<Scalars['DateTime']>;
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Se encuentra activo el usuario */
@@ -1169,6 +1173,8 @@ export type Customer = {
   email?: Maybe<Scalars['String']>;
   /** Nombres del cliente */
   firstName: Scalars['String'];
+  /** Primera compra del cliente */
+  firstPurchase: Scalars['Boolean'];
   /** Cliente por defecto */
   isDefault: Scalars['Boolean'];
   /** Número telefonico tiene whatsapp */
@@ -1181,6 +1187,8 @@ export type Customer = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el cliente */
   user: User;
+  /** Fecha de mayorista */
+  wolesalerDate?: Maybe<Scalars['DateTime']>;
 };
 
 /** Ventas de tipos de clientes */
@@ -2036,8 +2044,12 @@ export type FiltersInvoicesInput = {
   limit?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
+  /** Identificador de los medios de pago */
+  paymentIds?: InputMaybe<Scalars['String'][]>;
   /** Identificador del punto de venta */
   pointOfSaleId?: InputMaybe<Scalars['String']>;
+  /** Identificador de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortInovice>;
 };
@@ -5028,6 +5040,8 @@ export type SalesReport = {
   __typename?: 'SalesReport';
   /** Categoría */
   category?: Maybe<CategoryLevel1>;
+  /** Fecha de la venta */
+  date: Scalars['DateTime'];
   /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
   quantity: Scalars['Float'];
   /** Tienda */
@@ -6357,6 +6371,8 @@ export type UpdateStockTransferInput = {
 
 /** Datos para actualizar el usuario */
 export type UpdateUserInput = {
+  /** Compañía a la que pertecene el usuario */
+  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Identifica si el usuario es web */
@@ -10326,6 +10342,7 @@ export type CurrentUserQuery = {
       _id: string;
       box: { __typename?: 'Box'; _id: string };
     } | null;
+    company: { __typename?: 'Company'; name: string; _id: string };
     shop: {
       __typename?: 'Shop';
       _id: string;
@@ -10361,6 +10378,7 @@ export type UsersQuery = {
       isWeb: boolean;
       status: StatusUser;
       username: string;
+      company: { __typename?: 'Company'; name: string; _id: string };
       role: { __typename?: 'Role'; name: string; _id: string };
       shop: { __typename?: 'Shop'; name: string; _id: string };
       pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
@@ -23056,6 +23074,17 @@ export const CurrentUserDocument = {
                 },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'company' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'shop' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -23150,6 +23179,17 @@ export const UsersDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isWeb' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'company' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'role' },
