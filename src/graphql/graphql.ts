@@ -1717,6 +1717,8 @@ export type FiltersBrandsInput = {
 export type FiltersCategoriesInput = {
   /** Identificador de la categoría padre */
   _id?: InputMaybe<Scalars['String']>;
+  /** Compañía */
+  companyId?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Nombre de la categoría */
@@ -10361,6 +10363,7 @@ export type CurrentUserQuery = {
       name: string;
       permissions: { __typename?: 'Permission'; action: Permissions }[];
     };
+    company: { __typename?: 'Company'; _id: string; name: string };
   };
 };
 
@@ -23148,6 +23151,17 @@ export const CurrentUserDocument = {
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'action' } }],
                         },
                       },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'company' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                     ],
                   },
                 },

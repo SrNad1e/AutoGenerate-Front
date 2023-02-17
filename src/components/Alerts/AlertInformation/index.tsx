@@ -12,8 +12,8 @@ export type Props = {
   message: string | undefined | React.ReactElement;
   type: TYPES;
   onCancel?: () => void;
-  handlePrint?: () => void;
   redirect?: string;
+  handlePrint?: () => void;
 };
 
 /**
