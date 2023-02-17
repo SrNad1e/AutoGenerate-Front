@@ -28,6 +28,7 @@ query currentUser {
     company {
       _id
       name
+      isMain
     }
   }
 }

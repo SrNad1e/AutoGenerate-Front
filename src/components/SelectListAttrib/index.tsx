@@ -8,7 +8,7 @@ const { Option } = Select;
 export type Params = {
   onChange?: (value: string[]) => void;
   value?: string[];
-  disabled: boolean;
+  disabled?: boolean;
 };
 
 const SelectListAttrib = ({ onChange, value, disabled }: Params) => {

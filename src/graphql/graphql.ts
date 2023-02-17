@@ -519,6 +519,8 @@ export type Company = {
   document: Scalars['String'];
   /** Correo de la compañia */
   email: Scalars['String'];
+  /** Es la compañía principal */
+  isMain: Scalars['Boolean'];
   /** Url del logo de la compañía */
   logo: Scalars['String'];
   /** Nombre de la compañía */
@@ -1711,8 +1713,6 @@ export type FiltersBrandsInput = {
 export type FiltersCategoriesInput = {
   /** Identificador de la categoría padre */
   _id?: InputMaybe<Scalars['String']>;
-  /** Compañía */
-  companyId?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Nombre de la categoría */
@@ -7459,7 +7459,10 @@ export type ConfirmPaymentsOrderMutation = {
     order: {
       __typename?: 'Order';
       payments?:
-        | { __typename?: 'PaymentOrder'; payment: { __typename?: 'Payment'; name: string } }[]
+        | {
+            __typename?: 'PaymentOrder';
+            payment: { __typename?: 'Payment'; name: string };
+          }[]
         | null;
     };
   };
@@ -9129,7 +9132,10 @@ export type InvoicesQuery = {
         logo: string;
       };
       payments?:
-        | { __typename?: 'PaymentInvoice'; payment: { __typename?: 'Payment'; name: string } }[]
+        | {
+            __typename?: 'PaymentInvoice';
+            payment: { __typename?: 'Payment'; name: string };
+          }[]
         | null;
     }[];
   };
@@ -9806,6 +9812,7 @@ export type ReferenceIdQuery = {
     description: string;
     name: string;
     price: number;
+    companies: { __typename?: 'Company'; isMain: boolean }[];
     attribs?:
       | {
           __typename?: 'Attrib';
@@ -10342,7 +10349,7 @@ export type CurrentUserQuery = {
       name: string;
       permissions: { __typename?: 'Permission'; action: Permissions }[];
     };
-    company: { __typename?: 'Company'; _id: string; name: string };
+    company: { __typename?: 'Company'; _id: string; name: string; isMain: boolean };
   };
 };
 
@@ -21392,6 +21399,14 @@ export const ReferenceIdDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'price' } },
                 {
                   kind: 'Field',
+                  name: { kind: 'Name', value: 'companies' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'isMain' } }],
+                  },
+                },
+                {
+                  kind: 'Field',
                   name: { kind: 'Name', value: 'attribs' },
                   selectionSet: {
                     kind: 'SelectionSet',
@@ -23108,6 +23123,7 @@ export const CurrentUserDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isMain' } },
                     ],
                   },
                 },
