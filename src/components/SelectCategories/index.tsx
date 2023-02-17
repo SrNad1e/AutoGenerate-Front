@@ -10,9 +10,10 @@ const { TreeNode } = TreeSelect;
 export type Params = {
   onChange?: (value: string) => void;
   value?: string;
+  disabled?: boolean;
 };
 
-const SelectCategories = ({ value, onChange }: Params) => {
+const SelectCategories = ({ value, onChange, disabled }: Params) => {
   const [dataChild, setDataChild] = useState<Partial<CategoryLevel1 | any>>({});
   const [getCategories, { data, loading, error }] = useGetCategories();
 
@@ -72,6 +73,7 @@ const SelectCategories = ({ value, onChange }: Params) => {
         onDropdownVisibleChange={(e) => e && onSearch()}
         onChange={onChange}
         onSearch={onSearch}
+        disabled={disabled}
       >
         {data?.categories?.docs?.map(({ _id, name, childs }) => (
           <TreeNode key={_id} value={_id} title={name}>

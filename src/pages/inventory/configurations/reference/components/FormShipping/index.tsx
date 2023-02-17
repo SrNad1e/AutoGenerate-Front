@@ -2,16 +2,18 @@ import { Descriptions, Form, InputNumber } from 'antd';
 import { useEffect } from 'react';
 
 import styles from '../styles';
+import { FormInstance } from 'antd/es/form';
 
 const DescriptionsItem = Descriptions.Item;
 const FormItem = Form.Item;
 
 type Props = {
   missingValue: boolean;
-  form: any;
+  form: FormInstance<any>;
+  disabled: boolean;
 };
 
-const FormShipping = ({ missingValue, form }: Props) => {
+const FormShipping = ({ missingValue, form, disabled }: Props) => {
   useEffect(() => {
     if (missingValue) {
       form.validateFields();
@@ -26,7 +28,7 @@ const FormShipping = ({ missingValue, form }: Props) => {
           style={styles.marginIntial}
           rules={[{ required: true, message: 'Obligatorio' }]}
         >
-          <InputNumber min={0} addonAfter="cm" />
+          <InputNumber min={0} addonAfter="cm" disabled={disabled} />
         </FormItem>
       </DescriptionsItem>
       <DescriptionsItem label="Alto" span={2}>
@@ -35,7 +37,7 @@ const FormShipping = ({ missingValue, form }: Props) => {
           name="height"
           rules={[{ required: true, message: 'Obligatorio' }]}
         >
-          <InputNumber min={0} addonAfter="cm" />
+          <InputNumber min={0} addonAfter="cm" disabled={disabled} />
         </FormItem>
       </DescriptionsItem>
       <DescriptionsItem label="Largo" span={1}>
@@ -44,7 +46,7 @@ const FormShipping = ({ missingValue, form }: Props) => {
           name="long"
           rules={[{ required: true, message: 'Obligatorio' }]}
         >
-          <InputNumber min={0} addonAfter="cm" />
+          <InputNumber min={0} addonAfter="cm" disabled={disabled} />
         </FormItem>
       </DescriptionsItem>
       <DescriptionsItem label="Peso" span={2}>
@@ -53,7 +55,7 @@ const FormShipping = ({ missingValue, form }: Props) => {
           style={styles.marginIntial}
           rules={[{ required: true, message: 'Obligatorio' }]}
         >
-          <InputNumber min={0} addonAfter="kg" />
+          <InputNumber min={0} addonAfter="kg" disabled={disabled} />
         </FormItem>
       </DescriptionsItem>
       <DescriptionsItem label="Volumen">
@@ -62,7 +64,7 @@ const FormShipping = ({ missingValue, form }: Props) => {
           name="volume"
           rules={[{ required: true, message: 'Obligatorio' }]}
         >
-          <InputNumber min={0} addonAfter="cc" />
+          <InputNumber min={0} addonAfter="cc" disabled={disabled} />
         </FormItem>
       </DescriptionsItem>
     </Descriptions>

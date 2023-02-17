@@ -14,6 +14,7 @@ const { Text } = Typography;
 
 export type Params = {
   onFinish: (values: { colors: Color[]; sizes: Size[] }) => void;
+  disabled: boolean;
   form:
     | FormInstance<{
         colors: Color[];
@@ -22,7 +23,7 @@ export type Params = {
     | undefined;
 };
 
-const FormCreateProduct = ({ onFinish, form }: Params) => {
+const FormCreateProduct = ({ onFinish, form, disabled }: Params) => {
   const [modalColorVisible, setModalColorVisible] = useState(false);
   const [modalSizeVisible, setModalSizeVisible] = useState(false);
 
@@ -41,7 +42,13 @@ const FormCreateProduct = ({ onFinish, form }: Params) => {
   };
 
   return (
-    <Form form={form} onFinish={onFinish} layout="horizontal" style={{ width: '90%' }}>
+    <Form
+      disabled={disabled}
+      form={form}
+      onFinish={onFinish}
+      layout="horizontal"
+      style={{ width: '90%' }}
+    >
       <Row gutter={[16, 10]} justify="center">
         <Col xs={24} md={12}>
           <FormItem
@@ -62,7 +69,7 @@ const FormCreateProduct = ({ onFinish, form }: Params) => {
             rules={[{ required: true, message: 'Obligatorio' }]}
             name="colors"
           >
-            <SelectListColor disabled={false} />
+            <SelectListColor disabled={disabled} />
           </FormItem>
         </Col>
         <Col xs={24} md={10}>
@@ -84,7 +91,7 @@ const FormCreateProduct = ({ onFinish, form }: Params) => {
             rules={[{ required: true, message: 'Obligatorio' }]}
             name="sizes"
           >
-            <SelectListSize disabled={false} />
+            <SelectListSize disabled={disabled} />
           </FormItem>
         </Col>
         <Col xs={24} md={2}>
