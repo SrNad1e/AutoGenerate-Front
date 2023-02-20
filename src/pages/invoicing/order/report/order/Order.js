@@ -85,10 +85,14 @@ export default class OrderReport extends React.PureComponent {
     return (
       <div style={classes.content}>
         <div style={classes.header}>
-          <img src="/logo.svg" alt="logo" width="50%" style={{ marginBottom: -25 }} />
-          <Barcode value={data?.number} height={50} text={`No. ${data?.number}`} fontSize={12} />
+          <img src="/logo.svg" alt="logo" width="90%" height="70%" style={{ marginBottom: -25 }} />
           <div style={classes.text}>
-            <div style={classes.title}>TICKET DE VENTA</div>
+            <span style={classes.textBold}>Manufacturas Cirotex S. A. S</span>
+            {'NIT'}
+          </div>
+          <hr className={style.hr} />
+          <Barcode value={data?.number} height={50} text={`No. ${data?.number}`} fontSize={10} />
+          <div style={classes.text}>
             Fecha: {moment(data?.closeDate).format('YYYY/MM/DD HH:mm:ss')}
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>

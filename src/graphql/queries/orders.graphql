@@ -52,6 +52,9 @@ query Orders($input: FiltersOrdersInput!) {
       }
       shop {
         name
+        company {
+          document
+        }
       }
       user {
         name

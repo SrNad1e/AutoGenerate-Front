@@ -9513,7 +9513,7 @@ export type OrdersQuery = {
         phone?: string | null;
         customerType: { __typename?: 'CustomerType'; name: string };
       };
-      shop: { __typename?: 'Shop'; name: string };
+      shop: { __typename?: 'Shop'; name: string; document?: string | null };
       user: { __typename?: 'User'; name: string };
       details?:
         | {
@@ -20419,7 +20419,10 @@ export const OrdersDocument = {
                         name: { kind: 'Name', value: 'shop' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                          ],
                         },
                       },
                       {
