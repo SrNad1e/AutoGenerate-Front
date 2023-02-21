@@ -130,6 +130,7 @@ const Dashboard = () => {
             });
           }
           */
+         //Agrega elementos enel array segun criterios.
           responseFormat.push({
             ...item,
             categoryName: item?.category?.name,
