@@ -137,7 +137,7 @@ const FiscalCloseList = () => {
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
-      delete params.date;
+      delete params.dates;
       onSearch(params);
       const datos = Object.keys(props)
         .reduce((a, key) => (props[key] ? `${a}&${key}=${JSON.stringify(props[key])}` : a), '')
