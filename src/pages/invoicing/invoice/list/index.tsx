@@ -119,6 +119,7 @@ const InvoiceList = () => {
     getInvoices({
       variables: {
         input: {
+          sort: { createdAt: -1 },
           ...values,
         },
       },
@@ -267,7 +268,7 @@ const InvoiceList = () => {
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
-      delete params.date;
+      delete params.dates;
       await getInvoicesRange({
         variables: {
           input: {
