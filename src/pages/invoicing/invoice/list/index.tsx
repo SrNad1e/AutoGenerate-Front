@@ -113,6 +113,7 @@ const InvoiceList = () => {
     getInvoices({
       variables: {
         input: {
+          sort: { createdAt: -1 },
           ...values,
         },
       },
