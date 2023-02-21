@@ -440,7 +440,7 @@ const InvoiceList = () => {
             </Col>
           </Row>
         </Form>
-        {initialState?.currentUser?.username === 'admin' && (
+        {initialState?.currentUser?.username === USER_ADMIN && (
           <>
             <Button type="primary" onClick={() => setShowInvoicing(true)}>
               AutoFacturación

@@ -481,7 +481,7 @@ const EcommerceForm = () => {
                   disabled={
                     paramsGetOrder?.data?.orderId?.order?.statusWeb === StatusWeb.Cancelled ||
                     (paramsGetOrder?.data?.orderId?.order?.statusWeb !== StatusWeb.Cancelled
-                      ? initialState?.currentUser?.role?.name === 'Administrador'
+                      ? initialState?.currentUser?.username === USER_ADMIN
                         ? false
                         : disabledCancelButton()
                       : true) ||
@@ -498,7 +498,7 @@ const EcommerceForm = () => {
                     disabled={
                       paramsGetOrder?.data?.orderId?.order?.statusWeb === StatusWeb.Cancelled ||
                       (paramsGetOrder?.data?.orderId?.order?.statusWeb !== StatusWeb.Cancelled
-                        ? initialState?.currentUser?.role?.name === 'Administrador'
+                        ? initialState?.currentUser?.username === USER_ADMIN
                           ? false
                           : disabledCancelButton()
                         : true) ||

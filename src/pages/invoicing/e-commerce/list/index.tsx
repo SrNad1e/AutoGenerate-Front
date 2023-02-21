@@ -241,7 +241,7 @@ const EcommerceList = () => {
         }
       });
 
-      if (initialState?.currentUser?.username !== 'admin') {
+      if (initialState?.currentUser?.username !== USER_ADMIN) {
         setDisabledShop(true);
         newFilters['shopId'] = initialState?.currentUser?.shop?._id;
       }
