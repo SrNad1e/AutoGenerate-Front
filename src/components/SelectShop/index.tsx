@@ -64,6 +64,7 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
             sort: {
               name: 1,
             },
+            limit: 100,
           },
         },
       });
@@ -81,6 +82,7 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
             sort: {
               name: 1,
             },
+            limit: 100,
           },
         },
       });

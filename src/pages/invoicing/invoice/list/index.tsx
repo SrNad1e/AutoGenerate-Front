@@ -51,6 +51,7 @@ import moment from 'moment';
 import { useGetInvoices } from '@/hooks/invoice.hooks';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import ModalInvoicing from '../components/ModalInvoicing';
+import SelectShop from '@/components/SelectShop';
 import InvoiceReport from '../reports/Invoice';
 
 const FormItem = Form.Item;
@@ -60,6 +61,7 @@ const { RangePicker } = DatePicker;
 type FormValues = {
   active?: boolean;
   dates?: Moment[];
+  shopId?: string;
 };
 
 const InvoiceList = () => {
@@ -257,7 +259,7 @@ const InvoiceList = () => {
     const tableFilters = {
       active: queryParams.active ? [queryParams.active === 'true'] : null,
     };
-    const newFilters = {};
+    const newFilters: any = {};
 
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
@@ -303,7 +305,6 @@ const InvoiceList = () => {
       title: <Text>{<UserOutlined />} Creado Por</Text>,
       dataIndex: 'user',
       align: 'center',
-      //sorter: true,
       showSorterTooltip: false,
       render: (user: User) => user.username,
     },
@@ -311,7 +312,6 @@ const InvoiceList = () => {
       title: <Text>{<UserAddOutlined />} Cliente</Text>,
       dataIndex: 'customer',
       align: 'center',
-      // sorter: true,
       showSorterTooltip: false,
       render: ({ documentType, document, firstName, lastName }: Customer) => (
         <>
@@ -401,8 +401,6 @@ const InvoiceList = () => {
     },
   ];
 
-  console.log('invoices', paramsGetInvoices?.data?.invoices?.docs);
-
   return (
     <PageContainer>
       <Card bordered={false}>
@@ -413,7 +411,13 @@ const InvoiceList = () => {
                 <RangePicker
                   style={styles.allWidth}
                   placeholder={['Fecha Inicial', 'Fecha Final']}
+                  disabled={paramsGetInvoices?.loading}
                 />
+              </FormItem>
+            </Col>
+            <Col xs={24} md={9} lg={6} xl={7}>
+              <FormItem label="Tiendas" name="shopId">
+                <SelectShop disabled={paramsGetInvoices?.loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={4} lg={4} xl={5}>
@@ -424,6 +428,7 @@ const InvoiceList = () => {
                     type="primary"
                     htmlType="submit"
                     style={styles.borderR}
+                    loading={paramsGetInvoices?.loading}
                   >
                     Buscar
                   </Button>
@@ -431,6 +436,7 @@ const InvoiceList = () => {
                     htmlType="reset"
                     onClick={onClear}
                     style={styles.borderR}
+                    loading={paramsGetInvoices?.loading}
                     icon={<ClearOutlined />}
                   >
                     Limpiar
@@ -440,16 +446,23 @@ const InvoiceList = () => {
             </Col>
           </Row>
         </Form>
-        {initialState?.currentUser?.username === 'admin' && (
-          <>
-            <Button type="primary" onClick={() => setShowInvoicing(true)}>
-              AutoFacturación
-            </Button>
-            <ModalInvoicing open={showInvoicing} onCancel={() => setShowInvoicing(false)} />
-          </>
-        )}
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
-          <Col span={12} style={styles.alignText}>
+          <Col span={12}>
+            {initialState?.currentUser?.username === 'admin' && (
+              <>
+                <Button
+                  style={{ borderRadius: 5 }}
+                  type="primary"
+                  onClick={() => setShowInvoicing(true)}
+                  loading={paramsGetInvoices?.loading}
+                >
+                  AutoFacturación
+                </Button>
+                <ModalInvoicing open={showInvoicing} onCancel={() => setShowInvoicing(false)} />
+              </>
+            )}
+          </Col>
+          <Col span={12} style={styles.texRigth}>
             <Text strong>Total Encontrados: </Text>{' '}
             {paramsGetInvoices?.data?.invoices?.totalDocs || 0} <Text strong> Páginas: </Text>{' '}
             {paramsGetInvoices?.data?.invoices?.page || 0} /{' '}
@@ -466,6 +479,7 @@ const InvoiceList = () => {
                 pageSize: 20,
               }}
               dataSource={paramsGetInvoices?.data?.invoices?.docs || []}
+              loading={paramsGetInvoices?.loading}
             />
           </Col>
         </Row>
