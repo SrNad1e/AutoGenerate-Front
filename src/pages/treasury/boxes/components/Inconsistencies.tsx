@@ -170,7 +170,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
 
   useEffect(() => {
     try {
-      onSearch({ verified: false });
+      onSearch();
     } catch (error: any) {
       messageError(error?.message);
     }

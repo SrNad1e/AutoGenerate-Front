@@ -7,6 +7,7 @@ query companies($input: FiltersCompaniesInput) {
       name
       document
       phone
+      email
       address
       regimenSimplify
       active

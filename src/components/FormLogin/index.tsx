@@ -45,7 +45,7 @@ const FormLogin = () => {
   const handleSubmit = async (formData: LoginUserInput): Promise<boolean | void> => {
     try {
       const response = await login({
-        variables: { input: { ...formData, companyId: COMPANY_ID } },
+        variables: { input: { ...formData } },
       });
 
       if (response?.data?.login) {

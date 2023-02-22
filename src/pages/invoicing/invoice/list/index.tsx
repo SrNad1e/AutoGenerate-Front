@@ -7,7 +7,6 @@ import {
   MoreOutlined,
   PrinterFilled,
   SearchOutlined,
-  SelectOutlined,
   ShopOutlined,
   UserAddOutlined,
   UserOutlined,
@@ -30,10 +29,11 @@ import {
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useHistory, useLocation, useModel } from 'umi';
+import { useReactToPrint } from 'react-to-print';
 import type { Location } from 'umi';
 import numeral from 'numeral';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from '../styles';
 import type {
   Customer,
@@ -52,6 +52,7 @@ import { useGetInvoices } from '@/hooks/invoice.hooks';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import ModalInvoicing from '../components/ModalInvoicing';
 import SelectShop from '@/components/SelectShop';
+import InvoiceReport from '../reports/Invoice';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -69,11 +70,14 @@ const InvoiceList = () => {
     type: 'error',
     visible: false,
   });
+  const [invoiceData, setInvoiceData] = useState({});
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
   const [showInvoicing, setShowInvoicing] = useState<boolean>(false);
   const { initialState } = useModel('@@initialState');
 
   const location: Location = useLocation();
+
+  const reportRef = useRef(null);
 
   const [form] = Form.useForm();
   const history = useHistory();
@@ -234,6 +238,19 @@ const InvoiceList = () => {
     setFilterTable({});
   };
 
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
+
+  /**
+   * @description se encarga de seleccionar el pedido e imprime
+   * @param record pedido
+   */
+  const printOrder = async (record: Partial<Invoice>) => {
+    await setInvoiceData(record);
+    handlePrint();
+  };
+
   /**
    * @description se encarga de cargar los datos con base a la query
    */
@@ -372,22 +389,12 @@ const InvoiceList = () => {
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
-      render: () => {
+      render: (_, record) => {
         return (
           <Space>
             <Tooltip title="Imprimir Factura">
-              <Button type="primary" onClick={() => {}} icon={<PrinterFilled />} />
+              <Button type="primary" onClick={() => printOrder(record)} icon={<PrinterFilled />} />
             </Tooltip>
-            <Space>
-              <Tooltip title="Habilitar Productos">
-                <Button
-                  type="ghost"
-                  onClick={() => {}}
-                  icon={<SelectOutlined />}
-                  disabled={false}
-                />
-              </Tooltip>
-            </Space>
           </Space>
         );
       },
@@ -478,9 +485,9 @@ const InvoiceList = () => {
         </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
-      {/*<div style={{ display: 'none' }}>
-        <ReportReturn ref={reportRef1} data={returnData} />
-            </div>*/}
+      <div style={{ display: 'none' }}>
+        <InvoiceReport data={invoiceData} ref={reportRef} />
+      </div>
     </PageContainer>
   );
 };
