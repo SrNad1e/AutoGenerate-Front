@@ -1,12 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Select, Alert } from 'antd';
 import { useEffect, useState } from 'react';
-
-import { useGetShops } from '@/hooks/shop.hooks';
-import { useModel } from 'umi';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { Permissions } from '@/graphql/graphql';
+import { useGetCompanies } from '@/hooks/company.hooks';
 
 const { Option } = Select;
 
@@ -16,18 +13,13 @@ export type Params = {
   disabled: boolean;
 };
 
-const SelectShop = ({ onChange, disabled, value }: Params) => {
-  const [getShops, { loading, data, error }] = useGetShops();
+const SelectCompany = ({ onChange, disabled, value }: Params) => {
+  const [getCompanies, { loading, data, error }] = useGetCompanies();
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
-
-  const { initialState } = useModel('@@initialState');
-  const canQueryShops = initialState?.currentUser?.role.permissions.find(
-    (permission) => permission.action === Permissions.ReadConfigurationShops,
-  );
 
   /**
    * @description cierra la alerta y el modal
@@ -52,13 +44,9 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
     });
   };
 
-  /**
-   * @description se encarga de consultar con base a un comodín
-   * @param name comodín de coincidencia en el nombre
-   */
   const onSearch = async () => {
     try {
-      getShops({
+      await getCompanies({
         variables: {
           input: {
             sort: {
@@ -74,19 +62,7 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
   };
 
   useEffect(() => {
-    if (canQueryShops) {
-      getShops({
-        variables: {
-          input: {
-            _id: value,
-            sort: {
-              name: 1,
-            },
-            limit: 100,
-          },
-        },
-      });
-    }
+    onSearch();
   }, []);
 
   return (
@@ -95,26 +71,23 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
         style={{ width: '100%' }}
         showSearch
         loading={loading}
-        placeholder="Seleccione la tienda"
+        placeholder="Seleccione Compañia"
         optionFilterProp="children"
         onChange={onChange}
-        onSearch={onSearch}
         disabled={disabled}
         value={value}
       >
-        {data?.shops?.docs?.map(({ _id, name }) => (
-          <Option key={_id} value={_id}>
-            {name}
+        {data?.companies?.docs?.map((city) => (
+          <Option key={city._id} value={city._id}>
+            {city.name}
           </Option>
         ))}
       </Select>
-      {!canQueryShops && (
-        <Alert message="No tiene permiso para consultar las tiendas" type="error" showIcon />
-      )}
+      {error && <Alert message={error} type="info" showIcon />}
       {error && <Alert message={error} type="info" showIcon />}
       <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
     </>
   );
 };
 
-export default SelectShop;
+export default SelectCompany;
