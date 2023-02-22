@@ -34,6 +34,8 @@ import { useGetDailyClosings } from '@/hooks/dailyClosing.hooks';
 import numeral from 'numeral';
 import DailyClosingReport from '../report/DailyClosing';
 import { useReactToPrint } from 'react-to-print';
+import DailyClosingRangeReport from '../report/DailyClosingRange';
+import AlertLoading from '@/components/Alerts/AlertLoading';
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
@@ -61,8 +63,14 @@ const FiscalCloseList = () => {
 
   const reportRef = useRef(null);
 
+  const reportRangeRef = useRef(null);
+
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
+  });
+
+  const handlePrintRange = useReactToPrint({
+    content: () => reportRangeRef?.current,
   });
 
   /**
@@ -75,6 +83,7 @@ const FiscalCloseList = () => {
   };
 
   const [getDailyClosings, paramasGetDailyClosings] = useGetDailyClosings();
+  const [getDailyRangeClosings, { data, loading }] = useGetDailyClosings();
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -115,6 +124,39 @@ const FiscalCloseList = () => {
       });
     } catch (error: any) {
       showError(error.message);
+    }
+  };
+
+  const generateReangeReport = async () => {
+    try {
+      const props = form.getFieldsValue();
+      const { dates } = props;
+
+      const params: Partial<FiltersDailyClosing> | any = {
+        page: 1,
+        limit: 1000,
+        sort: { createdAt: -1 },
+        ...props,
+      };
+      if (dates) {
+        const dateInitial = moment(dates[0]).format('YYYY/MM/DD 00:00:00');
+        const dateFinal = moment(dates[1]).format('YYYY/MM/DD 00:00:00');
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
+      }
+      delete params.date;
+      await getDailyRangeClosings({
+        variables: {
+          input: {
+            sort: { closeDate: -1 },
+            ...params,
+          },
+        },
+      });
+
+      handlePrintRange();
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -313,7 +355,12 @@ const FiscalCloseList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 20]} style={{ marginTop: 20 }}>
-          <Col span={24} style={{ textAlign: 'right' }}>
+          <Col span={12}>
+            <Button type="primary" onClick={() => generateReangeReport()}>
+              Generar PDF
+            </Button>
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
             <Text strong>Total Encontrados:</Text>{' '}
             {paramasGetDailyClosings?.data?.dailyClosings?.totalDocs || 0}{' '}
             <Text strong>Páginas: </Text> {paramasGetDailyClosings?.data?.dailyClosings?.page || 0}{' '}
@@ -335,8 +382,12 @@ const FiscalCloseList = () => {
         </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
+      <AlertLoading visible={loading} message="Generando cierres" />
       <div style={{ display: 'none' }}>
         <DailyClosingReport data={dailyClosingData} ref={reportRef} />
+      </div>
+      <div style={{ display: 'none' }}>
+        <DailyClosingRangeReport dataArray={data?.dailyClosings?.docs || []} ref={reportRangeRef} />
       </div>
     </PageContainer>
   );
