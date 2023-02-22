@@ -8857,6 +8857,13 @@ export type DailyClosingQuery = {
         order: { __typename?: 'Order'; number: number };
         authorization: { __typename?: 'AuthorizationDian'; prefix: string };
         summary: { __typename?: 'SummaryInvoice'; total: number; subtotal: number; tax: number };
+        payments?:
+          | {
+              __typename?: 'PaymentInvoice';
+              total: number;
+              payment: { __typename?: 'Payment'; name: string };
+            }[]
+          | null;
       }[];
       pointOfSale: {
         __typename?: 'PointOfSale';
@@ -18460,6 +18467,26 @@ export const DailyClosingDocument = {
                                   { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'tax' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payments' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'payment' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                                 ],
                               },
                             },
