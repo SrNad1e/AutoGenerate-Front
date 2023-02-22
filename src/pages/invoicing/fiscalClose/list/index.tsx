@@ -144,7 +144,7 @@ const FiscalCloseList = () => {
         params.dateFinal = dateFinal;
         params.dateInitial = dateInitial;
       }
-      delete params.date;
+      delete params.dates;
       await getDailyRangeClosings({
         variables: {
           input: {
