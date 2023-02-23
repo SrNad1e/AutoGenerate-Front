@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { useGetCategories } from '@/hooks/category.hooks';
 import type { CategoryLevel1, CategoryLevel2 } from '@/graphql/graphql';
+import { useModel } from 'umi';
 
 const { TreeNode } = TreeSelect;
 
@@ -16,6 +17,8 @@ const SelectCategories = ({ value, onChange }: Params) => {
   const [dataChild, setDataChild] = useState<Partial<CategoryLevel1 | any>>({});
   const [getCategories, { data, loading, error }] = useGetCategories();
 
+  const { initialState } = useModel('@@initialState');
+
   /**
    * @description se encarga de buscar las categorías
    * @param name comodín del nombre de la categoría
@@ -24,6 +27,7 @@ const SelectCategories = ({ value, onChange }: Params) => {
     getCategories({
       variables: {
         input: {
+          companyId: initialState?.currentUser?.company._id,
           name,
           limit: 100,
           sort: {

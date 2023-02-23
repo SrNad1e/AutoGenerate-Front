@@ -312,6 +312,8 @@ export type CategoryLevel1 = {
   _id: Scalars['String'];
   /** Nombre de la categoría */
   childs?: Maybe<CategoryLevel2[]>;
+  /** Compañía */
+  company: Company;
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -329,6 +331,8 @@ export type CategoryLevel2 = {
   _id: Scalars['String'];
   /** Categorías inferiores */
   childs?: Maybe<CategoryLevel3[]>;
+  /** Compañía */
+  company: Company;
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -346,6 +350,8 @@ export type CategoryLevel3 = {
   __typename?: 'CategoryLevel3';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Compañía */
+  company: Company;
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -519,8 +525,6 @@ export type Company = {
   document: Scalars['String'];
   /** Correo de la compañia */
   email: Scalars['String'];
-  /** Es la compañía principal */
-  isMain: Scalars['Boolean'];
   /** Url del logo de la compañía */
   logo: Scalars['String'];
   /** Nombre de la compañía */
@@ -861,6 +865,8 @@ export type CreatePaymentInput = {
   message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name: Scalars['String'];
+  /** Identificador de tiendas que usan el método de pago */
+  shopIds: Scalars['String'][];
   /** Tipo de método de pago */
   type: TypePayment;
 };
@@ -1064,8 +1070,6 @@ export type CreateStockTransferInput = {
 
 /** Datos para la creación de un usuario */
 export type CreateUserInput = {
-  /** Compañía a la que pertecene el usuario */
-  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Identifica si el usuario es web */
@@ -1151,6 +1155,8 @@ export type CreditHistory = {
 /** Cliente */
 export type Customer = {
   __typename?: 'Customer';
+  /** Fecha de mayorista */
+  WolesalerDate?: Maybe<Scalars['DateTime']>;
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Se encuentra activo el usuario */
@@ -1171,8 +1177,6 @@ export type Customer = {
   email?: Maybe<Scalars['String']>;
   /** Nombres del cliente */
   firstName: Scalars['String'];
-  /** Primera compra del cliente */
-  firstPurchase: Scalars['Boolean'];
   /** Cliente por defecto */
   isDefault: Scalars['Boolean'];
   /** Número telefonico tiene whatsapp */
@@ -1185,8 +1189,6 @@ export type Customer = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el cliente */
   user: User;
-  /** Fecha de mayorista */
-  wolesalerDate?: Maybe<Scalars['DateTime']>;
 };
 
 /** Ventas de tipos de clientes */
@@ -1328,6 +1330,8 @@ export type DetailInvoice = {
   product: Product;
   /** Cantidad de productos en la factura */
   quantity: Scalars['Float'];
+  /** Impuestos */
+  tax: Scalars['Float'];
 };
 
 /** Productos del pedido */
@@ -1713,6 +1717,8 @@ export type FiltersBrandsInput = {
 export type FiltersCategoriesInput = {
   /** Identificador de la categoría padre */
   _id?: InputMaybe<Scalars['String']>;
+  /** Compañía */
+  companyId?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Nombre de la categoría */
@@ -1727,6 +1733,8 @@ export type FiltersCategoriesInput = {
 export type FiltersCategoriesLevelInput = {
   /** Identificador de la categoría */
   _id?: InputMaybe<Scalars['String']>;
+  /** Compañía */
+  companyId?: InputMaybe<Scalars['String']>;
   /** Nivel de categoria */
   level: Scalars['Float'];
   /** Cantidad de registros */
@@ -2040,12 +2048,8 @@ export type FiltersInvoicesInput = {
   limit?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
-  /** Identificador de los medios de pago */
-  paymentIds?: InputMaybe<Scalars['String'][]>;
   /** Identificador del punto de venta */
   pointOfSaleId?: InputMaybe<Scalars['String']>;
-  /** Identificador de la tienda */
-  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortInovice>;
 };
@@ -2090,6 +2094,8 @@ export type FiltersPaymentsInput = {
   name?: InputMaybe<Scalars['String']>;
   /** Página actual */
   page?: InputMaybe<Scalars['Float']>;
+  /** Tienda para consultar el medio de pago */
+  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortPayment>;
   /** Tipo de medio de pago (cash, bank, credit, bonus) */
@@ -2469,8 +2475,8 @@ export type GenerateDailyClosingInput = {
   dateFinal: Scalars['String'];
   /** Fecha inicial */
   dateInitial: Scalars['String'];
-  /** Id de punto de venta */
-  pointOfSaleId: Scalars['String'];
+  /** Id de la tienda */
+  shopId: Scalars['String'];
 };
 
 export enum GroupDates {
@@ -3114,6 +3120,8 @@ export type Payment = {
   message?: Maybe<Scalars['String']>;
   /** Nombre del medio de pago */
   name: Scalars['String'];
+  /** Tipo de medio de pago */
+  shops: Shop[];
   /** Tipo de medio de pago */
   type: TypePayment;
   /** Fecha de actualización */
@@ -5032,8 +5040,6 @@ export type SalesReport = {
   __typename?: 'SalesReport';
   /** Categoría */
   category?: Maybe<CategoryLevel1>;
-  /** Fecha de la venta */
-  date: Scalars['DateTime'];
   /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
   quantity: Scalars['Float'];
   /** Tienda */
@@ -6185,6 +6191,8 @@ export type UpdatePaymentInput = {
   message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name?: InputMaybe<Scalars['String']>;
+  /** Identificador de tiendas que usan el método de pago */
+  shopIds?: InputMaybe<Scalars['String'][]>;
   /** Tipo de método de pago */
   type?: InputMaybe<TypePayment>;
 };
@@ -6361,8 +6369,6 @@ export type UpdateStockTransferInput = {
 
 /** Datos para actualizar el usuario */
 export type UpdateUserInput = {
-  /** Compañía a la que pertecene el usuario */
-  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Identifica si el usuario es web */
