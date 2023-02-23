@@ -489,7 +489,7 @@ const InvoiceList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
-          <Col span={12}>
+          <Col span={24} style={{ textAlign: 'right' }}>
             {initialState?.currentUser?.username === 'admin' && (
               <>
                 <Button
@@ -504,7 +504,7 @@ const InvoiceList = () => {
               </>
             )}
           </Col>
-          <Col span={12} style={styles.texRigth}>
+          <Col span={12}>
             <Button type="primary" onClick={() => generateReangeReport()}>
               Generar PDF
             </Button>
