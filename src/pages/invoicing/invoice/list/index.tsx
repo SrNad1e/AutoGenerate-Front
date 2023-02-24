@@ -490,7 +490,7 @@ const InvoiceList = () => {
         </Form>
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
           <Col span={24} style={{ textAlign: 'right' }}>
-            {initialState?.currentUser?.username === 'admin' && (
+            {initialState?.currentUser?.username === USER_ADMIN && (
               <>
                 <Button
                   style={{ borderRadius: 5 }}

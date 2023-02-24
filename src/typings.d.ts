@@ -26,6 +26,7 @@ declare const API_URL: string;
 declare const CDN_URL: string;
 declare const FORMAT_DATE: string;
 declare const FORMAT_DATE_API: string;
+declare const USER_ADMIN: string;
 
 declare type TYPES = 'error' | 'success' | 'warning';
 declare type ACTIONTYPESPRODUCT = 'create' | 'update' | 'delete';

@@ -103,7 +103,7 @@ const CategoryList = () => {
         variables: {
           input: {
             companyId:
-              initialState?.currentUser?.username !== 'admin'
+              initialState?.currentUser?.username !== USER_ADMIN
                 ? initialState?.currentUser?.company?._id
                 : undefined,
             ...values,
