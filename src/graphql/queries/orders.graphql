@@ -31,6 +31,11 @@ query Orders($input: FiltersOrdersInput!) {
           type
         }
       }
+      pointOfSale {
+        box {
+          name
+        }
+      }
       _id
       createdAt
       updatedAt
@@ -52,9 +57,9 @@ query Orders($input: FiltersOrdersInput!) {
       }
       shop {
         name
-        company {
-          document
-        }
+        address
+        email
+        document
       }
       user {
         name
