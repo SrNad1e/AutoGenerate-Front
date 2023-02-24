@@ -5,6 +5,11 @@ query orderId($id: String!) {
       amount
     }
     order {
+      pointOfSale {
+        box {
+          name
+        }
+      }
       closeDate
       statusWeb
       invoice {
@@ -57,6 +62,9 @@ query orderId($id: String!) {
         }
         shop {
           name
+          address
+          email
+          document
         }
         details {
           discount

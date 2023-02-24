@@ -226,7 +226,7 @@ export type Box = {
   /** Caja principal de la empresa */
   isMain: Scalars['Boolean'];
   /** Nombre de la caja */
-  name: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
   /** Total de dinero en la caja sin contar la base */
   total: Scalars['Float'];
   /** Fecha de actualización */
@@ -3065,7 +3065,7 @@ export type Order = {
   /** Fecha de cierre del pedido */
   closeDate: Scalars['DateTime'];
   /** Empresa a la que perteneces el pedido */
-  company: Company;
+  company?: Maybe<Company>;
   /** Trasportadora */
   conveyorOrder?: Maybe<ConveyorOrder>;
   /** Fecha de creación */
@@ -3088,7 +3088,7 @@ export type Order = {
   /** Métodos de pago usados en el pedido */
   payments?: Maybe<PaymentOrder[]>;
   /** Punto de venta asigando */
-  pointOfSale: PointOfSale;
+  pointOfSale?: Maybe<PointOfSale>;
   /** Tienda donde se solicita el pedido */
   shop: Shop;
   /** Estado del pedido */
@@ -3397,7 +3397,7 @@ export type PointOfSale = {
   /** Tienda a la que pertenece el punto de venta */
   authorization: AuthorizationDian;
   /** Caja del punto de venta */
-  box: Box;
+  box?: Maybe<Box>;
   /** Fecha de cierre */
   closeDate?: Maybe<Scalars['DateTime']>;
   /** Se encuentra en proceso de cierre */
@@ -6606,7 +6606,7 @@ export type CreateBoxMutationVariables = Exact<{
 
 export type CreateBoxMutation = {
   __typename?: 'Mutation';
-  createBox: { __typename?: 'Box'; _id: string; name: string };
+  createBox: { __typename?: 'Box'; _id: string; name?: string | null };
 };
 
 export type UpdateBoxMutationVariables = Exact<{
@@ -6616,7 +6616,7 @@ export type UpdateBoxMutationVariables = Exact<{
 
 export type UpdateBoxMutation = {
   __typename?: 'Mutation';
-  updateBox: { __typename?: 'Box'; _id: string; name: string };
+  updateBox: { __typename?: 'Box'; _id: string; name?: string | null };
 };
 
 export type VerifiedErrorCashMutationVariables = Exact<{
@@ -6632,8 +6632,8 @@ export type VerifiedErrorCashMutation = {
     verified: boolean;
     updatedAt: any;
     typeError: TypeErrorCash;
-    boxDestination: { __typename?: 'Box'; name: string };
-    boxOrigin: { __typename?: 'Box'; name: string };
+    boxDestination: { __typename?: 'Box'; name?: string | null };
+    boxOrigin: { __typename?: 'Box'; name?: string | null };
     closeZ?: { __typename?: 'CloseZInvoicing'; number: number } | null;
   };
 };
@@ -7643,7 +7643,7 @@ export type CreateReceiptMutation = {
       createdAt: any;
       concept?: string | null;
       value: number;
-      box?: { __typename?: 'Box'; name: string } | null;
+      box?: { __typename?: 'Box'; name?: string | null } | null;
       user: { __typename?: 'User'; name: string };
     };
   };
@@ -8038,7 +8038,7 @@ export type LoginMutation = {
       pointOfSale?: {
         __typename?: 'PointOfSale';
         _id: string;
-        box: { __typename?: 'Box'; _id: string };
+        box?: { __typename?: 'Box'; _id: string } | null;
       } | null;
       shop: {
         __typename?: 'Shop';
@@ -8276,7 +8276,7 @@ export type BoxesQuery = {
       base: number;
       updatedAt: any;
       total: number;
-      name: string;
+      name?: string | null;
       isMain: boolean;
     }[];
   };
@@ -8301,8 +8301,8 @@ export type ErrorCashQuery = {
       value: number;
       verified: boolean;
       updatedAt: any;
-      boxDestination: { __typename?: 'Box'; _id: string; name: string };
-      boxOrigin: { __typename?: 'Box'; name: string; _id: string };
+      boxDestination: { __typename?: 'Box'; _id: string; name?: string | null };
+      boxOrigin: { __typename?: 'Box'; name?: string | null; _id: string };
       closeZ?: {
         __typename?: 'CloseZInvoicing';
         _id: string;
@@ -8878,7 +8878,7 @@ export type DailyClosingQuery = {
         __typename?: 'PointOfSale';
         name: string;
         shop: { __typename?: 'Shop'; name: string; document?: string | null };
-        box: { __typename?: 'Box'; name: string };
+        box?: { __typename?: 'Box'; name?: string | null } | null;
       };
       summary: { __typename?: 'SummaryClose'; total: number; tax: number; subtotal: number };
       summaryPayments: {
@@ -8951,7 +8951,7 @@ export type ExpensesQuery = {
       concept?: string | null;
       createdAt: any;
       user: { __typename?: 'User'; name: string };
-      box: { __typename?: 'Box'; _id: string; name: string };
+      box: { __typename?: 'Box'; _id: string; name?: string | null };
     }[];
   };
 };
@@ -9174,6 +9174,10 @@ export type OrderIdQuery = {
       number: number;
       updatedAt: any;
       createdAt: any;
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        box?: { __typename?: 'Box'; name?: string | null } | null;
+      } | null;
       invoice?: {
         __typename?: 'Invoice';
         createdAt: any;
@@ -9222,7 +9226,13 @@ export type OrderIdQuery = {
           tax: number;
           subtotal: number;
         };
-        shop: { __typename?: 'Shop'; name: string };
+        shop: {
+          __typename?: 'Shop';
+          name: string;
+          address?: string | null;
+          email?: string | null;
+          document?: string | null;
+        };
         details?:
           | {
               __typename?: 'DetailInvoice';
@@ -9463,6 +9473,10 @@ export type OrdersQuery = {
             payment: { __typename?: 'Payment'; name: string; type: TypePayment };
           }[]
         | null;
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        box?: { __typename?: 'Box'; name?: string | null } | null;
+      } | null;
       summary: {
         __typename?: 'SummaryOrder';
         total: number;
@@ -9479,7 +9493,13 @@ export type OrdersQuery = {
         phone?: string | null;
         customerType: { __typename?: 'CustomerType'; name: string };
       };
-      shop: { __typename?: 'Shop'; name: string };
+      shop: {
+        __typename?: 'Shop';
+        name: string;
+        address?: string | null;
+        email?: string | null;
+        document?: string | null;
+      };
       user: { __typename?: 'User'; name: string };
       details?:
         | {
@@ -9671,7 +9691,7 @@ export type PointOfSalesQuery = {
       closeDate?: any | null;
       updatedAt: any;
       shop: { __typename?: 'Shop'; _id: string; name: string };
-      box: { __typename?: 'Box'; _id: string; name: string };
+      box?: { __typename?: 'Box'; _id: string; name?: string | null } | null;
       authorization: { __typename?: 'AuthorizationDian'; _id: string; prefix: string };
     }[];
   };
@@ -9762,7 +9782,7 @@ export type ReceiptsQuery = {
       concept?: string | null;
       value: number;
       status: StatusReceipt;
-      box?: { __typename?: 'Box'; name: string } | null;
+      box?: { __typename?: 'Box'; name?: string | null } | null;
       user: { __typename?: 'User'; name: string };
       payment: { __typename?: 'Payment'; name: string; type: TypePayment };
     }[];
@@ -10351,7 +10371,7 @@ export type CurrentUserQuery = {
     pointOfSale?: {
       __typename?: 'PointOfSale';
       _id: string;
-      box: { __typename?: 'Box'; _id: string };
+      box?: { __typename?: 'Box'; _id: string } | null;
     } | null;
     company: { __typename?: 'Company'; name: string; _id: string };
     shop: {
@@ -19449,6 +19469,25 @@ export const OrderIdDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'box' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'statusWeb' } },
                       {
@@ -19592,6 +19631,9 @@ export const OrderIdDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                                 ],
                               },
                             },
@@ -20287,6 +20329,25 @@ export const OrdersDocument = {
                           ],
                         },
                       },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'box' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -20332,7 +20393,12 @@ export const OrdersDocument = {
                         name: { kind: 'Name', value: 'shop' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                          ],
                         },
                       },
                       {
