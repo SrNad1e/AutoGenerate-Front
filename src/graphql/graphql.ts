@@ -9641,6 +9641,7 @@ export type PaymentsQuery = {
       type: TypePayment;
       color?: string | null;
       user: { __typename?: 'User'; name: string };
+      shops: { __typename?: 'Shop'; name: string; _id: string }[];
       logo?: {
         __typename?: 'Image';
         _id: string;
@@ -20839,6 +20840,17 @@ export const PaymentsDocument = {
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'message' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shops' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'color' } },
                       {
