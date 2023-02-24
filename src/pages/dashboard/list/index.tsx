@@ -108,28 +108,11 @@ const Dashboard = () => {
 
         const responseFormat: any[] = [];
         response?.data?.reportSales?.salesReport?.forEach((item) => {
-          //const dateFormat = moment(item.date).utc().format('YYYY-MM');
           const dateFormat = period ? moment(item.date).utc().format('YYYY-MM') : moment(item.date).utc().format('YYYY-MM-DD');
           const totalFormat = numeral(item.total).format('$ 0,0');
           const findInd = responseFormat.findIndex(
             (res) => item?.category?.name === res.categoryName && res.dateFormat === dateFormat,
           );
-          /*
-          if (findInd >= 0) {
-            responseFormat[findInd] = {
-              ...responseFormat[findInd],
-              total: responseFormat[findInd].total + item.total,
-              quantity: responseFormat[findInd].quantity + item.quantity,
-            };
-          } else {
-            responseFormat.push({
-              ...item,
-              categoryName: item?.category?.name,
-              dateFormat: dateFormat,
-              totalFormat: totalFormat,
-            });
-          }
-          */
          //Agrega elementos enel array segun criterios.
           responseFormat.push({
             ...item,
