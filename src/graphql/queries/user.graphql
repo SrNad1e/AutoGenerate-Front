@@ -11,6 +11,7 @@ query currentUser {
       }
     }
     company {
+      isMain
       name
       _id
     }
@@ -44,6 +45,7 @@ query users($input: FiltersUsersInput!) {
       name
       isWeb
       company {
+        isMain
         name
         _id
       }
