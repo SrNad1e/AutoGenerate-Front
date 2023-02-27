@@ -44,6 +44,8 @@ const RenderCredit = ({ dataCredit, setValuesFields }: Props) => {
 
   const onChangeAmount = () => {
     const valuesCredit = form.getFieldsValue();
+    console.log(valuesCredit);
+
     setValuesFields({ valuesCredit });
   };
 
@@ -65,8 +67,12 @@ const RenderCredit = ({ dataCredit, setValuesFields }: Props) => {
           />
         </FormItem>
         {dataCredit?.length > 0 && (
-          <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 14 }} label="Estado">
-            <Select defaultValue={creditProps?.status} style={styles.midWidth}>
+          <FormItem name="status" labelCol={{ span: 8 }} wrapperCol={{ span: 14 }} label="Estado">
+            <Select
+              onChange={() => onChangeAmount()}
+              defaultValue={creditProps?.status}
+              style={styles.midWidth}
+            >
               {Object.keys(StatusTypeCustomer).map((status) => (
                 <Option key={status}>
                   <Badge
