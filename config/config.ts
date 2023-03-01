@@ -12,6 +12,7 @@ export default defineConfig({
     CDN_URL: CDN_URL || 'https://toulouse-storage.s3.amazonaws.com',
     FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD HH:mm:ss',
+    USER_ADMIN: 'master',
   },
   hash: true,
   antd: {},
@@ -156,6 +157,12 @@ export default defineConfig({
       component: '../layouts/GeneralLayout',
       layout: false,
       routes: [
+        {
+          path: '/dashboard',
+          name: 'Dashboard',
+          icon: 'barChart',
+          component: './dashboard/list',
+        },
         {
           path: '/inventory',
           name: 'Inventario',
@@ -374,6 +381,11 @@ export default defineConfig({
               access: 'allowOption',
             },
             {
+              name: 'Reporte Ventas',
+              path: '/invoicing/sales',
+              component: './invoicing/sales/list',
+            },
+            {
               name: 'Pedidos',
               path: '/invoicing/order',
               component: './invoicing/order/list',
@@ -494,6 +506,11 @@ export default defineConfig({
           icon: 'setting',
           access: 'allowOption',
           routes: [
+            {
+              name: 'Historial de Metas',
+              path: '/configurations/goalHistory',
+              component: './configurations/goalHistory/list',
+            },
             {
               name: 'Tiendas',
               path: '/configurations/shop',

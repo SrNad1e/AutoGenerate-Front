@@ -81,33 +81,31 @@ const AlertInformation = ({
             {message}
           </Title>
         </Col>
-        <Col span={24}>
-          <Row gutter={[16, 16]} justify="center" style={{ width: '100%' }}>
+        <Row gutter={[16, 16]} justify="center" style={{ width: '100%' }}>
+          <Col span={6}>
+            <Button
+              onClick={onClick}
+              color={color}
+              type="primary"
+              size="large"
+              style={style.button}
+            >
+              Aceptar
+            </Button>
+          </Col>
+          {handlePrint && (
             <Col span={6}>
               <Button
-                onClick={onClick}
-                color={color}
+                style={{ borderRadius: 5 }}
+                onClick={printPostTicket}
                 type="primary"
                 size="large"
-                style={style.button}
               >
-                Aceptar
+                Imprimir Ticket
               </Button>
             </Col>
-            {handlePrint && (
-              <Col span={6}>
-                <Button
-                  style={{ borderRadius: 5 }}
-                  onClick={printPostTicket}
-                  type="primary"
-                  size="large"
-                >
-                  Imprimir Ticket
-                </Button>
-              </Col>
-            )}
-          </Row>
-        </Col>
+          )}
+        </Row>
       </Row>
     </Modal>
   );

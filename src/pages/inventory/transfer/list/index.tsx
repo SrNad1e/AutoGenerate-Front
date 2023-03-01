@@ -116,7 +116,7 @@ const TransferList = () => {
   const [getTransfers, { data, loading }] = useGetTransfers();
 
   const rolesAllow = [
-    'Administrador',
+    'Master',
     'super_admin OK',
     'coordi_tienda OK',
     'admin_distri OK',

@@ -92,6 +92,7 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
   return (
     <>
       <Select
+        allowClear
         style={{ width: '100%' }}
         showSearch
         loading={loading}
