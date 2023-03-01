@@ -1,4 +1,4 @@
-import { BarcodeOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { BarcodeOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import {
   Modal,
   Row,
@@ -15,6 +15,7 @@ import {
   InputNumber,
   Space,
   Badge,
+  Checkbox,
 } from 'antd';
 import type { TablePaginationConfig, ColumnsType } from 'antd/es/table/interface';
 import { useState } from 'react';
@@ -56,6 +57,7 @@ export type FormValues = {
   name?: string;
   colorId?: string;
   sizeId?: string;
+  withStock?: boolean;
 };
 
 const ModalSearchProducts = ({
@@ -121,13 +123,14 @@ const ModalSearchProducts = ({
    * @description realiza la busqueda de los productos con base al filtro
    * @param values valores del formulario
    */
-  const onFinish = ({ colorId, name, sizeId }: FormValues) => {
+  const onFinish = ({ colorId, name, sizeId, withStock }: FormValues) => {
     try {
       const params: Partial<FiltersProductsInput> = {
         page: 1,
         colorId,
         name: name && validateCodeBar(name),
         sizeId,
+        withStock,
       };
       setFilters({ ...filters, ...params });
       onSearch({ ...filters, ...params });
@@ -315,13 +318,13 @@ const ModalSearchProducts = ({
         <Row>
           <Col span={21}>
             <Form layout="vertical" autoComplete="off" onFinish={onFinish}>
-              <Row gutter={[10, 10]}>
-                <Col lg={9} md={9} xs={24}>
+              <Row gutter={[20, 10]}>
+                <Col lg={7} md={7} xs={24}>
                   <FormItem label="Búsqueda" name="name">
                     <Input autoFocus placeholder="referencia, descripción, código" />
                   </FormItem>
                 </Col>
-                <Col lg={8} md={8} xs={24}>
+                <Col lg={7} md={7} xs={24}>
                   <Form.Item label="Color" name="colorId">
                     <SelectColor disabled={loading} />
                   </Form.Item>
@@ -331,9 +334,20 @@ const ModalSearchProducts = ({
                     <SelectSize disabled={loading} />
                   </Form.Item>
                 </Col>
+                <Col xs={24} md={3} lg={3}>
+                  <Form.Item valuePropName="checked" label="Con stock" name="withStock">
+                    <Checkbox defaultChecked />
+                  </Form.Item>
+                </Col>
                 <Col xs={24} md={2} lg={2}>
                   <Form.Item label=" " colon={false}>
-                    <Button type="primary" htmlType="submit" loading={loading}>
+                    <Button
+                      icon={<SearchOutlined />}
+                      style={{ borderRadius: 5 }}
+                      type="primary"
+                      htmlType="submit"
+                      loading={loading}
+                    >
                       Buscar
                     </Button>
                   </Form.Item>

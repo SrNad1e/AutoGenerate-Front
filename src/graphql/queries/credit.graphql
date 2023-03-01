@@ -58,6 +58,8 @@ query creditHistory($input: FiltersCreditHistoryInput!) {
         balance
         updatedAt
       }
+      documentNumber
+      documentType
     }
   }
 }

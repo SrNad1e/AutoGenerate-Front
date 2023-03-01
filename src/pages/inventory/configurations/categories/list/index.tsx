@@ -102,6 +102,10 @@ const CategoryList = () => {
       getCategories({
         variables: {
           input: {
+            companyId:
+              initialState?.currentUser?.username !== USER_ADMIN
+                ? initialState?.currentUser?.company?._id
+                : undefined,
             ...values,
           },
         },

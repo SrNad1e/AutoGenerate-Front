@@ -4,6 +4,11 @@ query shops($input: FiltersShopsInput) {
     totalPages
     page
     docs {
+      goalHistory {
+        date
+        goal
+        goalAchieved
+      }
       _id
       name
       user {
@@ -13,6 +18,9 @@ query shops($input: FiltersShopsInput) {
       updatedAt
       address
       goal
+      email
+      document
+      companyName
       phone
       defaultWarehouse {
         name

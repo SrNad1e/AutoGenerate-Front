@@ -24,9 +24,9 @@ declare let ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION: 'site' | undefine
 declare const REACT_APP_ENV: 'test' | 'dev' | 'pre' | false;
 declare const API_URL: string;
 declare const CDN_URL: string;
-declare const COMPANY_ID: string;
 declare const FORMAT_DATE: string;
 declare const FORMAT_DATE_API: string;
+declare const USER_ADMIN: string;
 
 declare type TYPES = 'error' | 'success' | 'warning';
 declare type ACTIONTYPESPRODUCT = 'create' | 'update' | 'delete';

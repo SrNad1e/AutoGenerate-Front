@@ -6,11 +6,11 @@ import {
   ClearOutlined,
   DollarCircleOutlined,
   FieldNumberOutlined,
+  LaptopOutlined,
   MoreOutlined,
   PlusOutlined,
   PrinterFilled,
   SearchOutlined,
-  ShopOutlined,
 } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import {
@@ -343,12 +343,12 @@ const ReturnList = () => {
     {
       title: (
         <Text>
-          <ShopOutlined /> Tienda
+          <LaptopOutlined /> Punto de Venta
         </Text>
       ),
-      dataIndex: 'shop',
+      dataIndex: 'pointOfSale',
       align: 'center',
-      render: (shop: Shop) => <>{shop?.name}</>,
+      render: (pointOfSale: Shop) => <>{pointOfSale?.name}</>,
     },
     {
       title: (

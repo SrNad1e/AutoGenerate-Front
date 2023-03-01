@@ -2,6 +2,7 @@
 import {
   CrownOutlined,
   FileSyncOutlined,
+  HomeOutlined,
   LaptopOutlined,
   RetweetOutlined,
   ShopOutlined,
@@ -36,6 +37,8 @@ import EditPassword from '../EditPassword';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 
 import styles from './styles';
+import SelectCompany from '../SelectCompany';
+import { useModel } from 'umi';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -64,6 +67,8 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
   const isNew = !user._id;
 
   const [form] = Form.useForm();
+
+  const { initialState } = useModel('@@initialState');
 
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
@@ -207,13 +212,14 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
       roleId: user?.role?._id,
       shopId: user?.shop?._id,
       pointOfSaleId: user?.pointOfSale?._id,
+      companyId: user?.company?._id,
     });
     setShoptId(user?.shop?._id);
   }, [visible]);
 
   return (
     <Modal
-      visible={visible}
+      open={visible}
       width={400}
       okText={isNew ? 'Crear' : 'Actualizar'}
       onCancel={closeAndClear}
@@ -274,6 +280,19 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
             >
               <SelectRole disabled={loading || paramsUpdate.loading} />
             </FormItem>
+            {initialState?.currentUser?.username === USER_ADMIN && (
+              <FormItem
+                label={
+                  <Space>
+                    <HomeOutlined />
+                    <Text>Compañia</Text>
+                  </Space>
+                }
+                name="companyId"
+              >
+                <SelectCompany disabled={loading || paramsUpdate?.loading} />
+              </FormItem>
+            )}
             <FormItem
               rules={[
                 {

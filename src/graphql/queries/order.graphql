@@ -5,6 +5,12 @@ query orderId($id: String!) {
       amount
     }
     order {
+      pointOfSale {
+        box {
+          name
+        }
+      }
+      closeDate
       statusWeb
       invoice {
         user {
@@ -56,6 +62,9 @@ query orderId($id: String!) {
         }
         shop {
           name
+          address
+          email
+          document
         }
         details {
           discount
@@ -198,6 +207,7 @@ query orderId($id: String!) {
         updatedAt
         total
         status
+        code
         payment {
           _id
           name

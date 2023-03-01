@@ -74,6 +74,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
   const [editingKey, setEditingKey] = useState('');
   const [paymentBankTotal, setPaymentBankTotal] = useState(0);
   const [isBonus, setIsBonus] = useState(true);
+  const [isUpdate, setIsUpdate] = useState(false);
 
   const [addPayment, paramsAddPayment] = useAddPaymentsOrder();
   const [getPayments, { data, loading }] = useGetPayments();
@@ -311,63 +312,47 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
   };
 
   /**
-   * @description funcion usada para guardar los detalles de los pagos en el estado
+   * @description funcion usada para actualizar los medios de pago
    */
-  const onAddPayment = async () => {
+  const updatePayment = async () => {
+    const values = addPayments.map((i) => ({
+      action: ActionPaymentsOrder.Update,
+      paymentId: i.payment._id,
+      total: i.total,
+    }));
     try {
-      const values = await form.validateFields();
-      const payment: PaymentOrder = {
-        action: ActionPaymentsOrder.Update,
-        total: values.total || 0,
-        createdAt: orderData?.createdAt,
-        updatedAt: orderData?.updatedAt,
-        status: StatusOrderDetail.New,
-        payment: {
-          _id: values.paymentId || '',
-          name: '',
-          type: '',
-        },
-      };
-      if (values.paymentId === '629fc27ee4251f089ecd275b') {
-        payment.payment.name = 'Efectivo';
-        payment.payment.type = TypePayment.Cash;
-      } else if (values.paymentId === '629fc27ee4251f089ecd275d') {
-        payment.payment.name = 'Bancolombia';
-        payment.payment.type = TypePayment.Bank;
-      } else if (values.paymentId === '629fc27ee4251f089ecd275c') {
-        payment.payment.name = 'Crédito';
-        payment.payment.type = TypePayment.Credit;
-      } else if (values.paymentId === '629fc27ee4251f089ecd275e') {
-        payment.payment.name = 'Bono';
-        payment.payment.type = TypePayment.Bonus;
-      }
-
-      if (values.total && values.total > 0) {
-        for (let i = -1; i < addPayments.length; i++) {
-          if (values.total && values.paymentId === addPayments[i]?.payment._id) {
-            addPayments[i].total += values.total;
-            setAddPayments([...addPayments]);
-            form.resetFields();
-            setVisiblePayment(false);
+      if (orderData?.payments) {
+        for (let index = 0; index < orderData?.payments?.length; index++) {
+          if (
+            orderData?.payments[index].payment._id === values[index]?.paymentId &&
+            orderData?.payments[index].total !== values[index].total &&
+            editPayments[index]?.paymentId !== values[index]?.paymentId
+          ) {
+            await setEditPayments([values[index]]);
             break;
           }
-          if (values.total && values.paymentId !== addPayments[i]?.payment._id) {
-            if (values.paymentId === addPayments[i]?.payment._id) {
-              addPayments[i].total += values.total;
-              setAddPayments([...addPayments]);
-              form.resetFields();
-              setVisiblePayment(false);
-            } else if (values.paymentId !== addPayments[i]?.payment._id) {
-              setAddPayments([...addPayments, payment]);
-              form.resetFields();
-              setVisiblePayment(false);
-            } else {
-              showError('Error');
-            }
-          }
         }
-      } else {
-        showError('Cantidad no puede estar en 0');
+
+        if (editPayments.length > 0) {
+          const response = await addPayment({
+            variables: {
+              input: {
+                orderId: orderData?._id,
+                payments: editPayments,
+              },
+            },
+          });
+          setCanEditTotal(canEditTotal ? false : true);
+          setEditingKey('');
+          setVisiblePayment(false);
+          if (response?.data) {
+            alertSuccess('Pago actualizado correctamente');
+            setEditPayments([]);
+          }
+        } else {
+          setCanEditTotal(canEditTotal ? false : true);
+          setEditingKey('');
+        }
       }
     } catch (error: any) {
       showError(error?.message);
@@ -401,71 +386,6 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
   };
 
   /**
-   * @description funcion usada para actualizar los medios de pago
-   */
-  const updatePayment = async () => {
-    const values = addPayments.map((i) => ({
-      action: ActionPaymentsOrder.Update,
-      paymentId: i.payment._id,
-      total: i.total,
-    }));
-    try {
-      if (orderData?.payments) {
-        for (let index = 0; index < orderData?.payments?.length; index++) {
-          if (orderData?.payments[index].payment._id === values[index].paymentId) {
-            setEditPayments([...values]);
-          }
-          if (editPayments.length > 0) {
-            const response = await addPayment({
-              variables: {
-                input: {
-                  orderId: orderData?._id,
-                  payments: editPayments,
-                },
-              },
-            });
-            setCanEditTotal(canEditTotal ? false : true);
-            setEditingKey('');
-            setVisiblePayment(false);
-            if (response?.data) {
-              alertSuccess('Pago actualizado correctamente');
-            }
-            break;
-          }
-        }
-      }
-    } catch (error: any) {
-      showError(error?.message);
-    }
-  };
-
-  /**
-   * @description funcion usada para eliminar los pagos del pedido
-   */
-  const deletePayment = async () => {
-    try {
-      if (orderData?.payments && addPayments.length < orderData?.payments?.length) {
-        if (productsDelete.length > 0) {
-          const response = await addPayment({
-            variables: {
-              input: {
-                orderId: orderData?._id,
-                payments: productsDelete,
-              },
-            },
-          });
-          if (response?.data) {
-            alertSuccess('Pagos eliminados correctamente');
-            setProductsDelete([]);
-          }
-        }
-      }
-    } catch (error: any) {
-      showError(error?.message);
-    }
-  };
-
-  /**
    * @description funcion usada para agregar los medios de pago al pedido
    */
   const createNewPaymentMethod = async () => {
@@ -492,18 +412,60 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
             }
           }
           if (orderData?.payments[index]?.payment?._id !== values[index]?.paymentId) {
-            const response = await addPayment({
-              variables: {
-                input: {
-                  orderId: orderData?._id,
-                  payments: [values[index]],
-                },
-              },
+            const filterValues = orderData?.payments.find((item) => {
+              if (item.payment._id === values[index]?.paymentId) {
+                return values[index];
+              }
+              return;
             });
-            if (response?.data) {
-              alertSuccess('Pago agregado correctamente');
-              form.resetFields();
-              setVisiblePayment(false);
+            if (filterValues?.payment._id !== values[index].paymentId) {
+              const response = await addPayment({
+                variables: {
+                  input: {
+                    orderId: orderData?._id,
+                    payments: [values[index], ...productsDelete],
+                  },
+                },
+              });
+              if (response?.data) {
+                alertSuccess('Pago agregado correctamente');
+                if (productsDelete.length > 0) {
+                  alertSuccess('Pago eliminado correctamente');
+                }
+                form.resetFields();
+                setVisiblePayment(false);
+                setProductsDelete([]);
+              }
+            } else {
+              if (productsDelete.length > 0) {
+                const response = await addPayment({
+                  variables: {
+                    input: {
+                      orderId: orderData?._id,
+                      payments: [...productsDelete],
+                    },
+                  },
+                });
+                if (response.data) {
+                  alertSuccess('Producto eliminado correctamente');
+                  setProductsDelete([]);
+                }
+              }
+            }
+          } else {
+            if (productsDelete.length > 0) {
+              const response = await addPayment({
+                variables: {
+                  input: {
+                    orderId: orderData?._id,
+                    payments: [...productsDelete],
+                  },
+                },
+              });
+              if (response.data) {
+                alertSuccess('Producto eliminado correctamente');
+                setProductsDelete([]);
+              }
             }
           }
         }
@@ -518,7 +480,11 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
    * @param totalPayment cantidad ingresada para actualizar
    * @param paymentId identificador del medio de pago
    */
-  const onChangeTotalDetailPayment = (totalPayment?: number, paymentId?: string) => {
+  const onChangeTotalDetailPayment = async (
+    totalPayment: number,
+    paymentId?: string,
+    update?: boolean,
+  ) => {
     try {
       const values = addPayments.map((i) => ({
         action: ActionPaymentsOrder.Update,
@@ -527,38 +493,124 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
       }));
       if (orderData?.payments) {
         for (let index = 0; index < addPayments.length; index++) {
-          if (values[index]?.paymentId !== orderData?.payments[index]?.payment?._id) {
-            values[index].action = ActionPaymentsOrder.Create;
-            setEditPayments([...values]);
-          }
-        }
-      }
-      for (let index = 0; index < addPayments.length; index++) {
-        if (paymentId !== values[index]?.paymentId) {
-          setEditPayments([...editPayments, values[index]]);
-        } else {
-          values[index].total = totalPayment;
-          setEditPayments([...values]);
-          break;
-        }
-      }
-      if (totalPayment && totalPayment > 0) {
-        for (let i = -1; i < addPayments.length; i++) {
-          if (totalPayment && paymentId === addPayments[i]?.payment?._id) {
-            addPayments[i].total = totalPayment;
-            setAddPayments([...addPayments]);
-            break;
-          }
-          if (totalPayment && paymentId !== addPayments[i]?.payment?._id) {
-            if (paymentId !== addPayments[i]?.payment?._id) {
-              setAddPayments([...addPayments]);
-            } else {
-              showError('Error');
+          if (paymentId === values[index]?.paymentId) {
+            if (
+              editPayments[index]?.paymentId === paymentId &&
+              editPayments.includes(editPayments[index])
+            ) {
+              editPayments[index].total = totalPayment;
+              setEditPayments([...editPayments]);
+            }
+            if (!editPayments.includes(values[index]) && editPayments.length > 0) {
+              values[index].total = totalPayment;
+              const unicos = editPayments.filter(
+                (item) => item.paymentId !== values[index]?.paymentId,
+              );
+              setEditPayments([values[index], ...unicos]);
+            }
+            if (editPayments.includes(values[index]) && editPayments.length > 0) {
+              const indice = editPayments.indexOf(values[index]);
+              const unicos = editPayments.filter(
+                (item) => item.paymentId !== editPayments[indice]?.paymentId,
+              );
+              setEditPayments([values[index], ...unicos]);
+            }
+            if (editPayments.length === 0) {
+              values[index].total = totalPayment;
+              await setEditPayments([values[index]]);
+              if (update) {
+                setIsUpdate(true);
+              }
             }
           }
         }
+        if (totalPayment && totalPayment > 0) {
+          for (let i = -1; i < addPayments.length; i++) {
+            if (totalPayment && paymentId === addPayments[i]?.payment?._id) {
+              addPayments[i].total = totalPayment;
+              setAddPayments([...addPayments]);
+              break;
+            }
+            if (totalPayment && paymentId !== addPayments[i]?.payment?._id) {
+              if (paymentId !== addPayments[i]?.payment?._id) {
+                setAddPayments([...addPayments]);
+              }
+            }
+          }
+        } else {
+          alertWarning('Cantidad no puede estar en 0');
+        }
+      }
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
+  /**
+   * @description funcion usada para guardar los detalles de los pagos en el estado
+   */
+  const onAddPayment = async () => {
+    const values = await form.validateFields();
+    try {
+      const payment: PaymentOrder = {
+        action: ActionPaymentsOrder.Update,
+        total: values.total || 0,
+        createdAt: orderData?.createdAt,
+        updatedAt: orderData?.updatedAt,
+        status: StatusOrderDetail.New,
+        payment: {
+          _id: values.paymentId || '',
+          name: '',
+          type: '',
+        },
+      };
+      if (values?.paymentId === '629fc27ee4251f089ecd275b') {
+        payment.payment.name = 'Efectivo';
+        payment.payment.type = TypePayment.Cash;
+      } else if (values?.paymentId === '629fc27ee4251f089ecd275d') {
+        payment.payment.name = 'Bancolombia';
+        payment.payment.type = TypePayment.Bank;
+      } else if (values?.paymentId === '629fc27ee4251f089ecd275c') {
+        payment.payment.name = 'Crédito';
+        payment.payment.type = TypePayment.Credit;
+      } else if (values?.paymentId === '629fc27ee4251f089ecd275e') {
+        payment.payment.name = 'Bono';
+        payment.payment.type = TypePayment.Bonus;
+      }
+      if (!isNaN(values.total)) {
+        if (values.total && values.total > 0) {
+          for (let i = 0; i < addPayments.length; i++) {
+            if (values.total && values?.paymentId === addPayments[i]?.payment._id) {
+              await onChangeTotalDetailPayment(
+                (addPayments[i].total += values.total),
+                addPayments[i]?.payment._id,
+                true,
+              );
+              form.resetFields();
+              setVisiblePayment(false);
+              break;
+            }
+            if (values.total && values?.paymentId !== addPayments[i]?.payment._id) {
+              if (values?.paymentId === addPayments[i]?.payment._id) {
+                addPayments[i].total += values.total;
+                setAddPayments([...addPayments]);
+                form.resetFields();
+                setVisiblePayment(false);
+              } else if (values?.paymentId !== addPayments[i]?.payment._id) {
+                payment.total = Math.floor(payment.total);
+                setAddPayments([...addPayments, payment]);
+                form.resetFields();
+                setVisiblePayment(false);
+              } else {
+                showError('Error');
+              }
+            }
+          }
+        } else {
+          showError('Cantidad no puede estar en 0');
+        }
       } else {
-        alertWarning('Cantidad no puede estar en 0');
+        alertWarning('El valor ingresado no es valido');
       }
     } catch (error: any) {
       showError(error?.message);
@@ -642,6 +694,12 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
       setIsBonus(true);
     }
   }, [addPayments]);
+
+  useEffect(() => {
+    if (isUpdate) {
+      updatePayment();
+    }
+  }, [isUpdate]);
 
   const column: ColumnsType<PaymentOrder> = [
     {
@@ -768,16 +826,20 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
 
         return (
           <Space>
-            {initialState?.currentUser?.role?.name === 'Administrador' && (
+            {initialState?.currentUser?.username === USER_ADMIN && (
               <Tooltip title="Reversar Pago">
                 <Button
                   disabled={
-                    (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
-                    (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
-                    detail.status === StatusOrderDetail.New ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled
+                    detail.status === StatusOrderDetail.New
+                      ? true
+                      : initialState?.currentUser?.username === USER_ADMIN
+                      ? false
+                      : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                        (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled ||
+                        orderData?.statusWeb === StatusWeb.PaymentConfirmed
                   }
                   loading={
                     paramsAddPayment?.loading ||
@@ -794,13 +856,17 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
             <Tooltip title="Confirmar pago">
               <Button
                 disabled={
-                  (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
-                  (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
-                  detail?.status === StatusOrderDetail.Confirmed ||
-                  balance > 0 ||
-                  orderData?.statusWeb === StatusWeb.Sent ||
-                  orderData?.status === StatusOrder.Closed ||
-                  orderData?.statusWeb === StatusWeb.Cancelled
+                  detail?.status === StatusOrderDetail.Confirmed
+                    ? true
+                    : initialState?.currentUser?.username === USER_ADMIN
+                    ? false
+                    : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                      (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
+                      balance > 0 ||
+                      orderData?.statusWeb === StatusWeb.Sent ||
+                      orderData?.status === StatusOrder.Closed ||
+                      orderData?.statusWeb === StatusWeb.Cancelled ||
+                      orderData?.statusWeb === StatusWeb.PaymentConfirmed
                 }
                 loading={
                   paramsAddPayment?.loading ||
@@ -818,12 +884,15 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
               <Tooltip title={editable ? 'Guardar Valor' : 'Editar Valor'} placement="topLeft">
                 <Button
                   disabled={
-                    (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
-                    (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
-                    detail?.status === StatusOrderDetail.Confirmed ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled
+                    initialState?.currentUser?.username === USER_ADMIN
+                      ? false
+                      : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                        (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
+                        detail?.status === StatusOrderDetail.Confirmed ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled ||
+                        orderData?.statusWeb === StatusWeb.PaymentConfirmed
                   }
                   loading={
                     paramsAddPayment?.loading ||
@@ -841,11 +910,14 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
             <Tooltip title="Eliminar">
               <Button
                 disabled={
-                  (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
-                  detail?.status === StatusOrderDetail.Confirmed ||
-                  orderData?.statusWeb === StatusWeb.Sent ||
-                  orderData?.status === StatusOrder.Closed ||
-                  orderData?.statusWeb === StatusWeb.Cancelled
+                  initialState?.currentUser?.username === USER_ADMIN
+                    ? false
+                    : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
+                      detail?.status === StatusOrderDetail.Confirmed ||
+                      orderData?.statusWeb === StatusWeb.Sent ||
+                      orderData?.status === StatusOrder.Closed ||
+                      orderData?.statusWeb === StatusWeb.Cancelled ||
+                      orderData?.statusWeb === StatusWeb.PaymentConfirmed
                 }
                 danger
                 type="primary"
@@ -882,18 +954,16 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                     paramsGetCoupon?.loading
                   }
                   disabled={
-                    orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled
+                    initialState?.currentUser?.username === USER_ADMIN
+                      ? false
+                      : orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled
                   }
                   type="primary"
                   icon={<SaveOutlined />}
-                  onClick={
-                    orderData?.payments && addPayments?.length < orderData?.payments?.length
-                      ? () => deletePayment()
-                      : () => createNewPaymentMethod()
-                  }
+                  onClick={() => createNewPaymentMethod()}
                 >
                   Guardar Pagos
                 </Button>
@@ -901,11 +971,13 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
               {tabKey !== '4' && (
                 <Button
                   disabled={
-                    balance === 0 ||
-                    change > 0 ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled
+                    initialState?.currentUser?.username === USER_ADMIN
+                      ? false
+                      : balance === 0 ||
+                        change > 0 ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled
                   }
                   loading={
                     paramsAddPayment?.loading ||
@@ -928,14 +1000,16 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                   style={styles.buttonR}
                   icon={<CheckCircleOutlined />}
                   disabled={
-                    balance > 0 ||
-                    validateAllPayConfirmed() ||
-                    orderData?.statusWeb === StatusWeb.Sent ||
-                    orderData?.status === StatusOrder.Closed ||
-                    orderData?.statusWeb === StatusWeb.Cancelled ||
-                    orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
-                    orderData?.statusWeb === StatusWeb.Preparing ||
-                    orderData?.statusWeb === StatusWeb.Delivered
+                    initialState?.currentUser?.username === USER_ADMIN
+                      ? false
+                      : balance > 0 ||
+                        validateAllPayConfirmed() ||
+                        orderData?.statusWeb === StatusWeb.Sent ||
+                        orderData?.status === StatusOrder.Closed ||
+                        orderData?.statusWeb === StatusWeb.Cancelled ||
+                        orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
+                        orderData?.statusWeb === StatusWeb.Preparing ||
+                        orderData?.statusWeb === StatusWeb.Delivered
                   }
                   onClick={() => onPayOrder()}
                   loading={
@@ -977,6 +1051,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                         step={100}
                         autoFocus
                         min={1}
+                        max={250000000}
                         formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                         parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
                         controls={false}

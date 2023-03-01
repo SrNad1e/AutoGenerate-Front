@@ -48,6 +48,14 @@ query closesZInvoicing($input: FiltersClosesZInvoicingInput) {
         quantity
         value
       }
+      paymentsCredit {
+        payment {
+          type
+          name
+        }
+        quantity
+        value
+      }
       user {
         name
       }

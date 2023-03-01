@@ -6,6 +6,9 @@ mutation login($input: LoginUserInput!) {
       name
       pointOfSale {
         _id
+        box {
+          _id
+        }
       }
       shop {
         _id

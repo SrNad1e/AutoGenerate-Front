@@ -38,15 +38,17 @@ import numeral from 'numeral';
 import type { Moment } from 'moment';
 import moment from 'moment';
 import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useHistory, useLocation } from 'umi';
 import { useEffect, useState } from 'react';
 import { useGetOrders } from '@/hooks/order.hooks';
-import type {
+import {
   ConveyorOrder,
   Customer,
   FiltersOrdersInput,
   Order,
   PaymentOrder,
+  Permissions,
   StatusWeb,
 } from '@/graphql/graphql';
 import { StatusOrder } from '@/graphql/graphql';
@@ -59,6 +61,7 @@ import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectPayment from '@/components/SelectPayment';
 
 import styles from './styles';
+import SelectShop from '@/components/SelectShop';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -70,6 +73,7 @@ type FormValues = {
   number?: number;
   customerId?: string;
   statusWeb?: StatusOrder;
+  shopId?: string;
   paymentId?: string;
   dates?: Moment[];
 };
@@ -82,13 +86,20 @@ const EcommerceList = () => {
     visible: false,
   });
 
+  const [disabledShop, setDisabledShop] = useState<boolean>(false);
+
   const [form] = Form.useForm();
 
   const history = useHistory();
 
   const location: Location = useLocation();
 
+  const { initialState } = useModel('@@initialState');
   const [getOrders, { data, loading }] = useGetOrders();
+
+  const canQueryShops = initialState?.currentUser?.role.permissions.find(
+    (permission: any) => permission.action === Permissions.ReadConfigurationShops,
+  );
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -119,18 +130,34 @@ const EcommerceList = () => {
    */
   const onSearch = (params?: FiltersOrdersInput) => {
     try {
-      getOrders({
-        variables: {
-          input: {
-            orderPos: false,
-            nonStatus: [StatusOrder.Pendding],
-            sort: {
-              createdAt: -1,
+      if (canQueryShops) {
+        getOrders({
+          variables: {
+            input: {
+              orderPos: false,
+              nonStatus: [StatusOrder.Pendding],
+              sort: {
+                createdAt: -1,
+              },
+              ...params,
             },
-            ...params,
           },
-        },
-      });
+        });
+      } else {
+        getOrders({
+          variables: {
+            input: {
+              orderPos: false,
+              nonStatus: [StatusOrder.Pendding],
+              sort: {
+                createdAt: -1,
+              },
+              shopId: initialState?.currentUser?.shop?._id,
+              ...params,
+            },
+          },
+        });
+      }
     } catch (error: any) {
       showError(error.message);
     }
@@ -141,12 +168,13 @@ const EcommerceList = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, sort?: Record<string, number>, pageCurrent?: number) => {
-    const { statusWeb, number, customerId, paymentId, dates } = props;
+    const { statusWeb, number, customerId, paymentId, dates, shopId } = props;
     try {
       const params: Partial<FiltersOrdersInput> = {
         page: pageCurrent || 1,
         limit: 10,
         statusWeb,
+        shopId,
         number,
         sort: sort || { createdAt: -1 },
       };
@@ -206,7 +234,11 @@ const EcommerceList = () => {
   const onClear = () => {
     try {
       history.replace(location.pathname);
-      form.resetFields();
+      if (!canQueryShops) {
+        form.resetFields(['customerId', 'dates', 'statusWeb', 'number']);
+      } else {
+        form.resetFields();
+      }
       onSearch({
         limit: 10,
         page: 1,
@@ -233,6 +265,12 @@ const EcommerceList = () => {
           newFilters[item] = JSON.parse(queryParams[item]);
         }
       });
+
+      if (initialState?.currentUser?.username !== USER_ADMIN) {
+        setDisabledShop(true);
+        newFilters['shopId'] = initialState?.currentUser?.shop?._id;
+      }
+
       onFinish(newFilters);
     } catch (error: any) {
       showError(error?.message);
@@ -251,6 +289,7 @@ const EcommerceList = () => {
         </Text>
       ),
       dataIndex: 'number',
+      width: 100,
     },
     {
       title: <Text>{<UserOutlined />} Cliente</Text>,
@@ -334,25 +373,6 @@ const EcommerceList = () => {
     {
       title: (
         <Text>
-          <ScheduleOutlined /> Creado
-        </Text>
-      ),
-      dataIndex: 'createdAt',
-      sorter: true,
-      showSorterTooltip: false,
-      width: 120,
-      render: (createdAt: string) => (
-        <>
-          {moment(createdAt).format(FORMAT_DATE)}
-          <Tag style={styles.tagStyle}>
-            {moment(createdAt).fromNow()} <ClockCircleFilled />
-          </Tag>
-        </>
-      ),
-    },
-    {
-      title: (
-        <Text>
           <ScheduleOutlined /> Actualizado
         </Text>
       ),
@@ -371,10 +391,31 @@ const EcommerceList = () => {
       ),
     },
     {
+      title: (
+        <Text>
+          <ScheduleOutlined /> Cierre
+        </Text>
+      ),
+      dataIndex: 'closeDate',
+      sorter: false,
+      showSorterTooltip: false,
+      width: 130,
+      render: (closeDate: string) => (
+        <>
+          {moment(closeDate).format(FORMAT_DATE)}
+
+          <Tag style={styles.tagStyle}>
+            {moment(closeDate).fromNow()} <ClockCircleFilled />
+          </Tag>
+        </>
+      ),
+    },
+    {
       title: <Text>{<MoreOutlined />} Opción</Text>,
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
+      width: 100,
       render: (_id: string) => (
         <Tooltip title="Editar">
           <Button
@@ -418,6 +459,11 @@ const EcommerceList = () => {
                 <SelectPayment bonus={true} credit={true} disabled={loading} />
               </FormItem>
             </Col>
+            <Col xs={24} md={8} lg={9} xl={8}>
+              <FormItem label="Tienda" name="shopId">
+                <SelectShop disabled={loading || disabledShop} />
+              </FormItem>
+            </Col>
             <Col xs={24} md={8} lg={8} xl={9}>
               <FormItem label="Fechas" name="dates">
                 <RangePicker
@@ -454,7 +500,7 @@ const EcommerceList = () => {
             <Table
               columns={columns as any}
               onChange={handleChangeTable}
-              scroll={{ x: 1200 }}
+              scroll={{ x: 1000 }}
               dataSource={data?.orders?.docs}
               loading={loading}
               pagination={{

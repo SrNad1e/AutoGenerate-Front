@@ -13,6 +13,7 @@ export type Props = {
   type: TYPES;
   onCancel?: () => void;
   redirect?: string;
+  handlePrint?: () => void;
 };
 
 /**
@@ -38,6 +39,7 @@ const AlertInformation = ({
   message = '',
   onCancel,
   redirect,
+  handlePrint,
 }: Props) => {
   const color = TypesAlert[type]?.color;
   const style = useStyle(color);
@@ -54,13 +56,19 @@ const AlertInformation = ({
     }
   };
 
+  const printPostTicket = () => {
+    if (handlePrint) {
+      handlePrint();
+    }
+  };
+
   return (
     <Modal
       style={{ justifyContent: 'center' }}
       bodyStyle={style.bodyStyle}
       centered={true}
       closable={false}
-      visible={visible}
+      open={visible}
       footer={false}
       width={500}
     >
@@ -73,11 +81,31 @@ const AlertInformation = ({
             {message}
           </Title>
         </Col>
-        <Col span={24}>
-          <Button onClick={onClick} color={color} type="primary" size="large" style={style.button}>
-            Aceptar
-          </Button>
-        </Col>
+        <Row gutter={[16, 16]} justify="center" style={{ width: '100%' }}>
+          <Col span={6}>
+            <Button
+              onClick={onClick}
+              color={color}
+              type="primary"
+              size="large"
+              style={style.button}
+            >
+              Aceptar
+            </Button>
+          </Col>
+          {handlePrint && (
+            <Col span={6}>
+              <Button
+                style={{ borderRadius: 5 }}
+                onClick={printPostTicket}
+                type="primary"
+                size="large"
+              >
+                Imprimir Ticket
+              </Button>
+            </Col>
+          )}
+        </Row>
       </Row>
     </Modal>
   );

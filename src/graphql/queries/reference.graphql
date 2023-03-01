@@ -7,6 +7,9 @@ query referenceId($id: String!) {
     description
     name
     price
+    companies {
+      isMain
+    }
     attribs {
       _id
       active
@@ -21,12 +24,30 @@ query referenceId($id: String!) {
     }
     categoryLevel1 {
       _id
+      name
+      childs {
+        _id
+        name
+        childs {
+          _id
+          name
+        }
+      }
     }
     categoryLevel2 {
       _id
+      parentId
+      name
+      childs {
+        parentId
+        _id
+        name
+      }
     }
     categoryLevel3 {
       _id
+      parentId
+      name
     }
     shipping {
       height

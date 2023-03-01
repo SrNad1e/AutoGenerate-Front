@@ -59,9 +59,9 @@ const RequestForm = () => {
 
   const allowEdit = isNew
     ? true
-    : initialState?.currentUser?._id === request?.user?._id &&
-      request?.status === StatusStockRequest.Open &&
-      canEdit;
+    : request?.status === StatusStockRequest.Open &&
+      canEdit &&
+      initialState?.currentUser?.shop?.defaultWarehouse?._id === request?.warehouseDestination?._id;
 
   /**
    * @description se encarga de abrir aviso de información

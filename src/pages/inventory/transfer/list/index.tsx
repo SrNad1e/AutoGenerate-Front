@@ -11,6 +11,7 @@ import {
   FieldNumberOutlined,
   FileDoneOutlined,
   FileSyncOutlined,
+  FileTextOutlined,
   FireOutlined,
   MoreOutlined,
   PrinterFilled,
@@ -49,7 +50,7 @@ import { useReactToPrint } from 'react-to-print';
 
 import { StatusType } from '../tranfer.data';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import type { FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
+import type { DetailTransfer, FiltersStockTransfersInput, StockTransfer } from '@/graphql/graphql';
 import { Permissions } from '@/graphql/graphql';
 import { StatusStockTransfer } from '@/graphql/graphql';
 import { useGetTransfers } from '@/hooks/transfer.hooks';
@@ -60,6 +61,8 @@ import styles from './styles.less';
 import './styles.less';
 import style from './styles';
 import Inconsistencies from '../components/Inconsistencies';
+import Comparative from '../confirm/comparative';
+import ReportTransferComparative from '../reports/comparative';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -83,6 +86,8 @@ const TransferList = () => {
     visible: false,
   });
   const [visibleInconsistencies, setVisibleInconsistencies] = useState(false);
+  const [visibleComparative, setVisibleComparative] = useState(false);
+  const [dataComparative, setDataComparative] = useState<Partial<DetailTransfer>>({});
 
   const history = useHistory();
   const location: Location = useLocation();
@@ -91,8 +96,13 @@ const TransferList = () => {
 
   const reportRef = useRef(null);
 
+  const reportComparativeRef = useRef(null);
+
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
+  });
+  const onHandlePrint = useReactToPrint({
+    content: () => reportComparativeRef?.current,
   });
 
   const {
@@ -104,6 +114,14 @@ const TransferList = () => {
   const canChangeWarehouse = initialState?.currentUser?.role?.changeWarehouse;
 
   const [getTransfers, { data, loading }] = useGetTransfers();
+
+  const rolesAllow = [
+    'Master',
+    'super_admin OK',
+    'coordi_tienda OK',
+    'admin_distri OK',
+    'cajera OK',
+  ];
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -140,6 +158,11 @@ const TransferList = () => {
   const printPage = async (record: Partial<StockTransfer>) => {
     await setTransferData(record);
     handlePrint();
+  };
+
+  const printComparative = async (dataTable: Partial<DetailTransfer>) => {
+    await setDataComparative(dataTable);
+    onHandlePrint();
   };
 
   /**
@@ -277,7 +300,7 @@ const TransferList = () => {
    */
   const loadingData = () => {
     const queryParams: any = location?.query;
-    const newFilters = {};
+    const newFilters: any = {};
     try {
       Object.keys(queryParams).forEach((item) => {
         if (item === 'dates') {
@@ -285,11 +308,20 @@ const TransferList = () => {
           newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
         }
         if (item === 'warehouseId') {
-          delete newFilters[item];
+          newFilters[item] = JSON.parse(queryParams[item]);
+          setShowFilterType(true);
         } else {
           newFilters[item] = JSON.parse(queryParams[item]);
         }
       });
+      if (newFilters.dates) {
+        const date1 = moment(newFilters.dates[0]);
+        const date2 = moment(newFilters.dates[1]);
+
+        const arr = [date1, date2];
+
+        newFilters.dates = arr;
+      }
 
       form.setFieldsValue({
         type: 'received',
@@ -385,7 +417,7 @@ const TransferList = () => {
     {
       title: <Text>{<MoreOutlined />} Opciones</Text>,
       dataIndex: '_id',
-      align: 'center',
+      align: 'left',
       fixed: 'right',
       render: (_id: string, record) => {
         return (
@@ -425,6 +457,18 @@ const TransferList = () => {
                 icon={<PrinterFilled />}
               />
             </Tooltip>
+            {rolesAllow.includes(initialState?.currentUser?.role.name || '') &&
+              record.status === 'CONFIRMED' && (
+                <>
+                  <Tooltip title="Comparación">
+                    <Button
+                      type="default"
+                      onClick={() => printComparative(record?.details)}
+                      icon={<FileTextOutlined />}
+                    />
+                  </Tooltip>
+                </>
+              )}
           </Space>
         );
       },
@@ -542,6 +586,14 @@ const TransferList = () => {
       <div style={{ display: 'none' }}>
         <ReportTransfer ref={reportRef} data={transferData} />
       </div>
+      <div style={{ display: 'none' }}>
+        <ReportTransferComparative ref={reportComparativeRef} data={dataComparative} />
+      </div>
+      <Comparative
+        dataDetail={dataComparative}
+        visible={visibleComparative}
+        onCancel={() => setVisibleComparative(false)}
+      />
     </PageContainer>
   );
 };

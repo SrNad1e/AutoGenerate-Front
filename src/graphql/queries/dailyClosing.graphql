@@ -1,0 +1,56 @@
+query dailyClosing($input: FiltersDailyClosing) {
+  dailyClosings(filtersDailyClosing: $input) {
+    docs {
+      _id
+      closeDate
+      invoices {
+        number
+        order {
+          number
+        }
+        createdAt
+        authorization {
+          prefix
+        }
+
+        summary {
+          total
+          subtotal
+          tax
+        }
+        payments {
+          payment {
+            name
+          }
+          total
+        }
+      }
+      pointOfSale {
+        name
+        shop {
+          name
+          document
+        }
+        box {
+          name
+        }
+      }
+      summary {
+        total
+        tax
+        subtotal
+      }
+      summaryPayments {
+        quantity
+        total
+        payment {
+          name
+          type
+        }
+      }
+    }
+    totalDocs
+    totalPages
+    page
+  }
+}

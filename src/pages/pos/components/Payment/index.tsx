@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Button, Col, Divider, Modal, Row, Typography } from 'antd';
-import { useParams } from 'umi';
+import { useModel, useParams } from 'umi';
 import { useEffect, useRef, useState } from 'react';
 import numeral from 'numeral';
 import { useReactToPrint } from 'react-to-print';
@@ -55,6 +55,8 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
   const orderRef = useRef(null);
 
   const { id } = useParams<Partial<{ id: string }>>();
+
+  const { initialState } = useModel('@@initialState');
 
   const [getPayments, { data }] = useGetPayments();
   const [addPayments, dataPayments] = useAddPaymentsOrder();
@@ -185,9 +187,9 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
 
     const paymenSave = paramsGetOrder?.data?.orderId?.order?.payments;
     const paymentSave = paymenSave?.sort(compare_lname);
-    const paymentCurrent = payments.sort(compare_lname);
+    const paymentCurrent = payments?.sort(compare_lname);
 
-    if (paymentSave?.length > paymentCurrent.length) {
+    if (paymentSave?.length > paymentCurrent?.length) {
       for (let i = 0; i < payments?.length; i++) {
         if (paymentSave[i + 1]?.payment?._id === paymentCurrent[i]?.payment?._id) {
           arr.push({
@@ -232,6 +234,38 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
             total: payments[i]?.total,
             code: payments[i]?.code,
           });
+          console.log(1);
+        } else if (paymentCurrent.length > paymentSave?.length) {
+          if (
+            paymentCurrent[i + 1]?.payment?._id === paymentSave[i]?.payment?._id &&
+            paymentSave[i] !== undefined
+          ) {
+            arr.push({
+              paymentId: paymentCurrent[i + 1]?.payment?._id,
+              action: ActionPaymentsOrder.Update,
+              total: paymentCurrent[i + 1]?.total,
+              code: paymentCurrent[i + 1]?.code,
+            });
+          } else if (paymentCurrent[i]?.payment?._id !== paymentSave[i]?.payment?._id) {
+            if (paymentSave?.length > 0) {
+              const payFound = paymentCurrent.find(
+                (payment) => payment.payment._id !== paymentSave[i]?.payment?._id,
+              );
+              arr.push({
+                paymentId: payFound?.payment?._id, // paymentCurrent[i]?.payment?._id,
+                action: ActionPaymentsOrder.Create,
+                total: payFound?.total, // paymentCurrent[i]?.total,
+                code: payFound?.code, //paymentCurrent[i]?.code,
+              });
+            } else {
+              arr.push({
+                paymentId: paymentCurrent[i]?.payment?._id,
+                action: ActionPaymentsOrder.Create,
+                total: paymentCurrent[i]?.total,
+                code: paymentCurrent[i]?.code,
+              });
+            }
+          }
         } else if (paymentCurrent[i]?.payment?._id !== paymentSave[i]?.payment?._id) {
           arr.push({
             paymentId: paymentCurrent[i]?.payment?._id,
@@ -239,16 +273,16 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
             total: paymentCurrent[i]?.total,
             code: paymentCurrent[i]?.code,
           });
-          break;
         }
         if (paymentCurrent[i]?.payment?._id !== paymentSave[i]?.payment?._id) {
           if (paymentSave.includes(paymentCurrent[i])) {
-            arr.push({
-              paymentId: paymentSave[i]?.payment?._id,
-              action: ActionPaymentsOrder.Update,
-              total: paymentCurrent[i + 1]?.total,
-              code: paymentSave[i]?.code,
-            });
+            if (paymentSave?.[i]?.payment?._id)
+              arr.push({
+                paymentId: paymentSave[i]?.payment?._id,
+                action: ActionPaymentsOrder.Update,
+                total: paymentCurrent[i + 1]?.total,
+                code: paymentSave[i]?.code,
+              });
             break;
           }
         }
@@ -304,6 +338,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
         variables: {
           input: {
             active: true,
+            shopId: initialState?.currentUser?.shop?._id,
           },
         },
       });
@@ -328,10 +363,35 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
     }
   }, [paymentsSave]);
 
+  const paymentsSort: any[] = [];
+
+  data?.payments?.docs.forEach((payment) => {
+    if (payment.name === 'Efectivo') {
+      paymentsSort[0] = payment;
+    }
+    if (payment.name === 'Bancolombia') {
+      paymentsSort[1] = payment;
+    }
+    if (payment.name === 'Bono') {
+      paymentsSort[2] = payment;
+    }
+    if (payment.name === 'Crédito') {
+      paymentsSort[3] = payment;
+    }
+    if (
+      payment.name !== 'Bancolombia' &&
+      payment.name !== 'Bono' &&
+      payment.name !== 'Crédito' &&
+      payment.name !== 'Efectivo'
+    ) {
+      paymentsSort.push(payment);
+    }
+  });
+
   return (
     <Modal
       centered
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       destroyOnClose
       footer={false}
@@ -344,7 +404,7 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
         <Col span={12}>
           <Title level={3}>Medios de pago</Title>
           <Row gutter={[24, 24]}>
-            {data?.payments?.docs
+            {paymentsSort
               ?.filter((payment) => (credit ? true : payment?.type !== TypePayment.Credit))
               ?.map((payment) => (
                 <Col key={payment?._id}>
@@ -424,7 +484,11 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
           </Button>
         </Col>
       </Row>
-      <AlertInformation {...alertInformation} onCancel={closeAlertInformation} />
+      <AlertInformation
+        {...alertInformation}
+        onCancel={closeAlertInformation}
+        handlePrint={handlePrint}
+      />
       <AlertLoading
         visible={loading || dataPayments?.loading}
         message={dataPayments.loading ? 'Generando factura' : 'Guardando medios de pago'}

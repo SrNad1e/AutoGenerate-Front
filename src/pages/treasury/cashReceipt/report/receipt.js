@@ -10,6 +10,7 @@ const classes = {
   content: {
     margin: 20,
     maxWidth: '60mm',
+    color: 'black',
   },
   title: {
     textAlign: 'center',
@@ -17,34 +18,41 @@ const classes = {
     lineHeight: 1,
     marginTop: 2,
     fontSize: 15,
+    color: 'black',
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    color: 'black',
   },
   text: {
     fontSize: 12,
+    color: 'black',
   },
   textBold: {
     fontWeight: 'bold',
     marginRight: 10,
+    color: 'black',
   },
   body: {
     width: '100%',
     marginTop: 15,
+    color: 'black',
   },
   bodyHeaders: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     fontWeight: 'bold',
+    color: 'black',
   },
   bodyContent: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
+    color: 'black',
   },
   footer: {
     width: '60mm',
@@ -54,6 +62,7 @@ const classes = {
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     lineHeight: 1.5,
+    color: 'black',
   },
 };
 

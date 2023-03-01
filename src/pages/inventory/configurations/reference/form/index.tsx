@@ -15,9 +15,10 @@ import {
   Typography,
   Popconfirm,
   Image,
+  Alert,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
-import { useHistory, useParams } from 'umi';
+import { useHistory, useModel, useParams } from 'umi';
 import { useEffect, useState } from 'react';
 
 import type {
@@ -50,6 +51,7 @@ const FormReference = () => {
   const [combinations, setCombinations] = useState<Partial<Product>[]>([]);
   const [activeKey, setActiveKey] = useState('1');
   const [editProduct, setEditProduct] = useState(false);
+  const [missingValue, setMissingValue] = useState(false);
   const [product, setProduct] = useState<Product>();
   const [alertInformation, setAlertInformation] = useState<PropsAlertInformation>({
     message: '',
@@ -61,7 +63,6 @@ const FormReference = () => {
     type: 'error',
     visible: false,
   });
-  const [numberOfRuns, setNumberOfRuns] = useState(0);
 
   const history = useHistory();
   const { id } = useParams<Partial<{ id: string }>>();
@@ -69,10 +70,17 @@ const FormReference = () => {
   const [form] = Form.useForm();
   const [formCreateProduct] = Form.useForm();
 
+  const { initialState } = useModel('@@initialState');
+
   const [createReference] = useCreateReference();
   const [getReference, { data }] = useGetReference();
   const [createProduct, { loading }] = useCreateProduct(id || '');
   const [updateReference] = useUpdateReference();
+
+  const canEdit =
+    (data?.referenceId?.companies.find((company) => company.isMain) &&
+      initialState?.currentUser?.company?.isMain) ||
+    !data?.referenceId?.companies.find((company) => company.isMain);
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -141,7 +149,9 @@ const FormReference = () => {
       }
 
       if (!values?.long) {
+        setMissingValue(true);
         setActiveKey('2');
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
         return;
       }
 
@@ -419,31 +429,24 @@ const FormReference = () => {
     }
   }, [data]);
 
-  const arraySorted: any[] = [];
+  const dataOrdered = combinations
+    ?.slice()
+    .sort((a, b) => {
+      return b?.size?.weight - a?.size?.weight;
+    })
+    .sort((a, b) => {
+      const nameA = a?.color?.name?.toUpperCase();
+      const nameB = b?.color?.name?.toUpperCase();
 
-  const sorterReferences = () => {
-    try {
-      const colors = combinations.map(({ color }) => color?.name);
-      const result = colors.filter((item, index) => {
-        return colors.indexOf(item) === index;
-      });
-
-      for (let index = 0; index < combinations.length; index++) {
-        const a = combinations.filter((com) => com?.color?.name === result[index]);
-        arraySorted.push(...a);
-        setCombinations(arraySorted);
+      if (nameA < nameB) {
+        return -1;
       }
-    } catch (error: any) {
-      showError(error?.message);
-    }
-  };
+      if (nameA > nameB) {
+        return 1;
+      }
 
-  useEffect(() => {
-    if (numberOfRuns < 3) {
-      sorterReferences();
-    }
-    setNumberOfRuns(numberOfRuns + 1);
-  }, [combinations]);
+      return 0;
+    }) as any;
 
   const columns: ColumnsType<Product> = [
     {
@@ -497,6 +500,7 @@ const FormReference = () => {
         _id ? (
           <Tooltip title="Editar" placement="topLeft">
             <Button
+              disabled={!canEdit}
               onClick={() => {
                 setProduct(record);
                 setEditProduct(true);
@@ -540,19 +544,29 @@ const FormReference = () => {
         <Form form={form}>
           <Tabs type="card" activeKey={activeKey} onChange={setActiveKey}>
             <TabPane tab="Datos generales" key="1">
-              <FormGeneralData />
+              <FormGeneralData disabled={!canEdit} />
             </TabPane>
             <TabPane tab="Datos de envio" key="2">
-              <FormShipping />
+              <FormShipping disabled={!canEdit} missingValue={missingValue} form={form} />
             </TabPane>
           </Tabs>
         </Form>
-        <Divider>Productos</Divider>
-        <FormCreateProduct form={formCreateProduct} onFinish={addProducts} />
+        {!canEdit ? (
+          <Alert type="warning" showIcon message="No tienes permisos para editar este producto" />
+        ) : (
+          <>
+            <Divider>Productos</Divider>
+            <FormCreateProduct
+              disabled={!canEdit}
+              form={formCreateProduct}
+              onFinish={addProducts}
+            />
+          </>
+        )}
         <Divider />
         <Table
           loading={loading}
-          dataSource={combinations}
+          dataSource={dataOrdered}
           columns={columns}
           pagination={false}
           bordered
@@ -560,7 +574,13 @@ const FormReference = () => {
         />
         <Affix offsetBottom={0}>
           <Card loading={loading} bodyStyle={styles.bodyStyle} size="small">
-            <Button type="primary" loading={loading} style={{ borderRadius: 5 }} onClick={onFinish}>
+            <Button
+              disabled={!canEdit}
+              type="primary"
+              loading={loading}
+              style={{ borderRadius: 5 }}
+              onClick={onFinish}
+            >
               Guardar
             </Button>
           </Card>

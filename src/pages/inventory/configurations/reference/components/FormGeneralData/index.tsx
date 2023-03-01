@@ -25,7 +25,11 @@ import styles from '../styles';
 const DescriptionsItem = Descriptions.Item;
 const FormItem = Form.Item;
 
-const FormGeneralData = () => {
+export type Params = {
+  disabled: boolean;
+};
+
+const FormGeneralData = ({ disabled }: Params) => {
   const [modalAttribVisible, setModalAttribVisible] = useState(false);
   const [modalBrandVisible, setModalBrandVisible] = useState(false);
 
@@ -52,7 +56,7 @@ const FormGeneralData = () => {
             style={styles.marginIntial}
             rules={[{ required: true, message: 'Obligatorio' }]}
           >
-            <Input autoFocus />
+            <Input autoFocus disabled={disabled} />
           </FormItem>
         </DescriptionsItem>
         <DescriptionsItem label="Descripción">
@@ -61,12 +65,12 @@ const FormGeneralData = () => {
             name="description"
             rules={[{ required: true, message: 'Obligatorio' }]}
           >
-            <Input />
+            <Input disabled={disabled} />
           </FormItem>
         </DescriptionsItem>
         <DescriptionsItem label="Cambiable">
           <FormItem valuePropName="checked" style={styles.marginIntial} name="changeable">
-            <Switch />
+            <Switch disabled={disabled} />
           </FormItem>
         </DescriptionsItem>
         <DescriptionsItem span={2} label="Categoría">
@@ -77,14 +81,19 @@ const FormGeneralData = () => {
                 name="categoriesId"
                 rules={[{ required: true, message: 'Obligatorio' }]}
               >
-                <SelectCategories />
+                <SelectCategories disabled={disabled} />
               </FormItem>
             </Col>
             <Col xs={12} md={5} lg={4}>
               <Divider type="vertical" />
               <Tooltip title="Crear nueva categoría">
                 <Link to="/inventory/configurations/categories" target="_blank">
-                  <Button icon={<AppstoreOutlined />} type="primary" shape="circle" />
+                  <Button
+                    icon={<AppstoreOutlined />}
+                    type="primary"
+                    shape="circle"
+                    disabled={disabled}
+                  />
                 </Link>
               </Tooltip>
             </Col>
@@ -92,18 +101,14 @@ const FormGeneralData = () => {
         </DescriptionsItem>
         <DescriptionsItem label="Activo">
           <FormItem valuePropName="checked" style={styles.marginIntial} name="active">
-            <Switch defaultChecked />
+            <Switch defaultChecked disabled={disabled} />
           </FormItem>
         </DescriptionsItem>
         <DescriptionsItem span={2} label="Atributos">
           <Row>
             <Col xs={12} md={19} lg={20}>
-              <FormItem
-                style={styles.marginIntial}
-                name="attribIds"
-                rules={[{ required: true, message: 'Obligatorio' }]}
-              >
-                <SelectListAttrib disabled={false} />
+              <FormItem style={styles.marginIntial} name="attribIds">
+                <SelectListAttrib disabled={disabled} />
               </FormItem>
             </Col>
             <Col xs={12} md={5} lg={4}>
@@ -114,6 +119,7 @@ const FormGeneralData = () => {
                   type="primary"
                   shape="circle"
                   onClick={() => setModalAttribVisible(true)}
+                  disabled={disabled}
                 />
               </Tooltip>
             </Col>
@@ -128,6 +134,7 @@ const FormGeneralData = () => {
             <InputNumber
               addonBefore="$"
               min={0}
+              disabled={disabled}
               formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={(value) => value?.replace(/\$\s?|(,*)/g, '')}
             />
@@ -141,7 +148,7 @@ const FormGeneralData = () => {
                 name="brandId"
                 rules={[{ required: true, message: 'Obligatorio' }]}
               >
-                <SelectBrand disabled={false} />
+                <SelectBrand disabled={disabled} />
               </FormItem>
             </Col>
             <Col xs={12} md={5} lg={4}>
@@ -151,6 +158,7 @@ const FormGeneralData = () => {
                   icon={<FileMarkdownOutlined />}
                   type="primary"
                   shape="circle"
+                  disabled={disabled}
                   onClick={() => setModalBrandVisible(true)}
                 />
               </Tooltip>
@@ -166,6 +174,7 @@ const FormGeneralData = () => {
             <InputNumber
               addonBefore="$"
               min={0}
+              disabled={disabled}
               formatter={(value) => ` ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
               parser={(value) => value?.replace(/\$\s?|(,*)/g, '')}
             />

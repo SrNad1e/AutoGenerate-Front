@@ -36,6 +36,7 @@ import type { Order } from '@/graphql/graphql';
 import { StatusWeb } from '@/graphql/graphql';
 import { StatusOrder, StatusOrderDetail } from '@/graphql/graphql';
 import { useReactToPrint } from 'react-to-print';
+import OrderReport from '../../order/report/order/Order';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
@@ -66,6 +67,7 @@ const EcommerceForm = () => {
 
   const reportRef = useRef(null);
   const reportRef1 = useRef(null);
+  const orderRef = useRef(null);
 
   const [getOrder, paramsGetOrder] = useGetOrder();
   const [updateOrder, paramsUpdateOrder] = useUpdateOrder();
@@ -81,6 +83,18 @@ const EcommerceForm = () => {
   const handlePrintShippingLabel = useReactToPrint({
     content: () => reportRef1?.current,
   });
+  const handleOrderTicketPrint = useReactToPrint({
+    content: () => orderRef?.current,
+  });
+
+  /**
+   * @description se encarga de imprimir el ticket de pedido
+   * @param record pedido
+   */
+  const printOrderTicket = async (record: Partial<Order>) => {
+    await setOrderData(record);
+    handleOrderTicketPrint();
+  };
 
   /**
    * @description se encarga de seleccionar el pedido e imprime
@@ -373,7 +387,7 @@ const EcommerceForm = () => {
               </Row>
             </Col>
             <Col span={12} style={styles.textRight}>
-              <Row gutter={[0, 6]}>
+              <Row gutter={[0, 6]} align="middle">
                 <Col span={24}>
                   <Text strong>{numeral(total).format('$ 0,0')}</Text>
                 </Col>
@@ -423,9 +437,9 @@ const EcommerceForm = () => {
                     {paramsGetOrder?.data?.orderId?.order?.address?.field1}{' '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.number1}
                     {' # '}
-                    {paramsGetOrder?.data?.orderId?.order?.address?.loteNumber}
-                    {' - '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.number2}
+                    {' - '}
+                    {paramsGetOrder?.data?.orderId?.order?.address?.loteNumber}
                     {' - '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.city?.name},{' '}
                     {paramsGetOrder?.data?.orderId?.order?.address?.city?.state}
@@ -464,6 +478,16 @@ const EcommerceForm = () => {
               <Space>
                 <Popconfirm
                   title="¿Esta seguro que desea cancelar el pedido?"
+                  disabled={
+                    paramsGetOrder?.data?.orderId?.order?.statusWeb === StatusWeb.Cancelled ||
+                    (paramsGetOrder?.data?.orderId?.order?.statusWeb !== StatusWeb.Cancelled
+                      ? initialState?.currentUser?.username === USER_ADMIN
+                        ? false
+                        : disabledCancelButton()
+                      : true) ||
+                    paramsGetOrder.data?.orderId.order.statusWeb === StatusWeb.Sent ||
+                    paramsGetOrder.data?.orderId.order.status === StatusOrder.Closed
+                  }
                   okText="Si"
                   cancelText="No"
                   onConfirm={() => onCancelOrder()}
@@ -474,7 +498,7 @@ const EcommerceForm = () => {
                     disabled={
                       paramsGetOrder?.data?.orderId?.order?.statusWeb === StatusWeb.Cancelled ||
                       (paramsGetOrder?.data?.orderId?.order?.statusWeb !== StatusWeb.Cancelled
-                        ? initialState?.currentUser?.role?.name === 'Administrador'
+                        ? initialState?.currentUser?.username === USER_ADMIN
                           ? false
                           : disabledCancelButton()
                         : true) ||
@@ -487,6 +511,14 @@ const EcommerceForm = () => {
                     Cancelar Pedido
                   </Button>
                 </Popconfirm>
+                <Button
+                  icon={<PrinterOutlined />}
+                  type="primary"
+                  style={styles.buttonR}
+                  onClick={() => printOrderTicket(paramsGetOrder?.data?.orderId?.order)}
+                >
+                  Imprimir Ticket de Venta
+                </Button>
                 <Button
                   style={styles.buttonR}
                   loading={paramsGetOrder.loading || paramsUpdateOrder.loading}
@@ -551,6 +583,9 @@ const EcommerceForm = () => {
       </div>
       <div style={{ display: 'none' }}>
         <ShippingLabel ref={reportRef1} data={shippingLabelData} />
+      </div>
+      <div style={{ display: 'none' }}>
+        <OrderReport ref={orderRef} data={orderData} />
       </div>
     </PageContainer>
   );

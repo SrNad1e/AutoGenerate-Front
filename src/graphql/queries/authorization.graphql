@@ -7,6 +7,20 @@ query authorizations($input: FiltersAuthorizationInput) {
       _id
       updatedAt
       prefix
+      resolution
+      dateInitial
+      dateFinal
+      numberInitial
+      numberFinal
+      shop {
+        _id
+        name
+        email
+        phone
+        document
+        address
+        companyName
+      }
     }
   }
 }

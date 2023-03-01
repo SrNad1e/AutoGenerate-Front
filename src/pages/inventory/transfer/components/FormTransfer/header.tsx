@@ -1,5 +1,6 @@
 import type {
   ActionDetailTransfer,
+  DetailRequest,
   DetailTransfer,
   StockRequest,
   StockTransfer,
@@ -45,6 +46,9 @@ const Header = ({
     type: 'error',
     visible: false,
   });
+  const [saveDetails, setSaveDetails] = useState<DetailRequest[]>([]);
+  const [detailsRequest, setDetailsRequest] = useState<DetailRequest[]>([]);
+  const [visibleConfirmRequest, setVisibleConfirmRequest] = useState(false);
 
   const onShowError = (message: string) => {
     setPropsAlertInformation({
@@ -85,7 +89,7 @@ const Header = ({
    * @description gestiona el listado de solicitudes de traslado
    * @param requestsAdd array de solicitudes
    */
-  const addRequests = (requestsAdd: StockRequest[]) => {
+  const addRequests = async (requestsAdd: StockRequest[]) => {
     const create: any[] = [];
     const update: any[] = [];
     try {
@@ -94,7 +98,7 @@ const Header = ({
           const request = requestsAdd[i];
           for (let j = 0; j < request?.details?.length; j++) {
             const detail = request?.details[j];
-            const productFind = details?.find(
+            const productFind = detailsRequest?.find(
               (item) => item?.product?._id === detail?.product?._id,
             );
             const productFindLocal = create?.findIndex(
@@ -104,19 +108,19 @@ const Header = ({
             if (productFind) {
               update.push({
                 product: detail?.product,
-                quantity: detail?.quantity,
+                quantity: 0,
               });
             } else {
               if (productFindLocal >= 0) {
                 create[productFindLocal] = {
                   product: detail?.product,
-                  quantity: detail?.quantity,
+                  quantity: 0,
                   action: ActionDetailRequest.Create,
                 };
               } else {
                 create.push({
                   product: detail?.product,
-                  quantity: detail?.quantity,
+                  quantity: 0,
                   action: ActionDetailRequest.Create,
                 });
               }
@@ -124,20 +128,149 @@ const Header = ({
           }
         }
 
-        const newDetails = details.map((item) => {
+        const newDetails = detailsRequest.map((item) => {
           const find = update.find((detail) => detail?.product?._id === item?.product?._id);
           if (find) {
             return {
               ...item,
-              quantity: find?.quantity,
+              quantity: 0,
             };
           }
           return item;
         });
-        setDetails(newDetails.concat(create));
-        setRequests(requests.concat(requestsAdd));
+        if (saveDetails.length > 0) {
+          if (requestsAdd.length > 1) {
+            const arr: DetailRequest[] = [];
+            for (let j = 0; j < requestsAdd?.length; j++) {
+              for (let i = 0; i < requestsAdd[j]?.details?.length; i++) {
+                let obj: DetailRequest | any = {};
+                if (requestsAdd[j]?.details[i]?.product._id === saveDetails[i]?.product?._id) {
+                  obj = {
+                    createdAt: requestsAdd[j]?.details[i]?.createdAt,
+                    updatedAt: requestsAdd[j]?.details[i]?.updatedAt,
+                    product: requestsAdd[j]?.details[i]?.product,
+                    quantity: saveDetails[i].quantity,
+                    __typename: requestsAdd[j]?.details[i].__typename,
+                  };
+                } else {
+                  obj = {
+                    createdAt: requestsAdd[j]?.details[i]?.createdAt,
+                    updatedAt: requestsAdd[j]?.details[i]?.updatedAt,
+                    product: requestsAdd[j]?.details[i]?.product,
+                    quantity: 0,
+                    __typename: requestsAdd[j]?.details[i].__typename,
+                  };
+                }
+                arr.push(obj);
+              }
+            }
+            if (arr.length === saveDetails.length) {
+              setDetailsRequest([...saveDetails]);
+            } else if (arr.length > 0) {
+              if (create.length > 0) {
+                setDetailsRequest([...arr]);
+              } else {
+                const arrsta: any[] = [];
+                for (let j = 0; j < arr.length; j++) {
+                  arrsta.push(
+                    ...saveDetails.filter((item) => item.product._id === arr[j].product._id),
+                  );
+                }
+                for (let j = 0; j < arr.length; j++) {
+                  arr.forEach((item) => {
+                    if (item.product._id === arrsta[j]?.product?._id) {
+                      item.quantity = arrsta[j]?.quantity;
+                    }
+                  });
+                }
+                setDetailsRequest([...arr]);
+              }
+            }
+          } else {
+            const arr: DetailRequest[] = [];
+            for (let j = 0; j < requestsAdd.length; j++) {
+              for (let i = 0; i < requestsAdd[j]?.details?.length; i++) {
+                let obj: DetailRequest | any = {};
+                if (requestsAdd[j]?.details[i]?.product._id === saveDetails[i]?.product?._id) {
+                  obj = {
+                    createdAt: requestsAdd[j]?.details[i]?.createdAt,
+                    updatedAt: requestsAdd[j]?.details[i]?.updatedAt,
+                    product: requestsAdd[j]?.details[i]?.product,
+                    quantity: saveDetails[i].quantity,
+                    __typename: requestsAdd[j]?.details[i].__typename,
+                  };
+                } else {
+                  obj = {
+                    createdAt: requestsAdd[j]?.details[i]?.createdAt,
+                    updatedAt: requestsAdd[j]?.details[i]?.updatedAt,
+                    product: requestsAdd[j]?.details[i]?.product,
+                    quantity: 0,
+                    __typename: requestsAdd[j]?.details[i].__typename,
+                  };
+                }
+                arr.push(obj);
+                if (saveDetails.length > 0) {
+                  const arr1: any[] = [];
+                  for (let k = 0; k < requestsAdd.length; k++) {
+                    arr1.push(
+                      ...requestsAdd[k]?.details.filter((index) => {
+                        for (let h = 0; h < saveDetails.length; h++) {
+                          return index?.product?._id !== saveDetails[h]?.product?._id;
+                        }
+                      }),
+                    );
+                  }
+                  for (let k = 0; k < requestsAdd.length; k++) {
+                    arr1.unshift(
+                      ...requestsAdd[k]?.details.filter((index) => {
+                        for (let h = 0; h < saveDetails.length; h++) {
+                          return index?.product?._id === saveDetails[h]?.product?._id;
+                        }
+                      }),
+                    );
+                  }
+                  const detailsR: any[] = [];
+                  if (arr1) {
+                    for (let r = 0; r < arr1.length; r++) {
+                      detailsR.push(
+                        detailsRequest.find((index) => index.product._id === arr1[r].product._id),
+                      );
+                    }
+
+                    if (detailsR[0] === undefined) {
+                      setDetailsRequest([
+                        ...arr1?.map((item) => {
+                          return {
+                            createdAt: item.createdAt,
+                            product: item.product,
+                            quantity: 0,
+                            updatedAt: item.updatedAt,
+                          };
+                        }),
+                      ]);
+                    } else {
+                      for (let r = 0; r < arr1.length; r++) {
+                        const a = detailsRequest.find(
+                          (index) => index.product._id !== arr1[r].product._id,
+                        );
+                        if (a) {
+                          detailsR.unshift(a);
+                          break;
+                        }
+                      }
+                      setDetailsRequest([...detailsR]);
+                    }
+                  } else {
+                    setDetailsRequest([...arr]);
+                  }
+                }
+              }
+            }
+          }
+        } else {
+          setDetailsRequest([...newDetails.concat(create)]);
+        }
       }
-      closeModalSelectRequests();
     } catch (error: any) {
       onShowError(error?.message);
     }
@@ -200,6 +333,15 @@ const Header = ({
         </DescriptionsItem>
       </Descriptions>
       <SearchRequest
+        setSaveDetails={setSaveDetails}
+        saveDetails={saveDetails}
+        details={details}
+        setRequests={setRequests}
+        setDetails={setDetails}
+        setVisibleConfirmRequest={setVisibleConfirmRequest}
+        visibleConfirmRequest={visibleConfirmRequest}
+        detailRequest={detailsRequest}
+        setDetailRequest={setDetailsRequest}
         transfer={transfer}
         visible={showSelectRequests}
         onCancel={closeModalSelectRequests}

@@ -1,38 +1,71 @@
-query invoices($input:FiltersInvoicesInput){
-  invoices(filtersInvoices:$input){
-    docs{
+query invoices($input: FiltersInvoicesInput) {
+  invoices(filtersInvoices: $input) {
+    docs {
       _id
       active
-      authorization{
+      authorization {
         prefix
+        resolution
+        dateInitial
+        dateFinal
+        numberInitial
+        numberFinal
+      }
+      number
+      user {
+        username
+      }
+      updatedAt
+      summary {
+        total
+        subtotal
+        tax
+      }
+      shop {
+        name
       }
       createdAt
-      customer{
+      customer {
         firstName
         lastName
         document
-        documentType{
+        documentType {
           abbreviation
         }
       }
-      details{
+      details {
         price
-        product{
+        product {
           barcode
-          reference{
+          reference {
             changeable
             name
             description
           }
-          color{
+          color {
             name
           }
-          size{
+          size {
             value
           }
         }
         quantity
       }
+      company {
+        name
+        email
+        document
+        address
+        logo
+      }
+      payments {
+        payment {
+          name
+        }
+      }
     }
+    page
+    totalDocs
+    totalPages
   }
 }
