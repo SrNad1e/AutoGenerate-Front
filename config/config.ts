@@ -295,6 +295,17 @@ export default defineConfig({
               ],
             },
             {
+              name: 'Informes',
+              path: '/inventory/reports',
+              routes: [
+                {
+                  name: 'Inventarios',
+                  path: '/inventory/reports/inventories',
+                  component: './inventory/reports/inventories',
+                },
+              ],
+            },
+            {
               name: 'Configuraciones',
               path: '/inventory/configurations',
               access: 'allowOption',
