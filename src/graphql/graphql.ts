@@ -861,8 +861,6 @@ export type CreatePaymentInput = {
   message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name: Scalars['String'];
-  /** Identificador de tiendas que usan el método de pago */
-  shopIds: Scalars['String'][];
   /** Tipo de método de pago */
   type: TypePayment;
 };
@@ -1330,8 +1328,6 @@ export type DetailInvoice = {
   product: Product;
   /** Cantidad de productos en la factura */
   quantity: Scalars['Float'];
-  /** Impuestos */
-  tax: Scalars['Float'];
 };
 
 /** Productos del pedido */
@@ -2094,8 +2090,6 @@ export type FiltersPaymentsInput = {
   name?: InputMaybe<Scalars['String']>;
   /** Página actual */
   page?: InputMaybe<Scalars['Float']>;
-  /** Tienda para consultar el medio de pago */
-  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortPayment>;
   /** Tipo de medio de pago (cash, bank, credit, bonus) */
@@ -2475,8 +2469,8 @@ export type GenerateDailyClosingInput = {
   dateFinal: Scalars['String'];
   /** Fecha inicial */
   dateInitial: Scalars['String'];
-  /** Id de la tienda */
-  shopId: Scalars['String'];
+  /** Id de punto de venta */
+  pointOfSaleId: Scalars['String'];
 };
 
 export enum GroupDates {
@@ -3120,8 +3114,6 @@ export type Payment = {
   message?: Maybe<Scalars['String']>;
   /** Nombre del medio de pago */
   name: Scalars['String'];
-  /** Tipo de medio de pago */
-  shops: Shop[];
   /** Tipo de medio de pago */
   type: TypePayment;
   /** Fecha de actualización */
@@ -6193,8 +6185,6 @@ export type UpdatePaymentInput = {
   message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name?: InputMaybe<Scalars['String']>;
-  /** Identificador de tiendas que usan el método de pago */
-  shopIds?: InputMaybe<Scalars['String'][]>;
   /** Tipo de método de pago */
   type?: InputMaybe<TypePayment>;
 };
@@ -8867,6 +8857,13 @@ export type DailyClosingQuery = {
         order: { __typename?: 'Order'; number: number };
         authorization: { __typename?: 'AuthorizationDian'; prefix: string };
         summary: { __typename?: 'SummaryInvoice'; total: number; subtotal: number; tax: number };
+        payments?:
+          | {
+              __typename?: 'PaymentInvoice';
+              total: number;
+              payment: { __typename?: 'Payment'; name: string };
+            }[]
+          | null;
       }[];
       pointOfSale: {
         __typename?: 'PointOfSale';
@@ -18470,6 +18467,26 @@ export const DailyClosingDocument = {
                                   { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'subtotal' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'tax' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'payments' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'payment' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                      ],
+                                    },
+                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                                 ],
                               },
                             },
