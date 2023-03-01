@@ -6835,6 +6835,7 @@ export type CreateCloseZInvoicingMutation = {
     __typename?: 'CloseZInvoicing';
     _id: string;
     number: number;
+    prefix: string;
     closeDate: any;
     quantityBank: number;
     cashRegister: {
@@ -8525,6 +8526,7 @@ export type ClosesZInvoicingQuery = {
       __typename?: 'CloseZInvoicing';
       _id: string;
       number: number;
+      prefix: string;
       closeDate: any;
       quantityBank: number;
       cashRegister: {
@@ -11615,6 +11617,7 @@ export const CreateCloseZInvoicingDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'cashRegister' },
@@ -17586,6 +17589,7 @@ export const ClosesZInvoicingDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'cashRegister' },
