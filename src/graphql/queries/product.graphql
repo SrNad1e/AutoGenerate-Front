@@ -26,9 +26,6 @@ query products($input: FiltersProductsInput!) {
       }
       stock {
         quantity
-        warehouse {
-          name
-        }
       }
     }
     totalDocs

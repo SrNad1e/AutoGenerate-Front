@@ -1,9 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectWarehouses from '@/components/SelectWarehouses';
-import type { FiltersProductsInput, Product } from '@/graphql/graphql';
+import type {
+  Color,
+  FiltersProductsInput,
+  FiltersStockInput,
+  InventoryReport,
+  Warehouse,
+} from '@/graphql/graphql';
 import { BarcodeOutlined, ClearOutlined, SearchOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
+import type { TablePaginationConfig } from 'antd';
 import {
   Avatar,
   Badge,
@@ -15,22 +22,27 @@ import {
   Row,
   Space,
   Table,
-  TablePaginationConfig,
   Tag,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import { useEffect, useState } from 'react';
-import { useGetProducts } from '@/hooks/product.hooks';
 import validateCodeBar from '@/libs/validateCodeBar';
+import { useGetProductsStocks } from '@/hooks/products-stock.hooks';
+import type { Location } from 'umi';
+import { useHistory, useLocation } from 'umi';
+import SelectColor from '@/components/SelectColor';
+import SelectSize from '@/components/SelectSize';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
 
 type FormValues = {
-  name: string;
-  warehouseId: string;
+  name?: string;
+  warehouseId?: string;
+  colorId?: string;
+  sizeId?: string;
 };
 
 const Inventories = () => {
@@ -39,11 +51,12 @@ const Inventories = () => {
     type: 'error',
     visible: false,
   });
-  const [productsStock, setProductsStock] = useState([]);
-  const [pagination, setPagination] = useState<any>({});
-  const [form] = Form.useForm();
 
-  const [getProducts /* { data, loading, error }*/] = useGetProducts();
+  const [form] = Form.useForm();
+  const history = useHistory();
+  const location: Location = useLocation();
+
+  const [getProductsStock, { data, loading }] = useGetProductsStocks();
 
   const onCloseAlert = () => {
     setPropsAlert({
@@ -61,53 +74,44 @@ const Inventories = () => {
     });
   };
 
-  const onSearch = async (params?: Partial<FiltersProductsInput>) => {
+  const onSearch = async (params?: Partial<FiltersStockInput>) => {
     try {
-      const response = await getProducts({
+      await getProductsStock({
         variables: {
           input: {
             ...params,
-            status: 'active',
-            withStock: true,
-            limit: 210,
           },
         },
       });
-      if (response?.data?.products) {
-        console.log(response?.data?.products?.docs);
-        setPagination({
-          totalD: response.data.products.totalDocs,
-          totalP: response.data.products.totalPages,
-          page: response.data.products.page,
-        });
-        let obj = {};
-        const vec = [];
-        for (let i = 0; i < response?.data?.products?.docs.length; i++) {
-          response?.data?.products?.docs[i].stock?.forEach((index) => {
-            obj = {
-              warehouseName: index?.warehouse?.name,
-              stockProduct: index?.quantity,
-              product: {
-                name: response?.data?.products?.docs[i].reference.name,
-                description: response?.data?.products?.docs[i].reference.description,
-                barcode: response?.data?.products?.docs[i].barcode,
-                color: {
-                  name: response?.data?.products?.docs[i].color?.name,
-                  html: response?.data?.products?.docs[i].color?.html,
-                  image: response?.data?.products?.docs[i].color?.image?.urls?.webp?.small,
-                  nameInternal: response?.data?.products?.docs[i].color?.name_internal,
-                },
-                size: response?.data?.products?.docs[i].size.value,
-              },
-            };
-            vec.push(obj);
-          });
-        }
-
-        setProductsStock(vec);
-      }
     } catch (err: any) {
       showError(err?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de señalar los datos a la query
+   * @param values valores para enviar a la query
+   */
+  const setQueryParams = (values?: FiltersStockInput) => {
+    try {
+      const valuesForm = form.getFieldsValue();
+      const valuesNew = {
+        ...values,
+        ...valuesForm,
+      };
+      const datos = Object.keys(valuesNew)
+        .reduce(
+          (a, key) =>
+            valuesNew[key] !== undefined && valuesNew[key] !== null
+              ? `${a}&${key}=${JSON.stringify(valuesNew[key])}`
+              : a,
+          '',
+        )
+        .slice(1);
+
+      history.replace(`${location.pathname}?${datos}`);
+    } catch (error: any) {
+      showError(error?.message);
     }
   };
 
@@ -115,15 +119,17 @@ const Inventories = () => {
    * @description realiza la busqueda de los productos con base al filtro
    * @param values valores del formulario
    */
-  const onFinish = ({ name, warehouseId }: FormValues, pageCurrent?: number) => {
+  const onFinish = ({ name, warehouseId, colorId, sizeId }: FormValues, pageCurrent?: number) => {
     try {
       const params: Partial<FiltersProductsInput> = {
         page: pageCurrent || 1,
         name: name && validateCodeBar(name),
-        warehouseId: warehouseId || 'all',
-        limit: 210,
+        warehouseId: warehouseId,
+        colorId: colorId,
+        sizeId: sizeId,
       };
       onSearch({ ...params });
+      setQueryParams({ name, warehouseId, colorId, sizeId });
     } catch (err: any) {
       showError(err?.message);
     }
@@ -140,33 +146,118 @@ const Inventories = () => {
     onFinish(params, current);
   };
 
+  const onClear = () => {
+    history.replace(location.pathname);
+    form.resetFields();
+    onSearch();
+  };
+
+  /**
+   * @description se encarga de cargar los datos con base a la query
+   */
+  const getFiltersQuery = () => {
+    try {
+      const queryParams: any = location.query;
+      const params = {};
+      Object.keys(queryParams).forEach((item) => {
+        params[item] = JSON.parse(queryParams[item]);
+      });
+      form.setFieldsValue(params);
+      onSearch(params);
+    } catch (error: any) {
+      showError(error?.message);
+    }
+  };
+
   useEffect(() => {
-    onSearch({ limit: 210, page: 1, warehouseId: 'all' });
+    onSearch();
+    getFiltersQuery();
   }, []);
 
-  useEffect(() => {
-    console.log(productsStock);
-  }, [productsStock]);
+  const filterColor = () => (
+    <Card style={{ height: 100, width: 280 }} bodyStyle={{ padding: 5 }}>
+      <Form
+        form={form}
+        onFinish={onFinish}
+        layout="vertical"
+        style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+      >
+        <Row justify="center">
+          <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
+            <FormItem name="colorId" style={{ width: '100%' }}>
+              <SelectColor border={false} disabled={false} />
+            </FormItem>
+          </Col>
+          <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
+            <FormItem>
+              <Button
+                style={{ borderRadius: 5 }}
+                size="small"
+                key="0"
+                htmlType="submit"
+                type="primary"
+              >
+                Aceptar
+              </Button>
+            </FormItem>
+          </Col>
+        </Row>
+      </Form>
+    </Card>
+  );
 
-  const columns: ColumnsType<Product> = [
+  const filterSize = () => (
+    <Card size="small" style={{ height: 100 }} bodyStyle={{ padding: 5 }}>
+      <Form
+        form={form}
+        onFinish={onFinish}
+        layout="vertical"
+        style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+      >
+        <Row>
+          <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
+            <FormItem name="sizeId">
+              <SelectSize border={false} disabled={false} />
+            </FormItem>
+          </Col>
+          <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
+            <FormItem>
+              <Button
+                style={{ borderRadius: 5 }}
+                size="small"
+                key="0"
+                htmlType="submit"
+                type="primary"
+              >
+                Aceptar
+              </Button>
+            </FormItem>
+          </Col>
+        </Row>
+      </Form>
+    </Card>
+  );
+
+  const columns: ColumnsType<InventoryReport> = [
     {
       title: 'Bodega',
-      dataIndex: 'warehouseName',
+      dataIndex: 'productWarehouse',
+      render: (warehouse: Warehouse) => warehouse?.name,
     },
     {
       title: 'Producto',
       dataIndex: 'product',
-      render: (product) => (
+      render: (_, record) => (
         <Row>
           <Col span={24}>
-            {product?.name} / {product?.description}
+            {record?.reference?.name} / {record?.reference?.description}
           </Col>
           <Col span={24}>
             <Tag
               style={{ borderColor: '#dc9575', color: '#dc9575', backgroundColor: 'white' }}
               icon={<BarcodeOutlined />}
             >
-              {product?.barcode}
+              {record?.barcode}
             </Tag>
           </Col>
         </Row>
@@ -174,33 +265,35 @@ const Inventories = () => {
     },
     {
       title: 'Color',
-      dataIndex: 'product',
-      render: (product) => (
+      dataIndex: 'color',
+      render: (color: Color) => (
         <>
           <Avatar
             size="small"
-            style={{ backgroundColor: product?.color?.html, border: 'solid 1px black' }}
-            src={`${CDN_URL}/${product?.color?.image?.urls?.webp?.small}`}
+            style={{ backgroundColor: color?.html, border: 'solid 1px black' }}
+            src={`${CDN_URL}/${color?.image?.urls?.webp?.small}`}
           />
 
-          <Text style={{ marginLeft: 10 }}>{product?.color?.nameInternal}</Text>
+          <Text style={{ marginLeft: 10 }}>{color?.name_internal}</Text>
         </>
       ),
+      filterDropdown: () => filterColor(),
     },
     {
       title: 'Talla',
-      dataIndex: 'product',
-      render: (product) => product?.size,
+      dataIndex: 'size',
+      render: (size) => size?.value,
+      filterDropdown: () => filterSize(),
     },
     {
       title: 'Disponible',
-      dataIndex: 'stockProduct',
+      dataIndex: 'stock',
       align: 'center',
       render: (stock) => (
         <Badge
           overflowCount={99999}
-          count={stock}
-          style={{ backgroundColor: stock > 0 || 0 ? 'green' : 'red' }}
+          count={stock?.quantity}
+          style={{ backgroundColor: stock?.quantity > 0 || 0 ? 'green' : 'red' }}
           showZero
         />
       ),
@@ -211,12 +304,12 @@ const Inventories = () => {
       <Card>
         <Form form={form} onFinish={onFinish}>
           <Row gutter={[20, 15]}>
-            <Col>
+            <Col span={6}>
               <FormItem label="Producto" name="name">
                 <Input autoFocus placeholder="referencia, descripción, código" />
               </FormItem>
             </Col>
-            <Col>
+            <Col span={6}>
               <FormItem label="Bodega" name="warehouseId">
                 <SelectWarehouses disabled={false} />
               </FormItem>
@@ -232,7 +325,12 @@ const Inventories = () => {
                   >
                     Buscar
                   </Button>
-                  <Button htmlType="reset" style={{ borderRadius: 5 }} icon={<ClearOutlined />}>
+                  <Button
+                    htmlType="reset"
+                    style={{ borderRadius: 5 }}
+                    onClick={onClear}
+                    icon={<ClearOutlined />}
+                  >
                     Limpiar
                   </Button>
                 </Space>
@@ -241,23 +339,23 @@ const Inventories = () => {
             <Col span={24} style={{ textAlign: 'right' }}>
               <Space>
                 <Text strong>Total Encontrados:</Text>
-                <Text>{pagination.totalD}</Text>
+                <Text>{data?.productStock?.totalDocs}</Text>
                 <Text strong>Pagina:</Text>
                 <Text>
-                  {pagination.page} / {pagination.totalP}
+                  {data?.productStock?.page} / {data?.productStock?.totalPages}
                 </Text>
               </Space>
             </Col>
             <Col span={24}>
               <Table
+                loading={loading}
                 columns={columns}
                 onChange={handleChangeTable}
-                dataSource={productsStock}
+                dataSource={data?.productStock?.docs as any}
                 pagination={{
-                  current: pagination.page,
-                  total: pagination.totalD,
+                  current: data?.productStock?.page,
+                  total: data?.productStock?.totalDocs,
                   showSizeChanger: false,
-                  pageSize: 210,
                 }}
                 scroll={{ y: 800 }}
               />

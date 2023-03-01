@@ -10,9 +10,10 @@ export type Props = {
   onChange?: (value: string | undefined) => void;
   value?: string;
   disabled: boolean;
+  border?: boolean;
 };
 
-const SelectSize = ({ onChange, value, disabled }: Props) => {
+const SelectSize = ({ onChange, value, disabled, border }: Props) => {
   const [getSizes, { loading, data, error }] = useGetSizes();
 
   /**
@@ -59,6 +60,7 @@ const SelectSize = ({ onChange, value, disabled }: Props) => {
         value={value}
         disabled={disabled}
         allowClear
+        bordered={border}
       >
         {data?.sizes?.docs?.map((size) => (
           <Option key={size?._id} value={size._id}>
