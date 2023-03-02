@@ -3193,7 +3193,7 @@ export type Order = {
   /** Métodos de pago usados en el pedido */
   payments?: Maybe<PaymentOrder[]>;
   /** Punto de venta asigando */
-  pointOfSale: PointOfSale;
+  pointOfSale?: Maybe<PointOfSale>;
   /** Tienda donde se solicita el pedido */
   shop: Shop;
   /** Estado del pedido */
@@ -7411,6 +7411,10 @@ export type UpdateOrderMutation = {
       _id: string;
       number: number;
       status: StatusOrder;
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        box: { __typename?: 'Box'; name: string };
+      } | null;
       user: { __typename?: 'User'; name: string };
       customer: {
         __typename?: 'Customer';
@@ -7506,7 +7510,13 @@ export type UpdateOrderMutation = {
               payment: { __typename?: 'Payment'; _id: string; name: string };
             }[]
           | null;
-        shop: { __typename?: 'Shop'; name: string };
+        shop: {
+          __typename?: 'Shop';
+          name: string;
+          address?: string | null;
+          email?: string | null;
+          document?: string | null;
+        };
         summary: {
           __typename?: 'SummaryInvoice';
           total: number;
@@ -9418,7 +9428,10 @@ export type OrderIdQuery = {
       number: number;
       updatedAt: any;
       createdAt: any;
-      pointOfSale: { __typename?: 'PointOfSale'; box: { __typename?: 'Box'; name: string } };
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        box: { __typename?: 'Box'; name: string };
+      } | null;
       invoice?: {
         __typename?: 'Invoice';
         createdAt: any;
@@ -9714,7 +9727,10 @@ export type OrdersQuery = {
             payment: { __typename?: 'Payment'; name: string; type: TypePayment };
           }[]
         | null;
-      pointOfSale: { __typename?: 'PointOfSale'; box: { __typename?: 'Box'; name: string } };
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        box: { __typename?: 'Box'; name: string };
+      } | null;
       summary: {
         __typename?: 'SummaryOrder';
         total: number;
@@ -13248,6 +13264,25 @@ export const UpdateOrderDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'box' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
@@ -13573,6 +13608,9 @@ export const UpdateOrderDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                                 ],
                               },
                             },
