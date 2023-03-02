@@ -27,18 +27,17 @@ const GlobalHeaderRight: React.FC = () => {
 
   return (
     <>
+      <span
+        className={styles.action}
+        onClick={() => {
+          window.open('https://sites.google.com/luckywoman.com.co/documentacin-pos-toulouse/');
+        }}
+        style={{ marginRight: 5 }}
+      >
+        <QuestionCircleOutlined />
+      </span>
       <Row gutter={15} className={className}>
-        <Col xs={0} md={1}>
-          <span
-            className={styles.action}
-            onClick={() => {
-              window.open('https://sites.google.com/luckywoman.com.co/documentacin-pos-toulouse/');
-            }}
-          >
-            <QuestionCircleOutlined />
-          </span>
-        </Col>
-        <Col xs={0} md={22}>
+        <Col xs={0} md={24}>
           <Text style={{ fontSize: 13 }}>
             {initialState?.currentUser?.role.name} / {initialState?.currentUser?.shop.name}
           </Text>

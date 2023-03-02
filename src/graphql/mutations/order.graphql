@@ -13,6 +13,11 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
       available
     }
     order {
+      pointOfSale {
+        box {
+          name
+        }
+      }
       updatedAt
       _id
       number
@@ -121,6 +126,9 @@ mutation UpdateOrder($id: String!, $input: UpdateOrderInput!) {
         }
         shop {
           name
+          address
+          email
+          document
         }
         summary {
           total
