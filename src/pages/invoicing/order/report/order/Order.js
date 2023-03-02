@@ -79,6 +79,13 @@ const classes = {
     flexDirection: 'row',
     color: 'black',
   },
+  lineItems1: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    color: 'black',
+    marginTop: 5,
+  },
   spaceItems: {
     fontWeight: 600,
     color: 'black',
@@ -211,6 +218,16 @@ export default class OrderReport extends React.PureComponent {
             </div>
             <div style={{ marginLeft: 65, bottom: 13, fontSize: 10 }}>
               {data?.details?.reduce((sum, detail) => sum + detail?.quantity, 0)}
+            </div>
+          </div>
+          <div style={classes.lineItems1}>
+            <div style={classes.text}>
+              <span style={classes.spaceItems}>{'MEDIOS DE PAGO'}:</span>
+            </div>
+            <div style={{ marginLeft: 32, bottom: 20, fontSize: 10 }}>
+              {data?.payments?.map((payment) => (
+                <div key={payment.payment._id}>{payment?.payment?.name}</div>
+              ))}
             </div>
           </div>
           <hr className={style.hr} />
