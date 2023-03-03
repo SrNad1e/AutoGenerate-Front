@@ -39,6 +39,7 @@ import type {
   Customer,
   FiltersInvoicesInput,
   Invoice,
+  PaymentInvoice,
   ResponseInvoices,
   Shop,
   SummaryInvoice,
@@ -385,29 +386,18 @@ const InvoiceList = () => {
       render: (summary: SummaryInvoice) => numeral(summary?.total).format('$ 0,0'),
     },
     {
-      title: 'Activo',
-      dataIndex: 'active',
+      title: 'Medios de pago',
+      dataIndex: 'payments',
       align: 'center',
-      render: (active: boolean) => {
-        return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
+      render: (payments: PaymentInvoice[]) => {
+        return (
+          <>
+            {payments?.map((payment: PaymentInvoice) => {
+              return <Tag>{payment?.payment?.name}</Tag>;
+            })}
+          </>
+        );
       },
-      filterMultiple: false,
-      filteredValue: filterTable?.active || null,
-      filterDropdown: (props) => (
-        <Filters
-          props={props}
-          data={[
-            {
-              text: 'Si',
-              value: true,
-            },
-            {
-              text: 'No',
-              value: false,
-            },
-          ]}
-        />
-      ),
     },
     {
       title: (
