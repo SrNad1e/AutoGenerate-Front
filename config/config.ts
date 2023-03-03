@@ -8,7 +8,7 @@ const { REACT_APP_ENV, API_URL, CDN_URL, FORMAT_DATE, FORMAT_DATE_API } = proces
 
 export default defineConfig({
   define: {
-    API_URL: API_URL || 'http://192.168.70.254:8080',
+    API_URL: API_URL || 'http://ecs-alb-cirotex-cluster-154363975.us-east-1.elb.amazonaws.com',
     CDN_URL: CDN_URL || 'https://toulouse-storage.s3.amazonaws.com',
     FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD HH:mm:ss',
