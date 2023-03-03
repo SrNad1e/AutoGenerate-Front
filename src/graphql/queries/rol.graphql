@@ -4,6 +4,7 @@ query roleId($id: String!) {
     name
     changeWarehouse
     active
+    rank
     user {
       name
     }
@@ -22,6 +23,7 @@ query roles($input: FiltersRolesInput) {
       _id
       changeWarehouse
       name
+      rank
       active
       permissions {
         description

@@ -4,6 +4,7 @@ mutation createRole($input: CreateRoleInput!) {
     active
     changeWarehouse
     name
+    rank
     permissions {
       _id
     }
@@ -16,6 +17,7 @@ mutation updateRole($id: String!, $input: UpdateRoleInput!) {
     active
     changeWarehouse
     name
+    rank
     permissions {
       _id
     }

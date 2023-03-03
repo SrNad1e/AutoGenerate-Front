@@ -519,8 +519,6 @@ export type Company = {
   document: Scalars['String'];
   /** Correo de la compañia */
   email: Scalars['String'];
-  /** Es la compañía principal */
-  isMain: Scalars['Boolean'];
   /** Url del logo de la compañía */
   logo: Scalars['String'];
   /** Nombre de la compañía */
@@ -964,6 +962,8 @@ export type CreateRoleInput = {
   name: Scalars['String'];
   /** Identificadores de los permisos asignados */
   permissionIds: Scalars['String'][];
+  /** Orden por gerarquía */
+  rank?: InputMaybe<Scalars['Float']>;
 };
 
 /** Datos para la creación de la tienda */
@@ -1066,8 +1066,6 @@ export type CreateStockTransferInput = {
 
 /** Datos para la creación de un usuario */
 export type CreateUserInput = {
-  /** Compañía a la que pertecene el usuario */
-  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Identifica si el usuario es web */
@@ -1153,6 +1151,8 @@ export type CreditHistory = {
 /** Cliente */
 export type Customer = {
   __typename?: 'Customer';
+  /** Fecha de mayorista */
+  WolesalerDate?: Maybe<Scalars['DateTime']>;
   /** Identificador de mongo */
   _id: Scalars['String'];
   /** Se encuentra activo el usuario */
@@ -1173,8 +1173,6 @@ export type Customer = {
   email?: Maybe<Scalars['String']>;
   /** Nombres del cliente */
   firstName: Scalars['String'];
-  /** Primera compra del cliente */
-  firstPurchase: Scalars['Boolean'];
   /** Cliente por defecto */
   isDefault: Scalars['Boolean'];
   /** Número telefonico tiene whatsapp */
@@ -1187,8 +1185,6 @@ export type Customer = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el cliente */
   user: User;
-  /** Fecha de mayorista */
-  wolesalerDate?: Maybe<Scalars['DateTime']>;
 };
 
 /** Ventas de tipos de clientes */
@@ -2044,8 +2040,6 @@ export type FiltersInvoicesInput = {
   limit?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
-  /** Identificador de los medios de pago */
-  paymentIds?: InputMaybe<Scalars['String'][]>;
   /** Identificador del punto de venta */
   pointOfSaleId?: InputMaybe<Scalars['String']>;
   /** Identificador de la tienda */
@@ -5008,6 +5002,8 @@ export type Role = {
   name: Scalars['String'];
   /** Permisos al los quie tiene el rol */
   permissions: Permission[];
+  /** Orden por gerarquía */
+  rank: Scalars['Float'];
   /** Fecha en la que se actualizó el rol */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o modificó el rol */
@@ -5040,8 +5036,6 @@ export type SalesReport = {
   __typename?: 'SalesReport';
   /** Categoría */
   category?: Maybe<CategoryLevel1>;
-  /** Fecha de la venta */
-  date: Scalars['DateTime'];
   /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
   quantity: Scalars['Float'];
   /** Tienda */
@@ -6273,6 +6267,8 @@ export type UpdateRoleInput = {
   name: Scalars['String'];
   /** Identificadores de los permisos seleccionados */
   permissionIds?: InputMaybe<Scalars['String'][]>;
+  /** Orden por gerarquía */
+  rank?: InputMaybe<Scalars['Float']>;
 };
 
 /** Datos para actualizar la tienda */
@@ -6371,8 +6367,6 @@ export type UpdateStockTransferInput = {
 
 /** Datos para actualizar el usuario */
 export type UpdateUserInput = {
-  /** Compañía a la que pertecene el usuario */
-  companyId?: InputMaybe<Scalars['String']>;
   /** Identificador del cliente asignado al usuario */
   customerId?: InputMaybe<Scalars['String']>;
   /** Identifica si el usuario es web */
@@ -7812,6 +7806,7 @@ export type CreateRoleMutation = {
     active: boolean;
     changeWarehouse: boolean;
     name: string;
+    rank: number;
     permissions: { __typename?: 'Permission'; _id: string }[];
   };
 };
@@ -7829,6 +7824,7 @@ export type UpdateRoleMutation = {
     active: boolean;
     changeWarehouse: boolean;
     name: string;
+    rank: number;
     permissions: { __typename?: 'Permission'; _id: string }[];
   };
 };
@@ -10105,6 +10101,7 @@ export type RoleIdQuery = {
     name: string;
     changeWarehouse: boolean;
     active: boolean;
+    rank: number;
     user: { __typename?: 'User'; name: string };
     permissions: { __typename?: 'Permission'; _id: string }[];
   };
@@ -10126,6 +10123,7 @@ export type RolesQuery = {
       _id: string;
       changeWarehouse: boolean;
       name: string;
+      rank: number;
       active: boolean;
       permissions: { __typename?: 'Permission'; description: string }[];
     }[];
@@ -15233,6 +15231,7 @@ export const CreateRoleDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'permissions' },
@@ -15299,6 +15298,7 @@ export const UpdateRoleDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'permissions' },
@@ -22293,6 +22293,7 @@ export const RoleIdDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'user' },
@@ -22359,6 +22360,7 @@ export const RolesDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                       {
                         kind: 'Field',
