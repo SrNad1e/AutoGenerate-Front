@@ -1,6 +1,6 @@
 import SelectShop from '@/components/SelectShop';
 import { GroupDates } from '@/graphql/graphql';
-import { useReportSales } from '@/hooks/reportSales.hooks';
+import { useGetReportSales } from '@/hooks/reportSales.hooks';
 import { Button, Card, Col, DatePicker, Form, InputNumber, Modal, Row, Typography } from 'antd';
 import type { RangePickerProps } from 'antd/lib/date-picker';
 import numeral from 'numeral';
@@ -35,7 +35,7 @@ const ModalInvoicing = ({ open, onCancel }: Props) => {
 
   const refCash = useRef(null);
 
-  const [reportSales, { loading, data }] = useReportSales();
+  const [reportSales, { loading, data }] = useGetReportSales();
 
   const [generateInvoicing, dataInvoicing] = useInvoicing();
 

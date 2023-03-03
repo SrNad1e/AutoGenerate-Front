@@ -67,6 +67,14 @@ export enum ActionProductsOrder {
   Update = 'UPDATE',
 }
 
+/** Datos para agregar historial de metas a la tienda */
+export type AddGoalHistoryInput = {
+  /** Historico de metas */
+  goalHistory?: InputMaybe<GoalHistoryInput>;
+  /** Id de la tienda a la cual se va agregar el historico */
+  shopId: Scalars['String'];
+};
+
 /** Datos para agregar medios de pago al pedido */
 export type AddPaymentsOrderInput = {
   /** Id del pedido que se requiere agreagar o editar productos */
@@ -312,6 +320,8 @@ export type CategoryLevel1 = {
   _id: Scalars['String'];
   /** Nombre de la categoría */
   childs?: Maybe<CategoryLevel2[]>;
+  /** Compañía */
+  company: Company;
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -329,6 +339,8 @@ export type CategoryLevel2 = {
   _id: Scalars['String'];
   /** Categorías inferiores */
   childs?: Maybe<CategoryLevel3[]>;
+  /** Compañía */
+  company: Company;
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -346,6 +358,8 @@ export type CategoryLevel3 = {
   __typename?: 'CategoryLevel3';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Compañía */
+  company: Company;
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -519,7 +533,7 @@ export type Company = {
   document: Scalars['String'];
   /** Correo de la compañia */
   email: Scalars['String'];
-  /** Es la compañía principal */
+  /** Si la compañia es principal */
   isMain: Scalars['Boolean'];
   /** Url del logo de la compañía */
   logo: Scalars['String'];
@@ -861,6 +875,8 @@ export type CreatePaymentInput = {
   message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name: Scalars['String'];
+  /** Identificador de tiendas que usan el método de pago */
+  shopIds: Scalars['String'][];
   /** Tipo de método de pago */
   type: TypePayment;
 };
@@ -1200,6 +1216,21 @@ export type CustomerSalesReport = {
   typeCustomer: CustomerType;
 };
 
+/** Ventas de tipos de clientes */
+export type CustomerSalesReportInvoicing = {
+  __typename?: 'CustomerSalesReportInvoicing';
+  /** Nombre del cliente */
+  customerName: Scalars['String'];
+  /** Numero documento del cliente */
+  document: Scalars['String'];
+  /** Cantidad de ventas */
+  quantity: Scalars['Float'];
+  /** Valor total de las ventas */
+  total: Scalars['Float'];
+  /** Tipo de cliente */
+  typeCustomer: CustomerType;
+};
+
 /** Tipos de clientes */
 export type CustomerType = {
   __typename?: 'CustomerType';
@@ -1328,6 +1359,8 @@ export type DetailInvoice = {
   product: Product;
   /** Cantidad de productos en la factura */
   quantity: Scalars['Float'];
+  /** Impuestos */
+  tax: Scalars['Float'];
 };
 
 /** Productos del pedido */
@@ -1713,6 +1746,8 @@ export type FiltersBrandsInput = {
 export type FiltersCategoriesInput = {
   /** Identificador de la categoría padre */
   _id?: InputMaybe<Scalars['String']>;
+  /** Compañía */
+  companyId?: InputMaybe<Scalars['String']>;
   /** Cantidad de registros */
   limit?: InputMaybe<Scalars['Float']>;
   /** Nombre de la categoría */
@@ -1727,6 +1762,8 @@ export type FiltersCategoriesInput = {
 export type FiltersCategoriesLevelInput = {
   /** Identificador de la categoría */
   _id?: InputMaybe<Scalars['String']>;
+  /** Compañía */
+  companyId?: InputMaybe<Scalars['String']>;
   /** Nivel de categoria */
   level: Scalars['Float'];
   /** Cantidad de registros */
@@ -2090,6 +2127,8 @@ export type FiltersPaymentsInput = {
   name?: InputMaybe<Scalars['String']>;
   /** Página actual */
   page?: InputMaybe<Scalars['Float']>;
+  /** Tienda para consultar el medio de pago */
+  shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento */
   sort?: InputMaybe<SortPayment>;
   /** Tipo de medio de pago (cash, bank, credit, bonus) */
@@ -2261,6 +2300,16 @@ export type FiltersSalesReportInput = {
   shopId?: InputMaybe<Scalars['String']>;
 };
 
+/** Filtros para el reporte de ventas */
+export type FiltersSalesReportInvoicingInput = {
+  /** Fecha final del reporte */
+  dateFinal: Scalars['String'];
+  /** Fecha inicial del reporte */
+  dateInitial: Scalars['String'];
+  /** Id de la tienda */
+  shopId?: InputMaybe<Scalars['String']>;
+};
+
 /** Filtros usados para consultar las tiendas */
 export type FiltersShopsInput = {
   /** Identificador de la tienda */
@@ -2322,6 +2371,24 @@ export type FiltersStockAdjustmentsInput = {
   /** Valor total de la entrada */
   total?: InputMaybe<Scalars['Float']>;
   /** Id de la bodega */
+  warehouseId?: InputMaybe<Scalars['String']>;
+};
+
+/** Filtros para la lista de inventarios */
+export type FiltersStockInput = {
+  /** Id de color */
+  colorId?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Comodín para la busqueda del producto, barcode, reference, description */
+  name?: InputMaybe<Scalars['String']>;
+  /** Página actual */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Id de talla */
+  sizeId?: InputMaybe<Scalars['String']>;
+  /** Estado del producto */
+  status?: InputMaybe<Scalars['String']>;
+  /** Bodega de inventario o "all" para traer todos los inventarios */
   warehouseId?: InputMaybe<Scalars['String']>;
 };
 
@@ -2469,8 +2536,29 @@ export type GenerateDailyClosingInput = {
   dateFinal: Scalars['String'];
   /** Fecha inicial */
   dateInitial: Scalars['String'];
-  /** Id de punto de venta */
-  pointOfSaleId: Scalars['String'];
+  /** Id de la tienda */
+  shopId: Scalars['String'];
+};
+
+/** Historial de metas de la tienda */
+export type GoalHistory = {
+  __typename?: 'GoalHistory';
+  /** Fecha del registro */
+  date: Scalars['DateTime'];
+  /** Meta de la tienda */
+  goal: Scalars['Float'];
+  /** Meta alcanzada por la tienda */
+  goalAchieved: Scalars['Float'];
+};
+
+/** Historial de meta que se va agregar a la tienda */
+export type GoalHistoryInput = {
+  /** Fecha del registro */
+  date: Scalars['DateTime'];
+  /** Meta de la tienda */
+  goal: Scalars['Float'];
+  /** Meta alcanzada por la tienda */
+  goalAchieved?: InputMaybe<Scalars['Float']>;
 };
 
 export enum GroupDates {
@@ -2505,6 +2593,23 @@ export type ImageTypes = {
   medium: Scalars['String'];
   /** Enlace de imagen pequeña */
   small: Scalars['String'];
+};
+
+/** Inventarios */
+export type InventoryReport = {
+  __typename?: 'InventoryReport';
+  /** Codigo de barras */
+  barcode: Scalars['String'];
+  /** Color del producto */
+  color: Color;
+  /** bodega del producto */
+  productWarehouse?: Maybe<Warehouse>;
+  /** Referencia del producto */
+  reference: Reference;
+  /** Talla del producto */
+  size: Size;
+  /** Bodega */
+  stock?: Maybe<StockProduct>;
 };
 
 /** Factura */
@@ -2559,6 +2664,8 @@ export type LoginUserInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  /** Se encarga de agregar un historico de meta a una tienda */
+  addGoalHistory: Shop;
   /** Se encarga de agregar medios de pago */
   addPaymentsOrder: ResponseOrder;
   /** Se encarga de agregar productos a un pedido */
@@ -2707,6 +2814,10 @@ export type Mutation = {
   verifiedErrorsCash: ErrorCash;
   /** Verifica un producto de un traslado en error */
   verifiedProductStockTransfer: StockTransferError;
+};
+
+export type MutationAddGoalHistoryArgs = {
+  AddGoalHistoryInput: AddGoalHistoryInput;
 };
 
 export type MutationAddPaymentsOrderArgs = {
@@ -3082,7 +3193,7 @@ export type Order = {
   /** Métodos de pago usados en el pedido */
   payments?: Maybe<PaymentOrder[]>;
   /** Punto de venta asigando */
-  pointOfSale: PointOfSale;
+  pointOfSale?: Maybe<PointOfSale>;
   /** Tienda donde se solicita el pedido */
   shop: Shop;
   /** Estado del pedido */
@@ -3114,6 +3225,8 @@ export type Payment = {
   message?: Maybe<Scalars['String']>;
   /** Nombre del medio de pago */
   name: Scalars['String'];
+  /** Tipo de medio de pago */
+  shops: Shop[];
   /** Tipo de medio de pago */
   type: TypePayment;
   /** Fecha de actualización */
@@ -3203,6 +3316,17 @@ export type PaymentsSalesReport = {
   total: Scalars['Float'];
 };
 
+/** Medios de pago */
+export type PaymentsSalesReportInvoicing = {
+  __typename?: 'PaymentsSalesReportInvoicing';
+  /** Medio de pago */
+  payment: Payment;
+  /** Cantidad de veces de uso del medio de pago */
+  quantity: Scalars['Float'];
+  /** Valor total recaudado con el recibo de pago */
+  total: Scalars['Float'];
+};
+
 /** Permisos a los que tiene el usuario */
 export type Permission = {
   __typename?: 'Permission';
@@ -3250,6 +3374,7 @@ export enum Permissions {
   AccessInventoryOutputs = 'ACCESS_INVENTORY_OUTPUTS',
   AccessInventoryProducts = 'ACCESS_INVENTORY_PRODUCTS',
   AccessInventoryReferences = 'ACCESS_INVENTORY_REFERENCES',
+  AccessInventoryReports = 'ACCESS_INVENTORY_REPORTS',
   AccessInventoryRequests = 'ACCESS_INVENTORY_REQUESTS',
   AccessInventorySizes = 'ACCESS_INVENTORY_SIZES',
   AccessInventoryTransfers = 'ACCESS_INVENTORY_TRANSFERS',
@@ -3343,6 +3468,7 @@ export enum Permissions {
   ReadInvoicingOrders = 'READ_INVOICING_ORDERS',
   ReadInvoicingPointofsales = 'READ_INVOICING_POINTOFSALES',
   ReadInvoicingReturns = 'READ_INVOICING_RETURNS',
+  ReadStockProducts = 'READ_STOCK_PRODUCTS',
   ReadTreasuryBoxes = 'READ_TREASURY_BOXES',
   ReadTreasuryErrorsCash = 'READ_TREASURY_ERRORS_CASH',
   ReadTreasuryExpenses = 'READ_TREASURY_EXPENSES',
@@ -3435,6 +3561,27 @@ export type Product = {
   user: User;
 };
 
+/** Detalle del producto */
+export type ProductDetail = {
+  __typename?: 'ProductDetail';
+  /** Codigo de barras del producto */
+  barcode: Scalars['String'];
+  /** Marca del producto */
+  brand: Scalars['String'];
+  /** Categoria nivel 1 del producto */
+  categoryLevel1: Scalars['String'];
+  /** Color del producto */
+  color: Scalars['String'];
+  /** Costo del producto */
+  cost: Scalars['Float'];
+  /** Nombre del producto */
+  name: Scalars['String'];
+  /** Precio del producto */
+  price: Scalars['Float'];
+  /** Talla del producto */
+  size: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   /** Listado de atributos */
@@ -3511,6 +3658,8 @@ export type Query = {
   pointOfSales: ResponsePointOfSales;
   /** Obtiene un producto */
   product: Product;
+  /** Consulta el stock de los productos */
+  productStock: ResponseStock;
   /** Lista los productos */
   products: ResponseProducts;
   /** Se encarga de listar los metodos de pago */
@@ -3521,6 +3670,8 @@ export type Query = {
   references: ResponseReferences;
   /** Consulta las ventas por rango de fechas */
   reportSales: ResponseReportSales;
+  /** Consulta las ventas por rango de fechas */
+  reportSalesInvoicing: ResponseReportSalesInvoicing;
   /** Lista de devoluciones de pedidos */
   returnsOrder: ResponseReturnsOrder;
   /** Obtiene el rol por el identificador */
@@ -3699,6 +3850,10 @@ export type QueryProductArgs = {
   filtersProductInput?: InputMaybe<FiltersProductInput>;
 };
 
+export type QueryProductStockArgs = {
+  filtersProductStock?: InputMaybe<FiltersStockInput>;
+};
+
 export type QueryProductsArgs = {
   filtersProductsInput?: InputMaybe<FiltersProductsInput>;
 };
@@ -3719,6 +3874,10 @@ export type QueryReferencesArgs = {
 
 export type QueryReportSalesArgs = {
   filtersSalesReportInput: FiltersSalesReportInput;
+};
+
+export type QueryReportSalesInvoicingArgs = {
+  filtersSalesReportInput: FiltersSalesReportInvoicingInput;
 };
 
 export type QueryReturnsOrderArgs = {
@@ -4670,6 +4829,19 @@ export type ResponseReportSales = {
   summarySalesReport?: Maybe<SummarySalesReport>;
 };
 
+/** Reportde de ventas generales */
+export type ResponseReportSalesInvoicing = {
+  __typename?: 'ResponseReportSalesInvoicing';
+  /** Ventas por tipo de cliente */
+  customersSalesReport?: Maybe<CustomerSalesReportInvoicing[]>;
+  /** Medios de pago */
+  paymentsSalesReport?: Maybe<PaymentsSalesReportInvoicing[]>;
+  /** Ventas detalladas */
+  salesReport?: Maybe<SalesReportInvoicing[]>;
+  /** Resumen de ventas */
+  summarySalesReport?: Maybe<SummarySalesReportInvoicing>;
+};
+
 /** Lista de devoluciones de ordenes */
 export type ResponseReturnsOrder = {
   __typename?: 'ResponseReturnsOrder';
@@ -4747,6 +4919,30 @@ export type ResponseSizes = {
   __typename?: 'ResponseSizes';
   /** Lista de tallas */
   docs: Size[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta al listado de los productos */
+export type ResponseStock = {
+  __typename?: 'ResponseStock';
+  /** Lista de productos con inventario */
+  docs: InventoryReport[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -5042,6 +5238,19 @@ export type SalesReport = {
   total: Scalars['Float'];
 };
 
+/** Ventas detalladas con base a los filtros */
+export type SalesReportInvoicing = {
+  __typename?: 'SalesReportInvoicing';
+  /** Categoría */
+  category?: Maybe<CategoryLevel1>;
+  /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
+  quantity: Scalars['Float'];
+  /** Tienda */
+  shop: Shop;
+  /** Valor total de la venta */
+  total: Scalars['Float'];
+};
+
 /** Datos de medidas para el envío de los productos */
 export type Shipping = {
   __typename?: 'Shipping';
@@ -5083,6 +5292,8 @@ export type Shop = {
   email?: Maybe<Scalars['String']>;
   /** Meta asiganda a la tienda */
   goal: Scalars['Float'];
+  /** Historico de metas de la tienda */
+  goalHistory?: Maybe<GoalHistory[]>;
   /** Es centro de distribución */
   isMain: Scalars['Boolean'];
   /** Nombre de la tienda */
@@ -5779,6 +5990,21 @@ export type StockOutput = {
   warehouse: Warehouse;
 };
 
+/** Inventario por bodegas del producto */
+export type StockProduct = {
+  __typename?: 'StockProduct';
+  /** Fecha de creación del dato de envio */
+  createdAt: Scalars['DateTime'];
+  /** Cantidad de productos en la bodega */
+  quantity: Scalars['Float'];
+  /** Fecha de actualización del dato de envio */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que crea los datos de envío */
+  user: User;
+  /** Identificador de la bodega */
+  warehouse?: Maybe<Warehouse>;
+};
+
 /** Solicitud de productos */
 export type StockRequest = {
   __typename?: 'StockRequest';
@@ -5943,6 +6169,25 @@ export type SummarySalesReport = {
   cmv: Scalars['Float'];
   /** Margen de ventas en porcentaje */
   margin: Scalars['Float'];
+  /** Cantidad de ventas */
+  quantity: Scalars['Float'];
+  /** Valor total de las ventas */
+  total: Scalars['Float'];
+};
+
+/** Resumen de ventas */
+export type SummarySalesReportInvoicing = {
+  __typename?: 'SummarySalesReportInvoicing';
+  /** Fecha de cierre de la venta */
+  closeDate: Scalars['DateTime'];
+  /** CMV */
+  cmv: Scalars['Float'];
+  /** Identificador de la venta */
+  idOrder: Scalars['String'];
+  /** Margen de ventas en porcentaje */
+  margin: Scalars['Float'];
+  /** Productos de la venta */
+  products: ProductDetail[];
   /** Cantidad de ventas */
   quantity: Scalars['Float'];
   /** Valor total de las ventas */
@@ -6185,6 +6430,8 @@ export type UpdatePaymentInput = {
   message?: InputMaybe<Scalars['String']>;
   /** Nombre del método de pago */
   name?: InputMaybe<Scalars['String']>;
+  /** Identificador de tiendas que usan el método de pago */
+  shopIds?: InputMaybe<Scalars['String'][]>;
   /** Tipo de método de pago */
   type?: InputMaybe<TypePayment>;
 };
@@ -7164,6 +7411,10 @@ export type UpdateOrderMutation = {
       _id: string;
       number: number;
       status: StatusOrder;
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        box: { __typename?: 'Box'; name: string };
+      } | null;
       user: { __typename?: 'User'; name: string };
       customer: {
         __typename?: 'Customer';
@@ -7259,7 +7510,13 @@ export type UpdateOrderMutation = {
               payment: { __typename?: 'Payment'; _id: string; name: string };
             }[]
           | null;
-        shop: { __typename?: 'Shop'; name: string };
+        shop: {
+          __typename?: 'Shop';
+          name: string;
+          address?: string | null;
+          email?: string | null;
+          document?: string | null;
+        };
         summary: {
           __typename?: 'SummaryInvoice';
           total: number;
@@ -7839,6 +8096,15 @@ export type UpdateShopMutationVariables = Exact<{
 export type UpdateShopMutation = {
   __typename?: 'Mutation';
   updateShop: { __typename?: 'Shop'; name: string; _id: string };
+};
+
+export type AddGoalHistoryMutationVariables = Exact<{
+  input: AddGoalHistoryInput;
+}>;
+
+export type AddGoalHistoryMutation = {
+  __typename?: 'Mutation';
+  addGoalHistory: { __typename?: 'Shop'; goal: number };
 };
 
 export type CreateSizeMutationVariables = Exact<{
@@ -9144,49 +9410,6 @@ export type InvoicesQuery = {
   };
 };
 
-export type ReportSalesQueryVariables = Exact<{
-  input: FiltersSalesReportInput;
-}>;
-
-export type ReportSalesQuery = {
-  __typename?: 'Query';
-  reportSales: {
-    __typename?: 'ResponseReportSales';
-    customersSalesReport?:
-      | {
-          __typename?: 'CustomerSalesReport';
-          quantity: number;
-          total: number;
-          typeCustomer: { __typename?: 'CustomerType'; name: string };
-        }[]
-      | null;
-    paymentsSalesReport?:
-      | {
-          __typename?: 'PaymentsSalesReport';
-          quantity: number;
-          total: number;
-          payment: { __typename?: 'Payment'; name: string };
-        }[]
-      | null;
-    salesReport?:
-      | {
-          __typename?: 'SalesReport';
-          quantity: number;
-          total: number;
-          category?: { __typename?: 'CategoryLevel1'; name: string } | null;
-          shop: { __typename?: 'Shop'; name: string };
-        }[]
-      | null;
-    summarySalesReport?: {
-      __typename?: 'SummarySalesReport';
-      cmv: number;
-      margin: number;
-      quantity: number;
-      total: number;
-    } | null;
-  };
-};
-
 export type OrderIdQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
@@ -9205,6 +9428,10 @@ export type OrderIdQuery = {
       number: number;
       updatedAt: any;
       createdAt: any;
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        box: { __typename?: 'Box'; name: string };
+      } | null;
       invoice?: {
         __typename?: 'Invoice';
         createdAt: any;
@@ -9253,7 +9480,13 @@ export type OrderIdQuery = {
           tax: number;
           subtotal: number;
         };
-        shop: { __typename?: 'Shop'; name: string };
+        shop: {
+          __typename?: 'Shop';
+          name: string;
+          address?: string | null;
+          email?: string | null;
+          document?: string | null;
+        };
         details?:
           | {
               __typename?: 'DetailInvoice';
@@ -9494,6 +9727,10 @@ export type OrdersQuery = {
             payment: { __typename?: 'Payment'; name: string; type: TypePayment };
           }[]
         | null;
+      pointOfSale?: {
+        __typename?: 'PointOfSale';
+        box: { __typename?: 'Box'; name: string };
+      } | null;
       summary: {
         __typename?: 'SummaryOrder';
         total: number;
@@ -9510,7 +9747,13 @@ export type OrdersQuery = {
         phone?: string | null;
         customerType: { __typename?: 'CustomerType'; name: string };
       };
-      shop: { __typename?: 'Shop'; name: string };
+      shop: {
+        __typename?: 'Shop';
+        name: string;
+        address?: string | null;
+        email?: string | null;
+        document?: string | null;
+      };
       user: { __typename?: 'User'; name: string };
       details?:
         | {
@@ -9652,6 +9895,7 @@ export type PaymentsQuery = {
       type: TypePayment;
       color?: string | null;
       user: { __typename?: 'User'; name: string };
+      shops: { __typename?: 'Shop'; name: string; _id: string }[];
       logo?: {
         __typename?: 'Image';
         _id: string;
@@ -9773,6 +10017,42 @@ export type ProductQuery = {
   };
 };
 
+export type ProductStockQueryVariables = Exact<{
+  input?: InputMaybe<FiltersStockInput>;
+}>;
+
+export type ProductStockQuery = {
+  __typename?: 'Query';
+  productStock: {
+    __typename?: 'ResponseStock';
+    limit: number;
+    page: number;
+    totalDocs: number;
+    totalPages: number;
+    docs: {
+      __typename?: 'InventoryReport';
+      barcode: string;
+      productWarehouse?: { __typename?: 'Warehouse'; name: string; _id: string } | null;
+      color: {
+        __typename?: 'Color';
+        name: string;
+        name_internal: string;
+        html: string;
+        image?: {
+          __typename?: 'Image';
+          urls?: {
+            __typename?: 'Urls';
+            webp?: { __typename?: 'ImageTypes'; small: string } | null;
+          } | null;
+        } | null;
+      };
+      reference: { __typename?: 'Reference'; name: string; description: string };
+      size: { __typename?: 'Size'; value: string };
+      stock?: { __typename?: 'StockProduct'; quantity: number } | null;
+    }[];
+  };
+};
+
 export type ReceiptsQueryVariables = Exact<{
   input?: InputMaybe<FiltersReceiptsInput>;
 }>;
@@ -9815,6 +10095,7 @@ export type ReferenceIdQuery = {
     description: string;
     name: string;
     price: number;
+    companies: { __typename?: 'Company'; isMain: boolean }[];
     attribs?:
       | {
           __typename?: 'Attrib';
@@ -9925,6 +10206,102 @@ export type ReferencesQuery = {
       changeable: boolean;
       updatedAt: any;
     }[];
+  };
+};
+
+export type ReportSalesInvoicingQueryVariables = Exact<{
+  input: FiltersSalesReportInvoicingInput;
+}>;
+
+export type ReportSalesInvoicingQuery = {
+  __typename?: 'Query';
+  reportSalesInvoicing: {
+    __typename?: 'ResponseReportSalesInvoicing';
+    summarySalesReport?: {
+      __typename?: 'SummarySalesReportInvoicing';
+      idOrder: string;
+      total: number;
+      quantity: number;
+      margin: number;
+      cmv: number;
+      closeDate: any;
+      products: {
+        __typename?: 'ProductDetail';
+        name: string;
+        barcode: string;
+        price: number;
+        cost: number;
+        color: string;
+        size: string;
+        brand: string;
+        categoryLevel1: string;
+      }[];
+    } | null;
+    salesReport?:
+      | {
+          __typename?: 'SalesReportInvoicing';
+          total: number;
+          quantity: number;
+          category?: { __typename?: 'CategoryLevel1'; _id: string } | null;
+          shop: { __typename?: 'Shop'; name: string };
+        }[]
+      | null;
+    paymentsSalesReport?:
+      | { __typename?: 'PaymentsSalesReportInvoicing'; total: number; quantity: number }[]
+      | null;
+    customersSalesReport?:
+      | {
+          __typename?: 'CustomerSalesReportInvoicing';
+          total: number;
+          quantity: number;
+          customerName: string;
+          document: string;
+          typeCustomer: { __typename?: 'CustomerType'; name: string };
+        }[]
+      | null;
+  };
+};
+
+export type ReportSalesQueryVariables = Exact<{
+  input: FiltersSalesReportInput;
+}>;
+
+export type ReportSalesQuery = {
+  __typename?: 'Query';
+  reportSales: {
+    __typename?: 'ResponseReportSales';
+    customersSalesReport?:
+      | {
+          __typename?: 'CustomerSalesReport';
+          quantity: number;
+          total: number;
+          typeCustomer: { __typename?: 'CustomerType'; name: string };
+        }[]
+      | null;
+    paymentsSalesReport?:
+      | {
+          __typename?: 'PaymentsSalesReport';
+          quantity: number;
+          total: number;
+          payment: { __typename?: 'Payment'; name: string };
+        }[]
+      | null;
+    salesReport?:
+      | {
+          __typename?: 'SalesReport';
+          quantity: number;
+          total: number;
+          category?: { __typename?: 'CategoryLevel1'; name: string } | null;
+          shop: { __typename?: 'Shop'; name: string };
+        }[]
+      | null;
+    summarySalesReport?: {
+      __typename?: 'SummarySalesReport';
+      cmv: number;
+      margin: number;
+      quantity: number;
+      total: number;
+    } | null;
   };
 };
 
@@ -10144,6 +10521,9 @@ export type ShopsQuery = {
       companyName?: string | null;
       phone?: string | null;
       isMain: boolean;
+      goalHistory?:
+        | { __typename?: 'GoalHistory'; date: any; goal: number; goalAchieved: number }[]
+        | null;
       user: { __typename?: 'User'; name: string };
       defaultWarehouse: { __typename?: 'Warehouse'; name: string; _id: string };
       warehouseMain?: { __typename?: 'Warehouse'; name: string; _id: string } | null;
@@ -10339,7 +10719,7 @@ export type CurrentUserQuery = {
       _id: string;
       box: { __typename?: 'Box'; _id: string };
     } | null;
-    company: { __typename?: 'Company'; name: string; _id: string };
+    company: { __typename?: 'Company'; name: string; _id: string; isMain: boolean };
     shop: {
       __typename?: 'Shop';
       _id: string;
@@ -12884,6 +13264,25 @@ export const UpdateOrderDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'box' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
@@ -13209,6 +13608,9 @@ export const UpdateOrderDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                                 ],
                               },
                             },
@@ -15401,6 +15803,46 @@ export const UpdateShopDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateShopMutation, UpdateShopMutationVariables>;
+export const AddGoalHistoryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'addGoalHistory' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AddGoalHistoryInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'addGoalHistory' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'AddGoalHistoryInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'goal' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AddGoalHistoryMutation, AddGoalHistoryMutationVariables>;
 export const CreateSizeDocument = {
   kind: 'Document',
   definitions: [
@@ -19384,125 +19826,6 @@ export const InvoicesDocument = {
     },
   ],
 } as unknown as DocumentNode<InvoicesQuery, InvoicesQueryVariables>;
-export const ReportSalesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'reportSales' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersSalesReportInput' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'reportSales' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'filtersSalesReportInput' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'customersSalesReport' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'typeCustomer' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'paymentsSalesReport' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'payment' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'salesReport' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'category' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'shop' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                        },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'summarySalesReport' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'cmv' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'margin' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ReportSalesQuery, ReportSalesQueryVariables>;
 export const OrderIdDocument = {
   kind: 'Document',
   definitions: [
@@ -19553,6 +19876,25 @@ export const OrderIdDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'box' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'statusWeb' } },
                       {
@@ -19696,6 +20038,9 @@ export const OrderIdDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'document' } },
                                 ],
                               },
                             },
@@ -20391,6 +20736,25 @@ export const OrdersDocument = {
                           ],
                         },
                       },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'pointOfSale' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'box' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
@@ -20436,7 +20800,12 @@ export const OrdersDocument = {
                         name: { kind: 'Name', value: 'shop' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                          ],
                         },
                       },
                       {
@@ -20877,6 +21246,17 @@ export const PaymentsDocument = {
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'message' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shops' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'type' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'color' } },
                       {
@@ -21296,6 +21676,141 @@ export const ProductDocument = {
     },
   ],
 } as unknown as DocumentNode<ProductQuery, ProductQueryVariables>;
+export const ProductStockDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ProductStock' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersStockInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'productStock' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersProductStock' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'productWarehouse' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'color' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name_internal' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'html' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'image' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'urls' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'webp' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: { kind: 'Name', value: 'small' },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'reference' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'size' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'value' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'stock' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'limit' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ProductStockQuery, ProductStockQueryVariables>;
 export const ReceiptsDocument = {
   kind: 'Document',
   definitions: [
@@ -21420,6 +21935,14 @@ export const ReferenceIdDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'companies' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'isMain' } }],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'attribs' },
@@ -21705,6 +22228,260 @@ export const ReferencesDocument = {
     },
   ],
 } as unknown as DocumentNode<ReferencesQuery, ReferencesQueryVariables>;
+export const ReportSalesInvoicingDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'reportSalesInvoicing' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'FiltersSalesReportInvoicingInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'reportSalesInvoicing' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersSalesReportInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'summarySalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'idOrder' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'margin' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'cmv' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'closeDate' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'products' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'barcode' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'price' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'cost' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'color' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'brand' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'categoryLevel1' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'salesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'category' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'paymentsSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'customersSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'typeCustomer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'customerName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReportSalesInvoicingQuery, ReportSalesInvoicingQueryVariables>;
+export const ReportSalesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'reportSales' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersSalesReportInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'reportSales' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersSalesReportInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'customersSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'typeCustomer' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'paymentsSalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'payment' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'salesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'category' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'summarySalesReport' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'cmv' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'margin' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReportSalesQuery, ReportSalesQueryVariables>;
 export const StockRequestDocument = {
   kind: 'Document',
   definitions: [
@@ -22406,6 +23183,18 @@ export const ShopsDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'goalHistory' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'date' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'goal' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'goalAchieved' } },
+                          ],
+                        },
+                      },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       {
@@ -23138,6 +23927,18 @@ export const CurrentUserDocument = {
                           selections: [{ kind: 'Field', name: { kind: 'Name', value: 'action' } }],
                         },
                       },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'company' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isMain' } },
                     ],
                   },
                 },

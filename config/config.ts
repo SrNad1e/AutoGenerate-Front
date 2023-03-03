@@ -13,6 +13,7 @@ export default defineConfig({
     CDN_URL: CDN_URL || 'https://toulouse-storage.s3.amazonaws.com',
     FORMAT_DATE: FORMAT_DATE || 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: FORMAT_DATE_API || 'YYYY/MM/DD HH:mm:ss',
+    USER_ADMIN: 'master',
   },
   hash: true,
   antd: {},
@@ -158,6 +159,12 @@ export default defineConfig({
       layout: false,
       routes: [
         {
+          path: '/dashboard',
+          name: 'Dashboard',
+          icon: 'barChart',
+          component: './dashboard/list',
+        },
+        {
           path: '/inventory',
           name: 'Inventario',
           icon: 'dashboard',
@@ -289,6 +296,17 @@ export default defineConfig({
               ],
             },
             {
+              name: 'Informes',
+              path: '/inventory/reports',
+              routes: [
+                {
+                  name: 'Inventarios',
+                  path: '/inventory/reports/inventories',
+                  component: './inventory/reports/inventories',
+                },
+              ],
+            },
+            {
               name: 'Configuraciones',
               path: '/inventory/configurations',
               access: 'allowOption',
@@ -373,6 +391,11 @@ export default defineConfig({
               path: '/invoicing/return',
               component: './invoicing/return/list',
               access: 'allowOption',
+            },
+            {
+              name: 'Reporte Ventas',
+              path: '/invoicing/sales',
+              component: './invoicing/sales/list',
             },
             {
               name: 'Pedidos',
@@ -495,6 +518,11 @@ export default defineConfig({
           icon: 'setting',
           access: 'allowOption',
           routes: [
+            {
+              name: 'Historial de Metas',
+              path: '/configurations/goalHistory',
+              component: './configurations/goalHistory/list',
+            },
             {
               name: 'Tiendas',
               path: '/configurations/shop',

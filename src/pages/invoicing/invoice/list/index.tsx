@@ -489,13 +489,8 @@ const InvoiceList = () => {
           </Row>
         </Form>
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
-          <Col span={12}>
-            <Button type="primary" onClick={() => generateReangeReport()}>
-              Generar PDF
-            </Button>
-          </Col>
-          <Col span={12} style={{ textAlign: 'right' }}>
-            {initialState?.currentUser?.username === 'admin' && (
+          <Col span={24} style={{ textAlign: 'right' }}>
+            {initialState?.currentUser?.username === USER_ADMIN && (
               <>
                 <Button
                   style={{ borderRadius: 5 }}
@@ -509,7 +504,12 @@ const InvoiceList = () => {
               </>
             )}
           </Col>
-          <Col span={12} style={styles.texRigth}>
+          <Col span={12}>
+            <Button type="primary" onClick={() => generateReangeReport()}>
+              Generar PDF
+            </Button>
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
             <Text strong>Total Encontrados: </Text>{' '}
             {paramsGetInvoices?.data?.invoices?.totalDocs || 0} <Text strong> Páginas: </Text>{' '}
             {paramsGetInvoices?.data?.invoices?.page || 0} /{' '}

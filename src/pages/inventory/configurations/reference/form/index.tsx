@@ -15,9 +15,10 @@ import {
   Typography,
   Popconfirm,
   Image,
+  Alert,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table/interface';
-import { useHistory, useParams } from 'umi';
+import { useHistory, useModel, useParams } from 'umi';
 import { useEffect, useState } from 'react';
 
 import type {
@@ -69,10 +70,17 @@ const FormReference = () => {
   const [form] = Form.useForm();
   const [formCreateProduct] = Form.useForm();
 
+  const { initialState } = useModel('@@initialState');
+
   const [createReference] = useCreateReference();
   const [getReference, { data }] = useGetReference();
   const [createProduct, { loading }] = useCreateProduct(id || '');
   const [updateReference] = useUpdateReference();
+
+  const canEdit =
+    (data?.referenceId?.companies.find((company) => company.isMain) &&
+      initialState?.currentUser?.company?.isMain) ||
+    !data?.referenceId?.companies.find((company) => company.isMain);
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -492,6 +500,7 @@ const FormReference = () => {
         _id ? (
           <Tooltip title="Editar" placement="topLeft">
             <Button
+              disabled={!canEdit}
               onClick={() => {
                 setProduct(record);
                 setEditProduct(true);
@@ -535,15 +544,25 @@ const FormReference = () => {
         <Form form={form}>
           <Tabs type="card" activeKey={activeKey} onChange={setActiveKey}>
             <TabPane tab="Datos generales" key="1">
-              <FormGeneralData />
+              <FormGeneralData disabled={!canEdit} />
             </TabPane>
             <TabPane tab="Datos de envio" key="2">
-              <FormShipping missingValue={missingValue} form={form} />
+              <FormShipping disabled={!canEdit} missingValue={missingValue} form={form} />
             </TabPane>
           </Tabs>
         </Form>
-        <Divider>Productos</Divider>
-        <FormCreateProduct form={formCreateProduct} onFinish={addProducts} />
+        {!canEdit ? (
+          <Alert type="warning" showIcon message="No tienes permisos para editar este producto" />
+        ) : (
+          <>
+            <Divider>Productos</Divider>
+            <FormCreateProduct
+              disabled={!canEdit}
+              form={formCreateProduct}
+              onFinish={addProducts}
+            />
+          </>
+        )}
         <Divider />
         <Table
           loading={loading}
@@ -555,7 +574,13 @@ const FormReference = () => {
         />
         <Affix offsetBottom={0}>
           <Card loading={loading} bodyStyle={styles.bodyStyle} size="small">
-            <Button type="primary" loading={loading} style={{ borderRadius: 5 }} onClick={onFinish}>
+            <Button
+              disabled={!canEdit}
+              type="primary"
+              loading={loading}
+              style={{ borderRadius: 5 }}
+              onClick={onFinish}
+            >
               Guardar
             </Button>
           </Card>
