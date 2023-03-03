@@ -8036,11 +8036,13 @@ export type LoginMutation = {
       _id: string;
       username: string;
       name: string;
+      isWeb: boolean;
       pointOfSale?: {
         __typename?: 'PointOfSale';
         _id: string;
         box?: { __typename?: 'Box'; _id: string } | null;
       } | null;
+      company: { __typename?: 'Company'; name: string; _id: string };
       shop: {
         __typename?: 'Shop';
         _id: string;
@@ -16149,6 +16151,7 @@ export const LoginDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isWeb' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'pointOfSale' },
@@ -16166,6 +16169,17 @@ export const LoginDocument = {
                                 ],
                               },
                             },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'company' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                           ],
                         },
                       },

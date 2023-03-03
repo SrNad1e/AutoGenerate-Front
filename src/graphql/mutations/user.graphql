@@ -4,11 +4,16 @@ mutation login($input: LoginUserInput!) {
       _id
       username
       name
+      isWeb
       pointOfSale {
         _id
         box {
           _id
         }
+      }
+      company {
+        name
+        _id
       }
       shop {
         _id
