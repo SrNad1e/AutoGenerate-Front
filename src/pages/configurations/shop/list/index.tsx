@@ -57,8 +57,6 @@ const ShopList = () => {
   });
   const [shopData, setShopData] = useState<Partial<Shop>>({});
 
-  console.log(shopData);
-
   const [visible, setVisible] = useState(false);
 
   const [form] = Form.useForm();
@@ -113,7 +111,6 @@ const ShopList = () => {
    * @param values filtros necesarios para la busqueda
    */
   const onSearch = (values?: FiltersShopsInput) => {
-    console.log(values);
     try {
       getShops({
         variables: {
