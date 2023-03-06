@@ -1,6 +1,7 @@
 import { typesAccess } from './generalData';
 import type { User } from './graphql/graphql';
 import { Permissions } from './graphql/graphql';
+import { useModel } from 'umi';
 
 /**
  * @see https://umijs.org/zh-CN/plugins/plugin-access
@@ -18,7 +19,23 @@ export default function access(initialState: { currentUser?: User | undefined })
         return false;
       }
     },
-    allowCompany: currentUser?.username === USER_ADMIN,
+    allowEcomerce: () => {
+      // eslint-disable-next-line
+      const { initialState } = useModel('@@initialState');
+      // eslint-disable-next-line
+      if (
+        initialState?.currentUser?.pointOfSale?._id === '6331c436da286a36de3c6b9c' ||
+        initialState?.currentUser?.pointOfSale?._id === '6331a504aa2af68a4ecab405' ||
+        initialState?.currentUser?.shop?.defaultWarehouse?._id === '6331a8aaaa2af68a4ecaba37' ||
+        initialState?.currentUser?.shop?.defaultWarehouse?._id === '63319e55aa2af68a4ecaae55'
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    allowCompany: currentUser?.username === 'admin',
     allowERP: !!initialState?.currentUser?.role?.permissions.find(
       (permission) => permission?.action === 'ACCESS_ERP',
     ),
