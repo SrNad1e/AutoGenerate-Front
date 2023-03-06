@@ -375,6 +375,7 @@ export default defineConfig({
             {
               name: 'E-Commerce',
               path: '/invoicing/e-commerce',
+              access: 'allowEcomerce',
               routes: [
                 {
                   path: '/invoicing/e-commerce',
