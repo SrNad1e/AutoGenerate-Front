@@ -21,17 +21,11 @@ const Index: React.FC = () => {
         .then((response) => response.json())
         .then((result) => {
           setDataSource(result?.features);
-
-          console.log(result);
         })
         .catch((error) => console.log('error', error));
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const onSelect = (data: string) => {
-    console.log('onSelect', data);
   };
 
   const onChange = (data: string) => {
@@ -44,7 +38,6 @@ const Index: React.FC = () => {
     <>
       <AutoComplete
         style={{ width: 200 }}
-        onSelect={onSelect}
         onSearch={(text) => locations(text)}
         onChange={onChange}
         placeholder="Dirección"
