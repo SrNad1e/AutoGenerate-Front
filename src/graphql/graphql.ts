@@ -978,6 +978,8 @@ export type CreateRoleInput = {
   name: Scalars['String'];
   /** Identificadores de los permisos asignados */
   permissionIds: Scalars['String'][];
+  /** Orden por gerarquía */
+  rank?: InputMaybe<Scalars['Float']>;
 };
 
 /** Datos para la creación de la tienda */
@@ -5198,6 +5200,8 @@ export type Role = {
   name: Scalars['String'];
   /** Permisos al los quie tiene el rol */
   permissions: Permission[];
+  /** Orden por gerarquía */
+  rank: Scalars['Float'];
   /** Fecha en la que se actualizó el rol */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o modificó el rol */
@@ -6512,6 +6516,8 @@ export type UpdateRoleInput = {
   name: Scalars['String'];
   /** Identificadores de los permisos seleccionados */
   permissionIds?: InputMaybe<Scalars['String'][]>;
+  /** Orden por gerarquía */
+  rank?: InputMaybe<Scalars['Float']>;
 };
 
 /** Datos para actualizar la tienda */
@@ -7078,6 +7084,7 @@ export type CreateCloseZInvoicingMutation = {
     __typename?: 'CloseZInvoicing';
     _id: string;
     number: number;
+    prefix: string;
     closeDate: any;
     quantityBank: number;
     cashRegister: {
@@ -8060,6 +8067,7 @@ export type CreateRoleMutation = {
     active: boolean;
     changeWarehouse: boolean;
     name: string;
+    rank: number;
     permissions: { __typename?: 'Permission'; _id: string }[];
   };
 };
@@ -8077,6 +8085,7 @@ export type UpdateRoleMutation = {
     active: boolean;
     changeWarehouse: boolean;
     name: string;
+    rank: number;
     permissions: { __typename?: 'Permission'; _id: string }[];
   };
 };
@@ -8294,11 +8303,13 @@ export type LoginMutation = {
       _id: string;
       username: string;
       name: string;
+      isWeb: boolean;
       pointOfSale?: {
         __typename?: 'PointOfSale';
         _id: string;
         box: { __typename?: 'Box'; _id: string };
       } | null;
+      company: { __typename?: 'Company'; name: string; _id: string };
       shop: {
         __typename?: 'Shop';
         _id: string;
@@ -8784,6 +8795,7 @@ export type ClosesZInvoicingQuery = {
       __typename?: 'CloseZInvoicing';
       _id: string;
       number: number;
+      prefix: string;
       closeDate: any;
       quantityBank: number;
       cashRegister: {
@@ -10472,6 +10484,7 @@ export type RoleIdQuery = {
     name: string;
     changeWarehouse: boolean;
     active: boolean;
+    rank: number;
     user: { __typename?: 'User'; name: string };
     permissions: { __typename?: 'Permission'; _id: string }[];
   };
@@ -10493,6 +10506,7 @@ export type RolesQuery = {
       _id: string;
       changeWarehouse: boolean;
       name: string;
+      rank: number;
       active: boolean;
       permissions: { __typename?: 'Permission'; description: string }[];
     }[];
@@ -11961,6 +11975,7 @@ export const CreateCloseZInvoicingDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'cashRegister' },
@@ -15624,6 +15639,7 @@ export const CreateRoleDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'permissions' },
@@ -15690,6 +15706,7 @@ export const UpdateRoleDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'permissions' },
@@ -16554,6 +16571,7 @@ export const LoginDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'username' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isWeb' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'pointOfSale' },
@@ -16571,6 +16589,17 @@ export const LoginDocument = {
                                 ],
                               },
                             },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'company' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                           ],
                         },
                       },
@@ -17994,6 +18023,7 @@ export const ClosesZInvoicingDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'cashRegister' },
@@ -23058,6 +23088,7 @@ export const RoleIdDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'user' },
@@ -23124,6 +23155,7 @@ export const RolesDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'changeWarehouse' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'rank' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'active' } },
                       {
                         kind: 'Field',

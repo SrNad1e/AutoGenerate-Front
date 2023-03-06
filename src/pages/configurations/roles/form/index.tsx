@@ -11,6 +11,7 @@ import {
   Divider,
   Form,
   Input,
+  InputNumber,
   Switch,
   Tooltip,
   Typography,
@@ -162,7 +163,7 @@ const RolesForm = () => {
       <Card className="form-permissions">
         <Divider orientation="left">Datos Generales</Divider>
         <Form form={form} initialValues={paramsGet.data?.roleId}>
-          <Descriptions bordered size="small">
+          <Descriptions bordered size="small" column={4}>
             <DescriptionsItem label="Nombre">
               <FormItem
                 style={styles.marginItem}
@@ -171,6 +172,19 @@ const RolesForm = () => {
               >
                 <Input
                   autoFocus
+                  placeholder="Ingrese el nombre del nuevo rol"
+                  disabled={paramsCreate?.loading}
+                />
+              </FormItem>
+            </DescriptionsItem>
+            <DescriptionsItem label="Gerarquía">
+              <FormItem
+                style={styles.marginItem}
+                name="rank"
+                rules={[{ required: true, message: 'Obligatorio' }]}
+              >
+                <InputNumber
+                  min={1}
                   placeholder="Ingrese el nombre del nuevo rol"
                   disabled={paramsCreate?.loading}
                 />

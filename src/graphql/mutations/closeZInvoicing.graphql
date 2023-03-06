@@ -2,6 +2,7 @@ mutation createCloseZInvoicing($input: CreateCloseZInvoicingInput!) {
   createCloseZInvoicing(createCloseZInvoicing: $input) {
     _id
     number
+    prefix
     cashRegister {
       M50
       M100

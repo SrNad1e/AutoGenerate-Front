@@ -142,7 +142,7 @@ export default class ReportCloseZ extends React.PureComponent {
             <div style={classes.row}>
               <div style={classes.col1}>
                 <span style={{ fontWeight: 'bold' }}>CIERRE # </span>
-                {data?.number}
+                {data?.prefix} {data?.number}
               </div>
               <div style={classes.col2}>
                 <span style={{ fontWeight: 'bold' }}>DIA </span>{' '}
@@ -385,7 +385,7 @@ export default class ReportCloseZ extends React.PureComponent {
           <div style={{ width: '100%', lineHeight: 1.5 }}>
             <div style={classes.text}>
               <span style={classes.textBold}>Cierre No.</span>
-              {data?.number}
+              {data?.prefix} {data?.number}
             </div>
           </div>
           <div style={{ width: '100%', lineHeight: 1.5 }}>
