@@ -2009,6 +2009,8 @@ export type FiltersDocumentTypesInput = {
 
 /** Listado de errores de efectivo */
 export type FiltersErrorsCashInput = {
+  /** tiendas */
+  boxId?: InputMaybe<Scalars['String']>;
   /** Número del cierre que efectúa el error */
   closeZNumber?: InputMaybe<Scalars['Float']>;
   /** Cantidad de registros */
