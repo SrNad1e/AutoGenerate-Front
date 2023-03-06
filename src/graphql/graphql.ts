@@ -8577,6 +8577,7 @@ export type ErrorCashQuery = {
         __typename?: 'CloseZInvoicing';
         _id: string;
         number: number;
+        prefix: string;
         pointOfSale: { __typename?: 'PointOfSale'; name: string };
       } | null;
     }[];
@@ -17477,6 +17478,7 @@ export const ErrorCashDocument = {
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'number' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'prefix' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'pointOfSale' },

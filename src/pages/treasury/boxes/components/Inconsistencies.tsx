@@ -194,7 +194,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       dataIndex: 'closeZ',
       showSorterTooltip: false,
       align: 'center',
-      render: (closeZ: CloseZInvoicing) => closeZ?.number,
+      render: (closeZ: CloseZInvoicing) => `${closeZ?.prefix} ${closeZ?.number}`,
     },
     {
       title: <Text>{<ShopOutlined />} Punto de Venta</Text>,
