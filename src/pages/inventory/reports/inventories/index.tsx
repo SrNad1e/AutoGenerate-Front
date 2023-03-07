@@ -89,19 +89,18 @@ const Inventories = () => {
             const warehouse = item.productWarehouse?.find(
               (index) => index._id === item?.stock?.warehouse?._id,
             );
-            const obj: any = {};
-            if (item.stock?.warehouse?._id === warehouse?._id) {
-              obj.warehouseName = warehouse?.name;
-              obj.quantity = item?.stock?.quantity;
-              obj.barcode = item?.barcode;
-              obj.reference = {
-                name: item?.reference?.name,
-                description: item?.reference?.description,
+            if (item.stock?.warehouse?._id === warehouse?._id)
+              return {
+                warehouseName: warehouse?.name,
+                quantity: item?.stock?.quantity,
+                barcode: item?.barcode,
+                reference: {
+                  name: item?.reference?.name,
+                  description: item?.reference?.description,
+                },
+                color: item?.color,
+                size: item?.size,
               };
-              obj.color = item?.color;
-              obj.size = item?.size;
-            }
-            return obj;
           }),
         ]);
       }
