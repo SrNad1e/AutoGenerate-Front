@@ -334,7 +334,6 @@ const Dashboard = () => {
     isStack: true,
     xField: 'dateFormat',
     yField: criterio === true ? 'total' : 'quantity',
-    //seriesField: 'date',
     seriesField:  period ? 'date' : 'categoryName',
     label: false,
     xAxis: {
