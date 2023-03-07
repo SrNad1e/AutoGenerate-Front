@@ -104,30 +104,22 @@ const Dashboard = () => {
               paymentName: item.payment.name,
             };
           }) as any,
-        );
+        );  
 
         const responseFormat: any[] = [];
-
         response?.data?.reportSales?.salesReport?.forEach((item) => {
-          const dateFormat = moment(item.date).utc().format('YYYY-MM-DD');
+          const dateFormat = period ? moment(item.date).utc().format('YYYY-MM') : moment(item.date).utc().format('YYYY-MM-DD');
           const totalFormat = numeral(item.total).format('$ 0,0');
           const findInd = responseFormat.findIndex(
             (res) => item?.category?.name === res.categoryName && res.dateFormat === dateFormat,
           );
-          if (findInd >= 0) {
-            responseFormat[findInd] = {
-              ...responseFormat[findInd],
-              total: responseFormat[findInd].total + item.total,
-              quantity: responseFormat[findInd].quantity + item.quantity,
-            };
-          } else {
-            responseFormat.push({
-              ...item,
-              categoryName: item?.category?.name,
-              dateFormat: dateFormat,
-              totalFormat: totalFormat,
-            });
-          }
+         //Agrega elementos enel array segun criterios.
+          responseFormat.push({
+            ...item,
+            categoryName: item?.category?.name,
+            dateFormat: dateFormat,
+            totalFormat: totalFormat,
+          });
         });
 
         const arrOrdered = responseFormat?.sort(function (a, b) {
@@ -137,7 +129,6 @@ const Dashboard = () => {
             return 1;
           }
         }) as any;
-
         setSales(arrOrdered);
       }
     } catch (error: any) {
@@ -179,11 +170,13 @@ const Dashboard = () => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = async (props: FormValues) => {
-    const { groupDates, isGroupByCategory, shopId } = props;
+
+    
+    const {isGroupByCategory, shopId } = props;
     try {
       const dates = await form.getFieldValue('dates');
       const params: Partial<FiltersSalesReportInput> | any = {
-        groupDates: groupDates || GroupDates.Month,
+        groupDates: period ? GroupDates.Month : GroupDates.Day, //groupDates || GroupDates.Day,
         isGroupByCategory: isGroupByCategory || true,
         shopId,
       };
@@ -341,7 +334,7 @@ const Dashboard = () => {
     isStack: true,
     xField: 'dateFormat',
     yField: criterio === true ? 'total' : 'quantity',
-    seriesField: 'categoryName',
+    seriesField:  period ? 'date' : 'categoryName',
     label: false,
     xAxis: {
       label: {
@@ -458,7 +451,6 @@ const Dashboard = () => {
       if (item === 'dates') {
         setDateSelected(true);
         const dataItem = JSON.parse(queryParams[item]);
-        console.log(dataItem);
 
         newFilters[item] = [moment(dataItem[0]), moment(dataItem[1])];
       } else {
@@ -500,7 +492,6 @@ const Dashboard = () => {
 
   const dateV = form.getFieldValue('dates');
   useEffect(() => {
-    console.log(dateV);
   }, [dateV]);
 
   const dateFormatTitle = () => {
@@ -596,7 +587,6 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    console.log(dateFormatTitle());
   }, [paramsGetReportSales.data]);
 
   const summaryData = paramsGetReportSales.data?.reportSales?.summarySalesReport;
@@ -675,6 +665,7 @@ const Dashboard = () => {
         <Row gutter={[40, 40]}>
           <Col span={14}>
             <Card size="small">
+              
               <Column loading={paramsGetReportSales?.loading} {...config} />
             </Card>
           </Col>
