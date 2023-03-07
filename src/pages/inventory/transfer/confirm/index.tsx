@@ -174,11 +174,6 @@ const ConfirmTransfer = () => {
       const values = await form.validateFields();
       const barcode = values.barcode && validateCodeBar(values.barcode);
       const detail = transferData.find((item) => item.product?.barcode === barcode);
-/*
-      if (detail?.status === StatusDetailTransfer.Confirmed) {
-        throw new Error('Producto ya se encuentran confirmado');
-      }
-*/
       const newDetails = details.filter((item) => item?.product?.barcode !== barcode);
 
       const existingDetail = details.find((item) => item?.product?.barcode === barcode);

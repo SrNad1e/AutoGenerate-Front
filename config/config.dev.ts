@@ -7,12 +7,8 @@ export default defineConfig({
     'react-dev-inspector/plugins/umi/react-inspector',
   ],
   define: {
-<<<<<<< HEAD
-    API_URL: 'http://localhost:8080',//'http://192.168.70.254:8080',
-=======
     // API_URL: 'http://192.168.70.254:8080',
     API_URL: 'http://localhost:8080',
->>>>>>> release
     CDN_URL: 'https://toulouse-storage.s3.amazonaws.com',
     FORMAT_DATE: 'DD/MM/YYYY HH:mm:ss',
     FORMAT_DATE_API: 'YYYY/MM/DD HH:mm:ss',
