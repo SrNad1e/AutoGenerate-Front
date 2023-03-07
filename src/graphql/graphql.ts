@@ -320,8 +320,8 @@ export type CategoryLevel1 = {
   _id: Scalars['String'];
   /** Nombre de la categoría */
   childs?: Maybe<CategoryLevel2[]>;
-  /** Compañía */
-  company: Company;
+  /** Compañías */
+  companies: Company[];
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -339,8 +339,8 @@ export type CategoryLevel2 = {
   _id: Scalars['String'];
   /** Categorías inferiores */
   childs?: Maybe<CategoryLevel3[]>;
-  /** Compañía */
-  company: Company;
+  /** Compañías */
+  companies: Company[];
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -358,8 +358,8 @@ export type CategoryLevel3 = {
   __typename?: 'CategoryLevel3';
   /** Identificador de mongo */
   _id: Scalars['String'];
-  /** Compañía */
-  company: Company;
+  /** Compañías */
+  companies: Company[];
   /** Fecha de creación de la categoría */
   createdAt: Scalars['DateTime'];
   /** Nombre de la categoría */
@@ -2607,7 +2607,7 @@ export type InventoryReport = {
   /** Color del producto */
   color: Color;
   /** bodega del producto */
-  productWarehouse?: Maybe<Warehouse>;
+  productWarehouse?: Maybe<Warehouse[]>;
   /** Referencia del producto */
   reference: Reference;
   /** Talla del producto */
@@ -5236,6 +5236,8 @@ export type SalesReport = {
   category?: Maybe<CategoryLevel1>;
   /** Fecha de la venta */
   date: Scalars['DateTime'];
+  /** Fecha de la venta */
+  dateDay: Scalars['DateTime'];
   /** Cantidad de productos de la categoría vendidos o cantidad de pedidos generados */
   quantity: Scalars['Float'];
   /** Tienda */
@@ -6083,6 +6085,8 @@ export type StockTransferError = {
   __typename?: 'StockTransferError';
   /** Identificador de mongo */
   _id: Scalars['String'];
+  /** Compañía del traslado */
+  company: Company;
   /** Fecha de creación del traslado */
   createdAt: Scalars['DateTime'];
   /** Detalle de los productos que están en error */
@@ -10047,7 +10051,7 @@ export type ProductStockQuery = {
     docs: {
       __typename?: 'InventoryReport';
       barcode: string;
-      productWarehouse?: { __typename?: 'Warehouse'; name: string; _id: string } | null;
+      productWarehouse?: { __typename?: 'Warehouse'; name: string; _id: string }[] | null;
       color: {
         __typename?: 'Color';
         name: string;
@@ -10063,7 +10067,11 @@ export type ProductStockQuery = {
       };
       reference: { __typename?: 'Reference'; name: string; description: string };
       size: { __typename?: 'Size'; value: string };
-      stock?: { __typename?: 'StockProduct'; quantity: number } | null;
+      stock?: {
+        __typename?: 'StockProduct';
+        quantity: number;
+        warehouse?: { __typename?: 'Warehouse'; _id: string } | null;
+      } | null;
     }[];
   };
 };
@@ -21827,6 +21835,16 @@ export const ProductStockDocument = {
                           kind: 'SelectionSet',
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'quantity' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'warehouse' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                                ],
+                              },
+                            },
                           ],
                         },
                       },

@@ -6,7 +6,6 @@ import type {
   FiltersProductsInput,
   FiltersStockInput,
   InventoryReport,
-  Warehouse,
 } from '@/graphql/graphql';
 import { BarcodeOutlined, ClearOutlined, SearchOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -51,6 +50,7 @@ const Inventories = () => {
     type: 'error',
     visible: false,
   });
+  const [dataStock, setDataStock] = useState<any[]>([]);
 
   const [form] = Form.useForm();
   const history = useHistory();
@@ -76,13 +76,34 @@ const Inventories = () => {
 
   const onSearch = async (params?: Partial<FiltersStockInput>) => {
     try {
-      await getProductsStock({
+      const response = await getProductsStock({
         variables: {
           input: {
             ...params,
           },
         },
       });
+      if (response?.data?.productStock) {
+        setDataStock([
+          ...response?.data?.productStock?.docs?.map((item) => {
+            const warehouse = item.productWarehouse?.find(
+              (index) => index._id === item?.stock?.warehouse?._id,
+            );
+            if (item.stock?.warehouse?._id === warehouse?._id)
+              return {
+                warehouseName: warehouse?.name,
+                quantity: item?.stock?.quantity,
+                barcode: item?.barcode,
+                reference: {
+                  name: item?.reference?.name,
+                  description: item?.reference?.description,
+                },
+                color: item?.color,
+                size: item?.size,
+              };
+          }),
+        ]);
+      }
     } catch (err: any) {
       showError(err?.message);
     }
@@ -241,8 +262,8 @@ const Inventories = () => {
   const columns: ColumnsType<InventoryReport> = [
     {
       title: 'Bodega',
-      dataIndex: 'productWarehouse',
-      render: (warehouse: Warehouse) => warehouse?.name,
+      dataIndex: 'warehouseName',
+      render: (warehouse: string) => warehouse,
     },
     {
       title: 'Producto',
@@ -287,13 +308,13 @@ const Inventories = () => {
     },
     {
       title: 'Disponible',
-      dataIndex: 'stock',
+      dataIndex: 'quantity',
       align: 'center',
       render: (stock) => (
         <Badge
           overflowCount={99999}
-          count={stock?.quantity}
-          style={{ backgroundColor: stock?.quantity > 0 || 0 ? 'green' : 'red' }}
+          count={stock}
+          style={{ backgroundColor: stock > 0 || 0 ? 'green' : 'red' }}
           showZero
         />
       ),
@@ -351,7 +372,7 @@ const Inventories = () => {
                 loading={loading}
                 columns={columns}
                 onChange={handleChangeTable}
-                dataSource={data?.productStock?.docs as any}
+                dataSource={dataStock as any}
                 pagination={{
                   current: data?.productStock?.page,
                   total: data?.productStock?.totalDocs,

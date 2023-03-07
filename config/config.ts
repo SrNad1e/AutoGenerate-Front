@@ -297,11 +297,13 @@ export default defineConfig({
             {
               name: 'Informes',
               path: '/inventory/reports',
+              access: 'allowOption',
               routes: [
                 {
                   name: 'Inventarios',
                   path: '/inventory/reports/inventories',
                   component: './inventory/reports/inventories',
+                  access: 'allowOption',
                 },
               ],
             },
