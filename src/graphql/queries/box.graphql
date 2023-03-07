@@ -32,6 +32,7 @@ query errorCash($input: FiltersErrorsCashInput!) {
       closeZ {
         _id
         number
+        prefix
         pointOfSale {
           name
         }

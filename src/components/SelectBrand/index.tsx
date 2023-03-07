@@ -9,7 +9,7 @@ import { useGetBrands } from '@/hooks/brand.hooks';
 export type Props = {
   onChange?: (_id: string) => void;
   value?: string;
-  disabled: boolean;
+  disabled?: boolean;
 };
 const { Option } = Select;
 

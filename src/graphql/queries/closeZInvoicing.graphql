@@ -6,6 +6,7 @@ query closesZInvoicing($input: FiltersClosesZInvoicingInput) {
     docs {
       _id
       number
+      prefix
       cashRegister {
         M50
         M100

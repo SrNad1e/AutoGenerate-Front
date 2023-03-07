@@ -1,4 +1,4 @@
-import type { Shop } from '@/graphql/graphql';
+import { AddGoalHistoryDocument, Shop } from '@/graphql/graphql';
 import { CreateShopDocument, ShopsDocument, UpdateShopDocument } from '@/graphql/graphql';
 import { useLazyQuery, useMutation } from '@apollo/client';
 
@@ -27,6 +27,20 @@ export const useUpdateShop = () => {
           },
           roleId() {
             return data?.updateShop;
+          },
+        },
+      });
+    },
+  });
+};
+
+export const useAddGoal = () => {
+  return useMutation(AddGoalHistoryDocument, {
+    update: (cache, { data }) => {
+      cache.modify({
+        fields: {
+          shopId() {
+            return data?.addGoalHistory;
           },
         },
       });

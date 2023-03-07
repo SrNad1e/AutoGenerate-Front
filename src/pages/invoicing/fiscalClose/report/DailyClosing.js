@@ -78,7 +78,7 @@ const columnsHeader = [
     style={{
       ...styleBorders,
       borderBottom: 'none',
-      width: '12.5%',
+      width: '11.11%',
       fontWeight: 'bold',
     }}
   >
@@ -87,7 +87,7 @@ const columnsHeader = [
   <div
     style={{
       ...styleBorders,
-      width: '12.5%',
+      width: '11.11%',
       borderBottom: 'none',
       borderLeft: 'none',
       fontWeight: 'bold',
@@ -100,7 +100,7 @@ const columnsHeader = [
       ...styleBorders,
       borderLeft: 'none',
       borderBottom: 'none',
-      width: '12.5%',
+      width: '11.11%',
       fontWeight: 'bold',
     }}
   >
@@ -111,7 +111,7 @@ const columnsHeader = [
       ...styleBorders,
       borderLeft: 'none',
       borderBottom: 'none',
-      width: '12.5%',
+      width: '11.11%',
       fontWeight: 'bold',
     }}
   >
@@ -122,7 +122,7 @@ const columnsHeader = [
       ...styleBorders,
       borderLeft: 'none',
       borderBottom: 'none',
-      width: '12.5%',
+      width: '11.11%',
       fontWeight: 'bold',
     }}
   >
@@ -133,7 +133,7 @@ const columnsHeader = [
       ...styleBorders,
       borderLeft: 'none',
       borderBottom: 'none',
-      width: '12.5%',
+      width: '11.11%',
       fontWeight: 'bold',
     }}
   >
@@ -144,18 +144,29 @@ const columnsHeader = [
       ...styleBorders,
       borderLeft: 'none',
       borderBottom: 'none',
-      width: '12.5%',
+      width: '5%',
       fontWeight: 'bold',
     }}
   >
-    EXCENTO
+    EXC
   </div>,
   <div
     style={{
       ...styleBorders,
       borderLeft: 'none',
       borderBottom: 'none',
-      width: '12.5%',
+      width: '17.22%',
+      fontWeight: 'bold',
+    }}
+  >
+    MEDIOS DE PAGO
+  </div>,
+  <div
+    style={{
+      ...styleBorders,
+      borderLeft: 'none',
+      borderBottom: 'none',
+      width: '11.11%',
       fontWeight: 'bold',
     }}
   >
@@ -239,7 +250,7 @@ export default class DailyClosingReport extends React.PureComponent {
                     style={{
                       ...styleBorders,
                       borderBottom: 'none',
-                      width: '12.5%',
+                      width: '11.11%',
                     }}
                   >
                     {detail?.order?.number}
@@ -247,7 +258,7 @@ export default class DailyClosingReport extends React.PureComponent {
                   <div
                     style={{
                       ...styleBorders,
-                      width: '12.5%',
+                      width: '11.11%',
                       borderLeft: 'none',
                       borderBottom: 'none',
                     }}
@@ -259,7 +270,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       ...styleBorders,
                       borderLeft: 'none',
                       borderBottom: 'none',
-                      width: '12.5%',
+                      width: '11.11%',
                     }}
                   >
                     {moment(detail?.createdAt).format('YYYY/MM/DD')}
@@ -269,7 +280,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       ...styleBorders,
                       borderLeft: 'none',
                       borderBottom: 'none',
-                      width: '12.5%',
+                      width: '11.11%',
                     }}
                   >
                     {numeral(detail?.summary?.subtotal).format('$ 0,0')}
@@ -279,7 +290,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       ...styleBorders,
                       borderLeft: 'none',
                       borderBottom: 'none',
-                      width: '12.5%',
+                      width: '11.11%',
                     }}
                   >
                     {numeral(detail?.summary?.tax).format('$ 0,0')}
@@ -289,7 +300,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       ...styleBorders,
                       borderLeft: 'none',
                       borderBottom: 'none',
-                      width: '12.5%',
+                      width: '11.11%',
                     }}
                   >
                     {numeral(detail?.summary?.total).format('$ 0,0')}
@@ -299,7 +310,7 @@ export default class DailyClosingReport extends React.PureComponent {
                       ...styleBorders,
                       borderLeft: 'none',
                       borderBottom: 'none',
-                      width: '12.5%',
+                      width: '5%',
                     }}
                   >
                     {0}
@@ -309,7 +320,21 @@ export default class DailyClosingReport extends React.PureComponent {
                       ...styleBorders,
                       borderLeft: 'none',
                       borderBottom: 'none',
-                      width: '12.5%',
+                      width: '17.22%',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {detail?.payments?.reduce(
+                      (acc, payment) => `${acc} ${payment?.payment.name}: ${payment.total}`,
+                      '',
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      ...styleBorders,
+                      borderLeft: 'none',
+                      borderBottom: 'none',
+                      width: '11.11%',
                     }}
                   >
                     {numeral(detail?.summary?.subtotal).format('$ 0,0')}
@@ -325,14 +350,14 @@ export default class DailyClosingReport extends React.PureComponent {
               }}
             >
               <div
-                style={{ ...styleBorders, borderTop: 'none', width: '37.5%', fontWeight: 'bold' }}
+                style={{ ...styleBorders, borderTop: 'none', width: '33.33%', fontWeight: 'bold' }}
               >
                 Total:
               </div>
               <div
                 style={{
                   ...styleBorders,
-                  width: '12.5%',
+                  width: '11.11%',
                   borderLeft: 'none',
                   borderTop: 'none',
                   display: 'flex',
@@ -345,7 +370,7 @@ export default class DailyClosingReport extends React.PureComponent {
               <div
                 style={{
                   ...styleBorders,
-                  width: '12.5%',
+                  width: '11.11%',
                   borderLeft: 'none',
                   borderTop: 'none',
                   display: 'flex',
@@ -358,7 +383,7 @@ export default class DailyClosingReport extends React.PureComponent {
               <div
                 style={{
                   ...styleBorders,
-                  width: '12.5%',
+                  width: '11.11%',
                   borderLeft: 'none',
                   borderTop: 'none',
                   display: 'flex',
@@ -371,7 +396,7 @@ export default class DailyClosingReport extends React.PureComponent {
               <div
                 style={{
                   ...styleBorders,
-                  width: '12.5%',
+                  width: '5%',
                   borderLeft: 'none',
                   borderTop: 'none',
                   display: 'flex',
@@ -384,7 +409,20 @@ export default class DailyClosingReport extends React.PureComponent {
               <div
                 style={{
                   ...styleBorders,
-                  width: '12.5%',
+                  width: '17.22%',
+                  borderLeft: 'none',
+                  borderTop: 'none',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  paddingRight: 10,
+                }}
+              >
+                {' '}
+              </div>
+              <div
+                style={{
+                  ...styleBorders,
+                  width: '11.11%',
                   borderLeft: 'none',
                   borderTop: 'none',
                   display: 'flex',

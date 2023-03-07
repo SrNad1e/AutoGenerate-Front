@@ -11,9 +11,10 @@ export type Props = {
   onChange?: (value: string | undefined) => void;
   value?: string;
   disabled: boolean;
+  border?: boolean;
 };
 
-const SelectColor = ({ onChange, value, disabled }: Props) => {
+const SelectColor = ({ onChange, value, disabled, border }: Props) => {
   const [getColors, { loading, data, error }] = useGetColors();
 
   /**
@@ -60,6 +61,7 @@ const SelectColor = ({ onChange, value, disabled }: Props) => {
         value={value}
         disabled={disabled}
         allowClear
+        bordered={border}
       >
         {data?.colors?.docs?.map((color) => (
           <Option key={color?._id} value={color?._id} name={color?.name_internal}>

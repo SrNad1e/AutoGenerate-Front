@@ -12,12 +12,12 @@ query payments($input: FiltersPaymentsInput) {
       }
       message
       name
+      shops {
+        name
+        _id
+      }
       type
       color
-      shops {
-        _id
-        name
-      }
       logo {
         _id
         urls {

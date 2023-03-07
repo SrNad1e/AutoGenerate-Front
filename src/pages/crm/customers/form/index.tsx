@@ -185,6 +185,7 @@ const EditCustomer = ({ visible, onCancel, customerData }: Props) => {
             id: creditProps?._id || '',
             input: {
               amount: valuesFields?.valuesCredit?.amount,
+              status: valuesFields?.valuesCredit?.status,
             },
           },
         });

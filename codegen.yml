@@ -1,5 +1,5 @@
 overwrite: true
-schema: 'http://192.168.70.254:8080/graphql'
+schema: 'http://ecs-alb-cirotex-cluster-154363975.us-east-1.elb.amazonaws.com/graphql'
 documents: 'src/graphql/**/*.graphql'
 generates:
   src/graphql/graphql.ts:

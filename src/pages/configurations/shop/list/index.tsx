@@ -56,6 +56,7 @@ const ShopList = () => {
     visible: false,
   });
   const [shopData, setShopData] = useState<Partial<Shop>>({});
+
   const [visible, setVisible] = useState(false);
 
   const [form] = Form.useForm();
@@ -72,14 +73,6 @@ const ShopList = () => {
   const canQueryShops = initialState?.currentUser?.role.permissions.find(
     (permission) => permission.action === Permissions.ReadConfigurationShops,
   );
-
-  /**
-   * @description se encarga de cerrar el modal de creacion
-   */
-  const closeModal = () => {
-    setShopData({});
-    setVisible(false);
-  };
 
   /**
    * @description abre el modal de edicion y setea la tienda
@@ -160,6 +153,18 @@ const ShopList = () => {
     } catch (error: any) {
       messageError(error?.message);
     }
+  };
+
+  /**
+   * @description se encarga de cerrar el modal de creacion
+   */
+
+  const closeModal = async () => {
+    // eslint-disable-next-line
+    onClear();
+
+    setShopData({});
+    setVisible(false);
   };
 
   /**
@@ -421,7 +426,8 @@ const ShopList = () => {
         </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
-      <ShopForm shop={shopData} visible={visible} onCancel={closeModal} />
+
+      <ShopForm shop={shopData} visible={visible} onCancel={closeModal} getShops={getShops} />
     </PageContainer>
   );
 };

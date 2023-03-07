@@ -7,6 +7,9 @@ query referenceId($id: String!) {
     description
     name
     price
+    companies {
+      isMain
+    }
     attribs {
       _id
       active

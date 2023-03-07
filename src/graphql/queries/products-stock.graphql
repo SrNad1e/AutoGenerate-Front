@@ -1,0 +1,40 @@
+query ProductStock($input: FiltersStockInput) {
+  productStock(filtersProductStock: $input) {
+    docs {
+      barcode
+      productWarehouse {
+        name
+        _id
+      }
+      color {
+        name
+        name_internal
+        html
+        image {
+          urls {
+            webp {
+              small
+            }
+          }
+        }
+      }
+      reference {
+        name
+        description
+      }
+      size {
+        value
+      }
+      stock {
+        quantity
+        warehouse {
+          _id
+        }
+      }
+    }
+    limit
+    page
+    totalDocs
+    totalPages
+  }
+}

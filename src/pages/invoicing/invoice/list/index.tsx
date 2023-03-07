@@ -7,7 +7,6 @@ import {
   MoreOutlined,
   PrinterFilled,
   SearchOutlined,
-  SelectOutlined,
   ShopOutlined,
   UserAddOutlined,
   UserOutlined,
@@ -30,15 +29,17 @@ import {
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import { useHistory, useLocation, useModel } from 'umi';
+import { useReactToPrint } from 'react-to-print';
 import type { Location } from 'umi';
 import numeral from 'numeral';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from '../styles';
 import type {
   Customer,
   FiltersInvoicesInput,
   Invoice,
+  PaymentInvoice,
   ResponseInvoices,
   Shop,
   SummaryInvoice,
@@ -51,6 +52,10 @@ import moment from 'moment';
 import { useGetInvoices } from '@/hooks/invoice.hooks';
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/lib/table/interface';
 import ModalInvoicing from '../components/ModalInvoicing';
+import SelectShop from '@/components/SelectShop';
+import InvoiceReport from '../reports/Invoice';
+import InvoiceRangeReport from '../reports/InvoiceRange';
+import AlertLoading from '@/components/Alerts/AlertLoading';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -59,6 +64,7 @@ const { RangePicker } = DatePicker;
 type FormValues = {
   active?: boolean;
   dates?: Moment[];
+  shopId?: string;
 };
 
 const InvoiceList = () => {
@@ -67,16 +73,21 @@ const InvoiceList = () => {
     type: 'error',
     visible: false,
   });
+  const [invoiceData, setInvoiceData] = useState({});
   const [filterTable, setFilterTable] = useState<Record<string, any | null>>({});
   const [showInvoicing, setShowInvoicing] = useState<boolean>(false);
   const { initialState } = useModel('@@initialState');
 
   const location: Location = useLocation();
 
+  const reportRef = useRef(null);
+  const reportRangeRef = useRef(null);
+
   const [form] = Form.useForm();
   const history = useHistory();
 
   const [getInvoices, paramsGetInvoices] = useGetInvoices();
+  const [getInvoicesRange, { data, loading }] = useGetInvoices();
 
   /**
    * @description funcion usada por los hook para mostrar los errores
@@ -109,6 +120,7 @@ const InvoiceList = () => {
     getInvoices({
       variables: {
         input: {
+          sort: { createdAt: -1 },
           ...values,
         },
       },
@@ -232,6 +244,56 @@ const InvoiceList = () => {
     setFilterTable({});
   };
 
+  const handlePrint = useReactToPrint({
+    content: () => reportRef?.current,
+  });
+
+  const handlePrintRange = useReactToPrint({
+    content: () => reportRangeRef?.current,
+  });
+
+  const generateReangeReport = async () => {
+    try {
+      const props = form.getFieldsValue();
+      const { dates } = props;
+
+      const params: Partial<FiltersInvoicesInput> | any = {
+        page: 1,
+        limit: 1000,
+        sort: { createdAt: -1 },
+        ...props,
+      };
+      if (dates) {
+        const dateInitial = moment(dates[0]).format('YYYY/MM/DD 00:00:00');
+        const dateFinal = moment(dates[1]).format('YYYY/MM/DD 00:00:00');
+        params.dateFinal = dateFinal;
+        params.dateInitial = dateInitial;
+      }
+      delete params.dates;
+      await getInvoicesRange({
+        variables: {
+          input: {
+            sort: { closeDate: -1 },
+            ...params,
+          },
+        },
+      });
+
+      handlePrintRange();
+    } catch (error: any) {
+      messageError(error?.message);
+    }
+  };
+
+  /**
+   * @description se encarga de seleccionar el pedido e imprime
+   * @param record pedido
+   */
+  const printOrder = async (record: Partial<Invoice>) => {
+    await setInvoiceData(record);
+    handlePrint();
+  };
+
   /**
    * @description se encarga de cargar los datos con base a la query
    */
@@ -240,7 +302,7 @@ const InvoiceList = () => {
     const tableFilters = {
       active: queryParams.active ? [queryParams.active === 'true'] : null,
     };
-    const newFilters = {};
+    const newFilters: any = {};
 
     Object.keys(queryParams).forEach((item) => {
       if (item === 'active') {
@@ -286,7 +348,6 @@ const InvoiceList = () => {
       title: <Text>{<UserOutlined />} Creado Por</Text>,
       dataIndex: 'user',
       align: 'center',
-      //sorter: true,
       showSorterTooltip: false,
       render: (user: User) => user.username,
     },
@@ -294,7 +355,6 @@ const InvoiceList = () => {
       title: <Text>{<UserAddOutlined />} Cliente</Text>,
       dataIndex: 'customer',
       align: 'center',
-      // sorter: true,
       showSorterTooltip: false,
       render: ({ documentType, document, firstName, lastName }: Customer) => (
         <>
@@ -326,29 +386,18 @@ const InvoiceList = () => {
       render: (summary: SummaryInvoice) => numeral(summary?.total).format('$ 0,0'),
     },
     {
-      title: 'Activo',
-      dataIndex: 'active',
+      title: 'Medios de pago',
+      dataIndex: 'payments',
       align: 'center',
-      render: (active: boolean) => {
-        return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
+      render: (payments: PaymentInvoice[]) => {
+        return (
+          <>
+            {payments?.map((payment: PaymentInvoice) => {
+              return <Tag>{payment?.payment?.name}</Tag>;
+            })}
+          </>
+        );
       },
-      filterMultiple: false,
-      filteredValue: filterTable?.active || null,
-      filterDropdown: (props) => (
-        <Filters
-          props={props}
-          data={[
-            {
-              text: 'Si',
-              value: true,
-            },
-            {
-              text: 'No',
-              value: false,
-            },
-          ]}
-        />
-      ),
     },
     {
       title: (
@@ -372,29 +421,17 @@ const InvoiceList = () => {
       fixed: 'right',
       dataIndex: '_id',
       align: 'center',
-      render: () => {
+      render: (_, record) => {
         return (
           <Space>
             <Tooltip title="Imprimir Factura">
-              <Button type="primary" onClick={() => {}} icon={<PrinterFilled />} />
+              <Button type="primary" onClick={() => printOrder(record)} icon={<PrinterFilled />} />
             </Tooltip>
-            <Space>
-              <Tooltip title="Habilitar Productos">
-                <Button
-                  type="ghost"
-                  onClick={() => {}}
-                  icon={<SelectOutlined />}
-                  disabled={false}
-                />
-              </Tooltip>
-            </Space>
           </Space>
         );
       },
     },
   ];
-
-  console.log('invoices', paramsGetInvoices?.data?.invoices?.docs);
 
   return (
     <PageContainer>
@@ -406,7 +443,13 @@ const InvoiceList = () => {
                 <RangePicker
                   style={styles.allWidth}
                   placeholder={['Fecha Inicial', 'Fecha Final']}
+                  disabled={paramsGetInvoices?.loading}
                 />
+              </FormItem>
+            </Col>
+            <Col xs={24} md={9} lg={6} xl={7}>
+              <FormItem label="Tiendas" name="shopId">
+                <SelectShop disabled={paramsGetInvoices?.loading} />
               </FormItem>
             </Col>
             <Col xs={24} md={4} lg={4} xl={5}>
@@ -417,6 +460,7 @@ const InvoiceList = () => {
                     type="primary"
                     htmlType="submit"
                     style={styles.borderR}
+                    loading={paramsGetInvoices?.loading}
                   >
                     Buscar
                   </Button>
@@ -424,6 +468,7 @@ const InvoiceList = () => {
                     htmlType="reset"
                     onClick={onClear}
                     style={styles.borderR}
+                    loading={paramsGetInvoices?.loading}
                     icon={<ClearOutlined />}
                   >
                     Limpiar
@@ -433,16 +478,28 @@ const InvoiceList = () => {
             </Col>
           </Row>
         </Form>
-        {initialState?.currentUser?.username === 'admin' && (
-          <>
-            <Button type="primary" onClick={() => setShowInvoicing(true)}>
-              AutoFacturación
-            </Button>
-            <ModalInvoicing open={showInvoicing} onCancel={() => setShowInvoicing(false)} />
-          </>
-        )}
         <Row gutter={[0, 15]} align="middle" style={{ marginTop: 20 }}>
-          <Col span={12} style={styles.alignText}>
+          <Col span={24} style={{ textAlign: 'right' }}>
+            {initialState?.currentUser?.username === USER_ADMIN && (
+              <>
+                <Button
+                  style={{ borderRadius: 5 }}
+                  type="primary"
+                  onClick={() => setShowInvoicing(true)}
+                  loading={paramsGetInvoices?.loading}
+                >
+                  AutoFacturación
+                </Button>
+                <ModalInvoicing open={showInvoicing} onCancel={() => setShowInvoicing(false)} />
+              </>
+            )}
+          </Col>
+          <Col span={12}>
+            <Button type="primary" onClick={() => generateReangeReport()}>
+              Generar PDF
+            </Button>
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
             <Text strong>Total Encontrados: </Text>{' '}
             {paramsGetInvoices?.data?.invoices?.totalDocs || 0} <Text strong> Páginas: </Text>{' '}
             {paramsGetInvoices?.data?.invoices?.page || 0} /{' '}
@@ -459,14 +516,19 @@ const InvoiceList = () => {
                 pageSize: 20,
               }}
               dataSource={paramsGetInvoices?.data?.invoices?.docs || []}
+              loading={paramsGetInvoices?.loading}
             />
           </Col>
         </Row>
       </Card>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
-      {/*<div style={{ display: 'none' }}>
-        <ReportReturn ref={reportRef1} data={returnData} />
-            </div>*/}
+      <AlertLoading visible={loading} message="Generando facturas" />
+      <div style={{ display: 'none' }}>
+        <InvoiceReport data={invoiceData} ref={reportRef} />
+      </div>
+      <div style={{ display: 'none' }}>
+        <InvoiceRangeReport dataArray={data?.invoices?.docs} ref={reportRangeRef} />
+      </div>
     </PageContainer>
   );
 };
