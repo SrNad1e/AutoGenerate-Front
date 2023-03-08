@@ -41,6 +41,7 @@ import EditModal from '../components/EditModal';
 import { useGetReferences } from '@/hooks/reference.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import Filters from '@/components/Filters';
+import { useGetCurrentUser } from '@/hooks/user.hooks';
 
 import style from './styles.less';
 import styles from './styles';
@@ -63,7 +64,7 @@ const ReferenceList = () => {
   });
 
   const location: Location = useLocation();
-
+  const currentUser = useGetCurrentUser();
   const [form] = Form.useForm();
 
   const {
@@ -106,6 +107,7 @@ const ReferenceList = () => {
    */
   const onSearch = (filters?: FiltersReferencesInput) => {
     try {
+
       getReferences({
         variables: {
           id:
@@ -265,7 +267,126 @@ const ReferenceList = () => {
     }
   }, [canQueryReference]);
 
-  const columns: ColumnsType<Partial<Reference>> = [
+  const columns: ColumnsType<Partial<Reference>> =  currentUser.data?.currentUser.company.isMain ?   [
+    {
+      title: <Text>{<FileTextOutlined />} Referenciaaa</Text>,
+      dataIndex: 'name',
+      sorter: true,
+      sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
+      showSorterTooltip: false,
+      render: (name: string, reference) => (
+        <>
+          <Tag style={styles.tagStyle}>{name}</Tag>
+          <br />
+          <Text>{reference?.description}</Text>
+        </>
+      ),
+    },
+    
+    {
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Costo
+        </Text>
+      ),
+      dataIndex: 'cost',
+      sorter: true,
+      align: 'center',
+      sortOrder: sorterTable?.field === 'cost' ? sorterTable.order : undefined,
+      showSorterTooltip: false,
+      render: (cost: number) => <span>{numeral(cost).format('$ 0,0')}</span>,
+    },
+    
+    {
+      title: (
+        <Text>
+          <DollarCircleOutlined /> Precio
+        </Text>
+      ),
+      dataIndex: 'price',
+      sorter: true,
+      align: 'center',
+      sortOrder: sorterTable?.field === 'price' ? sorterTable.order : undefined,
+      showSorterTooltip: false,
+      render: (price: number) => <span>{numeral(price).format('$ 0,0')}</span>,
+    },
+    {
+      title: 'Activo',
+      dataIndex: 'active',
+      align: 'center',
+      filteredValue: filterTable?.active || null,
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Activo',
+              value: true,
+            },
+            {
+              text: 'Inactivo',
+              value: false,
+            },
+          ]}
+        />
+      ),
+      render: (active: boolean) => {
+        return <Badge status={active ? 'success' : 'default'} text={active ? 'Si' : 'No'} />;
+      },
+    },
+    {
+      title: (
+        <Text>
+          <RetweetOutlined /> Cambiable
+        </Text>
+      ),
+      dataIndex: 'changeable',
+      align: 'center',
+      filteredValue: filterTable?.changeable || null,
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Si',
+              value: true,
+            },
+            {
+              text: 'No',
+              value: false,
+            },
+          ]}
+        />
+      ),
+      render: (changeable: boolean) => {
+        return (
+          <Badge status={changeable ? 'success' : 'default'} text={changeable ? 'Si' : 'No'} />
+        );
+      },
+    },
+    {
+      title: <Text>{<CalendarOutlined />} Fecha</Text>,
+      dataIndex: 'updatedAt',
+      align: 'center',
+      sorter: true,
+      sortOrder: sorterTable?.field === 'updatedAt' ? sorterTable.order : undefined,
+      showSorterTooltip: false,
+      render: (updatedAt: string) => <span>{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</span>,
+    },
+    {
+      title: <Text>{<MoreOutlined />} Opción</Text>,
+      dataIndex: '_id',
+      align: 'center',
+      fixed: 'right',
+      render: (id: string) => (
+        <Tooltip title="Editar" placement="topLeft">
+          <Link to={`/inventory/configurations/reference/${id}`}>
+            <Button type="primary" icon={<EditOutlined />} disabled={!canEdit} />
+          </Link>
+        </Tooltip>
+      ),
+    },
+  ]  : [
     {
       title: <Text>{<FileTextOutlined />} Referencia</Text>,
       dataIndex: 'name',
@@ -279,19 +400,6 @@ const ReferenceList = () => {
           <Text>{reference?.description}</Text>
         </>
       ),
-    },
-    {
-      title: (
-        <Text>
-          <DollarCircleOutlined /> Costo
-        </Text>
-      ),
-      dataIndex: 'cost',
-      sorter: true,
-      align: 'center',
-      sortOrder: sorterTable?.field === 'cost' ? sorterTable.order : undefined,
-      showSorterTooltip: false,
-      render: (cost: number) => <span>{numeral(cost).format('$ 0,0')}</span>,
     },
     {
       title: (
@@ -382,8 +490,8 @@ const ReferenceList = () => {
         </Tooltip>
       ),
     },
-  ];
-
+  ] ;
+  
   return (
     <PageContainer
       title={
@@ -457,7 +565,7 @@ const ReferenceList = () => {
                   total: data?.references?.totalDocs,
                   showSizeChanger: false,
                 }}
-                columns={columns}
+                columns={ columns }
                 onChange={handleChangeTable}
               />
             </Col>
