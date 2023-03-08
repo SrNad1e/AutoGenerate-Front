@@ -42,7 +42,6 @@ import { useGetReferences } from '@/hooks/reference.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import Filters from '@/components/Filters';
 import { useGetCurrentUser } from '@/hooks/user.hooks';
-import { useGetCompanies } from '@/hooks/company.hooks';
 
 import style from './styles.less';
 import styles from './styles';
@@ -66,7 +65,6 @@ const ReferenceList = () => {
 
   const location: Location = useLocation();
   const currentUser = useGetCurrentUser();
-  const [getCompanies, paramsGetCompanies] = useGetCompanies();
   const [form] = Form.useForm();
 
   const {
@@ -259,7 +257,6 @@ const ReferenceList = () => {
   };
 
   useEffect(() => {
-    console.log("Data de imga :: ",getCompanies)
     onSearch();
     getFiltersQuery();
   }, []);
@@ -548,18 +545,16 @@ const ReferenceList = () => {
                 disabled={!canCreate}
                 onClick={() => history.push('/inventory/configurations/reference/new')}
               >
-                Nueva Referenciaaa
+                Nueva Referencia
               </Button>
             </Col>
             <Col span={12} className={style.textRight}>
               <Text>
-                {console.log("Data :: ", data)}
                 <Text strong>Total Encontrados:</Text> {data?.references?.totalDocs || 0}{' '}
                 <Text strong>Páginas:</Text> {data?.references?.page || 0} /{' '}
                 {data?.references?.totalPages || 0}
               </Text>
             </Col>
-            {console.log("Datos Test :: ",currentUser.data?.currentUser.company.isMain)}
             <Col span={24}>
               <Table
                 loading={loading}

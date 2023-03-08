@@ -233,7 +233,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
               label={
                 <Space>
                   <ShopOutlined />
-                  <Text>Razon social</Text>
+                  <Text>Razón social</Text>
                 </Space>
               }
             >
