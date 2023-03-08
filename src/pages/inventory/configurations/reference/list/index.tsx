@@ -388,7 +388,7 @@ const ReferenceList = () => {
     },
   ]  : [
     {
-      title: <Text>{<FileTextOutlined />} Referenciaaa</Text>,
+      title: <Text>{<FileTextOutlined />} Referencia</Text>,
       dataIndex: 'name',
       sorter: true,
       sortOrder: sorterTable?.field === 'name' ? sorterTable.order : undefined,
