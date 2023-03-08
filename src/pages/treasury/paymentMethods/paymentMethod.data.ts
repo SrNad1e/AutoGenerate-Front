@@ -19,4 +19,9 @@ export const StatusTypePayment = {
     color: '#22A55D',
     textColor: '#fff',
   },
+  DATAPHONE: {
+    label: 'Datáfono',
+    color: '#22A55D',
+    textColor: '#fff',
+  },
 };

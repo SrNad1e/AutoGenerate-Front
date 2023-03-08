@@ -40,6 +40,7 @@ query closesXInvoicing($input: FiltersClosesXInvoicingInput) {
         quantityOpen
       }
       quantityBank
+      quantityDataphone
       payments {
         payment {
           type

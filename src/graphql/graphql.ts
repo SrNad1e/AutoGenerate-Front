@@ -438,6 +438,8 @@ export type CloseXInvoicing = {
   pointOfSale: PointOfSale;
   /** Transacciones reportadas por el usuario */
   quantityBank: Scalars['Float'];
+  /** Ventas por datafono reportadas por el usuario */
+  quantityDataphone?: Maybe<Scalars['Float']>;
   /** Devoluciones generadas */
   refunds?: Maybe<RefundOrderClose>;
   /** Datos de las ordenes */
@@ -475,6 +477,8 @@ export type CloseZInvoicing = {
   prefix: Scalars['String'];
   /** Transacciones reportadas por el usuario */
   quantityBank: Scalars['Float'];
+  /** Ventas por datafono reportadas por el usuario */
+  quantityDataphone?: Maybe<Scalars['Float']>;
   /** Devoluciones generadas */
   refunds?: Maybe<RefundOrderClose>;
   /** Datos de las ordenes */
@@ -741,6 +745,8 @@ export type CreateCloseXInvoicingInput = {
   pointOfSaleId: Scalars['String'];
   /** Cantidad de trasnferencias reportadas */
   quantityBank: Scalars['Float'];
+  /** Cantidad de ventas por datafono reportadas */
+  quantityDataphone: Scalars['Float'];
 };
 
 /** Datos para crear un cierre Z */
@@ -753,6 +759,8 @@ export type CreateCloseZInvoicingInput = {
   pointOfSaleId: Scalars['String'];
   /** Cantidad de trasnferencias reportadas */
   quantityBank: Scalars['Float'];
+  /** Cantidad de ventas por datafono reportadas */
+  quantityDataphone: Scalars['Float'];
 };
 
 /** Datos para crear un color */
@@ -6226,6 +6234,7 @@ export enum TypePayment {
   Bonus = 'BONUS',
   Cash = 'CASH',
   Credit = 'CREDIT',
+  Dataphone = 'DATAPHONE',
 }
 
 export enum TypesRule {
@@ -7026,6 +7035,7 @@ export type CreateCloseXInvoicingMutation = {
     number: number;
     closeDate: any;
     quantityBank: number;
+    quantityDataphone?: number | null;
     cashRegister: {
       __typename?: 'CashRegister';
       M50: number;
@@ -7091,6 +7101,7 @@ export type CreateCloseZInvoicingMutation = {
     prefix: string;
     closeDate: any;
     quantityBank: number;
+    quantityDataphone?: number | null;
     cashRegister: {
       __typename?: 'CashRegister';
       M50: number;
@@ -8732,6 +8743,7 @@ export type ClosesXInvoicingQuery = {
       number: number;
       closeDate: any;
       quantityBank: number;
+      quantityDataphone?: number | null;
       cashRegister: {
         __typename?: 'CashRegister';
         M50: number;
@@ -8803,6 +8815,7 @@ export type ClosesZInvoicingQuery = {
       prefix: string;
       closeDate: any;
       quantityBank: number;
+      quantityDataphone?: number | null;
       cashRegister: {
         __typename?: 'CashRegister';
         M50: number;
@@ -11886,6 +11899,7 @@ export const CreateCloseXInvoicingDocument = {
                   },
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'quantityBank' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'quantityDataphone' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'payments' },
@@ -12057,6 +12071,7 @@ export const CreateCloseZInvoicingDocument = {
                   },
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'quantityBank' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'quantityDataphone' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'payments' },
@@ -17926,6 +17941,7 @@ export const ClosesXInvoicingDocument = {
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantityBank' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantityDataphone' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'payments' },
@@ -18108,6 +18124,7 @@ export const ClosesZInvoicingDocument = {
                         },
                       },
                       { kind: 'Field', name: { kind: 'Name', value: 'quantityBank' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'quantityDataphone' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'payments' },

@@ -37,6 +37,7 @@ mutation createCloseZInvoicing($input: CreateCloseZInvoicingInput!) {
       quantityOpen
     }
     quantityBank
+    quantityDataphone
     payments {
       payment {
         type

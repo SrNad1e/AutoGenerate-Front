@@ -33,6 +33,14 @@ const classes = {
     marginTop: 10,
     color: 'black',
   },
+  title1: {
+    fontWeight: 500,
+    fontSize: 13,
+    textAlign: 'center',
+    width: '100%',
+    marginTop: 10,
+    color: 'black',
+  },
   row: {
     display: 'flex',
     color: 'black',
@@ -93,6 +101,11 @@ export default class ReportCloseZ extends React.PureComponent {
       0,
     );
 
+    const quantityDataphone = data?.payments?.reduce(
+      (sum, payment) => sum + (payment?.payment?.type === 'DATAPHONE' ? payment?.quantity : 0),
+      0,
+    );
+
     const totalExpenses = data?.expenses?.reduce((sum, expense) => sum + expense?.value, 0);
 
     const cashRegister = { ...data?.cashRegister };
@@ -120,10 +133,16 @@ export default class ReportCloseZ extends React.PureComponent {
       0,
     );
 
-    const paymentCreditBonus = data?.paymentsCredit?.reduce(
-      (sum, payment) => sum + (payment?.payment?.type === 'BONUS' ? payment?.value : 0),
-      0,
-    );
+    const getTotalDataphone = () => {
+      return (
+        data?.payments?.reduce(
+          (sum, payment) => sum + (payment?.payment?.type === 'DATAPHONE' ? payment?.value : 0),
+          0,
+        ) || 0
+      );
+    };
+
+    const diffDataphone = data?.quantityDataphone - quantityDataphone;
 
     const totalCreditPayments = data?.paymentsCredit?.reduce(
       (sum, payment) => sum + payment?.value,
@@ -275,15 +294,58 @@ export default class ReportCloseZ extends React.PureComponent {
                 <div>Consignaciones</div>
               </div>
             </div>
+            <div style={classes.title1}>
+              <div style={classes.row}>
+                <div>Datáfono</div>
+              </div>
+            </div>
+            <>
+              {' '}
+              <div style={classes.text}>
+                <div style={classes.row}>
+                  <div style={classes.col1}>C. Datáfono Registrado:</div>
+                  <div style={classes.col2}>{quantityDataphone}</div>
+                </div>
+              </div>
+              <div style={classes.text}>
+                <div style={classes.row}>
+                  <div style={classes.col1}>Total Datáfono Registrado:</div>
+                  <div style={classes.col2}>{numeral(getTotalDataphone()).format('$ 0,0')}</div>
+                </div>
+              </div>
+              <div style={classes.text}>
+                <div style={classes.row}>
+                  <div style={classes.col1}>C. Datáfono Reportado:</div>
+                  <div style={classes.col2}>{data?.quantityDataphone || 0}</div>
+                </div>
+              </div>
+              {diffDataphone !== 0 && (
+                <div style={classes.text}>
+                  <div style={classes.row}>
+                    <div style={classes.col1}>
+                      {diffDataphone > 0 ? 'Sobrante Datáfono' : 'Faltante Datáfono'}:
+                    </div>
+                    <div style={classes.col2}>
+                      {diffDataphone > 0 ? diffDataphone : diffDataphone * -1}
+                    </div>
+                  </div>
+                </div>
+              )}{' '}
+            </>
+            <div style={classes.title1}>
+              <div style={classes.row}>
+                <div>Bancolombia</div>
+              </div>
+            </div>
             <div style={classes.text}>
               <div style={classes.row}>
-                <div style={classes.col1}>Cantidad Registrado:</div>
+                <div style={classes.col1}>C. Bancolombia Registrado:</div>
                 <div style={classes.col2}>{quantityBank + quantityCreditBank}</div>
               </div>
             </div>
             <div style={classes.text}>
               <div style={classes.row}>
-                <div style={classes.col1}>Total Registrado:</div>
+                <div style={classes.col1}>T. Bancolombia Registrado:</div>
                 <div style={classes.col2}>
                   {numeral(totalBank + paymentCreditBank).format('$ 0,0')}
                 </div>
@@ -291,7 +353,7 @@ export default class ReportCloseZ extends React.PureComponent {
             </div>
             <div style={classes.text}>
               <div style={classes.row}>
-                <div style={classes.col1}>Cantidad Reportado:</div>
+                <div style={classes.col1}>C. Bancolombia Reportado:</div>
                 <div style={classes.col2}>{data?.quantityBank}</div>
               </div>
             </div>

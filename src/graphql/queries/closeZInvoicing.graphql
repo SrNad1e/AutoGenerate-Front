@@ -41,6 +41,7 @@ query closesZInvoicing($input: FiltersClosesZInvoicingInput) {
         quantityOpen
       }
       quantityBank
+      quantityDataphone
       payments {
         payment {
           type
