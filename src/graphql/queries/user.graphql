@@ -30,6 +30,11 @@ query currentUser {
         action
       }
     }
+    company {
+      _id
+      name
+      isMain
+    }
   }
 }
 

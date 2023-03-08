@@ -56,6 +56,10 @@ const Dashboard = () => {
   const { initialState } = useModel('@@initialState');
 
   useEffect(() => {
+    console.log(bonusStatic);
+  }, [bonusStatic]);
+
+  useEffect(() => {
     try {
       getGoal({
         variables: {

@@ -826,13 +826,13 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
 
         return (
           <Space>
-            {initialState?.currentUser?.role?.name === 'Administrador' && (
+            {initialState?.currentUser?.username === USER_ADMIN && (
               <Tooltip title="Reversar Pago">
                 <Button
                   disabled={
                     detail.status === StatusOrderDetail.New
                       ? true
-                      : initialState?.currentUser?.role.name === 'Administrador'
+                      : initialState?.currentUser?.username === USER_ADMIN
                       ? false
                       : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
                         (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
@@ -858,7 +858,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                 disabled={
                   detail?.status === StatusOrderDetail.Confirmed
                     ? true
-                    : initialState?.currentUser?.role.name === 'Administrador'
+                    : initialState?.currentUser?.username === USER_ADMIN
                     ? false
                     : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
                       (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
@@ -884,7 +884,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
               <Tooltip title={editable ? 'Guardar Valor' : 'Editar Valor'} placement="topLeft">
                 <Button
                   disabled={
-                    initialState?.currentUser?.role.name === 'Administrador'
+                    initialState?.currentUser?.username === USER_ADMIN
                       ? false
                       : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
                         (tabKey === '1' && detail?.payment?.type === TypePayment.Cash) ||
@@ -910,7 +910,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
             <Tooltip title="Eliminar">
               <Button
                 disabled={
-                  initialState?.currentUser?.role.name === 'Administrador'
+                  initialState?.currentUser?.username === USER_ADMIN
                     ? false
                     : (tabKey === '4' && detail?.payment?.type !== TypePayment.Cash) ||
                       detail?.status === StatusOrderDetail.Confirmed ||
@@ -954,7 +954,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                     paramsGetCoupon?.loading
                   }
                   disabled={
-                    initialState?.currentUser?.role.name === 'Administrador'
+                    initialState?.currentUser?.username === USER_ADMIN
                       ? false
                       : orderData?.statusWeb === StatusWeb.PaymentConfirmed ||
                         orderData?.statusWeb === StatusWeb.Sent ||
@@ -971,7 +971,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
               {tabKey !== '4' && (
                 <Button
                   disabled={
-                    initialState?.currentUser?.role.name === 'Administrador'
+                    initialState?.currentUser?.username === USER_ADMIN
                       ? false
                       : balance === 0 ||
                         change > 0 ||
@@ -1000,7 +1000,7 @@ const Payments = ({ orderData, tabKey, creditData }: Props) => {
                   style={styles.buttonR}
                   icon={<CheckCircleOutlined />}
                   disabled={
-                    initialState?.currentUser?.role.name === 'Administrador'
+                    initialState?.currentUser?.username === USER_ADMIN
                       ? false
                       : balance > 0 ||
                         validateAllPayConfirmed() ||

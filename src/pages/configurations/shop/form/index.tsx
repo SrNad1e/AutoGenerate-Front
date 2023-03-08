@@ -35,6 +35,7 @@ import SelectWarehouses from '@/components/SelectWarehouses';
 
 import styles from '../styles';
 import { isNumber } from 'lodash';
+import Locations from '@/components/direction/Index';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -44,6 +45,7 @@ type Props = {
   visible: boolean;
   onCancel: () => void;
   shop?: Partial<Shop>;
+  getShops: any;
 };
 
 const ShopForm = ({ visible, onCancel, shop }: Props) => {
@@ -64,8 +66,8 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
   /**
    * @description Cierra el modal, resetea los campos del form y al alerta de error
    */
-  const closeAndClear = async () => {
-    await onCancel();
+  const closeAndClear = () => {
+    onCancel();
     form.resetFields();
   };
 
@@ -171,7 +173,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
       visible={visible}
       width={400}
       okText={isNew ? 'Crear' : 'Actualizar'}
-      onCancel={closeAndClear}
+      onCancel={onCancel}
       onOk={isNew ? () => createNewShop() : () => editShop()}
       cancelText="Cancelar"
       destroyOnClose
@@ -203,7 +205,8 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 },
               ]}
             >
-              <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
+              <Locations />
+              {/* <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} /> */}
             </FormItem>
             <FormItem
               rules={[

@@ -280,7 +280,7 @@ const UsersForm = ({ visible, onCancel, user }: Props) => {
             >
               <SelectRole disabled={loading || paramsUpdate.loading} />
             </FormItem>
-            {initialState?.currentUser?.username === 'admin' && (
+            {initialState?.currentUser?.username === USER_ADMIN && (
               <FormItem
                 label={
                   <Space>

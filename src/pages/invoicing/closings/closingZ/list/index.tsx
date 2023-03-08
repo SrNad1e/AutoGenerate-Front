@@ -320,6 +320,11 @@ const ClosingZList = () => {
       dataIndex: 'number',
       sorter: true,
       showSorterTooltip: false,
+      render: (number: number, record) => (
+        <Tag style={styles.tagStyle}>
+          {record.prefix} {number}
+        </Tag>
+      ),
     },
     {
       title: (

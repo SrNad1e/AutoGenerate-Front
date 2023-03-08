@@ -64,6 +64,7 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
             sort: {
               name: 1,
             },
+            limit: 100,
           },
         },
       });
@@ -81,6 +82,7 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
             sort: {
               name: 1,
             },
+            limit: 100,
           },
         },
       });
@@ -90,6 +92,7 @@ const SelectShop = ({ onChange, disabled, value }: Params) => {
   return (
     <>
       <Select
+        allowClear
         style={{ width: '100%' }}
         showSearch
         loading={loading}

@@ -17,6 +17,12 @@ export const typesAccess = {
       Permissions.AccessInventoryBrands,
     ],
   },
+  '/inventory/reports': {
+    access: [Permissions.AccessInventoryReports],
+  },
+  '/inventory/reports/inventories': {
+    access: [Permissions.ReadStockProducts],
+  },
   '/inventory/request': {
     access: [Permissions.AccessInventoryRequests],
   },

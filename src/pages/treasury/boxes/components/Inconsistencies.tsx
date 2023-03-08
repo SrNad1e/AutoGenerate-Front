@@ -38,6 +38,7 @@ import { useGetErrorCash } from '@/hooks/box.hooks';
 import { StatusType } from './boxes.data';
 import moment from 'moment';
 import Reason from './reason';
+import SelectShop from '@/components/SelectBox';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -53,6 +54,7 @@ type FormValues = {
   verified?: boolean;
   value?: number;
   typeError?: string;
+  boxId: string;
 };
 
 const BoxInconsistencies = ({ onCancel, visible }: Props) => {
@@ -124,7 +126,8 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, pageCurrent?: number) => {
-    const { verified, typeError, closeZNumber, value } = props;
+    const { verified, typeError, closeZNumber, value, boxId } = props;
+
     try {
       const params: FiltersErrorsCashInput = {
         page: pageCurrent || 1,
@@ -133,6 +136,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
         closeZNumber,
         typeError: typeError as TypeErrorCash,
         value,
+        boxId,
       };
 
       onSearch(params);
@@ -190,7 +194,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       dataIndex: 'closeZ',
       showSorterTooltip: false,
       align: 'center',
-      render: (closeZ: CloseZInvoicing) => closeZ?.number,
+      render: (closeZ: CloseZInvoicing) => `${closeZ?.prefix} ${closeZ?.number}`,
     },
     {
       title: <Text>{<ShopOutlined />} Punto de Venta</Text>,
@@ -272,7 +276,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       onCancel={onCancel}
       visible={visible}
       destroyOnClose
-      width={1040}
+      width={1200}
       footer={
         <Button onClick={onCancel} style={{ borderRadius: 5 }} loading={loading}>
           Cerrar
@@ -281,9 +285,11 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
     >
       <Form form={form} onFinish={onFinish}>
         <Row gutter={20}>
-          <Col xs={24} md={7} lg={5}>
-            <FormItem label="Número de Cierre" name="closeZNumber">
+          <Col xs={24} md={7} lg={3}>
+            <Typography.Text>Número de Cierre</Typography.Text>
+            <FormItem name="closeZNumber">
               <InputNumber
+                placeholder="# de cierre"
                 style={{ width: '100%' }}
                 autoFocus
                 disabled={loading}
@@ -291,8 +297,16 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
               />
             </FormItem>
           </Col>
-          <Col xs={24} md={7} lg={6}>
-            <FormItem label="Valor del Cierre" name="value">
+
+          <Col xs={24} md={7} lg={4}>
+            <Typography.Text>Punto de venta</Typography.Text>
+            <FormItem name="boxId">
+              <SelectShop disabled={loading} />
+            </FormItem>
+          </Col>
+          <Col xs={24} md={7} lg={5}>
+            <Typography.Text>Valor del Cierre</Typography.Text>
+            <FormItem name="value">
               <InputNumber
                 style={{ width: '100%' }}
                 disabled={loading}
@@ -303,8 +317,10 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
               />
             </FormItem>
           </Col>
-          <Col xs={24} md={6} lg={5}>
-            <FormItem label="Tipo" name="typeError">
+          <Col xs={24} md={6} lg={4}>
+            <Typography.Text>Tipo</Typography.Text>
+
+            <FormItem name="typeError">
               <Select allowClear disabled={loading}>
                 {Object.keys(StatusType).map((key) => (
                   <Option key={key}>

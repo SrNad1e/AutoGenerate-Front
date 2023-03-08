@@ -394,6 +394,10 @@ const FormRequest = ({ request, setCurrentStep, allowEdit }: Props) => {
     deleteDetail,
   };
 
+  useEffect(() => {
+    console.log(request);
+  }, [request]);
+
   const columns: ColumnsType<Partial<DetailRequest>> = [
     {
       title: 'Producto',

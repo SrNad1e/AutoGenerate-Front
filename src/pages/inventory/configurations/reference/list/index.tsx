@@ -112,7 +112,10 @@ const ReferenceList = () => {
 
       getReferences({
         variables: {
-          id: initialState?.currentUser?.company?._id || '',
+          id:
+            initialState?.currentUser?.username !== USER_ADMIN
+              ? initialState?.currentUser?.company?._id || ''
+              : '',
           input: { ...filters },
         },
       });

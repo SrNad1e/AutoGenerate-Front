@@ -239,6 +239,13 @@ const RolesList = () => {
       render: (name: string) => <Tag style={styles.tagStyle}>{name}</Tag>,
     },
     {
+      title: <>{<CrownOutlined />} Gerarquía</>,
+      dataIndex: 'rank',
+      align: 'center',
+      sorter: true,
+      showSorterTooltip: false,
+    },
+    {
       title: <>{<FieldNumberOutlined />} Permisos</>,
       dataIndex: 'permissions',
       align: 'center',
