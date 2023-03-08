@@ -74,30 +74,13 @@ const FormGeneralData = ({ disabled }: Params) => {
           </FormItem>
         </DescriptionsItem>
         <DescriptionsItem span={2} label="Categoría">
-          <Row>
-            <Col xs={12} md={19} lg={20}>
-              <FormItem
-                style={styles.marginIntial}
-                name="categoriesId"
-                rules={[{ required: true, message: 'Obligatorio' }]}
-              >
-                <SelectCategories disabled={disabled} />
-              </FormItem>
-            </Col>
-            <Col xs={12} md={5} lg={4}>
-              <Divider type="vertical" />
-              <Tooltip title="Crear nueva categoría">
-                <Link to="/inventory/configurations/categories" target="_blank">
-                  <Button
-                    icon={<AppstoreOutlined />}
-                    type="primary"
-                    shape="circle"
-                    disabled={disabled}
-                  />
-                </Link>
-              </Tooltip>
-            </Col>
-          </Row>
+          <FormItem
+            style={styles.marginIntial}
+            name="categoriesId"
+            rules={[{ required: true, message: 'Obligatorio' }]}
+          >
+            <SelectCategories disabled={disabled} />
+          </FormItem>
         </DescriptionsItem>
         <DescriptionsItem label="Activo">
           <FormItem valuePropName="checked" style={styles.marginIntial} name="active">
