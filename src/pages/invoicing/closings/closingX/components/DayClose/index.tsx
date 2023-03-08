@@ -69,6 +69,14 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     );
   };
 
+  const quantityDataphone = data?.createCloseXInvoicing?.payments?.reduce(
+    (sum, payment) =>
+      sum + (payment?.payment?.type === TypePayment.Dataphone ? payment?.quantity : 0),
+    0,
+  );
+
+  const diffDataphone = data?.createCloseXInvoicing?.quantityDataphone - quantityDataphone;
+
   const getTotalBank = () => {
     return data?.createCloseXInvoicing?.payments?.reduce(
       (sum, payment) => sum + (payment?.payment?.type === TypePayment.Bank ? payment?.quantity : 0),
@@ -112,7 +120,8 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
     0,
   );
 
-  const diffBank = data?.createCloseXInvoicing?.quantityBank - (quantityBank + quantityCreditBank);
+  const diffBank =
+    data?.createCloseXInvoicing?.quantityBank - (quantityBank || 0 + quantityCreditBank);
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -162,7 +171,12 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
         }
         break;
       case 1:
-        const values2 = await form.validateFields(['closeDate', 'pointOfSaleId', 'quantityBank']);
+        const values2 = await form.validateFields([
+          'closeDate',
+          'pointOfSaleId',
+          'quantityBank',
+          'quantityDataphone',
+        ]);
         if (values2?.closeDate) {
           try {
             const response = await createClose({
@@ -172,6 +186,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                   closeDate: moment(values2?.closeDate).format(FORMAT_DATE_API),
                   pointOfSaleId: values2?.pointOfSaleId,
                   quantityBank: values2?.quantityBank || 0,
+                  quantityDataphone: values2?.quantityDataphone || 0,
                 },
               },
             });
@@ -262,6 +277,7 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
         layout="horizontal"
         initialValues={{
           quantityBank: 0,
+          quantityDataphone: 0,
         }}
         wrapperCol={{ span: 10 }}
         labelCol={{ span: 10 }}
@@ -309,6 +325,13 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
               name="quantityBank"
             >
               <InputNumber autoFocus controls={false} style={styles.inputWidth} />
+            </FormItem>
+            <FormItem
+              label="Cantidad ventas en datáfono"
+              rules={[{ required: true, message: 'Obligatorio' }]}
+              name="quantityDataphone"
+            >
+              <InputNumber controls={false} style={styles.inputWidth} />
             </FormItem>
           </>
         )}
@@ -417,6 +440,30 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
             >
               <Text>{data?.createCloseXInvoicing?.quantityBank}</Text>
             </Col>
+            <Col span={20}>
+              <Text strong>Ventas por datáfono registradas:</Text>
+            </Col>
+            <Col
+              span={4}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <Text>{quantityDataphone}</Text>
+            </Col>
+            <Col span={20}>
+              <Text strong>Ventas por datáfono reportadas:</Text>
+            </Col>
+            <Col
+              span={4}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <Text>{data?.createCloseXInvoicing?.quantityDataphone}</Text>
+            </Col>
             {getDifferenceBank() > 0 && expensesSize === 0 && quantityBankState > 0 && (
               <>
                 <Col span={20}>
@@ -432,6 +479,24 @@ const CloseDay = ({ visible, onCancel, cashRegister }: Props) => {
                   <Text>
                     {getDifferenceBank() > 0 ? getDifferenceBank() : -getDifferenceBank()}
                   </Text>
+                </Col>
+              </>
+            )}
+            {diffDataphone !== 0 && (
+              <>
+                <Col span={20}>
+                  <Text strong>
+                    {diffDataphone > 0 ? 'Sobrante Datáfono' : 'Faltante Datáfono'}
+                  </Text>
+                </Col>
+                <Col
+                  span={4}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  <Text>{diffDataphone > 0 ? diffDataphone : diffDataphone * -1}</Text>
                 </Col>
               </>
             )}

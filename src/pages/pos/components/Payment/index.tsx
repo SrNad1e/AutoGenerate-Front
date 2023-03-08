@@ -148,6 +148,14 @@ const ModalPayment = ({ visible, onCancel, editOrder, summary, credit, paymentsS
                 : summary.total - totalPayments,
           } as PaymentOrder),
         );
+        break;
+      case TypePayment.Dataphone:
+        setPayments(
+          payments.concat({
+            payment,
+            total: summary?.total - totalPayments,
+          } as PaymentOrder),
+        );
       default:
         break;
     }
