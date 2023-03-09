@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
-  ArrowDownOutlined,
-  ArrowUpOutlined,
   CalendarOutlined,
   ClearOutlined,
+  DislikeOutlined,
   DollarOutlined,
   FieldNumberOutlined,
   LikeOutlined,
@@ -28,17 +27,17 @@ import {
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
-import type { Box, CloseZInvoicing, ErrorCash, FiltersErrorsCashInput } from '@/graphql/graphql';
-import { TypeErrorCash } from '@/graphql/graphql';
+import type { CloseZInvoicing, FiltersClosesZInvoicingInput } from '@/graphql/graphql';
+import { VerifiedClose } from '@/graphql/graphql';
 import numeral from 'numeral';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import { useGetErrorCash } from '@/hooks/box.hooks';
 import { StatusType } from './boxes.data';
 import moment from 'moment';
 import Reason from './reason';
 import SelectShop from '@/components/SelectBox';
+import { useGetClosesZInvoicing } from '@/hooks/closeZInvoicing.hooks';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -51,23 +50,23 @@ type Props = {
 
 type FormValues = {
   closeZNumber?: number;
-  verified?: boolean;
   value?: number;
-  typeError?: string;
-  boxId: string;
+  verifiedStatus?: VerifiedClose;
+  shopId?: string;
+  closeDate?: string;
 };
 
 const BoxInconsistencies = ({ onCancel, visible }: Props) => {
   const [visibleProducts, setVisibleProducts] = useState(false);
-  const [details, setDetails] = useState();
-  const [dataTransfer, setDataTransfer] = useState<ErrorCash>();
+  const [/*details,*/ setDetails] = useState();
+  const [dataTransfer, setDataTransfer] = useState<CloseZInvoicing>();
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
     visible: false,
   });
 
-  const [getErrorCash, { data, loading }] = useGetErrorCash();
+  const [getCloseZ, { data, loading }] = useGetClosesZInvoicing();
 
   const [form] = Form.useForm();
 
@@ -75,7 +74,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
    * @description funcion usada para almacenar los datos de la transferencia erronea en el estado y abrir el modal de productos
    * @param dataT datos de la trasnferencia con error
    */
-  const onOpenProducts = (dataT: ErrorCash) => {
+  const onOpenProducts = (dataT: CloseZInvoicing) => {
     setDataTransfer(dataT);
     setVisibleProducts(true);
   };
@@ -107,12 +106,15 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
    * @description se encarga de ejecutar la funcion para obtener los traslados
    * @param params filtros necesarios para la busqueda
    */
-  const onSearch = (params?: FiltersErrorsCashInput) => {
+  const onSearch = async (params?: FiltersClosesZInvoicingInput) => {
     try {
-      getErrorCash({
+      await getCloseZ({
         variables: {
           input: {
             ...params,
+            sort: {
+              createdAt: -1,
+            },
           },
         },
       });
@@ -126,17 +128,16 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, pageCurrent?: number) => {
-    const { verified, typeError, closeZNumber, value, boxId } = props;
+    const { verifiedStatus, shopId, closeZNumber, closeDate } = props;
 
     try {
-      const params: FiltersErrorsCashInput = {
+      const params: FiltersClosesZInvoicingInput = {
         page: pageCurrent || 1,
         limit: 10,
-        verified: verified,
-        closeZNumber,
-        typeError: typeError as TypeErrorCash,
-        value,
-        boxId,
+        verifiedStatus: verifiedStatus,
+        closeDate,
+        shopId,
+        number: closeZNumber,
       };
 
       onSearch(params);
@@ -180,11 +181,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
     }
   }, []);
 
-  useEffect(() => {
-    setDetails(data?.errorsCash?.docs);
-  }, [data]);
-
-  const columns: ColumnsType<ErrorCash> = [
+  const columns: ColumnsType<CloseZInvoicing> = [
     {
       title: (
         <Text>
@@ -194,52 +191,31 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       dataIndex: 'closeZ',
       showSorterTooltip: false,
       align: 'center',
-      render: (closeZ: CloseZInvoicing) => `${closeZ?.prefix} ${closeZ?.number}`,
+      render: (_, closeZ: CloseZInvoicing) => `${closeZ?.prefix} ${closeZ?.number}`,
     },
     {
       title: <Text>{<ShopOutlined />} Punto de Venta</Text>,
       dataIndex: 'closeZ',
       align: 'center',
-      render: (closeZ: CloseZInvoicing) => closeZ?.pointOfSale?.name,
+      render: (_, closeZ: CloseZInvoicing) => closeZ?.pointOfSale?.name,
     },
     {
-      title: <Text>{<ProfileOutlined />} Caja Origen</Text>,
-      dataIndex: 'boxOrigin',
+      title: <Text>{<ProfileOutlined />} Estado</Text>,
+      dataIndex: 'verifiedStatus',
       align: 'center',
-      render: (boxOrigin: Box) => boxOrigin?.name,
-    },
-    {
-      title: <Text>{<ProfileOutlined />} Caja Destino</Text>,
-      dataIndex: 'boxDestination',
-      align: 'center',
-      render: (boxDestination: Box) => boxDestination?.name,
-    },
-    {
-      title: <Text>{<ProfileOutlined />} Tipo</Text>,
-      dataIndex: 'typeError',
-      align: 'center',
-      render: (typeError: TypeErrorCash, errorCash) => {
-        return errorCash?.verified === true ? (
+      render: (verifiedStatus: VerifiedClose) => {
+        return verifiedStatus === VerifiedClose.Verified ? (
           <Badge count={<LikeOutlined />} text={'Verificado'} />
         ) : (
-          <Badge
-            count={
-              typeError === TypeErrorCash.Missing ? (
-                <ArrowDownOutlined />
-              ) : (
-                typeError === TypeErrorCash.Surplus && <ArrowUpOutlined />
-              )
-            }
-            text={StatusType[typeError]?.text}
-          />
+          <Badge count={<DislikeOutlined />} text={'Sin Verificar'} />
         );
       },
     },
     {
       title: <Text>{<DollarOutlined />} Valor</Text>,
-      dataIndex: 'value',
+      dataIndex: 'summaryOrder',
       align: 'center',
-      render: (value: number) => numeral(value).format('$ 0,0'),
+      render: (total) => numeral(total?.value).format('$ 0,0'),
     },
     {
       title: <Text>{<CalendarOutlined />} Ultima Actualización</Text>,
@@ -253,17 +229,17 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
-      render: (_, errorCash) => {
+      render: (_, closeZ) => {
         return (
           <Button
             icon={<LikeOutlined />}
-            onClick={() => onOpenProducts(errorCash)}
+            onClick={() => onOpenProducts(closeZ)}
             type="primary"
             loading={loading}
-            disabled={errorCash?.verified === true}
+            disabled={closeZ?.verifiedStatus === VerifiedClose.Verified}
             style={{ borderRadius: 5 }}
           >
-            {errorCash?.verified === true ? 'Verificado' : 'Verificar'}
+            {closeZ?.verifiedStatus === VerifiedClose.Verified ? 'Verificado' : 'Verificar'}
           </Button>
         );
       },
@@ -274,7 +250,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
     <Modal
       title="Cuadre de Cajas"
       onCancel={onCancel}
-      visible={visible}
+      open={visible}
       destroyOnClose
       width={1200}
       footer={
@@ -362,10 +338,10 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       </Form>
       <Table
         columns={columns}
-        dataSource={details}
+        dataSource={data?.closesZInvoicing?.docs}
         pagination={{
-          current: data?.errorsCash?.page,
-          total: data?.errorsCash?.totalDocs,
+          current: data?.closesZInvoicing?.page,
+          total: data?.closesZInvoicing?.totalDocs,
           showSizeChanger: false,
         }}
         onChange={handleChangeTable}
