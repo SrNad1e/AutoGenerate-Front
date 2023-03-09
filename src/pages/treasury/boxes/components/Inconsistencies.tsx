@@ -58,7 +58,7 @@ type FormValues = {
 
 const BoxInconsistencies = ({ onCancel, visible }: Props) => {
   const [visibleProducts, setVisibleProducts] = useState(false);
-  const [/*details,*/ setDetails] = useState();
+  const [setDetails] = useState();
   const [dataTransfer, setDataTransfer] = useState<CloseZInvoicing>();
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
