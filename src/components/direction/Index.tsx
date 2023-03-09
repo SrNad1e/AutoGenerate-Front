@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AutoComplete } from 'antd';
 
 const { Option } = AutoComplete;
 
-const Index: React.FC = () => {
+interface locations {
+  setValue: any;
+  // eslint-disable-next-line
+  city: string;
+  disable: boolean;
+  onClear: any;
+}
+
+const Index = ({ setValue, defautValue, city, disable, onClear }: locations) => {
   const [dataSource, setDataSource] = useState([]);
   // eslint-disable-next-line
-  const [value, setValue] = useState('');
+
   // eslint-disable-next-line
   const locations = async (text: String) => {
     try {
       const requestOptions = {
         method: 'GET',
       };
+      // eslint-disable-next-line
+      let textValue: String = `${text},${city},Colombia`;
 
       await fetch(
-        `https://api.geoapify.com/v1/geocode/autocomplete?text=${text}&apiKey=2704b0ce520b4865b61a4285e94b95a3`,
+        `https://api.geoapify.com/v1/geocode/autocomplete?text=${textValue}&apiKey=2704b0ce520b4865b61a4285e94b95a3`,
         requestOptions,
       )
         .then((response) => response.json())
@@ -32,19 +42,21 @@ const Index: React.FC = () => {
     setValue(data);
   };
 
-  console.log(dataSource);
-
   return (
     <>
       <AutoComplete
-        style={{ width: 200 }}
+        style={{ width: '100%' }}
         onSearch={(text) => locations(text)}
         onChange={onChange}
         placeholder="Dirección"
+        defaultValue={defautValue}
+        disabled={disable}
+        onClear={onClear}
+        allowClear
       >
         {dataSource?.map((m: any) => (
           // eslint-disable-next-line
-          <Option> {`${m?.properties?.formatted}`} </Option>
+          <Option value={m?.properties?.formatted}> {`${m?.properties?.formatted}`} </Option>
         ))}
       </AutoComplete>
     </>
