@@ -11,20 +11,7 @@ import {
   SearchOutlined,
   ShopOutlined,
 } from '@ant-design/icons';
-import {
-  Badge,
-  Button,
-  Col,
-  Form,
-  InputNumber,
-  Modal,
-  Row,
-  Select,
-  Space,
-  Switch,
-  Table,
-  Typography,
-} from 'antd';
+import { Badge, Button, Col, Form, InputNumber, Modal, Row, Space, Table, Typography } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import { useEffect, useState } from 'react';
 import type { CloseZInvoicing, FiltersClosesZInvoicingInput } from '@/graphql/graphql';
@@ -33,13 +20,12 @@ import numeral from 'numeral';
 
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
-import { StatusType } from './boxes.data';
 import moment from 'moment';
 import Reason from './reason';
-import SelectShop from '@/components/SelectBox';
 import { useGetClosesZInvoicing } from '@/hooks/closeZInvoicing.hooks';
+import Filters from '@/components/Filters';
+import SelectShop from '@/components/SelectShop';
 
-const { Option } = Select;
 const FormItem = Form.Item;
 const { Text } = Typography;
 
@@ -49,7 +35,7 @@ type Props = {
 };
 
 type FormValues = {
-  closeZNumber?: number;
+  number?: number;
   value?: number;
   verifiedStatus?: VerifiedClose;
   shopId?: string;
@@ -128,8 +114,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
    * @param props filtros seleccionados en el formulario
    */
   const onFinish = (props: FormValues, pageCurrent?: number) => {
-    const { verifiedStatus, shopId, closeZNumber, closeDate } = props;
-
+    const { verifiedStatus, shopId, number, closeDate, value } = props;
     try {
       const params: FiltersClosesZInvoicingInput = {
         page: pageCurrent || 1,
@@ -137,10 +122,11 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
         verifiedStatus: verifiedStatus,
         closeDate,
         shopId,
-        number: closeZNumber,
+        number,
+        value,
+        sort: { createdAt: -1 },
       };
-
-      onSearch(params);
+      onSearch({ ...params });
       form.setFieldsValue(props);
     } catch (e: any) {
       messageError(e?.message);
@@ -151,11 +137,25 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
    * @descripcion controla el onchange de la tabla
    * @param paginationLocal eventos de la paginacion
    */
-  const handleChangeTable = (paginationLocal: TablePaginationConfig) => {
-    const params = form.getFieldsValue();
+  const handleChangeTable = (
+    paginationLocal: TablePaginationConfig,
+    filterArg: Record<string, any>,
+  ) => {
+    const params = form.getFieldsValue(['number', 'shopId']);
+    const closeValue = form.getFieldValue('value');
     const { current } = paginationLocal;
+
+    const filters = { ...filterArg };
+
+    Object.keys(filters).forEach((i) => {
+      if (filters[i] === null) {
+        delete filters[i];
+      } else {
+        filters[i] = filters[i][0];
+      }
+    });
     try {
-      onFinish(params, current);
+      onFinish({ ...params, page: current, ...filters, value: closeValue });
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -210,6 +210,21 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
           <Badge count={<DislikeOutlined />} text={'Sin Verificar'} />
         );
       },
+      filterDropdown: (props) => (
+        <Filters
+          props={props}
+          data={[
+            {
+              text: 'Verificado',
+              value: 'VERIFIED',
+            },
+            {
+              text: 'Sin Verificar',
+              value: 'UNVERIFIED',
+            },
+          ]}
+        />
+      ),
     },
     {
       title: <Text>{<DollarOutlined />} Valor</Text>,
@@ -219,7 +234,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
     },
     {
       title: <Text>{<CalendarOutlined />} Ultima Actualización</Text>,
-      dataIndex: 'updatedAt',
+      dataIndex: 'closeDate',
       showSorterTooltip: false,
       align: 'center',
       render: (updatedAt: Date) => moment(updatedAt).format(FORMAT_DATE),
@@ -260,10 +275,22 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       }
     >
       <Form form={form} onFinish={onFinish}>
-        <Row gutter={20}>
-          <Col xs={24} md={7} lg={3}>
-            <Typography.Text>Número de Cierre</Typography.Text>
-            <FormItem name="closeZNumber">
+        <Row gutter={20} justify="start" align={'middle'}>
+          <Col span={24}>
+            <Row>
+              <Col span={3}>
+                <Typography.Text>Número de Cierre</Typography.Text>
+              </Col>
+              <Col span={2}>
+                <Typography.Text>Tienda</Typography.Text>
+              </Col>
+              <Col style={{ marginLeft: '8.7%' }} offset={2}>
+                <Typography.Text>Valor del Cierre</Typography.Text>
+              </Col>
+            </Row>
+          </Col>
+          <Col xs={24} md={5} lg={3}>
+            <FormItem name="number">
               <InputNumber
                 placeholder="# de cierre"
                 style={{ width: '100%' }}
@@ -273,19 +300,17 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
               />
             </FormItem>
           </Col>
-
-          <Col xs={24} md={7} lg={4}>
-            <Typography.Text>Punto de venta</Typography.Text>
-            <FormItem name="boxId">
+          <Col xs={24} md={5} lg={4}>
+            <FormItem name="shopId">
               <SelectShop disabled={loading} />
             </FormItem>
           </Col>
-          <Col xs={24} md={7} lg={5}>
-            <Typography.Text>Valor del Cierre</Typography.Text>
+          <Col xs={24} md={4} lg={5}>
             <FormItem name="value">
               <InputNumber
-                style={{ width: '100%' }}
+                style={{ width: '80%' }}
                 disabled={loading}
+                controls={false}
                 step={100}
                 formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
@@ -293,25 +318,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
               />
             </FormItem>
           </Col>
-          <Col xs={24} md={6} lg={4}>
-            <Typography.Text>Tipo</Typography.Text>
-
-            <FormItem name="typeError">
-              <Select allowClear disabled={loading}>
-                {Object.keys(StatusType).map((key) => (
-                  <Option key={key}>
-                    <Badge text={StatusType[key].text} color={StatusType[key].color} />
-                  </Option>
-                ))}
-              </Select>
-            </FormItem>
-          </Col>
-          <Col xs={24} md={4} lg={3}>
-            <FormItem label="Verificado" name="verified">
-              <Switch />
-            </FormItem>
-          </Col>
-          <Col xs={24} md={24} lg={3}>
+          <Col xs={24} md={7} lg={3}>
             <FormItem>
               <Space>
                 <Button
