@@ -130,7 +130,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
           visible: true,
         });
       }
-      onCancel();
+      await onCancel();
     } catch (e: any) {
       if (e?.message) {
         showError(e?.message);

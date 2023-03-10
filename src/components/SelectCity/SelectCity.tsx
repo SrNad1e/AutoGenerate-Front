@@ -56,14 +56,17 @@ const SelectCity = ({ setCity }: propsSelect) => {
   // eslint-disable-next-line
   const onSearch = (e) => {
     try {
-      refetch({
-        input: {
-          sort: {
-            name: 1,
+      if (e.length === 0 || e.length === 5 || e.length === 7 || e.length === 10) {
+        refetch({
+          input: {
+            sort: {
+              name: 1,
+            },
+            name: e,
           },
-          name: e,
-        },
-      });
+        });
+      }
+
       // eslint-disable-next-line
     } catch (e: any) {
       showError(e?.message);
