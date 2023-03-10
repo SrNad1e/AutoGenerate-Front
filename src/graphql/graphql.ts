@@ -1834,10 +1834,14 @@ export type FiltersClosesZInvoicingInput = {
   number?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
+  /** Prefijo del cierre */
+  prefix?: InputMaybe<Scalars['String']>;
   /** Tienda del cierre */
   shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortCloseZInvoicing>;
+  /** Valor del cierre */
+  value?: InputMaybe<Scalars['Float']>;
   /** estado del cierre */
   verifiedStatus?: InputMaybe<VerifiedClose>;
 };
