@@ -44,8 +44,7 @@ type FormValues = {
 
 const BoxInconsistencies = ({ onCancel, visible }: Props) => {
   const [visibleProducts, setVisibleProducts] = useState(false);
-  const [setDetails] = useState();
-  const [dataTransfer, setDataTransfer] = useState<CloseZInvoicing>();
+  const [closeData, setCloseData] = useState<CloseZInvoicing>();
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -60,8 +59,8 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
    * @description funcion usada para almacenar los datos de la transferencia erronea en el estado y abrir el modal de productos
    * @param dataT datos de la trasnferencia con error
    */
-  const onOpenProducts = (dataT: CloseZInvoicing) => {
-    setDataTransfer(dataT);
+  const onOpenProducts = (dataClose: CloseZInvoicing) => {
+    setCloseData(dataClose);
     setVisibleProducts(true);
   };
 
@@ -357,8 +356,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       />
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <Reason
-        setDetails={setDetails}
-        errorCashId={dataTransfer?._id}
+        closeZData={closeData}
         visible={visibleProducts}
         onCancel={() => setVisibleProducts(false)}
       />
