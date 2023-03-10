@@ -260,10 +260,6 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
     },
   ];
 
-  useEffect(() => {
-    console.log(closeData);
-  }, [closeData]);
-
   return (
     <Modal
       title="Cuadre de Cajas"
