@@ -275,9 +275,21 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       }
     >
       <Form form={form} onFinish={onFinish}>
-        <Row gutter={20} align={'middle'}>
-          <Col xs={24} md={6} lg={3}>
-            <Typography.Text>Número de Cierre</Typography.Text>
+        <Row gutter={20} justify="start" align={'middle'}>
+          <Col span={24}>
+            <Row>
+              <Col span={3}>
+                <Typography.Text>Número de Cierre</Typography.Text>
+              </Col>
+              <Col span={2}>
+                <Typography.Text>Tienda</Typography.Text>
+              </Col>
+              <Col style={{ marginLeft: '8.7%' }} offset={2}>
+                <Typography.Text>Valor del Cierre</Typography.Text>
+              </Col>
+            </Row>
+          </Col>
+          <Col xs={24} md={5} lg={3}>
             <FormItem name="number">
               <InputNumber
                 placeholder="# de cierre"
@@ -288,14 +300,12 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
               />
             </FormItem>
           </Col>
-          <Col xs={24} md={6} lg={4}>
-            <Typography.Text>Tienda</Typography.Text>
+          <Col xs={24} md={5} lg={4}>
             <FormItem name="shopId">
               <SelectShop disabled={loading} />
             </FormItem>
           </Col>
           <Col xs={24} md={4} lg={5}>
-            <Typography.Text>Valor del Cierre</Typography.Text>
             <FormItem name="value">
               <InputNumber
                 style={{ width: '80%' }}
@@ -309,7 +319,6 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
             </FormItem>
           </Col>
           <Col xs={24} md={7} lg={3}>
-            <Typography.Text>{'⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀'}</Typography.Text>
             <FormItem>
               <Space>
                 <Button
