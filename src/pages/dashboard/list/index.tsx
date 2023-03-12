@@ -76,6 +76,7 @@ const Dashboard = () => {
   };
 
   const onSearchData = async (filters?: FiltersSalesReportInput) => {
+    console.log("DATA RESPON :: ", FORMAT_DATE_API)
     try {
       const response = await getReportSales({
         variables: {
@@ -443,6 +444,7 @@ const Dashboard = () => {
   };
 
   const loadingData = () => {
+
     const queryParams: any = location?.query;
 
     const newFilters = {};
@@ -474,7 +476,7 @@ const Dashboard = () => {
     loadingData();
     const valueDate = form.getFieldValue('dates');
     if (!valueDate) {
-      form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
+      //form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
     }
   }, []);
 
