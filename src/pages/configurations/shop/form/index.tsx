@@ -11,7 +11,7 @@ import {
   Select,
   Space,
   Typography,
-} from 'antd';
+} from '@/utils/Desing';
 import {
   DollarOutlined,
   DropboxOutlined,
@@ -21,7 +21,7 @@ import {
   ShopOutlined,
   FileProtectOutlined,
   MailOutlined,
-} from '@ant-design/icons';
+} from '@/utils/Icon';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import type { Shop } from '@/graphql/graphql';
 import { useEffect, useState } from 'react';
@@ -36,6 +36,7 @@ import SelectWarehouses from '@/components/SelectWarehouses';
 import styles from '../styles';
 import { isNumber } from 'lodash';
 import Locations from '@/components/direction/Index';
+import City from '@/components/SelectCity/SelectCity';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -55,6 +56,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
     visible: false,
   });
   const [isMain, setIsMain] = useState(false);
+  const [city, setCity] = useState('');
 
   const isNew = !shop?._id;
 
@@ -128,6 +130,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
           visible: true,
         });
       }
+      await onCancel();
     } catch (e: any) {
       if (e?.message) {
         showError(e?.message);
@@ -155,6 +158,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
           visible: true,
         });
       }
+      await onCancel();
     } catch (error: any) {
       showError(error?.message);
     }
@@ -171,7 +175,7 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
   return (
     <Modal
       visible={visible}
-      width={400}
+      width={600}
       okText={isNew ? 'Crear' : 'Actualizar'}
       onCancel={onCancel}
       onOk={isNew ? () => createNewShop() : () => editShop()}
@@ -187,9 +191,29 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
         loading: paramsCreateShop?.loading || paramsUpdateShop?.loading,
       }}
     >
-      <Form form={form} layout="vertical" style={styles.centerForm}>
-        <Row>
-          <Col span={24}>
+      <Form
+        form={form}
+        layout="vertical"
+        style={styles.centerForm}
+        initialValues={{
+          address: shop?.address,
+        }}
+      >
+        <Row gutter={[8, 8]}>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <Space>
+                  <HomeOutlined />
+                  <Text>Ciudad</Text>
+                </Space>
+              }
+            >
+              <City setCity={setCity} />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
             <FormItem
               name="address"
               label={
@@ -205,9 +229,26 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 },
               ]}
             >
-              <Locations />
+              <Locations
+                city={city}
+                setValue={(e) =>
+                  form.setFieldsValue({
+                    address: e,
+                  })
+                }
+                onClear={() =>
+                  form.setFieldsValue({
+                    address: undefined,
+                  })
+                }
+                defautValue={shop?.address || ''}
+                disable={city === '' ? true : false}
+              />
               {/* <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} /> */}
             </FormItem>
+          </Col>
+
+          <Col span={12}>
             <FormItem
               rules={[
                 {
@@ -228,6 +269,9 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 placeholder="Ingrese nombre de la tienda"
               />
             </FormItem>
+          </Col>
+
+          <Col span={12}>
             <FormItem
               name="companyName"
               label={
@@ -239,6 +283,9 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
             >
               <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
             </FormItem>
+          </Col>
+
+          <Col span={12}>
             <FormItem
               rules={[
                 {
@@ -256,6 +303,9 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
             >
               <SelectWarehouses disabled={false} />
             </FormItem>
+          </Col>
+
+          <Col span={12}>
             <FormItem
               name="warehouseMainId"
               label={
@@ -267,6 +317,9 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
             >
               <SelectWarehouses disabled={false} />
             </FormItem>
+          </Col>
+
+          <Col span={12}>
             <FormItem
               rules={[
                 {
@@ -295,6 +348,8 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 controls={false}
               />
             </FormItem>
+          </Col>
+          <Col span={12}>
             <FormItem
               name="email"
               label={
@@ -306,6 +361,8 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
             >
               <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
             </FormItem>
+          </Col>
+          <Col span={12}>
             <FormItem
               name="document"
               label={
@@ -317,6 +374,8 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
             >
               <Input disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading} />
             </FormItem>
+          </Col>
+          <Col span={12}>
             <FormItem
               name="goal"
               label={
@@ -331,11 +390,15 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                 min={0}
                 step={100}
                 style={styles.maxWidth}
+                size="small"
                 formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={(value: any) => value.replace(/\$\s?|(,*)/g, '')}
               />
             </FormItem>
-            {!isNew && (
+          </Col>
+
+          {!isNew && (
+            <Col span={12}>
               <FormItem
                 name="status"
                 label={
@@ -361,7 +424,10 @@ const ShopForm = ({ visible, onCancel, shop }: Props) => {
                   ))}
                 </Select>
               </FormItem>
-            )}
+            </Col>
+          )}
+
+          <Col span={12}>
             <FormItem name="isMain">
               <Checkbox
                 disabled={paramsCreateShop?.loading || paramsUpdateShop?.loading}

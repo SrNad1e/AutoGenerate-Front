@@ -487,6 +487,8 @@ export type CloseZInvoicing = {
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó o editó el cierre */
   user: User;
+  /** si el cierre ha sido verificado */
+  verifiedStatus: VerifiedClose;
 };
 
 /** Color del producto */
@@ -1832,10 +1834,16 @@ export type FiltersClosesZInvoicingInput = {
   number?: InputMaybe<Scalars['Float']>;
   /** Desde donde arranca la página */
   page?: InputMaybe<Scalars['Float']>;
+  /** Prefijo del cierre */
+  prefix?: InputMaybe<Scalars['String']>;
   /** Tienda del cierre */
   shopId?: InputMaybe<Scalars['String']>;
   /** Ordenamiento (1 es ascendente, -1 es descendente) */
   sort?: InputMaybe<SortCloseZInvoicing>;
+  /** Valor del cierre */
+  value?: InputMaybe<Scalars['Float']>;
+  /** estado del cierre */
+  verifiedStatus?: InputMaybe<VerifiedClose>;
 };
 
 /** Filtros para la lista de colores */
@@ -2777,6 +2785,8 @@ export type Mutation = {
   updateCategory: CategoryLevel1;
   /** Actualiza una ciudad */
   updateCity: City;
+  /** actualiza un cierre Z de facturación */
+  updateCloseZInvoicing: CloseZInvoicing;
   /** Actualiza el color */
   updateColor: Color;
   /** Actualiza una compañía */
@@ -3038,6 +3048,10 @@ export type MutationUpdateCategoryArgs = {
 export type MutationUpdateCityArgs = {
   id: Scalars['String'];
   updateCityInput: UpadteCityInput;
+};
+
+export type MutationUpdateCloseZInvoicingArgs = {
+  updateCloseZInvoicing?: InputMaybe<VerifiedCloseZInput>;
 };
 
 export type MutationUpdateColorArgs = {
@@ -6705,6 +6719,19 @@ export type User = {
   user?: Maybe<User>;
   /** Cuenta de usuario */
   username: Scalars['String'];
+};
+
+export enum VerifiedClose {
+  Unverified = 'UNVERIFIED',
+  Verified = 'VERIFIED',
+}
+
+/** Datos para verificar los cierres z */
+export type VerifiedCloseZInput = {
+  /** Identificador del cierre que se va a verificar */
+  closeZId: Scalars['String'];
+  /** Estado de verificado del cierre */
+  verifiedStatus: VerifiedClose;
 };
 
 /** Datos para verificar los errores de pedido */
@@ -10757,7 +10784,7 @@ export type CurrentUserQuery = {
       _id: string;
       box: { __typename?: 'Box'; _id: string };
     } | null;
-    company: { __typename?: 'Company'; name: string; _id: string; isMain: boolean };
+    company: { __typename?: 'Company'; isMain: boolean; name: string; _id: string };
     shop: {
       __typename?: 'Shop';
       _id: string;
@@ -10793,7 +10820,7 @@ export type UsersQuery = {
       isWeb: boolean;
       status: StatusUser;
       username: string;
-      company: { __typename?: 'Company'; name: string; _id: string };
+      company: { __typename?: 'Company'; isMain: boolean; name: string; _id: string };
       role: { __typename?: 'Role'; name: string; _id: string };
       shop: { __typename?: 'Shop'; name: string; _id: string };
       pointOfSale?: { __typename?: 'PointOfSale'; name: string; _id: string } | null;
@@ -23955,6 +23982,7 @@ export const CurrentUserDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'isMain' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                     ],
@@ -24074,6 +24102,7 @@ export const UsersDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'isMain' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             { kind: 'Field', name: { kind: 'Name', value: '_id' } },
                           ],

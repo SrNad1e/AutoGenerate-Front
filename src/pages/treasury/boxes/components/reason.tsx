@@ -1,24 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Col, Form, Input, Modal, Row, Space, Typography } from 'antd';
-import { useEffect, useState } from 'react';
-import { MessageOutlined } from '@ant-design/icons';
+import { Form, Modal } from 'antd';
+import { useEffect, useRef, useState } from 'react';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import { useVerifiedErrorCash } from '@/hooks/box.hooks';
-
-const FormItem = Form.Item;
-const { Text } = Typography;
-const { TextArea } = Input;
+import ReportCloseZ from '@/pages/invoicing/closings/closingZ/reports/closeZ';
+import type { CloseZInvoicing } from '@/graphql/graphql';
 
 type Props = {
   visible: boolean;
   onCancel: () => void;
-  errorCashId: string;
-  setDetails: any;
+  closeZData?: CloseZInvoicing;
 };
 
-const Reason = ({ onCancel, visible, errorCashId, setDetails }: Props) => {
+const Correction = ({ onCancel, visible, closeZData }: Props) => {
   const [propsAlertInformation, setPropsAlertInformation] = useState<PropsAlertInformation>({
     message: '',
     type: 'error',
@@ -26,20 +21,7 @@ const Reason = ({ onCancel, visible, errorCashId, setDetails }: Props) => {
   });
 
   const [form] = Form.useForm();
-
-  const [verifiedCash, paramsVerifiedProduct] = useVerifiedErrorCash();
-
-  /**
-   * @description funcion usada por los hook para mostrar los errores
-   * @param message mensaje de error a mostrar
-   */
-  const messageError = (message: string) => {
-    setPropsAlertInformation({
-      message,
-      type: 'error',
-      visible: true,
-    });
-  };
+  const reportRef = useRef(null);
 
   /**
    * @description se encarga de cerrar la alerta informativa
@@ -53,81 +35,36 @@ const Reason = ({ onCancel, visible, errorCashId, setDetails }: Props) => {
     onCancel();
   };
 
-  /**
-   * @description funcion usada para ejecuar la mutacion de verificacion de productos
-   */
-  const onVerifiedProduct = async () => {
-    const values = await form.validateFields();
-    try {
-      const response = await verifiedCash({
-        variables: {
-          input: {
-            reason: values?.reason,
-            errorCashId: errorCashId,
-          },
-        },
-      });
-      if (response?.data?.verifiedErrorsCash) {
-        await setDetails([response?.data?.verifiedErrorsCash]);
-        setPropsAlertInformation({
-          message: 'Efectivo Verificado Correctamente',
-          type: 'success',
-          visible: true,
-        });
-      }
-    } catch (error: any) {
-      messageError(error?.message);
-    }
-  };
-
   useEffect(() => {
     form.resetFields();
   }, [visible]);
 
   return (
     <Modal
-      okText="Verificar"
+      okText="Corregir"
       cancelText="Cancelar"
-      title="Verificación"
+      title="Corrección"
       onCancel={onCancel}
-      onOk={onVerifiedProduct}
-      visible={visible}
+      onOk={() => {}}
+      open={visible}
       destroyOnClose
       okButtonProps={{
         style: { borderRadius: 5 },
-        loading: paramsVerifiedProduct?.loading,
+        loading: false,
       }}
       cancelButtonProps={{
         style: { borderRadius: 5 },
-        loading: paramsVerifiedProduct?.loading,
+        loading: false,
       }}
     >
       <Form form={form} layout="vertical" style={{ display: 'flex', justifyContent: 'center' }}>
-        <Row>
-          <Col>
-            <FormItem
-              label={
-                <Space>
-                  <MessageOutlined />
-                  <Text>Razón</Text>
-                </Space>
-              }
-              name="reason"
-              rules={[{ required: true, message: 'Campo obligatorio', min: 1 }]}
-            >
-              <TextArea
-                disabled={paramsVerifiedProduct?.loading}
-                showCount
-                maxLength={150}
-                style={{ height: 120 }}
-              />
-            </FormItem>
-          </Col>
-        </Row>
+        <div>
+          <ReportCloseZ ref={reportRef} data={closeZData} />
+        </div>
       </Form>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </Modal>
   );
 };
 
-export default Reason;
+export default Correction;

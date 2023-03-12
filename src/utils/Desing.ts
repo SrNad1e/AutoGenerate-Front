@@ -1,0 +1,12 @@
+export { Badge } from 'antd';
+export { Checkbox } from 'antd';
+export { Col } from 'antd';
+export { Form } from 'antd';
+export { Input } from 'antd';
+export { InputNumber } from 'antd';
+export { Modal } from 'antd';
+export { Row } from 'antd';
+export { Select } from 'antd';
+export { Space } from 'antd';
+export { Typography } from 'antd';
+export { Alert } from 'antd';
