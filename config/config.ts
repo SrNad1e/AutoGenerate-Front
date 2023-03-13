@@ -552,7 +552,7 @@ export default defineConfig({
                 {
                   name: 'Usuarios WEB',
                   path: '/configurations/users/web',
-                  component: './configurations/users/userErp',
+                  component: './configurations/users/usersErp',
                 },
               ],
             },
