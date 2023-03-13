@@ -76,6 +76,7 @@ const Dashboard = () => {
   };
 
   const onSearchData = async (filters?: FiltersSalesReportInput) => {
+    
     try {
       const response = await getReportSales({
         variables: {
@@ -88,6 +89,7 @@ const Dashboard = () => {
           },
         },
       });
+
       if (response?.data?.reportSales) {
         setCustomers(
           response?.data?.reportSales?.customersSalesReport?.map((item) => {
@@ -129,6 +131,7 @@ const Dashboard = () => {
             return 1;
           }
         }) as any;
+        
         setSales(arrOrdered);
       }
     } catch (error: any) {
@@ -334,7 +337,7 @@ const Dashboard = () => {
     isStack: true,
     xField: 'dateFormat',
     yField: criterio === true ? 'total' : 'quantity',
-    seriesField:  period ? 'date' : 'categoryName',
+    seriesField:   'categoryName',
     label: false,
     xAxis: {
       label: {
@@ -443,6 +446,7 @@ const Dashboard = () => {
   };
 
   const loadingData = () => {
+
     const queryParams: any = location?.query;
 
     const newFilters = {};
@@ -474,7 +478,7 @@ const Dashboard = () => {
     loadingData();
     const valueDate = form.getFieldValue('dates');
     if (!valueDate) {
-      form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
+      //form.setFieldValue('dates', [moment(new Date()), moment(new Date())]);
     }
   }, []);
 
