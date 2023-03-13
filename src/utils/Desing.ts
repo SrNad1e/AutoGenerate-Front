@@ -10,3 +10,7 @@ export { Select } from 'antd';
 export { Space } from 'antd';
 export { Typography } from 'antd';
 export { Alert } from 'antd';
+export { Button } from 'antd';
+export { Card } from 'antd';
+export { Table } from 'antd';
+export { Tooltip } from 'antd';

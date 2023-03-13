@@ -1,10 +1,9 @@
-import React from 'react';
 import UsersList from '../UserContent';
 
-const Index: React.FC = () => {
+const Index = () => {
   return (
     <>
-      <UsersList propsWeb={false} />
+      <UsersList propsWeb={true} />
     </>
   );
 };
