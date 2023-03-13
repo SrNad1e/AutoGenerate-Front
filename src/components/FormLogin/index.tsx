@@ -93,7 +93,7 @@ const FormLogin = () => {
 
     return loading;
   };
-
+/*
   const transitions = useTransition(show, {
     from: { opacity: 0, transform: 'translate3d(0,-100%,0)' },
     enter: { opacity: 1, transform: 'translate3d(0,90%,0)' },
@@ -103,14 +103,10 @@ const FormLogin = () => {
     config: { duration: 1000 },
     onRest: () => setShow(true),
   });
-
+*/
   return (
     <>
-      {transitions(
-        (style, item) =>
-          item && (
-            <animated.div style={{ ...style, display: 'flex', justifyContent: 'center' }}>
-              <Col md={24} lg={21} xl={18} xxl={17}>
+      <Col md={24} lg={21} xl={18} xxl={17}>
                 <Card hoverable bodyStyle={{ padding: 0 }}>
                   <LoginForm
                     className={styles.form}
@@ -160,9 +156,6 @@ const FormLogin = () => {
                   </LoginForm>
                 </Card>
               </Col>
-            </animated.div>
-          ),
-      )}
       <AlertInformation {...propsAlert} onCancel={onCloseAlert} />
     </>
   );
