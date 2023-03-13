@@ -76,7 +76,7 @@ const Dashboard = () => {
   };
 
   const onSearchData = async (filters?: FiltersSalesReportInput) => {
-    console.log("DATA RESPON :: ", FORMAT_DATE_API)
+    
     try {
       const response = await getReportSales({
         variables: {
@@ -89,6 +89,7 @@ const Dashboard = () => {
           },
         },
       });
+
       if (response?.data?.reportSales) {
         setCustomers(
           response?.data?.reportSales?.customersSalesReport?.map((item) => {
@@ -130,6 +131,7 @@ const Dashboard = () => {
             return 1;
           }
         }) as any;
+        
         setSales(arrOrdered);
       }
     } catch (error: any) {
@@ -335,7 +337,7 @@ const Dashboard = () => {
     isStack: true,
     xField: 'dateFormat',
     yField: criterio === true ? 'total' : 'quantity',
-    seriesField:  period ? 'date' : 'categoryName',
+    seriesField:   'categoryName',
     label: false,
     xAxis: {
       label: {
