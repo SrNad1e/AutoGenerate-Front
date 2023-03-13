@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
-import ReportCloseZ from '@/pages/invoicing/closings/closingZ/reports/closeZ';
 import type { CloseZInvoicing } from '@/graphql/graphql';
+import CloseCorrection from './closeVerified';
 
 type Props = {
   visible: boolean;
@@ -39,13 +39,17 @@ const Correction = ({ onCancel, visible, closeZData }: Props) => {
     form.resetFields();
   }, [visible]);
 
+  const onFinish = () => {
+    const values = form.getFieldsValue();
+    return values;
+  };
+
   return (
     <Modal
       okText="Corregir"
       cancelText="Cancelar"
-      title="Corrección"
       onCancel={onCancel}
-      onOk={() => {}}
+      onOk={() => onFinish()}
       open={visible}
       destroyOnClose
       okButtonProps={{
@@ -59,7 +63,7 @@ const Correction = ({ onCancel, visible, closeZData }: Props) => {
     >
       <Form form={form} layout="vertical" style={{ display: 'flex', justifyContent: 'center' }}>
         <div>
-          <ReportCloseZ ref={reportRef} data={closeZData} />
+          <CloseCorrection ref={reportRef} data={closeZData} />
         </div>
       </Form>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
