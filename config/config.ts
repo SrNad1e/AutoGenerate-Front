@@ -537,12 +537,26 @@ export default defineConfig({
               component: './configurations/warehouse/list',
               access: 'allowOption',
             },
+
             {
               name: 'Usuarios',
               path: '/configurations/users',
-              component: './configurations/users/list',
               access: 'allowOption',
+
+              routes: [
+                {
+                  name: 'Usuarios ERP',
+                  path: '/configurations/users/list',
+                  component: './configurations/users/list',
+                },
+                {
+                  name: 'Usuarios WEB',
+                  path: '/configurations/users/web',
+                  component: './configurations/users/userErp',
+                },
+              ],
             },
+
             {
               name: 'Roles',
               path: '/configurations/roles',

@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Select, Alert } from 'antd';
+import { Select, Alert } from '@/utils/Desing';
 import { useEffect } from 'react';
 
 import { useGetRoles } from '@/hooks/rol.hooks';
 import { Permissions } from '@/graphql/graphql';
-import { useModel } from 'umi';
+import { useModel, useLocation } from 'umi';
 
 const { Option } = Select;
 
@@ -15,6 +15,8 @@ export type Params = {
 };
 
 const SelectRole = ({ onChange, disabled, value }: Params) => {
+  const locations = useLocation();
+
   const [getRoles, { loading, data, error }] = useGetRoles();
 
   const { initialState } = useModel('@@initialState');
@@ -67,11 +69,13 @@ const SelectRole = ({ onChange, disabled, value }: Params) => {
         disabled={disabled}
         value={value}
       >
-        {data?.roles?.docs?.map(({ _id, name }) => (
-          <Option key={_id} value={_id}>
-            {name}
-          </Option>
-        ))}
+        {data?.roles?.docs?.map(({ _id, name }) =>
+          name === 'Cliente' && locations.pathname === '/configurations/users/list' ? null : (
+            <Option key={_id} value={_id}>
+              {name}
+            </Option>
+          ),
+        )}
       </Select>
       {!canQueryRoles && (
         <Alert message="No tiene permiso para consultar los roles" type="error" showIcon />
