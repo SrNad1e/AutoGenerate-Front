@@ -295,20 +295,6 @@ export default defineConfig({
               ],
             },
             {
-              name: 'Cambio',
-              path: '/inventory/change',
-              access: 'allowOption',
-              routes: [
-                {
-                  name: 'Lista',
-                  path: '/inventory/change/list',
-                  component: './inventory/change/list',
-                  access: 'allowOption',
-                },
-                
-              ],
-            },
-            {
               name: 'Informes',
               path: '/inventory/reports',
               access: 'allowOption',

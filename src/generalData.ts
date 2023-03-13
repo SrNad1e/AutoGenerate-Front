@@ -111,16 +111,6 @@ export const typesAccess = {
   '/inventory/transfer/list': {
     access: [Permissions.ReadInventoryTransfers],
   },
-  /*
-  '/inventory/change': {
-    access: [Permissions.AccessInventoryTransfers],
-  },
-  */
-  /*
-  '/inventory/change/list': {
-    access: [Permissions.ReadInventoryTransfers],
-  },
-  */
   '/inventory/transfer/new': {
     access: [Permissions.CreateInventoryTransfer],
   },
