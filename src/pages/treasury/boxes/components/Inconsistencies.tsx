@@ -143,7 +143,6 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
     const params = form.getFieldsValue(['number', 'shopId']);
     const closeValue = form.getFieldValue('value');
     const { current } = paginationLocal;
-
     const filters = { ...filterArg };
 
     Object.keys(filters).forEach((i) => {
@@ -154,7 +153,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       }
     });
     try {
-      onFinish({ ...params, page: current, ...filters, value: closeValue });
+      onFinish({ ...params, ...filters, value: closeValue }, current);
     } catch (error: any) {
       messageError(error?.message);
     }
@@ -356,6 +355,7 @@ const BoxInconsistencies = ({ onCancel, visible }: Props) => {
       />
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
       <Reason
+        onSearch={onSearch}
         closeZData={closeData}
         visible={visibleProducts}
         onCancel={() => setVisibleProducts(false)}

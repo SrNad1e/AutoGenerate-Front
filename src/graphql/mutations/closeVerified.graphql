@@ -1,0 +1,5 @@
+mutation createCloseV($input: CreateCloseVerifiedInput) {
+  createCloseVerified(createCloseVerified: $input) {
+    _id
+  }
+}
