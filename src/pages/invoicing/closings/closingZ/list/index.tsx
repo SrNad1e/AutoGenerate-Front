@@ -61,7 +61,7 @@ import { useGetClosesZInvoicing } from '@/hooks/closeZInvoicing.hooks';
 import CashRegisterModal from '../components/CashRegister';
 import CloseDay from '../components/DayClose';
 import ReportCloseZ from '../reports/closeZ';
-
+import style from '../reports/styles.css';
 import styles from './styles';
 import { useGetCloseVerified } from '@/hooks/closeVerified.hooks';
 import ReportCloseV from '../reports/closeVerified';
@@ -556,10 +556,8 @@ const ClosingZList = () => {
         visible={visibleNewClose}
         onCancel={closeNewClose}
       />
-      <div style={{ display: 'none' }}>
+      <div className={style.printClass}>
         <ReportCloseZ ref={reportRef} data={closeData} />
-      </div>
-      <div style={{ display: 'none' }}>
         <ReportCloseV ref={reportCloseVRef} data={closeVerifiedData} />
       </div>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
