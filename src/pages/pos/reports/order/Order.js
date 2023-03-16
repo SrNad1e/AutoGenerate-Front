@@ -239,6 +239,22 @@ export default class OrderReport extends React.PureComponent {
               {numeral(data?.summary?.total).format('$ 0,0')}
             </div>
           </div>
+          <div style={classes.lineItems}>
+            <div style={classes.text}>
+              <span style={classes.spaceItems}>{'CAMBIO'}:</span>
+            </div>
+            <div style={{ marginLeft: 129, bottom: 13, fontSize: 10 }}>
+              {numeral(data?.summary?.change).format('$ 0,0')}
+            </div>
+          </div>
+          <div style={classes.lineItems}>
+            <div style={classes.text}>
+              <span style={classes.spaceItems}>{'DESCUENTO'}:</span>
+            </div>
+            <div style={{ marginLeft: 112, bottom: 13, fontSize: 10 }}>
+              {numeral(data?.summary?.discount).format('$ 0,0')}
+            </div>
+          </div>
           <hr className={style.hr} />
           <br />
           <div style={classes.text}>

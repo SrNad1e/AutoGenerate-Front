@@ -6,6 +6,7 @@ import Barcode from 'react-barcode';
 
 import style from './styles.css';
 import { TypePayment } from '@/graphql/graphql';
+import { Space } from 'antd';
 
 const classes = {
   content: {
@@ -226,7 +227,14 @@ export default class OrderReport extends React.PureComponent {
             </div>
             <div style={{ marginLeft: 32, bottom: 20, fontSize: 10 }}>
               {data?.payments?.map((payment) => (
-                <div key={payment.payment._id}>{payment?.payment?.name}</div>
+                <Space size={10} key={payment.payment._id}>
+                  <div>{payment?.payment?.name}: </div>
+                  <div>
+                    {payment?.payment?.type === TypePayment.Cash
+                      ? numeral(payment?.total + data?.summary?.change).format('$ 0,0')
+                      : numeral(payment?.total).format('$ 0,0')}
+                  </div>
+                </Space>
               ))}
             </div>
           </div>
@@ -237,6 +245,22 @@ export default class OrderReport extends React.PureComponent {
             </div>
             <div style={{ marginLeft: 70, bottom: 13, fontSize: 10 }}>
               {numeral(data?.summary?.total).format('$ 0,0')}
+            </div>
+          </div>
+          <div style={classes.lineItems}>
+            <div style={classes.text}>
+              <span style={classes.spaceItems}>{'CAMBIO'}:</span>
+            </div>
+            <div style={{ marginLeft: 129, bottom: 13, fontSize: 10 }}>
+              {numeral(data?.summary?.change).format('$ 0,0')}
+            </div>
+          </div>
+          <div style={classes.lineItems}>
+            <div style={classes.text}>
+              <span style={classes.spaceItems}>{'DESCUENTO'}:</span>
+            </div>
+            <div style={{ marginLeft: 112, bottom: 13, fontSize: 10 }}>
+              {numeral(data?.summary?.discount).format('$ 0,0')}
             </div>
           </div>
           <hr className={style.hr} />
