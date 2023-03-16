@@ -24,3 +24,6 @@
     size: auto;
     margin: 20mm;
   }
+  .printClass {
+    display: none;
+  }
