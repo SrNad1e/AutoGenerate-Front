@@ -3,7 +3,7 @@ import React from 'react';
 import moment from 'moment';
 import numeral from 'numeral';
 import Barcode from 'react-barcode';
-
+import '../styles.css';
 import style from './styles.css';
 import { TypePayment } from '@/graphql/graphql';
 import { Space } from 'antd';
@@ -91,6 +91,42 @@ const classes = {
     fontWeight: 600,
     color: 'black',
   },
+  newTitle: {
+    fontFamily: 'Poppins',
+    fontWeight: 600,
+    marginRight: 10,
+    color: 'black',
+  },
+  newDate: {
+    fontFamily: 'Poppins',
+    fontWeight: 500,
+    marginRight: 33,
+    color: 'black',
+  },
+  sellerStyle: {
+    fontFamily: 'Poppins',
+    fontWeight: 500,
+    marginRight: 31,
+    color: 'black',
+  },
+  boxHeaderStyle: {
+    fontSize: 9.3,
+    fontFamily: 'Poppins',
+    color: 'black',
+    marginBottom: 7,
+    marginRight: 50,
+  },
+  boxStyle: {
+    fontFamily: 'Poppins',
+    fontWeight: 500,
+    marginRight: 42,
+    color: 'black',
+  },
+  newHeadStyle: {
+    width: '100%',
+    lineHeight: 1.5,
+    fontSize: 9.3,
+  },
 };
 
 export default class OrderReport extends React.PureComponent {
@@ -102,11 +138,7 @@ export default class OrderReport extends React.PureComponent {
         <div style={classes.header}>
           <img src="/logo.svg" alt="logo" width="90%" height="70%" style={{ marginBottom: -25 }} />
           <div style={classes.text}>
-            <span
-              style={{ fontFamily: 'Poppins', fontWeight: 600, marginRight: 10, color: 'black' }}
-            >
-              Manufacturas Cirotex S. A. S
-            </span>
+            <span style={classes.newTitle}>Manufacturas Cirotex S. A. S</span>
           </div>
           <div style={classes.text}>{`NIT: ${data?.shop?.document || ' '}`}</div>
           <div style={classes.text}>{`Dirección: ${data?.shop?.address || ' '}`}</div>
@@ -115,21 +147,13 @@ export default class OrderReport extends React.PureComponent {
           <hr className={style.hr3} />
           <Barcode value={data?.number} height={50} text={`N°. ${data?.number}`} fontSize={10} />
           <hr className={style.hr3} />
-          <div style={{ width: '100%', lineHeight: 1.5, fontSize: 9.3 }}>
+          <div style={classes.newHeadStyle}>
             <div style={classes.text}>
-              <span
-                style={{ fontFamily: 'Poppins', fontWeight: 500, marginRight: 33, color: 'black' }}
-              >
-                Fecha:
-              </span>
+              <span style={classes.newDate}>Fecha:</span>
               {moment(data?.closeDate).format('YYYY/MM/DD HH:mm:ss')}
             </div>
             <div style={classes.text1}>
-              <span
-                style={{ fontFamily: 'Poppins', fontWeight: 500, marginRight: 31, color: 'black' }}
-              >
-                Cajera:
-              </span>
+              <span style={classes.sellerStyle}>Cajera:</span>
               {data?.user?.name}
             </div>
             <div style={classes.text1}>
@@ -140,20 +164,8 @@ export default class OrderReport extends React.PureComponent {
               <span style={classes.textBold}>Cédula:</span>
               {data?.customer?.document}
             </div>
-            <div
-              style={{
-                fontSize: 9.3,
-                fontFamily: 'Poppins',
-                color: 'black',
-                marginBottom: 7,
-                marginRight: 50,
-              }}
-            >
-              <span
-                style={{ fontFamily: 'Poppins', fontWeight: 500, marginRight: 42, color: 'black' }}
-              >
-                Caja:
-              </span>
+            <div style={classes.boxHeaderStyle}>
+              <span style={classes.boxStyle}>Caja:</span>
               {data?.pointOfSale?.box?.name}
             </div>
           </div>
