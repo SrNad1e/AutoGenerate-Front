@@ -1,5 +1,5 @@
 import { Table, Badge, Button } from '@/utils/Desing';
-
+import { EditOutlined } from '@/utils/Icon';
 interface props {
   openModal: (value: any) => void;
   data: any;
@@ -35,7 +35,11 @@ const TableContent = ({ openModal, data, loading }: props) => {
     {
       title: '',
       key: '',
-      render: (text, record) => <Button onClick={() => openModal(record)}>ll</Button>,
+      render: (text, record) => (
+        <Button onClick={() => openModal(record)}>
+          <EditOutlined />
+        </Button>
+      ),
     },
   ];
 

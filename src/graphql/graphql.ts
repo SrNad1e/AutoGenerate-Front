@@ -8390,6 +8390,25 @@ export type UpdateReferenceMutation = {
   };
 };
 
+export type CreateregionMutationVariables = Exact<{
+  CreateRegionInput: CreateRegionInput;
+}>;
+
+export type CreateregionMutation = {
+  __typename?: 'Mutation';
+  createRegion: { __typename?: 'Region'; _id: string };
+};
+
+export type UpdateregionMutationVariables = Exact<{
+  id: Scalars['String'];
+  data: UpdateRegionInput;
+}>;
+
+export type UpdateregionMutation = {
+  __typename?: 'Mutation';
+  updateRegion: { __typename?: 'Region'; _id: string };
+};
+
 export type CreateStockRequestMutationVariables = Exact<{
   input: CreateStockRequestInput;
 }>;
@@ -10741,6 +10760,26 @@ export type ReferencesQuery = {
       price: number;
       changeable: boolean;
       updatedAt: any;
+    }[];
+  };
+};
+
+export type GetregionQueryVariables = Exact<{
+  filter?: InputMaybe<FiltersRegionInput>;
+}>;
+
+export type GetregionQuery = {
+  __typename?: 'Query';
+  regions: {
+    __typename?: 'ResponseRegion';
+    docs: {
+      __typename?: 'Region';
+      _id: string;
+      city: string;
+      country: string;
+      dpto: string;
+      state: boolean;
+      zone: { __typename?: 'Zone'; name: string; _id: string };
     }[];
   };
 };
@@ -16011,6 +16050,99 @@ export const UpdateReferenceDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateReferenceMutation, UpdateReferenceMutationVariables>;
+export const CreateregionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CREATEREGION' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'CreateRegionInput' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateRegionInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createRegion' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createRegionInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'CreateRegionInput' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateregionMutation, CreateregionMutationVariables>;
+export const UpdateregionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UPDATEREGION' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateRegionInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateRegion' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateRegionInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateregionMutation, UpdateregionMutationVariables>;
 export const CreateStockRequestDocument = {
   kind: 'Document',
   definitions: [
@@ -23292,6 +23424,69 @@ export const ReferencesDocument = {
     },
   ],
 } as unknown as DocumentNode<ReferencesQuery, ReferencesQueryVariables>;
+export const GetregionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GETREGION' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'filter' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersRegionInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'regions' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersRegionInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'filter' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'city' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'country' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dpto' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'zone' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetregionQuery, GetregionQueryVariables>;
 export const ReportSalesInvoicingDocument = {
   kind: 'Document',
   definitions: [

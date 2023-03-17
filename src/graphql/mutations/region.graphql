@@ -1,0 +1,12 @@
+mutation CREATEREGION($CreateRegionInput:CreateRegionInput! ){
+  createRegion(createRegionInput:$CreateRegionInput){
+    _id
+  }
+}
+
+
+mutation UPDATEREGION($id: String! $data:UpdateRegionInput!) {
+  updateRegion(id:$id, updateRegionInput: $data){
+    _id
+  }
+}

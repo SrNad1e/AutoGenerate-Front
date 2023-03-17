@@ -46,7 +46,7 @@ const FormZone = ({ openModalState, onFinish, onCloseModal }: any) => {
           },
         ]}
       >
-        <Switch />
+        <Switch defaultChecked={openModalState?.record?.state} />
       </Form.Item>
 
       <Form.Item>

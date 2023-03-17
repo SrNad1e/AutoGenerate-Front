@@ -14,8 +14,6 @@ const Index = () => {
   } as any);
   const [stateInput, setStateInput] = useState('');
 
-  console.log(openModalState);
-
   const [getZone, { data, loading, refetch }] = useGetZone();
   const [create] = useCreateZone();
   const [update] = useUpdateZone();
@@ -42,8 +40,6 @@ const Index = () => {
   //Cierre de modal
 
   const onCloseModal = async () => {
-    console.log(onCloseModal);
-
     setStateOpenModal({
       visible: false,
       record: null,
@@ -98,8 +94,6 @@ const Index = () => {
           })
           .catch((e) => console.log(e));
       }
-
-      console.log(value);
     } catch (error) {
       console.log(error);
     }

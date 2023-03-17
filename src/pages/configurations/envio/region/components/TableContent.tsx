@@ -1,20 +1,24 @@
-import { Table, Badge, Button } from '@/utils/Desing';
+import { Table, Badge, Button, Typography } from '@/utils/Desing';
+import { EditOutlined } from '@/utils/Icon';
 
 interface props {
   openModal: (value: any) => void;
+  data: any;
+  loading: boolean;
 }
 
-const TableContent = ({ openModal }: props) => {
+const TableContent = ({ openModal, data, loading }: props) => {
   const columns: any = [
-    {
-      title: 'Ciudad',
-      key: 'city',
-      dataIndex: 'city',
-    },
     {
       title: 'Departamento',
       key: 'dpto',
       dataIndex: 'dpto',
+    },
+
+    {
+      title: 'Ciudad',
+      key: 'city',
+      dataIndex: 'city',
     },
 
     {
@@ -26,6 +30,11 @@ const TableContent = ({ openModal }: props) => {
       title: 'Zona',
       key: 'zone',
       dataIndex: 'zone',
+      render: (text, record) => (
+        <>
+          <Typography.Text>{record.zone.name}</Typography.Text>
+        </>
+      ),
     },
     {
       title: 'Activo',
@@ -33,7 +42,10 @@ const TableContent = ({ openModal }: props) => {
       dataIndex: 'active',
       render: (text, record) => (
         <>
-          <Badge color={text === true ? 'green' : 'red'} text={text === true ? 'Si' : 'No'} />
+          <Badge
+            color={record.state === true ? 'green' : 'red'}
+            text={record.state === true ? 'Si' : 'No'}
+          />
         </>
       ),
     },
@@ -41,22 +53,15 @@ const TableContent = ({ openModal }: props) => {
     {
       title: '',
       key: '',
-      render: (text, record) => <Button onClick={() => openModal(record)}>ll</Button>,
+      render: (text, record) => (
+        <Button onClick={() => openModal(record)}>
+          <EditOutlined />
+        </Button>
+      ),
     },
   ];
 
-  const dataSource: any = [
-    {
-      id: 'jkshdjd',
-      city: 'Nombre',
-      dpto: 'name',
-      country: 'Nombre',
-      zone: 'name',
-      active: true,
-    },
-  ];
-
-  return <Table columns={columns} dataSource={dataSource} />;
+  return <Table columns={columns} dataSource={data?.regions?.docs} loading={loading} />;
 };
 
 export default TableContent;
