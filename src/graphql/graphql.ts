@@ -7619,6 +7619,13 @@ export type UpdateOrderMutation = {
       _id: string;
       number: number;
       status: StatusOrder;
+      shop: {
+        __typename?: 'Shop';
+        name: string;
+        address?: string | null;
+        email?: string | null;
+        document?: string | null;
+      };
       pointOfSale?: {
         __typename?: 'PointOfSale';
         box: { __typename?: 'Box'; name: string };
@@ -13770,6 +13777,19 @@ export const UpdateOrderDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'shop' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'address' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'document' } },
+                          ],
+                        },
+                      },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'pointOfSale' },
