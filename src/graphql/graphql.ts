@@ -1042,6 +1042,20 @@ export type CreateReferenceInput = {
   width: Scalars['Float'];
 };
 
+/** Datos para la creación de una zona */
+export type CreateRegionInput = {
+  /** Nombre de la ciudad */
+  city: Scalars['String'];
+  /** Descricion de la zona */
+  country?: InputMaybe<Scalars['String']>;
+  /** departamento de la region */
+  dpto?: InputMaybe<Scalars['String']>;
+  /** Descricion de la zona */
+  idZone?: InputMaybe<Scalars['String']>;
+  /** Identifica el estado de la zona */
+  state?: InputMaybe<Scalars['Boolean']>;
+};
+
 export type CreateReturnOrderInput = {
   /** Productos que se devuelven del pedido */
   details: DetailReturnInput[];
@@ -1193,6 +1207,18 @@ export type CreateWarehouseInput = {
   min: Scalars['Float'];
   /** Nombre de la bodega */
   name: Scalars['String'];
+};
+
+/** Datos para la creación de una zona */
+export type CreateZoneInput = {
+  /** Descricion de la zona */
+  description?: InputMaybe<Scalars['String']>;
+  /** Nombre de la zona */
+  name: Scalars['String'];
+  /** Identifica el estado de la zona */
+  state?: InputMaybe<Scalars['Boolean']>;
+  /** Descricion de la zona */
+  user?: InputMaybe<Scalars['String']>;
 };
 
 /** Crédito del cliente */
@@ -2339,6 +2365,22 @@ export type FiltersReferencesInput = {
   sort?: InputMaybe<SortReference>;
 };
 
+/** Datos para consultar la zona */
+export type FiltersRegionInput = {
+  /** Identificador del rol */
+  _id?: InputMaybe<Scalars['String']>;
+  /** Nombre de la zona */
+  city?: InputMaybe<Scalars['String']>;
+  /** ids de la zona */
+  idZones?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortRegion>;
+};
+
 /** Filtros de listado de devoluciones del pedido */
 export type FiltersReturnsOrderInput = {
   /** Si la devolucion de encuentra se encuentra activo */
@@ -2619,6 +2661,20 @@ export type FiltersWarehousesInput = {
   sort?: InputMaybe<SortWarehouse>;
 };
 
+/** Datos para consultar la zona */
+export type FiltersZoneInput = {
+  /** Identificador del rol */
+  _id?: InputMaybe<Scalars['String']>;
+  /** Cantidad de registros */
+  limit?: InputMaybe<Scalars['Float']>;
+  /** Nombre de la zona */
+  name?: InputMaybe<Scalars['String']>;
+  /** Página */
+  page?: InputMaybe<Scalars['Float']>;
+  /** Ordenamiento */
+  sort?: InputMaybe<SortZone>;
+};
+
 /** Datos para crear cierre diario por fechas */
 export type GenerateDailyClosingInput = {
   /** Fecha inicial */
@@ -2811,6 +2867,8 @@ export type Mutation = {
   createReceipt: ResponseReceipt;
   /** Crea una referencia */
   createReference: Reference;
+  /** Crea una region */
+  createRegion: Region;
   /** Se encarga de crear la devolución del pedido */
   createReturnOrder: ReturnOrder;
   /** Crea una rol */
@@ -2832,6 +2890,8 @@ export type Mutation = {
   createUser: User;
   /** Crea una bodega */
   createWarehouse: Warehouse;
+  /** Crea una zona */
+  createZone: Zone;
   /** Genera los cierres diarios */
   generateDailyClosing: ResponseGenerateDailyClosing;
   /** Autogenera una solicitud de productos por bodega */
@@ -2884,6 +2944,8 @@ export type Mutation = {
   updateReceipt: Receipt;
   /** Actualiza una referencia */
   updateReference: Reference;
+  /** Actualiza una region */
+  updateRegion: Region;
   /** Actualiza un rol */
   updateRole: Role;
   /** Actualiza una tienda */
@@ -2903,6 +2965,8 @@ export type Mutation = {
   updateUser: User;
   /** Actualiza una bodega */
   updateWarehouse: Warehouse;
+  /** Actualiza un rol */
+  updateZone: Zone;
   /** Verifica un producto de un traslado en error */
   verifiedErrorsCash: ErrorCash;
   /** Verifica un producto de un traslado en error */
@@ -3027,6 +3091,10 @@ export type MutationCreateReferenceArgs = {
   createReferenceInput: CreateReferenceInput;
 };
 
+export type MutationCreateRegionArgs = {
+  createRegionInput: CreateRegionInput;
+};
+
 export type MutationCreateReturnOrderArgs = {
   createReturnOrderInput: CreateReturnOrderInput;
 };
@@ -3069,6 +3137,10 @@ export type MutationCreateUserArgs = {
 
 export type MutationCreateWarehouseArgs = {
   createWarehouseInput: CreateWarehouseInput;
+};
+
+export type MutationCreateZoneArgs = {
+  createZoneInput: CreateZoneInput;
 };
 
 export type MutationGenerateDailyClosingArgs = {
@@ -3194,6 +3266,11 @@ export type MutationUpdateReferenceArgs = {
   updateReferenceInput: UpdateReferenceInput;
 };
 
+export type MutationUpdateRegionArgs = {
+  id: Scalars['String'];
+  updateRegionInput: UpdateRegionInput;
+};
+
 export type MutationUpdateRoleArgs = {
   id: Scalars['String'];
   updateRoleInput: UpdateRoleInput;
@@ -3242,6 +3319,11 @@ export type MutationUpdateUserArgs = {
 export type MutationUpdateWarehouseArgs = {
   id: Scalars['String'];
   updateWarehouseInput: UpdateWarehouseInput;
+};
+
+export type MutationUpdateZoneArgs = {
+  id: Scalars['String'];
+  updateZoneInput: UpdateZoneInput;
 };
 
 export type MutationVerifiedErrorsCashArgs = {
@@ -3771,6 +3853,8 @@ export type Query = {
   referenceId: ReferenceData;
   /** Listado de las referencias */
   references: ResponseReferences;
+  /** Listado de las regiones */
+  regions: ResponseRegion;
   /** Consulta las ventas por rango de fechas */
   reportSales: ResponseReportSales;
   /** Consulta las ventas por rango de fechas */
@@ -3815,6 +3899,8 @@ export type Query = {
   warehouseId: Warehouse;
   /** Se encarga de listar las bodegas */
   warehouses: ResponseWarehouses;
+  /** Listado de las zonas */
+  zona: ResponseZone;
 };
 
 export type QueryAttribsArgs = {
@@ -3979,6 +4065,10 @@ export type QueryReferencesArgs = {
   filtersReferencesInput?: InputMaybe<FiltersReferencesInput>;
 };
 
+export type QueryRegionsArgs = {
+  filtersRegionInput?: InputMaybe<FiltersRegionInput>;
+};
+
 export type QueryReportSalesArgs = {
   filtersSalesReportInput: FiltersSalesReportInput;
 };
@@ -4065,6 +4155,10 @@ export type QueryWarehouseIdArgs = {
 
 export type QueryWarehousesArgs = {
   filtersWarehousesInput?: InputMaybe<FiltersWarehousesInput>;
+};
+
+export type QueryZonaArgs = {
+  filtersZoneInput?: InputMaybe<FiltersZoneInput>;
 };
 
 /** Rangos de precio por regiones */
@@ -4200,6 +4294,29 @@ export type RefundOrderClose = {
   quantity?: Maybe<Scalars['Float']>;
   /** Valor de las devoluciones */
   value?: Maybe<Scalars['Float']>;
+};
+
+/** Region de envios */
+export type Region = {
+  __typename?: 'Region';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Nombre de la ciudad */
+  city: Scalars['String'];
+  /** Nombre del departamento de la ciudad */
+  country: Scalars['String'];
+  /** Fecha creada de la ciudad */
+  createdAt: Scalars['DateTime'];
+  /** Nombre del departamento de la ciudad */
+  dpto: Scalars['String'];
+  /** Estado de la region */
+  state: Scalars['Boolean'];
+  /** Fecha de la actualizacion de la ciudad */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o modificó la ciudad */
+  user: User;
+  /** Usuario que creó o modificó la ciudad */
+  zone: Zone;
 };
 
 /** Respuesta al listado de los atributos */
@@ -4923,6 +5040,30 @@ export type ResponseReferences = {
   totalPages: Scalars['Float'];
 };
 
+/** Respuesta a la consulta de la zona */
+export type ResponseRegion = {
+  __typename?: 'ResponseRegion';
+  /** Lista de roles */
+  docs: Region[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
 /** Reportde de ventas generales */
 export type ResponseReportSales = {
   __typename?: 'ResponseReportSales';
@@ -5242,6 +5383,30 @@ export type ResponseWarehouses = {
   __typename?: 'ResponseWarehouses';
   /** Lista de salidas */
   docs: Warehouse[];
+  /** ¿Encuentra página siguiente? */
+  hasNextPage: Scalars['Boolean'];
+  /** ¿Encuentra página anterior? */
+  hasPrevPage: Scalars['Boolean'];
+  /** Total de docuementos solicitados */
+  limit: Scalars['Float'];
+  /** Página siguente */
+  nextPage: Scalars['Float'];
+  /** Página actual */
+  page: Scalars['Float'];
+  pagingCounter: Scalars['Float'];
+  /** Página anterior */
+  prevPage: Scalars['Float'];
+  /** Total de documentos */
+  totalDocs: Scalars['Float'];
+  /** Total de páginas */
+  totalPages: Scalars['Float'];
+};
+
+/** Respuesta a la consulta de la zona */
+export type ResponseZone = {
+  __typename?: 'ResponseZone';
+  /** Lista de roles */
+  docs: Zone[];
   /** ¿Encuentra página siguiente? */
   hasNextPage: Scalars['Boolean'];
   /** ¿Encuentra página anterior? */
@@ -5755,6 +5920,14 @@ export type SortReference = {
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
 
+/** Ordenamiento para el listado de las zonas */
+export type SortRegion = {
+  active?: InputMaybe<Scalars['Float']>;
+  city?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
 /** Ordenamiento de las devoluciones en pedido */
 export type SortReturnOrder = {
   /** Ordenamiento por fecha de creación */
@@ -5893,6 +6066,14 @@ export type SortWarehouse = {
   active?: InputMaybe<Scalars['Float']>;
   createdAt?: InputMaybe<Scalars['Float']>;
   isMain?: InputMaybe<Scalars['Float']>;
+  name?: InputMaybe<Scalars['Float']>;
+  updatedAt?: InputMaybe<Scalars['Float']>;
+};
+
+/** Ordenamiento para el listado de las zonas */
+export type SortZone = {
+  active?: InputMaybe<Scalars['Float']>;
+  createdAt?: InputMaybe<Scalars['Float']>;
   name?: InputMaybe<Scalars['Float']>;
   updatedAt?: InputMaybe<Scalars['Float']>;
 };
@@ -6614,6 +6795,20 @@ export type UpdateReferenceInput = {
   width?: InputMaybe<Scalars['Float']>;
 };
 
+/** Datos para la creación de una zona */
+export type UpdateRegionInput = {
+  /** Nombre de la ciudad */
+  city: Scalars['String'];
+  /** Descricion de la zona */
+  country?: InputMaybe<Scalars['String']>;
+  /** departamento de la region */
+  dpto?: InputMaybe<Scalars['String']>;
+  /** Descricion de la zona */
+  idZone?: InputMaybe<Scalars['String']>;
+  /** Identifica el estado de la zona */
+  state?: InputMaybe<Scalars['Boolean']>;
+};
+
 /** Datos para actualizar el rol */
 export type UpdateRoleInput = {
   /** Estado del rol */
@@ -6758,6 +6953,16 @@ export type UpdateWarehouseInput = {
   name?: InputMaybe<Scalars['String']>;
 };
 
+/** Datos para actualizar el rol */
+export type UpdateZoneInput = {
+  /** Descricion de la zona */
+  description?: InputMaybe<Scalars['String']>;
+  /** Nombre de la zona */
+  name: Scalars['String'];
+  /** Identifica el estado de la zona */
+  state?: InputMaybe<Scalars['Boolean']>;
+};
+
 /** Enlaces de diferences tipos */
 export type Urls = {
   __typename?: 'Urls';
@@ -6855,6 +7060,25 @@ export type Warehouse = {
   /** Fecha de creación */
   updatedAt: Scalars['DateTime'];
   /** Usuario que creó el usuario */
+  user: User;
+};
+
+/** Zona de envios */
+export type Zone = {
+  __typename?: 'Zone';
+  /** Identificador de mongo */
+  _id: Scalars['String'];
+  /** Fecha creada de la zona */
+  createdAt: Scalars['DateTime'];
+  /** Descricion de la zona */
+  description: Scalars['String'];
+  /** Nombre de las zonas */
+  name: Scalars['String'];
+  /** Estado de la zona */
+  state: Scalars['Boolean'];
+  /** Fecha de la actualizacion de la zona */
+  updatedAt: Scalars['DateTime'];
+  /** Usuario que creó o modificó el rol */
   user: User;
 };
 
@@ -8173,6 +8397,25 @@ export type UpdateReferenceMutation = {
   };
 };
 
+export type CreateregionMutationVariables = Exact<{
+  CreateRegionInput: CreateRegionInput;
+}>;
+
+export type CreateregionMutation = {
+  __typename?: 'Mutation';
+  createRegion: { __typename?: 'Region'; _id: string };
+};
+
+export type UpdateregionMutationVariables = Exact<{
+  id: Scalars['String'];
+  data: UpdateRegionInput;
+}>;
+
+export type UpdateregionMutation = {
+  __typename?: 'Mutation';
+  updateRegion: { __typename?: 'Region'; _id: string };
+};
+
 export type CreateStockRequestMutationVariables = Exact<{
   input: CreateStockRequestInput;
 }>;
@@ -8575,6 +8818,25 @@ export type UpdateWarehouseMutationVariables = Exact<{
 export type UpdateWarehouseMutation = {
   __typename?: 'Mutation';
   updateWarehouse: { __typename?: 'Warehouse'; _id: string; name: string };
+};
+
+export type CreatezoneMutationVariables = Exact<{
+  CreateZoneInput: CreateZoneInput;
+}>;
+
+export type CreatezoneMutation = {
+  __typename?: 'Mutation';
+  createZone: { __typename?: 'Zone'; _id: string };
+};
+
+export type UpdatezoneMutationVariables = Exact<{
+  id: Scalars['String'];
+  updateZoneInput: UpdateZoneInput;
+}>;
+
+export type UpdatezoneMutation = {
+  __typename?: 'Mutation';
+  updateZone: { __typename?: 'Zone'; _id: string };
 };
 
 export type StockAdjustmentQueryVariables = Exact<{
@@ -10509,6 +10771,26 @@ export type ReferencesQuery = {
   };
 };
 
+export type GetregionQueryVariables = Exact<{
+  filter?: InputMaybe<FiltersRegionInput>;
+}>;
+
+export type GetregionQuery = {
+  __typename?: 'Query';
+  regions: {
+    __typename?: 'ResponseRegion';
+    docs: {
+      __typename?: 'Region';
+      _id: string;
+      city: string;
+      country: string;
+      dpto: string;
+      state: boolean;
+      zone: { __typename?: 'Zone'; name: string; _id: string };
+    }[];
+  };
+};
+
 export type ReportSalesInvoicingQueryVariables = Exact<{
   input: FiltersSalesReportInvoicingInput;
 }>;
@@ -11097,6 +11379,24 @@ export type WarehouseIdQueryVariables = Exact<{
 export type WarehouseIdQuery = {
   __typename?: 'Query';
   warehouseId: { __typename?: 'Warehouse'; _id: string; name: string };
+};
+
+export type ZoneQueryVariables = Exact<{
+  filtersZoneInput?: InputMaybe<FiltersZoneInput>;
+}>;
+
+export type ZoneQuery = {
+  __typename?: 'Query';
+  zona: {
+    __typename?: 'ResponseZone';
+    limit: number;
+    page: number;
+    hasPrevPage: boolean;
+    hasNextPage: boolean;
+    totalDocs: number;
+    totalPages: number;
+    docs: { __typename?: 'Zone'; name: string; description: string; _id: string; state: boolean }[];
+  };
 };
 
 export const CreateStockAdjustmentDocument = {
@@ -15770,6 +16070,99 @@ export const UpdateReferenceDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateReferenceMutation, UpdateReferenceMutationVariables>;
+export const CreateregionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CREATEREGION' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'CreateRegionInput' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateRegionInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createRegion' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createRegionInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'CreateRegionInput' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateregionMutation, CreateregionMutationVariables>;
+export const UpdateregionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UPDATEREGION' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateRegionInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateRegion' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateRegionInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateregionMutation, UpdateregionMutationVariables>;
 export const CreateStockRequestDocument = {
   kind: 'Document',
   definitions: [
@@ -17379,6 +17772,99 @@ export const UpdateWarehouseDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateWarehouseMutation, UpdateWarehouseMutationVariables>;
+export const CreatezoneDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CREATEZONE' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'CreateZoneInput' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'CreateZoneInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createZone' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'createZoneInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'CreateZoneInput' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreatezoneMutation, CreatezoneMutationVariables>;
+export const UpdatezoneDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UPDATEZONE' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'updateZoneInput' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'UpdateZoneInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateZone' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'updateZoneInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'updateZoneInput' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: '_id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdatezoneMutation, UpdatezoneMutationVariables>;
 export const StockAdjustmentDocument = {
   kind: 'Document',
   definitions: [
@@ -22958,6 +23444,69 @@ export const ReferencesDocument = {
     },
   ],
 } as unknown as DocumentNode<ReferencesQuery, ReferencesQueryVariables>;
+export const GetregionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GETREGION' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'filter' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersRegionInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'regions' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersRegionInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'filter' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'city' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'country' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'dpto' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'zone' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetregionQuery, GetregionQueryVariables>;
 export const ReportSalesInvoicingDocument = {
   kind: 'Document',
   definitions: [
@@ -24899,3 +25448,60 @@ export const WarehouseIdDocument = {
     },
   ],
 } as unknown as DocumentNode<WarehouseIdQuery, WarehouseIdQueryVariables>;
+export const ZoneDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'zone' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'filtersZoneInput' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'FiltersZoneInput' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'zona' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filtersZoneInput' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'filtersZoneInput' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'docs' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                      { kind: 'Field', name: { kind: 'Name', value: '_id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'limit' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'page' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hasPrevPage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hasNextPage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalDocs' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalPages' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ZoneQuery, ZoneQueryVariables>;

@@ -1,0 +1,16 @@
+query zone($filtersZoneInput: FiltersZoneInput) {
+  zona(filtersZoneInput: $filtersZoneInput) {
+    docs {
+      name
+      description
+      _id
+      state
+    }
+    limit
+    page
+    hasPrevPage
+    hasNextPage
+    totalDocs
+    totalPages
+  }
+}

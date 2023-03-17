@@ -215,7 +215,7 @@ const SalesList = () => {
         </Text>
       ),
       dataIndex: 'price',
-      sorter: (a, b) => a['price'] - b['price'],
+      sorter: (a, b) => a.price - b.price,
       showSorterTooltip: false,
       align: 'center',
       render: (price: number) => <>{price}</>,
@@ -227,7 +227,7 @@ const SalesList = () => {
         </Text>
       ),
       dataIndex: 'cost',
-      sorter: (a, b) => a['cost'] - b['cost'],
+      sorter: (a, b) => a.cost - b.cost,
       showSorterTooltip: false,
       align: 'center',
       render: (cost: number) => <>{cost}</>,

@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+// eslint-disable-next-line
 import {
   CashRegister,
   CloseVerified,

@@ -105,8 +105,8 @@ const SelectCity = ({ setCity }: propsSelect) => {
         onClear={() => setCity('')}
       >
         {data?.cities?.docs?.map((city) => (
-          <Option key={city._id} value={city.name}>
-            {city.name}{' '}
+          <Option key={city._id} value={`${city.name}, ${city.state}`}>
+            {city.name} - {city.state}
           </Option>
         ))}
       </Select>

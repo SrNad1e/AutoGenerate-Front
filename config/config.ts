@@ -539,6 +539,23 @@ export default defineConfig({
             },
 
             {
+              name: 'Envios',
+              path: '/configurations/envio',
+              routes: [
+                {
+                  name: 'Zona',
+                  path: '/configurations/envio/zone',
+                  component: './configurations/envio/zone/list',
+                },
+                {
+                  name: 'Regiones',
+                  path: '/configurations/envio/region',
+                  component: './configurations/envio/region/list',
+                },
+              ],
+            },
+
+            {
               name: 'Usuarios',
               path: '/configurations/users',
               access: 'allowOption',

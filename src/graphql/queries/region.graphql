@@ -1,0 +1,15 @@
+query GETREGION($filter: FiltersRegionInput) {
+  regions(filtersRegionInput: $filter) {
+    docs {
+     _id
+      city
+      country
+      dpto
+      state
+      zone {
+        name
+        _id
+      }
+    }
+  }
+}
