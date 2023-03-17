@@ -1,4 +1,5 @@
-import { AddGoalHistoryDocument, Shop } from '@/graphql/graphql';
+import type { Shop } from '@/graphql/graphql';
+import { AddGoalHistoryDocument } from '@/graphql/graphql';
 import { CreateShopDocument, ShopsDocument, UpdateShopDocument } from '@/graphql/graphql';
 import { useLazyQuery, useMutation } from '@apollo/client';
 

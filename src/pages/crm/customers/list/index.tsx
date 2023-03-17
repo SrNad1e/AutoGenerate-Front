@@ -30,9 +30,11 @@ import type { ColumnsType, TablePaginationConfig } from 'antd/lib/table';
 import type { SorterResult } from 'antd/lib/table/interface';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { Customer, CustomerType, FiltersCustomersInput, Permissions } from '@/graphql/graphql';
+import type { Customer, CustomerType, FiltersCustomersInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { useGetCustomers } from '@/hooks/customer.hooks';
-import { Location, useModel } from 'umi';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useAccess } from 'umi';
 import { useLocation, history } from 'umi';
 

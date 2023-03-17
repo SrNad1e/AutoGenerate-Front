@@ -42,15 +42,15 @@ import { useModel } from 'umi';
 import { useHistory, useLocation } from 'umi';
 import { useEffect, useState } from 'react';
 import { useGetOrders } from '@/hooks/order.hooks';
-import {
+import type {
   ConveyorOrder,
   Customer,
   FiltersOrdersInput,
   Order,
   PaymentOrder,
-  Permissions,
   StatusWeb,
 } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { StatusOrder } from '@/graphql/graphql';
 import 'moment/locale/es';
 
@@ -268,7 +268,7 @@ const EcommerceList = () => {
 
       if (initialState?.currentUser?.username !== USER_ADMIN) {
         setDisabledShop(true);
-        newFilters['shopId'] = initialState?.currentUser?.shop?._id;
+        newFilters.shopId = initialState?.currentUser?.shop?._id;
       }
 
       onFinish(newFilters);

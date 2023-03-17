@@ -1,10 +1,11 @@
 import { Form, Input, Switch, Button, Row, Col } from '@/utils/Desing';
 
-const FormZone = ({ openModalState, onFinish }: any) => {
+const FormZone = ({ openModalState, onFinish, onCloseModal }: any) => {
   return (
     <Form
       onFinish={onFinish}
       initialValues={{
+        _id: openModalState?.record?._id || null,
         name: openModalState?.record?.name || '',
         description: openModalState?.record?.description || '',
         state: openModalState?.record?.state || false,
@@ -51,11 +52,15 @@ const FormZone = ({ openModalState, onFinish }: any) => {
       <Form.Item>
         <Row>
           <Col span={12} style={{ display: 'flex', justifyContent: 'center' }}>
-            <Button htmlType="submit">Crear</Button>
+            <Button style={{ width: '95%' }} type="primary" htmlType="submit">
+              {!openModalState?.record?._id ? 'Crear' : 'Editar'}{' '}
+            </Button>
           </Col>
 
           <Col span={12} style={{ display: 'flex', justifyContent: 'center' }}>
-            <Button>Cancelar</Button>
+            <Button style={{ width: '95%' }} onClick={() => onCloseModal()}>
+              Cancelar
+            </Button>
           </Col>
         </Row>
       </Form.Item>

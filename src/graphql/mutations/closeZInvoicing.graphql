@@ -59,3 +59,66 @@ mutation createCloseZInvoicing($input: CreateCloseZInvoicingInput!) {
     }
   }
 }
+
+mutation updateCloseZInvoicing($input: VerifiedCloseZInput!) {
+  updateCloseZInvoicing(updateCloseZInvoicing: $input) {
+      verifiedStatus
+      _id
+      number
+      prefix
+      cashRegister {
+        M50
+        M100
+        M200
+        M500
+        B1000
+        B2000
+        B5000
+        B10000
+        B20000
+        B50000
+        B100000
+      }
+      pointOfSale {
+        name
+        shop {
+          name
+        }
+      }
+      closeDate
+      expenses {
+        value
+      }
+      refunds {
+        quantity
+        value
+      }
+      summaryOrder {
+        value
+        quantityClosed
+        quantityCancel
+        quantityOpen
+      }
+      quantityBank
+      quantityDataphone
+      payments {
+        payment {
+          type
+          name
+        }
+        quantity
+        value
+      }
+      paymentsCredit {
+        payment {
+          type
+          name
+        }
+        quantity
+        value
+      }
+      user {
+        name
+      }
+  }
+}

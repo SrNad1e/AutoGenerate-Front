@@ -1,12 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import type {
+// eslint-disable-next-line
+import {
   CashRegister,
+  CloseVerified,
   CloseZInvoicing,
   FiltersClosesZInvoicingInput,
   PaymentOrderClose,
   PointOfSale,
   SummaryOrderClose,
   User,
+  VerifiedClose,
 } from '@/graphql/graphql';
 import { Permissions } from '@/graphql/graphql';
 import {
@@ -16,6 +19,7 @@ import {
   DollarCircleFilled,
   DollarCircleOutlined,
   FieldNumberOutlined,
+  FileDoneOutlined,
   LaptopOutlined,
   MoreOutlined,
   PlusOutlined,
@@ -50,9 +54,7 @@ import numeral from 'numeral';
 import { useEffect, useRef, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import type { Location } from 'umi';
-import { useModel } from 'umi';
-import { useLocation, useHistory, useAccess } from 'umi';
-
+import { useLocation, useHistory, useAccess, useModel } from 'umi';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import SelectShop from '@/components/SelectShop';
@@ -60,8 +62,10 @@ import { useGetClosesZInvoicing } from '@/hooks/closeZInvoicing.hooks';
 import CashRegisterModal from '../components/CashRegister';
 import CloseDay from '../components/DayClose';
 import ReportCloseZ from '../reports/closeZ';
-
+import style from '../reports/styles.css';
 import styles from './styles';
+import { useGetCloseVerified } from '@/hooks/closeVerified.hooks';
+import ReportCloseV from '../reports/closeVerified';
 
 const FormItem = Form.Item;
 const { Text } = Typography;
@@ -83,6 +87,7 @@ const ClosingZList = () => {
     type: 'error',
     visible: false,
   });
+  const [closeVerifiedData, setCloseVerifiedData] = useState<Partial<CloseVerified>>({});
 
   const [form] = Form.useForm();
 
@@ -92,16 +97,23 @@ const ClosingZList = () => {
 
   const reportRef = useRef(null);
 
+  const reportCloseVRef = useRef(null);
+
   const {
     closingZ: { canCreate, canPrint },
   } = useAccess();
 
   const [getCloses, { data, loading }] = useGetClosesZInvoicing();
+  const [getCloseVerified, paramsGetCloseVerified] = useGetCloseVerified();
 
   const rolesDenied = ['cajera OK', 'admin_tienda OK'];
 
   const handlePrint = useReactToPrint({
     content: () => reportRef?.current,
+  });
+
+  const handlePrintCloseV = useReactToPrint({
+    content: () => reportCloseVRef?.current,
   });
 
   const { initialState } = useModel('@@initialState');
@@ -162,6 +174,22 @@ const ClosingZList = () => {
   const printPage = async (record: Partial<CloseZInvoicing>) => {
     await setCloseData(record);
     handlePrint();
+  };
+
+  /**
+   * @description se encarga de seleccionar el cierre que imprime
+   * @param record cierre
+   */
+  const printCloseVerified = async (record: Partial<CloseZInvoicing>) => {
+    const response = await getCloseVerified({
+      variables: {
+        id: record?._id as string,
+      },
+    });
+    if (response?.data?.closeVerified) {
+      setCloseVerifiedData(response?.data?.closeVerified);
+    }
+    handlePrintCloseV();
   };
 
   /**
@@ -350,7 +378,7 @@ const ClosingZList = () => {
       dataIndex: 'closeDate',
       sorter: true,
       showSorterTooltip: false,
-      render: (closeDate: Date) => moment(closeDate).format(FORMAT_DATE),
+      render: (closeDate: Date) => moment(closeDate).format('DD/MM/YYYY'),
     },
     {
       title: (
@@ -401,22 +429,33 @@ const ClosingZList = () => {
     {
       title: (
         <Text>
-          <MoreOutlined /> Opción
+          <MoreOutlined /> Opciones
         </Text>
       ),
       dataIndex: '_id',
       align: 'center',
       fixed: 'right',
       render: (_: string, record) => (
-        <Tooltip title="Imprimir" placement="topLeft">
-          <Button
-            onClick={() => printPage(record)}
-            type="primary"
-            icon={<PrinterFilled />}
-            disabled={!canPrint}
-            loading={loading}
-          />
-        </Tooltip>
+        <Space>
+          <Tooltip title="Imprimir" placement="topLeft">
+            <Button
+              onClick={() => printPage(record)}
+              type="primary"
+              icon={<PrinterFilled />}
+              disabled={!canPrint}
+              loading={loading || paramsGetCloseVerified?.loading}
+            />
+          </Tooltip>
+          <Tooltip title="Imprimir Cierre Verificado" placement="topLeft">
+            <Button
+              onClick={() => printCloseVerified(record)}
+              type="primary"
+              icon={<FileDoneOutlined />}
+              disabled={record?.verifiedStatus === VerifiedClose.Unverified}
+              loading={loading || paramsGetCloseVerified?.loading}
+            />
+          </Tooltip>
+        </Space>
       ),
     },
   ];
@@ -518,8 +557,9 @@ const ClosingZList = () => {
         visible={visibleNewClose}
         onCancel={closeNewClose}
       />
-      <div style={{ display: 'none' }}>
+      <div className={style.printClass}>
         <ReportCloseZ ref={reportRef} data={closeData} />
+        <ReportCloseV ref={reportCloseVRef} data={closeVerifiedData} />
       </div>
       <AlertInformation {...propsAlertInformation} onCancel={closeAlertInformation} />
     </PageContainer>

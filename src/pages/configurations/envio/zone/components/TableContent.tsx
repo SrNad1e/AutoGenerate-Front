@@ -2,9 +2,11 @@ import { Table, Badge, Button } from '@/utils/Desing';
 
 interface props {
   openModal: (value: any) => void;
+  data: any;
+  loading: boolean;
 }
 
-const TableContent = ({ openModal }: props) => {
+const TableContent = ({ openModal, data, loading }: props) => {
   const columns: any = [
     {
       title: 'Nombre',
@@ -22,7 +24,10 @@ const TableContent = ({ openModal }: props) => {
       dataIndex: 'active',
       render: (text, record) => (
         <>
-          <Badge color={text === true ? 'green' : 'red'} text={text === true ? 'Si' : 'No'} />
+          <Badge
+            color={record.state === true ? 'green' : 'red'}
+            text={record.state === true ? 'Si' : 'No'}
+          />
         </>
       ),
     },
@@ -34,16 +39,7 @@ const TableContent = ({ openModal }: props) => {
     },
   ];
 
-  const dataSource: any = [
-    {
-      id: 'jkshdjd',
-      name: 'Nombre',
-      description: 'name',
-      active: true,
-    },
-  ];
-
-  return <Table columns={columns} dataSource={dataSource} />;
+  return <Table columns={columns} dataSource={data?.zona?.docs} loading={loading} />;
 };
 
 export default TableContent;

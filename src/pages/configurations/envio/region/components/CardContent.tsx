@@ -15,7 +15,7 @@ const CardContent = ({ openModal }: props) => {
             </Form.Item>
           </Col>
 
-          <Col xs={0} md={1} lg={1} xl={1}></Col>
+          <Col xs={0} md={1} lg={1} xl={1} />
 
           <Col xs={24} md={5} lg={6} xl={6}>
             <Form.Item label="Zona:">
@@ -23,7 +23,7 @@ const CardContent = ({ openModal }: props) => {
             </Form.Item>
           </Col>
 
-          <Col xs={0} md={1} lg={1} xl={1}></Col>
+          <Col xs={0} md={1} lg={1} xl={1} />
 
           <Col xs={12} md={3} lg={3} xl={3}>
             <Form.Item>

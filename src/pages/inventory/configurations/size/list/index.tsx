@@ -25,7 +25,8 @@ import {
 } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { Location, useModel } from 'umi';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useLocation, useHistory, useAccess } from 'umi';
 import type { TablePaginationConfig, SorterResult, ColumnsType } from 'antd/es/table/interface';
 
@@ -33,7 +34,8 @@ import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertIn
 import { useGetSizes } from '@/hooks/size.hooks';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import CreateSize from '@/components/CreateSize';
-import { FiltersSizesInput, Permissions, Size } from '@/graphql/graphql';
+import type { FiltersSizesInput, Size } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 
 import styles from './style.less';
 import Filters from '@/components/Filters';

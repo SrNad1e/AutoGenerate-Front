@@ -2,7 +2,7 @@ import { Descriptions, Form, InputNumber } from 'antd';
 import { useEffect } from 'react';
 
 import styles from '../styles';
-import { FormInstance } from 'antd/es/form';
+import type { FormInstance } from 'antd/es/form';
 
 const DescriptionsItem = Descriptions.Item;
 const FormItem = Form.Item;

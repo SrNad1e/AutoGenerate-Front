@@ -1,0 +1,11 @@
+mutation CREATEZONE($CreateZoneInput:CreateZoneInput!){
+  createZone(createZoneInput:$CreateZoneInput){
+    _id
+  }
+}
+
+mutation UPDATEZONE($id: String!, $updateZoneInput: UpdateZoneInput!) {
+  updateZone(updateZoneInput: $updateZoneInput, id: $id) {
+    _id
+  }
+}

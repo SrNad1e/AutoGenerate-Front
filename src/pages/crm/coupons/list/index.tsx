@@ -32,12 +32,14 @@ import {
 } from 'antd';
 import type { ColumnsType, SorterResult } from 'antd/es/table/interface';
 import numeral from 'numeral';
-import { Location, useModel } from 'umi';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { useLocation, history } from 'umi';
 import { useAccess } from 'umi';
 import moment from 'moment';
 import { useGetCoupons, useUpdateCoupon } from '@/hooks/coupon.hooks';
-import { Coupon, FiltersCouponsInput, Permissions } from '@/graphql/graphql';
+import type { Coupon, FiltersCouponsInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 import { StatusCoupon } from '@/graphql/graphql';
 import { useEffect, useRef, useState } from 'react';
 

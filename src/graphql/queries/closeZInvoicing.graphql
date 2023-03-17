@@ -4,6 +4,7 @@ query closesZInvoicing($input: FiltersClosesZInvoicingInput) {
     totalPages
     page
     docs {
+      verifiedStatus
       _id
       number
       prefix

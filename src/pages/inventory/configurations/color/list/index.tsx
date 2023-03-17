@@ -34,10 +34,12 @@ import { useEffect, useState } from 'react';
 import AlertInformation from '@/components/Alerts/AlertInformation';
 import type { Props as PropsAlertInformation } from '@/components/Alerts/AlertInformation';
 import moment from 'moment';
-import { Location, useModel } from 'umi';
+import type { Location } from 'umi';
+import { useModel } from 'umi';
 import { history, useLocation, useAccess } from 'umi';
 import CreateColors from '@/components/CreateColor';
-import { Color, FiltersColorsInput, Permissions } from '@/graphql/graphql';
+import type { Color, FiltersColorsInput } from '@/graphql/graphql';
+import { Permissions } from '@/graphql/graphql';
 
 import styles from './styles.less';
 import Filters from '@/components/Filters';
